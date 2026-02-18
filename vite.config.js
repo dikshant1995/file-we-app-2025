@@ -9,6 +9,7 @@ export default defineConfig({
   },
   // Only build from main index.html, exclude test files
   build: {
+    outDir: 'build',
     rollupOptions: {
       input: {
         main: './index.html'
