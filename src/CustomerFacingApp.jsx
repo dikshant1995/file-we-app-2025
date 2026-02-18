@@ -113,53 +113,70 @@ function CustomerFacingApp() {
 
   return (
     <div className="customer-facing-app">
-      {/* Landing Page */}
-      {!results && (
+
+      {/* PAGE 1: Landing — shown when form not yet opened and no results */}
+      {!showForm && !results && (
         <FuturisticLanding onGetStarted={handleGetStarted} onAdminClick={handleAdminClick} />
       )}
 
-      {/* Application Form — only shown after Apply is clicked */}
-      <AnimatePresence>
-        {!results && showForm && (
-          <motion.section
-            id="apply-form-section"
-            className="ai-form-section"
-            initial={{ opacity: 0, y: 60 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -60 }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
-          >
-            {/* AI Background Elements */}
-            <div className="form-bg-grid"></div>
-            <div className="form-bg-orb form-orb-1"></div>
-            <div className="form-bg-orb form-orb-2"></div>
-            <div className="form-bg-orb form-orb-3"></div>
-
-            <div className="form-section-header">
-              <div className="form-section-badge">
-                <span className="dot"></span>
-                AI Engine Active
-              </div>
-              <h2 className="form-section-title">Personal Loan <span className="gradient-text-ai">Eligibility Check</span></h2>
-              <p className="form-section-subtitle">Fill in your details and our AI will analyze 12+ banks instantly</p>
+      {/* PAGE 2: Application Form — full page replacement */}
+      {showForm && !results && (
+        <motion.div
+          className="form-page"
+          initial={{ opacity: 0, x: 60 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+        >
+          {/* Form Page Navbar */}
+          <nav className="form-page-nav">
+            <button className="form-back-btn" onClick={() => { setShowForm(false); window.scrollTo({ top: 0 }); }}>
+              ← Back
+            </button>
+            <div className="form-nav-brand">
+              <span className="text-glow">LoanAI Model</span>
+              <span className="ai-badge">MODEL v2</span>
             </div>
-
-            <div className="form-glass-wrapper">
-              <CustomerLoanForm onSubmit={handleFormSubmit} loading={loading} />
+            <div className="form-nav-status">
+              <span className="dot"></span> AI Engine Active
             </div>
-          </motion.section>
-        )}
-      </AnimatePresence>
+          </nav>
 
-      {/* Error Display */}
-      {error && (
-        <div className="error-container">
-          <div className="error-message">⚠️ {error}</div>
-          <button onClick={() => setError(null)} className="btn-retry">Try Again</button>
-        </div>
+          {/* AI Background */}
+          <div className="form-bg-grid"></div>
+          <div className="form-bg-orb form-orb-1"></div>
+          <div className="form-bg-orb form-orb-2"></div>
+          <div className="form-bg-orb form-orb-3"></div>
+
+          {/* Header */}
+          <div className="form-section-header">
+            <div className="form-section-badge">
+              <span className="dot"></span>
+              Analyzing 12+ Banks
+            </div>
+            <h2 className="form-section-title">
+              Personal Loan <span className="gradient-text-ai">Eligibility Check</span>
+            </h2>
+            <p className="form-section-subtitle">
+              Fill in your details — our AI will calculate your best offers instantly
+            </p>
+          </div>
+
+          {/* Form wrapped in glass */}
+          <div className="form-glass-wrapper">
+            <CustomerLoanForm onSubmit={handleFormSubmit} loading={loading} />
+          </div>
+
+          {/* Error */}
+          {error && (
+            <div className="error-container">
+              <div className="error-message">⚠️ {error}</div>
+              <button onClick={() => setError(null)} className="btn-retry">Try Again</button>
+            </div>
+          )}
+        </motion.div>
       )}
 
-      {/* Results */}
+      {/* PAGE 3: Results */}
       {results && (
         <div id="results-section">
           <CustomerResultsDisplay
@@ -174,3 +191,4 @@ function CustomerFacingApp() {
 }
 
 export default CustomerFacingApp;
+
