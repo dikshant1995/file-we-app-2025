@@ -24,12 +24,13 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 32px;
-  background: rgba(3, 7, 18, 0.8);
-  backdrop-filter: blur(20px);
+  background: rgba(3, 7, 18, 0.95);
   border-bottom: 1px solid rgba(124, 58, 237, 0.15);
   position: sticky;
   top: 0;
   z-index: 100;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .form-back-btn {
@@ -90,13 +91,14 @@
   z-index: 0;
 }
 
-/* Glowing orbs */
+/* Glowing orbs — GPU-accelerated, no filter:blur to avoid scroll jank */
 .form-bg-orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
   pointer-events: none;
   z-index: 0;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .form-orb-1 {
