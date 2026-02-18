@@ -42,8 +42,8 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
           <div className="ai-logo-icon">
             <Sparkles size={20} color="#7c3aed" />
           </div>
-          <span className="text-glow">LoanHub</span>
-          <span className="ai-badge">AI 2.0</span>
+          <span className="text-glow">LoanAI Model</span>
+          <span className="ai-badge">MODEL v2</span>
         </div>
         <button className="ai-admin-trigger" onClick={handleAdminButtonClick}>
           <Lock size={14} />
@@ -81,9 +81,26 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
             onClick={onGetStarted}
           >
             <Zap size={20} fill="currentColor" />
-            Initialize Calculation
+            Apply Now
             <ArrowRight size={20} />
           </motion.button>
+
+          {/* Directional Hint */}
+          <motion.div
+            className="apply-hint"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2, duration: 0.8 }}
+          >
+            <motion.span
+              animate={{ y: [0, 6, 0] }}
+              transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
+              className="hint-arrow-icon"
+            >
+              ↓
+            </motion.span>
+            <span>Click Apply Now to check your eligibility in seconds</span>
+          </motion.div>
         </motion.div>
 
         {/* Feature Grid */}
