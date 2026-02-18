@@ -1208,15 +1208,58 @@
   box-shadow: 0 0 20px rgba(0, 212, 255, 0.25);
 }
 
-/* ===== RESPONSIVE ===== */
+/* ===== RESPONSIVE — COMPREHENSIVE ===== */
+
+/* Large laptop (1280px and below) */
+@media (max-width: 1280px) {
+  .hero-inner {
+    gap: 50px;
+  }
+
+  .title-line-1,
+  .title-line-3 {
+    font-size: 2.8rem;
+  }
+
+  .title-line-2 {
+    font-size: 3.2rem;
+  }
+
+  .holo-features {
+    padding: 80px 24px;
+  }
+}
+
+/* Tablet landscape / small laptop (1024px and below) */
 @media (max-width: 1024px) {
   .hero-inner {
     grid-template-columns: 1fr;
-    gap: 60px;
+    gap: 48px;
+    text-align: center;
+  }
+
+  .hero-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero-desc {
+    max-width: 600px;
+    text-align: center;
+  }
+
+  .hero-cta-row {
+    justify-content: center;
+  }
+
+  .hero-stats {
+    justify-content: center;
   }
 
   .hero-holo-panel {
-    max-width: 500px;
+    max-width: 520px;
+    width: 100%;
     margin: 0 auto;
   }
 
@@ -1241,44 +1284,235 @@
   .founder-quote {
     text-align: left;
   }
+
+  .suggestion-panel {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .holo-features {
+    padding: 70px 24px;
+  }
+
+  .holo-founder {
+    padding: 60px 24px;
+  }
 }
 
-@media (max-width: 640px) {
+/* Tablet portrait (768px and below) */
+@media (max-width: 768px) {
   .holo-nav-inner {
-    padding: 12px 16px;
+    padding: 12px 20px;
+  }
+
+  .holo-nav-center {
+    display: none;
   }
 
   .holo-hero {
-    padding: 60px 16px 40px;
+    padding: 50px 20px 40px;
   }
 
   .title-line-1,
   .title-line-3 {
-    font-size: 2.2rem;
+    font-size: 2rem;
   }
 
   .title-line-2 {
-    font-size: 2.6rem;
+    font-size: 2.4rem;
+  }
+
+  .hero-desc {
+    font-size: 0.92rem;
+  }
+
+  .holo-cta-btn {
+    padding: 12px 24px;
+    font-size: 0.92rem;
+  }
+
+  .hero-stats {
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .stat-value {
+    font-size: 1.2rem;
+  }
+
+  /* Hide holo panel on tablet portrait — too cramped */
+  .hero-holo-panel {
+    display: none;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .section-header h2 {
+    font-size: 1.8rem;
+  }
+
+  .founder-name {
+    font-size: 1.5rem;
+  }
+
+  .founder-metrics {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .f-metric-divider {
+    display: none;
+  }
+
+  .holo-suggestion {
+    padding: 50px 20px;
+  }
+
+  .suggestion-panel {
+    padding: 24px;
+  }
+
+  .holo-modal {
+    width: 92%;
+    padding: 28px 20px;
+  }
+}
+
+/* Mobile (480px and below) */
+@media (max-width: 480px) {
+  .holo-nav-inner {
+    padding: 10px 14px;
+  }
+
+  .brand-name {
+    font-size: 0.9rem;
+  }
+
+  .brand-model {
+    display: none;
+  }
+
+  .holo-hero {
+    padding: 40px 14px 30px;
+  }
+
+  .hero-tag {
+    font-size: 0.6rem;
+    padding: 5px 10px;
+  }
+
+  .title-line-1,
+  .title-line-3 {
+    font-size: 1.6rem;
+  }
+
+  .title-line-2 {
+    font-size: 2rem;
+  }
+
+  .hero-desc {
+    font-size: 0.88rem;
+  }
+
+  .hero-cta-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .holo-cta-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 13px 20px;
+  }
+
+  .cta-signal {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .hero-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .stat-item {
+    align-items: center;
+    text-align: center;
+    background: rgba(0, 212, 255, 0.03);
+    border: 1px solid rgba(0, 212, 255, 0.08);
+    border-radius: 8px;
+    padding: 12px 8px;
   }
 
   .features-grid {
     grid-template-columns: 1fr;
   }
 
+  .feature-holo-card {
+    padding: 20px 18px;
+  }
+
+  .holo-features {
+    padding: 50px 14px;
+  }
+
+  .holo-founder {
+    padding: 50px 14px;
+  }
+
+  .founder-photo {
+    width: 140px;
+    height: 140px;
+  }
+
+  .founder-hex-frame {
+    width: 140px;
+    height: 140px;
+  }
+
+  .founder-name {
+    font-size: 1.3rem;
+  }
+
+  .founder-metrics {
+    padding: 14px 16px;
+  }
+
+  .f-metric-val {
+    font-size: 1.1rem;
+  }
+
+  .holo-suggestion {
+    padding: 40px 14px;
+  }
+
   .suggestion-panel {
-    grid-template-columns: 1fr;
+    padding: 20px 16px;
   }
 
   .holo-modal {
-    width: 90%;
-    padding: 24px;
+    width: 95%;
+    padding: 22px 16px;
   }
 
-  .hero-stats {
-    gap: 20px;
+  .modal-actions {
+    flex-direction: column;
   }
 
-  .holo-nav-center {
-    display: none;
+  .modal-abort,
+  .modal-auth {
+    flex: unset;
+    width: 100%;
+  }
+
+  .holo-footer {
+    padding: 30px 14px;
   }
 }
