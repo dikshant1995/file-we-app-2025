@@ -1,46 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Sparkles, ArrowRight, ShieldCheck, Zap, Globe, Lock, Instagram, MessageSquare, Send } from 'lucide-react';
 import './FuturisticLanding.css';
 
 const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
-  const [currentGesture, setCurrentGesture] = useState(0);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  
-  // Default admin credentials
+
   const ADMIN_USERNAME = 'admin';
   const ADMIN_PASSWORD = 'admin123';
-  
-  const gestures = [
-    { 
-      name: 'shrug', 
-      text: "It's that simple!", 
-      image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=500&fit=crop&q=80' // Professional woman welcoming gesture
-    },
-    { 
-      name: 'palms', 
-      text: "Easy peasy!", 
-      image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=500&fit=crop&q=80' // Professional woman presenting
-    },
-    { 
-      name: 'point', 
-      text: "Just like that!", 
-      image: 'https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?w=400&h=500&fit=crop&q=80' // Professional woman confident pose
-    },
-    { 
-      name: 'ok', 
-      text: "No problem!", 
-      image: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400&h=500&fit=crop&q=80' // Professional woman smiling
-    }
-  ];
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentGesture((prev) => (prev + 1) % gestures.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
 
   const handleAdminButtonClick = () => {
     setShowLoginModal(true);
@@ -51,174 +21,222 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    
     if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
       setShowLoginModal(false);
-      onAdminClick(); // Proceed to admin dashboard
+      onAdminClick();
     } else {
-      setLoginError('Invalid username or password');
+      setLoginError('Invalid credentials. Access denied.');
     }
   };
 
-  const handleCancelLogin = () => {
-    setShowLoginModal(false);
-    setLoginError('');
-    setUsername('');
-    setPassword('');
-  };
-
   return (
-    <div className="futuristic-landing">
-      {/* SMALLER ADMIN BUTTON */}
-      <button className="mega-admin-button" onClick={handleAdminButtonClick}>
-        <div className="admin-button-content">
-          <span className="admin-icon">⚙️</span>
-          <span className="admin-text">Admin</span>
-        </div>
-      </button>
+    <div className="ai-landing-container">
+      {/* Background Elements */}
+      <div className="ai-grid-background"></div>
+      <div className="ai-glow-orb orb-1"></div>
+      <div className="ai-glow-orb orb-2"></div>
 
-      {/* Admin Login Modal */}
-      {showLoginModal && (
-        <div className="admin-login-overlay">
-          <div className="admin-login-modal">
-            <div className="login-header">
-              <h2>🔐 Admin Login</h2>
-              <p>Enter your credentials to access the dashboard</p>
-            </div>
-            
-            <form className="login-form" onSubmit={handleLogin}>
-              <div className="form-group">
-                <label>Username</label>
-                <input 
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter username"
-                  autoFocus
-                  required
-                />
-              </div>
-              
-              <div className="form-group">
-                <label>Password</label>
-                <input 
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter password"
-                  required
-                />
-              </div>
-              
-              {loginError && (
-                <div className="login-error">
-                  ❌ {loginError}
-                </div>
-              )}
-              
-              <div className="login-buttons">
-                <button type="submit" className="btn-login">
-                  Login
-                </button>
-                <button type="button" className="btn-cancel" onClick={handleCancelLogin}>
-                  Cancel
-                </button>
-              </div>
-            </form>
+      {/* Navbar */}
+      <nav className="ai-navbar">
+        <div className="ai-brand">
+          <div className="ai-logo-icon">
+            <Sparkles size={20} color="#7c3aed" />
           </div>
+          <span className="text-glow">LoanHub</span>
+          <span className="ai-badge">AI 2.0</span>
         </div>
-      )}
+        <button className="ai-admin-trigger" onClick={handleAdminButtonClick}>
+          <Lock size={14} />
+          <span>Admin</span>
+        </button>
+      </nav>
 
-      {/* Flowing Background Elements */}
-      <div className="flowing-gradient"></div>
-      <div className="particle-field">
-        {[...Array(20)].map((_, i) => (
-          <div key={i} className="particle" style={{
-            left: `${Math.random() * 100}%`,
-            animationDelay: `${Math.random() * 5}s`,
-            animationDuration: `${5 + Math.random() * 10}s`
-          }}></div>
-        ))}
-      </div>
-
-      <div className="landing-container">
-        {/* Left Side - Content */}
-        <div className="content-side">
-          <div className="brand">
-            <div className="brand-icon">💳</div>
-            <h3>LoanHub</h3>
+      {/* Main Hero Content */}
+      <main className="ai-hero">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="ai-hero-content"
+        >
+          <div className="ai-status-pill">
+            <span className="dot"></span>
+            System Operational
           </div>
 
-          <h1 className="main-heading">
-            Financial tools that matter,
-            <br />
-            <span className="gradient-text">crafted for people who care.</span>
+          <h1 className="ai-title">
+            The Future of <br />
+            <span className="gradient-text-ai">Financial Intelligence</span>
           </h1>
 
-          <p className="subtitle">
-            Get instant loan approval from 12+ leading banks in seconds.
-            Compare offers, transfer balances, and make smart financial decisions.
+          <p className="ai-subtitle">
+            Our advanced AI engine analyzes 12+ banking protocols instantly.
+            Get precision-calculated loan eligibility and balance transfer offers in milliseconds.
           </p>
 
-          <button className="cta-button" onClick={onGetStarted}>
-            Get Started
-            <span className="arrow">→</span>
-          </button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="ai-cta-button"
+            onClick={onGetStarted}
+          >
+            <Zap size={20} fill="currentColor" />
+            Initialize Calculation
+            <ArrowRight size={20} />
+          </motion.button>
+        </motion.div>
 
-          <div className="features-list">
-            <div className="feature-item">
-              <div className="feature-dot"></div>
-              <span>12+ Banks Compared</span>
+        {/* Feature Grid */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.8 }}
+          className="ai-features"
+        >
+          <div className="ai-feature-card glass-card">
+            <ShieldCheck className="feature-icon-ai" color="#10b981" />
+            <div>
+              <h3>Bank-Grade Security</h3>
+              <p>256-bit Encryption</p>
             </div>
-            <div className="feature-item">
-              <div className="feature-dot"></div>
-              <span>11% Fixed Interest Rate</span>
+          </div>
+          <div className="ai-feature-card glass-card">
+            <Globe className="feature-icon-ai" color="#3b82f6" />
+            <div>
+              <h3>Universal Access</h3>
+              <p>12+ Partner Networks</p>
             </div>
-            <div className="feature-item">
-              <div className="feature-dot"></div>
-              <span>Instant Results</span>
+          </div>
+          <div className="ai-feature-card glass-card">
+            <Zap className="feature-icon-ai" color="#f59e0b" />
+            <div>
+              <h3>Real-Time Core</h3>
+              <p>Instant Processing</p>
             </div>
-            <div className="feature-item">
-              <div className="feature-dot"></div>
-              <span>Balance Transfer Available</span>
+          </div>
+        </motion.div>
+      </main>
+
+      {/* Founder Section */}
+      <section className="ai-founder-section">
+        <div className="founder-grid">
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="founder-image-container"
+          >
+            <div className="founder-glow-ring"></div>
+            <img src="/founder.jpg" alt="Dikshant Singh Rathore" className="founder-img" />
+            <div className="founder-badge">
+              <Sparkles size={14} /> TATA AI VISIONARY
             </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="founder-bio"
+          >
+            <p className="founder-label">ARCHITECT & FOUNDER • SINCE 2019</p>
+            <h2 className="founder-name">DIKSHANT SINGH RATHORE</h2>
+
+            <div className="experience-metric">
+              <span className="metric-value">6+</span>
+              <span className="metric-label">Years of Industry Excellence</span>
+            </div>
+
+            <div className="vision-quote">
+              "We are not just building a calculator; we are dismantling the barriers of financial opacity. TATA
+              empowers every individual with the transparency, speed, and intelligence traditionally reserved for
+              institutions. This AI software is the dawn of a new era in the global loaning industry."
+            </div>
+
+            <a
+              href="https://instagram.com/dikshant_singh_rathore"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-link"
+            >
+              <Instagram size={18} />
+              Connect on Instagram (@dikshant_singh_rathore)
+            </a>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Suggestion Box Section */}
+      <section className="ai-suggestion-section">
+        <div className="glass-card suggestion-box">
+          <div className="suggestion-header">
+            <div className="suggestion-icon">
+              <MessageSquare size={24} color="#06b6d4" />
+            </div>
+            <div>
+              <h3 className="text-glow">Help Us Improve</h3>
+              <p>Your feedback shapes the future of this AI.</p>
+            </div>
+          </div>
+          <div className="suggestion-form">
+            <input type="text" placeholder="Your Name (Optional)" className="glass-input" />
+            <textarea placeholder="Share your suggestions or report an issue..." className="glass-input" rows="3"></textarea>
+            <button className="btn-primary-ai small-btn">
+              <Send size={16} />
+              Send Feedback
+            </button>
           </div>
         </div>
+      </section>
 
-        {/* Right Side - Alexandra Daddario Model */}
-        <div className="model-side">
-          <div className="model-container">
-            {/* Actress Photo with Gesture */}
-            <div className="actress-model">
-              <img 
-                src={gestures[currentGesture].image} 
-                alt="Alexandra Daddario"
-                className="actress-photo"
-              />
-              <div className="photo-overlay"></div>
-            </div>
-
-            {/* Speech Bubble */}
-            <div className="speech-bubble">
-              {gestures[currentGesture].text}
-            </div>
-
-            {/* Decorative Circles */}
-            <div className="deco-circle circle-1"></div>
-            <div className="deco-circle circle-2"></div>
-            <div className="deco-circle circle-3"></div>
-          </div>
-
-          {/* Floating Elements */}
-          <div className="floating-elements">
-            <div className="float-icon icon-1">💰</div>
-            <div className="float-icon icon-2">📊</div>
-            <div className="float-icon icon-3">✅</div>
-            <div className="sparkle sparkle-1">✨</div>
-            <div className="sparkle sparkle-2">✨</div>
-          </div>
+      {/* Visionary Footer */}
+      <footer className="ai-footer">
+        <div className="ai-footer-content">
+          <p className="copyright">© 2025 LoanHub AI. Engineered by Dikshant Singh Rathore.</p>
         </div>
-      </div>
+      </footer>
+
+      {/* Admin Login Modal (Glassmorphism) */}
+      {showLoginModal && (
+        <div className="ai-modal-overlay">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="ai-modal glass-card"
+          >
+            <div className="modal-header">
+              <Lock size={24} color="#7c3aed" />
+              <h2>Root Access</h2>
+            </div>
+            <form onSubmit={handleLogin}>
+              <div className="ai-input-group">
+                <input
+                  type="text"
+                  className="glass-input"
+                  placeholder="Identity"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  autoFocus
+                />
+              </div>
+              <div className="ai-input-group">
+                <input
+                  type="password"
+                  className="glass-input"
+                  placeholder="Key"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+              {loginError && <p className="ai-error">{loginError}</p>}
+              <div className="modal-actions">
+                <button type="button" onClick={() => setShowLoginModal(false)} className="btn-text">Abort</button>
+                <button type="submit" className="btn-primary-ai">Authenticate</button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };
