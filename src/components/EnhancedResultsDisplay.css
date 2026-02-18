@@ -1,0 +1,365 @@
+.enhanced-results-display {
+  background: white;
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.results-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.results-header h2 {
+  color: #007bff;
+  margin-bottom: 0.5rem;
+}
+
+.results-header p {
+  color: #6c757d;
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.reset-btn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.reset-btn:hover {
+  background: #5a6268;
+}
+
+.scenarios-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.scenario-card {
+  background: #f8f9fa;
+  border-radius: 10px;
+  border: 1px solid #e9ecef;
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.scenario-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  padding: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-icon {
+  font-size: 2rem;
+}
+
+.header-text h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.2rem;
+}
+
+.header-text p {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.best-offer {
+  padding: 1.5rem;
+}
+
+.bank-info h4 {
+  color: #007bff;
+  margin: 0 0 1rem 0;
+  font-size: 1.3rem;
+}
+
+.offer-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.detail-item span {
+  color: #6c757d;
+}
+
+.detail-item strong {
+  color: #007bff;
+}
+
+.eligibility-summary {
+  text-align: center;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.eligible-badge {
+  background: #28a745;
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.no-offers {
+  padding: 1.5rem;
+  text-align: center;
+  color: #6c757d;
+}
+
+.view-details {
+  padding: 0 1.5rem 1.5rem;
+}
+
+.details-btn {
+  width: 100%;
+  background: #17a2b8;
+  color: white;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.details-btn:hover {
+  background: #138496;
+}
+
+/* Detailed Comparison Section */
+.detailed-comparison-section {
+  background: white;
+  border-radius: 10px;
+  border: 1px solid #e9ecef;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 1rem;
+  background: #f8f9fa;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  border-right: 1px solid #e9ecef;
+}
+
+.tab-btn:last-child {
+  border-right: none;
+}
+
+.tab-btn.active {
+  background: #007bff;
+  color: white;
+}
+
+.tab-btn:hover:not(.active) {
+  background: #e9ecef;
+}
+
+.tab-content {
+  padding: 1.5rem;
+}
+
+.detailed-table-container h3 {
+  color: #007bff;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.detailed-results-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+.detailed-results-table th {
+  background: #007bff;
+  color: white;
+  padding: 1rem;
+  text-align: left;
+}
+
+.detailed-results-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.detailed-results-table tr:hover {
+  background: #f8f9fa;
+}
+
+.amount-cell {
+  font-weight: 600;
+  color: #007bff;
+}
+
+.status-badge {
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.status-badge.eligible {
+  background: #28a745;
+  color: white;
+}
+
+.status-badge.not-eligible {
+  background: #dc3545;
+  color: white;
+}
+
+.ineligible-row {
+  background: #fff5f5;
+}
+
+.ineligible-row td {
+  color: #6c757d;
+}
+
+.no-results-table {
+  text-align: center;
+  padding: 2rem;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Savings Comparison */
+.savings-comparison {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 1.5rem;
+  border: 1px solid #e9ecef;
+}
+
+.savings-comparison h3 {
+  color: #007bff;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.savings-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.savings-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 1px solid #e9ecef;
+  text-align: center;
+}
+
+.savings-card.highlight {
+  border: 2px solid #28a745;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+  position: relative;
+}
+
+.savings-card.highlight::before {
+  content: "BEST OPTION";
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  background: #28a745;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.savings-card h4 {
+  color: #007bff;
+  margin: 0 0 1rem 0;
+}
+
+.savings-card p {
+  margin: 0.75rem 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.savings-card strong {
+  color: #007bff;
+}
+
+.savings-note {
+  font-style: italic;
+  color: #28a745;
+  font-weight: 600;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .enhanced-results-display {
+    padding: 1rem;
+  }
+  
+  .scenarios-summary {
+    grid-template-columns: 1fr;
+  }
+  
+  .offer-details {
+    grid-template-columns: 1fr;
+  }
+  
+  .tabs {
+    flex-direction: column;
+  }
+  
+  .tab-btn {
+    border-right: none;
+    border-bottom: 1px solid #e9ecef;
+  }
+  
+  .savings-cards {
+    grid-template-columns: 1fr;
+  }
+}

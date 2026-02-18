@@ -1,0 +1,217 @@
+.results-display {
+  background-color: white;
+  border-radius: 10px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 2rem;
+}
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.results-header h2 {
+  color: #007bff;
+  margin: 0;
+}
+
+.reset-btn {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.reset-btn:hover {
+  background-color: #5a6268;
+}
+
+.best-offer {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.best-offer h3 {
+  color: white;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.best-offer p {
+  margin: 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.offer-details {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 1rem !important;
+}
+
+.results-table-container {
+  overflow-x: auto;
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+}
+
+.results-table th,
+.results-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.results-table th {
+  background-color: #e9ecef;
+  font-weight: 600;
+  color: #495057;
+}
+
+.results-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.results-table .eligible {
+  background-color: #d4edda;
+}
+
+.results-table .not-eligible {
+  background-color: #f8d7da;
+}
+
+.status-eligible {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.status-not-eligible {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+/* Additional styling for new columns */
+.amount-cell {
+  font-weight: 600;
+}
+
+.approved-amount {
+  color: #28a745;
+}
+
+.max-amount {
+  color: #007bff;
+  font-size: 0.9rem;
+}
+
+.method-cell {
+  font-size: 0.85rem;
+}
+
+.method-badge {
+  background-color: #e9ecef;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.summary {
+  background-color: #e9ecef;
+  border-radius: 5px;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.summary h3 {
+  margin-top: 0;
+  color: #007bff;
+}
+
+.summary p {
+  margin: 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.rejection-summary {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+/* Rejection Details Section */
+.rejection-details {
+  background-color: #fff5f5;
+  border: 2px solid #ffcccc;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.rejection-details h3 {
+  margin: 0 0 1rem 0;
+  color: #dc3545;
+  font-size: 1.3rem;
+}
+
+.rejection-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 0.75rem;
+}
+
+.rejection-item {
+  background-color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  border-left: 4px solid #dc3545;
+  font-size: 0.9rem;
+}
+
+.rejection-item strong {
+  color: #721c24;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.rejection-reason {
+  color: #dc3545;
+  font-size: 0.85rem;
+  display: block;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: help;
+  padding: 0.25rem 0;
+}
+
+.not-available {
+  color: #999;
+  font-style: italic;
+  font-weight: normal;
+}
+
+.error {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  padding: 1rem;
+  border-radius: 5px;
+  margin: 1rem 0;
+  text-align: center;
+}
