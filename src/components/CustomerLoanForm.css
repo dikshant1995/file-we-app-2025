@@ -55,6 +55,19 @@
   font-family: 'Space Grotesk', sans-serif;
 }
 
+/* ---- Two-column row ---- */
+.form-row-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .form-row-two {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ---- Form Group ---- */
 .form-group {
   position: relative;
@@ -87,6 +100,7 @@
 /* ---- Inputs & Selects ---- */
 .form-group input[type="number"],
 .form-group input[type="text"],
+.form-group input[type="tel"],
 .form-group select {
   width: 100%;
   padding: 10px 14px;
