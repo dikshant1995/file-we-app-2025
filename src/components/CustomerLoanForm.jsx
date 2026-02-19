@@ -276,13 +276,25 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
               pattern="[6-9][0-9]{9}"
               title="Enter a valid 10-digit Indian mobile number"
               inputMode="numeric"
+              style={
+                formData.mobileNumber.length > 0 && formData.mobileNumber.length < 10
+                  ? { borderColor: '#ef4444', boxShadow: '0 0 0 2px rgba(239,68,68,0.2)' }
+                  : {}
+              }
             />
-            {formData.mobileNumber && formData.mobileNumber.length === 10 && (
+            {/* Live validation feedback */}
+            {formData.mobileNumber.length > 0 && formData.mobileNumber.length < 10 && (
+              <small style={{ color: '#f87171', fontWeight: '600', marginTop: '4px', display: 'block' }}>
+                ⚠️ Mobile number must be exactly 10 digits ({10 - formData.mobileNumber.length} more needed)
+              </small>
+            )}
+            {formData.mobileNumber.length === 10 && (
               <small className="help-text" style={{ color: '#00ff88', fontWeight: '600' }}>
                 ✓ Valid mobile number
               </small>
             )}
           </div>
+
         </div>
       </div>
 
