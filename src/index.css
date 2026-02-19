@@ -1,32 +1,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
-  /* PROFESSIONAL DARK THEME PALETTE */
-  --bg-dark: #0f172a;
-  --bg-card: #1e293b;
-  --bg-surface: #334155;
+  /* PROFESSIONAL FINANCIAL AI PALETTE */
+  --bg-dark: #010409;
+  --bg-card: rgba(13, 22, 38, 0.7);
+  --bg-glass: rgba(0, 212, 255, 0.03);
 
-  --primary: #3b82f6;
-  /* Blue 500 */
-  --primary-hover: #2563eb;
-  /* Blue 600 */
-
-  --success: #10b981;
-  /* Emerald 500 */
-  --warning: #f59e0b;
-  /* Amber 500 */
-  --danger: #ef4444;
-  /* Red 500 */
+  --accent-cyan: #00d4ff;
+  --accent-purple: #7c3aed;
+  --accent-blue: #3b82f6;
 
   --text-primary: #f1f5f9;
-  /* Slate 100 */
-  --text-secondary: #cbd5e1;
-  /* Slate 300 */
-  --text-muted: #94a3b8;
-  /* Slate 400 */
+  --text-header: #ffffff;
+  --text-muted: #64748b;
+  --text-muted-dark: #334155;
 
-  --border-light: #334155;
-  --border-focus: #3b82f6;
+  --border-glow: rgba(0, 212, 255, 0.15);
+  --border-active: rgba(0, 212, 255, 0.5);
+  --shadow-neon: 0 0 20px rgba(0, 212, 255, 0.1);
 
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   line-height: 1.5;
@@ -40,6 +31,14 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Global Grid Background Texture */
+.professional-grid-bg {
+  background-image:
+    linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
 }
 
 * {
