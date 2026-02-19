@@ -13,7 +13,7 @@ const CustomerResultsDisplay = ({ results, metadata }) => {
   // Handle bank selection
   const handleBankSelect = (bankName, isEligible) => {
     if (!isEligible) return; // Don't allow selecting rejected banks
-    
+
     if (selectedBanks.includes(bankName)) {
       setSelectedBanks(selectedBanks.filter(name => name !== bankName));
     } else {
@@ -27,7 +27,7 @@ const CustomerResultsDisplay = ({ results, metadata }) => {
       alert('Please select at least one bank to proceed!');
       return;
     }
-    
+
     const bankList = selectedBanks.join(', ');
     alert('Your application will be processed with: ' + bankList + '. We will contact you shortly!');
   };
@@ -55,14 +55,14 @@ const CustomerResultsDisplay = ({ results, metadata }) => {
     totalBanks: results.length,
     eligibleCount: eligibleBanks.length,
     rejectedCount: rejectedBanks.length,
-    avgLoanAmount: eligibleBanks.length > 0 
+    avgLoanAmount: eligibleBanks.length > 0
       ? Math.round(eligibleBanks.reduce((sum, b) => sum + (b.loanAmount || 0), 0) / eligibleBanks.length)
       : 0
   };
 
   // Filter banks based on selection
   const displayBanks = filterEligible === 'all' ? results :
-                       filterEligible === 'eligible' ? eligibleBanks : rejectedBanks;
+    filterEligible === 'eligible' ? eligibleBanks : rejectedBanks;
 
   const formatCurrency = (amount) => {
     if (!amount) return 'N/A';
@@ -147,6 +147,71 @@ const CustomerResultsDisplay = ({ results, metadata }) => {
         </div>
       )}
 
+      {/* ===== COMPARISON TABLE — right below best offer ===== */}
+      {eligibleBanks.length > 0 && (
+        <div className="comparison-section" style={{ marginTop: '28px', marginBottom: '36px' }}>
+          <h3>📊 Quick Comparison — All Banks</h3>
+          <div className="table-wrapper">
+            <table className="comparison-table">
+              <thead>
+                <tr>
+                  <th className="select-column">Select</th>
+                  <th>Bank Name</th>
+                  <th>Loan Amount</th>
+                  <th>Monthly EMI</th>
+                  <th>Interest Rate</th>
+                  <th>Tenure</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedEligibleBanks.map((bank, index) => (
+                  <tr key={index} className={`${bank === bestOffer ? 'best-row' : ''} ${selectedBanks.includes(bank.bankName) ? 'selected-row' : ''}`}>
+                    <td className="select-cell">
+                      <input
+                        type="checkbox"
+                        id={`table-bank-select-${index}`}
+                        checked={selectedBanks.includes(bank.bankName)}
+                        onChange={() => handleBankSelect(bank.bankName, true)}
+                        className="table-checkbox"
+                      />
+                      <label htmlFor={`table-bank-select-${index}`} className="checkbox-label"></label>
+                    </td>
+                    <td className="bank-name">
+                      {bank === bestOffer && '🏆 '}
+                      <strong>{bank.bankName}</strong>
+                    </td>
+                    <td className="amount">{formatCurrency(bank.loanAmount)}</td>
+                    <td>{formatNumber(bank.monthlyEMI)}</td>
+                    <td>{bank.interestRate}%</td>
+                    <td>{bank.loanTenure} years</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Submit Button Below Table */}
+          <div className="table-submit-section">
+            <div className="selection-summary-compact">
+              <span className="selected-count">
+                {selectedBanks.length > 0 ? (
+                  <>🎯 <strong>{selectedBanks.length}</strong> bank{selectedBanks.length > 1 ? 's' : ''} selected</>
+                ) : (
+                  <>ℹ️ Select banks above to proceed</>
+                )}
+              </span>
+            </div>
+            <button
+              className="table-submit-btn"
+              onClick={handleSubmitSelection}
+              disabled={selectedBanks.length === 0}
+            >
+              🚀 Proceed with Selected Banks ({selectedBanks.length})
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Filter and Sort Controls */}
       <div className="controls-bar">
         <div className="filter-group">
@@ -173,256 +238,61 @@ const CustomerResultsDisplay = ({ results, metadata }) => {
       {/* All Bank Results */}
       <div className="all-banks-results">
         <h3>📋 All Bank Offers</h3>
-        
+
         <div className="banks-grid">
-          {(filterEligible === 'eligible' ? sortedEligibleBanks : 
-            filterEligible === 'rejected' ? rejectedBanks : 
-            [...sortedEligibleBanks, ...rejectedBanks]).map((bank, index) => (
-            <div 
-              key={index} 
-              className={`bank-card ${bank.eligible ? 'eligible' : 'rejected'} ${bank === bestOffer ? 'best' : ''}`}
-            >
-              {bank === bestOffer && <div className="best-badge">🏆 Best</div>}
-              
-              <div className="bank-card-header">
-                <h4>{bank.bankName}</h4>
-                <div className={`status-badge ${bank.eligible ? 'approved' : 'rejected'}`}>
-                  {bank.eligible ? '✅ Approved' : '❌ Rejected'}
-                </div>
-              </div>
+          {(filterEligible === 'eligible' ? sortedEligibleBanks :
+            filterEligible === 'rejected' ? rejectedBanks :
+              [...sortedEligibleBanks, ...rejectedBanks]).map((bank, index) => (
+                <div
+                  key={index}
+                  className={`bank-card ${bank.eligible ? 'eligible' : 'rejected'} ${bank === bestOffer ? 'best' : ''}`}
+                >
+                  {bank === bestOffer && <div className="best-badge">🏆 Best</div>}
 
-              {bank.eligible ? (
-                <div className="bank-card-body">
-                  {/* BALANCE TRANSFER MODE - SPECIAL DISPLAY */}
-                  {(bank.isBTMode || bank.btType === 'BT_WITH_CREDIT_CARDS' || bank.btType === 'BT_WITH_CC_OBLIGATION') ? (
-                    <div className="bt-mode-display">
-                      <div className="bt-badge">🔄 Balance Transfer Mode</div>
-                      
-                      <div className="bt-breakdown">
-                        <div className="bt-item highlight">
-                          <span className="bt-label">🏛️ Max Loan Amount</span>
-                          <span className="bt-value">{formatCurrency(bank.loanAmount)}</span>
-                          <span className="bt-subtitle">Total loan bank can offer</span>
-                        </div>
-                        
-                        <div className="bt-divider">-</div>
-                        
-                        <div className="bt-item">
-                          <span className="bt-label">💸 BT Outstanding Amount</span>
-                          <span className="bt-value danger">{formatCurrency(bank.totalDebtCleared || bank.btTotalOutstanding)}</span>
-                          <span className="bt-subtitle">
-                            Goes to clear your {bank.loansConsolidated || bank.numberOfLoansConsolidated || 0} loan{(bank.loansConsolidated || bank.numberOfLoansConsolidated) > 1 ? 's' : ''}
-                            {bank.numberOfCreditCardsCleared > 0 && ` + ${bank.numberOfCreditCardsCleared} credit card${bank.numberOfCreditCardsCleared > 1 ? 's' : ''}`}
-                          </span>
-                        </div>
-                        
-                        <div className="bt-divider">=</div>
-                        
-                        <div className="bt-item highlight-green">
-                          <span className="bt-label">💵 Fresh Amount (Cash in Hand)</span>
-                          <span className="bt-value success">{formatCurrency(bank.freshAmountDisbursed)}</span>
-                          <span className="bt-subtitle">✅ Actual cash you receive!</span>
-                        </div>
-                      </div>
+                  <div className="bank-card-header">
+                    <h4>{bank.bankName}</h4>
+                    <div className={`status-badge ${bank.eligible ? 'approved' : 'rejected'}`}>
+                      {bank.eligible ? '✅ Approved' : '❌ Rejected'}
+                    </div>
+                  </div>
 
-                      {/* BT Income Adjustment Info */}
-                      <div className="bt-income-info">
-                        <div className="bt-income-item">
-                          <span>📊 Original Income:</span>
-                          <strong>{formatNumber(bank.originalIncome)}</strong>
-                        </div>
-                        {bank.nonBTLoansEMI > 0 && (
-                          <>
-                            <div className="bt-income-item">
-                              <span>⚠️ Non-BT Loans EMI:</span>
-                              <strong className="danger">-{formatNumber(bank.nonBTLoansEMI)}</strong>
+                  {bank.eligible ? (
+                    <div className="bank-card-body">
+                      {/* LOAN AMOUNT DISPLAY — clean for all modes */}
+                      {(bank.isBTMode || bank.btType === 'BT_WITH_CREDIT_CARDS' || bank.btType === 'BT_WITH_CC_OBLIGATION') ? (
+                        <div className="bt-mode-display">
+                          <div className="bt-badge">🔄 Balance Transfer</div>
+                          <div className="bt-breakdown">
+                            <div className="bt-item highlight">
+                              <span className="bt-label">🏛️ Total Loan Amount</span>
+                              <span className="bt-value">{formatCurrency(bank.loanAmount)}</span>
                             </div>
-                            <div className="bt-income-item">
-                              <span>🟢 Adjusted Income for BT:</span>
-                              <strong className="success">{formatNumber(bank.adjustedIncome)}</strong>
+                            <div className="bt-divider">-</div>
+                            <div className="bt-item">
+                              <span className="bt-label">💸 Amount to Clear Existing Loans</span>
+                              <span className="bt-value danger">{formatCurrency(bank.totalDebtCleared || bank.btTotalOutstanding)}</span>
                             </div>
-                          </>
-                        )}
-                        {/* CREDIT CARD OBLIGATION DISPLAY */}
-                        {bank.creditCardObligation > 0 && (
-                          <div className="bt-credit-card-section" style={{ 
-                            marginTop: '15px', 
-                            padding: '12px', 
-                            background: '#fff3cd', 
-                            borderRadius: '6px',
-                            border: '2px solid #ffc107'
-                          }}>
-                            <div style={{ fontSize: '0.9em', fontWeight: '600', marginBottom: '8px', color: '#856404' }}>
-                              💳 Credit Card Obligation
-                            </div>
-                            <div className="bt-income-item">
-                              <span>Credit Card Outstanding:</span>
-                              <strong className="danger">{formatNumber(bank.creditCardOutstanding || (bank.creditCardObligation / 0.05))}</strong>
-                            </div>
-                            <div className="bt-income-item">
-                              <span>Monthly Obligation (5%):</span>
-                              <strong className="danger">-{formatNumber(bank.creditCardObligation)}</strong>
-                            </div>
-                            {bank.creditCardObligationNote && (
-                              <div style={{ fontSize: '0.85em', color: '#856404', marginTop: '6px', fontStyle: 'italic' }}>
-                                ℹ️ {bank.creditCardObligationNote}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                        {bank.creditCardObligation === 0 && (bank.isBTMode || bank.btType === 'BT_WITH_CREDIT_CARDS') && bank.numberOfCreditCardsCleared > 0 && (
-                          <div className="bt-credit-card-section" style={{ 
-                            marginTop: '15px', 
-                            padding: '12px', 
-                            background: '#d4edda', 
-                            borderRadius: '6px',
-                            border: '2px solid #28a745'
-                          }}>
-                            <div style={{ fontSize: '0.9em', fontWeight: '600', marginBottom: '8px', color: '#155724' }}>
-                              💳 Credit Cards Cleared
-                            </div>
-                            <div className="bt-income-item">
-                              <span>✅ Cards Included in BT:</span>
-                              <strong className="success">{bank.numberOfCreditCardsCleared} card(s)</strong>
-                            </div>
-                            <div className="bt-income-item">
-                              <span>✅ Total CC Outstanding Cleared:</span>
-                              <strong className="success">{formatNumber(bank.totalCreditCardCleared || 0)}</strong>
-                            </div>
-                            <div style={{ fontSize: '0.85em', color: '#155724', marginTop: '6px', fontStyle: 'italic' }}>
-                              ✅ All selected credit card debts will be fully cleared
+                            <div className="bt-divider">=</div>
+                            <div className="bt-item highlight-green">
+                              <span className="bt-label">💵 Cash You Receive</span>
+                              <span className="bt-value success">{formatCurrency(bank.freshAmountDisbursed)}</span>
+                              <span className="bt-subtitle">✅ Actual amount in your account</span>
                             </div>
                           </div>
-                        )}
-                      </div>
-
-                      {/* CREDIT CARD BT CALCULATION BREAKDOWN */}
-                      {bank.numberOfCreditCardsCleared > 0 && bank.totalCreditCardOutstanding > 0 && (
-                        <div className="credit-card-calculation-breakdown" style={{
-                          marginTop: '20px',
-                          padding: '16px',
-                          background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-                          borderRadius: '8px',
-                          border: '2px solid #667eea'
-                        }}>
-                          <h6 style={{ color: '#4c51bf', marginBottom: '12px', fontSize: '1em', fontWeight: '600' }}>
-                            💳 Credit Card Balance Transfer Calculation
-                          </h6>
-                          
-                          <div style={{ background: 'white', padding: '12px', borderRadius: '6px', marginBottom: '12px' }}>
-                            <div style={{ fontSize: '0.85em', color: '#4a5568', marginBottom: '10px', fontWeight: '600' }}>
-                              📊 How Your Credit Card Debt is Consolidated:
-                            </div>
-                            
-                            {/* Step 1: Current Situation */}
-                            <div style={{ marginBottom: '12px', paddingBottom: '12px', borderBottom: '1px solid #e2e8f0' }}>
-                              <div style={{ fontSize: '0.85em', color: '#2d3748', marginBottom: '6px', fontWeight: '600' }}>
-                                1️⃣ Current Credit Card Debt:
-                              </div>
-                              <div className="calc-step" style={{ marginLeft: '20px', marginBottom: '4px' }}>
-                                <span className="step-label">Outstanding Amount:</span>
-                                <span className="step-value"><strong style={{ color: '#e53e3e' }}>{formatNumber(bank.totalCreditCardOutstanding)}</strong></span>
-                              </div>
-                              <div className="calc-step" style={{ marginLeft: '20px', marginBottom: '4px' }}>
-                                <span className="step-label">Current Interest Rate:</span>
-                                <span className="step-value"><strong style={{ color: '#e53e3e' }}>42% p.a.</strong></span>
-                              </div>
-                              <div className="calc-step" style={{ marginLeft: '20px', marginBottom: '4px' }}>
-                                <span className="step-label">Monthly Interest (42%/12):</span>
-                                <span className="step-value"><strong style={{ color: '#e53e3e' }}>{formatNumber(Math.round(bank.totalCreditCardOutstanding * 0.42 / 12))}</strong></span>
-                              </div>
-                              <div style={{ marginLeft: '20px', fontSize: '0.8em', color: '#c53030', marginTop: '4px', fontStyle: 'italic' }}>
-                                ⚠️ At 42% interest, you're paying ₹{Math.round(bank.totalCreditCardOutstanding * 0.42 / 12).toLocaleString()}/month just in interest!
-                              </div>
-                            </div>
-
-                            {/* Step 2: BT Solution */}
-                            <div style={{ marginBottom: '12px', paddingBottom: '12px', borderBottom: '1px solid #e2e8f0' }}>
-                              <div style={{ fontSize: '0.85em', color: '#2d3748', marginBottom: '6px', fontWeight: '600' }}>
-                                2️⃣ Balance Transfer Solution:
-                              </div>
-                              <div className="calc-step" style={{ marginLeft: '20px', marginBottom: '4px' }}>
-                                <span className="step-label">Transfer to Personal Loan:</span>
-                                <span className="step-value"><strong style={{ color: '#38a169' }}>{formatNumber(bank.totalCreditCardOutstanding)}</strong></span>
-                              </div>
-                              <div className="calc-step" style={{ marginLeft: '20px', marginBottom: '4px' }}>
-                                <span className="step-label">New Interest Rate:</span>
-                                <span className="step-value"><strong style={{ color: '#38a169' }}>11% p.a.</strong></span>
-                              </div>
-                              <div className="calc-step" style={{ marginLeft: '20px', marginBottom: '4px' }}>
-                                <span className="step-label">Monthly Interest (11%/12):</span>
-                                <span className="step-value"><strong style={{ color: '#38a169' }}>{formatNumber(Math.round(bank.totalCreditCardOutstanding * 0.11 / 12))}</strong></span>
-                              </div>
-                              <div style={{ marginLeft: '20px', fontSize: '0.8em', color: '#22543d', marginTop: '4px', fontStyle: 'italic' }}>
-                                ✅ New monthly interest reduced to just ₹{Math.round(bank.totalCreditCardOutstanding * 0.11 / 12).toLocaleString()}!
-                              </div>
-                            </div>
-
-                            {/* Step 3: Monthly Savings */}
-                            <div style={{ marginBottom: '12px', paddingBottom: '12px', borderBottom: '1px solid #e2e8f0' }}>
-                              <div style={{ fontSize: '0.85em', color: '#2d3748', marginBottom: '6px', fontWeight: '600' }}>
-                                3️⃣ Interest Savings:
-                              </div>
-                              <div className="calc-step" style={{ marginLeft: '20px', marginBottom: '4px' }}>
-                                <span className="step-label">Old Monthly Interest (42%):</span>
-                                <span className="step-value"><strong style={{ color: '#e53e3e' }}>{formatNumber(Math.round(bank.totalCreditCardOutstanding * 0.42 / 12))}</strong></span>
-                              </div>
-                              <div className="calc-step" style={{ marginLeft: '20px', marginBottom: '4px' }}>
-                                <span className="step-label">New Monthly Interest (11%):</span>
-                                <span className="step-value"><strong style={{ color: '#38a169' }}>{formatNumber(Math.round(bank.totalCreditCardOutstanding * 0.11 / 12))}</strong></span>
-                              </div>
-                              <div className="calc-step" style={{ marginLeft: '20px', marginBottom: '4px', background: '#f0fff4', padding: '8px', borderRadius: '4px', border: '2px solid #38a169' }}>
-                                <span className="step-label">💰 Monthly Interest Saved:</span>
-                                <span className="step-value"><strong style={{ color: '#22543d', fontSize: '1.1em' }}>{formatNumber(Math.round(bank.totalCreditCardOutstanding * 0.42 / 12 - bank.totalCreditCardOutstanding * 0.11 / 12))}</strong></span>
-                              </div>
-                              <div className="calc-step" style={{ marginLeft: '20px', marginBottom: '4px', background: '#f0fff4', padding: '8px', borderRadius: '4px', border: '2px solid #38a169' }}>
-                                <span className="step-label">📅 Annual Interest Saved:</span>
-                                <span className="step-value"><strong style={{ color: '#22543d', fontSize: '1.1em' }}>{formatNumber(Math.round((bank.totalCreditCardOutstanding * 0.42 / 12 - bank.totalCreditCardOutstanding * 0.11 / 12) * 12))}</strong></span>
-                              </div>
-                            </div>
-
-                            {/* Step 4: Total Calculation */}
-                            <div style={{ background: '#edf2f7', padding: '12px', borderRadius: '6px' }}>
-                              <div style={{ fontSize: '0.85em', color: '#2d3748', marginBottom: '6px', fontWeight: '600' }}>
-                                4️⃣ Total Debt Consolidated:
-                              </div>
-                              {bank.totalPersonalLoanPOS > 0 && (
-                                <div className="calc-step" style={{ marginLeft: '20px', marginBottom: '4px' }}>
-                                  <span className="step-label">Personal Loans Outstanding:</span>
-                                  <span className="step-value"><strong>{formatNumber(bank.totalPersonalLoanPOS)}</strong></span>
-                                </div>
-                              )}
-                              <div className="calc-step" style={{ marginLeft: '20px', marginBottom: '4px' }}>
-                                <span className="step-label">+ Credit Card Outstanding:</span>
-                                <span className="step-value"><strong>{formatNumber(bank.totalCreditCardOutstanding)}</strong></span>
-                              </div>
-                              <div className="calc-step" style={{ marginLeft: '20px', marginTop: '8px', paddingTop: '8px', borderTop: '2px solid #4c51bf' }}>
-                                <span className="step-label" style={{ fontSize: '1.05em' }}>= Total Debt Cleared:</span>
-                                <span className="step-value"><strong style={{ color: '#4c51bf', fontSize: '1.2em' }}>{formatNumber(bank.totalDebtCleared)}</strong></span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Key Benefits Summary */}
-                          <div style={{ background: '#f0fff4', padding: '12px', borderRadius: '6px', border: '1px solid #38a169' }}>
-                            <div style={{ fontSize: '0.9em', fontWeight: '600', color: '#22543d', marginBottom: '8px' }}>
-                              🎯 Key Benefits of Credit Card BT:
-                            </div>
-                            <div style={{ fontSize: '0.85em', color: '#22543d', lineHeight: '1.6' }}>
-                              ✅ Interest rate reduced from <strong>42%</strong> to <strong>11%</strong> (31% savings!)<br/>
-                              ✅ Save <strong>{formatNumber(Math.round((bank.totalCreditCardOutstanding * 0.42 / 12 - bank.totalCreditCardOutstanding * 0.11 / 12) * 12))}</strong> per year in interest<br/>
-                              ✅ Fixed EMI of <strong>{formatNumber(bank.newSingleEMI || bank.monthlyEMI)}</strong> for {bank.loanTenure} years<br/>
-                              ✅ Clear all {bank.numberOfCreditCardsCleared} credit card{bank.numberOfCreditCardsCleared > 1 ? 's' : ''} completely<br/>
-                              ✅ Single EMI instead of multiple credit card payments
-                            </div>
-                          </div>
+                        </div>
+                      ) : (
+                        <div className="main-amount">
+                          <span className="label">Loan Amount</span>
+                          <span className="amount">{formatCurrency(bank.loanAmount)}</span>
                         </div>
                       )}
                     </div>
                   ) : (
-                    <div className="main-amount">
-                      <span className="label">Loan Amount</span>
-                      <span className="amount">{formatCurrency(bank.loanAmount)}</span>
+                    <div className="bank-card-body rejected-body">
+                      <div className="rejection-reason">
+                        <span className="reason-icon">ℹ️</span>
+                        <span className="reason-text">{bank.reason || 'Not eligible'}</span>
+                      </div>
                     </div>
                   )}
 
@@ -445,7 +315,7 @@ const CustomerResultsDisplay = ({ results, metadata }) => {
                   {bank.calculationMethod && (
                     <div className="calculation-details">
                       <h5>📊 Calculation Method: <strong>{bank.calculationMethod}</strong></h5>
-                      
+
                       {/* INCENTIVE BREAKDOWN - ALWAYS SHOW IF METADATA HAS INCENTIVE */}
                       {metadata && (metadata.averageIncentive > 0 || metadata.incentiveMonth1 || metadata.incentiveMonth2 || metadata.incentiveMonth3) && (
                         <div className="calc-section incentive-section" style={{ background: 'linear-gradient(135deg, #fff9e6 0%, #ffe6b3 100%)', border: '2px solid #ffa500' }}>
@@ -455,15 +325,15 @@ const CustomerResultsDisplay = ({ results, metadata }) => {
                               <span className="step-label">Your Last 3 Months Incentive:</span>
                               <span className="step-value">
                                 <strong>
-                                  {metadata.incentiveMonth1 ? `₹${parseFloat(metadata.incentiveMonth1).toLocaleString('en-IN')}` : '₹0'} + 
-                                  {metadata.incentiveMonth2 ? `₹${parseFloat(metadata.incentiveMonth2).toLocaleString('en-IN')}` : '₹0'} + 
+                                  {metadata.incentiveMonth1 ? `₹${parseFloat(metadata.incentiveMonth1).toLocaleString('en-IN')}` : '₹0'} +
+                                  {metadata.incentiveMonth2 ? `₹${parseFloat(metadata.incentiveMonth2).toLocaleString('en-IN')}` : '₹0'} +
                                   {metadata.incentiveMonth3 ? `₹${parseFloat(metadata.incentiveMonth3).toLocaleString('en-IN')}` : '₹0'}
                                 </strong>
                               </span>
                             </div>
                             <div className="calc-step">
                               <span className="step-label">Average Monthly Incentive:</span>
-                              <span className="step-value"><strong>₹{metadata.averageIncentive ? parseFloat(metadata.averageIncentive).toLocaleString('en-IN', {maximumFractionDigits: 0}) : '0'}</strong></span>
+                              <span className="step-value"><strong>₹{metadata.averageIncentive ? parseFloat(metadata.averageIncentive).toLocaleString('en-IN', { maximumFractionDigits: 0 }) : '0'}</strong></span>
                             </div>
                             <div className="calc-step result" style={{ background: bank.incentivePercentage > 0 ? '#e8f5e9' : '#ffebee' }}>
                               <span className="step-label">Bank's Incentive Policy:</span>
@@ -471,23 +341,23 @@ const CustomerResultsDisplay = ({ results, metadata }) => {
                             </div>
                             <div className="calc-step result">
                               <span className="step-label">Incentive Amount Considered:</span>
-                              <span className="step-value"><strong>₹{metadata.averageIncentive ? (parseFloat(metadata.averageIncentive) * (bank.incentivePercentage || 0)).toLocaleString('en-IN', {maximumFractionDigits: 0}) : '0'}</strong></span>
+                              <span className="step-value"><strong>₹{metadata.averageIncentive ? (parseFloat(metadata.averageIncentive) * (bank.incentivePercentage || 0)).toLocaleString('en-IN', { maximumFractionDigits: 0 }) : '0'}</strong></span>
                             </div>
-                            
+
                             {/* SALARY BREAKDOWN */}
                             <div style={{ marginTop: '12px', padding: '12px', background: '#f8f9fa', borderRadius: '6px', border: '1px solid #dee2e6' }}>
                               <div style={{ fontSize: '0.9em', fontWeight: '600', marginBottom: '8px', color: '#495057' }}>📊 Salary Breakdown:</div>
                               <div className="calc-step" style={{ marginBottom: '4px' }}>
                                 <span className="step-label">Basic Salary (Old):</span>
-                                <span className="step-value"><strong>₹{metadata.basicSalary ? parseFloat(metadata.basicSalary).toLocaleString('en-IN', {maximumFractionDigits: 0}) : '0'}</strong></span>
+                                <span className="step-value"><strong>₹{metadata.basicSalary ? parseFloat(metadata.basicSalary).toLocaleString('en-IN', { maximumFractionDigits: 0 }) : '0'}</strong></span>
                               </div>
                               <div className="calc-step" style={{ marginBottom: '4px', color: '#28a745' }}>
-                                <span className="step-label">+ Incentive Added ({((bank.incentivePercentage || 0) * 100).toFixed(0)}% of ₹{metadata.averageIncentive ? parseFloat(metadata.averageIncentive).toLocaleString('en-IN', {maximumFractionDigits: 0}) : '0'}):</span>
-                                <span className="step-value"><strong style={{ color: '#28a745' }}>+₹{metadata.averageIncentive ? (parseFloat(metadata.averageIncentive) * (bank.incentivePercentage || 0)).toLocaleString('en-IN', {maximumFractionDigits: 0}) : '0'}</strong></span>
+                                <span className="step-label">+ Incentive Added ({((bank.incentivePercentage || 0) * 100).toFixed(0)}% of ₹{metadata.averageIncentive ? parseFloat(metadata.averageIncentive).toLocaleString('en-IN', { maximumFractionDigits: 0 }) : '0'}):</span>
+                                <span className="step-value"><strong style={{ color: '#28a745' }}>+₹{metadata.averageIncentive ? (parseFloat(metadata.averageIncentive) * (bank.incentivePercentage || 0)).toLocaleString('en-IN', { maximumFractionDigits: 0 }) : '0'}</strong></span>
                               </div>
                               <div className="calc-step highlight" style={{ borderTop: '2px solid #28a745', paddingTop: '8px', marginTop: '8px' }}>
                                 <span className="step-label">Effective Salary (New):</span>
-                                <span className="step-value"><strong style={{ fontSize: '1.1em', color: '#155724' }}>₹{metadata.basicSalary ? (parseFloat(metadata.basicSalary) + (parseFloat(metadata.averageIncentive || 0) * (bank.incentivePercentage || 0))).toLocaleString('en-IN', {maximumFractionDigits: 0}) : '0'}</strong></span>
+                                <span className="step-value"><strong style={{ fontSize: '1.1em', color: '#155724' }}>₹{metadata.basicSalary ? (parseFloat(metadata.basicSalary) + (parseFloat(metadata.averageIncentive || 0) * (bank.incentivePercentage || 0))).toLocaleString('en-IN', { maximumFractionDigits: 0 }) : '0'}</strong></span>
                               </div>
                             </div>
                             {bank.incentivePercentage === 0 && (
@@ -508,7 +378,7 @@ const CustomerResultsDisplay = ({ results, metadata }) => {
                           </div>
                         </div>
                       )}
-                      
+
                       {/* FOIR-based or Combined Method */}
                       {(bank.details?.foirCap || bank.details?.availableEMI || bank.details?.foirLoanAmount || bank.details?.maxLoanFromFOIR) && (
                         <div className="calc-section foir-section">
@@ -717,117 +587,11 @@ const CustomerResultsDisplay = ({ results, metadata }) => {
                     </div>
                   )}
 
-                  {/* BALANCE TRANSFER INFO */}
-                  {bank.btConfig && (
-                    <div className="bt-info">
-                      <h5>🔄 Balance Transfer Support:</h5>
-                      <div className="bt-details">
-                        {bank.btConfig.isAvailable ? (
-                          <>
-                            <div className="bt-available">✅ BT Available</div>
-                            <div>✓ Max loans for BT: <strong>{bank.btConfig.maxLoansForBT}</strong></div>
-                            <div>✓ Accepts Fintech loans: <strong>{bank.btConfig.acceptsFintechLoans ? 'Yes' : 'No'}</strong></div>
-                            {bank.btConfig.description && (
-                              <div className="bt-desc">{bank.btConfig.description}</div>
-                            )}
-                          </>
-                        ) : (
-                          <div className="bt-not-available">❌ BT Not Available</div>
-                        )}
-                      </div>
-                    </div>
-                  )}
 
-                  {/* CATEGORY & EMPLOYMENT INFO */}
-                  {bank.category && (
-                    <div className="category-info">
-                      <h5>📋 Applicant Classification:</h5>
-                      <div className="category-details">
-                        <div>✓ Category: <strong>{bank.category}</strong></div>
-                        {bank.employmentType && (
-                          <div>✓ Employment: <strong>{bank.employmentType}</strong></div>
-                        )}
-                      </div>
-                    </div>
-                  )}
+
                 </div>
-              ) : (
-                <div className="bank-card-body rejected-body">
-                  <div className="rejection-reason">
-                    <span className="reason-icon">ℹ️</span>
-                    <span className="reason-text">{bank.reason || 'Not eligible'}</span>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+              ))}</div>
       </div>
-
-      {/* Comparison Table */}
-      {eligibleBanks.length > 0 && (
-        <div className="comparison-section">
-          <h3>📊 Quick Comparison Table</h3>
-          <div className="table-wrapper">
-            <table className="comparison-table">
-              <thead>
-                <tr>
-                  <th className="select-column">Select</th>
-                  <th>Bank Name</th>
-                  <th>Loan Amount</th>
-                  <th>Monthly EMI</th>
-                  <th>Interest Rate</th>
-                  <th>Tenure</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedEligibleBanks.map((bank, index) => (
-                  <tr key={index} className={`${bank === bestOffer ? 'best-row' : ''} ${selectedBanks.includes(bank.bankName) ? 'selected-row' : ''}`}>
-                    <td className="select-cell">
-                      <input 
-                        type="checkbox"
-                        id={`table-bank-select-${index}`}
-                        checked={selectedBanks.includes(bank.bankName)}
-                        onChange={() => handleBankSelect(bank.bankName, true)}
-                        className="table-checkbox"
-                      />
-                      <label htmlFor={`table-bank-select-${index}`} className="checkbox-label"></label>
-                    </td>
-                    <td className="bank-name">
-                      {bank === bestOffer && '🏆 '}
-                      <strong>{bank.bankName}</strong>
-                    </td>
-                    <td className="amount">{formatCurrency(bank.loanAmount)}</td>
-                    <td>{formatNumber(bank.monthlyEMI)}</td>
-                    <td>{bank.interestRate}%</td>
-                    <td>{bank.loanTenure} years</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          
-          {/* Submit Button Below Table */}
-          <div className="table-submit-section">
-            <div className="selection-summary-compact">
-              <span className="selected-count">
-                {selectedBanks.length > 0 ? (
-                  <>🎯 <strong>{selectedBanks.length}</strong> bank{selectedBanks.length > 1 ? 's' : ''} selected</>
-                ) : (
-                  <>ℹ️ Please select at least one bank from the table above</>
-                )}
-              </span>
-            </div>
-            <button 
-              className="table-submit-btn"
-              onClick={handleSubmitSelection}
-              disabled={selectedBanks.length === 0}
-            >
-              🚀 Proceed with Selected Banks ({selectedBanks.length})
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* No Results Message */}
       {eligibleBanks.length === 0 && (
@@ -850,3 +614,4 @@ const CustomerResultsDisplay = ({ results, metadata }) => {
 };
 
 export default CustomerResultsDisplay;
+
