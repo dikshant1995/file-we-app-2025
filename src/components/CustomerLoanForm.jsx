@@ -235,15 +235,15 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="customer-loan-form">
+    <form onSubmit={handleSubmit} className="customer-loan-form professional-grid-bg">
       <div className="form-header">
-        <h2>🏦 Loan Eligibility Calculator</h2>
-        <p>Get instant loan offers from 12 banks</p>
+        <h2>Financial Analysis Engine</h2>
+        <p>Comprehensive eligibility assessment across institutional databases</p>
       </div>
 
       {/* Personal Details */}
       <div className="form-section">
-        <h3>👤 Personal Details</h3>
+        <h3>Personal Identification</h3>
         <div className="form-row-two">
           <div className="form-group">
             <label htmlFor="customerName">
@@ -315,13 +315,13 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
           alignItems: 'center',
           gap: '10px',
         }}>
-          ⚠️ {validationError}
+          Attention: {validationError}
         </div>
       )}
 
       {/* Salary Information */}
       <div className="form-section">
-        <h3>💰 Salary Information</h3>
+        <h3>Financial Compensation</h3>
 
         <div className="form-group">
           <label htmlFor="basicSalary">
@@ -439,7 +439,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
               </div>
             </div>
             <div style={{ marginTop: '10px', fontSize: '0.85em', color: '#555', fontStyle: 'italic' }}>
-              💡 Banks will apply their own percentage (25%-100%) to this average based on their policies.
+              Note: Banks will apply their own percentage (25%-100%) to this average based on their policies.
             </div>
           </div>
         )}
@@ -458,7 +458,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
 
       {/* Personal & Employment Details */}
       <div className="form-section">
-        <h3>👔 Personal & Employment Details</h3>
+        <h3>Employment & Personal Profile</h3>
 
         <div className="form-group">
           <label htmlFor="age">
@@ -535,7 +535,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
 
       {/* Existing Loans */}
       <div className="form-section">
-        <h3>📋 Existing Loans</h3>
+        <h3>Financial Commitments</h3>
 
         <div className="form-group checkbox-group">
           <label>
@@ -687,7 +687,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
                   loan.lender !== 'other'
                 ) && (
                     <div style={{ marginTop: '10px', padding: '10px', background: '#fff3cd', borderRadius: '5px', borderLeft: '4px solid #ffc107' }}>
-                      <strong>⚠️ Banks Excluded:</strong>
+                      <strong>Bank Exclusions Detected:</strong>
                       <div style={{ marginTop: '5px', fontSize: '0.9em' }}>
                         {formData.existingLoans
                           .filter(loan =>
@@ -698,7 +698,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
                           )
                           .map((loan, idx) => (
                             <div key={idx} style={{ color: '#856404' }}>
-                              ❌ <strong style={{ textTransform: 'capitalize' }}>{loan.lender}</strong> - You already have a personal loan from this bank
+                              Exclusion: <strong style={{ textTransform: 'capitalize' }}>{loan.lender}</strong> - Active personal loan detected with this institution
                             </div>
                           ))
                         }
@@ -717,7 +717,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
       {/* Balance Transfer Section */}
       {formData.hasExistingLoans && formData.existingLoans.length > 0 && (
         <div className="form-section" style={{ background: '#f0f7ff', borderLeft: '4px solid #2196f3' }}>
-          <h3>🔄 Balance Transfer Option</h3>
+          <h3>Balance Transfer Optimization</h3>
 
           <div className="form-group checkbox-group">
             <label>
@@ -818,7 +818,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
           className="btn-submit"
           disabled={loading}
         >
-          {loading ? '🔄 Calculating...' : '🚀 Check My Eligibility'}
+          {loading ? 'Processing Analysis...' : 'Generate Eligibility Report'}
         </button>
       </div>
 
@@ -826,10 +826,10 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
       <div className="form-note">
         <p><strong>Note:</strong></p>
         <ul>
-          <li>✅ All banks use <strong>11% fixed interest rate</strong></li>
-          <li>✅ Loan tenure is automatically optimized by each bank</li>
-          <li>✅ Maximum loan amount is calculated based on your eligibility</li>
-          <li>✅ Results show offers from all 12 banks instantly</li>
+          <li>Fixed 11% interest rate calculation across all institutions</li>
+          <li>Optimized loan tenure based on specific banking algorithms</li>
+          <li>Maximum eligibility limit assessment in real-time</li>
+          <li>Comprehensive multi-bank comparison reports</li>
         </ul>
       </div>
     </form>
