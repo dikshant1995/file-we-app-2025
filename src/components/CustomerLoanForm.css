@@ -1,392 +1,275 @@
 /* ============================================
-   CUSTOMER LOAN FORM — HOLOGRAPHIC DARK THEME
+   CUSTOMER LOAN FORM — PROFESSIONAL AI THEME
+   Matches the landing page aesthetic
    ============================================ */
 
 .customer-loan-form {
   width: 100%;
-  padding: 40px 36px;
-  background: transparent;
-  color: #e8f4ff;
-  font-family: 'Inter', 'Space Grotesk', sans-serif;
+  padding: 60px 40px;
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  border-radius: 20px;
+  border: 1px solid var(--border-glow);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.4);
+  position: relative;
 }
 
 /* ---- Form Header ---- */
 .form-header {
   text-align: center;
-  margin-bottom: 36px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+  margin-bottom: 48px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--border-glow);
 }
 
 .form-header h2 {
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: #e8f4ff;
-  margin-bottom: 6px;
   font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
 }
 
 .form-header p {
-  color: #3a6080;
-  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-size: 1rem;
+  font-weight: 500;
 }
 
 /* ---- Form Section Blocks ---- */
 .form-section {
   margin-bottom: 24px;
-  padding: 22px;
-  background: rgba(0, 20, 40, 0.4);
-  border-radius: 10px;
-  border: 1px solid rgba(0, 212, 255, 0.07);
-  border-left: 2px solid rgba(0, 212, 255, 0.35);
-  transition: border-left-color 0.3s ease;
+  padding: 28px;
+  background: var(--bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--border-glow);
+  transition: all 0.3s ease;
 }
 
 .form-section:hover {
-  border-left-color: rgba(0, 212, 255, 0.7);
+  border-color: var(--border-active);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.05);
 }
 
 .form-section h3 {
-  font-size: 0.95rem;
-  color: #00d4ff;
-  margin-bottom: 18px;
-  font-weight: 600;
-  letter-spacing: 0.03em;
   font-family: 'Space Grotesk', sans-serif;
-}
-
-/* ---- Two-column row ---- */
-.form-row-two {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-@media (max-width: 600px) {
-  .form-row-two {
-    grid-template-columns: 1fr;
-  }
+  font-size: 1.1rem;
+  color: var(--accent-cyan);
+  margin-bottom: 24px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 /* ---- Form Group ---- */
 .form-group {
-  position: relative;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .form-group label {
   display: block;
-  font-weight: 500;
-  color: #4a7a9b;
-  margin-bottom: 6px;
-  font-size: 0.8rem;
-  letter-spacing: 0.06em;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
 .required {
-  color: #ff4d6d;
-  margin-left: 3px;
-}
-
-.optional {
-  color: #2a4a60;
-  font-weight: normal;
-  font-size: 0.85em;
-  text-transform: none;
-  letter-spacing: 0;
+  color: var(--danger);
+  margin-left: 2px;
 }
 
 /* ---- Inputs & Selects ---- */
-.form-group input[type="number"],
-.form-group input[type="text"],
-.form-group input[type="tel"],
+.form-group input,
 .form-group select {
   width: 100%;
-  padding: 10px 14px;
-  background: rgba(0, 15, 35, 0.7);
-  border: 1px solid rgba(0, 212, 255, 0.1);
-  border-radius: 7px;
-  font-size: 0.92rem;
-  color: #c8dff0;
-  transition: all 0.25s ease;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-glow);
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #fff;
+  transition: all 0.2s ease;
   outline: none;
   font-family: 'Inter', sans-serif;
-  box-sizing: border-box;
 }
 
-.form-group input[type="number"]:focus,
-.form-group input[type="text"]:focus,
+.form-group input:focus,
 .form-group select:focus {
-  border-color: rgba(0, 212, 255, 0.5);
-  background: rgba(0, 20, 45, 0.9);
-  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.08), 0 0 15px rgba(0, 212, 255, 0.1);
-  color: #e8f4ff;
+  border-color: var(--accent-cyan);
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.15);
 }
 
 .form-group input::placeholder {
-  color: #1e3a50;
-}
-
-.form-group select option {
-  background: #010d1f;
-  color: #c8dff0;
+  color: #334e68;
 }
 
 /* ---- Help Text ---- */
 .help-text {
   display: block;
-  margin-top: 5px;
-  color: #2a4a60;
-  font-size: 0.78rem;
-  font-style: italic;
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1.4;
 }
 
 /* ---- Total Income Display ---- */
 .total-income-display {
-  margin-top: 12px;
-  padding: 12px 16px;
-  background: rgba(0, 255, 136, 0.06);
-  border-radius: 7px;
-  border-left: 2px solid #00ff88;
-  font-size: 0.9rem;
+  margin-top: 24px;
+  padding: 16px 20px;
+  background: rgba(0, 255, 136, 0.03);
+  border: 1px solid rgba(0, 255, 136, 0.1);
+  border-radius: 8px;
+  font-size: 1rem;
   color: #00ff88;
   font-weight: 600;
-}
-
-/* ---- Checkbox ---- */
-.checkbox-group label {
-  display: flex;
-  align-items: center;
-  font-weight: 400;
-  cursor: pointer;
-  color: #4a7a9b;
-  font-size: 0.9rem;
-  text-transform: none;
-  letter-spacing: 0;
-}
-
-.checkbox-group input[type="checkbox"] {
-  margin-right: 10px;
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-  accent-color: #00d4ff;
+  text-align: center;
 }
 
 /* ---- Existing Loans Section ---- */
 .existing-loans-section {
-  margin-top: 16px;
-  padding: 16px;
-  background: rgba(0, 10, 25, 0.4);
-  border-radius: 8px;
-  border: 1px solid rgba(0, 212, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .loan-item {
-  margin-bottom: 18px;
-  padding: 16px;
-  background: rgba(0, 20, 40, 0.5);
-  border-radius: 8px;
-  border: 1px solid rgba(0, 212, 255, 0.07);
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-glow);
+  border-radius: 12px;
+  padding: 20px;
 }
 
 .loan-item-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(0, 212, 255, 0.06);
+  margin-bottom: 16px;
 }
 
 .loan-item-header h4 {
-  color: #00d4ff;
-  margin: 0;
-  font-size: 0.88rem;
-  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-weight: 700;
 }
 
 .btn-remove {
-  padding: 4px 12px;
-  background: rgba(255, 0, 80, 0.08);
-  color: #ff4d6d;
-  border: 1px solid rgba(255, 0, 80, 0.2);
-  border-radius: 5px;
-  cursor: pointer;
+  padding: 4px 10px;
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 4px;
   font-size: 0.8rem;
-  font-weight: 600;
-  transition: all 0.2s ease;
 }
 
 .btn-remove:hover {
-  background: rgba(255, 0, 80, 0.15);
-  border-color: rgba(255, 0, 80, 0.4);
+  background: var(--danger);
+  color: #fff;
 }
 
-.loan-fields {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
-}
-
-/* ---- Add Loan Button ---- */
 .btn-add-loan {
   width: 100%;
-  padding: 10px;
-  background: rgba(0, 128, 255, 0.06);
-  color: #0080ff;
-  border: 1px dashed rgba(0, 128, 255, 0.3);
-  border-radius: 7px;
-  cursor: pointer;
-  font-size: 0.88rem;
+  padding: 12px;
+  background: transparent;
+  border: 1px dashed var(--border-glow);
+  color: var(--accent-cyan);
+  border-radius: 8px;
+  font-size: 0.9rem;
   font-weight: 600;
-  transition: all 0.25s ease;
-  margin-top: 12px;
-  font-family: 'Inter', sans-serif;
+  cursor: pointer;
 }
 
 .btn-add-loan:hover {
-  background: rgba(0, 128, 255, 0.12);
-  border-color: rgba(0, 128, 255, 0.5);
-  transform: translateY(-1px);
-}
-
-/* ---- Loans Summary ---- */
-.loans-summary {
-  margin-top: 14px;
-  padding: 12px 16px;
-  background: rgba(245, 158, 11, 0.06);
-  border-radius: 7px;
-  border-left: 2px solid #f59e0b;
-  font-size: 0.88rem;
-  color: #fbbf24;
-  font-weight: 500;
-}
-
-/* ---- Autocomplete ---- */
-.autocomplete-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  max-height: 240px;
-  overflow-y: auto;
-  background: #010d1f;
-  border: 1px solid rgba(0, 212, 255, 0.25);
-  border-top: none;
-  border-radius: 0 0 7px 7px;
-  z-index: 1000;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7);
-}
-
-.autocomplete-item {
-  padding: 9px 14px;
-  cursor: pointer;
-  transition: background 0.15s;
-  border-bottom: 1px solid rgba(0, 212, 255, 0.04);
-  color: #4a7a9b;
-  font-size: 0.88rem;
-}
-
-.autocomplete-item:hover {
-  background: rgba(0, 212, 255, 0.08);
-  color: #00d4ff;
-}
-
-.autocomplete-item:last-child {
-  border-bottom: none;
+  background: rgba(0, 212, 255, 0.05);
+  border-style: solid;
 }
 
 /* ---- Submit Button ---- */
 .form-actions {
-  margin-top: 32px;
-  text-align: center;
+  margin-top: 40px;
 }
 
 .btn-submit {
-  padding: 13px 52px;
-  background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 80, 200, 0.2));
-  color: #00d4ff;
-  border: 1px solid rgba(0, 212, 255, 0.4);
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 700;
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 800;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(0, 212, 255, 0.15);
-  min-width: 220px;
-  font-family: 'Space Grotesk', sans-serif;
-  letter-spacing: 0.04em;
-  position: relative;
-  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 212, 255, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.btn-submit:hover:not(:disabled) {
-  background: linear-gradient(135deg, rgba(0, 212, 255, 0.25), rgba(0, 80, 200, 0.3));
-  border-color: #00d4ff;
-  box-shadow: 0 0 30px rgba(0, 212, 255, 0.3), 0 0 60px rgba(0, 212, 255, 0.1);
+.btn-submit:hover {
   transform: translateY(-2px);
-  color: #fff;
+  box-shadow: 0 8px 30px rgba(0, 212, 255, 0.4);
+  filter: brightness(1.1);
 }
 
 .btn-submit:disabled {
-  background: rgba(0, 30, 60, 0.3);
-  color: #1e3a50;
+  background: #334155;
   cursor: not-allowed;
+  transform: none;
   box-shadow: none;
-  border-color: rgba(0, 212, 255, 0.05);
 }
 
-/* ---- Form Note ---- */
+/* ---- Grid Layout ---- */
+.form-row-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .customer-loan-form {
+    padding: 30px 20px;
+  }
+
+  .form-row-two {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Note Section ---- */
 .form-note {
-  margin-top: 20px;
-  padding: 14px 18px;
-  background: rgba(0, 80, 200, 0.05);
+  margin-top: 32px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.02);
   border-radius: 8px;
-  border-left: 2px solid rgba(0, 128, 255, 0.3);
+  border: 1px solid var(--border-glow);
 }
 
 .form-note p {
-  font-weight: 600;
-  color: #0080ff;
-  margin-bottom: 6px;
-  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 700;
+  margin-bottom: 12px;
 }
 
 .form-note ul {
   list-style: none;
   padding: 0;
-  margin: 0;
 }
 
 .form-note li {
-  padding: 3px 0;
-  color: #2a4a60;
-  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+  padding-left: 20px;
+  position: relative;
 }
 
 .form-note li::before {
-  content: '→ ';
-  color: #0080ff;
-}
-
-/* ---- Responsive ---- */
-@media (max-width: 768px) {
-  .customer-loan-form {
-    padding: 24px 16px;
-  }
-
-  .form-section {
-    padding: 16px;
-  }
-
-  .loan-fields {
-    grid-template-columns: 1fr;
-  }
-
-  .btn-submit {
-    width: 100%;
-    padding: 13px 24px;
-  }
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--accent-cyan);
 }
