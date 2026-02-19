@@ -89,7 +89,7 @@
 .ai-form-section {
   position: relative;
   padding: 80px 20px 100px;
-  overflow: hidden;
+  /* No overflow:hidden — keeps GPU layer clean during scroll */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -130,6 +130,20 @@
 }
 
 @keyframes pulse {
+
+  /* Opacity-only: runs on compositor thread, zero repaint */
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* Unused — kept for reference */
+@keyframes _pulse_unused {
 
   0%,
   100% {
