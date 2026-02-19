@@ -14,37 +14,37 @@ const AdminDashboard = () => {
   const [customBanks, setCustomBanks] = useState([]);
 
   const menuItems = [
-    { id: 'banks', icon: '🏦', label: 'Banks Overview', component: 'BankList' },
-    { id: 'config', icon: '⚙️', label: 'Bank Configuration', component: 'BankConfigEditor' },
-    { id: 'categories', icon: '📊', label: 'Categories (A/B/C/D)', component: 'BankConfigEditor', section: 'categories' },
-    { id: 'interest', icon: '📈', label: 'Interest Rates', component: 'BankConfigEditor', section: 'interest' },
-    { id: 'loan-capping', icon: '💰', label: 'Loan Amount Capping', component: 'BankConfigEditor', section: 'loanCapping' },
-    { id: 'age-rules', icon: '🎂', label: 'Age-Based Rules', component: 'BankConfigEditor', section: 'ageRules' },
-    { id: 'tenure', icon: '⏱️', label: 'Tenure Rules', component: 'BankConfigEditor', section: 'tenureRules' },
-    { id: 'foir', icon: '📊', label: 'FOIR Settings', component: 'BankConfigEditor', section: 'foir' },
-    { id: 'multiplier', icon: '🔢', label: 'Multiplier Rules', component: 'BankConfigEditor', section: 'multiplier' },
-    { id: 'bt', icon: '🔄', label: 'Balance Transfer', component: 'BankConfigEditor', section: 'bt' },
-    { id: 'credit-score', icon: '⭐', label: 'Credit Score Rules', component: 'BankConfigEditor', section: 'creditScore' },
-    { id: 'employment', icon: '💼', label: 'Employment Rules', component: 'BankConfigEditor', section: 'employment' },
-    { id: 'documents', icon: '📄', label: 'Document Requirements', component: 'BankConfigEditor', section: 'documents' },
-    { id: 'special', icon: '🌟', label: 'Special Rules', component: 'BankConfigEditor', section: 'special' },
-    { id: 'fees', icon: '💵', label: 'Fees & Charges', component: 'BankConfigEditor', section: 'fees' },
-    { id: 'analytics', icon: '📊', label: 'Analytics & Reports', component: 'Analytics' },
-    { id: 'import-export', icon: '📥', label: 'Import/Export', component: 'ImportExport' },
-    { id: 'audit', icon: '📝', label: 'Audit Log', component: 'AuditLog' }
+    { id: 'banks', icon: '', label: 'Institutional Overview', component: 'BankList' },
+    { id: 'config', icon: '', label: 'Policy Configuration', component: 'BankConfigEditor' },
+    { id: 'categories', icon: '', label: 'Categorization Models', component: 'BankConfigEditor', section: 'categories' },
+    { id: 'interest', icon: '', label: 'Rate Structures', component: 'BankConfigEditor', section: 'interest' },
+    { id: 'loan-capping', icon: '', label: 'Capital Capping', component: 'BankConfigEditor', section: 'loanCapping' },
+    { id: 'age-rules', icon: '', label: 'Demographic Rules', component: 'BankConfigEditor', section: 'ageRules' },
+    { id: 'tenure', icon: '', label: 'Tenure Optimization', component: 'BankConfigEditor', section: 'tenureRules' },
+    { id: 'foir', icon: '', label: 'FOIR Parameters', component: 'BankConfigEditor', section: 'foir' },
+    { id: 'multiplier', icon: '', label: 'Multiplier Logic', component: 'BankConfigEditor', section: 'multiplier' },
+    { id: 'bt', icon: '', label: 'Liability Consolidation', component: 'BankConfigEditor', section: 'bt' },
+    { id: 'credit-score', icon: '', label: 'Risk Assessment', component: 'BankConfigEditor', section: 'creditScore' },
+    { id: 'employment', icon: '', label: 'Employment Credentialing', component: 'BankConfigEditor', section: 'employment' },
+    { id: 'documents', icon: '', label: 'Documentation Protocol', component: 'BankConfigEditor', section: 'documents' },
+    { id: 'special', icon: '', label: 'Exceptional Policies', component: 'BankConfigEditor', section: 'special' },
+    { id: 'fees', icon: '', label: 'Fee Schedules', component: 'BankConfigEditor', section: 'fees' },
+    { id: 'analytics', icon: '', label: 'Performance Analytics', component: 'Analytics' },
+    { id: 'import-export', icon: '', label: 'Data Migration', component: 'ImportExport' },
+    { id: 'audit', icon: '', label: 'Governance Logs', component: 'AuditLog' }
   ];
 
   const renderContent = () => {
     const activeItem = menuItems.find(item => item.id === activeMenu);
-    
-    switch(activeItem?.component) {
+
+    switch (activeItem?.component) {
       case 'BankList':
-        return <BankList 
+        return <BankList
           customBanks={customBanks}
           onSelectBank={(bank) => {
             setSelectedBank(bank);
             setActiveMenu('config');
-          }} 
+          }}
           onAddBank={() => setShowAddBankModal(true)}
         />;
       case 'BankConfigEditor':
@@ -62,14 +62,14 @@ const AdminDashboard = () => {
 
   const handleBankAdded = (newBank) => {
     setCustomBanks([...customBanks, newBank]);
-    alert(`✅ ${newBank.name} added successfully with all default policies!\n\nYou can now configure all settings for this bank.`);
+    alert(`Institution "${newBank.name}" initialized successfully with standard regulatory frameworks.\n\nYou may now proceed with granular policy configuration.`);
   };
 
   return (
-    <div className="admin-dashboard">
+    <div className="admin-dashboard professional-grid-bg">
       {/* Add Bank Modal */}
       {showAddBankModal && (
-        <AddBankModal 
+        <AddBankModal
           onClose={() => setShowAddBankModal(false)}
           onBankAdded={handleBankAdded}
         />
@@ -77,10 +77,10 @@ const AdminDashboard = () => {
       {/* Top Header */}
       <header className="dashboard-header">
         <div className="header-content">
-          <h1>🏦 Bank Configuration Dashboard</h1>
+          <h1>Bank Governance & Policy Control</h1>
           <div className="header-actions">
-            <button className="btn-save-all">💾 Save All Changes</button>
-            <button className="btn-export">📤 Export Config</button>
+            <button className="btn-save-all">Commit Global Changes</button>
+            <button className="btn-export">Export Configuration</button>
           </div>
         </div>
       </header>
@@ -115,7 +115,7 @@ const AdminDashboard = () => {
               </button>
             </div>
           )}
-          
+
           <div className="content-area">
             {renderContent()}
           </div>
