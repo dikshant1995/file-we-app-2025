@@ -86,48 +86,44 @@ const CustomerResultsDisplay = ({ results, metadata }) => {
   };
 
   return (
-    <div className="customer-results-display">
+    <div className="customer-results-display professional-grid-bg">
       {/* Results Header */}
       <div className="results-header">
-        <h2>🎉 Your Loan Eligibility Results</h2>
-        <p>Based on your profile, here are offers from 12 banks</p>
+        <h2>Institutional Eligibility Analysis</h2>
+        <p>Verified assessment results across 12 banking institutions</p>
       </div>
 
       {/* Statistics Cards */}
       <div className="stats-grid">
         <div className="stat-card">
-          <div className="stat-icon">🏦</div>
           <div className="stat-value">{stats.eligibleCount}/{stats.totalBanks}</div>
-          <div className="stat-label">Banks Approved</div>
+          <div className="stat-label">Institutions Evaluated</div>
         </div>
 
         {bestOffer && (
           <>
             <div className="stat-card highlight">
-              <div className="stat-icon">🏆</div>
               <div className="stat-value">{formatCurrency(bestOffer.loanAmount)}</div>
-              <div className="stat-label">Best Offer ({bestOffer.bankName})</div>
+              <div className="stat-label">Maximum Opportunity ({bestOffer.bankName})</div>
             </div>
 
             <div className="stat-card">
-              <div className="stat-icon">💳</div>
               <div className="stat-value">{formatNumber(bestOffer.monthlyEMI)}</div>
-              <div className="stat-label">Best Offer EMI</div>
+              <div className="stat-label">Optimal Monthly Obligation</div>
             </div>
           </>
         )}
 
         <div className="stat-card">
-          <div className="stat-icon">📊</div>
           <div className="stat-value">{formatCurrency(stats.avgLoanAmount)}</div>
-          <div className="stat-label">Average Loan Amount</div>
+          <div className="stat-label">Mean Approval Value</div>
         </div>
       </div>
 
       {/* Best Offer Highlight */}
       {bestOffer && (
         <div className="best-offer-card">
-          <div className="best-offer-badge">🏆 BEST OFFER</div>
+          <div className="best-offer-badge">OPTIMAL SELECTION</div>
           <div className="best-offer-content">
             <h3>{bestOffer.bankName}</h3>
             <div className="best-offer-details">
@@ -159,8 +155,8 @@ const CustomerResultsDisplay = ({ results, metadata }) => {
 
       {/* ===== COMPARISON TABLE — right below best offer ===== */}
       {eligibleBanks.length > 0 && (
-        <div className="comparison-section" style={{ marginTop: '28px', marginBottom: '36px' }}>
-          <h3>📊 Quick Comparison — All Banks</h3>
+        <div className="comparison-section">
+          <h3>Consolidated Institutional Comparison</h3>
           <div className="table-wrapper">
             <table className="comparison-table">
               <thead>
@@ -187,7 +183,6 @@ const CustomerResultsDisplay = ({ results, metadata }) => {
                       <label htmlFor={`table-bank-select-${index}`} className="checkbox-label"></label>
                     </td>
                     <td className="bank-name">
-                      {bank === bestOffer && '🏆 '}
                       <strong>{bank.bankName}</strong>
                     </td>
                     <td className="amount">{formatCurrency(bank.loanAmount)}</td>
@@ -205,9 +200,9 @@ const CustomerResultsDisplay = ({ results, metadata }) => {
             <div className="selection-summary-compact">
               <span className="selected-count">
                 {selectedBanks.length > 0 ? (
-                  <>🎯 <strong>{selectedBanks.length}</strong> bank{selectedBanks.length > 1 ? 's' : ''} selected: {selectedBanks.join(', ')}</>
+                  <>Analysis Selection: <strong>{selectedBanks.length}</strong> {selectedBanks.length > 1 ? 'Institutions' : 'Institution'} detected for further verification</>
                 ) : (
-                  <>ℹ️ Tick the banks you want above, then click Proceed</>
+                  <>Identify institutions for secondary evaluation</>
                 )}
               </span>
             </div>
@@ -216,24 +211,24 @@ const CustomerResultsDisplay = ({ results, metadata }) => {
               onClick={handleSubmitSelection}
               disabled={selectedBanks.length === 0 || submitting}
             >
-              {submitting ? '⏳ Submitting…' : `🚀 Proceed with Selected Banks (${selectedBanks.length})`}
+              {submitting ? 'Initiating Transmission...' : 'Proceed with Selected Selection'}
             </button>
 
             {/* Status feedback */}
             {submitStatus === 'noselect' && (
-              <div style={{ marginTop: '12px', padding: '12px 16px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.4)', borderLeft: '3px solid #ef4444', borderRadius: '8px', color: '#fca5a5', fontSize: '0.9rem', fontWeight: '600' }}>
-                ⚠️ Please tick at least one bank to proceed.
+              <div className="status-feedback error">
+                Priority: Please select at least one institution to continue.
               </div>
             )}
             {submitStatus === 'success' && (
-              <div style={{ marginTop: '12px', padding: '14px 18px', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.45)', borderLeft: '4px solid #10b981', borderRadius: '10px', color: '#6ee7b7', fontSize: '0.95rem', fontWeight: '700' }}>
-                ✅ Done! Your selection has been submitted.<br />
-                <span style={{ fontWeight: '500', fontSize: '0.85rem', opacity: 0.85 }}>Selected: {selectedBanks.join(', ')}<br />Our team will contact you shortly.</span>
+              <div className="status-feedback success">
+                Selection Confirmed. Transmission successful.<br />
+                <span className="subtitle">Batch: {selectedBanks.join(', ')}<br />Our analysis team will initiate contact protocol shortly.</span>
               </div>
             )}
             {submitStatus === 'error' && (
-              <div style={{ marginTop: '12px', padding: '12px 16px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.4)', borderLeft: '3px solid #ef4444', borderRadius: '8px', color: '#fca5a5', fontSize: '0.9rem', fontWeight: '600' }}>
-                ❌ Could not submit right now. Please try again or tell your advisor.
+              <div className="status-feedback error">
+                System error encountered. Please re-initiate or notify your administrative lead.
               </div>
             )}
           </div>
@@ -266,7 +261,7 @@ const CustomerResultsDisplay = ({ results, metadata }) => {
 
       {/* All Bank Results */}
       <div className="all-banks-results">
-        <h3>📋 All Bank Offers</h3>
+        <h3>Verified Institutional Assessments</h3>
 
         <div className="banks-grid">
           {(filterEligible === 'eligible' ? sortedEligibleBanks :
@@ -276,12 +271,12 @@ const CustomerResultsDisplay = ({ results, metadata }) => {
                   key={index}
                   className={`bank-card ${bank.eligible ? 'eligible' : 'rejected'} ${bank === bestOffer ? 'best' : ''}`}
                 >
-                  {bank === bestOffer && <div className="best-badge">🏆 Best</div>}
+                  {bank === bestOffer && <div className="best-badge">OPTIMAL</div>}
 
                   <div className="bank-card-header">
                     <h4>{bank.bankName}</h4>
                     <div className={`status-badge ${bank.eligible ? 'approved' : 'rejected'}`}>
-                      {bank.eligible ? '✅ Approved' : '❌ Rejected'}
+                      {bank.eligible ? 'Approved' : 'Rejected'}
                     </div>
                   </div>
 
@@ -290,7 +285,7 @@ const CustomerResultsDisplay = ({ results, metadata }) => {
                       {/* LOAN AMOUNT DISPLAY — clean for all modes */}
                       {(bank.isBTMode || bank.btType === 'BT_WITH_CREDIT_CARDS' || bank.btType === 'BT_WITH_CC_OBLIGATION') ? (
                         <div className="bt-mode-display">
-                          <div className="bt-badge">🔄 Balance Transfer</div>
+                          <div className="bt-badge">Liability Consolidation</div>
                           <div className="bt-breakdown">
                             <div className="bt-item highlight">
                               <span className="bt-label">🏛️ Total Loan Amount</span>
@@ -303,9 +298,9 @@ const CustomerResultsDisplay = ({ results, metadata }) => {
                             </div>
                             <div className="bt-divider">=</div>
                             <div className="bt-item highlight-green">
-                              <span className="bt-label">💵 Cash You Receive</span>
+                              <span className="bt-label">Net Liquidity Disbursal</span>
                               <span className="bt-value success">{formatCurrency(bank.freshAmountDisbursed)}</span>
-                              <span className="bt-subtitle">✅ Actual amount in your account</span>
+                              <span className="bt-subtitle">Verified net credit to account</span>
                             </div>
                           </div>
                         </div>
@@ -319,8 +314,7 @@ const CustomerResultsDisplay = ({ results, metadata }) => {
                   ) : (
                     <div className="bank-card-body rejected-body">
                       <div className="rejection-reason">
-                        <span className="reason-icon">ℹ️</span>
-                        <span className="reason-text">{bank.reason || 'Not eligible'}</span>
+                        <span className="reason-text">Exclusion Parameter: {bank.reason || 'Criteria mismatch'}</span>
                       </div>
                     </div>
                   )}
@@ -343,7 +337,7 @@ const CustomerResultsDisplay = ({ results, metadata }) => {
                   {/* DETAILED CALCULATION BREAKDOWN */}
                   {bank.calculationMethod && (
                     <div className="calculation-details">
-                      <h5>📊 Calculation Method: <strong>{bank.calculationMethod}</strong></h5>
+                      <h5>Assessment Methodology: <strong>{bank.calculationMethod}</strong></h5>
 
                       {/* INCENTIVE BREAKDOWN - ALWAYS SHOW IF METADATA HAS INCENTIVE */}
                       {metadata && (metadata.averageIncentive > 0 || metadata.incentiveMonth1 || metadata.incentiveMonth2 || metadata.incentiveMonth3) && (
