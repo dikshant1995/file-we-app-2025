@@ -7,26 +7,26 @@ const AuditLog = () => {
 
   return (
     <div className="audit-log-container">
-      <h2>📝 Audit Log</h2>
-      <p>Track all configuration changes</p>
+      <h2>System Governance Audit Logs</h2>
+      <p>Chronological record of verified institutional policy modifications</p>
 
-      <div style={{marginTop: '30px', background: 'white', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e0e0e0'}}>
-        <table style={{width: '100%', borderCollapse: 'collapse'}}>
-          <thead style={{background: '#f8f9fa'}}>
+      <div style={{ marginTop: '30px', background: 'var(--bg-card)', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-glow)' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead style={{ background: 'rgba(0,0,0,0.4)' }}>
             <tr>
-              <th style={{padding: '15px', textAlign: 'left', borderBottom: '2px solid #e0e0e0'}}>User</th>
-              <th style={{padding: '15px', textAlign: 'left', borderBottom: '2px solid #e0e0e0'}}>Action</th>
-              <th style={{padding: '15px', textAlign: 'left', borderBottom: '2px solid #e0e0e0'}}>Time</th>
-              <th style={{padding: '15px', textAlign: 'left', borderBottom: '2px solid #e0e0e0'}}>Details</th>
+              <th style={{ padding: '15px', textAlign: 'left', borderBottom: '1px solid var(--border-glow)', color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Identity</th>
+              <th style={{ padding: '15px', textAlign: 'left', borderBottom: '1px solid var(--border-glow)', color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Transaction</th>
+              <th style={{ padding: '15px', textAlign: 'left', borderBottom: '1px solid var(--border-glow)', color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Timestamp</th>
+              <th style={{ padding: '15px', textAlign: 'left', borderBottom: '1px solid var(--border-glow)', color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Metric Changes</th>
             </tr>
           </thead>
           <tbody>
             {mockLogs.map(log => (
               <tr key={log.id}>
-                <td style={{padding: '15px', borderBottom: '1px solid #f0f0f0'}}>{log.user}</td>
-                <td style={{padding: '15px', borderBottom: '1px solid #f0f0f0', fontWeight: '600'}}>{log.action}</td>
-                <td style={{padding: '15px', borderBottom: '1px solid #f0f0f0', color: '#7f8c8d'}}>{log.time}</td>
-                <td style={{padding: '15px', borderBottom: '1px solid #f0f0f0', fontSize: '0.9em', color: '#95a5a6'}}>{log.details}</td>
+                <td style={{ padding: '15px', borderBottom: '1px solid var(--border-glow)', color: 'var(--text-secondary)' }}>{log.user}</td>
+                <td style={{ padding: '15px', borderBottom: '1px solid var(--border-glow)', fontWeight: '700', color: '#fff' }}>{log.action}</td>
+                <td style={{ padding: '15px', borderBottom: '1px solid var(--border-glow)', color: 'var(--text-muted)' }}>{log.time}</td>
+                <td style={{ padding: '15px', borderBottom: '1px solid var(--border-glow)', fontSize: '0.9rem', color: 'var(--accent-cyan)' }}>{log.details}</td>
               </tr>
             ))}
           </tbody>
