@@ -121,11 +121,9 @@ function CustomerFacingApp() {
 
       {/* PAGE 2: Application Form — full page replacement */}
       {showForm && !results && (
-        <motion.div
+        <div
           className="form-page"
-          initial={{ opacity: 0, x: 60 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
+          style={{ animation: 'formFadeIn 0.35s ease-out forwards' }}
         >
           {/* Form Page Navbar */}
           <nav className="form-page-nav">
@@ -141,11 +139,7 @@ function CustomerFacingApp() {
             </div>
           </nav>
 
-          {/* AI Background */}
-          <div className="form-bg-grid"></div>
-          <div className="form-bg-orb form-orb-1"></div>
-          <div className="form-bg-orb form-orb-2"></div>
-          <div className="form-bg-orb form-orb-3"></div>
+
 
           {/* Header */}
           <div className="form-section-header">
@@ -173,7 +167,7 @@ function CustomerFacingApp() {
               <button onClick={() => setError(null)} className="btn-retry">Try Again</button>
             </div>
           )}
-        </motion.div>
+        </div>
       )}
 
       {/* PAGE 3: Results */}
