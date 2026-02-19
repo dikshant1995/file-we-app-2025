@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import './CustomerResultsDisplay.css';
+import { saveSelectedBanks } from '../services/leadService';
 
 const CustomerResultsDisplay = ({ results, metadata }) => {
-  const [sortBy, setSortBy] = useState('loanAmount'); // loanAmount, emi, bank
-  const [filterEligible, setFilterEligible] = useState('all'); // all, eligible, rejected
-  const [selectedBanks, setSelectedBanks] = useState([]); // Array of selected bank names
+  const [sortBy, setSortBy] = useState('loanAmount');
+  const [filterEligible, setFilterEligible] = useState('all');
+  const [selectedBanks, setSelectedBanks] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null); // null | 'success' | 'error'
 
   if (!results || results.length === 0) {
     return null;
@@ -21,15 +24,22 @@ const CustomerResultsDisplay = ({ results, metadata }) => {
     }
   };
 
-  // Handle submit
-  const handleSubmitSelection = () => {
+  // Handle submit — sends selection to Google Sheets
+  const handleSubmitSelection = async () => {
     if (selectedBanks.length === 0) {
-      alert('Please select at least one bank to proceed!');
+      setSubmitStatus('noselect');
       return;
     }
-
-    const bankList = selectedBanks.join(', ');
-    alert('Your application will be processed with: ' + bankList + '. We will contact you shortly!');
+    setSubmitting(true);
+    setSubmitStatus(null);
+    try {
+      await saveSelectedBanks(metadata, selectedBanks);
+      setSubmitStatus('success');
+    } catch {
+      setSubmitStatus('error');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // Separate eligible and rejected banks
@@ -195,22 +205,41 @@ const CustomerResultsDisplay = ({ results, metadata }) => {
             <div className="selection-summary-compact">
               <span className="selected-count">
                 {selectedBanks.length > 0 ? (
-                  <>🎯 <strong>{selectedBanks.length}</strong> bank{selectedBanks.length > 1 ? 's' : ''} selected</>
+                  <>🎯 <strong>{selectedBanks.length}</strong> bank{selectedBanks.length > 1 ? 's' : ''} selected: {selectedBanks.join(', ')}</>
                 ) : (
-                  <>ℹ️ Select banks above to proceed</>
+                  <>ℹ️ Tick the banks you want above, then click Proceed</>
                 )}
               </span>
             </div>
             <button
               className="table-submit-btn"
               onClick={handleSubmitSelection}
-              disabled={selectedBanks.length === 0}
+              disabled={selectedBanks.length === 0 || submitting}
             >
-              🚀 Proceed with Selected Banks ({selectedBanks.length})
+              {submitting ? '⏳ Submitting…' : `🚀 Proceed with Selected Banks (${selectedBanks.length})`}
             </button>
+
+            {/* Status feedback */}
+            {submitStatus === 'noselect' && (
+              <div style={{ marginTop: '12px', padding: '12px 16px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.4)', borderLeft: '3px solid #ef4444', borderRadius: '8px', color: '#fca5a5', fontSize: '0.9rem', fontWeight: '600' }}>
+                ⚠️ Please tick at least one bank to proceed.
+              </div>
+            )}
+            {submitStatus === 'success' && (
+              <div style={{ marginTop: '12px', padding: '14px 18px', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.45)', borderLeft: '4px solid #10b981', borderRadius: '10px', color: '#6ee7b7', fontSize: '0.95rem', fontWeight: '700' }}>
+                ✅ Done! Your selection has been submitted.<br />
+                <span style={{ fontWeight: '500', fontSize: '0.85rem', opacity: 0.85 }}>Selected: {selectedBanks.join(', ')}<br />Our team will contact you shortly.</span>
+              </div>
+            )}
+            {submitStatus === 'error' && (
+              <div style={{ marginTop: '12px', padding: '12px 16px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.4)', borderLeft: '3px solid #ef4444', borderRadius: '8px', color: '#fca5a5', fontSize: '0.9rem', fontWeight: '600' }}>
+                ❌ Could not submit right now. Please try again or tell your advisor.
+              </div>
+            )}
           </div>
         </div>
       )}
+
 
       {/* Filter and Sort Controls */}
       <div className="controls-bar">
