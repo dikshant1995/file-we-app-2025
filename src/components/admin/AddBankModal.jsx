@@ -20,31 +20,31 @@ const AddBankModal = ({ onClose, onBankAdded }) => {
     tenureRules: {
       minTenureMonths: 12,
       maxTenureMonths: 84,
-      categoryBasedMaxTenure: { 
+      categoryBasedMaxTenure: {
         'Super A': 72,
         'SUP-A': 72,
         'AA': 72,
         'A+': 72,
-        'A': 72, 
+        'A': 72,
         'GOVT': 72,
         'Govt': 72,
-        'B': 72, 
+        'B': 72,
         'C': 60,
         'D': 60,
         'UNLISTED': 60
       }
     },
     foirSettings: {
-      categoryBasedFOIR: { 
+      categoryBasedFOIR: {
         'Super A': 70,
         'SUP-A': 70,
         'AA': 70,
         'A+': 65,
-        'A': 65, 
+        'A': 65,
         'GOVT': 65,
         'Govt': 65,
-        'B': 60, 
-        'C': 55, 
+        'B': 60,
+        'C': 55,
         'D': 50,
         'UNLISTED': 50
       },
@@ -52,16 +52,16 @@ const AddBankModal = ({ onClose, onBankAdded }) => {
       btModeFOIRAdjustment: 0
     },
     multiplierRules: {
-      categoryBasedMultiplier: { 
+      categoryBasedMultiplier: {
         'Super A': 35,
         'SUP-A': 27,
         'AA': 31,
         'A+': 30,
-        'A': 30, 
+        'A': 30,
         'GOVT': 27,
         'Govt': 30,
-        'B': 25, 
-        'C': 18, 
+        'B': 25,
+        'C': 18,
         'D': 18,
         'UNLISTED': 15
       },
@@ -75,16 +75,16 @@ const AddBankModal = ({ onClose, onBankAdded }) => {
     },
     interestRates: {
       defaultRate: 11.0,
-      categoryRates: { 
+      categoryRates: {
         'Super A': 11.0,
         'SUP-A': 11.0,
         'AA': 11.0,
         'A+': 11.0,
-        'A': 11.0, 
+        'A': 11.0,
         'GOVT': 11.0,
         'Govt': 11.0,
-        'B': 11.0, 
-        'C': 11.0, 
+        'B': 11.0,
+        'C': 11.0,
         'D': 11.0,
         'UNLISTED': 11.0
       },
@@ -97,16 +97,16 @@ const AddBankModal = ({ onClose, onBankAdded }) => {
     loanCapping: {
       absoluteMaxLoan: 5000000,
       minLoanAmount: 100000,
-      categoryBasedMax: { 
+      categoryBasedMax: {
         'Super A': null,
         'SUP-A': null,
         'AA': null,
         'A+': null,
-        'A': null, 
+        'A': null,
         'GOVT': null,
         'Govt': null,
-        'B': 3000000, 
-        'C': 2000000, 
+        'B': 3000000,
+        'C': 2000000,
         'D': 1000000,
         'UNLISTED': 1000000
       },
@@ -226,7 +226,7 @@ const AddBankModal = ({ onClose, onBankAdded }) => {
 
   const handleAddBank = (e) => {
     e.preventDefault();
-    
+
     if (!bankName.trim()) {
       setError('Bank name is required');
       return;
@@ -253,7 +253,7 @@ const AddBankModal = ({ onClose, onBankAdded }) => {
         color: bankColor,
         enabled: true
       };
-      
+
       onBankAdded(newBank);
       onClose();
     } else {
@@ -261,13 +261,13 @@ const AddBankModal = ({ onClose, onBankAdded }) => {
     }
   };
 
-  const logoOptions = ['🏦', '🏛️', '💳', '💰', '🏢', '🏪', '💼', '📊'];
+  const logoOptions = ['INST-A', 'INST-B', 'INST-C', 'INST-D', 'INST-E', 'INST-F', 'INST-G', 'INST-H'];
 
   return (
     <div className="add-bank-overlay">
       <div className="add-bank-modal">
         <div className="modal-header">
-          <h2>➕ Add New Bank</h2>
+          <h2>Register New Institutional Profile</h2>
           <button className="close-btn" onClick={onClose}>✕</button>
         </div>
 
@@ -317,7 +317,7 @@ const AddBankModal = ({ onClose, onBankAdded }) => {
           </div>
 
           <div className="config-info">
-            <h3>✅ Default Policies Included:</h3>
+            <h3>Standard Regulatory Frameworks Included:</h3>
             <div className="policy-list">
               <div className="policy-item">✓ Age Rules (21-60 years)</div>
               <div className="policy-item">✓ Tenure Rules (12-84 months)</div>
@@ -340,7 +340,7 @@ const AddBankModal = ({ onClose, onBankAdded }) => {
 
           <div className="modal-actions">
             <button type="submit" className="btn-add">
-              ✅ Add Bank
+              Commit Profile Registration
             </button>
             <button type="button" className="btn-cancel" onClick={onClose}>
               Cancel
