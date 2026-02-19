@@ -230,7 +230,8 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
       }
     };
 
-    onSubmit(submissionData);
+    // Pass submissionData to loan engine AND raw formData to lead service
+    onSubmit(submissionData, formData);
   };
 
   return (
