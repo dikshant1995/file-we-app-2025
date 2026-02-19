@@ -298,7 +298,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
               <img src="/founder.jpg" alt="Dikshant Singh Rathore" className="founder-photo" />
             </div>
             <div className="founder-badge-holo">
-              <Sparkles size={12} /> TATA AI VISIONARY
+              <Sparkles size={12} /> LAXMI CREDIT VISIONARY
             </div>
           </motion.div>
 
