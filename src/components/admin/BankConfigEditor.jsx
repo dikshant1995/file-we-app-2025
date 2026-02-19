@@ -21,7 +21,7 @@ const BankConfigEditor = ({ selectedBank, section }) => {
 
   // Bank configuration will be loaded here
   const renderSection = () => {
-    switch(section) {
+    switch (section) {
       case 'categories':
         return <CategoriesSection bank={selectedBank} />;
       case 'interest':
@@ -63,21 +63,21 @@ const BankConfigEditor = ({ selectedBank, section }) => {
 // Placeholder sections - will be fully implemented
 const AllConfigSection = ({ bank }) => (
   <div className="config-section">
-    <h2>⚙️ Complete Configuration for {bank.name}</h2>
+    <h2>Unified Policy Framework: {bank.name}</h2>
     <p>View and edit all configuration settings for this bank</p>
     <div className="config-overview">
-      <div className="overview-card">📊 Categories (A/B/C/D)</div>
-      <div className="overview-card">📈 Interest Rates</div>
-      <div className="overview-card">💰 Loan Capping</div>
-      <div className="overview-card">🎂 Age Rules</div>
-      <div className="overview-card">⏱️ Tenure Rules</div>
-      <div className="overview-card">📊 FOIR Settings</div>
-      <div className="overview-card">🔢 Multipliers</div>
-      <div className="overview-card">🔄 Balance Transfer</div>
-      <div className="overview-card">⭐ Credit Score</div>
-      <div className="overview-card">💼 Employment Rules</div>
-      <div className="overview-card">📄 Documents</div>
-      <div className="overview-card">🌟 Special Rules</div>
+      <div className="overview-card">Categorization Models</div>
+      <div className="overview-card">Rate Structures</div>
+      <div className="overview-card">Capital Capping</div>
+      <div className="overview-card">Demographic Rules</div>
+      <div className="overview-card">Tenure Optimization</div>
+      <div className="overview-card">FOIR Parameters</div>
+      <div className="overview-card">Multiplier Logic</div>
+      <div className="overview-card">Liability Consolidation</div>
+      <div className="overview-card">Risk Assessment</div>
+      <div className="overview-card">Employment Credentialing</div>
+      <div className="overview-card">Documentation Protocol</div>
+      <div className="overview-card">Exceptional Policies</div>
     </div>
   </div>
 );
