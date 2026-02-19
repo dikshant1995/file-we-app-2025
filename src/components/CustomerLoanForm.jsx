@@ -4,6 +4,8 @@ import { loadUniversalCompanies, getCompanySuggestions, initializeBankDatabases 
 
 const CustomerLoanForm = ({ onSubmit, loading }) => {
   const [formData, setFormData] = useState({
+    customerName: '',
+    mobileNumber: '',
     basicSalary: '',
     // Changed: Instead of single averageIncentive, track last 3 months
     incentiveMonth1: '', // Most recent month
@@ -34,7 +36,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
+
     // Debug logging for salary input
     if (name === 'basicSalary') {
       console.log('💰 Salary Input Changed:', {
@@ -43,14 +45,14 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
         parsed: parseFloat(value)
       });
     }
-    
+
     // Handle company name autocomplete
     if (name === 'companyName') {
       const suggestions = getCompanySuggestions(value);
       console.log('🔍 Autocomplete for:', value, '| Suggestions:', suggestions);
       setCompanySuggestions(suggestions);
     }
-    
+
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
@@ -90,9 +92,9 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
         if (loan.id === id) {
           // If changing loan type to Credit Card, clear EMI and set credit card fields
           if (field === 'type' && value === 'Credit Card') {
-            return { 
-              ...loan, 
-              [field]: value, 
+            return {
+              ...loan,
+              [field]: value,
               monthlyEMI: '',
               outstandingAmount: '', // Will use creditLimitUsed instead
               creditLimit: loan.creditLimit || '',
@@ -128,21 +130,38 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
     });
   };
 
+  const [validationError, setValidationError] = useState('');
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+    setValidationError('');
+
+    // ── Guard: Name & Mobile required ──────────────────────────────────────
+    if (!formData.customerName.trim()) {
+      setValidationError('Please enter your full name to continue.');
+      document.getElementById('customerName')?.focus();
+      return;
+    }
+    const mobileRegex = /^[6-9][0-9]{9}$/;
+    if (!mobileRegex.test(formData.mobileNumber)) {
+      setValidationError('Please enter a valid 10-digit mobile number to continue.');
+      document.getElementById('mobileNumber')?.focus();
+      return;
+    }
+    // ───────────────────────────────────────────────────────────────────────
+
     // Parse data EXACTLY as backend expects
     const basicSalary = parseFloat(formData.basicSalary) || 0;
-    
+
     // Calculate average incentive from last 3 months
     const incentiveMonth1 = parseFloat(formData.incentiveMonth1) || 0;
     const incentiveMonth2 = parseFloat(formData.incentiveMonth2) || 0;
     const incentiveMonth3 = parseFloat(formData.incentiveMonth3) || 0;
     const averageIncentive = (incentiveMonth1 + incentiveMonth2 + incentiveMonth3) / 3;
-    
+
     // Total monthly income = basic + incentive (frontend provides total, banks apply their %)
     const totalMonthlyIncome = basicSalary + averageIncentive;
-    
+
     // Calculate total existing EMI (excluding credit cards)
     const totalExistingEMI = formData.existingLoans.reduce((sum, loan) => {
       // Credit cards don't have fixed EMI, skip them
@@ -162,10 +181,10 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
 
     // Extract existing loan bank names (for checking if customer already has loan from same bank)
     const existingLoanBanks = formData.existingLoans
-      .filter(loan => 
-        loan.type === 'Personal Loan' && 
-        loan.lender && 
-        loan.lender.trim() !== '' && 
+      .filter(loan =>
+        loan.type === 'Personal Loan' &&
+        loan.lender &&
+        loan.lender.trim() !== '' &&
         loan.lender !== 'other' // Exclude "Other Bank (Not Listed)"
       )
       .map(loan => loan.lender.trim().toLowerCase());
@@ -195,9 +214,11 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
       // loanTenure will default to 5 years in backend, banks will cap based on age
       // desiredLoanAmount not provided - banks calculate maximum
       // creditScore will default to 700 in backend (used by some banks internally)
-      
+
       // Additional data for display purposes (not used in calculation)
       _metadata: {
+        customerName: formData.customerName,
+        mobileNumber: formData.mobileNumber,
         basicSalary: basicSalary,
         averageIncentive: averageIncentive,
         incentiveMonth1: incentiveMonth1,
@@ -219,10 +240,76 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
         <p>Get instant loan offers from 12 banks</p>
       </div>
 
+      {/* Personal Details */}
+      <div className="form-section">
+        <h3>👤 Personal Details</h3>
+        <div className="form-row-two">
+          <div className="form-group">
+            <label htmlFor="customerName">
+              Full Name <span className="required">*</span>
+            </label>
+            <input
+              type="text"
+              id="customerName"
+              name="customerName"
+              value={formData.customerName}
+              onChange={handleInputChange}
+              placeholder="Enter your full name"
+              required
+              autoComplete="name"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="mobileNumber">
+              Mobile Number <span className="required">*</span>
+            </label>
+            <input
+              type="tel"
+              id="mobileNumber"
+              name="mobileNumber"
+              value={formData.mobileNumber}
+              onChange={handleInputChange}
+              placeholder="10-digit mobile number"
+              required
+              maxLength={10}
+              pattern="[6-9][0-9]{9}"
+              title="Enter a valid 10-digit Indian mobile number"
+              inputMode="numeric"
+            />
+            {formData.mobileNumber && formData.mobileNumber.length === 10 && (
+              <small className="help-text" style={{ color: '#00ff88', fontWeight: '600' }}>
+                ✓ Valid mobile number
+              </small>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Validation Error Banner */}
+      {validationError && (
+        <div style={{
+          width: '100%',
+          padding: '14px 18px',
+          marginBottom: '8px',
+          background: 'rgba(239, 68, 68, 0.08)',
+          border: '1px solid rgba(239, 68, 68, 0.4)',
+          borderLeft: '3px solid #ef4444',
+          borderRadius: '8px',
+          color: '#fca5a5',
+          fontSize: '0.92rem',
+          fontWeight: '600',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+        }}>
+          ⚠️ {validationError}
+        </div>
+      )}
+
       {/* Salary Information */}
       <div className="form-section">
         <h3>💰 Salary Information</h3>
-        
+
         <div className="form-group">
           <label htmlFor="basicSalary">
             Monthly Basic Salary <span className="required">*</span>
@@ -254,7 +341,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
           <small className="help-text" style={{ display: 'block', marginBottom: '10px' }}>
             Enter your incentive/variable pay for the last 3 months. Different banks consider different percentages (25%, 50%, or 100%).
           </small>
-          
+
           <div className="incentive-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px' }}>
             <div>
               <label htmlFor="incentiveMonth1" style={{ fontSize: '0.9em', fontWeight: '600', color: '#555' }}>
@@ -272,7 +359,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
                 style={{ marginTop: '5px' }}
               />
             </div>
-            
+
             <div>
               <label htmlFor="incentiveMonth2" style={{ fontSize: '0.9em', fontWeight: '600', color: '#555' }}>
                 Last Month
@@ -289,7 +376,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
                 style={{ marginTop: '5px' }}
               />
             </div>
-            
+
             <div>
               <label htmlFor="incentiveMonth3" style={{ fontSize: '0.9em', fontWeight: '600', color: '#555' }}>
                 2 Months Ago
@@ -310,10 +397,10 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
         </div>
 
         {(formData.incentiveMonth1 || formData.incentiveMonth2 || formData.incentiveMonth3) && (
-          <div className="incentive-summary" style={{ 
-            marginTop: '15px', 
-            padding: '15px', 
-            background: '#f0f7ff', 
+          <div className="incentive-summary" style={{
+            marginTop: '15px',
+            padding: '15px',
+            background: '#f0f7ff',
             borderRadius: '8px',
             borderLeft: '4px solid #2196f3'
           }}>
@@ -324,17 +411,17 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
               <div>
                 <span style={{ color: '#666' }}>Total (3 months):</span>
                 <strong style={{ marginLeft: '8px' }}>
-                  ₹{((parseFloat(formData.incentiveMonth1) || 0) + 
-                     (parseFloat(formData.incentiveMonth2) || 0) + 
-                     (parseFloat(formData.incentiveMonth3) || 0)).toLocaleString('en-IN')}
+                  ₹{((parseFloat(formData.incentiveMonth1) || 0) +
+                    (parseFloat(formData.incentiveMonth2) || 0) +
+                    (parseFloat(formData.incentiveMonth3) || 0)).toLocaleString('en-IN')}
                 </strong>
               </div>
               <div>
                 <span style={{ color: '#666' }}>Average per month:</span>
                 <strong style={{ marginLeft: '8px' }}>
-                  ₹{(((parseFloat(formData.incentiveMonth1) || 0) + 
-                      (parseFloat(formData.incentiveMonth2) || 0) + 
-                      (parseFloat(formData.incentiveMonth3) || 0)) / 3).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                  ₹{(((parseFloat(formData.incentiveMonth1) || 0) +
+                    (parseFloat(formData.incentiveMonth2) || 0) +
+                    (parseFloat(formData.incentiveMonth3) || 0)) / 3).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                 </strong>
               </div>
             </div>
@@ -347,10 +434,10 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
         {(formData.basicSalary || formData.incentiveMonth1 || formData.incentiveMonth2 || formData.incentiveMonth3) && (
           <div className="total-income-display">
             <strong>Total Monthly Income (Basic + Avg Incentive):</strong> ₹{(
-              (parseFloat(formData.basicSalary) || 0) + 
-              ((parseFloat(formData.incentiveMonth1) || 0) + 
-               (parseFloat(formData.incentiveMonth2) || 0) + 
-               (parseFloat(formData.incentiveMonth3) || 0)) / 3
+              (parseFloat(formData.basicSalary) || 0) +
+              ((parseFloat(formData.incentiveMonth1) || 0) +
+                (parseFloat(formData.incentiveMonth2) || 0) +
+                (parseFloat(formData.incentiveMonth3) || 0)) / 3
             ).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
           </div>
         )}
@@ -359,7 +446,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
       {/* Personal & Employment Details */}
       <div className="form-section">
         <h3>👔 Personal & Employment Details</h3>
-        
+
         <div className="form-group">
           <label htmlFor="age">
             Current Age <span className="required">*</span>
@@ -380,7 +467,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
             Banks use age to decide maximum loan tenure (retirement age limit)
           </small>
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="companyName">
             Company Name <span className="required">*</span>
@@ -436,7 +523,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
       {/* Existing Loans */}
       <div className="form-section">
         <h3>📋 Existing Loans</h3>
-        
+
         <div className="form-group checkbox-group">
           <label>
             <input
@@ -466,7 +553,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
                     ✕ Remove
                   </button>
                 </div>
-                
+
                 <div className="loan-fields">
                   <div className="form-group">
                     <label>Loan Type</label>
@@ -575,41 +662,41 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
 
             {formData.existingLoans.length > 0 && (
               <div className="loans-summary">
-                <strong>Total Existing EMI:</strong> ₹{formData.existingLoans.reduce((sum, loan) => 
+                <strong>Total Existing EMI:</strong> ₹{formData.existingLoans.reduce((sum, loan) =>
                   sum + (parseFloat(loan.monthlyEMI) || 0), 0
                 ).toLocaleString('en-IN')}
-                
+
                 {/* Show which banks will be excluded */}
-                {formData.existingLoans.some(loan => 
-                  loan.type === 'Personal Loan' && 
-                  loan.lender && 
-                  loan.lender.trim() !== '' && 
+                {formData.existingLoans.some(loan =>
+                  loan.type === 'Personal Loan' &&
+                  loan.lender &&
+                  loan.lender.trim() !== '' &&
                   loan.lender !== 'other'
                 ) && (
-                  <div style={{ marginTop: '10px', padding: '10px', background: '#fff3cd', borderRadius: '5px', borderLeft: '4px solid #ffc107' }}>
-                    <strong>⚠️ Banks Excluded:</strong>
-                    <div style={{ marginTop: '5px', fontSize: '0.9em' }}>
-                      {formData.existingLoans
-                        .filter(loan => 
-                          loan.type === 'Personal Loan' && 
-                          loan.lender && 
-                          loan.lender.trim() !== '' && 
-                          loan.lender !== 'other'
-                        )
-                        .map((loan, idx) => (
-                          <div key={idx} style={{ color: '#856404' }}>
-                            ❌ <strong style={{ textTransform: 'capitalize' }}>{loan.lender}</strong> - You already have a personal loan from this bank
-                          </div>
-                        ))
-                      }
-                      <div style={{ marginTop: '5px', fontSize: '0.85em', fontStyle: 'italic', color: '#666' }}>
-                        These banks will not appear in your eligibility results.
+                    <div style={{ marginTop: '10px', padding: '10px', background: '#fff3cd', borderRadius: '5px', borderLeft: '4px solid #ffc107' }}>
+                      <strong>⚠️ Banks Excluded:</strong>
+                      <div style={{ marginTop: '5px', fontSize: '0.9em' }}>
+                        {formData.existingLoans
+                          .filter(loan =>
+                            loan.type === 'Personal Loan' &&
+                            loan.lender &&
+                            loan.lender.trim() !== '' &&
+                            loan.lender !== 'other'
+                          )
+                          .map((loan, idx) => (
+                            <div key={idx} style={{ color: '#856404' }}>
+                              ❌ <strong style={{ textTransform: 'capitalize' }}>{loan.lender}</strong> - You already have a personal loan from this bank
+                            </div>
+                          ))
+                        }
+                        <div style={{ marginTop: '5px', fontSize: '0.85em', fontStyle: 'italic', color: '#666' }}>
+                          These banks will not appear in your eligibility results.
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </div>
-            )}  
+            )}
           </div>
         )}
       </div>
@@ -618,7 +705,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
       {formData.hasExistingLoans && formData.existingLoans.length > 0 && (
         <div className="form-section" style={{ background: '#f0f7ff', borderLeft: '4px solid #2196f3' }}>
           <h3>🔄 Balance Transfer Option</h3>
-          
+
           <div className="form-group checkbox-group">
             <label>
               <input
@@ -637,14 +724,14 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
           {formData.wantsBT && (
             <div style={{ marginTop: '20px' }}>
               <h4 style={{ marginBottom: '15px', color: '#1976d2' }}>Select Loans for Balance Transfer:</h4>
-              
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {formData.existingLoans.map((loan, index) => (
-                  <div 
-                    key={loan.id} 
-                    style={{ 
-                      padding: '15px', 
-                      background: 'white', 
+                  <div
+                    key={loan.id}
+                    style={{
+                      padding: '15px',
+                      background: 'white',
                       borderRadius: '8px',
                       border: formData.selectedLoansForBT.includes(loan.id) ? '2px solid #2196f3' : '2px solid #e0e0e0',
                       cursor: 'pointer',
@@ -713,8 +800,8 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
 
       {/* Submit Button */}
       <div className="form-actions">
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           className="btn-submit"
           disabled={loading}
         >
