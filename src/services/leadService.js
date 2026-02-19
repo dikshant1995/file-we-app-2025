@@ -3,7 +3,7 @@
 //  Paste your Apps Script Web App URL below after deployment.
 // ============================================================
 
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwouXL7JZQO0wjmc6w6PhpYQBDrDg8kk_e53h3DzN2FmBwwyYeiDP_Vi7FnSUY5KuQ2Hg/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyiOviygO2aePo109YeIlNQq3II46ryZ2Vv-NcwBHu8J72RnCFjR8CmVqD4kUhhNT65yg/exec';
 
 /**
  * Sends a lead row to Google Sheets.
@@ -62,3 +62,38 @@ export const saveLead = async (formData, submissionData) => {
         console.error('❌ leadService: Failed to save lead:', err.message);
     }
 };
+
+/**
+ * Sends the customer's bank selection to Google Sheets.
+ * Called when user clicks "Proceed with Selected Banks".
+ *
+ * @param {Object} metadata       - from CustomerResultsDisplay props (has name, mobile, etc.)
+ * @param {Array}  selectedBanks  - array of bank name strings user selected
+ */
+export const saveSelectedBanks = async (metadata, selectedBanks) => {
+    if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'PASTE_YOUR_APPS_SCRIPT_URL_HERE') return;
+
+    try {
+        const payload = {
+            action: 'bank_selection',
+            timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+            name: metadata?.customerName || metadata?.name || '',
+            mobile: metadata?.mobileNumber || metadata?.mobile || '',
+            selectedBanks: selectedBanks.join(', '),
+            bankCount: selectedBanks.length,
+            totalIncome: metadata?.totalIncome || '',
+            company: metadata?.company || '',
+        };
+
+        await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify(payload),
+        });
+
+        console.log('✅ Bank selection saved:', payload.selectedBanks);
+    } catch (err) {
+        console.error('❌ leadService: Failed to save bank selection:', err.message);
+    }
+};
+
