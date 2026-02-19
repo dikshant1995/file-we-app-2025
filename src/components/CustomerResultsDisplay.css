@@ -269,8 +269,8 @@
 }
 
 .bank-card.rejected {
-  border-color: rgba(239, 68, 68, 0.15);
-  opacity: 0.85;
+  border-color: rgba(239, 68, 68, 0.25);
+  /* No opacity — keeps bank name clearly readable */
 }
 
 .best-badge {
@@ -306,9 +306,16 @@
 .bank-card-header h4 {
   font-family: 'Space Grotesk', sans-serif;
   font-size: 1.1rem;
-  color: #e8f4ff;
+  color: #ffffff;
   font-weight: 700;
   margin: 0;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
+}
+
+/* Rejected cards — bank name must be fully visible */
+.bank-card.rejected .bank-card-header h4 {
+  color: #ffffff;
+  opacity: 1;
 }
 
 .status-badge {
@@ -346,9 +353,10 @@
 .main-amount .label {
   display: block;
   font-size: 0.8rem;
-  color: #4a7a9b;
+  color: #b8d8ee;
   margin-bottom: 6px;
   letter-spacing: 0.05em;
+  font-weight: 600;
 }
 
 .main-amount .amount {
@@ -377,9 +385,10 @@
 .detail-label {
   display: block;
   font-size: 0.78rem;
-  color: #4a7a9b;
+  color: #b8d8ee;
   margin-bottom: 4px;
   letter-spacing: 0.03em;
+  font-weight: 600;
 }
 
 .detail-value {
