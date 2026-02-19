@@ -1,11 +1,16 @@
+/* ============================================================
+   ADD BANK MODAL — PROFESSIONAL THEME
+   ============================================================ */
+
 .add-bank-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(10px);
+  background: rgba(15, 23, 42, 0.85);
+  /* Proper slate overlay */
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -13,266 +18,268 @@
 }
 
 .add-bank-modal {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  border-radius: 20px;
+  background: #1e293b;
+  border-radius: 12px;
   padding: 0;
   width: 600px;
   max-width: 90vw;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(102, 126, 234, 0.3);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  border: 1px solid #334155;
+  color: #f1f5f9;
 }
 
+/* ── Modal Header ───────────────────────────────────────── */
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 25px 30px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 20px 24px;
+  border-bottom: 1px solid #334155;
+  background: #0f172a;
 }
 
 .modal-header h2 {
-  color: white;
-  font-size: 1.6em;
+  color: #f1f5f9;
+  font-size: 1.25rem;
   margin: 0;
+  font-weight: 700;
 }
 
 .close-btn {
-  background: none;
+  background: transparent;
   border: none;
-  color: #888;
-  font-size: 1.8em;
+  color: #94a3b8;
+  font-size: 1.5rem;
   cursor: pointer;
-  width: 35px;
-  height: 35px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  transition: all 0.3s ease;
+  border-radius: 6px;
+  transition: all 0.15s ease;
 }
 
 .close-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  background: #334155;
+  color: #f1f5f9;
 }
 
+/* ── Form Content ───────────────────────────────────────── */
 .add-bank-form {
-  padding: 30px;
+  padding: 24px;
 }
 
 .form-section {
-  margin-bottom: 25px;
+  margin-bottom: 24px;
 }
 
 .form-section label {
   display: block;
-  color: #ffffff;
-  font-size: 0.95em;
-  font-weight: 600;
-  margin-bottom: 10px;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 8px;
 }
 
 .form-input {
   width: 100%;
-  padding: 14px 16px;
-  border: 2px solid rgba(102, 126, 234, 0.3);
-  border-radius: 10px;
-  background: rgba(0, 0, 0, 0.4);
-  color: #ffffff;
-  font-size: 1em;
-  transition: all 0.3s ease;
-  font-weight: 500;
+  padding: 10px 14px;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  background: #0f172a;
+  color: #f1f5f9;
+  font-size: 0.95rem;
+  transition: border-color 0.15s ease;
+  font-family: inherit;
 }
 
 .form-input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: #475569;
 }
 
 .form-input:focus {
   outline: none;
-  border-color: #667eea;
-  background: rgba(0, 0, 0, 0.5);
-  box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
-  color: #ffffff;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
+/* ── Logo Selector ──────────────────────────────────────── */
 .logo-selector {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 10px;
-  margin-top: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
 }
 
 .logo-option {
-  width: 50px;
-  height: 50px;
-  border: 2px solid rgba(102, 126, 234, 0.3);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  font-size: 1.5em;
+  width: 48px;
+  height: 48px;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  background: #0f172a;
+  font-size: 1.2rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.15s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
+  color: #94a3b8;
 }
 
 .logo-option:hover {
-  background: rgba(102, 126, 234, 0.2);
-  transform: scale(1.1);
-  border-color: #667eea;
+  border-color: #475569;
+  background: #1e293b;
+  color: #f1f5f9;
 }
 
 .logo-option.selected {
-  border-color: #667eea;
-  background: rgba(102, 126, 234, 0.4);
-  box-shadow: 0 0 15px rgba(102, 126, 234, 0.6);
-  transform: scale(1.05);
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  box-shadow: 0 0 0 1px #3b82f6;
 }
 
+/* ── Color Selector ─────────────────────────────────────── */
 .color-selector {
   display: flex;
   align-items: center;
-  gap: 15px;
-  margin-top: 10px;
+  gap: 16px;
+  margin-top: 12px;
 }
 
 .color-input {
-  width: 80px;
-  height: 45px;
-  border: 2px solid rgba(102, 126, 234, 0.3);
-  border-radius: 10px;
+  width: 60px;
+  height: 40px;
+  border: 1px solid #334155;
+  border-radius: 6px;
   cursor: pointer;
   background: transparent;
   padding: 0;
 }
 
-.color-input::-webkit-color-swatch-wrapper {
-  padding: 0;
-}
-
-.color-input::-webkit-color-swatch {
-  border: none;
-  border-radius: 8px;
-}
-
 .color-preview {
-  width: 60px;
-  height: 60px;
-  border-radius: 12px;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2em;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  font-size: 1.5rem;
+  background: #0f172a;
+  border: 1px solid #334155;
 }
 
+/* ── Config Info Box ────────────────────────────────────── */
 .config-info {
-  background: rgba(102, 126, 234, 0.1);
-  border: 1px solid rgba(102, 126, 234, 0.3);
-  border-radius: 12px;
-  padding: 20px;
-  margin: 25px 0;
+  background: rgba(59, 130, 246, 0.05);
+  /* Very subtle blue tint */
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 24px 0;
 }
 
 .config-info h3 {
-  color: #667eea;
-  font-size: 1.1em;
-  margin: 0 0 15px 0;
+  color: #60a5fa;
+  /* Blue 400 */
+  font-size: 0.95rem;
+  margin: 0 0 12px 0;
+  font-weight: 600;
 }
 
 .policy-list {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  margin-bottom: 15px;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .policy-item {
-  color: #a0a0a0;
-  font-size: 0.9em;
-  padding: 6px 0;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  padding: 4px 0;
 }
 
 .info-note {
-  color: #667eea;
-  font-size: 0.9em;
-  margin: 15px 0 0 0;
-  padding-top: 15px;
-  border-top: 1px solid rgba(102, 126, 234, 0.2);
+  color: #64748b;
+  font-size: 0.82rem;
+  margin: 12px 0 0 0;
+  padding-top: 12px;
+  border-top: 1px solid rgba(59, 130, 246, 0.1);
 }
 
 .error-message {
-  background: rgba(255, 107, 107, 0.1);
-  border: 1px solid rgba(255, 107, 107, 0.3);
-  border-radius: 8px;
-  padding: 12px;
-  color: #ff6b6b;
-  font-size: 0.9em;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 6px;
+  padding: 10px;
+  color: #ef4444;
+  font-size: 0.9rem;
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
+/* ── Modal Actions ──────────────────────────────────────── */
 .modal-actions {
   display: flex;
   gap: 12px;
   padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid #334155;
 }
 
 .btn-add {
   flex: 1;
-  padding: 14px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
+  padding: 10px;
+  background: #3b82f6;
+  color: #fff;
   border: none;
-  border-radius: 10px;
-  font-size: 1em;
+  border-radius: 8px;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background 0.15s ease;
 }
 
 .btn-add:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  background: #2563eb;
 }
 
 .btn-cancel {
   flex: 1;
-  padding: 14px;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-  font-size: 1em;
+  padding: 10px;
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.15s ease;
 }
 
 .btn-cancel:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: #334155;
+  color: #f1f5f9;
 }
 
-/* Scrollbar styling */
+/* Scrollbar */
 .add-bank-modal::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 .add-bank-modal::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
+  background: #0f172a;
 }
 
 .add-bank-modal::-webkit-scrollbar-thumb {
-  background: rgba(102, 126, 234, 0.5);
-  border-radius: 10px;
+  background: #334155;
+  border-radius: 3px;
 }
 
 .add-bank-modal::-webkit-scrollbar-thumb:hover {
-  background: rgba(102, 126, 234, 0.7);
+  background: #475569;
 }
