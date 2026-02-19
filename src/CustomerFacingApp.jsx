@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CustomerLoanForm from './components/CustomerLoanForm';
 import CustomerResultsDisplay from './components/CustomerResultsDisplay';
@@ -6,6 +6,7 @@ import FuturisticLanding from './components/FuturisticLanding';
 import AdminDashboard from './components/AdminDashboard';
 import { calculateLoanEligibility } from './services/realLoanService';
 import { calculateBTWithCreditCards } from './services/btLoanService';
+import { saveLead } from './services/leadService';
 import './CustomerFacingApp.css';
 
 function CustomerFacingApp() {
@@ -15,11 +16,15 @@ function CustomerFacingApp() {
   const [error, setError] = useState(null);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  // Store raw formData so saveLead can access name/mobile/loans
+  const lastFormDataRef = useRef(null);
 
-  const handleFormSubmit = async (formData) => {
+  const handleFormSubmit = async (formData, rawFormData) => {
     setLoading(true);
     setError(null);
     setResults(null);
+    // Store raw form data for lead capture
+    if (rawFormData) lastFormDataRef.current = rawFormData;
 
     try {
       console.log('='.repeat(80));
@@ -70,6 +75,9 @@ function CustomerFacingApp() {
 
       setResults(calculationResults);
       setMetadata(formData._metadata);
+
+      // 🔴 Save lead to Google Sheets (silent, non-blocking)
+      saveLead(lastFormDataRef.current || {}, formData);
 
       setTimeout(() => {
         document.getElementById('results-section')?.scrollIntoView({
