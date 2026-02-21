@@ -51,21 +51,11 @@ const loadBankDatabase = async (bankName) => {
 };
 
 /**
- * Initialize all bank databases
+ * Initialize all bank databases - REDUCED: Now only logs readiness.
+ * Databases are loaded 'Lazily' when needed.
  */
 export const initializeBankDatabases = async () => {
-  await Promise.all([
-    loadBankDatabase('kotak'),
-    loadBankDatabase('tata'),
-    loadBankDatabase('poonawala'),
-    loadBankDatabase('idfc'),
-    loadBankDatabase('hdfc'),
-    loadBankDatabase('icici'),
-    loadBankDatabase('chola'),
-    loadBankDatabase('indusind'),
-    loadBankDatabase('axis_fin')
-  ]);
-  console.log('✅ All bank databases loaded');
+  console.log('✅ Lazy Engine Ready: Bank databases will load on-demand.');
 };
 
 /**
@@ -115,8 +105,15 @@ const mapCategoryToConfigKey = (standardizedCategory) => {
 /**
  * Query specific bank's database for company category
  */
-export const getCompanyCategoryForBank = (companyName, bankName) => {
+export const getCompanyCategoryForBank = async (companyName, bankName) => {
   const normalizedCompany = companyName.trim().toUpperCase();
+
+  // LAZY LOADING: If bank database is empty, load it now
+  if (!bankDatabases[bankName] || bankDatabases[bankName].length === 0) {
+    console.log(`📡 LAZY LOAD: Fetching ${bankName} database for ${companyName}...`);
+    await loadBankDatabase(bankName);
+  }
+
   const bankDb = bankDatabases[bankName] || [];
 
   const match = bankDb.find(
@@ -136,16 +133,28 @@ export const getCompanyCategoryForBank = (companyName, bankName) => {
 /**
  * Get company category for all banks
  */
-export const getCompanyCategoriesForAllBanks = (companyName) => {
+export const getCompanyCategoriesForAllBanks = async (companyName) => {
+  const results = await Promise.all([
+    getCompanyCategoryForBank(companyName, 'kotak'),
+    getCompanyCategoryForBank(companyName, 'tata'),
+    getCompanyCategoryForBank(companyName, 'poonawala'),
+    getCompanyCategoryForBank(companyName, 'idfc'),
+    getCompanyCategoryForBank(companyName, 'hdfc'),
+    getCompanyCategoryForBank(companyName, 'icici'),
+    getCompanyCategoryForBank(companyName, 'chola'),
+    getCompanyCategoryForBank(companyName, 'indusind'),
+    getCompanyCategoryForBank(companyName, 'axis_fin')
+  ]);
+
   return {
-    kotak: getCompanyCategoryForBank(companyName, 'kotak'),
-    tata: getCompanyCategoryForBank(companyName, 'tata'),
-    poonawala: getCompanyCategoryForBank(companyName, 'poonawala'),
-    idfc: getCompanyCategoryForBank(companyName, 'idfc'),
-    hdfc: getCompanyCategoryForBank(companyName, 'hdfc'),
-    icici: getCompanyCategoryForBank(companyName, 'icici'),
-    chola: getCompanyCategoryForBank(companyName, 'chola'),
-    indusind: getCompanyCategoryForBank(companyName, 'indusind'),
-    'axis_fin': getCompanyCategoryForBank(companyName, 'axis_fin')
+    kotak: results[0],
+    tata: results[1],
+    poonawala: results[2],
+    idfc: results[3],
+    hdfc: results[4],
+    icici: results[5],
+    chola: results[6],
+    indusind: results[7],
+    'axis_fin': results[8]
   };
 };
