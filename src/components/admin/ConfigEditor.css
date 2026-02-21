@@ -230,28 +230,15 @@
   cursor: pointer;
 }
 
-.add-loc-form,
-.add-loc-form-enhanced {
+.add-loc-form {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   align-items: center;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: 1px solid var(--border-glow);
-}
-
-.select-row {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  width: 100%;
 }
 
 .config-input.compact {
-  padding: 8px 12px;
+  padding: 6px 12px;
   font-size: 0.85rem;
-  min-width: 140px;
 }
 
 .btn-save-loc {
