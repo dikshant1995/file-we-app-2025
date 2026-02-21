@@ -264,7 +264,9 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
         incentiveMonth3: incentiveMonth3,
         existingLoans: formData.existingLoans,
         wantsBT: formData.wantsBT,
-        selectedLoansForBT: formData.selectedLoansForBT
+        selectedLoansForBT: formData.selectedLoansForBT,
+        state: formData.state,
+        city: formData.city
       }
     };
 
