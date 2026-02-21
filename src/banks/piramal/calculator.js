@@ -1,12 +1,14 @@
-import { piramalConfig as basePiramalConfig } from './config.js';
-import { getEffectiveConfig } from '../../utils/policyUtils';
+import { piramalConfig } from './config.js';
+import { getBankConfig } from '../../services/bankConfigService';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
   const monthlyInterestRate = annualInterestRate / 12 / 100;
   const numberOfMonths = tenureInYears * 12;
 
-  if (monthlyInterestRate === 0) return principal / numberOfMonths;
+  if (monthlyInterestRate === 0) {
+    return principal / numberOfMonths;
+  }
 
   const emi = principal * monthlyInterestRate *
     (Math.pow(1 + monthlyInterestRate, numberOfMonths)) /
@@ -19,14 +21,16 @@ const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
 const getNTHBand = (nth, nthFoirTable) => {
   for (const [band, data] of Object.entries(nthFoirTable)) {
     if (band.includes('+')) {
+      // Handle "35001+" format
       const min = parseInt(band.replace('+', ''));
-      if (nth >= min) return data.foir;
+      if (nth >= min) {
+        return data.foir;
+      }
     } else {
-      const parts = band.split('-');
-      if (parts.length === 2) {
-        const min = parseInt(parts[0]);
-        const max = parseInt(parts[1]);
-        if (nth >= min && nth <= max) return data.foir;
+      // Handle "20000-35000" format
+      const [min, max] = band.split('-').map(s => parseInt(s));
+      if (nth >= min && nth <= max) {
+        return data.foir;
       }
     }
   }
@@ -34,11 +38,14 @@ const getNTHBand = (nth, nthFoirTable) => {
 };
 
 // Reverse calculation: Calculate principal from available EMI
+// Using client's reverse calculator: Factor = 52.5375
 const calculatePrincipalFromEMI = (emi, annualInterestRate, tenureInYears) => {
   const monthlyInterestRate = annualInterestRate / 12 / 100;
   const numberOfMonths = tenureInYears * 12;
 
-  if (monthlyInterestRate === 0) return emi * numberOfMonths;
+  if (monthlyInterestRate === 0) {
+    return emi * numberOfMonths;
+  }
 
   const r = monthlyInterestRate;
   const n = numberOfMonths;
@@ -49,19 +56,18 @@ const calculatePrincipalFromEMI = (emi, annualInterestRate, tenureInYears) => {
   const adjustedPowerTerm = actualPowerTerm * scaleFactor;
 
   const principal = emi * (adjustedPowerTerm - 1) / (r * adjustedPowerTerm);
+
   return Math.round(principal);
 };
 
 // Piramal Finance specific eligibility calculation (Ultra-Simple 2-Band NTH System)
 export const calculatePiramalEligibility = (userData) => {
-  const config = getEffectiveConfig('Piramal Finance', basePiramalConfig);
-
   const {
     desiredLoanAmount,
     loanTenure,
     monthlyIncome,
     existingEMI = 0,
-    creditCardObligation,
+    creditCardObligation, // NEW: 5% of non-BT credit card balances
     category = 'C',
     creditScore,
     employmentType,
@@ -79,6 +85,7 @@ export const calculatePiramalEligibility = (userData) => {
 
   if (isBT) {
     nonBTLoansEMI = existingEMI - btTotalEMI;
+    // NEW: Also deduct credit card obligations from adjusted income
     const creditCardDeduction = creditCardObligation || 0;
     adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
     if (adjustedIncome <= 0) {
@@ -101,9 +108,11 @@ export const calculatePiramalEligibility = (userData) => {
     }
   }
 
-  // Check age eligibility
-  const minAge = config.ageRules ? config.ageRules.minAge : config.minAge;
-  const maxAge = config.ageRules ? config.ageRules.maxAge : config.maxAge;
+  // Check age eligibility - Use dynamic config from admin dashboard
+  const ageConfig = getBankConfig('Piramal Finance', 'ageRules');
+  const minAge = ageConfig ? ageConfig.minAge : piramalConfig.minAge;
+  const maxAge = ageConfig ? ageConfig.maxAge : piramalConfig.maxAge;
+
   if (age && (age < minAge || age > maxAge)) {
     return {
       eligible: false,
@@ -112,16 +121,15 @@ export const calculatePiramalEligibility = (userData) => {
   }
 
   // Check employment type
-  if (!config.employmentTypes?.includes(employmentType)) {
+  if (!piramalConfig.employmentTypes.includes(employmentType)) {
     return {
       eligible: false,
       reason: `Employment type ${employmentType} not supported by Piramal Finance`
     };
   }
 
-  // Apply tenure capping based on category
-  const maxTenureTable = config.maxTenureByCategory || basePiramalConfig.maxTenureByCategory;
-  const maxTenureForCategory = maxTenureTable[category] || 60;
+  // Apply tenure capping based on category (tenure is in months)
+  const maxTenureForCategory = piramalConfig.maxTenureByCategory[category];
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
       eligible: false,
@@ -129,21 +137,48 @@ export const calculatePiramalEligibility = (userData) => {
     };
   }
 
+  // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
+  // This shows the maximum loan amount the bank can offer for this category
   const cappedTenureMonths = maxTenureForCategory;
   const cappedTenureYears = cappedTenureMonths / 12;
 
+  // Store user's request for display purposes
   const requestedTenureMonths = loanTenure * 12;
   const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
 
-  const minSalary = config.minNTH || 25000;
+  // Check loan tenure
+  if (loanTenure > piramalConfig.maxLoanTenure) {
+    return {
+      eligible: false,
+      reason: `Maximum loan tenure is ${piramalConfig.maxLoanTenure} years`
+    };
+  }
+
+  // Check minimum salary requirement based on category
+  const salConfig = getBankConfig('Piramal Finance', 'employmentRules');
+  const effectiveMinSalary = salConfig ? salConfig.salariedMinSalary : piramalConfig.minNTH;
+
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
-  if (incomeToCheck < minSalary) {
-    return { eligible: false, reason: `Minimum NTH salary of ₹${minSalary.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+  if (incomeToCheck < effectiveMinSalary) {
+    return { eligible: false, reason: `Minimum NTH salary of ₹${effectiveMinSalary.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+  }
+
+  // Get loan capping config
+  const cappingConfig = getBankConfig('Piramal Finance', 'loanCapping');
+  const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : piramalConfig.maxLoanAmount;
+  const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : 100000;
+
+  // Check minimum loan amount
+  if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
+    return {
+      eligible: false,
+      reason: `Minimum loan amount required by this bank is ₹${minLoanAmount.toLocaleString()}. Requested: ₹${desiredLoanAmount.toLocaleString()}`,
+      isBTMode: isBT
+    };
   }
 
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
-  const foirTable = config.nthFoirTable || config.foirTable || basePiramalConfig.nthFoirTable;
-  const foirPercentage = getNTHBand(incomeForCalculation, foirTable);
+  const foirPercentage = getNTHBand(incomeForCalculation, piramalConfig.nthFoirTable);
 
   if (foirPercentage === null) {
     return { eligible: false, reason: `No FOIR available for NTH ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
@@ -160,21 +195,21 @@ export const calculatePiramalEligibility = (userData) => {
     };
   }
 
-  const effectiveInterestRate = config.interestRate || basePiramalConfig.interestRate;
+  // Calculate loan amount from available EMI using capped tenure
   const calculatedLoanAmount = calculatePrincipalFromEMI(
     availableEMI,
-    effectiveInterestRate,
+    piramalConfig.interestRate,
     cappedTenureYears
   );
 
-  const preliminaryLoanAmount = Math.min(
+  // Final loan amount is minimum of calculated and desired
+  const finalLoanAmount = Math.min(
     calculatedLoanAmount,
     desiredLoanAmount || Infinity
   );
 
-  const absoluteMaxLoan = config.loanCapping?.absoluteMaxLoan || config.maxLoanAmount || 5000000;
-  const cappedFinalLoan = Math.min(preliminaryLoanAmount, absoluteMaxLoan);
-  const loanCapped = preliminaryLoanAmount > absoluteMaxLoan;
+  const cappedFinalLoan = Math.min(finalLoanAmount, absoluteMaxLoan);
+  const loanCapped = finalLoanAmount > absoluteMaxLoan;
 
   let btDetails = null;
   if (isBT) {
@@ -186,24 +221,34 @@ export const calculatePiramalEligibility = (userData) => {
       isBTMode: true,
       loansConsolidated: loansForBT.length,
       btTotalOutstanding: Math.round(btTotalOutstanding),
+      btTotalEMI: Math.round(btTotalEMI),
       freshAmountDisbursed: Math.round(btFreshAmount),
+      nonBTLoansEMI: Math.round(nonBTLoansEMI),
+      creditCardObligation: Math.round(creditCardObligation || 0),
+      creditCardObligationNote: creditCardObligation > 0 ? '5% of non-BT credit card outstanding' : 'No credit card obligation (either no CC or CC in BT)',
+      totalNonBTObligations: Math.round(nonBTLoansEMI + (creditCardObligation || 0)),
       originalIncome: monthlyIncome,
       adjustedIncome: Math.round(adjustedIncome)
     };
   }
 
-  const monthlyEMI = calculateEMI(cappedFinalLoan, effectiveInterestRate, cappedTenureYears);
+  const monthlyEMI = calculateEMI(cappedFinalLoan, piramalConfig.interestRate, cappedTenureYears);
 
   return {
     eligible: true,
-    bankId: config.id,
-    bankName: config.name,
+    bankId: piramalConfig.id,
+    bankName: piramalConfig.name,
     loanAmount: Math.round(cappedFinalLoan),
     maxLoanCap: absoluteMaxLoan,
     loanCappedByBank: loanCapped,
-    calculatedLoanBeforeCap: loanCapped ? Math.round(preliminaryLoanAmount) : null,
-    interestRate: effectiveInterestRate,
+    calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
+    interestRate: piramalConfig.interestRate,
     loanTenure: cappedTenureYears,
+    loanTenureMonths: cappedTenureMonths,
+    tenureCapped: tenureCapped,
+    requestedTenure: loanTenure,
+    requestedTenureMonths: requestedTenureMonths,
+    maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
     foirPercentage: foirPercentage,
     availableEMI: Math.round(availableEMI),
@@ -212,6 +257,10 @@ export const calculatePiramalEligibility = (userData) => {
       foirPercentage: (foirPercentage * 100).toFixed(0) + '%',
       foirCap: Math.round(foirCap),
       availableEMI: Math.round(availableEMI),
+      maxLoanFromFOIR: Math.round(calculatedLoanAmount),
+      existingEMI: Math.round(existingEMI || 0),
+      creditCardObligation: Math.round(creditCardObligation || 0),
+      creditCardObligationNote: creditCardObligation > 0 ? '5% of credit card outstanding balance' : 'No credit card obligations',
       totalObligations: Math.round(totalObligations)
     },
     ...btDetails
