@@ -5,7 +5,7 @@ import CategoriesEditor from './CategoriesEditor';
 import LoanCappingEditor from './LoanCappingEditor';
 import { AgeRulesEditor, TenureRulesEditor, FoirEditor, MultiplierEditor, BTEditor, CreditScoreEditor, EmploymentEditor, FeesEditor, DocumentsEditor, SpecialRulesEditor } from './AllEditors';
 
-const BankConfigEditor = ({ selectedBank, section }) => {
+const BankConfigEditor = ({ selectedBank, section, onNavigate }) => {
   if (!selectedBank) {
     return (
       <div className="no-bank-selected">
@@ -49,7 +49,7 @@ const BankConfigEditor = ({ selectedBank, section }) => {
       case 'fees':
         return <FeesSection bank={selectedBank} />;
       default:
-        return <AllConfigSection bank={selectedBank} />;
+        return <AllConfigSection bank={selectedBank} onNavigate={onNavigate} />;
     }
   };
 
@@ -61,23 +61,23 @@ const BankConfigEditor = ({ selectedBank, section }) => {
 };
 
 // Placeholder sections - will be fully implemented
-const AllConfigSection = ({ bank }) => (
+const AllConfigSection = ({ bank, onNavigate }) => (
   <div className="config-section">
     <h2>Unified Policy Framework: {bank.name}</h2>
     <p>View and edit all configuration settings for this bank</p>
     <div className="config-overview">
-      <div className="overview-card">Categorization Models</div>
-      <div className="overview-card">Rate Structures</div>
-      <div className="overview-card">Capital Capping</div>
-      <div className="overview-card">Demographic Rules</div>
-      <div className="overview-card">Tenure Optimization</div>
-      <div className="overview-card">FOIR Parameters</div>
-      <div className="overview-card">Multiplier Logic</div>
-      <div className="overview-card">Liability Consolidation</div>
-      <div className="overview-card">Risk Assessment</div>
-      <div className="overview-card">Employment Credentialing</div>
-      <div className="overview-card">Documentation Protocol</div>
-      <div className="overview-card">Exceptional Policies</div>
+      <div className="overview-card" onClick={() => onNavigate('categories')}>Categorization Models</div>
+      <div className="overview-card" onClick={() => onNavigate('interest')}>Rate Structures</div>
+      <div className="overview-card" onClick={() => onNavigate('loan-capping')}>Capital Capping</div>
+      <div className="overview-card" onClick={() => onNavigate('age-rules')}>Demographic Rules</div>
+      <div className="overview-card" onClick={() => onNavigate('tenure')}>Tenure Optimization</div>
+      <div className="overview-card" onClick={() => onNavigate('foir')}>FOIR Parameters</div>
+      <div className="overview-card" onClick={() => onNavigate('multiplier')}>Multiplier Logic</div>
+      <div className="overview-card" onClick={() => onNavigate('bt')}>Liability Consolidation</div>
+      <div className="overview-card" onClick={() => onNavigate('credit-score')}>Risk Assessment</div>
+      <div className="overview-card" onClick={() => onNavigate('employment')}>Employment Credentialing</div>
+      <div className="overview-card" onClick={() => onNavigate('documents')}>Documentation Protocol</div>
+      <div className="overview-card" onClick={() => onNavigate('special')}>Exceptional Policies</div>
     </div>
   </div>
 );
