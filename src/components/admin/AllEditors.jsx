@@ -115,8 +115,8 @@ export const TenureRulesEditor = ({ bank, onSave }) => {
 export const FoirEditor = ({ bank, onSave }) => {
   const [config, setConfig] = useState({
     categoryBasedFOIR: { A: 65, B: 60, C: 55, D: 50 },
-    foirTable: {}, // Matrix support: Band -> Category -> %
-    creditCardObligationPercentage: 5
+    creditCardObligationPercentage: 5,
+    btModeFOIRAdjustment: 0
   });
 
   useEffect(() => {
@@ -131,34 +131,16 @@ export const FoirEditor = ({ bank, onSave }) => {
     }
   };
 
-  const bands = ['25000-50000', '50001-75000', '75001-100000', '100001+'];
-  const categories = ['SUPER-A', 'A', 'B', 'C', 'D', 'GOVT'];
-
-  const updateTable = (band, cat, val) => {
-    setConfig({
-      ...config,
-      foirTable: {
-        ...config.foirTable,
-        [band]: {
-          ...(config.foirTable[band] || {}),
-          [cat]: parseFloat(val) || 0
-        }
-      }
-    });
-  };
-
   return (
     <div className="config-editor">
       <div className="editor-header">
         <h2>FOIR Assessment Parameters - {bank.name}</h2>
       </div>
-
       <div className="config-section">
-        <h3>Standard Category FOIR %</h3>
         <div className="category-grid">
           {Object.keys(config.categoryBasedFOIR).map(cat => (
             <div key={cat} className="input-group">
-              <label>Category {cat}</label>
+              <label>Category {cat} FOIR %</label>
               <input type="number" value={config.categoryBasedFOIR[cat]} onChange={(e) => setConfig({ ...config, categoryBasedFOIR: { ...config.categoryBasedFOIR, [cat]: parseInt(e.target.value) } })} className="config-input" />
             </div>
           ))}
@@ -168,39 +150,6 @@ export const FoirEditor = ({ bank, onSave }) => {
           </div>
         </div>
       </div>
-
-      <div className="config-section">
-        <h3>Matrix FOIR % (Salary Band x Category)</h3>
-        <div style={{ overflowX: 'auto' }}>
-          <table className="matrix-table">
-            <thead>
-              <tr>
-                <th>Salary Band</th>
-                {categories.map(cat => <th key={cat}>{cat}</th>)}
-              </tr>
-            </thead>
-            <tbody>
-              {bands.map(band => (
-                <tr key={band}>
-                  <td>{band}</td>
-                  {categories.map(cat => (
-                    <td key={cat}>
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={(config.foirTable[band] && config.foirTable[band][cat]) || ''}
-                        onChange={(e) => updateTable(band, cat, e.target.value)}
-                        placeholder="e.g. 0.65"
-                      />
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
       <div className="editor-actions">
         <button className="btn-save" onClick={handleSave}>Commit Changes</button>
       </div>
@@ -212,7 +161,6 @@ export const FoirEditor = ({ bank, onSave }) => {
 export const MultiplierEditor = ({ bank, onSave }) => {
   const [config, setConfig] = useState({
     categoryBasedMultiplier: { A: 35, B: 30, C: 25, D: 20 },
-    multiplierTable: {}, // Matrix support: Band -> Category -> Value
     employmentTypeMultiplier: { salaried: 1.0, selfEmployed: 0.8 }
   });
 
@@ -228,71 +176,21 @@ export const MultiplierEditor = ({ bank, onSave }) => {
     }
   };
 
-  const bands = ['25000-35000', '35001-50000', '50001-75000', '75001+'];
-  const categories = ['SUPER-A', 'A', 'B', 'C', 'D', 'GOVT'];
-
-  const updateTable = (band, cat, val) => {
-    setConfig({
-      ...config,
-      multiplierTable: {
-        ...config.multiplierTable,
-        [band]: {
-          ...(config.multiplierTable[band] || {}),
-          [cat]: parseFloat(val) || 0
-        }
-      }
-    });
-  };
-
   return (
     <div className="config-editor">
       <div className="editor-header">
         <h2>Operational Multiplier Logic - {bank.name}</h2>
       </div>
-
       <div className="config-section">
-        <h3>Standard Category Multipliers</h3>
         <div className="category-grid">
           {Object.keys(config.categoryBasedMultiplier).map(cat => (
             <div key={cat} className="input-group">
-              <label>Category {cat}</label>
+              <label>Category {cat} Multiplier</label>
               <input type="number" value={config.categoryBasedMultiplier[cat]} onChange={(e) => setConfig({ ...config, categoryBasedMultiplier: { ...config.categoryBasedMultiplier, [cat]: parseInt(e.target.value) } })} className="config-input" />
             </div>
           ))}
         </div>
       </div>
-
-      <div className="config-section">
-        <h3>Matrix Multipliers (Salary Band x Category)</h3>
-        <div style={{ overflowX: 'auto' }}>
-          <table className="matrix-table">
-            <thead>
-              <tr>
-                <th>Salary Band</th>
-                {categories.map(cat => <th key={cat}>{cat}</th>)}
-              </tr>
-            </thead>
-            <tbody>
-              {bands.map(band => (
-                <tr key={band}>
-                  <td>{band}</td>
-                  {categories.map(cat => (
-                    <td key={cat}>
-                      <input
-                        type="number"
-                        value={(config.multiplierTable[band] && config.multiplierTable[band][cat]) || ''}
-                        onChange={(e) => updateTable(band, cat, e.target.value)}
-                        placeholder="e.g. 24"
-                      />
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
       <div className="editor-actions">
         <button className="btn-save" onClick={handleSave}>Commit Changes</button>
       </div>
