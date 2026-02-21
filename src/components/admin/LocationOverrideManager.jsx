@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import './ConfigEditor.css';
+import { indianStates, stateCityData } from '../../data/locationData';
 
 const LocationOverrideManager = ({
     overrides = {},
@@ -8,18 +9,23 @@ const LocationOverrideManager = ({
     onAddLocation,
     onRemoveLocation
 }) => {
-    const [newLocation, setNewLocation] = useState('');
+    const [selectedState, setSelectedState] = useState('');
+    const [selectedCity, setSelectedCity] = useState('');
     const [showAdd, setShowAdd] = useState(false);
 
     const locations = Object.keys(overrides);
 
     const handleAdd = () => {
-        if (newLocation && !overrides[newLocation]) {
-            onAddLocation(newLocation);
-            setNewLocation('');
+        const finalLoc = selectedCity || selectedState;
+        if (finalLoc && !overrides[finalLoc]) {
+            onAddLocation(finalLoc);
+            setSelectedState('');
+            setSelectedCity('');
             setShowAdd(false);
         }
     };
+
+    const availableCities = selectedState ? (stateCityData[selectedState] || []) : [];
 
     return (
         <div className="location-manager-wrapper">
@@ -53,20 +59,41 @@ const LocationOverrideManager = ({
 
                 {!showAdd ? (
                     <button className="btn-add-loc" onClick={() => setShowAdd(true)}>
-                        + Add State/City
+                        + Add State/City Override
                     </button>
                 ) : (
-                    <div className="add-loc-form">
-                        <input
-                            type="text"
-                            value={newLocation}
-                            onChange={(e) => setNewLocation(e.target.value)}
-                            placeholder="e.g. Maharashtra or Mumbai"
-                            className="config-input compact"
-                            autoFocus
-                        />
-                        <button className="btn-save-loc" onClick={handleAdd}>Add</button>
-                        <button className="btn-cancel-loc" onClick={() => setShowAdd(false)}>Cancel</button>
+                    <div className="add-loc-form-enhanced">
+                        <div className="select-row">
+                            <select
+                                value={selectedState}
+                                onChange={(e) => {
+                                    setSelectedState(e.target.value);
+                                    setSelectedCity('');
+                                }}
+                                className="config-input compact"
+                            >
+                                <option value="">Select State...</option>
+                                {indianStates.map(state => (
+                                    <option key={state} value={state}>{state}</option>
+                                ))}
+                            </select>
+
+                            {availableCities.length > 0 && (
+                                <select
+                                    value={selectedCity}
+                                    onChange={(e) => setSelectedCity(e.target.value)}
+                                    className="config-input compact"
+                                >
+                                    <option value="">Select City (Optional)...</option>
+                                    {availableCities.map(city => (
+                                        <option key={city} value={city}>{city}</option>
+                                    ))}
+                                </select>
+                            )}
+
+                            <button className="btn-save-loc" onClick={handleAdd} disabled={!selectedState}>Add</button>
+                            <button className="btn-cancel-loc" onClick={() => setShowAdd(false)}>Cancel</button>
+                        </div>
                     </div>
                 )}
             </div>
