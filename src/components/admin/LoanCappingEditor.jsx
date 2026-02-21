@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import './ConfigEditor.css';
 import { saveBankConfig, getBankConfig, getAllBankConfig } from '../../services/bankConfigService';
-import LocationOverrideManager from './LocationOverrideManager';
 
-const LoanCappingEditor = ({ bank, onSave }) => {
+const LoanCappingEditor = ({ bank, onSave, activeLocation }) => {
   const [config, setConfig] = useState({
     absoluteMaxLoan: 5000000,
     categoryBasedMax: { A: null, B: 3000000, C: 2000000, D: 1000000 },
@@ -11,20 +10,17 @@ const LoanCappingEditor = ({ bank, onSave }) => {
     bachelorCapping: { enabled: true, percentage: 50 },
     minLoanAmount: 100000
   });
-  const [activeLocation, setActiveLocation] = useState(null); // null = Global
   const [locationOverrides, setLocationOverrides] = useState({});
 
-  // Load saved config on mount or when bank/location changes
+  // Load saved config on mount or when bank/location prop changes
   useEffect(() => {
     // 1. Load full bank config to get available overrides
     const fullConfig = getAllBankConfig(bank.name);
     setLocationOverrides(fullConfig.locationOverrides?.loanCapping || {});
 
-    // 2. Load specific categories based on activeLocation
-    const savedConfig = getBankConfig(bank.name, 'loanCapping', {
-      state: activeLocation,
-      city: activeLocation
-    });
+    // 2. Load specific config based on activeLocation
+    const context = { state: activeLocation.state, city: activeLocation.city };
+    const savedConfig = getBankConfig(bank.name, 'loanCapping', context);
 
     if (savedConfig) {
       setConfig(savedConfig);
@@ -32,30 +28,18 @@ const LoanCappingEditor = ({ bank, onSave }) => {
   }, [bank.name, activeLocation]);
 
   const handleSave = () => {
-    const success = saveBankConfig(bank.name, 'loanCapping', config, activeLocation);
+    const locationKey = activeLocation.city || activeLocation.state || null;
+    const success = saveBankConfig(bank.name, 'loanCapping', config, locationKey);
     if (success) {
       onSave && onSave(config);
-      alert(`✅ Loan capping rules saved for ${bank.name} (${activeLocation || 'Global'})!`);
+      alert(`✅ Loan capping rules saved for ${bank.name} (${locationKey || 'All India'})!`);
 
       // Refresh overrides list if we added a new one
-      if (activeLocation && !locationOverrides[activeLocation]) {
-        setLocationOverrides({ ...locationOverrides, [activeLocation]: config });
+      if (locationKey && !locationOverrides[locationKey]) {
+        setLocationOverrides({ ...locationOverrides, [locationKey]: config });
       }
     } else {
       alert(`❌ Failed to save. Please try again.`);
-    }
-  };
-
-  const handleAddLocation = (loc) => {
-    setActiveLocation(loc);
-  };
-
-  const handleRemoveLocation = (loc) => {
-    if (removeBankOverride(bank.name, 'loanCapping', loc)) {
-      const newOverrides = { ...locationOverrides };
-      delete newOverrides[loc];
-      setLocationOverrides(newOverrides);
-      if (activeLocation === loc) setActiveLocation(null);
     }
   };
 
@@ -63,16 +47,21 @@ const LoanCappingEditor = ({ bank, onSave }) => {
     <div className="config-editor">
       <div className="editor-header">
         <h2>💰 Loan Amount Capping - {bank.name}</h2>
-        <p>Configure maximum and minimum loan amounts with Pan-India location overrides</p>
+        <p>Configuring for: <strong>{activeLocation.city || activeLocation.state || 'All India (National)'}</strong></p>
       </div>
 
-      <LocationOverrideManager
-        overrides={locationOverrides}
-        activeLocation={activeLocation}
-        onSelectLocation={setActiveLocation}
-        onAddLocation={handleAddLocation}
-        onRemoveLocation={handleRemoveLocation}
-      />
+      <div className="existing-overrides-badges">
+        <span className="badge-label">Available Overrides (this section):</span>
+        {Object.keys(locationOverrides).length > 0 ? (
+          Object.keys(locationOverrides).map(loc => (
+            <span key={loc} className={`loc-badge ${(activeLocation.state === loc || activeLocation.city === loc) ? 'active' : ''}`}>
+              📍 {loc}
+            </span>
+          ))
+        ) : (
+          <span className="no-overrides">No location rules set yet. Use the top selector to add.</span>
+        )}
+      </div>
 
       {/* Absolute Max & Min */}
       <div className="config-section">
