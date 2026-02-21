@@ -2,8 +2,8 @@ import { idfcConfig } from './config.js';
 import { getBankConfig } from '../../services/bankConfigService';
 
 // Helper: Get interest rate based on category and loan amount
-const getInterestRateForLoan = (category, loanAmount) => {
-  const rateConfig = getBankConfig('IDFC First Bank', 'interestRates');
+const getInterestRateForLoan = (category, loanAmount, userData = {}) => {
+  const rateConfig = getBankConfig('IDFC First Bank', 'interestRates', { state: userData.state, city: userData.city });
 
   if (!rateConfig || !rateConfig.categorySlabRates || !rateConfig.categorySlabRates[category]) {
     return idfcConfig.interestRate;
@@ -101,7 +101,7 @@ export const calculateIdfcEligibility = (userData) => {
   }
 
   // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('IDFC First Bank', 'ageRules');
+  const ageConfig = getBankConfig('IDFC First Bank', 'ageRules', { state: userData.state, city: userData.city });
   const minAge = ageConfig ? ageConfig.minAge : idfcConfig.minAge;
   const maxAge = ageConfig ? ageConfig.maxAge : idfcConfig.maxAge;
 
@@ -162,7 +162,7 @@ export const calculateIdfcEligibility = (userData) => {
   }
 
   // Check minimum salary requirement based on category
-  const salConfig = getBankConfig('IDFC First Bank', 'employmentRules');
+  const salConfig = getBankConfig('IDFC First Bank', 'employmentRules', { state: userData.state, city: userData.city });
   const effectiveMinSalary = salConfig ? salConfig.salariedMinSalary : idfcConfig.minSalary;
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
@@ -171,7 +171,7 @@ export const calculateIdfcEligibility = (userData) => {
   }
 
   // Get loan capping config
-  const cappingConfig = getBankConfig('IDFC First Bank', 'loanCapping');
+  const cappingConfig = getBankConfig('IDFC First Bank', 'loanCapping', { state: userData.state, city: userData.city });
   const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : idfcConfig.maxLoanAmount;
   const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : 100000;
 
@@ -207,7 +207,7 @@ export const calculateIdfcEligibility = (userData) => {
   const preliminaryCappedLoan = Math.min(preliminaryLoanAmount, absoluteMaxLoan);
 
   // Get correct rate based on preliminary loan amount
-  const finalInterestRate = getInterestRateForLoan(mappedCategory, preliminaryCappedLoan);
+  const finalInterestRate = getInterestRateForLoan(mappedCategory, preliminaryCappedLoan, userData);
 
   // Final loan amount is minimum of calculated and desired
   const finalLoanAmount = Math.min(
