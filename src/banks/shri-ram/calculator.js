@@ -107,7 +107,7 @@ export const calculateShriRamEligibility = (userData) => {
   }
 
   // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('Shriram Finance', 'ageRules');
+  const ageConfig = getBankConfig('Shriram Finance', 'ageRules', { state: userData.state, city: userData.city });
   const minAge = ageConfig ? ageConfig.minAge : shriRamConfig.minAge;
   const maxAge = ageConfig ? ageConfig.maxAge : shriRamConfig.maxAge;
 
@@ -153,7 +153,7 @@ export const calculateShriRamEligibility = (userData) => {
   }
 
   // Check minimum salary requirement based on category
-  const salConfig = getBankConfig('Shriram Finance', 'employmentRules');
+  const salConfig = getBankConfig('Shriram Finance', 'employmentRules', { state: userData.state, city: userData.city });
   const catMinSalary = shriRamConfig.minSalaryByCategory[category] || shriRamConfig.minSalaryByCategory['C'];
   const effectiveMinSalary = salConfig ? salConfig.salariedMinSalary : catMinSalary;
 
@@ -163,7 +163,7 @@ export const calculateShriRamEligibility = (userData) => {
   }
 
   // Get loan capping config
-  const cappingConfig = getBankConfig('Shriram Finance', 'loanCapping');
+  const cappingConfig = getBankConfig('Shriram Finance', 'loanCapping', { state: userData.state, city: userData.city });
   const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : shriRamConfig.maxLoanAmount;
   const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : 100000;
 
