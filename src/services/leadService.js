@@ -3,7 +3,7 @@
 //  Paste your Apps Script Web App URL below after deployment.
 // ============================================================
 
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyiOviygO2aePo109YeIlNQq3II46ryZ2Vv-NcwBHu8J72RnCFjR8CmVqD4kUhhNT65yg/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgAGkw2nw1MdYob_-liwla8M79HQVnqgZKhxFJ_unSsFo0q2aM2cWlwlKTeZpCi2K0og/exec';
 
 /**
  * Sends a lead row to Google Sheets.
@@ -47,6 +47,8 @@ export const saveLead = async (formData, submissionData) => {
             wantsBT: submissionData.wantsBT ? 'Yes' : 'No',
             personalLoans: personalLoans || 'None',
             creditCards: creditCards || 'None',
+            state: formData.state || submissionData.state || '',
+            city: formData.city || submissionData.city || '',
         };
 
         await fetch(APPS_SCRIPT_URL, {
@@ -83,6 +85,8 @@ export const saveSelectedBanks = async (metadata, selectedBanks) => {
             bankCount: selectedBanks.length,
             totalIncome: metadata?.totalIncome || '',
             company: metadata?.company || '',
+            state: metadata?.state || '',
+            city: metadata?.city || '',
         };
 
         await fetch(APPS_SCRIPT_URL, {
