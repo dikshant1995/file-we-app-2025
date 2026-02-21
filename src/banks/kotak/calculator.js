@@ -2,8 +2,8 @@ import { kotakConfig } from './config.js';
 import { getBankConfig } from '../../services/bankConfigService';
 
 // Helper function to get interest rate based on category and loan amount
-const getInterestRateForLoan = (category, loanAmount) => {
-  const rateConfig = getBankConfig('Kotak Mahindra Bank', 'interestRates');
+const getInterestRateForLoan = (category, loanAmount, userData = {}) => {
+  const rateConfig = getBankConfig('Kotak Mahindra Bank', 'interestRates', { state: userData.state, city: userData.city });
 
   console.log('🔍 Rate Config:', rateConfig);
 
@@ -199,7 +199,7 @@ export const calculateKotakEligibility = (userData) => {
   }
 
   // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('Kotak Mahindra Bank', 'ageRules');
+  const ageConfig = getBankConfig('Kotak Mahindra Bank', 'ageRules', { state: userData.state, city: userData.city });
   const minAge = ageConfig ? ageConfig.minAge : kotakConfig.minAge;
   const maxAge = ageConfig ? ageConfig.maxAge : kotakConfig.maxAge;
 
@@ -244,7 +244,7 @@ export const calculateKotakEligibility = (userData) => {
 
   // Check minimum salary requirement based on category
   // Use dynamic config from admin dashboard
-  const salConfig = getBankConfig('Kotak Mahindra Bank', 'employmentRules');
+  const salConfig = getBankConfig('Kotak Mahindra Bank', 'employmentRules', { state: userData.state, city: userData.city });
   const catMinSalary = companyCategory === 'D' ?
     (salConfig ? salConfig.selfEmployedMinIncome / 12 : kotakConfig.minSalary['D']) :
     (salConfig ? salConfig.salariedMinSalary : kotakConfig.minSalary['A']);
@@ -259,7 +259,7 @@ export const calculateKotakEligibility = (userData) => {
   }
 
   // Get loan capping config
-  const cappingConfig = getBankConfig('Kotak Mahindra Bank', 'loanCapping');
+  const cappingConfig = getBankConfig('Kotak Mahindra Bank', 'loanCapping', { state: userData.state, city: userData.city });
   const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : kotakConfig.maxLoanAmount;
   const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : 100000;
 
