@@ -24,12 +24,13 @@ const BankList = ({ onSelectBank, onAddBank, customBanks = [] }) => {
   // Merge default banks with custom banks
   const allBanks = useMemo(() => [...banks, ...customBanks], [banks, customBanks]);
 
-  // Helper to get bank summary rules
+  // Helper to get bank summary rules with location context
   const getBankSummary = (bankName) => {
-    const age = getBankConfig(bankName, 'ageRules');
-    const salary = getBankConfig(bankName, 'employmentRules');
-    const capping = getBankConfig(bankName, 'loanCapping');
-    const interest = getBankConfig(bankName, 'interestRates');
+    const context = { state: activeLocation.state, city: activeLocation.city };
+    const age = getBankConfig(bankName, 'ageRules', context);
+    const salary = getBankConfig(bankName, 'employmentRules', context);
+    const capping = getBankConfig(bankName, 'loanCapping', context);
+    const interest = getBankConfig(bankName, 'interestRates', context);
 
     return {
       ageRange: age ? `${age.minAge}-${age.maxAge}` : '21-60',
