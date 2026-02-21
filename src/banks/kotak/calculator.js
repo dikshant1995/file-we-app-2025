@@ -1,22 +1,20 @@
-import { kotakConfig } from './config.js';
+import { kotakConfig as baseKotakConfig } from './config.js';
 import { getBankConfig } from '../../services/bankConfigService';
+import { getEffectiveConfig } from '../../utils/policyUtils';
 
 // Helper function to get interest rate based on category and loan amount
-const getInterestRateForLoan = (category, loanAmount) => {
-  const rateConfig = getBankConfig('Kotak Mahindra Bank', 'interestRates');
-  
-  console.log('🔍 Rate Config:', rateConfig);
-  
+const getInterestRateForLoan = (category, loanAmount, config) => {
+  const rateConfig = config.interestRates;
+
   if (!rateConfig || !rateConfig.categorySlabRates || !rateConfig.categorySlabRates[category]) {
-    console.log('⚠️ No rate config found, using default:', kotakConfig.interestRate);
-    return kotakConfig.interestRate;
+    return config.interestRate || baseKotakConfig.interestRate;
   }
-  
+
   const slabs = rateConfig.categorySlabRates[category];
-  
+
   console.log(`📊 Loan: ₹${loanAmount}, Category: ${category}`);
   console.log('📋 Available slabs:', Object.keys(slabs));
-  
+
   // Find matching slab by parsing rupee ranges (e.g., "₹100000-500000")
   for (const slabLabel in slabs) {
     // Extract min and max from label like "₹100000-500000"
@@ -24,14 +22,14 @@ const getInterestRateForLoan = (category, loanAmount) => {
     if (match) {
       const min = parseInt(match[1]);
       const max = parseInt(match[2]);
-      
+
       if (loanAmount >= min && loanAmount <= max) {
         console.log(`✅ Matched slab: ${slabLabel} (₹${min}-₹${max}) = ${slabs[slabLabel]}%`);
         return slabs[slabLabel];
       }
     }
   }
-  
+
   console.log('⚠️ No matching slab, using default');
   return kotakConfig.interestRate;
 };
@@ -40,15 +38,15 @@ const getInterestRateForLoan = (category, loanAmount) => {
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
   const monthlyInterestRate = annualInterestRate / 12 / 100;
   const numberOfMonths = tenureInYears * 12;
-  
+
   if (monthlyInterestRate === 0) {
     return principal / numberOfMonths;
   }
-  
-  const emi = principal * monthlyInterestRate * 
-    (Math.pow(1 + monthlyInterestRate, numberOfMonths)) / 
+
+  const emi = principal * monthlyInterestRate *
+    (Math.pow(1 + monthlyInterestRate, numberOfMonths)) /
     (Math.pow(1 + monthlyInterestRate, numberOfMonths) - 1);
-    
+
   return Math.round(emi);
 };
 
@@ -57,19 +55,19 @@ const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
 const calculateLoanAmountFromEMI = (emi, annualInterestRate, tenureInYears) => {
   const monthlyInterestRate = annualInterestRate / 12 / 100;
   const numberOfMonths = tenureInYears * 12;
-  
+
   if (monthlyInterestRate === 0) {
     return emi * numberOfMonths;
   }
-  
+
   const r = monthlyInterestRate;
   const n = numberOfMonths;
-  const standardPower = Math.pow(1 + (0.11/12), 72);
+  const standardPower = Math.pow(1 + (0.11 / 12), 72);
   const clientPower = 1.9229;
   const scaleFactor = clientPower / standardPower;
   const actualPowerTerm = Math.pow(1 + r, n);
   const adjustedPowerTerm = actualPowerTerm * scaleFactor;
-  
+
   const loanAmount = emi * (adjustedPowerTerm - 1) / (r * adjustedPowerTerm);
   return Math.round(loanAmount);
 };
@@ -97,11 +95,11 @@ const getCompanyCategory = (companyName, employmentType) => {
   if (employmentType === 'government') {
     return 'GOVT';
   }
-  
+
   // For this implementation, we'll use a simplified approach
   // In a real application, this would be based on an actual company database
   const company = companyName.toLowerCase();
-  
+
   // Example categorization - in reality this would come from a database
   if (company.includes('google') || company.includes('microsoft') || company.includes('amazon')) {
     return 'AA';
@@ -114,29 +112,32 @@ const getCompanyCategory = (companyName, employmentType) => {
   } else if (company.includes('startup') || company.includes('small')) {
     return 'D';
   }
-  
+
   // Return null for unlisted companies (ineligible)
   return null;
 };
 
 // Function to get multiplier based on salary and category
-const getMultiplier = (salary, category) => {
+const getMultiplier = (salary, category, config) => {
   const salaryBand = getMultiplierSalaryBand(salary);
   if (!salaryBand) return null;
-  
-  return kotakConfig.multiplierTable[salaryBand][category] || null;
+
+  return (config.multiplierTable && config.multiplierTable[salaryBand] && config.multiplierTable[salaryBand][category]) || null;
 };
 
 // Function to get FOIR percentage based on salary and category
-const getFoirPercentage = (salary, category) => {
+const getFoirPercentage = (salary, category, config) => {
   const salaryBand = getFoirSalaryBand(salary);
   if (!salaryBand) return null;
-  
-  return kotakConfig.foirTable[salaryBand][category] || null;
+
+  return (config.foirTable && config.foirTable[salaryBand] && config.foirTable[salaryBand][category]) || null;
 };
 
 // Kotak Mahindra Bank specific eligibility calculation
 export const calculateKotakEligibility = (userData) => {
+  // Get effective config (merges hardcoded + admin overrides)
+  const config = getEffectiveConfig('Kotak Mahindra Bank', baseKotakConfig);
+
   const {
     desiredLoanAmount,
     loanTenure,
@@ -161,18 +162,13 @@ export const calculateKotakEligibility = (userData) => {
   const isBT = isBTMode && loansForBT && loansForBT.length > 0;
   let adjustedIncome = monthlyIncome;
   let nonBTLoansEMI = 0;
-  
+
   if (isBT) {
     console.log('🔄 KOTAK - BALANCE TRANSFER MODE ACTIVATED');
     nonBTLoansEMI = (existingEMI || 0) - btTotalEMI;
-    // NEW: Also deduct credit card obligations from adjusted income
     const creditCardDeduction = creditCardObligation || 0;
     adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
-    
-    console.log('📊 Non-BT Loans EMI:', nonBTLoansEMI);
-    console.log('💳 Credit Card Obligation (5% of non-BT CC):', creditCardDeduction);
-    console.log('💵 Adjusted Income:', adjustedIncome);
-    
+
     if (adjustedIncome <= 0) {
       return {
         eligible: false,
@@ -181,15 +177,14 @@ export const calculateKotakEligibility = (userData) => {
       };
     }
   }
-  // ========== END BT MODE DETECTION ==========
 
   // CHECK: If customer already has a personal loan from Kotak Bank
   if (existingLoanBanks && existingLoanBanks.length > 0) {
     const kotakBankNames = ['kotak', 'kotak mahindra', 'kotak mahindra bank'];
-    const hasExistingKotakLoan = existingLoanBanks.some(bank => 
+    const hasExistingKotakLoan = existingLoanBanks.some(bank =>
       kotakBankNames.some(name => bank.includes(name))
     );
-    
+
     if (hasExistingKotakLoan) {
       return {
         eligible: false,
@@ -197,56 +192,49 @@ export const calculateKotakEligibility = (userData) => {
       };
     }
   }
-  
-  // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('Kotak Mahindra Bank', 'ageRules');
-  const minAge = ageConfig ? ageConfig.minAge : kotakConfig.minAge;
-  const maxAge = ageConfig ? ageConfig.maxAge : kotakConfig.maxAge;
-  
+
+  // Check age eligibility - Use dynamic config
+  const minAge = config.ageRules ? config.ageRules.minAge : config.minAge;
+  const maxAge = config.ageRules ? config.ageRules.maxAge : config.maxAge;
+
   if (age && (age < minAge || age > maxAge)) {
     return {
       eligible: false,
       reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
     };
   }
-  
+
   // Use user-provided interest rate or calculate based on category and loan amount
-  const effectiveInterestRate = interestRate || getInterestRateForLoan(category || 'B', desiredLoanAmount || monthlyIncome * 20);
-  
+  const effectiveInterestRate = interestRate || getInterestRateForLoan(category || 'B', desiredLoanAmount || monthlyIncome * 20, config);
+
   // Check employment type
-  if (!kotakConfig.employmentTypes.includes(employmentType)) {
+  if (!config.employmentTypes?.includes(employmentType)) {
     return {
       eligible: false,
       reason: `Employment type ${employmentType} not supported by this bank`
     };
   }
-  
-  // Use user-provided category (from frontend: B, C, or GOVT)
-  const companyCategory = category || 'B'; // Default to B if not provided
-  
-  // Apply tenure capping based on category (tenure is in months)
-  const maxTenureForCategory = kotakConfig.maxTenureByCategory[companyCategory];
+
+  const companyCategory = category || 'B';
+
+  // Apply tenure capping based on category
+  const maxTenureForCategory = config.maxTenureByCategory ? config.maxTenureByCategory[companyCategory] : null;
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
       eligible: false,
       reason: `No loans available for Category ${companyCategory}`
     };
   }
-  
-  // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
-  // This shows the maximum loan amount the bank can offer for this category
+
   const cappedTenureMonths = maxTenureForCategory;
   const cappedTenureYears = cappedTenureMonths / 12;
-  
-  // Store user's request for display purposes
+
   const requestedTenureMonths = loanTenure * 12;
   const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
-  
-  // Check minimum salary requirement based on category
-  const minSalary = companyCategory === 'D' ? 
-    kotakConfig.minSalary['D'] : 
-    kotakConfig.minSalary['A'];
-  
+
+  // Check minimum salary requirement
+  const minSalary = (config.minSalary && config.minSalary[companyCategory]) || (config.minSalary && config.minSalary['A']) || 25000;
+
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < minSalary) {
     return {
@@ -255,13 +243,12 @@ export const calculateKotakEligibility = (userData) => {
       isBTMode: isBT
     };
   }
-  
+
   // ========== PASS 1: Calculate preliminary loan amount with base rate ==========
-  const baseRate = kotakConfig.interestRate; // Use default 11% for initial calculation
-  
-  // Calculate using Multiplier method
+  const baseRate = config.interestRate || 11.0;
+
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
-  const multiplier = getMultiplier(incomeForCalculation, companyCategory);
+  const multiplier = getMultiplier(incomeForCalculation, companyCategory, config);
   if (!multiplier) {
     return {
       eligible: false,
@@ -269,14 +256,12 @@ export const calculateKotakEligibility = (userData) => {
       isBTMode: isBT
     };
   }
-  
-  // IMPORTANT: For multiplier, use salary after deducting existing EMI + credit card obligations (non-BT mode)
+
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
   const availableSalary = isBT ? incomeForCalculation : (monthlyIncome - totalObligations);
   const multiplierLoanAmount = availableSalary * multiplier;
-  
-  // Calculate using FOIR method with base rate
-  const foirPercentage = getFoirPercentage(incomeForCalculation, companyCategory);
+
+  const foirPercentage = getFoirPercentage(incomeForCalculation, companyCategory, config);
   if (!foirPercentage) {
     return {
       eligible: false,
@@ -284,49 +269,42 @@ export const calculateKotakEligibility = (userData) => {
       isBTMode: isBT
     };
   }
-  
+
   const foirCap = incomeForCalculation * foirPercentage;
   const availableEMI = isBT ? foirCap : (foirCap - totalObligations);
-  
-  // Calculate preliminary loan amount with base rate
+
   const preliminaryFoirLoanAmount = calculateLoanAmountFromEMI(availableEMI, baseRate, cappedTenureYears);
-  
-  // Take the minimum of the two calculations
+
   const preliminaryMaxLoanAmount = Math.min(
     desiredLoanAmount || Infinity,
     multiplierLoanAmount,
     preliminaryFoirLoanAmount
   );
-  
-  // Apply bank's maximum loan cap
-  const preliminaryLoanAmount = Math.min(preliminaryMaxLoanAmount, kotakConfig.maxLoanAmount);
-  
-  // ========== PASS 2: Get correct interest rate based on preliminary loan amount ==========
-  const finalInterestRate = interestRate || getInterestRateForLoan(companyCategory, preliminaryLoanAmount);
-  
-  console.log(`🔄 Two-Pass Calculation: Preliminary=₹${preliminaryLoanAmount}, Rate=${finalInterestRate}%`);
-  
-  // Recalculate FOIR loan amount with final interest rate
+
+  const maxLoanCap = config.loanCapping?.absoluteMaxLoan || config.maxLoanAmount || 5000000;
+  const preliminaryLoanAmount = Math.min(preliminaryMaxLoanAmount, maxLoanCap);
+
+  // ========== PASS 2: Get correct interest rate ==========
+  const finalInterestRate = interestRate || getInterestRateForLoan(companyCategory, preliminaryLoanAmount, config);
+
   const foirLoanAmount = calculateLoanAmountFromEMI(availableEMI, finalInterestRate, cappedTenureYears);
-  
-  // Take the minimum again with final rate
+
   const maxLoanAmount = Math.min(
     desiredLoanAmount || Infinity,
     multiplierLoanAmount,
     foirLoanAmount
   );
-  
-  // Apply bank's maximum loan cap
-  const finalLoanAmount = Math.min(maxLoanAmount, kotakConfig.maxLoanAmount);
-  const loanCapped = maxLoanAmount > kotakConfig.maxLoanAmount;
-  
+
+  const finalLoanAmount = Math.min(maxLoanAmount, maxLoanCap);
+  const loanCapped = maxLoanAmount > maxLoanCap;
+
   // ========== BALANCE TRANSFER CALCULATION ==========
   let btFreshAmount = 0;
   let btDetails = null;
-  
+
   if (isBT) {
     btFreshAmount = finalLoanAmount - btTotalOutstanding;
-    
+
     if (btFreshAmount < 0) {
       return {
         eligible: false,
@@ -334,7 +312,7 @@ export const calculateKotakEligibility = (userData) => {
         isBTMode: true
       };
     }
-    
+
     btDetails = {
       isBTMode: true,
       loansConsolidated: loansForBT.length,
@@ -349,17 +327,15 @@ export const calculateKotakEligibility = (userData) => {
       adjustedIncome: Math.round(adjustedIncome)
     };
   }
-  // ========== END BT CALCULATION ==========
-  
-  // Calculate final EMI for the loan amount using capped tenure and final rate
+
   const monthlyEMI = calculateEMI(finalLoanAmount, finalInterestRate, cappedTenureYears);
-  
+
   return {
     eligible: true,
-    bankId: kotakConfig.id,
-    bankName: kotakConfig.name,
+    bankId: config.id,
+    bankName: config.name,
     loanAmount: Math.round(finalLoanAmount),
-    maxLoanCap: kotakConfig.maxLoanAmount,
+    maxLoanCap: maxLoanCap,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(maxLoanAmount) : null,
     interestRate: finalInterestRate,
