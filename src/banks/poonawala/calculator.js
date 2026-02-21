@@ -2,8 +2,8 @@ import { poonawalaConfig } from './config.js';
 import { getBankConfig } from '../../services/bankConfigService';
 
 // Helper: Get interest rate based on category and loan amount
-const getInterestRateForLoan = (category, loanAmount) => {
-  const rateConfig = getBankConfig('Poonawala Finance', 'interestRates');
+const getInterestRateForLoan = (category, loanAmount, userData = {}) => {
+  const rateConfig = getBankConfig('Poonawala Finance', 'interestRates', { state: userData.state, city: userData.city });
 
   if (!rateConfig || !rateConfig.categorySlabRates || !rateConfig.categorySlabRates[category]) {
     return poonawalaConfig.interestRate;
@@ -146,7 +146,7 @@ export const calculatePoonawalaEligibility = (userData) => {
   }
 
   // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('Poonawala Finance', 'ageRules');
+  const ageConfig = getBankConfig('Poonawala Finance', 'ageRules', { state: userData.state, city: userData.city });
   const minAge = ageConfig ? ageConfig.minAge : poonawalaConfig.minAge;
   const maxAge = ageConfig ? ageConfig.maxAge : poonawalaConfig.maxAge;
 
@@ -195,7 +195,7 @@ export const calculatePoonawalaEligibility = (userData) => {
   }
 
   // Check minimum salary requirement based on category
-  const salConfig = getBankConfig('Poonawala Finance', 'employmentRules');
+  const salConfig = getBankConfig('Poonawala Finance', 'employmentRules', { state: userData.state, city: userData.city });
   const catMinSalary = poonawalaConfig.minNTHBySegment[customerSegment];
   const effectiveMinSalary = salConfig ? salConfig.salariedMinSalary : catMinSalary;
 
@@ -205,7 +205,7 @@ export const calculatePoonawalaEligibility = (userData) => {
   }
 
   // Get loan capping config
-  const cappingConfig = getBankConfig('Poonawala Finance', 'loanCapping');
+  const cappingConfig = getBankConfig('Poonawala Finance', 'loanCapping', { state: userData.state, city: userData.city });
   const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : poonawalaConfig.maxLoanAmount;
   const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : 100000;
 
@@ -252,7 +252,7 @@ export const calculatePoonawalaEligibility = (userData) => {
   const preliminaryCappedLoan = Math.min(preliminaryLoanAmount, absoluteMaxLoan);
 
   // Pass 2: Get correct rate based on preliminary loan amount
-  const finalInterestRate = getInterestRateForLoan(category, preliminaryCappedLoan);
+  const finalInterestRate = getInterestRateForLoan(category, preliminaryCappedLoan, userData);
 
   // Recalculate loan with final rate
   const calculatedLoanAmount = calculatePrincipalFromEMI(
