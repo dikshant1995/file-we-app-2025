@@ -88,8 +88,6 @@ const AdminDashboard = ({ onBackToCustomer }) => {
             <h1>Bank Governance & Policy Control</h1>
           </div>
           <div className="header-actions">
-            <button className="btn-save-all">Commit Global Changes</button>
-            <button className="btn-export">Export Configuration</button>
           </div>
         </div>
       </header>
