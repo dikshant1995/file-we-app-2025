@@ -19,7 +19,7 @@ const InterestRateEditor = ({ bank, onSave }) => {
       { min: 3000001, max: 4000000, label: '₹3000001-4000000' },
       { min: 4000001, max: 5000000, label: '₹4000001-5000000' }
     ];
-    
+
     // Filter slabs based on max loan capping
     return slabs.filter(slab => slab.min <= maxLoanAmount);
   };
@@ -30,14 +30,14 @@ const InterestRateEditor = ({ bank, onSave }) => {
   const initializeCategoryRates = () => {
     const categories = ['SUPER-A', 'A', 'B', 'C', 'D', 'GOVT'];
     const rates = {};
-    
+
     categories.forEach(cat => {
       rates[cat] = {};
       slabs.forEach(slab => {
         rates[cat][slab.label] = 11.0; // default rate
       });
     });
-    
+
     return rates;
   };
 
@@ -82,21 +82,21 @@ const InterestRateEditor = ({ bank, onSave }) => {
     <div className="config-editor">
       <div className="editor-header">
         <h2>📈 Interest Rate Matrix - {bank.name}</h2>
-        <p>Configure interest rates by category and loan amount slabs (Max: ₹{(maxLoan/100000).toFixed(0)}L)</p>
+        <p>Configure interest rates by category and loan amount slabs (Max: ₹{(maxLoan / 100000).toFixed(0)}L)</p>
       </div>
 
       {/* Rate Matrix by Category */}
       {categories.map(category => (
-        <div key={category} className="config-section" style={{marginBottom: '30px'}}>
+        <div key={category} className="config-section" style={{ marginBottom: '30px' }}>
           <h3>🏷️ Category {category}</h3>
-          
-          <div style={{overflowX: 'auto'}}>
-            <table style={{width: '100%', borderCollapse: 'collapse', background: 'white', borderRadius: '8px'}}>
+
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', borderRadius: '8px' }}>
               <thead>
-                <tr style={{background: '#f8f9fa'}}>
-                  <th style={{padding: '15px', textAlign: 'left', borderBottom: '2px solid #e0e0e0', fontWeight: '600'}}>Loan Amount</th>
+                <tr style={{ background: '#f8f9fa' }}>
+                  <th style={{ padding: '15px', textAlign: 'left', borderBottom: '2px solid #e0e0e0', fontWeight: '600' }}>Loan Amount</th>
                   {slabs.map(slab => (
-                    <th key={slab.label} style={{padding: '15px', textAlign: 'center', borderBottom: '2px solid #e0e0e0', fontWeight: '600'}}>
+                    <th key={slab.label} style={{ padding: '15px', textAlign: 'center', borderBottom: '2px solid #e0e0e0', fontWeight: '600' }}>
                       ₹{slab.label}
                     </th>
                   ))}
@@ -104,9 +104,9 @@ const InterestRateEditor = ({ bank, onSave }) => {
               </thead>
               <tbody>
                 <tr>
-                  <td style={{padding: '15px', fontWeight: '600', borderBottom: '1px solid #e0e0e0'}}>Interest Rate (%)</td>
+                  <td style={{ padding: '15px', fontWeight: '600', borderBottom: '1px solid #e0e0e0' }}>Interest Rate (%)</td>
                   {slabs.map(slab => (
-                    <td key={slab.label} style={{padding: '10px', textAlign: 'center', borderBottom: '1px solid #e0e0e0'}}>
+                    <td key={slab.label} style={{ padding: '10px', textAlign: 'center', borderBottom: '1px solid #e0e0e0' }}>
                       <input
                         type="number"
                         step="0.01"
