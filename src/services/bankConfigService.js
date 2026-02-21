@@ -184,23 +184,6 @@ export const resetBankConfig = (bankName) => {
   }
 };
 
-// Remove a specific location override
-export const removeBankOverride = (bankName, sectionName, location) => {
-  try {
-    const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    if (allConfigs[bankName]?.locationOverrides?.[sectionName]) {
-      delete allConfigs[bankName].locationOverrides[sectionName][location];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(allConfigs));
-      console.log(`🗑️ Removed ${location} override for ${sectionName} in ${bankName}`);
-      return true;
-    }
-    return false;
-  } catch (error) {
-    console.error('Error removing bank override:', error);
-    return false;
-  }
-};
-
 // Export all configs (for backup)
 export const exportAllConfigs = () => {
   try {
