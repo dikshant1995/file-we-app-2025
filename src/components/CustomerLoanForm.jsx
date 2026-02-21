@@ -501,7 +501,8 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
                 <div
                   key={idx}
                   className="autocomplete-item"
-                  onClick={() => {
+                  onMouseDown={() => {
+                    console.log('🏢 Company Selected:', company);
                     setFormData(prev => ({ ...prev, companyName: company }));
                     setCompanySuggestions([]);
                   }}

@@ -10,7 +10,7 @@ const bankDatabases = {
   'icici': [],
   'chola': [],
   'indusind': [],
-  'axis-fin': []
+  'axis_fin': []
 };
 
 /**
@@ -60,7 +60,7 @@ export const initializeBankDatabases = async () => {
     loadBankDatabase('icici'),
     loadBankDatabase('chola'),
     loadBankDatabase('indusind'),
-    loadBankDatabase('axis-fin')
+    loadBankDatabase('axis_fin')
   ]);
   console.log('✅ All bank databases loaded');
 };
@@ -72,9 +72,13 @@ export const getCompanySuggestions = (searchTerm) => {
   if (!searchTerm || searchTerm.length < 1) return [];
 
   const search = searchTerm.toLowerCase();
+
+  // Performance optimization: only filter if term is 2+ chars
+  if (search.length < 2) return [];
+
   return universalCompanies
-    .filter(company => company.companyName.toLowerCase().startsWith(search))
-    .slice(0, 50)
+    .filter(company => company.companyName.toLowerCase().includes(search))
+    .slice(0, 100)
     .map(c => c.companyName)
     .sort();
 };
@@ -130,6 +134,6 @@ export const getCompanyCategoriesForAllBanks = (companyName) => {
     icici: getCompanyCategoryForBank(companyName, 'icici'),
     chola: getCompanyCategoryForBank(companyName, 'chola'),
     indusind: getCompanyCategoryForBank(companyName, 'indusind'),
-    'axis-fin': getCompanyCategoryForBank(companyName, 'axis-fin')
+    'axis_fin': getCompanyCategoryForBank(companyName, 'axis_fin')
   };
 };
