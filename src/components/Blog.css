@@ -93,16 +93,27 @@
     padding: 0 20px 100px;
 }
 
-.back-to-blog {
+.back-to-blog,
+.back-to-home {
     text-decoration: none;
     color: rgba(255, 255, 255, 0.5);
     display: inline-block;
-    margin-bottom: 30px;
     transition: color 0.2s ease;
 }
 
+.back-to-blog {
+    margin-bottom: 30px;
+}
+
+.back-to-home:hover,
 .back-to-blog:hover {
     color: var(--accent-cyan, #00d4ff);
+}
+
+.blog-nav-header {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
 }
 
 .article-header {
