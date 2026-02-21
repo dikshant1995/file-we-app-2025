@@ -2,8 +2,8 @@ import { tataConfig } from './config.js';
 import { getBankConfig } from '../../services/bankConfigService';
 
 // Helper: Get interest rate based on category and loan amount
-const getInterestRateForLoan = (category, loanAmount) => {
-  const rateConfig = getBankConfig('Tata Capital', 'interestRates');
+const getInterestRateForLoan = (category, loanAmount, userData = {}) => {
+  const rateConfig = getBankConfig('Tata Capital', 'interestRates', { state: userData.state, city: userData.city });
 
   if (!rateConfig || !rateConfig.categorySlabRates || !rateConfig.categorySlabRates[category]) {
     return tataConfig.interestRate;
@@ -122,7 +122,7 @@ export const calculateTataEligibility = (userData) => {
   }
 
   // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('Tata Capital', 'ageRules');
+  const ageConfig = getBankConfig('Tata Capital', 'ageRules', { state: userData.state, city: userData.city });
   const minAge = ageConfig ? ageConfig.minAge : tataConfig.minAge;
   const maxAge = ageConfig ? ageConfig.maxAge : tataConfig.maxAge;
 
@@ -170,7 +170,7 @@ export const calculateTataEligibility = (userData) => {
   }
 
   // Check minimum salary requirement based on category
-  const salConfig = getBankConfig('Tata Capital', 'employmentRules');
+  const salConfig = getBankConfig('Tata Capital', 'employmentRules', { state: userData.state, city: userData.city });
   const catMinSalary = tataConfig.minSalaryByCategory[category];
   const effectiveMinSalary = salConfig ? salConfig.salariedMinSalary : catMinSalary;
 
@@ -180,7 +180,7 @@ export const calculateTataEligibility = (userData) => {
   }
 
   // Get loan capping config
-  const cappingConfig = getBankConfig('Tata Capital', 'loanCapping');
+  const cappingConfig = getBankConfig('Tata Capital', 'loanCapping', { state: userData.state, city: userData.city });
   const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : tataConfig.maxLoanAmount;
   const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : 100000;
 
@@ -234,7 +234,7 @@ export const calculateTataEligibility = (userData) => {
   const preliminaryCappedLoan = Math.min(preliminaryLoanAmount, absoluteMaxLoan);
 
   // Pass 2: Get correct rate based on preliminary loan amount
-  const finalInterestRate = getInterestRateForLoan(category, preliminaryCappedLoan);
+  const finalInterestRate = getInterestRateForLoan(category, preliminaryCappedLoan, userData);
 
   // Recalculate FOIR loan with final rate
   const foirLoanAmount = calculatePrincipalFromEMI(availableEMI, finalInterestRate, cappedTenureYears);
