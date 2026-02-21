@@ -82,18 +82,18 @@ export const saveBankConfig = (bankName, sectionName, config) => {
   try {
     // Get all configs from localStorage
     const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    
+
     // Initialize bank config if doesn't exist
     if (!allConfigs[bankName]) {
       allConfigs[bankName] = { ...defaultConfigs[bankName] };
     }
-    
+
     // Update specific section
     allConfigs[bankName][sectionName] = config;
-    
+
     // Save back to localStorage
     localStorage.setItem(STORAGE_KEY, JSON.stringify(allConfigs));
-    
+
     console.log(`✅ Saved ${sectionName} for ${bankName}:`, config);
     return true;
   } catch (error) {
@@ -106,17 +106,17 @@ export const saveBankConfig = (bankName, sectionName, config) => {
 export const getBankConfig = (bankName, sectionName) => {
   try {
     const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    
+
     // Return saved config or default
     if (allConfigs[bankName] && allConfigs[bankName][sectionName]) {
       return allConfigs[bankName][sectionName];
     }
-    
+
     // Return default if exists
     if (defaultConfigs[bankName] && defaultConfigs[bankName][sectionName]) {
       return defaultConfigs[bankName][sectionName];
     }
-    
+
     return null;
   } catch (error) {
     console.error('Error loading bank config:', error);
@@ -128,11 +128,11 @@ export const getBankConfig = (bankName, sectionName) => {
 export const getAllBankConfig = (bankName) => {
   try {
     const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    
+
     if (allConfigs[bankName]) {
       return allConfigs[bankName];
     }
-    
+
     return defaultConfigs[bankName] || {};
   } catch (error) {
     console.error('Error loading all bank config:', error);
