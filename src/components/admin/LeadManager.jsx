@@ -108,6 +108,7 @@ const LeadManager = () => {
                 <div className="lead-stats">
                     <div className="stat-item">
                         <span className="stat-label">Total Leads</span>
+                        <span className="stat-label">Total Leads</span>
                         <span className="stat-value">{mockLeads.length}</span>
                     </div>
                 </div>
