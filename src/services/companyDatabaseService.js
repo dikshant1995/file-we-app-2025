@@ -17,15 +17,18 @@ const bankDatabases = {
  * Load universal company list for autocomplete
  */
 export const loadUniversalCompanies = async () => {
+  console.log('📡 Attempting to load Universal Database...');
   try {
     const response = await fetch('/data/universal_companies.json');
     if (response.ok) {
       universalCompanies = await response.json();
-      console.log('✅ Loaded universal companies:', universalCompanies.length);
+      console.log('✅ SUCCESS: Universal Database loaded into memory.', universalCompanies.length, 'records found.');
       return universalCompanies;
+    } else {
+      console.error('❌ FAILED: Universal Database request failed. Status:', response.status, response.statusText);
     }
   } catch (error) {
-    console.error('Error loading universal companies:', error);
+    console.error('❌ CRITICAL ERROR: Could not establish connection to Universal Database:', error);
   }
   return [];
 };
@@ -73,12 +76,21 @@ export const getCompanySuggestions = (searchTerm) => {
 
   const search = searchTerm.toLowerCase();
 
-  // Performance optimization: only filter if term is 2+ chars
+  // Guard: Only search if at least 2 characters are entered (Speed Optimization)
   if (search.length < 2) return [];
 
+  // Guard: Ensure database is ready
+  if (!universalCompanies || universalCompanies.length === 0) {
+    console.warn('⚠️ ENGINE IDLE: Universal Database is not yet connected or empty.');
+    return [];
+  }
+
   return universalCompanies
-    .filter(company => company.companyName.toLowerCase().includes(search))
-    .slice(0, 100)
+    .filter(company =>
+      company?.companyName &&
+      company.companyName.toLowerCase().includes(search)
+    )
+    .slice(0, 50) // Reduced to 50 for faster rendering
     .map(c => c.companyName)
     .sort();
 };
