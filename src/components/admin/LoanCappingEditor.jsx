@@ -53,10 +53,10 @@ const LoanCappingEditor = ({ bank, onSave }) => {
         <div className="category-grid">
           <div className="input-group">
             <label>Absolute Maximum Loan (₹)</label>
-            <input 
+            <input
               type="number"
               value={config.absoluteMaxLoan}
-              onChange={(e) => setConfig({...config, absoluteMaxLoan: parseInt(e.target.value)})}
+              onChange={(e) => setConfig({ ...config, absoluteMaxLoan: parseInt(e.target.value) })}
               className="config-input"
             />
             <span className="input-hint">No loan can exceed this amount</span>
@@ -64,10 +64,10 @@ const LoanCappingEditor = ({ bank, onSave }) => {
 
           <div className="input-group">
             <label>Minimum Loan Amount (₹)</label>
-            <input 
+            <input
               type="number"
               value={config.minLoanAmount}
-              onChange={(e) => setConfig({...config, minLoanAmount: parseInt(e.target.value)})}
+              onChange={(e) => setConfig({ ...config, minLoanAmount: parseInt(e.target.value) })}
               className="config-input"
             />
             <span className="input-hint">Reject loans below this amount</span>
@@ -82,7 +82,7 @@ const LoanCappingEditor = ({ bank, onSave }) => {
           {Object.keys(config.categoryBasedMax).map(cat => (
             <div key={cat} className="input-group">
               <label>Category {cat} Max (₹)</label>
-              <input 
+              <input
                 type="number"
                 value={config.categoryBasedMax[cat] || ''}
                 onChange={(e) => setConfig({
@@ -106,7 +106,7 @@ const LoanCappingEditor = ({ bank, onSave }) => {
         <div className="category-grid">
           <div className="input-group">
             <label>Salaried Max (₹)</label>
-            <input 
+            <input
               type="number"
               value={config.employmentTypeMax.salaried || ''}
               onChange={(e) => setConfig({
@@ -123,7 +123,7 @@ const LoanCappingEditor = ({ bank, onSave }) => {
 
           <div className="input-group">
             <label>Self-Employed Max (₹)</label>
-            <input 
+            <input
               type="number"
               value={config.employmentTypeMax.selfEmployed || ''}
               onChange={(e) => setConfig({
@@ -146,7 +146,7 @@ const LoanCappingEditor = ({ bank, onSave }) => {
         <div className="category-grid">
           <div className="input-group">
             <label>Enable Bachelor Capping</label>
-            <select 
+            <select
               value={config.bachelorCapping.enabled}
               onChange={(e) => setConfig({
                 ...config,
@@ -164,7 +164,7 @@ const LoanCappingEditor = ({ bank, onSave }) => {
 
           <div className="input-group">
             <label>Bachelor Capping %</label>
-            <input 
+            <input
               type="number"
               value={config.bachelorCapping.percentage}
               onChange={(e) => setConfig({
