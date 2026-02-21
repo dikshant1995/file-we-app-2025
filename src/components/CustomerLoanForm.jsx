@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import './CustomerLoanForm.css';
 import { loadUniversalCompanies, getCompanySuggestions, initializeBankDatabases } from '../services/companyDatabaseService';
+import { indianStates, stateCityData } from '../data/locationData';
 
 const CustomerLoanForm = ({ onSubmit, loading }) => {
   const [formData, setFormData] = useState({
@@ -15,6 +16,9 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
     category: 'B', // Default to Category B
     employmentType: 'salaried',
     companyName: '',
+    // NEW: Mandatory Location
+    state: '',
+    city: '',
     hasExistingLoans: false,
     existingLoans: [],
     // NEW: Balance Transfer options
@@ -23,6 +27,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
   });
 
   const [companySuggestions, setCompanySuggestions] = useState([]);
+  const [citySuggestions, setCitySuggestions] = useState([]);
 
   // Load universal company list on mount for autocomplete
   useEffect(() => {
@@ -50,6 +55,25 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
       const suggestions = getCompanySuggestions(value);
       console.log('🔍 Autocomplete for:', value, '| Suggestions:', suggestions);
       setCompanySuggestions(suggestions);
+    }
+
+    // Handle Location logic
+    if (name === 'state') {
+      // If state changes, clear existing city and suggestions
+      setFormData(prev => ({ ...prev, state: value, city: '' }));
+      setCitySuggestions([]);
+      return;
+    }
+
+    if (name === 'city') {
+      // Filter cities from the selected state
+      if (formData.state && stateCityData[formData.state]) {
+        const query = value.toLowerCase();
+        const suggestions = stateCityData[formData.state].filter(c =>
+          c.toLowerCase().includes(query)
+        );
+        setCitySuggestions(suggestions);
+      }
     }
 
     setFormData(prev => ({
@@ -147,6 +171,19 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
       document.getElementById('mobileNumber')?.focus();
       return;
     }
+
+    // ── Guard: Location required ───────────────────────────────────────────
+    if (!formData.state) {
+      setValidationError('Please select your residential State.');
+      document.getElementById('state')?.focus();
+      return;
+    }
+    if (!formData.city.trim()) {
+      setValidationError('Please select or enter your City.');
+      document.getElementById('city')?.focus();
+      return;
+    }
+    // ───────────────────────────────────────────────────────────────────────
     // ───────────────────────────────────────────────────────────────────────
 
     // Parse data EXACTLY as backend expects
@@ -206,6 +243,8 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
       existingEMI: totalExistingEMI,
       creditCardObligation: totalCreditCardObligation, // NEW: 5% of non-BT credit card balances
       existingLoanBanks: existingLoanBanks, // NEW: List of banks where customer has existing personal loans
+      state: formData.state,
+      city: formData.city,
       // NEW: Balance Transfer data
       wantsBT: formData.wantsBT,
       selectedLoansForBT: formData.wantsBT ? formData.selectedLoansForBT : [],
@@ -293,7 +332,60 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
               </small>
             )}
           </div>
+        </div>
 
+        {/* Location Selection */}
+        <div className="form-row-two" style={{ marginTop: '20px' }}>
+          <div className="form-group">
+            <label htmlFor="state">
+              Residential State <span className="required">*</span>
+            </label>
+            <select
+              id="state"
+              name="state"
+              value={formData.state}
+              onChange={handleInputChange}
+              required
+              className="location-select"
+            >
+              <option value="">-- Select State --</option>
+              {indianStates.map(state => (
+                <option key={state} value={state}>{state}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="city">
+              Current City <span className="required">*</span>
+            </label>
+            <input
+              type="text"
+              id="city"
+              name="city"
+              value={formData.city}
+              onChange={handleInputChange}
+              placeholder={formData.state ? "Type your city..." : "Select state first"}
+              required
+              autoComplete="off"
+              disabled={!formData.state}
+            />
+            {citySuggestions.length > 0 && (
+              <div className="autocomplete-dropdown city-dropdown">
+                {citySuggestions.map((city, idx) => (
+                  <div
+                    key={idx}
+                    className="autocomplete-item"
+                    onMouseDown={() => {
+                      setFormData(prev => ({ ...prev, city: city }));
+                      setCitySuggestions([]);
+                    }}
+                  >
+                    {city}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
