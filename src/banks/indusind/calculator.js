@@ -1,39 +1,35 @@
-import { indusindConfig } from './config.js';
-import { getBankConfig } from '../../services/bankConfigService';
+import { indusindConfig as baseIndusindConfig } from './config.js';
+import { getEffectiveConfig } from '../../utils/policyUtils';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
   const monthlyInterestRate = annualInterestRate / 12 / 100;
   const numberOfMonths = tenureInYears * 12;
-  
-  if (monthlyInterestRate === 0) {
-    return principal / numberOfMonths;
-  }
-  
-  const emi = principal * monthlyInterestRate * 
-    (Math.pow(1 + monthlyInterestRate, numberOfMonths)) / 
+
+  if (monthlyInterestRate === 0) return principal / numberOfMonths;
+
+  const emi = principal * monthlyInterestRate *
+    (Math.pow(1 + monthlyInterestRate, numberOfMonths)) /
     (Math.pow(1 + monthlyInterestRate, numberOfMonths) - 1);
-    
+
   return Math.round(emi);
 };
 
 // Helper function to get salary band for a specific category
 const getSalaryBand = (salary, category, multiplierTable) => {
-  const categoryBands = multiplierTable[category];
-  if (!categoryBands) return null;
-  
-  for (const band of Object.keys(categoryBands)) {
+  const categoryTable = multiplierTable[category];
+  if (!categoryTable) return null;
+
+  for (const band of Object.keys(categoryTable)) {
     if (band.includes('+')) {
-      // Handle "30000+" or "75001+" format
       const min = parseInt(band.replace('+', ''));
-      if (salary >= min) {
-        return band;
-      }
+      if (salary >= min) return band;
     } else {
-      // Handle "25000-75000" format
-      const [min, max] = band.split('-').map(s => parseInt(s));
-      if (salary >= min && salary <= max) {
-        return band;
+      const parts = band.split('-');
+      if (parts.length === 2) {
+        const min = parseInt(parts[0]);
+        const max = parseInt(parts[1]);
+        if (salary >= min && salary <= max) return band;
       }
     }
   }
@@ -42,12 +38,14 @@ const getSalaryBand = (salary, category, multiplierTable) => {
 
 // IndusInd Bank specific eligibility calculation (Multiplier-Only System)
 export const calculateIndusindEligibility = (userData) => {
+  const config = getEffectiveConfig('IndusInd Bank', baseIndusindConfig);
+
   const {
     desiredLoanAmount,
     loanTenure,
     monthlyIncome,
     existingEMI = 0,
-    creditCardObligation, // NEW: 5% of non-BT credit card balances
+    creditCardObligation,
     category = 'C',
     creditScore,
     employmentType,
@@ -62,10 +60,9 @@ export const calculateIndusindEligibility = (userData) => {
   const isBT = isBTMode && loansForBT && loansForBT.length > 0;
   let adjustedIncome = monthlyIncome;
   let nonBTLoansEMI = 0;
-  
+
   if (isBT) {
     nonBTLoansEMI = existingEMI - btTotalEMI;
-    // NEW: Also deduct credit card obligations from adjusted income
     const creditCardDeduction = creditCardObligation || 0;
     adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
     if (adjustedIncome <= 0) {
@@ -76,10 +73,10 @@ export const calculateIndusindEligibility = (userData) => {
   // CHECK: If customer already has a personal loan from IndusInd Bank
   if (existingLoanBanks && existingLoanBanks.length > 0) {
     const indusindNames = ['indusind', 'indusind bank'];
-    const hasExistingIndusindLoan = existingLoanBanks.some(bank => 
+    const hasExistingIndusindLoan = existingLoanBanks.some(bank =>
       indusindNames.some(name => bank.includes(name))
     );
-    
+
     if (hasExistingIndusindLoan) {
       return {
         eligible: false,
@@ -87,90 +84,79 @@ export const calculateIndusindEligibility = (userData) => {
       };
     }
   }
-  
-  // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('IndusInd Bank', 'ageRules');
-  const minAge = ageConfig ? ageConfig.minAge : indusindConfig.minAge;
-  const maxAge = ageConfig ? ageConfig.maxAge : indusindConfig.maxAge;
-  
+
+  // Check age eligibility
+  const minAge = config.ageRules ? config.ageRules.minAge : config.minAge;
+  const maxAge = config.ageRules ? config.ageRules.maxAge : config.maxAge;
   if (age && (age < minAge || age > maxAge)) {
     return {
       eligible: false,
       reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
     };
   }
-  
+
   // Check employment type
-  if (!indusindConfig.employmentTypes.includes(employmentType)) {
+  if (!config.employmentTypes?.includes(employmentType)) {
     return {
       eligible: false,
       reason: `Employment type ${employmentType} not supported by IndusInd Bank`
     };
   }
-  
-  // Apply tenure capping based on category (tenure is in months)
-  const maxTenureForCategory = indusindConfig.maxTenureByCategory[category];
+
+  // Apply tenure capping based on category
+  const maxTenureTable = config.maxTenureByCategory || baseIndusindConfig.maxTenureByCategory;
+  const maxTenureForCategory = maxTenureTable[category] || 60;
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
       eligible: false,
       reason: `No loans available for Category ${category}`
     };
   }
-  
-  // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
-  // This shows the maximum loan amount the bank can offer for this category
+
   const cappedTenureMonths = maxTenureForCategory;
   const cappedTenureYears = cappedTenureMonths / 12;
-  
-  // Store user's request for display purposes
+
   const requestedTenureMonths = loanTenure * 12;
   const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
-  
-  // Check loan tenure
-  if (loanTenure > indusindConfig.maxLoanTenure) {
-    return {
-      eligible: false,
-      reason: `Maximum loan tenure is ${indusindConfig.maxLoanTenure} years`
-    };
-  }
-  
-  const minSalaryRequired = indusindConfig.minSalaryByCategory[category];
+
+  const minSalaryTable = config.minSalaryByCategory || baseIndusindConfig.minSalaryByCategory;
+  const minSalaryRequired = minSalaryTable[category];
   if (!minSalaryRequired) {
     return { eligible: false, reason: `Category ${category} not supported by IndusInd Bank`, isBTMode: isBT };
   }
-  
+
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < minSalaryRequired) {
     return { eligible: false, reason: `Minimum salary of ₹${minSalaryRequired.toLocaleString()} required for category ${category}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
-  
+
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
-  const salaryBand = getSalaryBand(incomeForCalculation, category, indusindConfig.multiplierTable);
-  
+  const multiplierTable = config.multiplierTable || config.multiplierRules?.multiplierTable || baseIndusindConfig.multiplierTable;
+  const salaryBand = getSalaryBand(incomeForCalculation, category, multiplierTable);
+
   if (!salaryBand) {
     return { eligible: false, reason: `Salary does not fall within any eligible band for category ${category}`, isBTMode: isBT };
   }
-  
-  const multiplier = indusindConfig.multiplierTable[category][salaryBand];
-  
+
+  const multiplier = multiplierTable[category] ? multiplierTable[category][salaryBand] : null;
+
   if (!multiplier) {
     return { eligible: false, reason: `No multiplier available for category ${category} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
   }
-  
-  // IMPORTANT: For multiplier, use salary after deducting existing EMI and credit card obligation (non-BT mode)
+
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
   const availableSalary = isBT ? incomeForCalculation : (monthlyIncome - totalObligations);
   const calculatedLoanAmount = availableSalary * multiplier;
-  
-  // Final loan amount is minimum of calculated and desired
-  const finalLoanAmount = Math.min(
+
+  const preliminaryLoanAmount = Math.min(
     calculatedLoanAmount,
     desiredLoanAmount || Infinity
   );
-  
-  const cappedFinalLoan = Math.min(finalLoanAmount, indusindConfig.maxLoanAmount);
-  const loanCapped = finalLoanAmount > indusindConfig.maxLoanAmount;
-  
+
+  const absoluteMaxLoan = config.loanCapping?.absoluteMaxLoan || config.maxLoanAmount || 5000000;
+  const cappedFinalLoan = Math.min(preliminaryLoanAmount, absoluteMaxLoan);
+  const loanCapped = preliminaryLoanAmount > absoluteMaxLoan;
+
   let btDetails = null;
   if (isBT) {
     const btFreshAmount = cappedFinalLoan - btTotalOutstanding;
@@ -181,49 +167,34 @@ export const calculateIndusindEligibility = (userData) => {
       isBTMode: true,
       loansConsolidated: loansForBT.length,
       btTotalOutstanding: Math.round(btTotalOutstanding),
-      btTotalEMI: Math.round(btTotalEMI),
       freshAmountDisbursed: Math.round(btFreshAmount),
-      nonBTLoansEMI: Math.round(nonBTLoansEMI),
-      creditCardObligation: Math.round(creditCardObligation || 0),
-      creditCardObligationNote: creditCardObligation > 0 ? '5% of non-BT credit card outstanding' : 'No credit card obligation (either no CC or CC in BT)',
-      totalNonBTObligations: Math.round(nonBTLoansEMI + (creditCardObligation || 0)),
       originalIncome: monthlyIncome,
       adjustedIncome: Math.round(adjustedIncome)
     };
   }
-  
-  const monthlyEMI = calculateEMI(cappedFinalLoan, indusindConfig.interestRate, cappedTenureYears);
-  
+
+  const effectiveInterestRate = config.interestRate || baseIndusindConfig.interestRate;
+  const monthlyEMI = calculateEMI(cappedFinalLoan, effectiveInterestRate, cappedTenureYears);
+
   return {
     eligible: true,
-    bankId: indusindConfig.id,
-    bankName: indusindConfig.name,
+    bankId: config.id,
+    bankName: config.name,
     loanAmount: Math.round(cappedFinalLoan),
-    maxLoanCap: indusindConfig.maxLoanAmount,
+    maxLoanCap: absoluteMaxLoan,
     loanCappedByBank: loanCapped,
-    calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
-    interestRate: indusindConfig.interestRate,
+    calculatedLoanBeforeCap: loanCapped ? Math.round(preliminaryLoanAmount) : null,
+    interestRate: effectiveInterestRate,
     loanTenure: cappedTenureYears,
-    loanTenureMonths: cappedTenureMonths,
-    tenureCapped: tenureCapped,
-    requestedTenure: loanTenure,
-    requestedTenureMonths: requestedTenureMonths,
-    maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
     multiplier: multiplier,
-    salaryBand: salaryBand,
     category: category,
-    maxLoanByMultiplier: Math.round(calculatedLoanAmount),
     calculationMethod: 'Multiplier Only (No FOIR)',
     details: {
       multiplier: multiplier + 'x',
       salaryBand: salaryBand,
       multiplierLoanAmount: Math.round(calculatedLoanAmount),
-      existingEMI: Math.round(existingEMI || 0),
-      creditCardObligation: Math.round(creditCardObligation || 0),
-      creditCardObligationNote: creditCardObligation > 0 ? '5% of credit card outstanding balance' : 'No credit card obligations',
-      totalObligations: Math.round(totalObligations),
-      availableSalaryAfterObligations: Math.round(availableSalary)
+      totalObligations: Math.round(totalObligations)
     },
     ...btDetails
   };
