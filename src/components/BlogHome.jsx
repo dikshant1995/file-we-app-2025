@@ -12,6 +12,10 @@ const BlogHome = () => {
                 <meta name="description" content="Read our latest articles on personal loans, credit scores, and financial planning to help you make better borrowing decisions." />
             </Helmet>
 
+            <div className="blog-nav-header">
+                <Link to="/" className="back-to-home">← Back to Home</Link>
+            </div>
+
             <div className="blog-hero">
                 <h1 className="text-glow">Financial <span className="gradient-text-ai">Knowledge Hub</span></h1>
                 <p>Expert insights to help you navigate the world of personal finance and loans.</p>
