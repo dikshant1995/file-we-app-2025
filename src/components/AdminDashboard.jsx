@@ -8,8 +8,12 @@ import AuditLog from './admin/AuditLog';
 import AddBankModal from './admin/AddBankModal';
 import LeadManager from './admin/LeadManager';
 import AdminLocationSelector from './admin/AdminLocationSelector';
+import AdminLogin from './admin/AdminLogin';
 
 const AdminDashboard = ({ onBackToCustomer }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('admin_authenticated') === 'true';
+  });
   const [activeMenu, setActiveMenu] = useState('leads');
   const [selectedBank, setSelectedBank] = useState(null);
   const [showAddBankModal, setShowAddBankModal] = useState(false);
@@ -77,6 +81,20 @@ const AdminDashboard = ({ onBackToCustomer }) => {
     alert(`Institution "${newBank.name}" initialized successfully with standard regulatory frameworks.\n\nYou may now proceed with granular policy configuration.`);
   };
 
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+    localStorage.setItem('admin_authenticated', 'true');
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('admin_authenticated');
+  };
+
+  if (!isAuthenticated) {
+    return <AdminLogin onLogin={handleLogin} />;
+  }
+
   return (
     <div className="admin-dashboard professional-grid-bg">
       {/* Add Bank Modal */}
@@ -96,6 +114,9 @@ const AdminDashboard = ({ onBackToCustomer }) => {
             <h1>Bank Governance & Policy Control</h1>
           </div>
           <div className="header-actions">
+            <button className="btn-logout" onClick={handleLogout}>
+              Secure Logout
+            </button>
           </div>
         </div>
       </header>
