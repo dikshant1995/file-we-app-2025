@@ -1,34 +1,34 @@
-import { cholaConfig } from './config.js';
+import { cholaConfig as baseCholaConfig } from './config.js';
+import { getEffectiveConfig } from '../../utils/policyUtils';
 
 // Helper: Calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
   const monthlyInterestRate = annualInterestRate / 12 / 100;
   const numberOfMonths = tenureInYears * 12;
-  
+
   if (monthlyInterestRate === 0) return principal / numberOfMonths;
-  
-  const emi = principal * monthlyInterestRate * 
-    (Math.pow(1 + monthlyInterestRate, numberOfMonths)) / 
+
+  const emi = principal * monthlyInterestRate *
+    (Math.pow(1 + monthlyInterestRate, numberOfMonths)) /
     (Math.pow(1 + monthlyInterestRate, numberOfMonths) - 1);
   return Math.round(emi);
 };
 
 // Helper: Reverse calculate principal from EMI
-// Using client's reverse calculator: Factor = 52.5375
 const calculatePrincipalFromEMI = (emi, annualInterestRate, tenureInYears) => {
   const monthlyInterestRate = annualInterestRate / 12 / 100;
   const numberOfMonths = tenureInYears * 12;
-  
+
   if (monthlyInterestRate === 0) return emi * numberOfMonths;
-  
+
   const r = monthlyInterestRate;
   const n = numberOfMonths;
-  const standardPower = Math.pow(1 + (0.11/12), 72);
+  const standardPower = Math.pow(1 + (0.11 / 12), 72);
   const clientPower = 1.9229;
   const scaleFactor = clientPower / standardPower;
   const actualPowerTerm = Math.pow(1 + r, n);
   const adjustedPowerTerm = actualPowerTerm * scaleFactor;
-  
+
   const principal = emi * (adjustedPowerTerm - 1) / (r * adjustedPowerTerm);
   return Math.round(principal);
 };
@@ -48,15 +48,15 @@ const getSalaryBand = (salary, table) => {
 };
 
 // Cholamandalam Finance specific eligibility calculation
-// Method: FOIR Only (Category + Salary based)
-// UNLISTED category is NOT ELIGIBLE
 export const calculateCholaEligibility = (userData) => {
+  const config = getEffectiveConfig('Cholamandalam Finance', baseCholaConfig);
+
   const {
     desiredLoanAmount,
     loanTenure,
     monthlyIncome,
     existingEMI = 0,
-    creditCardObligation, // NEW: 5% of non-BT credit card balances
+    creditCardObligation,
     category = 'A',
     creditScore,
     employmentType = 'salaried',
@@ -71,10 +71,9 @@ export const calculateCholaEligibility = (userData) => {
   const isBT = isBTMode && loansForBT && loansForBT.length > 0;
   let adjustedIncome = monthlyIncome;
   let nonBTLoansEMI = 0;
-  
+
   if (isBT) {
     nonBTLoansEMI = existingEMI - btTotalEMI;
-    // NEW: Also deduct credit card obligations from adjusted income
     const creditCardDeduction = creditCardObligation || 0;
     adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
     if (adjustedIncome <= 0) {
@@ -85,10 +84,10 @@ export const calculateCholaEligibility = (userData) => {
   // CHECK: If customer already has a personal loan from Cholamandalam Finance
   if (existingLoanBanks && existingLoanBanks.length > 0) {
     const cholaBankNames = ['chola', 'cholamandalam', 'cholamandalam finance'];
-    const hasExistingCholaLoan = existingLoanBanks.some(bank => 
+    const hasExistingCholaLoan = existingLoanBanks.some(bank =>
       cholaBankNames.some(name => bank.includes(name))
     );
-    
+
     if (hasExistingCholaLoan) {
       return {
         eligible: false,
@@ -96,94 +95,86 @@ export const calculateCholaEligibility = (userData) => {
       };
     }
   }
-  
+
   // Check age eligibility
-  if (age && (age < cholaConfig.minAge || age > cholaConfig.maxAge)) {
+  const minAge = config.ageRules ? config.ageRules.minAge : config.minAge;
+  const maxAge = config.ageRules ? config.ageRules.maxAge : config.maxAge;
+  if (age && (age < minAge || age > maxAge)) {
     return {
       eligible: false,
-      reason: `Age must be between ${cholaConfig.minAge} and ${cholaConfig.maxAge} years. Current age: ${age}`
+      reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
     };
   }
-  
-  // 1. Check if UNLISTED (completely ineligible)
+
   if (category === 'UNLISTED') {
     return {
       eligible: false,
       reason: 'Cholamandalam Finance does not provide loans to UNLISTED company employees'
     };
   }
-  
-  // 2. Apply tenure capping based on category (tenure is in months)
-  const maxTenureForCategory = cholaConfig.maxTenureByCategory[category];
+
+  // Apply tenure capping based on category
+  const maxTenureTable = config.maxTenureByCategory || baseCholaConfig.maxTenureByCategory;
+  const maxTenureForCategory = maxTenureTable[category] || 60;
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
       eligible: false,
       reason: `No loans available for Category ${category}`
     };
   }
-  
-  // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
-  // This shows the maximum loan amount the bank can offer for this category
+
   const cappedTenureMonths = maxTenureForCategory;
   const cappedTenureYears = cappedTenureMonths / 12;
-  
-  // Store user's request for display purposes
+
   const requestedTenureMonths = loanTenure * 12;
   const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
-  
-  // 3. Check employment type
-  if (!cholaConfig.employmentTypes.includes(employmentType)) {
+
+  if (!config.employmentTypes?.includes(employmentType)) {
     return {
       eligible: false,
       reason: `Employment type ${employmentType} not supported`
     };
   }
-  
-  // 4. Check loan tenure
-  if (loanTenure > cholaConfig.maxLoanTenure) {
-    return {
-      eligible: false,
-      reason: `Maximum loan tenure is ${cholaConfig.maxLoanTenure} years`
-    };
-  }
-  
-  const minSalary = cholaConfig.minSalary[category];
+
+  const minSalaryTable = config.minSalary || baseCholaConfig.minSalary;
+  const minSalary = minSalaryTable[category];
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (!minSalary || incomeToCheck < minSalary) {
     return { eligible: false, reason: `Minimum salary for ${category} is ₹${minSalary?.toLocaleString() || 'N/A'}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
-  
+
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
-  const foirBand = getSalaryBand(incomeForCalculation, cholaConfig.foirTable);
-  const foirPercentage = cholaConfig.foirTable[foirBand]?.[category];
-  
+  const foirTable = config.foirTable || config.foirMatrix || baseCholaConfig.foirTable;
+  const foirBand = getSalaryBand(incomeForCalculation, foirTable);
+  const foirPercentage = foirTable[foirBand]?.[category];
+
   if (!foirPercentage) {
     return { eligible: false, reason: `FOIR not defined for category ${category} at salary band ${foirBand}`, isBTMode: isBT };
   }
-  
+
   const foirCap = incomeForCalculation * foirPercentage;
   const totalObligations = existingEMI + (creditCardObligation || 0);
   const availableEMI = isBT ? foirCap : (foirCap - totalObligations);
-  
+
   if (availableEMI <= 0) {
     return {
       eligible: false,
       reason: 'Existing EMI exceeds FOIR limit'
     };
   }
-  
-  // 8. Calculate loan amount from available EMI using capped tenure
-  const calculatedLoanAmount = calculatePrincipalFromEMI(availableEMI, cholaConfig.interestRate, cappedTenureYears);
-  
-  // 9. Final loan = minimum of calculated and desired
-  const finalLoanAmount = Math.min(
+
+  const effectiveInterestRate = config.interestRate || baseCholaConfig.interestRate;
+  const calculatedLoanAmount = calculatePrincipalFromEMI(availableEMI, effectiveInterestRate, cappedTenureYears);
+
+  const preliminaryLoanAmount = Math.min(
     calculatedLoanAmount,
     desiredLoanAmount || Infinity
   );
-  
-  const cappedFinalLoan = Math.min(finalLoanAmount, cholaConfig.maxLoanAmount);
-  const loanCapped = finalLoanAmount > cholaConfig.maxLoanAmount;
-  
+
+  const absoluteMaxLoan = config.loanCapping?.absoluteMaxLoan || config.maxLoanAmount || 5000000;
+  const cappedFinalLoan = Math.min(preliminaryLoanAmount, absoluteMaxLoan);
+  const loanCapped = preliminaryLoanAmount > absoluteMaxLoan;
+
   let btDetails = null;
   if (isBT) {
     const btFreshAmount = cappedFinalLoan - btTotalOutstanding;
@@ -194,34 +185,24 @@ export const calculateCholaEligibility = (userData) => {
       isBTMode: true,
       loansConsolidated: loansForBT.length,
       btTotalOutstanding: Math.round(btTotalOutstanding),
-      btTotalEMI: Math.round(btTotalEMI),
       freshAmountDisbursed: Math.round(btFreshAmount),
-      nonBTLoansEMI: Math.round(nonBTLoansEMI),
-      creditCardObligation: Math.round(creditCardObligation || 0),
-      creditCardObligationNote: creditCardObligation > 0 ? '5% of non-BT credit card outstanding' : 'No credit card obligation (either no CC or CC in BT)',
-      totalNonBTObligations: Math.round(nonBTLoansEMI + (creditCardObligation || 0)),
       originalIncome: monthlyIncome,
       adjustedIncome: Math.round(adjustedIncome)
     };
   }
-  
-  const finalEMI = calculateEMI(cappedFinalLoan, cholaConfig.interestRate, cappedTenureYears);
-  
+
+  const finalEMI = calculateEMI(cappedFinalLoan, effectiveInterestRate, cappedTenureYears);
+
   return {
     eligible: true,
-    bankId: cholaConfig.id,
-    bankName: cholaConfig.name,
+    bankId: config.id,
+    bankName: config.name,
     loanAmount: Math.round(cappedFinalLoan),
-    maxLoanCap: cholaConfig.maxLoanAmount,
+    maxLoanCap: absoluteMaxLoan,
     loanCappedByBank: loanCapped,
-    calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
-    interestRate: cholaConfig.interestRate,
+    calculatedLoanBeforeCap: loanCapped ? Math.round(preliminaryLoanAmount) : null,
+    interestRate: effectiveInterestRate,
     loanTenure: cappedTenureYears,
-    loanTenureMonths: cappedTenureMonths,
-    tenureCapped: tenureCapped,
-    requestedTenure: loanTenure,
-    requestedTenureMonths: requestedTenureMonths,
-    maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: finalEMI,
     category: category,
     calculationMethod: 'FOIR Only',
@@ -230,10 +211,6 @@ export const calculateCholaEligibility = (userData) => {
       salaryBand: foirBand,
       foirCap: Math.round(foirCap),
       availableEMI: Math.round(availableEMI),
-      maxLoanFromFOIR: Math.round(calculatedLoanAmount),
-      existingEMI: Math.round(existingEMI || 0),
-      creditCardObligation: Math.round(creditCardObligation || 0),
-      creditCardObligationNote: creditCardObligation > 0 ? '5% of credit card outstanding balance' : 'No credit card obligations',
       totalObligations: Math.round(totalObligations)
     },
     ...btDetails
