@@ -118,13 +118,21 @@ function CustomerFacingApp() {
     setShowAdminDashboard(false);
   };
 
+  const handleHomeClick = () => {
+    setShowForm(false);
+    setResults(null);
+    setMetadata(null);
+    setError(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   if (showAdminDashboard) {
     return <AdminDashboard onBackToCustomer={handleBackToCustomer} />;
   }
 
   return (
     <div className="customer-facing-app">
-      <Navbar onAdminClick={handleAdminClick} />
+      <Navbar onAdminClick={handleAdminClick} onHomeClick={handleHomeClick} />
 
       <Routes>
         <Route path="/" element={
