@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react';
 import './ConfigEditor.css';
 import { saveBankConfig, getBankConfig, getAllBankConfig } from '../../services/bankConfigService';
-import LocationOverrideManager from './LocationOverrideManager';
 
-const InterestRateEditor = ({ bank, onSave }) => {
+const InterestRateEditor = ({ bank, onSave, activeLocation }) => {
   // Get loan capping to determine max slabs
   const loanCapping = getBankConfig(bank.name, 'loanCapping') || { absoluteMaxLoan: 5000000 };
   const maxLoan = loanCapping.absoluteMaxLoan;
 
-  const [activeLocation, setActiveLocation] = useState(null); // null = Global
   const [locationOverrides, setLocationOverrides] = useState({});
 
   // Generate default loan slabs based on capping (in rupees)
@@ -49,17 +47,15 @@ const InterestRateEditor = ({ bank, onSave }) => {
     categorySlabRates: initializeCategoryRates()
   });
 
-  // Load saved config on mount or when bank/location changes
+  // Load saved config when bank or activeLocation prop changes
   useEffect(() => {
-    // 1. Load full bank config to get available overrides
+    // 1. Load full bank config to get available overrides list
     const fullConfig = getAllBankConfig(bank.name);
     setLocationOverrides(fullConfig.locationOverrides?.interestRates || {});
 
-    // 2. Load specific rates based on activeLocation
-    const savedConfig = getBankConfig(bank.name, 'interestRates', {
-      state: activeLocation,
-      city: activeLocation
-    });
+    // 2. Load specific rates based on activeLocation prop
+    const context = { state: activeLocation.state, city: activeLocation.city };
+    const savedConfig = getBankConfig(bank.name, 'interestRates', context);
 
     if (savedConfig && savedConfig.categorySlabRates) {
       setConfig(savedConfig);
@@ -82,30 +78,33 @@ const InterestRateEditor = ({ bank, onSave }) => {
   };
 
   const handleSave = () => {
-    const success = saveBankConfig(bank.name, 'interestRates', config, activeLocation);
+    // Determine the specific location string for saving override
+    const locationKey = activeLocation.city || activeLocation.state || null;
+
+    const success = saveBankConfig(bank.name, 'interestRates', config, locationKey);
     if (success) {
       onSave && onSave(config);
-      alert(`✅ Interest rates saved for ${bank.name} (${activeLocation || 'Global'})!`);
+      alert(`✅ Interest rates saved for ${bank.name} (${locationKey || 'All India'})!`);
 
-      // Refresh overrides list if we added a new one
-      if (activeLocation && !locationOverrides[activeLocation]) {
-        setLocationOverrides({ ...locationOverrides, [activeLocation]: config });
+      // Refresh overrides list 
+      if (locationKey && !locationOverrides[locationKey]) {
+        setLocationOverrides({ ...locationOverrides, [locationKey]: config });
       }
     } else {
       alert(`❌ Failed to save. Please try again.`);
     }
   };
 
-  const handleAddLocation = (loc) => setActiveLocation(loc);
+  // const handleAddLocation = (loc) => setActiveLocation(loc); // Removed as per instruction
 
-  const handleRemoveLocation = (loc) => {
-    if (removeBankOverride(bank.name, 'interestRates', loc)) {
-      const newOverrides = { ...locationOverrides };
-      delete newOverrides[loc];
-      setLocationOverrides(newOverrides);
-      if (activeLocation === loc) setActiveLocation(null);
-    }
-  };
+  // const handleRemoveLocation = (loc) => { // Removed as per instruction
+  //   if (removeBankOverride(bank.name, 'interestRates', loc)) {
+  //     const newOverrides = { ...locationOverrides };
+  //     delete newOverrides[loc];
+  //     setLocationOverrides(newOverrides);
+  //     if (activeLocation === loc) setActiveLocation(null);
+  //   }
+  // };
 
   const categories = ['SUPER-A', 'A', 'B', 'C', 'D', 'GOVT'];
 
@@ -113,16 +112,21 @@ const InterestRateEditor = ({ bank, onSave }) => {
     <div className="config-editor">
       <div className="editor-header">
         <h2>📈 Interest Rate Matrix - {bank.name}</h2>
-        <p>Configure interest rates by category and loan amount slabs with Pan-India location overrides</p>
+        <p>Configuring for: <strong>{activeLocation.city || activeLocation.state || 'All India (National)'}</strong></p>
       </div>
 
-      <LocationOverrideManager
-        overrides={locationOverrides}
-        activeLocation={activeLocation}
-        onSelectLocation={setActiveLocation}
-        onAddLocation={handleAddLocation}
-        onRemoveLocation={handleRemoveLocation}
-      />
+      <div className="existing-overrides-badges">
+        <span className="badge-label">Available Overrides for this bank:</span>
+        {Object.keys(locationOverrides).length > 0 ? (
+          Object.keys(locationOverrides).map(loc => (
+            <span key={loc} className={`loc-badge ${(activeLocation.state === loc || activeLocation.city === loc) ? 'active' : ''}`}>
+              📍 {loc}
+            </span>
+          ))
+        ) : (
+          <span className="no-overrides">No location-specific rules set yet. Use the selector above to add one.</span>
+        )}
+      </div>
 
       {/* Rate Matrix by Category */}
       {categories.map(category => (
