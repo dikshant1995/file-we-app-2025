@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import './BankList.css';
+import { getBankConfig } from '../../services/bankConfigService';
 
 const BankList = ({ onSelectBank, onAddBank, customBanks = [] }) => {
   // Initial bank data - will be loaded from config/localStorage
@@ -21,7 +22,22 @@ const BankList = ({ onSelectBank, onAddBank, customBanks = [] }) => {
   ]);
 
   // Merge default banks with custom banks
-  const allBanks = [...banks, ...customBanks];
+  const allBanks = useMemo(() => [...banks, ...customBanks], [banks, customBanks]);
+
+  // Helper to get bank summary rules
+  const getBankSummary = (bankName) => {
+    const age = getBankConfig(bankName, 'ageRules');
+    const salary = getBankConfig(bankName, 'employmentRules');
+    const capping = getBankConfig(bankName, 'loanCapping');
+    const interest = getBankConfig(bankName, 'interestRates');
+
+    return {
+      ageRange: age ? `${age.minAge}-${age.maxAge}` : '21-60',
+      minSalary: salary ? `₹${(salary.salariedMinSalary / 1000).toFixed(0)}K` : '₹25K',
+      maxLoan: capping ? `₹${(capping.absoluteMaxLoan / 100000).toFixed(0)}L` : '₹50L',
+      rate: interest ? `${interest.defaultRate}%` : '11%'
+    };
+  };
 
   const toggleBankStatus = (bankId) => {
     setBanks(banks.map(bank =>
@@ -87,76 +103,83 @@ Click OK to permanently delete.`)) {
       </div>
 
       <div className="banks-grid">
-        {allBanks.map(bank => (
-          <div
-            key={bank.id}
-            className={`bank-card ${!bank.enabled ? 'disabled' : ''}`}
-          >
-            <div className="bank-card-header" style={{ background: bank.color }}>
-              <div className="bank-logo">{bank.logo}</div>
-              <div className="bank-status">
-                <label className="toggle-switch">
-                  <input
-                    type="checkbox"
-                    checked={bank.enabled}
-                    onChange={() => toggleBankStatus(bank.id)}
-                  />
-                  <span className="toggle-slider"></span>
-                </label>
+        {allBanks.map(bank => {
+          const summary = getBankSummary(bank.name);
+          return (
+            <div
+              key={bank.id}
+              className={`bank-card ${!bank.enabled ? 'disabled' : ''}`}
+            >
+              <div className="bank-card-header" style={{ background: bank.color }}>
+                <div className="bank-logo">{bank.logo}</div>
+                <div className="bank-status">
+                  <label className="toggle-switch">
+                    <input
+                      type="checkbox"
+                      checked={bank.enabled}
+                      onChange={() => toggleBankStatus(bank.id)}
+                    />
+                    <span className="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="bank-card-body">
+                <h3>{bank.name}</h3>
+                <div className="bank-id">ID: {bank.id}</div>
+
+                <div className="bank-actions">
+                  <button
+                    className="btn-configure"
+                    onClick={() => onSelectBank(bank)}
+                    disabled={!bank.enabled}
+                  >
+                    Configure Policies
+                  </button>
+                  <button className="btn-view-stats">
+                    Performance
+                  </button>
+                </div>
+
+                <div className="bank-actions-bottom">
+                  <button
+                    className="btn-disable"
+                    onClick={() => handleDisableBank(bank)}
+                    title={bank.enabled ? "Suspend Institution" : "Re-activate Institution"}
+                  >
+                    {bank.enabled ? 'Suspend' : 'Activate'}
+                  </button>
+                  <button
+                    className="btn-delete"
+                    onClick={() => handleDeleteBank(bank)}
+                    title="Purge Record"
+                  >
+                    Purge Record
+                  </button>
+                </div>
+
+                <div className="bank-quick-info">
+                  <div className="info-item">
+                    <span className="info-label">Min Salary:</span>
+                    <span className="info-value">{summary.minSalary}</span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">Age Range:</span>
+                    <span className="info-value">{summary.ageRange}</span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">Max Loan:</span>
+                    <span className="info-value">{summary.maxLoan}</span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">Interest:</span>
+                    <span className="info-value">{summary.rate}</span>
+                  </div>
+                </div>
               </div>
             </div>
-
-            <div className="bank-card-body">
-              <h3>{bank.name}</h3>
-              <div className="bank-id">ID: {bank.id}</div>
-
-              <div className="bank-actions">
-                <button
-                  className="btn-configure"
-                  onClick={() => onSelectBank(bank)}
-                  disabled={!bank.enabled}
-                >
-                  Configure Policies
-                </button>
-                <button className="btn-view-stats">
-                  Performance
-                </button>
-              </div>
-
-              <div className="bank-actions-bottom">
-                <button
-                  className="btn-disable"
-                  onClick={() => handleDisableBank(bank)}
-                  title={bank.enabled ? "Suspend Institution" : "Re-activate Institution"}
-                >
-                  {bank.enabled ? 'Suspend' : 'Activate'}
-                </button>
-                <button
-                  className="btn-delete"
-                  onClick={() => handleDeleteBank(bank)}
-                  title="Purge Record"
-                >
-                  Purge Record
-                </button>
-              </div>
-
-              <div className="bank-quick-info">
-                <div className="info-item">
-                  <span className="info-label">Categories:</span>
-                  <span className="info-value">A, B, C, D</span>
-                </div>
-                <div className="info-item">
-                  <span className="info-label">Interest Rate:</span>
-                  <span className="info-value">11%</span>
-                </div>
-                <div className="info-item">
-                  <span className="info-label">BT Support:</span>
-                  <span className="info-value">Verified</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="bulk-actions">
