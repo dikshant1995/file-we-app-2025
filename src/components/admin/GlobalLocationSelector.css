@@ -1,0 +1,113 @@
+.global-location-selector {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: rgba(13, 22, 38, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: 1px solid var(--border-glow);
+    margin-bottom: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.selector-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    min-width: fit-content;
+}
+
+.selector-label .icon {
+    font-size: 1.2rem;
+}
+
+.selector-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.location-dropdown {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border-glow);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 180px;
+}
+
+.location-dropdown:focus {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+}
+
+.btn-reset-location {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.8rem;
+}
+
+.btn-reset-location:hover {
+    background: rgba(239, 68, 68, 0.2);
+    transform: scale(1.1);
+}
+
+.selector-indicator {
+    margin-left: auto;
+}
+
+.status-badge {
+    font-size: 0.85rem;
+    padding: 6px 14px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-badge.default {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-muted);
+    border: 1px solid var(--border-glow);
+}
+
+.status-badge.active {
+    background: rgba(0, 212, 255, 0.1);
+    color: var(--accent-cyan);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.status-badge strong {
+    color: #fff;
+}
+
+@media (max-width: 992px) {
+    .global-location-selector {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .selector-indicator {
+        margin-left: 0;
+    }
+}
