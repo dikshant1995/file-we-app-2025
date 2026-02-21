@@ -381,18 +381,12 @@ const CategoriesEditor = ({ bank, onSave }) => {
   };
 
   const handleRemoveLocation = (loc) => {
-    const newOverrides = { ...locationOverrides };
-    delete newOverrides[loc];
-
-    // Save the removal by updating the bank config
-    const fullConfig = getAllBankConfig(bank.name);
-    if (fullConfig.locationOverrides?.categories) {
-      delete fullConfig.locationOverrides.categories[loc];
-      saveBankConfig(bank.name, 'locationOverrides', fullConfig.locationOverrides);
+    if (removeBankOverride(bank.name, 'categories', loc)) {
+      const newOverrides = { ...locationOverrides };
+      delete newOverrides[loc];
+      setLocationOverrides(newOverrides);
+      if (activeLocation === loc) setActiveLocation(null);
     }
-
-    setLocationOverrides(newOverrides);
-    if (activeLocation === loc) setActiveLocation(null);
   };
 
   return (
