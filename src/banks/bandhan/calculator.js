@@ -1,12 +1,14 @@
-import { bandhanConfig as baseBandhanConfig } from './config.js';
-import { getEffectiveConfig } from '../../utils/policyUtils';
+import { bandhanConfig } from './config.js';
+import { getBankConfig } from '../../services/bankConfigService';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
   const monthlyInterestRate = annualInterestRate / 12 / 100;
   const numberOfMonths = tenureInYears * 12;
 
-  if (monthlyInterestRate === 0) return principal / numberOfMonths;
+  if (monthlyInterestRate === 0) {
+    return principal / numberOfMonths;
+  }
 
   const emi = principal * monthlyInterestRate *
     (Math.pow(1 + monthlyInterestRate, numberOfMonths)) /
@@ -16,11 +18,14 @@ const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
 };
 
 // Function to calculate loan amount from EMI
+// Using client's reverse calculator: Factor = 52.5375
 const calculateLoanAmountFromEMI = (emi, annualInterestRate, tenureInYears) => {
   const monthlyInterestRate = annualInterestRate / 12 / 100;
   const numberOfMonths = tenureInYears * 12;
 
-  if (monthlyInterestRate === 0) return emi * numberOfMonths;
+  if (monthlyInterestRate === 0) {
+    return emi * numberOfMonths;
+  }
 
   const r = monthlyInterestRate;
   const n = numberOfMonths;
@@ -34,28 +39,55 @@ const calculateLoanAmountFromEMI = (emi, annualInterestRate, tenureInYears) => {
   return Math.round(loanAmount);
 };
 
+// Function to determine company category
+const getCompanyCategory = (companyName, employmentType) => {
+  // Government employees are always classified as GOVT category
+  if (employmentType === 'government') {
+    return 'GOVT';
+  }
+
+  // For this implementation, we'll use a simplified approach
+  // In a real application, this would be based on an actual company database
+  const company = companyName.toLowerCase();
+
+  // Example categorization - in reality this would come from a database
+  if (company.includes('google') || company.includes('microsoft') || company.includes('amazon')) {
+    return 'A';
+  } else if (company.includes('tcs') || company.includes('infosys') || company.includes('wipro')) {
+    return 'A';
+  } else if (company.includes('hcl') || company.includes('tech mahindra')) {
+    return 'B';
+  } else if (company.includes('local') || company.includes('regional')) {
+    return 'C';
+  } else if (company.includes('startup') || company.includes('small')) {
+    return 'D';
+  }
+
+  // Return UNLISTED for companies not in the database
+  return 'UNLISTED';
+};
+
 // Function to get FOIR percentage based on salary
-const getFoirPercentage = (salary, foirTable) => {
-  if (salary >= 75000) return foirTable['>=75000'] || foirTable['75000+'];
-  if (salary < 75000) return foirTable['<75000'] || foirTable['0-75000'];
+const getFoirPercentage = (salary) => {
+  if (salary >= 75000) return bandhanConfig.foirTable['>=75000'];
+  if (salary < 75000) return bandhanConfig.foirTable['<75000'];
   return null;
 };
 
 // Bandhan Bank specific eligibility calculation (FOIR only)
 export const calculateBandhanEligibility = (userData) => {
-  const config = getEffectiveConfig('Bandhan Bank', baseBandhanConfig);
-
   const {
     desiredLoanAmount,
     loanTenure,
     monthlyIncome,
-    existingEMI = 0,
-    creditCardObligation,
-    category = 'B',
+    existingEMI,
+    creditCardObligation, // NEW: 5% of non-BT credit card balances
+    companyName,
     creditScore,
     employmentType,
     interestRate,
     age,
+    category,
     existingLoanBanks,
     isBTMode,
     loansForBT,
@@ -68,7 +100,8 @@ export const calculateBandhanEligibility = (userData) => {
   let nonBTLoansEMI = 0;
 
   if (isBT) {
-    nonBTLoansEMI = existingEMI - btTotalEMI;
+    nonBTLoansEMI = (existingEMI || 0) - btTotalEMI;
+    // NEW: Also deduct credit card obligations from adjusted income
     const creditCardDeduction = creditCardObligation || 0;
     adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
     if (adjustedIncome <= 0) {
@@ -91,9 +124,11 @@ export const calculateBandhanEligibility = (userData) => {
     }
   }
 
-  // Check age eligibility
-  const minAge = config.ageRules ? config.ageRules.minAge : config.minAge;
-  const maxAge = config.ageRules ? config.ageRules.maxAge : config.maxAge;
+  // Check age eligibility - Use dynamic config from admin dashboard
+  const ageConfig = getBankConfig('Bandhan Bank', 'ageRules');
+  const minAge = ageConfig ? ageConfig.minAge : bandhanConfig.minAge;
+  const maxAge = ageConfig ? ageConfig.maxAge : bandhanConfig.maxAge;
+
   if (age && (age < minAge || age > maxAge)) {
     return {
       eligible: false,
@@ -102,22 +137,39 @@ export const calculateBandhanEligibility = (userData) => {
   }
 
   // Use user-provided interest rate or default to bank config
-  const effectiveInterestRate = interestRate || config.interestRate || baseBandhanConfig.interestRate;
+  const effectiveInterestRate = interestRate || bandhanConfig.interestRate;
 
-  // Check employment type
-  if (!config.employmentTypes?.includes(employmentType)) {
+  // Check minimum salary requirement based on category
+  const companyCategory = category || 'B';
+  const salConfig = getBankConfig('Bandhan Bank', 'employmentRules');
+  const catMinSalary = bandhanConfig.minSalary[companyCategory];
+  const effectiveMinSalary = salConfig ? salConfig.salariedMinSalary : catMinSalary;
+
+  if (effectiveMinSalary === null) {
+    return { eligible: false, reason: `Bandhan Bank does not provide loans to ${companyCategory} companies` };
+  }
+
+  const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
+  if (incomeToCheck < effectiveMinSalary) {
+    return { eligible: false, reason: `Minimum monthly income required for ${companyCategory} category is ₹${effectiveMinSalary.toLocaleString()}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+  }
+
+  // Get loan capping config
+  const cappingConfig = getBankConfig('Bandhan Bank', 'loanCapping');
+  const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : bandhanConfig.maxLoanAmount;
+  const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : 100000;
+
+  // Check minimum loan amount
+  if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
     return {
       eligible: false,
-      reason: `Employment type ${employmentType} not supported by this bank`
+      reason: `Minimum loan amount required by this bank is ₹${minLoanAmount.toLocaleString()}. Requested: ₹${desiredLoanAmount.toLocaleString()}`,
+      isBTMode: isBT
     };
   }
 
-  // Use user-provided category (from frontend: B, C, or GOVT)
-  const companyCategory = category || 'B';
-
-  // Apply tenure capping based on category
-  const maxTenureTable = config.maxTenureByCategory || baseBandhanConfig.maxTenureByCategory;
-  const maxTenureForCategory = maxTenureTable[companyCategory];
+  // Apply tenure capping based on category (tenure is in months)
+  const maxTenureForCategory = bandhanConfig.maxTenureByCategory[companyCategory];
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
       eligible: false,
@@ -125,28 +177,16 @@ export const calculateBandhanEligibility = (userData) => {
     };
   }
 
+  // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
   const cappedTenureMonths = maxTenureForCategory;
   const cappedTenureYears = cappedTenureMonths / 12;
 
+  // Store user's request for display purposes
   const requestedTenureMonths = loanTenure * 12;
   const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
 
-  // Check minimum salary requirement based on category
-  const minSalaryTable = config.minSalary || baseBandhanConfig.minSalary;
-  const categoryMinSalary = minSalaryTable[companyCategory];
-
-  if (categoryMinSalary === null || categoryMinSalary === undefined) {
-    return { eligible: false, reason: `Bandhan Bank does not provide loans to this company category` };
-  }
-
-  const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
-  if (incomeToCheck < categoryMinSalary) {
-    return { eligible: false, reason: `Minimum monthly income required for ${companyCategory} category is ₹${categoryMinSalary.toLocaleString()}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
-  }
-
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
-  const foirTable = config.foirTable || baseBandhanConfig.foirTable;
-  const foirPercentage = getFoirPercentage(incomeForCalculation, foirTable);
+  const foirPercentage = getFoirPercentage(incomeForCalculation);
   if (!foirPercentage) {
     return { eligible: false, reason: 'Unable to determine FOIR percentage for the provided salary', isBTMode: isBT };
   }
@@ -155,17 +195,17 @@ export const calculateBandhanEligibility = (userData) => {
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
   const availableEMI = isBT ? foirCap : (foirCap - totalObligations);
 
-  // Calculate loan amount based on available EMI using the capped tenure
+  // Calculate loan amount based on available EMI using the capped tenure (in years)
   const foirLoanAmount = calculateLoanAmountFromEMI(availableEMI, effectiveInterestRate, cappedTenureYears);
 
-  const preliminaryLoanAmount = Math.min(
+  // Take the minimum of desired loan amount and FOIR-based loan amount
+  const maxLoanAmount = Math.min(
     desiredLoanAmount || Infinity,
     foirLoanAmount
   );
 
-  const absoluteMaxLoan = config.loanCapping?.absoluteMaxLoan || config.maxLoanAmount || 5000000;
-  const finalLoanAmount = Math.min(preliminaryLoanAmount, absoluteMaxLoan);
-  const loanCapped = preliminaryLoanAmount > absoluteMaxLoan;
+  const finalLoanAmount = Math.min(maxLoanAmount, absoluteMaxLoan);
+  const loanCapped = maxLoanAmount > absoluteMaxLoan;
 
   let btDetails = null;
   if (isBT) {
@@ -177,7 +217,12 @@ export const calculateBandhanEligibility = (userData) => {
       isBTMode: true,
       loansConsolidated: loansForBT.length,
       btTotalOutstanding: Math.round(btTotalOutstanding),
+      btTotalEMI: Math.round(btTotalEMI),
       freshAmountDisbursed: Math.round(btFreshAmount),
+      nonBTLoansEMI: Math.round(nonBTLoansEMI),
+      creditCardObligation: Math.round(creditCardObligation || 0),
+      creditCardObligationNote: creditCardObligation > 0 ? '5% of non-BT credit card outstanding' : 'No credit card obligation (either no CC or CC in BT)',
+      totalNonBTObligations: Math.round(nonBTLoansEMI + (creditCardObligation || 0)),
       originalIncome: monthlyIncome,
       adjustedIncome: Math.round(adjustedIncome)
     };
@@ -187,14 +232,19 @@ export const calculateBandhanEligibility = (userData) => {
 
   return {
     eligible: true,
-    bankId: config.id,
-    bankName: config.name,
+    bankId: bandhanConfig.id,
+    bankName: bandhanConfig.name,
     loanAmount: Math.round(finalLoanAmount),
     maxLoanCap: absoluteMaxLoan,
     loanCappedByBank: loanCapped,
-    calculatedLoanBeforeCap: loanCapped ? Math.round(preliminaryLoanAmount) : null,
+    calculatedLoanBeforeCap: loanCapped ? Math.round(maxLoanAmount) : null,
     interestRate: effectiveInterestRate,
     loanTenure: cappedTenureYears,
+    loanTenureMonths: cappedTenureMonths,
+    tenureCapped: tenureCapped,
+    requestedTenure: loanTenure,
+    requestedTenureMonths: requestedTenureMonths,
+    maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
     companyCategory: companyCategory,
     calculationMethod: 'FOIR-based',
@@ -203,6 +253,9 @@ export const calculateBandhanEligibility = (userData) => {
       foirLoanAmount: Math.round(foirLoanAmount),
       foirCap: Math.round(foirCap),
       availableEMI: Math.round(availableEMI),
+      existingEMI: Math.round(existingEMI || 0),
+      creditCardObligation: Math.round(creditCardObligation || 0),
+      creditCardObligationNote: creditCardObligation > 0 ? '5% of credit card outstanding balance' : 'No credit card obligations',
       totalObligations: Math.round(totalObligations)
     },
     ...btDetails
