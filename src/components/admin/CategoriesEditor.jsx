@@ -5,13 +5,13 @@ import { saveBankConfig, getBankConfig } from '../../services/bankConfigService'
 // Bank-specific category definitions
 const bankCategoryDefaults = {
   'HDFC Bank': {
-    'SUPER-A': {
+    'Super A': {
       salaryRange: { min: 100000, max: null },
       foir: 70,
       multiplier: 27,
       maxTenureMonths: 72,
       maxLoanAmount: null,
-      description: 'SUPER-A - Premium Listed MNCs, Top PSUs'
+      description: 'Super A - Premium Listed MNCs, Top PSUs'
     },
     'A': {
       salaryRange: { min: 25000, max: null },
@@ -21,13 +21,13 @@ const bankCategoryDefaults = {
       maxLoanAmount: null,
       description: 'A - Listed Companies, Established MNCs'
     },
-    'GOVT': {
+    'Govt': {
       salaryRange: { min: 25000, max: null },
       foir: 65,
       multiplier: 24,
       maxTenureMonths: 72,
       maxLoanAmount: null,
-      description: 'GOVT - Government Employees'
+      description: 'Govt - Government Employees'
     },
     'B': {
       salaryRange: { min: 25000, max: null },
