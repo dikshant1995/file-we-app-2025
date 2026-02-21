@@ -78,7 +78,8 @@ const defaultConfigs = {
 };
 
 // Save configuration for a specific bank and section
-export const saveBankConfig = (bankName, sectionName, config) => {
+// location can be a state name or city name for an override
+export const saveBankConfig = (bankName, sectionName, config, location = null) => {
   try {
     // Get all configs from localStorage
     const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
@@ -88,13 +89,26 @@ export const saveBankConfig = (bankName, sectionName, config) => {
       allConfigs[bankName] = { ...defaultConfigs[bankName] };
     }
 
-    // Update specific section
-    allConfigs[bankName][sectionName] = config;
+    if (location) {
+      // Initialize locationOverrides structure
+      if (!allConfigs[bankName].locationOverrides) {
+        allConfigs[bankName].locationOverrides = {};
+      }
+      if (!allConfigs[bankName].locationOverrides[sectionName]) {
+        allConfigs[bankName].locationOverrides[sectionName] = {};
+      }
+
+      // Save override
+      allConfigs[bankName].locationOverrides[sectionName][location] = config;
+      console.log(`✅ Saved ${location} override for ${sectionName} in ${bankName}:`, config);
+    } else {
+      // Update global section
+      allConfigs[bankName][sectionName] = config;
+      console.log(`✅ Saved global ${sectionName} for ${bankName}:`, config);
+    }
 
     // Save back to localStorage
     localStorage.setItem(STORAGE_KEY, JSON.stringify(allConfigs));
-
-    console.log(`✅ Saved ${sectionName} for ${bankName}:`, config);
     return true;
   } catch (error) {
     console.error('Error saving bank config:', error);
@@ -102,17 +116,34 @@ export const saveBankConfig = (bankName, sectionName, config) => {
   }
 };
 
-// Get configuration for a specific bank and section
-export const getBankConfig = (bankName, sectionName) => {
+// Get configuration for a specific bank and section with location hierarchy support
+// locationContext: { state: string, city: string }
+export const getBankConfig = (bankName, sectionName, locationContext = {}) => {
   try {
     const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    const bankConfig = allConfigs[bankName] || defaultConfigs[bankName] || {};
 
-    // Return saved config or default
+    // 1. Check for Overrides (City > State)
+    const overrides = bankConfig.locationOverrides?.[sectionName] || {};
+
+    // Check City Override
+    if (locationContext.city && overrides[locationContext.city]) {
+      // console.log(`📍 Using CITY override for ${sectionName} in ${locationContext.city}`);
+      return overrides[locationContext.city];
+    }
+
+    // Check State Override
+    if (locationContext.state && overrides[locationContext.state]) {
+      // console.log(`📍 Using STATE override for ${sectionName} in ${locationContext.state}`);
+      return overrides[locationContext.state];
+    }
+
+    // 2. Return saved Global config
     if (allConfigs[bankName] && allConfigs[bankName][sectionName]) {
       return allConfigs[bankName][sectionName];
     }
 
-    // Return default if exists
+    // 3. Return default if exists
     if (defaultConfigs[bankName] && defaultConfigs[bankName][sectionName]) {
       return defaultConfigs[bankName][sectionName];
     }
