@@ -95,17 +95,6 @@ const InterestRateEditor = ({ bank, onSave, activeLocation }) => {
     }
   };
 
-  // const handleAddLocation = (loc) => setActiveLocation(loc); // Removed as per instruction
-
-  // const handleRemoveLocation = (loc) => { // Removed as per instruction
-  //   if (removeBankOverride(bank.name, 'interestRates', loc)) {
-  //     const newOverrides = { ...locationOverrides };
-  //     delete newOverrides[loc];
-  //     setLocationOverrides(newOverrides);
-  //     if (activeLocation === loc) setActiveLocation(null);
-  //   }
-  // };
-
   const categories = ['SUPER-A', 'A', 'B', 'C', 'D', 'GOVT'];
 
   return (
