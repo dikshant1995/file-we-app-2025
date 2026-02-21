@@ -52,7 +52,7 @@ const AdminDashboard = ({ onBackToCustomer }) => {
       case 'LeadManager':
         return <LeadManager />;
       case 'BankConfigEditor':
-        return <BankConfigEditor selectedBank={selectedBank} section={activeItem.section} />;
+        return <BankConfigEditor selectedBank={selectedBank} section={activeItem.section} onNavigate={(id) => setActiveMenu(id)} />;
       case 'Analytics':
         return <Analytics />;
       case 'ImportExport':
