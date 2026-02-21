@@ -1,0 +1,216 @@
+/* ============================================================
+   CONFIG EDITOR — PROFESSIONAL AI THEME
+   Matches the landing page aesthetic
+   ============================================================ */
+
+.config-editor {
+  padding: 0;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Editor Header */
+.editor-header {
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border-glow);
+}
+
+.editor-header h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.02em;
+}
+
+.editor-header p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Config Sections */
+.config-section {
+  background: var(--bg-card);
+  padding: 32px;
+  border-radius: 16px;
+  margin-bottom: 32px;
+  border: 1px solid var(--border-glow);
+}
+
+.config-section h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  color: var(--accent-cyan);
+  margin: 0 0 24px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Input Groups */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.input-group label {
+  font-weight: 700;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.config-input {
+  padding: 12px 16px;
+  border: 1px solid var(--border-glow);
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.config-input:focus {
+  border-color: var(--accent-cyan);
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.15);
+}
+
+/* Category Grid */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+/* Previews/Cards inside editor */
+.category-card,
+.preview-card {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid var(--border-glow);
+  transition: all 0.3s ease;
+}
+
+.category-card:hover {
+  border-color: var(--accent-cyan);
+  background: rgba(0, 212, 255, 0.03);
+}
+
+/* Benefit Badges */
+.benefit-badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-block;
+}
+
+.benefit-badge.positive {
+  background: rgba(0, 255, 136, 0.1);
+  color: #00ff88;
+  border: 1px solid rgba(0, 255, 136, 0.2);
+}
+
+.benefit-badge.negative {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Tables in Editor */
+.score-rate-table table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border-glow);
+}
+
+.score-rate-table th {
+  background: #0d1626;
+  padding: 16px;
+  color: var(--text-muted);
+  text-align: left;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-bottom: 1px solid var(--border-glow);
+}
+
+.score-rate-table td {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-glow);
+  color: #fff;
+}
+
+.table-input {
+  background: transparent;
+  border: 1px solid var(--border-glow);
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: #fff;
+  width: 100%;
+}
+
+/* Action Buttons */
+.editor-actions {
+  display: flex;
+  gap: 16px;
+  padding: 32px 0;
+  border-top: 1px solid var(--border-glow);
+}
+
+.btn-save {
+  background: var(--accent-cyan);
+  color: #010409;
+  padding: 14px 32px;
+  border-radius: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+}
+
+.btn-save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+}
+
+.btn-reset,
+.btn-cancel {
+  background: transparent;
+  border: 1px solid var(--border-glow);
+  color: var(--text-muted);
+  padding: 14px 32px;
+  border-radius: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.btn-reset:hover,
+.btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}

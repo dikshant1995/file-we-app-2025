@@ -1,0 +1,217 @@
+/* ============================================================
+   ADMIN DASHBOARD — PROFESSIONAL AI THEME
+   Matches the landing page aesthetic
+   ============================================================ */
+
+.admin-dashboard {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* ── Top Header ────────────────────────────────────────── */
+.dashboard-header {
+  height: 80px;
+  background: rgba(13, 22, 38, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-glow);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  padding: 0 40px;
+}
+
+.header-content {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dashboard-header h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.header-actions {
+  display: flex;
+  gap: 16px;
+}
+
+.btn-save-all,
+.btn-export {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.btn-save-all {
+  background: var(--accent-cyan);
+  color: #010409;
+  border: none;
+  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+}
+
+.btn-save-all:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 212, 255, 0.3);
+}
+
+.btn-export {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-glow);
+}
+
+.btn-export:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--accent-cyan);
+}
+
+/* ── Container Layout ──────────────────────────────────── */
+.dashboard-container {
+  display: flex;
+  flex: 1;
+}
+
+/* ── Sidebar Navigation ────────────────────────────────── */
+.dashboard-sidebar {
+  width: 280px;
+  background: #0d1626;
+  border-right: 1px solid var(--border-glow);
+  padding: 32px 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-sidebar h3 {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 24px;
+  margin-left: 12px;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.menu-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+  color: #fff;
+}
+
+.menu-item.active {
+  background: rgba(0, 212, 255, 0.08);
+  color: var(--accent-cyan);
+  font-weight: 700;
+}
+
+.menu-item.active::after {
+  content: '';
+  width: 4px;
+  height: 20px;
+  background: var(--accent-cyan);
+  border-radius: 2px;
+  margin-left: auto;
+}
+
+/* ── Main Content Area ─────────────────────────────────── */
+.dashboard-main {
+  flex: 1;
+  background: var(--bg-dark);
+  padding: 40px;
+  overflow-y: auto;
+}
+
+.content-area {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ── Selected Bank Banner ──────────────────────────────── */
+.selected-bank-banner {
+  background: rgba(0, 212, 255, 0.05);
+  border: 1px solid var(--accent-cyan);
+  padding: 16px 24px;
+  border-radius: 12px;
+  margin-bottom: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+}
+
+.selected-bank-banner strong {
+  color: var(--accent-cyan);
+  font-weight: 700;
+  margin-left: 8px;
+}
+
+.btn-change-bank {
+  background: transparent;
+  border: 1px solid var(--accent-cyan);
+  color: var(--accent-cyan);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-change-bank:hover {
+  background: var(--accent-cyan);
+  color: #010409;
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .dashboard-sidebar {
+    width: 80px;
+    padding: 32px 8px;
+  }
+
+  .dashboard-sidebar h3 {
+    display: none;
+  }
+
+  .menu-label {
+    display: none;
+  }
+
+  .menu-item {
+    justify-content: center;
+    padding: 14px;
+  }
+}
