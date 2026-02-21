@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import './ConfigEditor.css';
 import { saveBankConfig, getBankConfig, getAllBankConfig } from '../../services/bankConfigService';
-import LocationOverrideManager from './LocationOverrideManager';
 
 // Bank-specific category definitions
 const bankCategoryDefaults = {
@@ -308,27 +307,24 @@ const bankCategoryDefaults = {
   }
 };
 
-const CategoriesEditor = ({ bank, onSave }) => {
+const CategoriesEditor = ({ bank, onSave, activeLocation }) => {
   // Get bank-specific default categories
   const getBankDefaults = () => {
     return bankCategoryDefaults[bank.name] || bankCategoryDefaults['Default'];
   };
 
   const [categories, setCategories] = useState(getBankDefaults());
-  const [activeLocation, setActiveLocation] = useState(null); // null = Global
   const [locationOverrides, setLocationOverrides] = useState({});
 
-  // Load saved config on mount or when bank/location changes
+  // Load saved config when bank or activeLocation prop changes
   useEffect(() => {
-    // 1. Load full bank config to get available overrides
+    // 1. Load full bank config to get available overrides list
     const fullConfig = getAllBankConfig(bank.name);
     setLocationOverrides(fullConfig.locationOverrides?.categories || {});
 
-    // 2. Load specific categories based on activeLocation
-    const savedConfig = getBankConfig(bank.name, 'categories', {
-      state: activeLocation,
-      city: activeLocation
-    });
+    // 2. Load specific categories based on activeLocation prop
+    const context = { state: activeLocation.state, city: activeLocation.city };
+    const savedConfig = getBankConfig(bank.name, 'categories', context);
 
     if (savedConfig) {
       setCategories(savedConfig);
@@ -361,31 +357,18 @@ const CategoriesEditor = ({ bank, onSave }) => {
   };
 
   const handleSave = () => {
-    const success = saveBankConfig(bank.name, 'categories', categories, activeLocation);
+    const locationKey = activeLocation.city || activeLocation.state || null;
+    const success = saveBankConfig(bank.name, 'categories', categories, locationKey);
     if (success) {
       onSave && onSave(categories);
-      alert(`✅ Category configuration saved for ${bank.name} (${activeLocation || 'Global'})!`);
+      alert(`✅ Category configuration saved for ${bank.name} (${locationKey || 'All India'})!`);
 
-      // Refresh overrides list if we added a new one
-      if (activeLocation && !locationOverrides[activeLocation]) {
-        setLocationOverrides({ ...locationOverrides, [activeLocation]: categories });
+      // Refresh overrides list
+      if (locationKey && !locationOverrides[locationKey]) {
+        setLocationOverrides({ ...locationOverrides, [locationKey]: categories });
       }
     } else {
       alert(`❌ Failed to save. Please try again.`);
-    }
-  };
-
-  const handleAddLocation = (loc) => {
-    setActiveLocation(loc);
-    // Initial categories for new location come from global current view
-  };
-
-  const handleRemoveLocation = (loc) => {
-    if (removeBankOverride(bank.name, 'categories', loc)) {
-      const newOverrides = { ...locationOverrides };
-      delete newOverrides[loc];
-      setLocationOverrides(newOverrides);
-      if (activeLocation === loc) setActiveLocation(null);
     }
   };
 
@@ -393,16 +376,21 @@ const CategoriesEditor = ({ bank, onSave }) => {
     <div className="config-editor">
       <div className="editor-header">
         <h2>📊 Category Configuration - {bank.name}</h2>
-        <p>Configure salary categories and their eligibility rules with Pan-India location overrides</p>
+        <p>Configuring for: <strong>{activeLocation.city || activeLocation.state || 'All India (National)'}</strong></p>
       </div>
 
-      <LocationOverrideManager
-        overrides={locationOverrides}
-        activeLocation={activeLocation}
-        onSelectLocation={setActiveLocation}
-        onAddLocation={handleAddLocation}
-        onRemoveLocation={handleRemoveLocation}
-      />
+      <div className="existing-overrides-badges">
+        <span className="badge-label">Available Overrides (this section):</span>
+        {Object.keys(locationOverrides).length > 0 ? (
+          Object.keys(locationOverrides).map(loc => (
+            <span key={loc} className={`loc-badge ${(activeLocation.state === loc || activeLocation.city === loc) ? 'active' : ''}`}>
+              📍 {loc}
+            </span>
+          ))
+        ) : (
+          <span className="no-overrides">No location rules set yet. Use the top selector to add.</span>
+        )}
+      </div>
 
       {Object.keys(categories).map(cat => (
         <div key={cat} className="config-section">
