@@ -19,6 +19,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-top: 70px;
+  /* Account for fixed Navbar */
   padding-bottom: 80px;
 }
 
