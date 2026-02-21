@@ -2,7 +2,7 @@ import { useState } from 'react';
 import './CustomerResultsDisplay.css';
 import { saveSelectedBanks } from '../services/leadService';
 
-const CustomerResultsDisplay = ({ results, metadata }) => {
+const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
   const [sortBy, setSortBy] = useState('loanAmount');
   const [filterEligible, setFilterEligible] = useState('all');
   const [selectedBanks, setSelectedBanks] = useState([]);
@@ -89,6 +89,9 @@ const CustomerResultsDisplay = ({ results, metadata }) => {
     <div className="customer-results-display professional-grid-bg">
       {/* Results Header */}
       <div className="results-header">
+        <button className="btn-back-results" onClick={onNewCalculation}>
+          ← Start New Analysis
+        </button>
         <h2>Institutional Eligibility Analysis</h2>
         <p>Verified assessment results across 12 banking institutions</p>
       </div>
