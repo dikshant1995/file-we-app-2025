@@ -24,12 +24,11 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
 
   const [companySuggestions, setCompanySuggestions] = useState([]);
 
-  // Load company databases on mount
+  // Load universal company list on mount for autocomplete
   useEffect(() => {
     const loadDatabases = async () => {
       await loadUniversalCompanies();
-      await initializeBankDatabases();
-      console.log('✅ Company databases ready');
+      console.log('✅ Universal Search Engine Ready');
     };
     loadDatabases();
   }, []);
