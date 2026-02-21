@@ -75,7 +75,10 @@ export const calculateLoanEligibility = async (userData) => {
     isBTMode: isBTMode,
     loansForBT: isBTMode ? userData.loansForBT : [],
     btTotalEMI: isBTMode ? userData.loansForBT.reduce((sum, loan) => sum + (parseFloat(loan.monthlyEMI) || 0), 0) : 0,
-    btTotalOutstanding: isBTMode ? userData.loansForBT.reduce((sum, loan) => sum + (parseFloat(loan.outstandingAmount) || 0), 0) : 0
+    btTotalOutstanding: isBTMode ? userData.loansForBT.reduce((sum, loan) => sum + (parseFloat(loan.outstandingAmount) || 0), 0) : 0,
+    // Location Data for Pan-India Rules
+    state: userData.state || (userData._metadata && userData._metadata.state) || '',
+    city: userData.city || (userData._metadata && userData._metadata.city) || ''
     // Note: Interest rate is fixed at 11% for all banks, so we don't pass it from user input
   };
 
