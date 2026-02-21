@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import './BankList.css';
 import { getBankConfig } from '../../services/bankConfigService';
 
-const BankList = ({ onSelectBank, onAddBank, customBanks = [] }) => {
+const BankList = ({ onSelectBank, onAddBank, customBanks = [], activeLocation }) => {
   // Initial bank data - will be loaded from config/localStorage
   const [banks, setBanks] = useState([
     // 4 NEW BANKS: With company database + dynamic rates
@@ -36,7 +36,7 @@ const BankList = ({ onSelectBank, onAddBank, customBanks = [] }) => {
       ageRange: age ? `${age.minAge}-${age.maxAge}` : '21-60',
       minSalary: salary ? `₹${(salary.salariedMinSalary / 1000).toFixed(0)}K` : '₹25K',
       maxLoan: capping ? `₹${(capping.absoluteMaxLoan / 100000).toFixed(0)}L` : '₹50L',
-      rate: interest ? `${interest.defaultRate}%` : '11%'
+      rate: interest ? `${interest.defaultRate || '11'}%` : '11%'
     };
   };
 
