@@ -1,51 +1,84 @@
 import { useState, useEffect } from 'react';
 import './ConfigEditor.css';
-import { saveBankConfig, getBankConfig } from '../../services/bankConfigService';
+import { saveBankConfig, getBankConfig, getAllBankConfig } from '../../services/bankConfigService';
+import LocationOverrideManager from './LocationOverrideManager';
 
 const LoanCappingEditor = ({ bank, onSave }) => {
   const [config, setConfig] = useState({
     absoluteMaxLoan: 5000000,
-    categoryBasedMax: {
-      A: null,
-      B: 3000000,
-      C: 2000000,
-      D: 1000000
-    },
-    employmentTypeMax: {
-      salaried: null,
-      selfEmployed: 3000000
-    },
-    bachelorCapping: {
-      enabled: true,
-      percentage: 50
-    },
+    categoryBasedMax: { A: null, B: 3000000, C: 2000000, D: 1000000 },
+    employmentTypeMax: { salaried: null, selfEmployed: 3000000 },
+    bachelorCapping: { enabled: true, percentage: 50 },
     minLoanAmount: 100000
   });
+  const [activeLocation, setActiveLocation] = useState(null); // null = Global
+  const [locationOverrides, setLocationOverrides] = useState({});
 
-  // Load saved config on mount
+  // Load saved config on mount or when bank/location changes
   useEffect(() => {
-    const savedConfig = getBankConfig(bank.name, 'loanCapping');
+    // 1. Load full bank config to get available overrides
+    const fullConfig = getAllBankConfig(bank.name);
+    setLocationOverrides(fullConfig.locationOverrides?.loanCapping || {});
+
+    // 2. Load specific categories based on activeLocation
+    const savedConfig = getBankConfig(bank.name, 'loanCapping', {
+      state: activeLocation,
+      city: activeLocation
+    });
+
     if (savedConfig) {
       setConfig(savedConfig);
     }
-  }, [bank.name]);
+  }, [bank.name, activeLocation]);
 
   const handleSave = () => {
-    const success = saveBankConfig(bank.name, 'loanCapping', config);
+    const success = saveBankConfig(bank.name, 'loanCapping', config, activeLocation);
     if (success) {
       onSave && onSave(config);
-      alert(`✅ Loan capping rules saved for ${bank.name}!`);
+      alert(`✅ Loan capping rules saved for ${bank.name} (${activeLocation || 'Global'})!`);
+
+      // Refresh overrides list if we added a new one
+      if (activeLocation && !locationOverrides[activeLocation]) {
+        setLocationOverrides({ ...locationOverrides, [activeLocation]: config });
+      }
     } else {
       alert(`❌ Failed to save. Please try again.`);
     }
+  };
+
+  const handleAddLocation = (loc) => {
+    setActiveLocation(loc);
+  };
+
+  const handleRemoveLocation = (loc) => {
+    const newOverrides = { ...locationOverrides };
+    delete newOverrides[loc];
+
+    // Save the removal by updating the bank config
+    const fullConfig = getAllBankConfig(bank.name);
+    if (fullConfig.locationOverrides?.loanCapping) {
+      delete fullConfig.locationOverrides.loanCapping[loc];
+      saveBankConfig(bank.name, 'locationOverrides', fullConfig.locationOverrides);
+    }
+
+    setLocationOverrides(newOverrides);
+    if (activeLocation === loc) setActiveLocation(null);
   };
 
   return (
     <div className="config-editor">
       <div className="editor-header">
         <h2>💰 Loan Amount Capping - {bank.name}</h2>
-        <p>Configure maximum and minimum loan amounts for different scenarios</p>
+        <p>Configure maximum and minimum loan amounts with Pan-India location overrides</p>
       </div>
+
+      <LocationOverrideManager
+        overrides={locationOverrides}
+        activeLocation={activeLocation}
+        onSelectLocation={setActiveLocation}
+        onAddLocation={handleAddLocation}
+        onRemoveLocation={handleRemoveLocation}
+      />
 
       {/* Absolute Max & Min */}
       <div className="config-section">
