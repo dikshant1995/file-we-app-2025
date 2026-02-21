@@ -5,13 +5,13 @@ import { saveBankConfig, getBankConfig } from '../../services/bankConfigService'
 // Bank-specific category definitions
 const bankCategoryDefaults = {
   'HDFC Bank': {
-    'Super A': {
+    'SUPER-A': {
       salaryRange: { min: 100000, max: null },
       foir: 70,
       multiplier: 27,
       maxTenureMonths: 72,
       maxLoanAmount: null,
-      description: 'Super A - Premium Listed MNCs, Top PSUs'
+      description: 'SUPER-A - Premium Listed MNCs, Top PSUs'
     },
     'A': {
       salaryRange: { min: 25000, max: null },
@@ -21,13 +21,13 @@ const bankCategoryDefaults = {
       maxLoanAmount: null,
       description: 'A - Listed Companies, Established MNCs'
     },
-    'Govt': {
+    'GOVT': {
       salaryRange: { min: 25000, max: null },
       foir: 65,
       multiplier: 24,
       maxTenureMonths: 72,
       maxLoanAmount: null,
-      description: 'Govt - Government Employees'
+      description: 'GOVT - Government Employees'
     },
     'B': {
       salaryRange: { min: 25000, max: null },
@@ -369,12 +369,12 @@ const CategoriesEditor = ({ bank, onSave }) => {
       {Object.keys(categories).map(cat => (
         <div key={cat} className="config-section">
           <h3>Category {cat}</h3>
-          
-          <div className="category-grid" style={{gridTemplateColumns: 'repeat(2, 1fr)'}}>
+
+          <div className="category-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
             {/* Salary Range */}
             <div className="input-group">
               <label>Minimum Salary (₹)</label>
-              <input 
+              <input
                 type="number"
                 value={categories[cat].salaryRange.min || ''}
                 onChange={(e) => updateSalaryRange(cat, 'min', e.target.value)}
@@ -385,7 +385,7 @@ const CategoriesEditor = ({ bank, onSave }) => {
 
             <div className="input-group">
               <label>Maximum Salary (₹)</label>
-              <input 
+              <input
                 type="number"
                 value={categories[cat].salaryRange.max || ''}
                 onChange={(e) => updateSalaryRange(cat, 'max', e.target.value)}
@@ -398,7 +398,7 @@ const CategoriesEditor = ({ bank, onSave }) => {
             {/* FOIR */}
             <div className="input-group">
               <label>FOIR %</label>
-              <input 
+              <input
                 type="number"
                 value={categories[cat].foir}
                 onChange={(e) => updateCategory(cat, 'foir', parseInt(e.target.value))}
@@ -410,7 +410,7 @@ const CategoriesEditor = ({ bank, onSave }) => {
             {/* Multiplier */}
             <div className="input-group">
               <label>Salary Multiplier</label>
-              <input 
+              <input
                 type="number"
                 value={categories[cat].multiplier}
                 onChange={(e) => updateCategory(cat, 'multiplier', parseInt(e.target.value))}
@@ -422,7 +422,7 @@ const CategoriesEditor = ({ bank, onSave }) => {
             {/* Max Tenure */}
             <div className="input-group">
               <label>Max Tenure (Months)</label>
-              <input 
+              <input
                 type="number"
                 value={categories[cat].maxTenureMonths}
                 onChange={(e) => updateCategory(cat, 'maxTenureMonths', parseInt(e.target.value))}
@@ -433,7 +433,7 @@ const CategoriesEditor = ({ bank, onSave }) => {
             {/* Max Loan Amount */}
             <div className="input-group">
               <label>Max Loan Amount (₹)</label>
-              <input 
+              <input
                 type="number"
                 value={categories[cat].maxLoanAmount || ''}
                 onChange={(e) => updateCategory(cat, 'maxLoanAmount', e.target.value === '' ? null : parseInt(e.target.value))}
@@ -447,7 +447,7 @@ const CategoriesEditor = ({ bank, onSave }) => {
           {/* Description */}
           <div className="input-group">
             <label>Category Description</label>
-            <input 
+            <input
               type="text"
               value={categories[cat].description}
               onChange={(e) => updateCategory(cat, 'description', e.target.value)}
@@ -464,10 +464,10 @@ const CategoriesEditor = ({ bank, onSave }) => {
           {Object.keys(categories).map(cat => (
             <div key={cat} className="preview-card">
               <div className="preview-label">Category {cat}</div>
-              <div className="preview-value" style={{fontSize: '1.5em'}}>
+              <div className="preview-value" style={{ fontSize: '1.5em' }}>
                 ₹{categories[cat].salaryRange.min?.toLocaleString('en-IN')}+
               </div>
-              <div style={{fontSize: '0.9em', marginTop: '10px'}}>
+              <div style={{ fontSize: '0.9em', marginTop: '10px' }}>
                 FOIR: {categories[cat].foir}% | {categories[cat].multiplier}x
               </div>
             </div>
