@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import './ConfigEditor.css';
-import { saveBankConfig, getBankConfig } from '../../services/bankConfigService';
+import { saveBankConfig, getBankConfig, getAllBankConfig } from '../../services/bankConfigService';
+import LocationOverrideManager from './LocationOverrideManager';
 
 // Age Rules Editor
 export const AgeRulesEditor = ({ bank, onSave }) => {
@@ -10,22 +11,24 @@ export const AgeRulesEditor = ({ bank, onSave }) => {
     retirementAge: { salaried: 60, selfEmployed: 65, government: 62 },
     maxAgeAtLoanEnd: 60
   });
+  const [activeLocation, setActiveLocation] = useState(null);
+  const [locationOverrides, setLocationOverrides] = useState({});
 
-  // Load saved config on mount
   useEffect(() => {
-    const savedConfig = getBankConfig(bank.name, 'ageRules');
-    if (savedConfig) {
-      setConfig(savedConfig);
-    }
-  }, [bank.name]);
+    const fullConfig = getAllBankConfig(bank.name);
+    setLocationOverrides(fullConfig.locationOverrides?.ageRules || {});
+
+    const savedConfig = getBankConfig(bank.name, 'ageRules', { state: activeLocation, city: activeLocation });
+    if (savedConfig) setConfig(savedConfig);
+  }, [bank.name, activeLocation]);
 
   const handleSave = () => {
-    const success = saveBankConfig(bank.name, 'ageRules', config);
-    if (success) {
+    if (saveBankConfig(bank.name, 'ageRules', config, activeLocation)) {
       onSave && onSave(config);
-      alert(`Demographic parameters successfully committed for ${bank.name}.`);
-    } else {
-      alert(`System Error: Transaction failed. Please retry.`);
+      alert(`✅ Age rules saved for ${bank.name} (${activeLocation || 'Global'})!`);
+      if (activeLocation && !locationOverrides[activeLocation]) {
+        setLocationOverrides({ ...locationOverrides, [activeLocation]: config });
+      }
     }
   };
 
@@ -33,7 +36,24 @@ export const AgeRulesEditor = ({ bank, onSave }) => {
     <div className="config-editor">
       <div className="editor-header">
         <h2>Demographic Eligibility Parameters - {bank.name}</h2>
+        <p>Configure age rules with Pan-India location overrides</p>
       </div>
+
+      <LocationOverrideManager
+        overrides={locationOverrides}
+        activeLocation={activeLocation}
+        onSelectLocation={setActiveLocation}
+        onAddLocation={(loc) => setActiveLocation(loc)}
+        onRemoveLocation={(loc) => {
+          if (removeBankOverride(bank.name, 'ageRules', loc)) {
+            const newOverrides = { ...locationOverrides };
+            delete newOverrides[loc];
+            setLocationOverrides(newOverrides);
+            if (activeLocation === loc) setActiveLocation(null);
+          }
+        }}
+      />
+
       <div className="config-section">
         <div className="category-grid">
           <div className="input-group">
@@ -68,16 +88,24 @@ export const TenureRulesEditor = ({ bank, onSave }) => {
     maxTenureMonths: 84,
     categoryBasedMaxTenure: { A: 84, B: 84, C: 72, D: 60 }
   });
+  const [activeLocation, setActiveLocation] = useState(null);
+  const [locationOverrides, setLocationOverrides] = useState({});
 
   useEffect(() => {
-    const savedConfig = getBankConfig(bank.name, 'tenureRules');
+    const fullConfig = getAllBankConfig(bank.name);
+    setLocationOverrides(fullConfig.locationOverrides?.tenureRules || {});
+
+    const savedConfig = getBankConfig(bank.name, 'tenureRules', { state: activeLocation, city: activeLocation });
     if (savedConfig) setConfig(savedConfig);
-  }, [bank.name]);
+  }, [bank.name, activeLocation]);
 
   const handleSave = () => {
-    if (saveBankConfig(bank.name, 'tenureRules', config)) {
+    if (saveBankConfig(bank.name, 'tenureRules', config, activeLocation)) {
       onSave && onSave(config);
-      alert(`Tenure structural logic successfully committed for ${bank.name}.`);
+      alert(`✅ Tenure rules saved for ${bank.name} (${activeLocation || 'Global'})!`);
+      if (activeLocation && !locationOverrides[activeLocation]) {
+        setLocationOverrides({ ...locationOverrides, [activeLocation]: config });
+      }
     }
   };
 
@@ -85,7 +113,24 @@ export const TenureRulesEditor = ({ bank, onSave }) => {
     <div className="config-editor">
       <div className="editor-header">
         <h2>Tenure Optimization Logic - {bank.name}</h2>
+        <p>Configure tenure limits with Pan-India location overrides</p>
       </div>
+
+      <LocationOverrideManager
+        overrides={locationOverrides}
+        activeLocation={activeLocation}
+        onSelectLocation={setActiveLocation}
+        onAddLocation={(loc) => setActiveLocation(loc)}
+        onRemoveLocation={(loc) => {
+          if (removeBankOverride(bank.name, 'tenureRules', loc)) {
+            const newOverrides = { ...locationOverrides };
+            delete newOverrides[loc];
+            setLocationOverrides(newOverrides);
+            if (activeLocation === loc) setActiveLocation(null);
+          }
+        }}
+      />
+
       <div className="config-section">
         <div className="category-grid">
           <div className="input-group">
@@ -118,16 +163,24 @@ export const FoirEditor = ({ bank, onSave }) => {
     creditCardObligationPercentage: 5,
     btModeFOIRAdjustment: 0
   });
+  const [activeLocation, setActiveLocation] = useState(null);
+  const [locationOverrides, setLocationOverrides] = useState({});
 
   useEffect(() => {
-    const savedConfig = getBankConfig(bank.name, 'foirSettings');
+    const fullConfig = getAllBankConfig(bank.name);
+    setLocationOverrides(fullConfig.locationOverrides?.foirSettings || {});
+
+    const savedConfig = getBankConfig(bank.name, 'foirSettings', { state: activeLocation, city: activeLocation });
     if (savedConfig) setConfig(savedConfig);
-  }, [bank.name]);
+  }, [bank.name, activeLocation]);
 
   const handleSave = () => {
-    if (saveBankConfig(bank.name, 'foirSettings', config)) {
+    if (saveBankConfig(bank.name, 'foirSettings', config, activeLocation)) {
       onSave && onSave(config);
-      alert(`FOIR thresholds successfully committed for ${bank.name}.`);
+      alert(`✅ FOIR settings saved for ${bank.name} (${activeLocation || 'Global'})!`);
+      if (activeLocation && !locationOverrides[activeLocation]) {
+        setLocationOverrides({ ...locationOverrides, [activeLocation]: config });
+      }
     }
   };
 
@@ -135,7 +188,24 @@ export const FoirEditor = ({ bank, onSave }) => {
     <div className="config-editor">
       <div className="editor-header">
         <h2>FOIR Assessment Parameters - {bank.name}</h2>
+        <p>Configure FOIR thresholds with Pan-India location overrides</p>
       </div>
+
+      <LocationOverrideManager
+        overrides={locationOverrides}
+        activeLocation={activeLocation}
+        onSelectLocation={setActiveLocation}
+        onAddLocation={(loc) => setActiveLocation(loc)}
+        onRemoveLocation={(loc) => {
+          if (removeBankOverride(bank.name, 'foirSettings', loc)) {
+            const newOverrides = { ...locationOverrides };
+            delete newOverrides[loc];
+            setLocationOverrides(newOverrides);
+            if (activeLocation === loc) setActiveLocation(null);
+          }
+        }}
+      />
+
       <div className="config-section">
         <div className="category-grid">
           {Object.keys(config.categoryBasedFOIR).map(cat => (
@@ -163,16 +233,24 @@ export const MultiplierEditor = ({ bank, onSave }) => {
     categoryBasedMultiplier: { A: 35, B: 30, C: 25, D: 20 },
     employmentTypeMultiplier: { salaried: 1.0, selfEmployed: 0.8 }
   });
+  const [activeLocation, setActiveLocation] = useState(null);
+  const [locationOverrides, setLocationOverrides] = useState({});
 
   useEffect(() => {
-    const savedConfig = getBankConfig(bank.name, 'multiplierRules');
+    const fullConfig = getAllBankConfig(bank.name);
+    setLocationOverrides(fullConfig.locationOverrides?.multiplierRules || {});
+
+    const savedConfig = getBankConfig(bank.name, 'multiplierRules', { state: activeLocation, city: activeLocation });
     if (savedConfig) setConfig(savedConfig);
-  }, [bank.name]);
+  }, [bank.name, activeLocation]);
 
   const handleSave = () => {
-    if (saveBankConfig(bank.name, 'multiplierRules', config)) {
+    if (saveBankConfig(bank.name, 'multiplierRules', config, activeLocation)) {
       onSave && onSave(config);
-      alert(`Multiplier algorithms successfully committed for ${bank.name}.`);
+      alert(`✅ Multipliers saved for ${bank.name} (${activeLocation || 'Global'})!`);
+      if (activeLocation && !locationOverrides[activeLocation]) {
+        setLocationOverrides({ ...locationOverrides, [activeLocation]: config });
+      }
     }
   };
 
@@ -180,7 +258,24 @@ export const MultiplierEditor = ({ bank, onSave }) => {
     <div className="config-editor">
       <div className="editor-header">
         <h2>Operational Multiplier Logic - {bank.name}</h2>
+        <p>Configure multipliers with Pan-India location overrides</p>
       </div>
+
+      <LocationOverrideManager
+        overrides={locationOverrides}
+        activeLocation={activeLocation}
+        onSelectLocation={setActiveLocation}
+        onAddLocation={(loc) => setActiveLocation(loc)}
+        onRemoveLocation={(loc) => {
+          if (removeBankOverride(bank.name, 'multiplierRules', loc)) {
+            const newOverrides = { ...locationOverrides };
+            delete newOverrides[loc];
+            setLocationOverrides(newOverrides);
+            if (activeLocation === loc) setActiveLocation(null);
+          }
+        }}
+      />
+
       <div className="config-section">
         <div className="category-grid">
           {Object.keys(config.categoryBasedMultiplier).map(cat => (
@@ -207,16 +302,24 @@ export const BTEditor = ({ bank, onSave }) => {
     topUpAllowed: true,
     processingFeePercentage: 1.5
   });
+  const [activeLocation, setActiveLocation] = useState(null);
+  const [locationOverrides, setLocationOverrides] = useState({});
 
   useEffect(() => {
-    const savedConfig = getBankConfig(bank.name, 'btConfiguration');
+    const fullConfig = getAllBankConfig(bank.name);
+    setLocationOverrides(fullConfig.locationOverrides?.btConfiguration || {});
+
+    const savedConfig = getBankConfig(bank.name, 'btConfiguration', { state: activeLocation, city: activeLocation });
     if (savedConfig) setConfig(savedConfig);
-  }, [bank.name]);
+  }, [bank.name, activeLocation]);
 
   const handleSave = () => {
-    if (saveBankConfig(bank.name, 'btConfiguration', config)) {
+    if (saveBankConfig(bank.name, 'btConfiguration', config, activeLocation)) {
       onSave && onSave(config);
-      alert(`Liability consolidation framework successfully committed for ${bank.name}.`);
+      alert(`✅ BT configuration saved for ${bank.name} (${activeLocation || 'Global'})!`);
+      if (activeLocation && !locationOverrides[activeLocation]) {
+        setLocationOverrides({ ...locationOverrides, [activeLocation]: config });
+      }
     }
   };
 
@@ -224,7 +327,24 @@ export const BTEditor = ({ bank, onSave }) => {
     <div className="config-editor">
       <div className="editor-header">
         <h2>Liability Consolidation Protocol - {bank.name}</h2>
+        <p>Configure BT logic with Pan-India location overrides</p>
       </div>
+
+      <LocationOverrideManager
+        overrides={locationOverrides}
+        activeLocation={activeLocation}
+        onSelectLocation={setActiveLocation}
+        onAddLocation={(loc) => setActiveLocation(loc)}
+        onRemoveLocation={(loc) => {
+          if (removeBankOverride(bank.name, 'btConfiguration', loc)) {
+            const newOverrides = { ...locationOverrides };
+            delete newOverrides[loc];
+            setLocationOverrides(newOverrides);
+            if (activeLocation === loc) setActiveLocation(null);
+          }
+        }}
+      />
+
       <div className="config-section">
         <div className="category-grid">
           <div className="input-group">
@@ -266,16 +386,24 @@ export const CreditScoreEditor = ({ bank, onSave }) => {
     premiumScore: 750,
     autoRejectionThreshold: 600
   });
+  const [activeLocation, setActiveLocation] = useState(null);
+  const [locationOverrides, setLocationOverrides] = useState({});
 
   useEffect(() => {
-    const savedConfig = getBankConfig(bank.name, 'creditScoreRules');
+    const fullConfig = getAllBankConfig(bank.name);
+    setLocationOverrides(fullConfig.locationOverrides?.creditScoreRules || {});
+
+    const savedConfig = getBankConfig(bank.name, 'creditScoreRules', { state: activeLocation, city: activeLocation });
     if (savedConfig) setConfig(savedConfig);
-  }, [bank.name]);
+  }, [bank.name, activeLocation]);
 
   const handleSave = () => {
-    if (saveBankConfig(bank.name, 'creditScoreRules', config)) {
+    if (saveBankConfig(bank.name, 'creditScoreRules', config, activeLocation)) {
       onSave && onSave(config);
-      alert(`Risk assessment thresholds successfully committed for ${bank.name}.`);
+      alert(`✅ Credit score rules saved for ${bank.name} (${activeLocation || 'Global'})!`);
+      if (activeLocation && !locationOverrides[activeLocation]) {
+        setLocationOverrides({ ...locationOverrides, [activeLocation]: config });
+      }
     }
   };
 
@@ -283,7 +411,24 @@ export const CreditScoreEditor = ({ bank, onSave }) => {
     <div className="config-editor">
       <div className="editor-header">
         <h2>Risk Assessment Framework - {bank.name}</h2>
+        <p>Configure score thresholds with Pan-India location overrides</p>
       </div>
+
+      <LocationOverrideManager
+        overrides={locationOverrides}
+        activeLocation={activeLocation}
+        onSelectLocation={setActiveLocation}
+        onAddLocation={(loc) => setActiveLocation(loc)}
+        onRemoveLocation={(loc) => {
+          if (removeBankOverride(bank.name, 'creditScoreRules', loc)) {
+            const newOverrides = { ...locationOverrides };
+            delete newOverrides[loc];
+            setLocationOverrides(newOverrides);
+            if (activeLocation === loc) setActiveLocation(null);
+          }
+        }}
+      />
+
       <div className="config-section">
         <div className="category-grid">
           <div className="input-group">
@@ -311,31 +456,56 @@ export const CreditScoreEditor = ({ bank, onSave }) => {
   );
 };
 
-// Employment & Fees Combined
+// Employment Editor
 export const EmploymentEditor = ({ bank, onSave }) => {
   const [config, setConfig] = useState({
     salariedMinSalary: 25000,
     selfEmployedMinIncome: 300000,
     itrYearsRequired: 2
   });
+  const [activeLocation, setActiveLocation] = useState(null);
+  const [locationOverrides, setLocationOverrides] = useState({});
 
   useEffect(() => {
-    const savedConfig = getBankConfig(bank.name, 'employmentRules');
+    const fullConfig = getAllBankConfig(bank.name);
+    setLocationOverrides(fullConfig.locationOverrides?.employmentRules || {});
+
+    const savedConfig = getBankConfig(bank.name, 'employmentRules', { state: activeLocation, city: activeLocation });
     if (savedConfig) setConfig(savedConfig);
-  }, [bank.name]);
+  }, [bank.name, activeLocation]);
 
   const handleSave = () => {
-    if (saveBankConfig(bank.name, 'employmentRules', config)) {
+    if (saveBankConfig(bank.name, 'employmentRules', config, activeLocation)) {
       onSave && onSave(config);
-      alert(`Employment credentialing logic successfully committed for ${bank.name}.`);
+      alert(`✅ Employment rules saved for ${bank.name} (${activeLocation || 'Global'})!`);
+      if (activeLocation && !locationOverrides[activeLocation]) {
+        setLocationOverrides({ ...locationOverrides, [activeLocation]: config });
+      }
     }
   };
 
   return (
     <div className="config-editor">
       <div className="editor-header">
-        <h2>Employment Credentialing Parameters - {bank.name}</h2>
+        <h2>Employment Parameters - {bank.name}</h2>
+        <p>Configure employment rules with Pan-India location overrides</p>
       </div>
+
+      <LocationOverrideManager
+        overrides={locationOverrides}
+        activeLocation={activeLocation}
+        onSelectLocation={setActiveLocation}
+        onAddLocation={(loc) => setActiveLocation(loc)}
+        onRemoveLocation={(loc) => {
+          if (removeBankOverride(bank.name, 'employmentRules', loc)) {
+            const newOverrides = { ...locationOverrides };
+            delete newOverrides[loc];
+            setLocationOverrides(newOverrides);
+            if (activeLocation === loc) setActiveLocation(null);
+          }
+        }}
+      />
+
       <div className="config-section">
         <div className="category-grid">
           <div className="input-group">
@@ -359,22 +529,31 @@ export const EmploymentEditor = ({ bank, onSave }) => {
   );
 };
 
+// Fees Editor
 export const FeesEditor = ({ bank, onSave }) => {
   const [config, setConfig] = useState({
     processingFeePercentage: 3.5,
     btChargesPercentage: 1.5,
     prepaymentChargesPercentage: 4
   });
+  const [activeLocation, setActiveLocation] = useState(null);
+  const [locationOverrides, setLocationOverrides] = useState({});
 
   useEffect(() => {
-    const savedConfig = getBankConfig(bank.name, 'feesAndCharges');
+    const fullConfig = getAllBankConfig(bank.name);
+    setLocationOverrides(fullConfig.locationOverrides?.feesAndCharges || {});
+
+    const savedConfig = getBankConfig(bank.name, 'feesAndCharges', { state: activeLocation, city: activeLocation });
     if (savedConfig) setConfig(savedConfig);
-  }, [bank.name]);
+  }, [bank.name, activeLocation]);
 
   const handleSave = () => {
-    if (saveBankConfig(bank.name, 'feesAndCharges', config)) {
+    if (saveBankConfig(bank.name, 'feesAndCharges', config, activeLocation)) {
       onSave && onSave(config);
-      alert(`Fee schedules and capital charges successfully committed for ${bank.name}.`);
+      alert(`✅ Fees saved for ${bank.name} (${activeLocation || 'Global'})!`);
+      if (activeLocation && !locationOverrides[activeLocation]) {
+        setLocationOverrides({ ...locationOverrides, [activeLocation]: config });
+      }
     }
   };
 
@@ -382,7 +561,24 @@ export const FeesEditor = ({ bank, onSave }) => {
     <div className="config-editor">
       <div className="editor-header">
         <h2>Institutional Fee Schedules - {bank.name}</h2>
+        <p>Configure fees with Pan-India location overrides</p>
       </div>
+
+      <LocationOverrideManager
+        overrides={locationOverrides}
+        activeLocation={activeLocation}
+        onSelectLocation={setActiveLocation}
+        onAddLocation={(loc) => setActiveLocation(loc)}
+        onRemoveLocation={(loc) => {
+          if (removeBankOverride(bank.name, 'feesAndCharges', loc)) {
+            const newOverrides = { ...locationOverrides };
+            delete newOverrides[loc];
+            setLocationOverrides(newOverrides);
+            if (activeLocation === loc) setActiveLocation(null);
+          }
+        }}
+      />
+
       <div className="config-section">
         <div className="category-grid">
           <div className="input-group">
