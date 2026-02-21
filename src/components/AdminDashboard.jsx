@@ -9,6 +9,32 @@ import AddBankModal from './admin/AddBankModal';
 import LeadManager from './admin/LeadManager';
 import AdminLocationSelector from './admin/AdminLocationSelector';
 import AdminLogin from './admin/AdminLogin';
+import {
+  Users,
+  Database,
+  Settings,
+  Layers,
+  TrendingUp,
+  Lock,
+  Clock,
+  ShieldCheck,
+  FileText,
+  Percent,
+  Repeat,
+  UserCheck,
+  Briefcase,
+  FileSignature,
+  Zap,
+  BarChart3,
+  ArrowLeftRight,
+  History,
+  Target,
+  Mail,
+  Share2,
+  Search,
+  MessageCircle,
+  Download
+} from 'lucide-react';
 
 const AdminDashboard = ({ onBackToCustomer }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -21,25 +47,25 @@ const AdminDashboard = ({ onBackToCustomer }) => {
   const [activeLocation, setActiveLocation] = useState({ state: '', city: '' });
 
   const menuItems = [
-    { id: 'leads', icon: '', label: 'Customer Lead Pipeline', component: 'LeadManager' },
-    { id: 'banks', icon: '', label: 'Institutional Overview', component: 'BankList' },
-    { id: 'config', icon: '', label: 'Policy Configuration', component: 'BankConfigEditor' },
-    { id: 'categories', icon: '', label: 'Categorization Models', component: 'BankConfigEditor', section: 'categories' },
-    { id: 'interest', icon: '', label: 'Rate Structures', component: 'BankConfigEditor', section: 'interest' },
-    { id: 'loan-capping', icon: '', label: 'Capital Capping', component: 'BankConfigEditor', section: 'loanCapping' },
-    { id: 'age-rules', icon: '', label: 'Demographic Rules', component: 'BankConfigEditor', section: 'ageRules' },
-    { id: 'tenure', icon: '', label: 'Tenure Optimization', component: 'BankConfigEditor', section: 'tenureRules' },
-    { id: 'foir', icon: '', label: 'FOIR Parameters', component: 'BankConfigEditor', section: 'foir' },
-    { id: 'multiplier', icon: '', label: 'Multiplier Logic', component: 'BankConfigEditor', section: 'multiplier' },
-    { id: 'bt', icon: '', label: 'Liability Consolidation', component: 'BankConfigEditor', section: 'bt' },
-    { id: 'credit-score', icon: '', label: 'Risk Assessment', component: 'BankConfigEditor', section: 'creditScore' },
-    { id: 'employment', icon: '', label: 'Employment Credentialing', component: 'BankConfigEditor', section: 'employment' },
-    { id: 'documents', icon: '', label: 'Documentation Protocol', component: 'BankConfigEditor', section: 'documents' },
-    { id: 'special', icon: '', label: 'Exceptional Policies', component: 'BankConfigEditor', section: 'special' },
-    { id: 'fees', icon: '', label: 'Fee Schedules', component: 'BankConfigEditor', section: 'fees' },
-    { id: 'analytics', icon: '', label: 'Performance Analytics', component: 'Analytics' },
-    { id: 'import-export', icon: '', label: 'Data Migration', component: 'ImportExport' },
-    { id: 'audit', icon: '', label: 'Governance Logs', component: 'AuditLog' }
+    { id: 'leads', icon: <Users size={18} />, label: 'Customer Lead Pipeline', component: 'LeadManager' },
+    { id: 'banks', icon: <Database size={18} />, label: 'Institutional Overview', component: 'BankList' },
+    { id: 'config', icon: <Settings size={18} />, label: 'Policy Configuration', component: 'BankConfigEditor' },
+    { id: 'categories', icon: <Layers size={18} />, label: 'Categorization Models', component: 'BankConfigEditor', section: 'categories' },
+    { id: 'interest', icon: <Percent size={18} />, label: 'Rate Structures', component: 'BankConfigEditor', section: 'interest' },
+    { id: 'loan-capping', icon: <Lock size={18} />, label: 'Capital Capping', component: 'BankConfigEditor', section: 'loanCapping' },
+    { id: 'age-rules', icon: <UserCheck size={18} />, label: 'Demographic Rules', component: 'BankConfigEditor', section: 'ageRules' },
+    { id: 'tenure', icon: <Clock size={18} />, label: 'Tenure Optimization', component: 'BankConfigEditor', section: 'tenureRules' },
+    { id: 'foir', icon: <Target size={18} />, label: 'FOIR Parameters', component: 'BankConfigEditor', section: 'foir' },
+    { id: 'multiplier', icon: <Zap size={18} />, label: 'Multiplier Logic', component: 'BankConfigEditor', section: 'multiplier' },
+    { id: 'bt', icon: <ArrowLeftRight size={18} />, label: 'Liability Consolidation', component: 'BankConfigEditor', section: 'bt' },
+    { id: 'credit-score', icon: <ShieldCheck size={18} />, label: 'Risk Assessment', component: 'BankConfigEditor', section: 'creditScore' },
+    { id: 'employment', icon: <Briefcase size={18} />, label: 'Employment Credentialing', component: 'BankConfigEditor', section: 'employment' },
+    { id: 'documents', icon: <FileSignature size={18} />, label: 'Documentation Protocol', component: 'BankConfigEditor', section: 'documents' },
+    { id: 'special', icon: <FileText size={18} />, label: 'Exceptional Policies', component: 'BankConfigEditor', section: 'special' },
+    { id: 'fees', icon: <Percent size={18} />, label: 'Fee Schedules', component: 'BankConfigEditor', section: 'fees' },
+    { id: 'analytics', icon: <BarChart3 size={18} />, label: 'Performance Analytics', component: 'Analytics' },
+    { id: 'import-export', icon: <ArrowLeftRight size={18} />, label: 'Data Migration', component: 'ImportExport' },
+    { id: 'audit', icon: <History size={18} />, label: 'Governance Logs', component: 'AuditLog' }
   ];
 
   const renderContent = () => {
