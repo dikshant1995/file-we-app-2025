@@ -48,15 +48,15 @@ import { piramalConfig } from '../banks/piramal/config.js';
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
   const monthlyInterestRate = annualInterestRate / 12 / 100;
   const numberOfMonths = tenureInYears * 12;
-  
+
   if (monthlyInterestRate === 0) {
     return principal / numberOfMonths;
   }
-  
-  const emi = principal * monthlyInterestRate * 
-    Math.pow(1 + monthlyInterestRate, numberOfMonths) / 
+
+  const emi = principal * monthlyInterestRate *
+    Math.pow(1 + monthlyInterestRate, numberOfMonths) /
     (Math.pow(1 + monthlyInterestRate, numberOfMonths) - 1);
-    
+
   return Math.round(emi);
 };
 
@@ -70,15 +70,15 @@ const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
 const calculateLoanAmountFromEMI = (emi, annualInterestRate, tenureInYears) => {
   const monthlyInterestRate = annualInterestRate / 12 / 100;
   const numberOfMonths = tenureInYears * 12;
-  
+
   if (monthlyInterestRate === 0) {
     return emi * numberOfMonths;
   }
-  
-  const loanAmount = emi * 
-    (Math.pow(1 + monthlyInterestRate, numberOfMonths) - 1) / 
+
+  const loanAmount = emi *
+    (Math.pow(1 + monthlyInterestRate, numberOfMonths) - 1) /
     (monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfMonths));
-    
+
   return Math.round(loanAmount);
 };
 
@@ -108,7 +108,7 @@ export const calculateFullBT = async (userData) => {
   // Calculate total EMI and POS of all existing loans
   const totalExistingEMI = existingLoans.reduce((sum, loan) => sum + parseFloat(loan.emi || 0), 0);
   const totalPOS = existingLoans.reduce((sum, loan) => sum + parseFloat(loan.pos || 0), 0);
-  
+
   // NEW: Calculate credit card obligation (5% of non-BT credit card balances)
   // For full BT, all loans are being cleared, so credit card obligation = 0
   const creditCardObligation = 0;
@@ -128,7 +128,10 @@ export const calculateFullBT = async (userData) => {
     isBTMode: true,
     loansForBT: existingLoans,
     btTotalEMI: totalExistingEMI,
-    btTotalOutstanding: totalPOS
+    btTotalOutstanding: totalPOS,
+    // Location Data for Pan-India Rules
+    state: userData.state || (userData._metadata && userData._metadata.state) || '',
+    city: userData.city || (userData._metadata && userData._metadata.city) || ''
   };
 
   // Array of bank calculators with configurations
@@ -152,7 +155,7 @@ export const calculateFullBT = async (userData) => {
     try {
       // Check BT loan capping constraint
       const numberOfLoans = existingLoans.length;
-      
+
       // Check if bank offers BT
       if (config.btConfig && !config.btConfig.isAvailable) {
         return {
@@ -163,7 +166,7 @@ export const calculateFullBT = async (userData) => {
           btCappingIssue: true
         };
       }
-      
+
       // Check for Fintech loans if bank doesn't accept them
       const hasFintechLoans = existingLoans.some(loan => loan.isFintechLoan === true || loan.loanSource === 'fintech');
       if (hasFintechLoans && config.btConfig && config.btConfig.acceptsFintechLoans === false) {
@@ -177,7 +180,7 @@ export const calculateFullBT = async (userData) => {
           fintechLoansCount: fintechLoanCount
         };
       }
-      
+
       // Check loan capping limit
       if (config.btConfig && config.btConfig.maxLoansForBT < numberOfLoans) {
         return {
@@ -190,9 +193,9 @@ export const calculateFullBT = async (userData) => {
           currentLoans: numberOfLoans
         };
       }
-      
+
       const result = calculator(btInput);
-      
+
       if (!result.eligible) {
         return {
           bankName: result.bankName || name,
@@ -220,25 +223,25 @@ export const calculateFullBT = async (userData) => {
         bankName: result.bankName || name,
         eligible: true,
         btType: 'FULL_BT',
-        
+
         // BT-specific fields
         maxLoanAmount: Math.round(maxLoanAmount),
         totalPOS: Math.round(totalPOS),
         freshAmountDisbursed: Math.round(freshAmount),
-        
+
         // Loan details
         newSingleEMI: result.monthlyEMI,
         interestRate: result.interestRate,
         tenure: loanTenure,
         processingFee: result.processingFee,
-        
+
         // Previous loan details
         previousTotalEMI: Math.round(totalExistingEMI),
         numberOfLoansConsolidated: existingLoans.length,
-        
+
         // Savings/Changes
         emiDifference: Math.round(result.monthlyEMI - totalExistingEMI),
-        
+
         // Full result
         ...result
       };
@@ -294,7 +297,7 @@ export const calculatePartialBT = async (userData) => {
 
   // Calculate totals for non-BT loans
   const nonBTLoansEMI = loansNotForBT.reduce((sum, loan) => sum + parseFloat(loan.emi || 0), 0);
-  
+
   // NEW: Calculate credit card obligation (5% of non-BT credit card balances)
   const creditCardObligation = loansNotForBT.reduce((sum, loan) => {
     // Check if loan is a credit card and NOT selected for BT
@@ -323,7 +326,10 @@ export const calculatePartialBT = async (userData) => {
     loansForBT: loansForBT,
     btTotalEMI: btLoansEMI,
     btTotalOutstanding: btLoansPOS,
-    existingLoanBanks: loansNotForBT.map(loan => loan.lender || loan.loanName || '').filter(Boolean)
+    existingLoanBanks: loansNotForBT.map(loan => loan.lender || loan.loanName || '').filter(Boolean),
+    // Location Data for Pan-India Rules
+    state: userData.state || (userData._metadata && userData._metadata.state) || '',
+    city: userData.city || (userData._metadata && userData._metadata.city) || ''
   };
 
   // Array of bank calculators with configurations
@@ -347,7 +353,7 @@ export const calculatePartialBT = async (userData) => {
     try {
       // Check BT loan capping constraint
       const numberOfBTLoans = loansForBT.length;
-      
+
       // Check if bank offers BT
       if (config.btConfig && !config.btConfig.isAvailable) {
         return {
@@ -358,7 +364,7 @@ export const calculatePartialBT = async (userData) => {
           btCappingIssue: true
         };
       }
-      
+
       // Check for Fintech loans in selected BT loans
       const hasFintechLoans = loansForBT.some(loan => loan.isFintechLoan === true || loan.loanSource === 'fintech');
       if (hasFintechLoans && config.btConfig && config.btConfig.acceptsFintechLoans === false) {
@@ -372,7 +378,7 @@ export const calculatePartialBT = async (userData) => {
           fintechLoansCount: fintechLoanCount
         };
       }
-      
+
       // Check loan capping limit for selected BT loans
       if (config.btConfig && config.btConfig.maxLoansForBT < numberOfBTLoans) {
         return {
@@ -385,9 +391,9 @@ export const calculatePartialBT = async (userData) => {
           selectedLoansForBT: numberOfBTLoans
         };
       }
-      
+
       const result = calculator(btInput);
-      
+
       if (!result.eligible) {
         return {
           bankName: result.bankName || name,
@@ -418,33 +424,33 @@ export const calculatePartialBT = async (userData) => {
         bankName: result.bankName || name,
         eligible: true,
         btType: 'PARTIAL_BT',
-        
+
         // BT-specific fields
         maxLoanAmount: Math.round(maxLoanAmount),
         selectedLoansPOS: Math.round(btLoansPOS),
         freshAmountDisbursed: Math.round(freshAmount),
-        
+
         // Loan details
         newBTLoanEMI: result.monthlyEMI,
         interestRate: result.interestRate,
         tenure: loanTenure,
         processingFee: result.processingFee,
-        
+
         // Adjusted salary calculation details
         originalSalary: parseFloat(monthlyIncome),
         nonBTLoansEMI: Math.round(nonBTLoansEMI),
         adjustedSalary: Math.round(adjustedSalary),
-        
+
         // Loan consolidation details
         numberOfLoansConsolidated: loansForBT.length,
         numberOfLoansRemaining: loansNotForBT.length,
         consolidatedLoansEMI: Math.round(btLoansEMI),
-        
+
         // Total outflow after BT
         totalMonthlyOutflow: Math.round(totalMonthlyOutflow),
         previousTotalEMI: Math.round(btLoansEMI + nonBTLoansEMI),
         emiDifference: Math.round(totalMonthlyOutflow - (btLoansEMI + nonBTLoansEMI)),
-        
+
         // Full result
         ...result
       };
@@ -508,13 +514,13 @@ export const calculateBTWithCreditCards = async (userData) => {
 
   // Calculate total POS of personal loans
   const totalLoanPOS = existingLoans.reduce((sum, loan) => sum + parseFloat(loan.pos), 0);
-  
+
   // Calculate total outstanding of credit cards
   const totalCreditCardPOS = creditCards.reduce((sum, card) => sum + parseFloat(card.outstandingAmount), 0);
-  
+
   // Total debt to be cleared
   const totalDebtToClear = totalLoanPOS + totalCreditCardPOS;
-  
+
   // DEBUG: Log calculated totals
   console.log('✅ CALCULATED TOTALS:');
   console.log('  totalLoanPOS:', totalLoanPOS);
@@ -530,7 +536,10 @@ export const calculateBTWithCreditCards = async (userData) => {
     companyName: companyName,
     category: category || 'C',
     creditScore: parseInt(creditScore) || 700,
-    employmentType: employmentType || 'salaried'
+    employmentType: employmentType || 'salaried',
+    // Location Data for Pan-India Rules
+    state: userData.state || (userData._metadata && userData._metadata.state) || '',
+    city: userData.city || (userData._metadata && userData._metadata.city) || ''
   };
 
   // Array of bank calculators with configurations
@@ -554,7 +563,7 @@ export const calculateBTWithCreditCards = async (userData) => {
     try {
       // Check BT loan capping constraint (count only personal loans)
       const numberOfLoans = existingLoans.length;
-      
+
       // Check if bank offers BT
       if (config.btConfig && !config.btConfig.isAvailable) {
         return {
@@ -564,7 +573,7 @@ export const calculateBTWithCreditCards = async (userData) => {
           btType: 'BT_WITH_CREDIT_CARDS'
         };
       }
-      
+
       // Check for Fintech loans
       const hasFintechLoans = existingLoans.some(loan => loan.isFintechLoan === true || loan.loanSource === 'fintech');
       if (hasFintechLoans && config.btConfig && config.btConfig.acceptsFintechLoans === false) {
@@ -577,7 +586,7 @@ export const calculateBTWithCreditCards = async (userData) => {
           fintechLoanIssue: true
         };
       }
-      
+
       // Check loan capping limit
       if (config.btConfig && config.btConfig.maxLoansForBT < numberOfLoans) {
         return {
@@ -588,9 +597,9 @@ export const calculateBTWithCreditCards = async (userData) => {
           btCappingIssue: true
         };
       }
-      
+
       const result = calculator(btInput);
-      
+
       if (!result.eligible) {
         return {
           bankName: result.bankName || name,
@@ -618,24 +627,24 @@ export const calculateBTWithCreditCards = async (userData) => {
         bankName: result.bankName || name,
         eligible: true,
         btType: 'BT_WITH_CREDIT_CARDS',
-        
+
         // BT-specific fields
         maxLoanAmount: Math.round(maxLoanAmount),
         totalPersonalLoanPOS: Math.round(totalLoanPOS),
         totalCreditCardOutstanding: Math.round(totalCreditCardPOS),
         totalDebtCleared: Math.round(totalDebtToClear),
         freshAmountDisbursed: Math.round(freshAmount),
-        
+
         // Loan details
         newSingleEMI: result.monthlyEMI,
         interestRate: result.interestRate,
         tenure: loanTenure,
         processingFee: result.processingFee,
-        
+
         // Consolidation details
         numberOfLoansConsolidated: existingLoans.length,
         numberOfCreditCardsCleared: creditCards.length,
-        
+
         // Full result
         ...result
       };
@@ -699,17 +708,17 @@ export const calculateBTWithCreditCardObligation = async (userData) => {
 
   // Calculate total POS of personal loans
   const totalLoanPOS = existingLoans.reduce((sum, loan) => sum + parseFloat(loan.pos), 0);
-  
+
   // Calculate total outstanding of credit cards
   const totalCreditCardOutstanding = creditCards.reduce((sum, card) => sum + parseFloat(card.outstandingAmount), 0);
-  
+
   // KEY: Calculate Credit Card Obligation (5% of outstanding as monthly payment)
   const CREDIT_CARD_OBLIGATION_PERCENTAGE = 5; // 5% standard
   const creditCardMonthlyObligation = (totalCreditCardOutstanding * CREDIT_CARD_OBLIGATION_PERCENTAGE) / 100;
-  
+
   // Calculate Adjusted Salary (deduct credit card obligation)
   const adjustedSalary = parseFloat(monthlyIncome) - creditCardMonthlyObligation;
-  
+
   // Check if adjusted salary is positive
   if (adjustedSalary <= 0) {
     // Return all banks as ineligible
@@ -718,7 +727,7 @@ export const calculateBTWithCreditCardObligation = async (userData) => {
       'Cholamandalam Finance', 'Tata Capital', 'Poonawala Finance',
       'Axis Finance', 'IndusInd Bank', 'IDFC Bank', 'Shri Ram Finance', 'Piramal Finance'
     ];
-    
+
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve(bankNames.map(name => ({
@@ -740,7 +749,10 @@ export const calculateBTWithCreditCardObligation = async (userData) => {
     companyName: companyName,
     category: category || 'C',
     creditScore: parseInt(creditScore) || 700,
-    employmentType: employmentType || 'salaried'
+    employmentType: employmentType || 'salaried',
+    // Location Data for Pan-India Rules
+    state: userData.state || (userData._metadata && userData._metadata.state) || '',
+    city: userData.city || (userData._metadata && userData._metadata.city) || ''
   };
 
   // Array of bank calculators with configurations
@@ -764,7 +776,7 @@ export const calculateBTWithCreditCardObligation = async (userData) => {
     try {
       // Check BT loan capping constraint
       const numberOfLoans = existingLoans.length;
-      
+
       // Check if bank offers BT
       if (config.btConfig && !config.btConfig.isAvailable) {
         return {
@@ -774,7 +786,7 @@ export const calculateBTWithCreditCardObligation = async (userData) => {
           btType: 'BT_WITH_CC_OBLIGATION'
         };
       }
-      
+
       // Check for Fintech loans
       const hasFintechLoans = existingLoans.some(loan => loan.isFintechLoan === true || loan.loanSource === 'fintech');
       if (hasFintechLoans && config.btConfig && config.btConfig.acceptsFintechLoans === false) {
@@ -787,7 +799,7 @@ export const calculateBTWithCreditCardObligation = async (userData) => {
           fintechLoanIssue: true
         };
       }
-      
+
       // Check loan capping limit
       if (config.btConfig && config.btConfig.maxLoansForBT < numberOfLoans) {
         return {
@@ -798,9 +810,9 @@ export const calculateBTWithCreditCardObligation = async (userData) => {
           btCappingIssue: true
         };
       }
-      
+
       const result = calculator(btInput);
-      
+
       if (!result.eligible) {
         return {
           bankName: result.bankName || name,
@@ -831,38 +843,38 @@ export const calculateBTWithCreditCardObligation = async (userData) => {
         bankName: result.bankName || name,
         eligible: true,
         btType: 'BT_WITH_CC_OBLIGATION',
-        
+
         // BT-specific fields
         maxLoanAmount: Math.round(maxLoanAmount),
         totalPersonalLoanPOS: Math.round(totalLoanPOS),
         freshAmountDisbursed: Math.round(freshAmount),
-        
+
         // Loan details
         newBTLoanEMI: result.monthlyEMI,
         interestRate: result.interestRate,
         tenure: loanTenure,
         processingFee: result.processingFee,
-        
+
         // Credit Card Obligation details
         totalCreditCardOutstanding: Math.round(totalCreditCardOutstanding),
         creditCardMonthlyObligation: Math.round(creditCardMonthlyObligation),
         creditCardObligationPercentage: CREDIT_CARD_OBLIGATION_PERCENTAGE,
         numberOfCreditCards: creditCards.length,
-        
+
         // Salary adjustment details
         originalSalary: parseFloat(monthlyIncome),
         adjustedSalary: Math.round(adjustedSalary),
         salaryReduction: Math.round(creditCardMonthlyObligation),
-        
+
         // Total outflow
         totalMonthlyOutflow: Math.round(totalMonthlyOutflow),
-        
+
         // Consolidation details
         numberOfLoansConsolidated: existingLoans.length,
-        
+
         // Important note
         importantNote: `Customer must continue managing ₹${Math.round(totalCreditCardOutstanding).toLocaleString()} credit card debt separately. Minimum monthly payment: ₹${Math.round(creditCardMonthlyObligation).toLocaleString()}`,
-        
+
         // Full result
         ...result
       };
@@ -891,10 +903,10 @@ export const calculateBTWithCreditCardObligation = async (userData) => {
  */
 export const calculateSmartBT = async (userData) => {
   const { existingLoans } = userData;
-  
+
   // Check if all loans are selected for BT
   const allLoansSelected = existingLoans.every(loan => loan.selectedForBT === true);
-  
+
   if (allLoansSelected) {
     return calculateFullBT(userData);
   } else {
@@ -910,29 +922,29 @@ export const calculateSmartBT = async (userData) => {
 export const getBTRecommendations = (btResults) => {
   // Filter eligible banks
   const eligibleBanks = btResults.filter(result => result.eligible);
-  
+
   if (eligibleBanks.length === 0) {
     return {
       hasRecommendations: false,
       message: 'No banks eligible for Balance Transfer with current profile'
     };
   }
-  
+
   // Sort by fresh amount (descending)
   const sortedByFreshAmount = [...eligibleBanks].sort(
     (a, b) => b.freshAmountDisbursed - a.freshAmountDisbursed
   );
-  
+
   // Sort by lowest EMI
   const sortedByEMI = [...eligibleBanks].sort(
     (a, b) => (a.newSingleEMI || a.newBTLoanEMI) - (b.newSingleEMI || b.newBTLoanEMI)
   );
-  
+
   // Sort by lowest interest rate
   const sortedByInterest = [...eligibleBanks].sort(
     (a, b) => a.interestRate - b.interestRate
   );
-  
+
   return {
     hasRecommendations: true,
     bestForFreshFunds: sortedByFreshAmount[0],
