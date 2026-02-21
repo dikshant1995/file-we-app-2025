@@ -69,32 +69,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
       </div>
 
       {/* ===== NAVBAR ===== */}
-      <nav className="holo-nav">
-        <div className="holo-nav-inner">
-          <div className="holo-brand">
-            <div className="holo-logo">
-              <div className="logo-ring" />
-              <Cpu size={16} color="#00d4ff" />
-            </div>
-            <span className="brand-name">LoanAI</span>
-            <span className="brand-model">MODEL</span>
-            <span className="ai-badge">v2.0</span>
-          </div>
-
-          <div className="holo-nav-center">
-            <div className="nav-status">
-              <span className="status-dot" />
-              <span>SYSTEM ONLINE</span>
-            </div>
-          </div>
-
-          <button className="holo-admin-btn" onClick={handleAdminButtonClick}>
-            <Lock size={13} />
-            <span>ADMIN</span>
-          </button>
-        </div>
-        <div className="nav-border-glow" />
-      </nav>
+      <div className="holo-orb holo-orb-3" />
 
       {/* ===== HERO ===== */}
       <section className="holo-hero">
