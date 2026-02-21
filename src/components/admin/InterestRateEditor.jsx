@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
 import './ConfigEditor.css';
-import { saveBankConfig, getBankConfig } from '../../services/bankConfigService';
+import { saveBankConfig, getBankConfig, getAllBankConfig } from '../../services/bankConfigService';
+import LocationOverrideManager from './LocationOverrideManager';
 
 const InterestRateEditor = ({ bank, onSave }) => {
   // Get loan capping to determine max slabs
   const loanCapping = getBankConfig(bank.name, 'loanCapping') || { absoluteMaxLoan: 5000000 };
   const maxLoan = loanCapping.absoluteMaxLoan;
+
+  const [activeLocation, setActiveLocation] = useState(null); // null = Global
+  const [locationOverrides, setLocationOverrides] = useState({});
 
   // Generate default loan slabs based on capping (in rupees)
   const generateSlabs = (maxLoanAmount) => {
@@ -45,13 +49,24 @@ const InterestRateEditor = ({ bank, onSave }) => {
     categorySlabRates: initializeCategoryRates()
   });
 
-  // Load saved config on mount
+  // Load saved config on mount or when bank/location changes
   useEffect(() => {
-    const savedConfig = getBankConfig(bank.name, 'interestRates');
+    // 1. Load full bank config to get available overrides
+    const fullConfig = getAllBankConfig(bank.name);
+    setLocationOverrides(fullConfig.locationOverrides?.interestRates || {});
+
+    // 2. Load specific rates based on activeLocation
+    const savedConfig = getBankConfig(bank.name, 'interestRates', {
+      state: activeLocation,
+      city: activeLocation
+    });
+
     if (savedConfig && savedConfig.categorySlabRates) {
       setConfig(savedConfig);
+    } else {
+      setConfig({ categorySlabRates: initializeCategoryRates() });
     }
-  }, [bank.name]);
+  }, [bank.name, activeLocation]);
 
   const handleRateChange = (category, slabLabel, value) => {
     setConfig({
@@ -67,12 +82,28 @@ const InterestRateEditor = ({ bank, onSave }) => {
   };
 
   const handleSave = () => {
-    const success = saveBankConfig(bank.name, 'interestRates', config);
+    const success = saveBankConfig(bank.name, 'interestRates', config, activeLocation);
     if (success) {
       onSave && onSave(config);
-      alert(`✅ Interest rates saved for ${bank.name}!`);
+      alert(`✅ Interest rates saved for ${bank.name} (${activeLocation || 'Global'})!`);
+
+      // Refresh overrides list if we added a new one
+      if (activeLocation && !locationOverrides[activeLocation]) {
+        setLocationOverrides({ ...locationOverrides, [activeLocation]: config });
+      }
     } else {
       alert(`❌ Failed to save. Please try again.`);
+    }
+  };
+
+  const handleAddLocation = (loc) => setActiveLocation(loc);
+
+  const handleRemoveLocation = (loc) => {
+    if (removeBankOverride(bank.name, 'interestRates', loc)) {
+      const newOverrides = { ...locationOverrides };
+      delete newOverrides[loc];
+      setLocationOverrides(newOverrides);
+      if (activeLocation === loc) setActiveLocation(null);
     }
   };
 
@@ -82,8 +113,16 @@ const InterestRateEditor = ({ bank, onSave }) => {
     <div className="config-editor">
       <div className="editor-header">
         <h2>📈 Interest Rate Matrix - {bank.name}</h2>
-        <p>Configure interest rates by category and loan amount slabs (Max: ₹{(maxLoan / 100000).toFixed(0)}L)</p>
+        <p>Configure interest rates by category and loan amount slabs with Pan-India location overrides</p>
       </div>
+
+      <LocationOverrideManager
+        overrides={locationOverrides}
+        activeLocation={activeLocation}
+        onSelectLocation={setActiveLocation}
+        onAddLocation={handleAddLocation}
+        onRemoveLocation={handleRemoveLocation}
+      />
 
       {/* Rate Matrix by Category */}
       {categories.map(category => (
@@ -97,7 +136,7 @@ const InterestRateEditor = ({ bank, onSave }) => {
                   <th style={{ padding: '15px', textAlign: 'left', borderBottom: '2px solid #e0e0e0', fontWeight: '600' }}>Loan Amount</th>
                   {slabs.map(slab => (
                     <th key={slab.label} style={{ padding: '15px', textAlign: 'center', borderBottom: '2px solid #e0e0e0', fontWeight: '600' }}>
-                      ₹{slab.label}
+                      {slab.label}
                     </th>
                   ))}
                 </tr>
@@ -136,7 +175,7 @@ const InterestRateEditor = ({ bank, onSave }) => {
           💾 Save All Rates
         </button>
         <button className="btn-reset" onClick={() => window.location.reload()}>
-          🔄 Reset to Default
+          🔄 Reset
         </button>
       </div>
     </div>
