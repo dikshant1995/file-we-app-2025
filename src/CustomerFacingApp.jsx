@@ -1,9 +1,12 @@
 import React, { useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Routes, Route } from 'react-router-dom';
 import CustomerLoanForm from './components/CustomerLoanForm';
 import CustomerResultsDisplay from './components/CustomerResultsDisplay';
 import FuturisticLanding from './components/FuturisticLanding';
 import AdminDashboard from './components/AdminDashboard';
+import BlogHome from './components/BlogHome';
+import BlogArticle from './components/BlogArticle';
+import Navbar from './components/Navbar';
 import { calculateLoanEligibility } from './services/realLoanService';
 import { calculateBTWithCreditCards } from './services/btLoanService';
 import { saveLead } from './services/leadService';
@@ -121,73 +124,81 @@ function CustomerFacingApp() {
 
   return (
     <div className="customer-facing-app">
+      <Navbar onAdminClick={handleAdminClick} />
 
-      {/* PAGE 1: Landing — shown when form not yet opened and no results */}
-      {!showForm && !results && (
-        <FuturisticLanding onGetStarted={handleGetStarted} onAdminClick={handleAdminClick} />
-      )}
+      <Routes>
+        <Route path="/" element={
+          <>
+            {/* PAGE 1: Landing — shown when form not yet opened and no results */}
+            {!showForm && !results && (
+              <FuturisticLanding onGetStarted={handleGetStarted} onAdminClick={handleAdminClick} />
+            )}
 
-      {/* PAGE 2: Application Form — full page replacement */}
-      {showForm && !results && (
-        <div
-          className="form-page"
-          style={{ animation: 'formFadeIn 0.35s ease-out forwards' }}
-        >
-          {/* Form Page Navbar */}
-          <nav className="form-page-nav">
-            <button className="form-back-btn" onClick={() => { setShowForm(false); window.scrollTo({ top: 0 }); }}>
-              ← Back
-            </button>
-            <div className="form-nav-brand">
-              <span className="text-glow">LoanAI Model</span>
-              <span className="ai-badge">MODEL v2</span>
-            </div>
-            <div className="form-nav-status">
-              <span className="dot"></span> AI Engine Active
-            </div>
-          </nav>
+            {/* PAGE 2: Application Form — full page replacement */}
+            {showForm && !results && (
+              <div
+                className="form-page"
+                style={{ animation: 'formFadeIn 0.35s ease-out forwards' }}
+              >
+                {/* Form Page Navbar */}
+                <nav className="form-page-nav">
+                  <button className="form-back-btn" onClick={() => { setShowForm(false); window.scrollTo({ top: 0 }); }}>
+                    ← Back
+                  </button>
+                  <div className="form-nav-brand">
+                    <span className="text-glow">LoanAI Model</span>
+                    <span className="ai-badge">MODEL v2</span>
+                  </div>
+                  <div className="form-nav-status">
+                    <span className="dot"></span> AI Engine Active
+                  </div>
+                </nav>
 
+                {/* Header */}
+                <div className="form-section-header">
+                  <div className="form-section-badge">
+                    <span className="dot"></span>
+                    Analyzing 12+ Banks
+                  </div>
+                  <h2 className="form-section-title">
+                    Personal Loan <span className="gradient-text-ai">Eligibility Check</span>
+                  </h2>
+                  <p className="form-section-subtitle">
+                    Fill in your details — our AI will calculate your best offers instantly
+                  </p>
+                </div>
 
+                {/* Form wrapped in glass */}
+                <div className="form-glass-wrapper">
+                  <CustomerLoanForm onSubmit={handleFormSubmit} loading={loading} />
+                </div>
 
-          {/* Header */}
-          <div className="form-section-header">
-            <div className="form-section-badge">
-              <span className="dot"></span>
-              Analyzing 12+ Banks
-            </div>
-            <h2 className="form-section-title">
-              Personal Loan <span className="gradient-text-ai">Eligibility Check</span>
-            </h2>
-            <p className="form-section-subtitle">
-              Fill in your details — our AI will calculate your best offers instantly
-            </p>
-          </div>
+                {/* Error */}
+                {error && (
+                  <div className="error-container">
+                    <div className="error-message">⚠️ {error}</div>
+                    <button onClick={() => setError(null)} className="btn-retry">Try Again</button>
+                  </div>
+                )}
+              </div>
+            )}
 
-          {/* Form wrapped in glass */}
-          <div className="form-glass-wrapper">
-            <CustomerLoanForm onSubmit={handleFormSubmit} loading={loading} />
-          </div>
+            {/* PAGE 3: Results */}
+            {results && (
+              <div id="results-section">
+                <CustomerResultsDisplay
+                  results={results}
+                  metadata={metadata}
+                  onNewCalculation={handleNewCalculation}
+                />
+              </div>
+            )}
+          </>
+        } />
 
-          {/* Error */}
-          {error && (
-            <div className="error-container">
-              <div className="error-message">⚠️ {error}</div>
-              <button onClick={() => setError(null)} className="btn-retry">Try Again</button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* PAGE 3: Results */}
-      {results && (
-        <div id="results-section">
-          <CustomerResultsDisplay
-            results={results}
-            metadata={metadata}
-            onNewCalculation={handleNewCalculation}
-          />
-        </div>
-      )}
+        <Route path="/blog" element={<BlogHome />} />
+        <Route path="/blog/:slug" element={<BlogArticle />} />
+      </Routes>
     </div>
   );
 }
