@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Share2, Download, Search, MessageSquare } from 'lucide-react';
+import { Mail, Share2, Download, Search, MessageCircle } from 'lucide-react';
 import './LeadManager.css';
 
 const LeadManager = () => {
@@ -153,7 +153,7 @@ const LeadManager = () => {
                                             title="Share on WhatsApp"
                                             onClick={() => handleWhatsAppShare(lead)}
                                         >
-                                            <MessageSquare size={16} />
+                                            <MessageCircle size={18} />
                                         </button>
                                         <button
                                             className="action-btn mail"
