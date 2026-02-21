@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import './ConfigEditor.css';
-import { saveBankConfig, getBankConfig } from '../../services/bankConfigService';
+import { saveBankConfig, getBankConfig, getAllBankConfig } from '../../services/bankConfigService';
+import LocationOverrideManager from './LocationOverrideManager';
 
 // Bank-specific category definitions
 const bankCategoryDefaults = {
@@ -314,17 +315,27 @@ const CategoriesEditor = ({ bank, onSave }) => {
   };
 
   const [categories, setCategories] = useState(getBankDefaults());
+  const [activeLocation, setActiveLocation] = useState(null); // null = Global
+  const [locationOverrides, setLocationOverrides] = useState({});
 
-  // Load saved config on mount or when bank changes
+  // Load saved config on mount or when bank/location changes
   useEffect(() => {
-    const savedConfig = getBankConfig(bank.name, 'categories');
+    // 1. Load full bank config to get available overrides
+    const fullConfig = getAllBankConfig(bank.name);
+    setLocationOverrides(fullConfig.locationOverrides?.categories || {});
+
+    // 2. Load specific categories based on activeLocation
+    const savedConfig = getBankConfig(bank.name, 'categories', {
+      state: activeLocation,
+      city: activeLocation
+    });
+
     if (savedConfig) {
       setCategories(savedConfig);
     } else {
-      // Use bank-specific defaults
       setCategories(getBankDefaults());
     }
-  }, [bank.name]);
+  }, [bank.name, activeLocation]);
 
   const updateCategory = (cat, field, value) => {
     setCategories({
@@ -350,21 +361,54 @@ const CategoriesEditor = ({ bank, onSave }) => {
   };
 
   const handleSave = () => {
-    const success = saveBankConfig(bank.name, 'categories', categories);
+    const success = saveBankConfig(bank.name, 'categories', categories, activeLocation);
     if (success) {
       onSave && onSave(categories);
-      alert(`✅ Category configuration saved for ${bank.name}!`);
+      alert(`✅ Category configuration saved for ${bank.name} (${activeLocation || 'Global'})!`);
+
+      // Refresh overrides list if we added a new one
+      if (activeLocation && !locationOverrides[activeLocation]) {
+        setLocationOverrides({ ...locationOverrides, [activeLocation]: categories });
+      }
     } else {
       alert(`❌ Failed to save. Please try again.`);
     }
+  };
+
+  const handleAddLocation = (loc) => {
+    setActiveLocation(loc);
+    // Initial categories for new location come from global current view
+  };
+
+  const handleRemoveLocation = (loc) => {
+    const newOverrides = { ...locationOverrides };
+    delete newOverrides[loc];
+
+    // Save the removal by updating the bank config
+    const fullConfig = getAllBankConfig(bank.name);
+    if (fullConfig.locationOverrides?.categories) {
+      delete fullConfig.locationOverrides.categories[loc];
+      saveBankConfig(bank.name, 'locationOverrides', fullConfig.locationOverrides);
+    }
+
+    setLocationOverrides(newOverrides);
+    if (activeLocation === loc) setActiveLocation(null);
   };
 
   return (
     <div className="config-editor">
       <div className="editor-header">
         <h2>📊 Category Configuration - {bank.name}</h2>
-        <p>Configure salary categories ({Object.keys(categories).join(', ')}) and their eligibility rules</p>
+        <p>Configure salary categories and their eligibility rules with Pan-India location overrides</p>
       </div>
+
+      <LocationOverrideManager
+        overrides={locationOverrides}
+        activeLocation={activeLocation}
+        onSelectLocation={setActiveLocation}
+        onAddLocation={handleAddLocation}
+        onRemoveLocation={handleRemoveLocation}
+      />
 
       {Object.keys(categories).map(cat => (
         <div key={cat} className="config-section">
