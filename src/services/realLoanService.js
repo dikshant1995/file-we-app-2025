@@ -107,7 +107,7 @@ export const calculateLoanEligibility = async (userData) => {
   console.log('🏛️  Calling 12 banks (4 with database, 8 with default Category B)...');
   console.log('='.repeat(60));
 
-  const results = bankCalculators.map(({ name, calculator, config, hasDatabase }, index) => {
+  const results = await Promise.all(bankCalculators.map(async ({ name, calculator, config, hasDatabase }, index) => {
     const bankStartTime = performance.now();
     console.log(`🏦 [${index + 1}/12] Calculating: ${name}...`);
 
@@ -128,7 +128,7 @@ export const calculateLoanEligibility = async (userData) => {
                           : null;
 
         if (bankDbKey && calculatorInput.companyName) {
-          bankCategory = getCompanyCategoryForBank(calculatorInput.companyName, bankDbKey);
+          bankCategory = await getCompanyCategoryForBank(calculatorInput.companyName, bankDbKey);
 
           // HDFC Specific Mapping (IDFC keys to HDFC keys)
           if (bankDbKey === 'hdfc') {
@@ -198,7 +198,7 @@ export const calculateLoanEligibility = async (userData) => {
         incentivePeriodMonths: config.incentivePeriodMonths
       };
     }
-  });
+  }));
 
   console.log('='.repeat(60));
   console.log('🏛️  === 12 BANKS CALCULATED ===');
