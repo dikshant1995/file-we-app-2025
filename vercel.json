@@ -19,10 +19,6 @@
       "dest": "/server.js"
     },
     {
-      "src": "/data/(.*)",
-      "dest": "/public/data/$1"
-    },
-    {
       "handle": "filesystem"
     },
     {
