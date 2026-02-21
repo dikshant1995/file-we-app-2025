@@ -7,7 +7,7 @@ import ImportExport from './admin/ImportExport';
 import AuditLog from './admin/AuditLog';
 import AddBankModal from './admin/AddBankModal';
 
-const AdminDashboard = () => {
+const AdminDashboard = ({ onBackToCustomer }) => {
   const [activeMenu, setActiveMenu] = useState('banks');
   const [selectedBank, setSelectedBank] = useState(null);
   const [showAddBankModal, setShowAddBankModal] = useState(false);
@@ -77,7 +77,12 @@ const AdminDashboard = () => {
       {/* Top Header */}
       <header className="dashboard-header">
         <div className="header-content">
-          <h1>Bank Governance & Policy Control</h1>
+          <div className="header-left">
+            <button className="btn-back-portal" onClick={onBackToCustomer}>
+              ← Back to Portal
+            </button>
+            <h1>Bank Governance & Policy Control</h1>
+          </div>
           <div className="header-actions">
             <button className="btn-save-all">Commit Global Changes</button>
             <button className="btn-export">Export Configuration</button>
