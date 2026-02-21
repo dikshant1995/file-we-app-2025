@@ -1,18 +1,19 @@
-import { axisFinConfig } from './config.js';
+import { axisFinConfig as baseAxisFinConfig } from './config.js';
+import { getEffectiveConfig } from '../../utils/policyUtils';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
   const monthlyInterestRate = annualInterestRate / 12 / 100;
   const numberOfMonths = tenureInYears * 12;
-  
+
   if (monthlyInterestRate === 0) {
     return principal / numberOfMonths;
   }
-  
-  const emi = principal * monthlyInterestRate * 
-    (Math.pow(1 + monthlyInterestRate, numberOfMonths)) / 
+
+  const emi = principal * monthlyInterestRate *
+    (Math.pow(1 + monthlyInterestRate, numberOfMonths)) /
     (Math.pow(1 + monthlyInterestRate, numberOfMonths) - 1);
-    
+
   return Math.round(emi);
 };
 
@@ -20,16 +21,14 @@ const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
 const getSalaryBand = (salary, table) => {
   for (const band of Object.keys(table)) {
     if (band.includes('+')) {
-      // Handle "75001+" format
       const min = parseInt(band.replace('+', ''));
-      if (salary >= min) {
-        return band;
-      }
+      if (salary >= min) return band;
     } else {
-      // Handle "25000-50000" format
-      const [min, max] = band.split('-').map(s => parseInt(s));
-      if (salary >= min && salary <= max) {
-        return band;
+      const parts = band.split('-');
+      if (parts.length === 2) {
+        const min = parseInt(parts[0]);
+        const max = parseInt(parts[1]);
+        if (salary >= min && salary <= max) return band;
       }
     }
   }
@@ -38,12 +37,14 @@ const getSalaryBand = (salary, table) => {
 
 // Axis Finance specific eligibility calculation (Multiplier-Only System)
 export const calculateAxisFinEligibility = (userData) => {
+  const config = getEffectiveConfig('Axis Finance', baseAxisFinConfig);
+
   const {
     desiredLoanAmount,
     loanTenure,
     monthlyIncome,
     existingEMI = 0,
-    creditCardObligation, // NEW: 5% of non-BT credit card balances
+    creditCardObligation,
     category = 'C',
     creditScore,
     employmentType,
@@ -58,10 +59,9 @@ export const calculateAxisFinEligibility = (userData) => {
   const isBT = isBTMode && loansForBT && loansForBT.length > 0;
   let adjustedIncome = monthlyIncome;
   let nonBTLoansEMI = 0;
-  
+
   if (isBT) {
     nonBTLoansEMI = existingEMI - btTotalEMI;
-    // NEW: Also deduct credit card obligations from adjusted income
     const creditCardDeduction = creditCardObligation || 0;
     adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
     if (adjustedIncome <= 0) {
@@ -72,10 +72,10 @@ export const calculateAxisFinEligibility = (userData) => {
   // CHECK: If customer already has a personal loan from Axis Finance
   if (existingLoanBanks && existingLoanBanks.length > 0) {
     const axisNames = ['axis', 'axis finance', 'axis bank'];
-    const hasExistingAxisLoan = existingLoanBanks.some(bank => 
+    const hasExistingAxisLoan = existingLoanBanks.some(bank =>
       axisNames.some(name => bank.includes(name))
     );
-    
+
     if (hasExistingAxisLoan) {
       return {
         eligible: false,
@@ -83,49 +83,40 @@ export const calculateAxisFinEligibility = (userData) => {
       };
     }
   }
-  
+
   // Check age eligibility
-  if (age && (age < axisFinConfig.minAge || age > axisFinConfig.maxAge)) {
+  const minAge = config.ageRules ? config.ageRules.minAge : config.minAge;
+  const maxAge = config.ageRules ? config.ageRules.maxAge : config.maxAge;
+  if (age && (age < minAge || age > maxAge)) {
     return {
       eligible: false,
-      reason: `Age must be between ${axisFinConfig.minAge} and ${axisFinConfig.maxAge} years. Current age: ${age}`
+      reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
     };
   }
-  
+
   // Check employment type
-  if (!axisFinConfig.employmentTypes.includes(employmentType)) {
+  if (!config.employmentTypes?.includes(employmentType)) {
     return {
       eligible: false,
       reason: `Employment type ${employmentType} not supported by Axis Finance`
     };
   }
-  
-  // Apply tenure capping based on category (tenure is in months)
-  const maxTenureForCategory = axisFinConfig.maxTenureByCategory[category];
+
+  // Apply tenure capping based on category
+  const maxTenureForCategory = config.maxTenureByCategory ? config.maxTenureByCategory[category] : 60;
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
       eligible: false,
       reason: `No loans available for Category ${category}`
     };
   }
-  
-  // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
-  // This shows the maximum loan amount the bank can offer for this category
+
   const cappedTenureMonths = maxTenureForCategory;
   const cappedTenureYears = cappedTenureMonths / 12;
-  
-  // Store user's request for display purposes
+
   const requestedTenureMonths = loanTenure * 12;
   const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
-  
-  // Check loan tenure
-  if (loanTenure > axisFinConfig.maxLoanTenure) {
-    return {
-      eligible: false,
-      reason: `Maximum loan tenure is ${axisFinConfig.maxLoanTenure} years`
-    };
-  }
-  
+
   // Check if category is supported
   if (category === 'UNLISTED') {
     return {
@@ -133,39 +124,40 @@ export const calculateAxisFinEligibility = (userData) => {
       reason: 'Axis Finance does not provide loans to UNLISTED company employees'
     };
   }
-  
+
+  const minSalary = config.salariedMinSalary || config.minSalary || 25000;
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
-  if (incomeToCheck < axisFinConfig.minSalary) {
-    return { eligible: false, reason: `Minimum salary of ₹${axisFinConfig.minSalary.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+  if (incomeToCheck < minSalary) {
+    return { eligible: false, reason: `Minimum salary of ₹${minSalary.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
-  
+
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
-  const salaryBand = getSalaryBand(incomeForCalculation, axisFinConfig.multiplierTable);
-  
+  const multiplierTable = config.multiplierTable || config.multiplierRules?.multiplierTable || baseAxisFinConfig.multiplierTable;
+  const salaryBand = getSalaryBand(incomeForCalculation, multiplierTable);
+
   if (!salaryBand) {
     return { eligible: false, reason: 'Salary does not fall within any eligible band', isBTMode: isBT };
   }
-  
-  const multiplier = axisFinConfig.multiplierTable[salaryBand]?.[category];
-  
+
+  const multiplier = multiplierTable[salaryBand] ? multiplierTable[salaryBand][category] : null;
+
   if (!multiplier) {
     return { eligible: false, reason: `No multiplier available for category ${category} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
   }
-  
-  // IMPORTANT: For multiplier, use salary after deducting existing EMI and credit card obligation (non-BT mode)
+
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
   const availableSalary = isBT ? incomeForCalculation : (monthlyIncome - totalObligations);
   const calculatedLoanAmount = availableSalary * multiplier;
-  
-  // Final loan amount is minimum of calculated and desired
-  const finalLoanAmount = Math.min(
+
+  const preliminaryLoanAmount = Math.min(
     calculatedLoanAmount,
     desiredLoanAmount || Infinity
   );
-  
-  const cappedFinalLoan = Math.min(finalLoanAmount, axisFinConfig.maxLoanAmount);
-  const loanCapped = finalLoanAmount > axisFinConfig.maxLoanAmount;
-  
+
+  const absoluteMaxLoan = config.loanCapping?.absoluteMaxLoan || config.maxLoanAmount || 5000000;
+  const cappedFinalLoan = Math.min(preliminaryLoanAmount, absoluteMaxLoan);
+  const loanCapped = preliminaryLoanAmount > absoluteMaxLoan;
+
   let btDetails = null;
   if (isBT) {
     const btFreshAmount = cappedFinalLoan - btTotalOutstanding;
@@ -176,48 +168,34 @@ export const calculateAxisFinEligibility = (userData) => {
       isBTMode: true,
       loansConsolidated: loansForBT.length,
       btTotalOutstanding: Math.round(btTotalOutstanding),
-      btTotalEMI: Math.round(btTotalEMI),
       freshAmountDisbursed: Math.round(btFreshAmount),
-      nonBTLoansEMI: Math.round(nonBTLoansEMI),
-      creditCardObligation: Math.round(creditCardObligation || 0),
-      creditCardObligationNote: creditCardObligation > 0 ? '5% of non-BT credit card outstanding' : 'No credit card obligation (either no CC or CC in BT)',
-      totalNonBTObligations: Math.round(nonBTLoansEMI + (creditCardObligation || 0)),
       originalIncome: monthlyIncome,
       adjustedIncome: Math.round(adjustedIncome)
     };
   }
-  
-  const monthlyEMI = calculateEMI(cappedFinalLoan, axisFinConfig.interestRate, cappedTenureYears);
-  
+
+  const effectiveInterestRate = config.interestRate || baseAxisFinConfig.interestRate;
+  const monthlyEMI = calculateEMI(cappedFinalLoan, effectiveInterestRate, cappedTenureYears);
+
   return {
     eligible: true,
-    bankId: axisFinConfig.id,
-    bankName: axisFinConfig.name,
+    bankId: config.id,
+    bankName: config.name,
     loanAmount: Math.round(cappedFinalLoan),
-    maxLoanCap: axisFinConfig.maxLoanAmount,
+    maxLoanCap: absoluteMaxLoan,
     loanCappedByBank: loanCapped,
-    calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
-    interestRate: axisFinConfig.interestRate,
+    calculatedLoanBeforeCap: loanCapped ? Math.round(preliminaryLoanAmount) : null,
+    interestRate: effectiveInterestRate,
     loanTenure: cappedTenureYears,
-    loanTenureMonths: cappedTenureMonths,
-    tenureCapped: tenureCapped,
-    requestedTenure: loanTenure,
-    requestedTenureMonths: requestedTenureMonths,
-    maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
     multiplier: multiplier,
-    salaryBand: salaryBand,
     category: category,
     calculationMethod: 'Multiplier Only (No FOIR)',
     details: {
       multiplier: multiplier + 'x',
       salaryBand: salaryBand,
       multiplierLoanAmount: Math.round(calculatedLoanAmount),
-      existingEMI: Math.round(existingEMI || 0),
-      creditCardObligation: Math.round(creditCardObligation || 0),
-      creditCardObligationNote: creditCardObligation > 0 ? '5% of credit card outstanding balance' : 'No credit card obligations',
-      totalObligations: Math.round(totalObligations),
-      availableSalaryAfterObligations: Math.round(availableSalary)
+      totalObligations: Math.round(totalObligations)
     },
     ...btDetails
   };
