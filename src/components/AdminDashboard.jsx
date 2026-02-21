@@ -7,12 +7,14 @@ import ImportExport from './admin/ImportExport';
 import AuditLog from './admin/AuditLog';
 import AddBankModal from './admin/AddBankModal';
 import LeadManager from './admin/LeadManager';
+import AdminLocationSelector from './admin/AdminLocationSelector';
 
 const AdminDashboard = ({ onBackToCustomer }) => {
   const [activeMenu, setActiveMenu] = useState('leads');
   const [selectedBank, setSelectedBank] = useState(null);
   const [showAddBankModal, setShowAddBankModal] = useState(false);
   const [customBanks, setCustomBanks] = useState([]);
+  const [activeLocation, setActiveLocation] = useState({ state: '', city: '' });
 
   const menuItems = [
     { id: 'leads', icon: '', label: 'Customer Lead Pipeline', component: 'LeadManager' },
@@ -43,6 +45,7 @@ const AdminDashboard = ({ onBackToCustomer }) => {
       case 'BankList':
         return <BankList
           customBanks={customBanks}
+          activeLocation={activeLocation}
           onSelectBank={(bank) => {
             setSelectedBank(bank);
             setActiveMenu('config');
@@ -52,7 +55,12 @@ const AdminDashboard = ({ onBackToCustomer }) => {
       case 'LeadManager':
         return <LeadManager />;
       case 'BankConfigEditor':
-        return <BankConfigEditor selectedBank={selectedBank} section={activeItem.section} onNavigate={(id) => setActiveMenu(id)} />;
+        return <BankConfigEditor
+          selectedBank={selectedBank}
+          section={activeItem.section}
+          activeLocation={activeLocation}
+          onNavigate={(id) => setActiveMenu(id)}
+        />;
       case 'Analytics':
         return <Analytics />;
       case 'ImportExport':
@@ -114,6 +122,11 @@ const AdminDashboard = ({ onBackToCustomer }) => {
 
         {/* Main Content Area */}
         <main className="dashboard-main">
+          <AdminLocationSelector
+            activeLocation={activeLocation}
+            onLocationChange={setActiveLocation}
+          />
+
           {selectedBank && activeMenu !== 'banks' && activeMenu !== 'analytics' && activeMenu !== 'import-export' && activeMenu !== 'audit' && (
             <div className="selected-bank-banner">
               <span>Editing: <strong>{selectedBank.name}</strong></span>
