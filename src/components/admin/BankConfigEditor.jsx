@@ -5,7 +5,7 @@ import CategoriesEditor from './CategoriesEditor';
 import LoanCappingEditor from './LoanCappingEditor';
 import { AgeRulesEditor, TenureRulesEditor, FoirEditor, MultiplierEditor, BTEditor, CreditScoreEditor, EmploymentEditor, FeesEditor, DocumentsEditor, SpecialRulesEditor } from './AllEditors';
 
-const BankConfigEditor = ({ selectedBank, section }) => {
+const BankConfigEditor = ({ selectedBank, section, activeLocation }) => {
   if (!selectedBank) {
     return (
       <div className="no-bank-selected">
@@ -23,33 +23,33 @@ const BankConfigEditor = ({ selectedBank, section }) => {
   const renderSection = () => {
     switch (section) {
       case 'categories':
-        return <CategoriesSection bank={selectedBank} />;
+        return <CategoriesSection bank={selectedBank} activeLocation={activeLocation} />;
       case 'interest':
-        return <InterestSection bank={selectedBank} />;
+        return <InterestSection bank={selectedBank} activeLocation={activeLocation} />;
       case 'loanCapping':
-        return <LoanCappingSection bank={selectedBank} />;
+        return <LoanCappingSection bank={selectedBank} activeLocation={activeLocation} />;
       case 'ageRules':
-        return <AgeRulesSection bank={selectedBank} />;
+        return <AgeRulesSection bank={selectedBank} activeLocation={activeLocation} />;
       case 'tenureRules':
-        return <TenureRulesSection bank={selectedBank} />;
+        return <TenureRulesSection bank={selectedBank} activeLocation={activeLocation} />;
       case 'foir':
-        return <FoirSection bank={selectedBank} />;
+        return <FoirSection bank={selectedBank} activeLocation={activeLocation} />;
       case 'multiplier':
-        return <MultiplierSection bank={selectedBank} />;
+        return <MultiplierSection bank={selectedBank} activeLocation={activeLocation} />;
       case 'bt':
-        return <BTSection bank={selectedBank} />;
+        return <BTSection bank={selectedBank} activeLocation={activeLocation} />;
       case 'creditScore':
-        return <CreditScoreSection bank={selectedBank} />;
+        return <CreditScoreSection bank={selectedBank} activeLocation={activeLocation} />;
       case 'employment':
-        return <EmploymentSection bank={selectedBank} />;
+        return <EmploymentSection bank={selectedBank} activeLocation={activeLocation} />;
       case 'documents':
-        return <DocumentsSection bank={selectedBank} />;
+        return <DocumentsSection bank={selectedBank} activeLocation={activeLocation} />;
       case 'special':
-        return <SpecialRulesSection bank={selectedBank} />;
+        return <SpecialRulesSection bank={selectedBank} activeLocation={activeLocation} />;
       case 'fees':
-        return <FeesSection bank={selectedBank} />;
+        return <FeesSection bank={selectedBank} activeLocation={activeLocation} />;
       default:
-        return <AllConfigSection bank={selectedBank} />;
+        return <AllConfigSection bank={selectedBank} activeLocation={activeLocation} />;
     }
   };
 
@@ -60,24 +60,31 @@ const BankConfigEditor = ({ selectedBank, section }) => {
   );
 };
 
-import { getAllBankConfig } from '../../services/bankConfigService';
+import { getAllBankConfig, getBankConfig } from '../../services/bankConfigService';
 
-// Updated AllConfigSection to show actual values
-const AllConfigSection = ({ bank }) => {
-  const config = getAllBankConfig(bank.name);
+// Updated AllConfigSection to show actual values based on location
+const AllConfigSection = ({ bank, activeLocation }) => {
+  const context = { state: activeLocation.state, city: activeLocation.city };
 
   const getDisplayValue = (section, key, subKey = null) => {
-    if (!config[section]) return 'Not Configured';
-    let val = config[section][key];
+    const sectionConfig = getBankConfig(bank.name, section, context);
+    if (!sectionConfig) return 'Not Configured';
+    let val = sectionConfig[key];
     if (subKey && val) val = val[subKey];
     return val !== undefined ? val : 'N/A';
+  };
+
+  const config = {
+    multiplierRules: getBankConfig(bank.name, 'multiplierRules', context),
+    foirSettings: getBankConfig(bank.name, 'foirSettings', context),
+    btConfiguration: getBankConfig(bank.name, 'btConfiguration', context),
   };
 
   return (
     <div className="config-section">
       <div className="section-header-summary">
         <h2>Unified Policy Framework: {bank.name}</h2>
-        <p>Comprehensive governance overview of active institutional parameters</p>
+        <p>Viewing parameters for: <strong>{activeLocation.city || activeLocation.state || 'All India (National)'}</strong></p>
       </div>
 
       <div className="config-overview">
@@ -139,30 +146,30 @@ const AllConfigSection = ({ bank }) => {
   );
 };
 
-const CategoriesSection = ({ bank }) => <CategoriesEditor bank={bank} onSave={(config) => console.log('Categories saved:', config)} />;
+const CategoriesSection = ({ bank, activeLocation }) => <CategoriesEditor bank={bank} activeLocation={activeLocation} onSave={(config) => console.log('Categories saved:', config)} />;
 
-const InterestSection = ({ bank }) => <InterestRateEditor bank={bank} onSave={(config) => console.log('Saved:', config)} />;
+const InterestSection = ({ bank, activeLocation }) => <InterestRateEditor bank={bank} activeLocation={activeLocation} onSave={(config) => console.log('Saved:', config)} />;
 
-const LoanCappingSection = ({ bank }) => <LoanCappingEditor bank={bank} onSave={(config) => console.log('Capping saved:', config)} />;
+const LoanCappingSection = ({ bank, activeLocation }) => <LoanCappingEditor bank={bank} activeLocation={activeLocation} onSave={(config) => console.log('Capping saved:', config)} />;
 
-const AgeRulesSection = ({ bank }) => <AgeRulesEditor bank={bank} onSave={(config) => console.log('Age rules saved:', config)} />;
+const AgeRulesSection = ({ bank, activeLocation }) => <AgeRulesEditor bank={bank} activeLocation={activeLocation} onSave={(config) => console.log('Age rules saved:', config)} />;
 
-const TenureRulesSection = ({ bank }) => <TenureRulesEditor bank={bank} onSave={(config) => console.log('Tenure saved:', config)} />;
+const TenureRulesSection = ({ bank, activeLocation }) => <TenureRulesEditor bank={bank} activeLocation={activeLocation} onSave={(config) => console.log('Tenure saved:', config)} />;
 
-const FoirSection = ({ bank }) => <FoirEditor bank={bank} onSave={(config) => console.log('FOIR saved:', config)} />;
+const FoirSection = ({ bank, activeLocation }) => <FoirEditor bank={bank} activeLocation={activeLocation} onSave={(config) => console.log('FOIR saved:', config)} />;
 
-const MultiplierSection = ({ bank }) => <MultiplierEditor bank={bank} onSave={(config) => console.log('Multiplier saved:', config)} />;
+const MultiplierSection = ({ bank, activeLocation }) => <MultiplierEditor bank={bank} activeLocation={activeLocation} onSave={(config) => console.log('Multiplier saved:', config)} />;
 
-const BTSection = ({ bank }) => <BTEditor bank={bank} onSave={(config) => console.log('BT saved:', config)} />;
+const BTSection = ({ bank, activeLocation }) => <BTEditor bank={bank} activeLocation={activeLocation} onSave={(config) => console.log('BT saved:', config)} />;
 
-const CreditScoreSection = ({ bank }) => <CreditScoreEditor bank={bank} onSave={(config) => console.log('Credit score saved:', config)} />;
+const CreditScoreSection = ({ bank, activeLocation }) => <CreditScoreEditor bank={bank} activeLocation={activeLocation} onSave={(config) => console.log('Credit score saved:', config)} />;
 
-const EmploymentSection = ({ bank }) => <EmploymentEditor bank={bank} onSave={(config) => console.log('Employment saved:', config)} />;
+const EmploymentSection = ({ bank, activeLocation }) => <EmploymentEditor bank={bank} activeLocation={activeLocation} onSave={(config) => console.log('Employment saved:', config)} />;
 
-const DocumentsSection = ({ bank }) => <DocumentsEditor bank={bank} onSave={(config) => console.log('Documents saved:', config)} />;
+const DocumentsSection = ({ bank, activeLocation }) => <DocumentsEditor bank={bank} activeLocation={activeLocation} onSave={(config) => console.log('Documents saved:', config)} />;
 
-const SpecialRulesSection = ({ bank }) => <SpecialRulesEditor bank={bank} onSave={(config) => console.log('Special rules saved:', config)} />;
+const SpecialRulesSection = ({ bank, activeLocation }) => <SpecialRulesEditor bank={bank} activeLocation={activeLocation} onSave={(config) => console.log('Special rules saved:', config)} />;
 
-const FeesSection = ({ bank }) => <FeesEditor bank={bank} onSave={(config) => console.log('Fees saved:', config)} />;
+const FeesSection = ({ bank, activeLocation }) => <FeesEditor bank={bank} activeLocation={activeLocation} onSave={(config) => console.log('Fees saved:', config)} />;
 
 export default BankConfigEditor;
