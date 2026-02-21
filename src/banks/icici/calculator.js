@@ -69,6 +69,41 @@ const getFoirPercentage = (salary) => {
   return null;
 };
 
+// Helper function to get interest rate based on category and loan amount
+const getInterestRateForLoan = (category, loanAmount, userData = {}) => {
+  const rateConfig = getBankConfig('Kotak Mahindra Bank', 'interestRates', { state: userData.state, city: userData.city });
+
+  console.log('🔍 Rate Config:', rateConfig);
+
+  if (!rateConfig || !rateConfig.categorySlabRates || !rateConfig.categorySlabRates[category]) {
+    console.log('⚠️ No rate config found, using default:', kotakConfig.interestRate);
+    return kotakConfig.interestRate;
+  }
+
+  const slabs = rateConfig.categorySlabRates[category];
+
+  console.log(`📊 Loan: ₹${loanAmount}, Category: ${category}`);
+  console.log('📋 Available slabs:', Object.keys(slabs));
+
+  // Find matching slab by parsing rupee ranges (e.g., "₹100000-500000")
+  for (const slabLabel in slabs) {
+    // Extract min and max from label like "₹100000-500000"
+    const match = slabLabel.match(/₹(\d+)-(\d+)/);
+    if (match) {
+      const min = parseInt(match[1]);
+      const max = parseInt(match[2]);
+
+      if (loanAmount >= min && loanAmount <= max) {
+        console.log(`✅ Matched slab: ${slabLabel} (₹${min}-₹${max}) = ${slabs[slabLabel]}%`);
+        return slabs[slabLabel];
+      }
+    }
+  }
+
+  console.log('⚠️ No matching slab, using default');
+  return kotakConfig.interestRate;
+};
+
 // ICICI Bank specific eligibility calculation (FOIR only)
 export const calculateIciciEligibility = (userData) => {
   const {
@@ -120,7 +155,7 @@ export const calculateIciciEligibility = (userData) => {
     }
   }
 
-  const ageConfig = getBankConfig('ICICI Bank', 'ageRules');
+  const ageConfig = getBankConfig('ICICI Bank', 'ageRules', { state: userData.state, city: userData.city });
   const minAge = ageConfig ? ageConfig.minAge : iciciConfig.minAge;
   const maxAge = ageConfig ? ageConfig.maxAge : iciciConfig.maxAge;
 
@@ -131,7 +166,8 @@ export const calculateIciciEligibility = (userData) => {
     };
   }
 
-  const effectiveInterestRate = interestRate || iciciConfig.interestRate;
+  // Use user-provided interest rate or calculate based on category
+  const effectiveInterestRate = interestRate || getInterestRateForLoan(category || 'B', userData);
 
   if (!iciciConfig.employmentTypes.includes(employmentType)) {
     return {
@@ -154,7 +190,7 @@ export const calculateIciciEligibility = (userData) => {
   const requestedTenureMonths = loanTenure * 12;
   const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
 
-  const salConfig = getBankConfig('ICICI Bank', 'employmentRules');
+  const salConfig = getBankConfig('ICICI Bank', 'employmentRules', { state: userData.state, city: userData.city });
   const catMinSalary = iciciConfig.minSalary[companyCategory];
   const effectiveMinSalary = salConfig ? salConfig.salariedMinSalary : catMinSalary;
 
@@ -167,7 +203,7 @@ export const calculateIciciEligibility = (userData) => {
     };
   }
 
-  const cappingConfig = getBankConfig('ICICI Bank', 'loanCapping');
+  const cappingConfig = getBankConfig('ICICI Bank', 'loanCapping', { state: userData.state, city: userData.city });
   const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : iciciConfig.maxLoanAmount;
   const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : 100000;
 
