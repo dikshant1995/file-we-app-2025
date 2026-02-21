@@ -97,7 +97,7 @@ const LeadManager = () => {
 
             <div className="lead-controls glass-panel">
                 <div className="search-box">
-                    <Search size={18} className="search-icon" />
+                    <Search size={18} color="#ffffff" strokeWidth={2.5} className="search-icon" />
                     <input
                         type="text"
                         placeholder="Search by name, mobile or company..."
@@ -154,17 +154,17 @@ const LeadManager = () => {
                                             title="Share on WhatsApp"
                                             onClick={() => handleWhatsAppShare(lead)}
                                         >
-                                            <MessageCircle size={18} />
+                                            <MessageCircle size={20} color="#ffffff" strokeWidth={2.5} />
                                         </button>
                                         <button
                                             className="action-btn mail"
                                             title="Share via Email"
                                             onClick={() => handleEmailShare(lead)}
                                         >
-                                            <Mail size={16} />
+                                            <Mail size={18} color="#ffffff" strokeWidth={2.5} />
                                         </button>
                                         <button className="action-btn share" title="Copy Details">
-                                            <Share2 size={16} />
+                                            <Share2 size={18} color="#ffffff" strokeWidth={2.5} />
                                         </button>
                                     </div>
                                 </td>
