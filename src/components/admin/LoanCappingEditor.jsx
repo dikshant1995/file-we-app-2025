@@ -51,18 +51,12 @@ const LoanCappingEditor = ({ bank, onSave }) => {
   };
 
   const handleRemoveLocation = (loc) => {
-    const newOverrides = { ...locationOverrides };
-    delete newOverrides[loc];
-
-    // Save the removal by updating the bank config
-    const fullConfig = getAllBankConfig(bank.name);
-    if (fullConfig.locationOverrides?.loanCapping) {
-      delete fullConfig.locationOverrides.loanCapping[loc];
-      saveBankConfig(bank.name, 'locationOverrides', fullConfig.locationOverrides);
+    if (removeBankOverride(bank.name, 'loanCapping', loc)) {
+      const newOverrides = { ...locationOverrides };
+      delete newOverrides[loc];
+      setLocationOverrides(newOverrides);
+      if (activeLocation === loc) setActiveLocation(null);
     }
-
-    setLocationOverrides(newOverrides);
-    if (activeLocation === loc) setActiveLocation(null);
   };
 
   return (
