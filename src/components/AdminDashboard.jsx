@@ -6,14 +6,16 @@ import Analytics from './admin/Analytics';
 import ImportExport from './admin/ImportExport';
 import AuditLog from './admin/AuditLog';
 import AddBankModal from './admin/AddBankModal';
+import LeadManager from './admin/LeadManager';
 
 const AdminDashboard = ({ onBackToCustomer }) => {
-  const [activeMenu, setActiveMenu] = useState('banks');
+  const [activeMenu, setActiveMenu] = useState('leads');
   const [selectedBank, setSelectedBank] = useState(null);
   const [showAddBankModal, setShowAddBankModal] = useState(false);
   const [customBanks, setCustomBanks] = useState([]);
 
   const menuItems = [
+    { id: 'leads', icon: '', label: 'Customer Lead Pipeline', component: 'LeadManager' },
     { id: 'banks', icon: '', label: 'Institutional Overview', component: 'BankList' },
     { id: 'config', icon: '', label: 'Policy Configuration', component: 'BankConfigEditor' },
     { id: 'categories', icon: '', label: 'Categorization Models', component: 'BankConfigEditor', section: 'categories' },
@@ -47,6 +49,8 @@ const AdminDashboard = ({ onBackToCustomer }) => {
           }}
           onAddBank={() => setShowAddBankModal(true)}
         />;
+      case 'LeadManager':
+        return <LeadManager />;
       case 'BankConfigEditor':
         return <BankConfigEditor selectedBank={selectedBank} section={activeItem.section} />;
       case 'Analytics':
