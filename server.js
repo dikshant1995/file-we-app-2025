@@ -11,7 +11,6 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // 🛡️ INTERNAL SECURITY CONFIGURATION
-// This data is only accessible on the server and is NEVER sent to the browser.
 const SECURE_CONFIG = {
   ADMIN_ID: 'admin',
   ADMIN_PASSWORD: 'admin123',
@@ -36,7 +35,6 @@ app.post('/api/admin/login', (req, res) => {
 });
 
 // 🛡️ SECURE LEAD PROXY ENDPOINT
-// This prevents the Google Sheets URL from being exposed in the browser
 app.post('/api/leads/save', async (req, res) => {
   try {
     const response = await fetch(SECURE_CONFIG.APPS_SCRIPT_URL, {
@@ -47,16 +45,16 @@ app.post('/api/leads/save', async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     console.error('Proxy Error:', error);
-    res.status(500).json({ success: false, error: 'Failed to reach storage' });
+    res.status(500).json({ success: false, error: 'Failed' });
   }
 });
 
-// Catch-all handler: send back React's index.html file for any non-API routes
+// Catch-all handler: send back React's index.html
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist/index.html'));
 });
 
-// Start the server (Vercel compatible)
+// Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
