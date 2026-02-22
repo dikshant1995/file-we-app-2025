@@ -7,8 +7,6 @@ import AdminDashboard from './components/AdminDashboard';
 import BlogHome from './components/BlogHome';
 import BlogArticle from './components/BlogArticle';
 import Navbar from './components/Navbar';
-import { calculateLoanEligibility } from './services/realLoanService';
-import { calculateBTWithCreditCards } from './services/btLoanService';
 import { saveLead } from './services/leadService';
 import './CustomerFacingApp.css';
 
@@ -31,49 +29,30 @@ function CustomerFacingApp() {
 
     try {
       console.log('='.repeat(80));
-      console.log('🚀 STARTING LOAN CALCULATION');
+      console.log('🚀 SENDING DATA TO SECURE BACKEND');
       console.log('='.repeat(80));
-      console.log('📋 Input Data:', formData);
-      console.log('⏱️  Start Time:', new Date().toLocaleTimeString());
+
       const startTime = performance.now();
 
-      let calculationResults;
+      // NEW: Call the backend API instead of local logic
+      const response = await fetch('/api/loan-eligibility', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
 
-      const hasLoansForBT = formData.wantsBT && formData.loansForBT && formData.loansForBT.length > 0;
-      const creditCardsInBT = hasLoansForBT ? formData.loansForBT.filter(loan => loan.type === 'Credit Card') : [];
-      const personalLoansInBT = hasLoansForBT ? formData.loansForBT.filter(loan => loan.type !== 'Credit Card') : [];
-
-      if (hasLoansForBT) {
-        console.log('🔄 BT MODE DETECTED!');
-        const existingLoans = personalLoansInBT.map(loan => ({
-          loanName: loan.lender || 'Loan',
-          emi: parseFloat(loan.monthlyEMI || 0),
-          pos: parseFloat(loan.outstandingAmount || 0)
-        }));
-        const creditCards = creditCardsInBT.map(card => ({
-          cardName: card.lender || 'Credit Card',
-          outstandingAmount: parseFloat(card.creditLimitUsed || 0)
-        }));
-        const btData = {
-          monthlyIncome: parseFloat(formData.monthlyIncome || 0),
-          loanTenure: parseInt(formData.loanTenure || 5),
-          category: formData.category || 'A',
-          companyName: formData.companyName || '',
-          creditScore: parseInt(formData.creditScore || 700),
-          employmentType: formData.employmentType || 'salaried',
-          existingLoans: existingLoans,
-          creditCards: creditCards
-        };
-        calculationResults = await calculateBTWithCreditCards(btData);
-      } else {
-        console.log('💰 REGULAR LOAN CALCULATION');
-        calculationResults = await calculateLoanEligibility(formData);
+      if (!response.ok) {
+        throw new Error('Backend server failed to process the request');
       }
+
+      const calculationResults = await response.json();
 
       const endTime = performance.now();
       const timeTaken = ((endTime - startTime) / 1000).toFixed(2);
-      console.log(`⏱️  TOTAL TIME TAKEN: ${timeTaken} seconds`);
-      console.log('📊 Results from', calculationResults.length, 'banks');
+      console.log(`⏱️  TOTAL ROUND-TRIP TIME: ${timeTaken} seconds`);
+      console.log('📊 Backend returned', calculationResults.length, 'bank results');
       console.log('='.repeat(80));
 
       setResults(calculationResults);
