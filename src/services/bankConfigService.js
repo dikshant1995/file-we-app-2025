@@ -81,12 +81,6 @@ const defaultConfigs = {
 // location can be a state name or city name for an override
 export const saveBankConfig = (bankName, sectionName, config, location = null) => {
   try {
-    // SSR Guard: Check if localStorage is available
-    if (typeof localStorage === 'undefined') {
-      console.log('🖥️ Server: localStorage not available, using defaults');
-      return true; // Pretend it saved successfully for server stability
-    }
-
     // Get all configs from localStorage
     const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
 
@@ -114,9 +108,7 @@ export const saveBankConfig = (bankName, sectionName, config, location = null) =
     }
 
     // Save back to localStorage
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(allConfigs));
-    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(allConfigs));
     return true;
   } catch (error) {
     console.error('Error saving bank config:', error);
@@ -128,8 +120,7 @@ export const saveBankConfig = (bankName, sectionName, config, location = null) =
 // locationContext: { state: string, city: string }
 export const getBankConfig = (bankName, sectionName, locationContext = {}) => {
   try {
-    const isBrowser = typeof localStorage !== 'undefined';
-    const allConfigs = isBrowser ? JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') : {};
+    const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
     const bankConfig = allConfigs[bankName] || defaultConfigs[bankName] || {};
 
     // 1. Check for Overrides (City > State)
@@ -183,7 +174,6 @@ export const getAllBankConfig = (bankName) => {
 // Reset to defaults
 export const resetBankConfig = (bankName) => {
   try {
-    if (typeof localStorage === 'undefined') return true;
     const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
     allConfigs[bankName] = { ...defaultConfigs[bankName] };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(allConfigs));
@@ -209,9 +199,7 @@ export const exportAllConfigs = () => {
 export const importConfigs = (jsonString) => {
   try {
     const configs = JSON.parse(jsonString);
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(configs));
-    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(configs));
     return true;
   } catch (error) {
     console.error('Error importing configs:', error);
