@@ -7,7 +7,10 @@ import AdminDashboard from './components/AdminDashboard';
 import BlogHome from './components/BlogHome';
 import BlogArticle from './components/BlogArticle';
 import Navbar from './components/Navbar';
-import { saveLead } from './services/leadService';
+import {
+  calculateLoanEligibility,
+  saveLead
+} from './services';
 import './CustomerFacingApp.css';
 
 function CustomerFacingApp() {
@@ -29,36 +32,24 @@ function CustomerFacingApp() {
 
     try {
       console.log('='.repeat(80));
-      console.log('🚀 SENDING DATA TO SECURE BACKEND');
+      console.log('🚀 INITIALIZING EXHAUSTIVE LOAN CALCULATION');
       console.log('='.repeat(80));
 
       const startTime = performance.now();
 
-      // NEW: Call the backend API instead of local logic
-      const response = await fetch('/api/loan-eligibility', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
-
-      if (!response.ok) {
-        throw new Error('Backend server failed to process the request');
-      }
-
-      const calculationResults = await response.json();
+      // Calculation Engine (Standard and BT combined)
+      const calculationResults = calculateLoanEligibility(formData);
 
       const endTime = performance.now();
       const timeTaken = ((endTime - startTime) / 1000).toFixed(2);
-      console.log(`⏱️  TOTAL ROUND-TRIP TIME: ${timeTaken} seconds`);
-      console.log('📊 Backend returned', calculationResults.length, 'bank results');
+      console.log(`⏱️  TOTAL ENGINE EXECUTION: ${timeTaken} seconds`);
+      console.log('📊 Analyzed', calculationResults.length, 'bank results');
       console.log('='.repeat(80));
 
       setResults(calculationResults);
       setMetadata(formData._metadata);
 
-      // 🔴 Save lead to Google Sheets (silent, non-blocking)
+      // 🔴 Save lead to Google Sheets (silent, non-blocking via proxy)
       saveLead(lastFormDataRef.current || {}, formData);
 
       setTimeout(() => {
