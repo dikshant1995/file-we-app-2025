@@ -8,6 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
+const PORT = process.env.PORT || 5000;
 
 // 🛡️ INTERNAL SECURITY CONFIGURATION
 // This data is only accessible on the server and is NEVER sent to the browser.
@@ -55,6 +56,9 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist/index.html'));
 });
 
-// IMPORTANT: Do not call app.listen() here for Vercel. 
-// Vercel handles the listener for the exported app.
+// Start the server (Vercel compatible)
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
 export default app;
