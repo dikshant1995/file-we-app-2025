@@ -154,14 +154,14 @@ const LeadManager = () => {
                                             title="Share on WhatsApp"
                                             onClick={() => handleWhatsAppShare(lead)}
                                         >
-                                            <MessageCircle size={20} color="#ffffff" strokeWidth={2.5} />
+                                            <MessageCircle size={20} strokeWidth={2.5} />
                                         </button>
                                         <button
                                             className="action-btn mail"
                                             title="Share via Email"
                                             onClick={() => handleEmailShare(lead)}
                                         >
-                                            <Mail size={18} color="#ffffff" strokeWidth={2.5} />
+                                            <Mail size={18} strokeWidth={2.5} />
                                         </button>
                                         <button className="action-btn share" title="Copy Details">
                                             <Share2 size={18} color="#ffffff" strokeWidth={2.5} />
