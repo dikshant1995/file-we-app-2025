@@ -37,9 +37,7 @@ import {
 } from 'lucide-react';
 
 const AdminDashboard = ({ onBackToCustomer }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return localStorage.getItem('admin_authenticated') === 'true';
-  });
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeMenu, setActiveMenu] = useState('leads');
   const [selectedBank, setSelectedBank] = useState(null);
   const [showAddBankModal, setShowAddBankModal] = useState(false);
@@ -109,12 +107,10 @@ const AdminDashboard = ({ onBackToCustomer }) => {
 
   const handleLogin = () => {
     setIsAuthenticated(true);
-    localStorage.setItem('admin_authenticated', 'true');
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
-    localStorage.removeItem('admin_authenticated');
   };
 
   if (!isAuthenticated) {
