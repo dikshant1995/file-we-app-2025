@@ -19,10 +19,10 @@ function App() {
     setUserData(data);
     setLoading(true);
     setError(null);
-    
+
     try {
       let loanResults;
-      
+
       // Check if it's a BT calculation
       if (data.calculationType === 'bt') {
         // Prepare BT data
@@ -43,24 +43,24 @@ function App() {
             outstandingAmount: card.outstandingAmount ? parseFloat(card.outstandingAmount) : 0
           }))
         };
-        
+
         // DEBUG: Log the BT data
         console.log('🔍 BT CALCULATION DATA:');
         console.log('  Existing Loans:', btData.existingLoans);
         console.log('  Credit Cards:', btData.creditCards);
         console.log('  Total Loan POS:', btData.existingLoans.reduce((sum, l) => sum + l.pos, 0));
         console.log('  Total CC Outstanding:', btData.creditCards.reduce((sum, c) => sum + c.outstandingAmount, 0));
-        console.log('  TOTAL DEBT:', 
-          btData.existingLoans.reduce((sum, l) => sum + l.pos, 0) + 
+        console.log('  TOTAL DEBT:',
+          btData.existingLoans.reduce((sum, l) => sum + l.pos, 0) +
           btData.creditCards.reduce((sum, c) => sum + c.outstandingAmount, 0)
         );
-        
+
         loanResults = await calculateBTWithCreditCards(btData);
       } else {
         // Regular loan calculation
         loanResults = await calculateLoanEligibility(data);
       }
-      
+
       setResults(loanResults);
     } catch (err) {
       setError('Failed to calculate loan eligibility. Please try again. Error: ' + err.message);
@@ -87,7 +87,7 @@ function App() {
             <h1>🏦 Loan Eligibility Tool</h1>
             <p>Compare loan offers across 12 banks with real calculation rules</p>
             <p className="feature-highlight">✨ Now with Balance Transfer (BT) - Consolidate loans & get fresh funds!</p>
-            <button 
+            <button
               onClick={() => setShowAdminDashboard(true)}
               style={{
                 position: 'absolute',
@@ -105,18 +105,18 @@ function App() {
               ⚙️ Admin Dashboard
             </button>
           </header>
-          
+
           <main>
             <UserInputForm onSubmit={handleFormSubmit} onReset={handleReset} />
-            
+
             {loading && (
               <div className="loading">
                 ⏳ Calculating {userData?.calculationType === 'bt' ? 'BT offers' : 'offers'} from 12 banks...
               </div>
             )}
-            
+
             {error && <div className="error">{error}</div>}
-            
+
             {results.length > 0 && (
               userData?.calculationType === 'bt' ? (
                 <BTResultsDisplay results={results} onReset={handleReset} />
@@ -124,8 +124,8 @@ function App() {
                 <ResultsDisplay results={results} onReset={handleReset} />
               )
             )}
-            
-            {process.env.NODE_ENV === 'development' && (
+
+            {import.meta.env.DEV && (
               <DebugInfo userData={userData} results={results} />
             )}
           </main>
