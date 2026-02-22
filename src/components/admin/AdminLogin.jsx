@@ -7,22 +7,32 @@ const AdminLogin = ({ onLogin }) => {
     const [error, setError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
         setError('');
 
-        // Hardcoded credentials as requested
-        if (username === 'admin' && password === 'admin123') {
-            setTimeout(() => {
-                onLogin();
-                setIsSubmitting(false);
-            }, 800);
-        } else {
-            setTimeout(() => {
+        try {
+            const response = await fetch('/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                setTimeout(() => {
+                    onLogin();
+                    setIsSubmitting(false);
+                }, 800);
+            } else {
                 setError('Unauthorized: Invalid Institutional Credentials');
                 setIsSubmitting(false);
-            }, 500);
+            }
+        } catch (err) {
+            setError('Connection Error: Security service unreachable');
+            setIsSubmitting(false);
         }
     };
 
