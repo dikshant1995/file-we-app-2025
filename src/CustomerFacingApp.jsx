@@ -38,7 +38,7 @@ function CustomerFacingApp() {
       const startTime = performance.now();
 
       // Calculation Engine (Standard and BT combined)
-      const calculationResults = calculateLoanEligibility(formData);
+      const calculationResults = await calculateLoanEligibility(formData);
 
       const endTime = performance.now();
       const timeTaken = ((endTime - startTime) / 1000).toFixed(2);
