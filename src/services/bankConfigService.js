@@ -82,6 +82,9 @@ const defaultConfigs = {
 export const saveBankConfig = (bankName, sectionName, config, location = null) => {
   try {
     // Get all configs from localStorage
+    // SSR Guard
+    if (typeof localStorage === 'undefined') return defaultConfigs[bankName] || {};
+
     const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
 
     // Initialize bank config if doesn't exist
@@ -120,6 +123,9 @@ export const saveBankConfig = (bankName, sectionName, config, location = null) =
 // locationContext: { state: string, city: string }
 export const getBankConfig = (bankName, sectionName, locationContext = {}) => {
   try {
+    // SSR Guard
+    if (typeof localStorage === 'undefined') return defaultConfigs[bankName] || {};
+
     const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
     const bankConfig = allConfigs[bankName] || defaultConfigs[bankName] || {};
 
@@ -158,6 +164,9 @@ export const getBankConfig = (bankName, sectionName, locationContext = {}) => {
 // Get all configuration for a bank
 export const getAllBankConfig = (bankName) => {
   try {
+    // SSR Guard
+    if (typeof localStorage === 'undefined') return defaultConfigs[bankName] || {};
+
     const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
 
     if (allConfigs[bankName]) {
@@ -174,6 +183,9 @@ export const getAllBankConfig = (bankName) => {
 // Reset to defaults
 export const resetBankConfig = (bankName) => {
   try {
+    // SSR Guard
+    if (typeof localStorage === 'undefined') return defaultConfigs[bankName] || {};
+
     const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
     allConfigs[bankName] = { ...defaultConfigs[bankName] };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(allConfigs));
@@ -187,6 +199,9 @@ export const resetBankConfig = (bankName) => {
 // Export all configs (for backup)
 export const exportAllConfigs = () => {
   try {
+    // SSR Guard
+    if (typeof localStorage === 'undefined') return defaultConfigs[bankName] || {};
+
     const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
     return JSON.stringify(allConfigs, null, 2);
   } catch (error) {
