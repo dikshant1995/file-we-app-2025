@@ -9,11 +9,22 @@ export default defineConfig({
   },
   // Only build from main index.html, exclude test files
   build: {
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+      format: {
+        comments: false,
+      },
+    },
     rollupOptions: {
       input: {
         main: './index.html'
       }
-    }
+    },
+    cssMinify: true
   },
   // Optimize dependency scanning
   optimizeDeps: {
