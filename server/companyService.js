@@ -6,8 +6,8 @@ import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Path to the data directory (relative to this file in /server/companyService.js)
-const DATA_DIR = path.join(__dirname, '..', 'public', 'data');
+// Path to the data directory (relative to project root for Vercel/Local consistency)
+const DATA_DIR = path.join(process.cwd(), 'public', 'data');
 
 const bankDatabases = {
     'kotak': null,
