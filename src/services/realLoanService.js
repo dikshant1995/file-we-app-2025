@@ -127,7 +127,7 @@ export const calculateLoanEligibility = async (userData) => {
                   : name.toLowerCase().replace(/\s+/g, '').includes('icici') ? 'icici'
                     : name.toLowerCase().replace(/\s+/g, '').includes('chola') ? 'chola'
                       : name.toLowerCase().replace(/\s+/g, '').includes('indusind') ? 'indusind'
-                        : name.toLowerCase().replace(/\s+/g, '').includes('axis') ? 'axis-fin'
+                        : name.toLowerCase().replace(/\s+/g, '').includes('axis') ? 'axis_fin'
                           : null;
 
         if (bankDbKey && calculatorInput.companyName) {
