@@ -1,11 +1,18 @@
 /**
  * Central export file for all loan services
- * 
- * Note: Calculation engine and BT logic have been moved 
- * to the backend for maximum security.
  */
 
-// Lead Management Services (Proxied via backend)
+// Core Calculation Engine (Local version - High Speed)
+export {
+  calculateLoanEligibility
+} from './realLoanService.js';
+
+// Balance Transfer Engine (Local version - High Speed)
+export {
+  calculateBTWithCreditCards
+} from './btLoanService.js';
+
+// Lead Management Services (Proxied via backend for security)
 export {
   saveLead,
   saveSelectedBanks
