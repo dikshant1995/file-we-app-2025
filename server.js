@@ -4,9 +4,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
-// 🛡️ IMPORT 5-LAYER PROCESSING FEE GUARD
-import { protectAgainstProcessingFee } from './src/utils/processingFeeGuard.js';
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -27,39 +24,6 @@ app.use(express.json());
 
 // Serve static files from the React app build directory
 app.use(express.static(path.join(__dirname, 'dist')));
-
-// Import bank configurations
-import { allBankConfigs } from './src/banks/index.js';
-import { calculateServerLoanEligibility } from './server/loanEngine.js';
-
-// ... (calculateEMI, multipliers, etc. are now handled by loanEngine and calculators)
-
-// API Routes
-app.get('/api/banks', (req, res) => {
-  const bankList = allBankConfigs.map(bank => ({
-    id: bank.id,
-    name: bank.name
-  }));
-  res.json(bankList);
-});
-
-app.post('/api/loan-eligibility', async (req, res) => {
-  try {
-    const userData = req.body;
-    console.log('🏛️  Server: Starting exhaustive loan calculation for:', userData.companyName);
-
-    // Call the exhaustive backend engine
-    const results = await calculateServerLoanEligibility(userData);
-
-    // 🛡️ APPLY 5-LAYER PROTECTION AGAINST PROCESSING FEES
-    const protectedResults = protectAgainstProcessingFee(results, 'server-api');
-
-    res.json(protectedResults);
-  } catch (error) {
-    console.error('❌ Server Calculation Error:', error);
-    res.status(500).json({ error: 'Failed to calculate eligibility' });
-  }
-});
 
 // 🛡️ SECURE ADMIN LOGIN ENDPOINT
 app.post('/api/admin/login', (req, res) => {
@@ -92,7 +56,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist/index.html'));
 });
 
-// Conditionally listen if not running on Vercel (Serverless environments don't need app.listen)
+// Conditionally listen if not running on Vercel
 if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
