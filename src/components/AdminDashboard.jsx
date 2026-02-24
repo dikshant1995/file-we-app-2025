@@ -49,6 +49,7 @@ const AdminDashboard = ({ onBackToCustomer }) => {
 
   const menuItems = [
     { id: 'leads', icon: <Users size={18} />, label: 'Customer Lead Pipeline', component: 'LeadManager' },
+    { id: 'blogs', icon: <FileText size={18} />, label: 'Financial Hub (Blogs)', component: 'BlogManager' },
     { id: 'banks', icon: <Database size={18} />, label: 'Institutional Overview', component: 'BankList' },
     { id: 'config', icon: <Settings size={18} />, label: 'Policy Configuration', component: 'BankConfigEditor' },
     { id: 'categories', icon: <Layers size={18} />, label: 'Categorization Models', component: 'BankConfigEditor', section: 'categories' },
@@ -66,7 +67,6 @@ const AdminDashboard = ({ onBackToCustomer }) => {
     { id: 'fees', icon: <Percent size={18} />, label: 'Fee Schedules', component: 'BankConfigEditor', section: 'fees' },
     { id: 'analytics', icon: <BarChart3 size={18} />, label: 'Performance Analytics', component: 'Analytics' },
     { id: 'import-export', icon: <ArrowLeftRight size={18} />, label: 'Data Migration', component: 'ImportExport' },
-    { id: 'blogs', icon: <FileText size={18} />, label: 'Financial Hub (Blogs)', component: 'BlogManager' },
     { id: 'audit', icon: <History size={18} />, label: 'Governance Logs', component: 'AuditLog' }
   ];
 
