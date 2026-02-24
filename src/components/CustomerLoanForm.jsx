@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import './CustomerLoanForm.css';
 import { loadUniversalCompanies, getCompanySuggestions, initializeBankDatabases } from '../services/companyDatabaseService';
-import { indianStates, stateCityData } from '../data/locationData';
 
 const CustomerLoanForm = ({ onSubmit, loading }) => {
   const [formData, setFormData] = useState({
@@ -16,9 +15,6 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
     category: 'B', // Default to Category B
     employmentType: 'salaried',
     companyName: '',
-    // NEW: Mandatory Location
-    state: '',
-    city: '',
     hasExistingLoans: false,
     existingLoans: [],
     // NEW: Balance Transfer options
@@ -27,13 +23,13 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
   });
 
   const [companySuggestions, setCompanySuggestions] = useState([]);
-  const [citySuggestions, setCitySuggestions] = useState([]);
 
-  // Load universal company list on mount for autocomplete
+  // Load company databases on mount
   useEffect(() => {
     const loadDatabases = async () => {
       await loadUniversalCompanies();
-      console.log('✅ Universal Search Engine Ready');
+      await initializeBankDatabases();
+      console.log('✅ Company databases ready');
     };
     loadDatabases();
   }, []);
@@ -55,25 +51,6 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
       const suggestions = getCompanySuggestions(value);
       console.log('🔍 Autocomplete for:', value, '| Suggestions:', suggestions);
       setCompanySuggestions(suggestions);
-    }
-
-    // Handle Location logic
-    if (name === 'state') {
-      // If state changes, clear existing city and suggestions
-      setFormData(prev => ({ ...prev, state: value, city: '' }));
-      setCitySuggestions([]);
-      return;
-    }
-
-    if (name === 'city') {
-      // Filter cities from the selected state
-      if (formData.state && stateCityData[formData.state]) {
-        const query = value.toLowerCase();
-        const suggestions = stateCityData[formData.state].filter(c =>
-          c.toLowerCase().includes(query)
-        );
-        setCitySuggestions(suggestions);
-      }
     }
 
     setFormData(prev => ({
@@ -171,19 +148,6 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
       document.getElementById('mobileNumber')?.focus();
       return;
     }
-
-    // ── Guard: Location required ───────────────────────────────────────────
-    if (!formData.state) {
-      setValidationError('Please select your residential State.');
-      document.getElementById('state')?.focus();
-      return;
-    }
-    if (!formData.city.trim()) {
-      setValidationError('Please select or enter your City.');
-      document.getElementById('city')?.focus();
-      return;
-    }
-    // ───────────────────────────────────────────────────────────────────────
     // ───────────────────────────────────────────────────────────────────────
 
     // Parse data EXACTLY as backend expects
@@ -243,8 +207,6 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
       existingEMI: totalExistingEMI,
       creditCardObligation: totalCreditCardObligation, // NEW: 5% of non-BT credit card balances
       existingLoanBanks: existingLoanBanks, // NEW: List of banks where customer has existing personal loans
-      state: formData.state,
-      city: formData.city,
       // NEW: Balance Transfer data
       wantsBT: formData.wantsBT,
       selectedLoansForBT: formData.wantsBT ? formData.selectedLoansForBT : [],
@@ -334,60 +296,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
               </small>
             )}
           </div>
-        </div>
 
-        {/* Location Selection */}
-        <div className="form-row-two" style={{ marginTop: '20px' }}>
-          <div className="form-group">
-            <label htmlFor="state">
-              Residential State <span className="required">*</span>
-            </label>
-            <select
-              id="state"
-              name="state"
-              value={formData.state}
-              onChange={handleInputChange}
-              required
-              className="location-select"
-            >
-              <option value="">-- Select State --</option>
-              {indianStates.map(state => (
-                <option key={state} value={state}>{state}</option>
-              ))}
-            </select>
-          </div>
-          <div className="form-group">
-            <label htmlFor="city">
-              Current City <span className="required">*</span>
-            </label>
-            <input
-              type="text"
-              id="city"
-              name="city"
-              value={formData.city}
-              onChange={handleInputChange}
-              placeholder={formData.state ? "Type your city..." : "Select state first"}
-              required
-              autoComplete="off"
-              disabled={!formData.state}
-            />
-            {citySuggestions.length > 0 && (
-              <div className="autocomplete-dropdown city-dropdown">
-                {citySuggestions.map((city, idx) => (
-                  <div
-                    key={idx}
-                    className="autocomplete-item"
-                    onMouseDown={() => {
-                      setFormData(prev => ({ ...prev, city: city }));
-                      setCitySuggestions([]);
-                    }}
-                  >
-                    {city}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
         </div>
       </div>
 
@@ -886,18 +795,6 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
                       .reduce((sum, loan) => sum + (parseFloat(loan.monthlyEMI) || 0), 0)
                       .toLocaleString('en-IN')}
                   </div>
-                  <div style={{ marginTop: '5px', fontSize: '0.9em' }}>
-                    <strong>Total Outstanding to Transfer:</strong> ₹{formData.existingLoans
-                      .filter(loan => formData.selectedLoansForBT.includes(loan.id))
-                      .reduce((sum, loan) => sum + (parseFloat(loan.outstandingAmount) || 0), 0)
-                      .toLocaleString('en-IN')}
-                  </div>
-                </div>
-              )}
-
-              {formData.selectedLoansForBT.length === 0 && (
-                <div style={{ marginTop: '15px', padding: '12px', background: '#fff3cd', borderRadius: '6px', fontSize: '0.9em', color: '#856404' }}>
-                  ⚠️ Please select at least one loan for Balance Transfer
                 </div>
               )}
             </div>
@@ -906,25 +803,10 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
       )}
 
       {/* Submit Button */}
-      <div className="form-actions">
-        <button
-          type="submit"
-          className="btn-submit"
-          disabled={loading}
-        >
-          {loading ? 'Processing Analysis...' : 'Generate Eligibility Report'}
+      <div className="form-submit">
+        <button type="submit" className="btn-submit" disabled={loading}>
+          {loading ? 'Processing Analysis...' : 'Generate Institutional Report'}
         </button>
-      </div>
-
-      {/* Information Note */}
-      <div className="form-note">
-        <p><strong>Note:</strong></p>
-        <ul>
-          <li>Fixed 11% interest rate calculation across all institutions</li>
-          <li>Optimized loan tenure based on specific banking algorithms</li>
-          <li>Maximum eligibility limit assessment in real-time</li>
-          <li>Comprehensive multi-bank comparison reports</li>
-        </ul>
       </div>
     </form>
   );
