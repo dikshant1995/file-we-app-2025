@@ -4,11 +4,12 @@ import './LeadManager.css';
 
 const LeadManager = () => {
     const [searchTerm, setSearchTerm] = useState('');
+    const [leads, setLeads] = useState([]);
 
-    // Mock data based on the structure in leadService.js
+    // Initial mock data to keep UI populated
     const mockLeads = [
         {
-            id: 1,
+            id: 'm1',
             timestamp: '21/02/2026, 17:05:12',
             name: 'Vikram Singh',
             mobile: '9876543210',
@@ -19,7 +20,7 @@ const LeadManager = () => {
             status: 'New'
         },
         {
-            id: 2,
+            id: 'm2',
             timestamp: '21/02/2026, 16:42:05',
             name: 'Anjali Sharma',
             mobile: '9988776655',
@@ -30,7 +31,7 @@ const LeadManager = () => {
             status: 'Contacted'
         },
         {
-            id: 3,
+            id: 'm3',
             timestamp: '21/02/2026, 15:20:11',
             name: 'Rahul Verma',
             mobile: '9122334455',
@@ -42,10 +43,24 @@ const LeadManager = () => {
         }
     ];
 
-    const filteredLeads = mockLeads.filter(lead =>
-        lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.mobile.includes(searchTerm) ||
-        lead.company.toLowerCase().includes(searchTerm.toLowerCase())
+    // Load Leads from Persistence
+    React.useEffect(() => {
+        const loadLeads = () => {
+            const localLeads = JSON.parse(localStorage.getItem('laxmi_leads') || '[]');
+            // Merge: Local leads first (newest), then mock leads
+            setLeads([...localLeads, ...mockLeads]);
+        };
+        loadLeads();
+
+        // Listen for storage changes in other tabs
+        window.addEventListener('storage', loadLeads);
+        return () => window.removeEventListener('storage', loadLeads);
+    }, []);
+
+    const filteredLeads = leads.filter(lead =>
+        (lead.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (lead.mobile || '').includes(searchTerm) ||
+        (lead.company || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const handleDownloadCSV = () => {
@@ -108,8 +123,7 @@ const LeadManager = () => {
                 <div className="lead-stats">
                     <div className="stat-item">
                         <span className="stat-label">Total Leads</span>
-                        <span className="stat-label">Total Leads</span>
-                        <span className="stat-value">{mockLeads.length}</span>
+                        <span className="stat-value">{leads.length}</span>
                     </div>
                 </div>
             </div>
@@ -141,8 +155,8 @@ const LeadManager = () => {
                                 </td>
                                 <td>
                                     <div className="lead-banks">
-                                        {lead.selectedBanks.split(',').map(bank => (
-                                            <span key={bank} className="bank-tag">{bank.trim()}</span>
+                                        {(lead.selectedBanks || '').split(',').map(bank => (
+                                            bank.trim() && <span key={bank} className="bank-tag">{bank.trim()}</span>
                                         ))}
                                     </div>
                                     <div className="lead-emi">Existing EMI: ₹{lead.existingEMI}</div>
@@ -154,14 +168,14 @@ const LeadManager = () => {
                                             title="Share on WhatsApp"
                                             onClick={() => handleWhatsAppShare(lead)}
                                         >
-                                            <MessageCircle size={20} strokeWidth={2.5} />
+                                            <MessageCircle size={20} color="#ffffff" strokeWidth={2.5} />
                                         </button>
                                         <button
                                             className="action-btn mail"
                                             title="Share via Email"
                                             onClick={() => handleEmailShare(lead)}
                                         >
-                                            <Mail size={18} strokeWidth={2.5} />
+                                            <Mail size={18} color="#ffffff" strokeWidth={2.5} />
                                         </button>
                                         <button className="action-btn share" title="Copy Details">
                                             <Share2 size={18} color="#ffffff" strokeWidth={2.5} />
