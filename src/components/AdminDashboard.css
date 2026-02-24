@@ -1,8 +1,3 @@
-/* ============================================================
-   ADMIN DASHBOARD — PROFESSIONAL AI THEME
-   Matches the landing page aesthetic
-   ============================================================ */
-
 .admin-dashboard {
   display: flex;
   flex-direction: column;
@@ -139,6 +134,8 @@
   padding: 32px 16px;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  max-height: calc(100vh - 80px);
 }
 
 .dashboard-sidebar h3 {
