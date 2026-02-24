@@ -7,6 +7,7 @@ import ImportExport from './admin/ImportExport';
 import AuditLog from './admin/AuditLog';
 import AddBankModal from './admin/AddBankModal';
 import LeadManager from './admin/LeadManager';
+import BlogManager from './admin/BlogManager';
 import AdminLocationSelector from './admin/AdminLocationSelector';
 import AdminLogin from './admin/AdminLogin';
 import {
@@ -37,7 +38,9 @@ import {
 } from 'lucide-react';
 
 const AdminDashboard = ({ onBackToCustomer }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('admin_authenticated') === 'true';
+  });
   const [activeMenu, setActiveMenu] = useState('leads');
   const [selectedBank, setSelectedBank] = useState(null);
   const [showAddBankModal, setShowAddBankModal] = useState(false);
@@ -63,6 +66,7 @@ const AdminDashboard = ({ onBackToCustomer }) => {
     { id: 'fees', icon: <Percent size={18} />, label: 'Fee Schedules', component: 'BankConfigEditor', section: 'fees' },
     { id: 'analytics', icon: <BarChart3 size={18} />, label: 'Performance Analytics', component: 'Analytics' },
     { id: 'import-export', icon: <ArrowLeftRight size={18} />, label: 'Data Migration', component: 'ImportExport' },
+    { id: 'blogs', icon: <FileText size={18} />, label: 'Financial Hub (Blogs)', component: 'BlogManager' },
     { id: 'audit', icon: <History size={18} />, label: 'Governance Logs', component: 'AuditLog' }
   ];
 
@@ -93,6 +97,8 @@ const AdminDashboard = ({ onBackToCustomer }) => {
         return <Analytics />;
       case 'ImportExport':
         return <ImportExport />;
+      case 'BlogManager':
+        return <BlogManager />;
       case 'AuditLog':
         return <AuditLog />;
       default:
@@ -107,10 +113,12 @@ const AdminDashboard = ({ onBackToCustomer }) => {
 
   const handleLogin = () => {
     setIsAuthenticated(true);
+    localStorage.setItem('admin_authenticated', 'true');
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
+    localStorage.removeItem('admin_authenticated');
   };
 
   if (!isAuthenticated) {
