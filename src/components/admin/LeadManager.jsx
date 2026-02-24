@@ -5,69 +5,90 @@ import './LeadManager.css';
 const LeadManager = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [leads, setLeads] = useState([]);
+    const [selectedLeadIds, setSelectedLeadIds] = useState(new Set());
+    const [dateFilter, setDateFilter] = useState('all'); // 'today', '2days', 'week', 'month', '3months', '6months', 'all'
 
     // Initial mock data to keep UI populated
     const mockLeads = [
-        {
-            id: 'm1',
-            timestamp: '21/02/2026, 17:05:12',
-            name: 'Vikram Singh',
-            mobile: '9876543210',
-            company: 'Tata Consultancy Services',
-            totalIncome: 125000,
-            existingEMI: 15000,
-            selectedBanks: 'HDFC, ICICI, AXIS',
-            status: 'New'
-        },
-        {
-            id: 'm2',
-            timestamp: '21/02/2026, 16:42:05',
-            name: 'Anjali Sharma',
-            mobile: '9988776655',
-            company: 'Google India',
-            totalIncome: 210000,
-            existingEMI: 0,
-            selectedBanks: 'Standard Chartered, Kotak',
-            status: 'Contacted'
-        },
-        {
-            id: 'm3',
-            timestamp: '21/02/2026, 15:20:11',
-            name: 'Rahul Verma',
-            mobile: '9122334455',
-            company: 'Reliance Industries',
-            totalIncome: 85000,
-            existingEMI: 5000,
-            selectedBanks: 'HDFC, SBI',
-            status: 'Qualified'
-        }
+        { id: 'm1', timestamp: '21/02/2026, 17:05:12', name: 'Vikram Singh', mobile: '9876543210', company: 'Tata Consultancy Services', totalIncome: 125000, existingEMI: 15000, selectedBanks: 'HDFC, ICICI, AXIS', status: 'New' },
+        { id: 'm2', timestamp: '21/02/2026, 16:42:05', name: 'Anjali Sharma', mobile: '9988776655', company: 'Google India', totalIncome: 210000, existingEMI: 0, selectedBanks: 'Standard Chartered, Kotak', status: 'Contacted' },
+        { id: 'm3', timestamp: '21/02/2026, 15:20:11', name: 'Rahul Verma', mobile: '9122334455', company: 'Reliance Industries', totalIncome: 85000, existingEMI: 5000, selectedBanks: 'HDFC, SBI', status: 'Qualified' }
     ];
 
     // Load Leads from Persistence
     React.useEffect(() => {
         const loadLeads = () => {
             const localLeads = JSON.parse(localStorage.getItem('laxmi_leads') || '[]');
-            // Merge: Local leads first (newest), then mock leads
             setLeads([...localLeads, ...mockLeads]);
         };
         loadLeads();
-
-        // Listen for storage changes in other tabs
         window.addEventListener('storage', loadLeads);
         return () => window.removeEventListener('storage', loadLeads);
     }, []);
 
-    const filteredLeads = leads.filter(lead =>
-        (lead.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (lead.mobile || '').includes(searchTerm) ||
-        (lead.company || '').toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    // Filter by Search and Date
+    const filteredLeads = leads.filter(lead => {
+        // Search Filter
+        const matchesSearch = (lead.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (lead.mobile || '').includes(searchTerm) ||
+            (lead.company || '').toLowerCase().includes(searchTerm.toLowerCase());
+
+        if (!matchesSearch) return false;
+
+        // Date Filter
+        if (dateFilter === 'all') return true;
+
+        // Parse date from "DD/MM/YYYY, HH:MM:SS"
+        const [datePart] = lead.timestamp.split(', ');
+        const [day, month, year] = datePart.split('/').map(Number);
+        const leadDate = new Date(year, month - 1, day);
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+
+        const diffTime = now.getTime() - leadDate.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        switch (dateFilter) {
+            case 'today': return diffDays === 0;
+            case '2days': return diffDays <= 1;
+            case 'week': return diffDays <= 7;
+            case 'month': return diffDays <= 30;
+            case '3months': return diffDays <= 90;
+            case '6months': return diffDays <= 180;
+            default: return true;
+        }
+    });
+
+    const handleSelectLead = (id) => {
+        const newSelected = new Set(selectedLeadIds);
+        if (newSelected.has(id)) newSelected.delete(id);
+        else newSelected.add(id);
+        setSelectedLeadIds(newSelected);
+    };
+
+    const handleSelectAll = () => {
+        if (selectedLeadIds.size === filteredLeads.length) {
+            setSelectedLeadIds(new Set());
+        } else {
+            setSelectedLeadIds(new Set(filteredLeads.map(l => l.id)));
+        }
+    };
 
     const handleDownloadCSV = () => {
+        // Priority: Selected Leads > Filtered Leads
+        const exportData = selectedLeadIds.size > 0
+            ? leads.filter(l => selectedLeadIds.has(l.id))
+            : filteredLeads;
+
+        if (exportData.length === 0) {
+            alert('No leads found for current selection/filter.');
+            return;
+        }
+
         const headers = ['Timestamp', 'Name', 'Mobile', 'Company', 'Monthly Income', 'Existing EMI', 'Selected Banks'];
         const csvContent = [
             headers.join(','),
-            ...filteredLeads.map(l => [
+            ...exportData.map(l => [
                 l.timestamp,
                 `"${l.name}"`,
                 l.mobile,
@@ -82,7 +103,8 @@ const LeadManager = () => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `LaxmiCredit_Leads_${new Date().toISOString().split('T')[0]}.csv`;
+        const filterStr = dateFilter !== 'all' ? `_${dateFilter}` : '';
+        a.download = `LaxmiCredit_Leads${filterStr}_${new Date().toISOString().split('T')[0]}.csv`;
         a.click();
     };
 
@@ -104,10 +126,25 @@ const LeadManager = () => {
                     <h2>Lead Management Pipeline</h2>
                     <p>Track and action institutional eligibility inquiries</p>
                 </div>
-                <button className="btn-download-all" onClick={handleDownloadCSV}>
-                    <Download size={18} />
-                    Download Lead Sheet
-                </button>
+                <div className="download-group">
+                    <select
+                        className="date-filter-select"
+                        value={dateFilter}
+                        onChange={(e) => setDateFilter(e.target.value)}
+                    >
+                        <option value="today">Today's Leads</option>
+                        <option value="2days">Last 2 Days</option>
+                        <option value="week">Past Week</option>
+                        <option value="month">Past Month</option>
+                        <option value="3months">Past 3 Months</option>
+                        <option value="6months">Past 6 Months</option>
+                        <option value="all">Till Date (All)</option>
+                    </select>
+                    <button className="btn-download-advanced" onClick={handleDownloadCSV}>
+                        <Download size={18} />
+                        {selectedLeadIds.size > 0 ? `Download Selection (${selectedLeadIds.size})` : 'Download Filtered Leads'}
+                    </button>
+                </div>
             </div>
 
             <div className="lead-controls glass-panel">
@@ -115,7 +152,7 @@ const LeadManager = () => {
                     <Search size={18} color="#ffffff" strokeWidth={2.5} className="search-icon" />
                     <input
                         type="text"
-                        placeholder="Search by name, mobile or company..."
+                        placeholder="Filter by name, mobile or company..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -132,6 +169,14 @@ const LeadManager = () => {
                 <table className="leads-table">
                     <thead>
                         <tr>
+                            <th className="checkbox-col">
+                                <input
+                                    type="checkbox"
+                                    className="lead-checkbox"
+                                    checked={filteredLeads.length > 0 && selectedLeadIds.size === filteredLeads.length}
+                                    onChange={handleSelectAll}
+                                />
+                            </th>
                             <th>Customer</th>
                             <th>Mobile</th>
                             <th>Employment / Income</th>
@@ -141,7 +186,15 @@ const LeadManager = () => {
                     </thead>
                     <tbody>
                         {filteredLeads.map(lead => (
-                            <tr key={lead.id}>
+                            <tr key={lead.id} className={selectedLeadIds.has(lead.id) ? 'selected-row' : ''}>
+                                <td className="checkbox-col">
+                                    <input
+                                        type="checkbox"
+                                        className="lead-checkbox"
+                                        checked={selectedLeadIds.has(lead.id)}
+                                        onChange={() => handleSelectLead(lead.id)}
+                                    />
+                                </td>
                                 <td>
                                     <div className="lead-name">{lead.name}</div>
                                     <div className="lead-time">{lead.timestamp}</div>
