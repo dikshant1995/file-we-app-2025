@@ -155,8 +155,8 @@ const LeadManager = () => {
                                 </td>
                                 <td>
                                     <div className="lead-banks">
-                                        {(lead.selectedBanks || '').split(',').map(bank => (
-                                            bank.trim() && <span key={bank} className="bank-tag">{bank.trim()}</span>
+                                        {lead.selectedBanks.split(',').map(bank => (
+                                            <span key={bank} className="bank-tag">{bank.trim()}</span>
                                         ))}
                                     </div>
                                     <div className="lead-emi">Existing EMI: ₹{lead.existingEMI}</div>
@@ -164,21 +164,32 @@ const LeadManager = () => {
                                 <td>
                                     <div className="action-buttons">
                                         <button
-                                            className="action-btn wa"
-                                            title="Share on WhatsApp"
+                                            className="action-btn-advanced wa"
+                                            title="Quick Actions: WhatsApp Customer"
                                             onClick={() => handleWhatsAppShare(lead)}
                                         >
-                                            <MessageCircle size={20} color="#ffffff" strokeWidth={2.5} />
+                                            <img
+                                                src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+                                                alt="WhatsApp"
+                                                className="action-logo"
+                                            />
                                         </button>
                                         <button
-                                            className="action-btn mail"
-                                            title="Share via Email"
+                                            className="action-btn-advanced mail"
+                                            title="Quick Actions: Email Lead Details"
                                             onClick={() => handleEmailShare(lead)}
                                         >
-                                            <Mail size={18} color="#ffffff" strokeWidth={2.5} />
+                                            <img
+                                                src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg"
+                                                alt="Gmail"
+                                                className="action-logo"
+                                            />
                                         </button>
-                                        <button className="action-btn share" title="Copy Details">
-                                            <Share2 size={18} color="#ffffff" strokeWidth={2.5} />
+                                        <button
+                                            className="action-btn-advanced share"
+                                            title="Copy Lead Data"
+                                        >
+                                            <Share2 size={18} color="#00d4ff" strokeWidth={2.5} />
                                         </button>
                                     </div>
                                 </td>
