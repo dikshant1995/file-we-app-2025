@@ -1,17 +1,19 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { blogPosts } from '../data/blogData';
 import './Blog.css';
 
 const BlogHome = () => {
+    const [allPosts, setAllPosts] = React.useState([]);
+
+    React.useEffect(() => {
+        const localBlogs = JSON.parse(localStorage.getItem('laxmi_blogs') || '[]');
+        // Merge: Dynamic blogs first, then static ones
+        setAllPosts([...localBlogs, ...blogPosts]);
+    }, []);
+
     return (
         <div className="blog-home-page">
-            <Helmet>
-                <title>Financial Insights & Loan Guides | LoanAI Blog</title>
-                <meta name="description" content="Read our latest articles on personal loans, credit scores, and financial planning to help you make better borrowing decisions." />
-            </Helmet>
-
             <div className="blog-nav-header">
                 <Link to="/" className="back-to-home">← Back to Home</Link>
             </div>
@@ -22,7 +24,7 @@ const BlogHome = () => {
             </div>
 
             <div className="blog-grid">
-                {blogPosts.map((post) => (
+                {allPosts.map((post) => (
                     <article key={post.id} className="blog-card glass-panel">
                         <div className="blog-card-content">
                             <div className="blog-date">{post.date}</div>
