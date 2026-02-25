@@ -13,15 +13,32 @@ import {
   MessageCircle,
   Archive,
   Lock,
-  ChevronRight
+  ChevronRight,
+  Layers,
+  History,
+  TrendingUp,
+  BarChart3,
+  Zap,
+  Target,
+  ArrowLeftRight,
+  ShieldCheck,
+  Clock,
+  Briefcase,
+  UserCheck,
+  FileSignature,
+  Percent
 } from 'lucide-react';
 import BankList from './admin/BankList';
 import LeadManager from './admin/LeadManager';
 import BlogManager from './admin/BlogManager';
 import ExperienceManager from './admin/ExperienceManager';
+import BankConfigEditor from './admin/BankConfigEditor';
+import Analytics from './admin/Analytics';
+import ImportExport from './admin/ImportExport';
+import AuditLog from './admin/AuditLog';
 import './AdminDashboard.css';
 
-const AdminDashboard = ({ onLogout }) => {
+const AdminDashboard = ({ onBackToCustomer }) => {
   const [activeTab, setActiveTab] = useState('leads');
 
   const menuItems = [
@@ -31,39 +48,61 @@ const AdminDashboard = ({ onLogout }) => {
     { id: 'banks', icon: <Database size={18} />, label: 'Institutional Overview', component: 'BankList' },
     { id: 'config', icon: <Settings size={18} />, label: 'Policy Configuration', component: 'BankConfigEditor' },
     { id: 'categories', icon: <Layers size={18} />, label: 'Categorization Models', component: 'BankConfigEditor', section: 'categories' },
-    { id: 'import-export', icon: <Archive size={18} />, label: 'Data Operations', component: 'ImportExport' },
-    { id: 'audit', icon: <Shield size={18} />, label: 'System Audit Log', component: 'AuditLog' },
-    { id: 'settings', icon: <Lock size={18} />, label: 'Security & Access', component: 'Settings' },
+    { id: 'interest', icon: <Percent size={18} />, label: 'Rate Structures', component: 'BankConfigEditor', section: 'interest' },
+    { id: 'loan-capping', icon: <Lock size={18} />, label: 'Capital Capping', component: 'BankConfigEditor', section: 'loanCapping' },
+    { id: 'age-rules', icon: <UserCheck size={18} />, label: 'Demographic Rules', component: 'BankConfigEditor', section: 'ageRules' },
+    { id: 'tenure', icon: <Clock size={18} />, label: 'Tenure Optimization', component: 'BankConfigEditor', section: 'tenureRules' },
+    { id: 'foir', icon: <Target size={18} />, label: 'FOIR Parameters', component: 'BankConfigEditor', section: 'foir' },
+    { id: 'multiplier', icon: <Zap size={18} />, label: 'Multiplier Logic', component: 'BankConfigEditor', section: 'multiplier' },
+    { id: 'bt', icon: <ArrowLeftRight size={18} />, label: 'Liability Consolidation', component: 'BankConfigEditor', section: 'bt' },
+    { id: 'credit-score', icon: <ShieldCheck size={18} />, label: 'Risk Assessment', component: 'BankConfigEditor', section: 'creditScore' },
+    { id: 'employment', icon: <Briefcase size={18} />, label: 'Employment Credentialing', component: 'BankConfigEditor', section: 'employment' },
+    { id: 'documents', icon: <FileSignature size={18} />, label: 'Documentation Protocol', component: 'BankConfigEditor', section: 'documents' },
+    { id: 'special', icon: <FileText size={18} />, label: 'Exceptional Policies', component: 'BankConfigEditor', section: 'special' },
+    { id: 'fees', icon: <Percent size={18} />, label: 'Fee Schedules', component: 'BankConfigEditor', section: 'fees' },
+    { id: 'analytics', icon: <BarChart3 size={18} />, label: 'Performance Analytics', component: 'Analytics' },
+    { id: 'import-export', icon: <ArrowLeftRight size={18} />, label: 'Data Operations', component: 'ImportExport' },
+    { id: 'audit', icon: <History size={18} />, label: 'System Audit Log', component: 'AuditLog' }
   ];
 
+  const [selectedBank, setSelectedBank] = useState(null);
+  const [activeLocation, setActiveLocation] = useState({ state: '', city: '' });
+
   const renderView = () => {
-    switch (activeTab) {
-      case 'leads':
+    const activeItem = menuItems.find(item => item.id === activeTab);
+
+    switch (activeItem?.component) {
+      case 'LeadManager':
         return <LeadManager />;
-      case 'BankList':
-        return <BankList />;
-      case 'ImportExport':
-        return <ImportExport />;
       case 'BlogManager':
         return <BlogManager />;
       case 'ExperienceManager':
         return <ExperienceManager />;
+      case 'BankList':
+        return <BankList
+          activeLocation={activeLocation}
+          onSelectBank={(bank) => {
+            setSelectedBank(bank);
+            setActiveTab('config');
+          }}
+        />;
+      case 'BankConfigEditor':
+        return <BankConfigEditor
+          selectedBank={selectedBank}
+          section={activeItem.section}
+          activeLocation={activeLocation}
+          onNavigate={(id) => setActiveTab(id)}
+        />;
+      case 'Analytics':
+        return <Analytics />;
+      case 'ImportExport':
+        return <ImportExport />;
       case 'AuditLog':
         return <AuditLog />;
       default:
-        // Attempt to find by component name if ID doesn't match directly
-        const item = menuItems.find(i => i.id === activeTab);
-        if (item?.component === 'LeadManager') return <LeadManager />;
-        if (item?.component === 'BlogManager') return <BlogManager />;
-        if (item?.component === 'ExperienceManager') return <ExperienceManager />;
-        if (item?.component === 'BankList') return <BankList />;
         return <LeadManager />;
     }
   };
-
-  // Helper placeholder components for missing ones
-  const ImportExport = () => <div className="p-8"><h2 className="text-xl font-bold mb-4">Data Operations</h2><p className="text-gray-400">Import/Export system is active and monitoring data integrity.</p></div>;
-  const AuditLog = () => <div className="p-8"><h2 className="text-xl font-bold mb-4">System Audit Log</h2><p className="text-gray-400">Security pulses and access logs are being recorded.</p></div>;
 
   return (
     <div className="admin-dashboard-layout">
@@ -112,7 +151,7 @@ const AdminDashboard = ({ onLogout }) => {
         </nav>
 
         <div className="sidebar-footer">
-          <button className="btn-logout" onClick={onLogout}>
+          <button className="btn-logout" onClick={onBackToCustomer}>
             <LogOut size={18} />
             <span>TERMINATE SESSION</span>
           </button>
