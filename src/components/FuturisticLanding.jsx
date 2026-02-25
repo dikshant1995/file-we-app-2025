@@ -75,6 +75,27 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
     { icon: <Zap size={22} />, title: 'Instant Results', desc: 'Get your eligibility in milliseconds', color: '#f59e0b' },
   ];
 
+  const testimonials = [
+    {
+      name: "Arjun Mehta",
+      role: "Business Consultant",
+      text: "The speed of this AI is unbelievable. I got tailored loan offers from 5 different banks in less than 3 seconds. Truly authentic and remarkably precise!",
+      rating: 5
+    },
+    {
+      name: "Priya Sharma",
+      role: "Tech Lead",
+      text: "Finally, a portal that doesn't just guess numbers. The policy-driven results matched exactly what I was told at the bank branch. Highly recommended for its accuracy.",
+      rating: 5
+    },
+    {
+      name: "Vikram Malhotra",
+      role: "Entrepreneur",
+      text: "Securing a business loan used to be a black box. This tool provided total transparency into bank policies that I didn't even know existed. A game changer!",
+      rating: 5
+    }
+  ];
+
   return (
     <div className="holo-landing">
       {/* Animated background layers */}
@@ -275,6 +296,47 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
               <h3>{f.title}</h3>
               <p>{f.desc}</p>
               <div className="fhc-glow" />
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ===== TESTIMONIALS SECTION ===== */}
+      <section className="holo-testimonials">
+        <div className="section-header">
+          <div className="section-tag">SUCCESS PULSES</div>
+          <h2>Verified <span className="gradient-text-ai">User Experiences</span></h2>
+          <p>Real-time feedback from our latest neural processing cycles</p>
+        </div>
+
+        <div className="testimonials-grid">
+          {testimonials.map((t, i) => (
+            <motion.div
+              key={i}
+              className="testimonial-card glass-card"
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              whileHover={{ y: -5, boxShadow: '0 10px 30px rgba(0, 212, 255, 0.15)' }}
+            >
+              <div className="quote-icon">“</div>
+              <p className="testimonial-text">{t.text}</p>
+              <div className="testimonial-footer">
+                <div className="user-profile">
+                  <div className="user-avatar">{t.name.charAt(0)}</div>
+                  <div className="user-info">
+                    <div className="user-name">{t.name}</div>
+                    <div className="user-role">{t.role}</div>
+                  </div>
+                </div>
+                <div className="testimonial-rating">
+                  {[...Array(t.rating)].map((_, i) => (
+                    <Sparkles key={i} size={12} color="#f59e0b" fill="#f59e0b" />
+                  ))}
+                </div>
+              </div>
+              <div className="card-neural-lines" />
             </motion.div>
           ))}
         </div>
