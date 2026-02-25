@@ -36,10 +36,24 @@ import BankConfigEditor from './admin/BankConfigEditor';
 import Analytics from './admin/Analytics';
 import ImportExport from './admin/ImportExport';
 import AuditLog from './admin/AuditLog';
+import AdminLogin from './admin/AdminLogin';
 import './AdminDashboard.css';
 
 const AdminDashboard = ({ onBackToCustomer }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('admin_authenticated') === 'true';
+  });
   const [activeTab, setActiveTab] = useState('leads');
+
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+    localStorage.setItem('admin_authenticated', 'true');
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('admin_authenticated');
+  };
 
   const menuItems = [
     { id: 'leads', icon: <Users size={18} />, label: 'Customer Lead Pipeline', component: 'LeadManager' },
@@ -104,6 +118,10 @@ const AdminDashboard = ({ onBackToCustomer }) => {
     }
   };
 
+  if (!isAuthenticated) {
+    return <AdminLogin onLogin={handleLogin} />;
+  }
+
   return (
     <div className="admin-dashboard-layout">
       {/* Sidebar */}
@@ -151,9 +169,17 @@ const AdminDashboard = ({ onBackToCustomer }) => {
         </nav>
 
         <div className="sidebar-footer">
-          <button className="btn-logout" onClick={onBackToCustomer}>
+          <button className="btn-logout" onClick={handleLogout}>
             <LogOut size={18} />
             <span>TERMINATE SESSION</span>
+          </button>
+          <button
+            className="btn-logout"
+            onClick={onBackToCustomer}
+            style={{ marginTop: '8px', background: 'rgba(255,255,255,0.05)', color: '#94a3b8', borderColor: 'rgba(255,255,255,0.1)' }}
+          >
+            <ArrowLeftRight size={16} />
+            <span>EXIT TO PORTAL</span>
           </button>
         </div>
       </aside>
