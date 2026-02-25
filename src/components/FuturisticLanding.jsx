@@ -387,10 +387,18 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
               </div>
             </div>
 
-            <blockquote className="founder-quote">
-              "We are not just building a calculator — we are dismantling the barriers of financial opacity.
-              This AI software is the dawn of a new era in the global loaning industry."
-            </blockquote>
+            <div className="founder-vision-statement">
+              <p>
+                "At Laxmi Credit Root, we're not just digitizing loans; we're architecting a financial revolution.
+                Our mission is to democratize credit access through neural-grade accuracy. We've built an engine
+                that doesn't just calculate—it understands the soul of banking policies."
+              </p>
+              <p>
+                "This is my vision: a world where complex eligibility is transparent, instant, and accessible to every dreamer.
+                We have created a truly revolutionary platform that bridges the gap between dreams and reality,
+                and we are only just beginning to rewrite the rules of the industry."
+              </p>
+            </div>
 
             <a
               href="https://instagram.com/dikshant_singh_rathore"
