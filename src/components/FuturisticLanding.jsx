@@ -9,11 +9,35 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [tick, setTick] = useState(0);
+  const [feedbackName, setFeedbackName] = useState('');
+  const [feedbackText, setFeedbackText] = useState('');
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => setTick(t => t + 1), 80);
     return () => clearInterval(interval);
   }, []);
+
+  const handleFeedbackSubmit = (e) => {
+    e.preventDefault();
+    if (!feedbackText.trim()) return;
+
+    const newFeedback = {
+      id: Date.now().toString(),
+      name: feedbackName.trim() || 'Anonymous Customer',
+      text: feedbackText.trim(),
+      timestamp: new Date().toLocaleString(),
+    };
+
+    const existingFeedback = JSON.parse(localStorage.getItem('laxmi_feedback') || '[]');
+    localStorage.setItem('laxmi_feedback', JSON.stringify([newFeedback, ...existingFeedback]));
+
+    setIsSubmitted(true);
+    setFeedbackName('');
+    setFeedbackText('');
+
+    setTimeout(() => setIsSubmitted(false), 5000);
+  };
 
   const ADMIN_USERNAME = 'admin';
   const ADMIN_PASSWORD = 'admin123';
@@ -68,8 +92,6 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
         ))}
       </div>
 
-      {/* ===== NAVBAR ===== */}
-      <div className="holo-orb holo-orb-3" />
 
       {/* ===== HERO ===== */}
       <section className="holo-hero">
@@ -336,13 +358,39 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
               <p>Your feedback shapes the future of this AI</p>
             </div>
           </div>
-          <div className="suggestion-form">
-            <input type="text" placeholder="Your Name (Optional)" className="glass-input" />
-            <textarea placeholder="Share your suggestions or report an issue..." className="glass-input" rows="2" />
-            <button className="btn-primary-ai">
-              <Send size={14} /> Send Feedback
-            </button>
-          </div>
+          <form className="suggestion-form" onSubmit={handleFeedbackSubmit}>
+            {isSubmitted ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="feedback-success"
+              >
+                <Zap size={16} color="#00ff88" />
+                <span>Neural Pulse Received. Thank you for the insight!</span>
+              </motion.div>
+            ) : (
+              <>
+                <input
+                  type="text"
+                  placeholder="Your Name (Optional)"
+                  className="glass-input"
+                  value={feedbackName}
+                  onChange={(e) => setFeedbackName(e.target.value)}
+                />
+                <textarea
+                  placeholder="Share your suggestions or report an issue..."
+                  className="glass-input"
+                  rows="2"
+                  required
+                  value={feedbackText}
+                  onChange={(e) => setFeedbackText(e.target.value)}
+                />
+                <button type="submit" className="btn-primary-ai">
+                  <Send size={14} /> Send Feedback
+                </button>
+              </>
+            )}
+          </form>
         </motion.div>
       </section>
 
