@@ -10,12 +10,10 @@ import {
   Bell,
   Shield,
   FileText,
-  MessageSquare,
-  Globe,
-  Layers,
+  MessageCircle,
   Archive,
   Lock,
-  MessageCircle
+  ChevronRight
 } from 'lucide-react';
 import BankList from './admin/BankList';
 import LeadManager from './admin/LeadManager';
