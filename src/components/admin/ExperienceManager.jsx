@@ -32,8 +32,8 @@ const ExperienceManager = () => {
     };
 
     const filteredFeedbacks = feedbacks.filter(f =>
-        f.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        f.text.toLowerCase().includes(searchTerm.toLowerCase())
+        (f?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (f?.text || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
