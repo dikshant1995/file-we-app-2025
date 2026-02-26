@@ -217,16 +217,16 @@ const BlogManager = () => {
                             </thead>
                             <tbody>
                                 {blogs.map(blog => (
-                                    <tr key={blog.id}>
+                                    <tr key={blog?.id || index}>
                                         <td>
-                                            <div className="blog-title-cell">{blog.title}</div>
-                                            <div className="blog-summary-cell">{blog.summary.substring(0, 60)}...</div>
+                                            <div className="blog-title-cell">{blog?.title || 'Untitled'}</div>
+                                            <div className="blog-summary-cell">{(blog?.summary || '').substring(0, 60)}...</div>
                                         </td>
                                         <td>
-                                            <div className="blog-meta-cell">{blog.author}</div>
-                                            <div className="blog-date-cell">{blog.date}</div>
+                                            <div className="blog-meta-cell">{blog?.author || 'N/A'}</div>
+                                            <div className="blog-date-cell">{blog?.date || 'N/A'}</div>
                                         </td>
-                                        <td><code>/{blog.slug}</code></td>
+                                        <td><code>/{blog?.slug || 'n-a'}</code></td>
                                         <td>
                                             <div className="action-row">
                                                 <button className="action-btn-small" title="Edit" onClick={() => handleEdit(blog)}>
