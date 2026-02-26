@@ -189,6 +189,11 @@ const NeuralChatBot = () => {
 
     return (
         <div className="neural-chat-widget">
+            <div className={`chat-attention-label ${isOpen ? 'hidden' : ''}`}>
+                <div className="pointing-hand">👈</div>
+                <span>AI Chat Assistant for you</span>
+            </div>
+
             <button
                 className={`chat-toggle-btn ${isOpen ? 'open' : ''}`}
                 onClick={() => setIsOpen(!isOpen)}
