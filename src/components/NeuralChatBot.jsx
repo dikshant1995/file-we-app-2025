@@ -75,7 +75,68 @@ const NeuralChatBot = () => {
         { keywords: ['indusind', 'video kyc'], answer: "IndusInd is the pioneer of Video KYC. You can complete your entire application from your bedroom in under 5 minutes." },
         { keywords: ['shri ram', 'finance', 'small salary'], answer: "Shriram Finance is excellent for customers with smaller salaries or those working in the unorganized sector. They value character over documents." },
         { keywords: ['chola', 'msme', 'business'], answer: "Cholamandalam is perfect if you own a small business or are self-employed. They have a massive rural and semi-urban network." },
-        { keywords: ['piramal', 'complex'], answer: "Piramal is currently the best for 'Segment-of-One' profiles where traditional banks like SBI might say no due to minor technicalities." }
+        { keywords: ['piramal', 'complex'], answer: "Piramal is currently the best for 'Segment-of-One' profiles where traditional banks like SBI might say no due to minor technicalities." },
+
+        // PHASE 3: THE UNIVERSAL EXPANSION (51-100)
+        // HOME LOANS (51-65)
+        { keywords: ['home loan', 'house', 'flat'], answer: "Laxmi AI analyzes home loans for properties up to 90% of value. Whether it's a builder flat or an independent house, we find the best rate starting from ~8.40%." },
+        { keywords: ['tax benefit', '80c', '24b'], answer: "Home loans are tax-saving machines! You can save up to ₹1.5L on principal (80C) and ₹2L on interest (24b) every year. We'll help you maximize your rebate." },
+        { keywords: ['joint home loan', 'husband wife'], answer: "Applying with a spouse can double your tax benefits! You both get separate ₹2L interest deductions, effectively saving tax on ₹4L income together." },
+        { keywords: ['home loan transfer', 'bt', 'switch'], answer: "If you're paying >9%, it's time to switch! We can help you transfer your home loan to a lower-interest bank, saving you lakhs over 20 years." },
+        { keywords: ['pmay', 'subsidy', 'awas'], answer: "The PMAY 2025 updates focus on Middle Income Groups. If eligible, your interest burden can be reduced by several lakhs through government interest subvention." },
+        { keywords: ['construction loan', 'plot'], answer: "Want to build on your own plot? We offer composite loans that cover both plot purchase and construction costs in a single easy EMI." },
+        { keywords: ['renovation', 'repair', 'home improvement'], answer: "Don't break your savings for a new kitchen. Home Improvement loans are available at almost the same rates as home loans, much cheaper than personal loans." },
+        { keywords: ['under construction', 'possession'], answer: "Buying a RERA-approved under-construction property? We sync disbursals with the builder's construction milestones so you don't pay full EMI upfront." },
+        { keywords: ['top up home loan', 'cheap money'], answer: "Need cash for business or wedding? A Home Loan Top-Up is the cheapest funding source in India, often available at just 0.5% above your home loan rate." },
+        { keywords: ['prepayment', 'penalty', 'home foreclosure'], answer: "RBI rules are clear: ZERO penalty for prepaying a floating-rate home loan. Pay whenever you have extra cash to finish your loan 10 years early!" },
+        { keywords: ['30 years', 'long tenure'], answer: "For young professionals, we can secure tenures up to 30 or even 32 years. This keeps your EMI low while you grow in your career." },
+        { keywords: ['self employed home loan', 'itr'], answer: "Business owners need 2 years of ITR. Even if your declared income is low, we have banking partners who look at your 'Banking Turnover' for loan eligibility." },
+        { keywords: ['90% financing', 'lvt'], answer: "For properties below ₹30 Lakhs, banks can fund up to 90%. For luxury properties, it's usually 75-80%. We'll calculate your exact down-payment." },
+        { keywords: ['legal technical', 'verification'], answer: "Laxmi AI partners with banks that do rigorous legal checks. If a property isn't safe, we'll tell you before you commit your hard-earned money." },
+        { keywords: ['nhb', 'sbi home', 'hdfc home'], answer: "We are integrated with the latest 2025 policy tables of SBI, HDFC, and LIC Housing Finance to provide real-time home loan analysis." },
+
+        // BUSINESS LOANS (66-75)
+        { keywords: ['business loan', 'msme', 'shop'], answer: "Need to grow your business? We assist with MSME loans for equipment, stock, or expansion. No collateral is required for loans up to ₹50 Lakhs." },
+        { keywords: ['gst loan', 'turnover'], answer: "Your GST returns are your best asset! Laxmi AI uses your GST data to secure loans within 48 hours without needing heavy financial statements." },
+        { keywords: ['mudra', 'shishu', 'kishore'], answer: "Starting small? Mudra loans (PMMY) offer funding from ₹50k to ₹10L for micro-enterprises with minimal red tape and government backing." },
+        { keywords: ['cgtmse', 'collateral free'], answer: "Under the CGTMSE scheme, the government stands as your guarantor. You can get business funding without pledging your house or land." },
+        { keywords: ['working capital', 'od', 'cc'], answer: "Manage your cash flow with an Overdraft (OD) or Cash Credit (CC) limit. Pay interest only on what you use for your daily business needs." },
+        { keywords: ['startup funding', 'new business'], answer: "If your business is <1 year old, we look at your 'Business Vintage' and personal credit history to secure seed-level funding for your dream." },
+        { keywords: ['machinery loan', 'equipment'], answer: "Upgrading your factory? Machinery loans are self-collateralized (the machine itself is the security), making them easier and faster to get." },
+        { keywords: ['professional loan', 'doctor', 'ca'], answer: "Doctors, CAs, and Architects enjoy 'Special Professional' status. Laxmi AI unlocks elite interest rates and higher loan amounts for you." },
+        { keywords: ['unsecured business loan'], answer: "Fast funding for urgent stock needs. We have NBFC partners who disburse up to ₹15L within 24 hours based on your bank statement." },
+        { keywords: ['business vintage', '6 months'], answer: "Even with 6 months of operations, if your banking is strong, we can help you get your first business credit line to scale up." },
+
+        // CAR LOANS & REFINANCE (76-85)
+        { keywords: ['car loan', 'auto loan', 'vehicle'], answer: "Buying a new car? Get up to 100% on-road financing with interest rates starting from 8.25% for elite salaried profiles." },
+        { keywords: ['used car loan', 'second hand car'], answer: "Second-hand doesn't mean second-class. We provide loans for pre-owned cars up to 10 years old with quick valuation and transfer." },
+        { keywords: ['car refinance', 'cash on car'], answer: "Own a car already? You can get a loan against it! Car refinance is faster than a personal loan and often at a better interest rate." },
+        { keywords: ['car valuation', 'idv'], answer: "Our AI calculates your car's true market value (IDV) to ensure you get the maximum possible loan amount against your vehicle." },
+        { keywords: ['zero down payment', '100% funding'], answer: "Yes! For select models and prime corporate employees, we can secure 100% on-road funding including insurance and registration." },
+        { keywords: ['car loan tenure', '7 years'], answer: "New car loans can be spread up to 7 years (84 months) to make your luxury car purchase fit comfortably into your monthly budget." },
+        { keywords: ['ev loan', 'electric car'], answer: "Going Green? EV loans often come with 'Green Rate' discounts and additional tax benefits on interest for first-time EV buyers." },
+        { keywords: ['commercial vehicle', 'truck', 'taxi'], answer: "We assist fleet owners and individual drivers in getting funding for trucks, buses, and taxis to grow their transport business." },
+        { keywords: ['rto transfer', 'hypothecation'], answer: "Laxmi AI partners assist in the RTO paperwork required to remove hypothecation after you've paid off your car loan." },
+        { keywords: ['car loan rejection'], answer: "Rejections often happen due to 'Low Residue Income.' We'll help you structure your application to pass the bank's strict margin rules." },
+
+        // GOLD LOANS (86-95)
+        { keywords: ['gold loan', 'jewellery', 'ornament'], answer: "Unlock the value of your gold! Get instant cash in 30 minutes with the lowest interest rates in the market starting from 0.8% per month." },
+        { keywords: ['gold ltv', '85%', '2.5 lakh'], answer: "New 2025 RBI tiers: Get up to 85% LTV for gold loans below ₹2.5 Lakhs! This is the highest ever leverage allowed for gold assets." },
+        { keywords: ['muthoot', 'manappuram'], answer: "We bridge the gap with Muthoot and Manappuram. Whether you want institutional trust or NBFC speed, we'll guide you to the right counter." },
+        { keywords: ['gold rate per gram', 'value'], answer: "Our AI tracks real-time 22K/24K market rates to ensure you get every rupee your gold is worth. Current 2025 rates are at historic highs!" },
+        { keywords: ['gold loan hidden charges'], answer: "No more shocks! We scan for valuation fees, processing fees, and auction notices so your gold stays safe and your costs stay low." },
+        { keywords: ['bullet repayment'], answer: "Don't want monthly EMIs? Go for 'Bullet Repayment'—pay the interest and principal together at the end of 6 or 12 or 18 months." },
+        { keywords: ['safety', 'locker', 'gold vault'], answer: "Your gold is stored in RBI-mandated 'Strong Rooms' with 24/7 surveillance and full insurance. It's safer in the bank than in your home locker." },
+        { keywords: ['18k gold', '22k gold', 'purity'], answer: "We accept 18K to 24K gold. Our AI calculates the exact purity-weight ratio to give you a transparent and fair loan offer." },
+        { keywords: ['agriculture gold loan'], answer: "Farmers can get gold loans at subsidized interest rates (7% p.a.) for crop and equipment needs through our PSU bank partners." },
+        { keywords: ['gold loan foreclosure'], answer: "Finish your gold loan any day! Most partners have zero foreclosure charges, meaning you pay interest only for the exact days you used the money." },
+
+        // UNIVERSAL & REGULATORY (96-100)
+        { keywords: ['rbi guidelines', '2025', 'law'], answer: "We are 100% compliant with the latest 2025 RBI Fair Lending Practices. No hidden penalties, no predatory interest—just clean, honest banking." },
+        { keywords: ['loan apps', 'china apps', 'danger'], answer: "STAY SAFE! Never download unverified loan apps. Laxmi AI only connects you with RBI-licensed Banks and NBFCs for your total financial safety." },
+        { keywords: ['credit card loan', 'instaloan'], answer: "Have a credit card? You might have a pre-approved 'Insta Loan' that requires ZERO documents. Our AI will check your card eligibility in seconds." },
+        { keywords: ['loan against fd', 'fixed deposit'], answer: "Your FD can give you a loan at just 1% above the FD rate! It's the fastest way to get liquidity without breaking your high-interest investment." },
+        { keywords: ['loan against insurance', 'lic loan'], answer: "Don't surrender your policy. Get a loan against your LIC or insurance plan at very low interest rates while keeping your life cover active." }
     ];
 
     const findOptimalResponse = (input) => {
