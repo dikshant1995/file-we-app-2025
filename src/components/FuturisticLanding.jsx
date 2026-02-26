@@ -410,13 +410,9 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
                 <Instagram size={16} />
                 @dikshant_singh_rathore
               </a>
-              <a
-                href="mailto:dikshantsingh@laxmicredit.com"
-                className="founder-social"
-              >
-                <Mail size={16} />
-                dikshantsingh@laxmicredit.com
-              </a>
+              <p className="founder-email" style={{ marginBottom: '15px' }}>
+                <Mail size={16} /> dikshantsingh@laxmicredit.com
+              </p>
             </div>
           </motion.div>
         </div>
