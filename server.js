@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
@@ -22,7 +23,12 @@ app.use(cors());
 app.use(express.json());
 
 // Serve static files from the React app build directory
-app.use(express.static(path.join(__dirname, 'dist')));
+if (fs.existsSync(path.join(__dirname, 'dist'))) {
+  app.use(express.static(path.join(__dirname, 'dist')));
+  console.log('✅ PROD: dist directory detected and serving.');
+} else {
+  console.warn('⚠️ WARNING: dist directory is missing. Ensure you run "npm run build" before starting the production server.');
+}
 
 // 🛡️ SECURE ADMIN LOGIN ENDPOINT
 app.post('/api/admin/login', (req, res) => {
