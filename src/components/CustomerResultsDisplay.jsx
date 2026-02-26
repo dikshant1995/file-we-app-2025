@@ -87,6 +87,15 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
 
   return (
     <div className="customer-results-display professional-grid-bg">
+      {/* Disclosure Note */}
+      <div className="results-disclosure">
+        <p>
+          This result shows results based on your salary, company name and bank calculation logics.
+          <br />
+          <span className="note-highlight">Note:</span> if someone's CIBIL is low that might impact the result on bank's hand.
+        </p>
+      </div>
+
       {/* Results Header */}
       <div className="results-header">
         <button className="btn-back-results" onClick={onNewCalculation}>
