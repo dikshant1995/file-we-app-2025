@@ -22,6 +22,33 @@ const NeuralChatBot = () => {
     // BRAND REASSURANCE SUFFIX
     const brandSuffix = "\n\nYou are at a great place and in safe hands with Laxmi AI. We will assist you for your loan application, and our dedicated customer support team will help you through the process.";
 
+    const GEMINI_API_KEY = "AIzaSyCOptlCBgfN4ANDY9211jd9ek0F9kKk3Oo";
+
+    const askGemini = async (prompt) => {
+        try {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{
+                            text: `You are Laxmi Neural Assistant, an expert in the Indian loan industry (Home, Business, Car, Gold, Personal). 
+                            Context: 2025 Indian Banking Policies.
+                            Tone: Professional, Reassuring, Accurate.
+                            Instruction: Answer the following customer query briefly. If it's about a loan, encourage them to apply on our portal.
+                            Question: ${prompt}`
+                        }]
+                    }]
+                })
+            });
+            const data = await response.json();
+            return data.candidates[0].content.parts[0].text;
+        } catch (error) {
+            console.error("Neural Error:", error);
+            return "My neural link is currently unstable. Please reach out to dikshantsingh@laxmicredit.com for manual assistance.";
+        }
+    };
+
     // The Massive 50+ Q&A Knowledge Base
     const qaPairs = [
         // PHASE 1: STANDARD (1-30)
@@ -139,140 +166,131 @@ const NeuralChatBot = () => {
         { keywords: ['loan against insurance', 'lic loan'], answer: "Don't surrender your policy. Get a loan against your LIC or insurance plan at very low interest rates while keeping your life cover active." }
     ];
 
-    const findOptimalResponse = (input) => {
-        const normalizedInput = input.toLowerCase();
+    if (maxOverlap > 1) return bestMatch + brandSuffix; // Increased threshold to 2 for higher accuracy
+    return null;
+};
 
-        let bestMatch = null;
-        let maxOverlap = 0;
+const handleSendMessage = async (e) => {
+    if (e) e.preventDefault();
+    if (!inputValue.trim()) return;
 
-        for (const pair of qaPairs) {
-            let overlap = 0;
-            for (const keyword of pair.keywords) {
-                if (normalizedInput.includes(keyword)) {
-                    overlap++;
-                }
-            }
-            if (overlap > maxOverlap) {
-                maxOverlap = overlap;
-                bestMatch = pair.answer;
-            }
-        }
+    const userMsg = { id: Date.now(), type: 'user', text: inputValue };
+    setMessages(prev => [...prev, userMsg]);
+    const question = inputValue;
+    setInputValue('');
+    setIsTyping(true);
 
-        if (maxOverlap > 0) return bestMatch + brandSuffix;
+    // Hybrid Logic Implementation
+    const localMatch = findOptimalResponse(question);
 
-        return "I am sorry, but my neural processors are currently optimized for financial eligibility inquiries. For this specific question, you need to contact our human support team at dikshantsingh@laxmicredit.com." + brandSuffix;
-    };
-
-    const handleSendMessage = (e) => {
-        if (e) e.preventDefault();
-        if (!inputValue.trim()) return;
-
-        const userMsg = { id: Date.now(), type: 'user', text: inputValue };
-        setMessages(prev => [...prev, userMsg]);
-        setInputValue('');
-        setIsTyping(true);
-
+    if (localMatch) {
         setTimeout(() => {
-            const response = findOptimalResponse(inputValue);
-            const botMsg = { id: Date.now() + 1, type: 'bot', text: response };
+            const botMsg = { id: Date.now() + 1, type: 'bot', text: localMatch };
             setMessages(prev => [...prev, botMsg]);
             setIsTyping(false);
-        }, 1200);
-    };
+        }, 800);
+    } else {
+        // Out of league query - call Gemini
+        const aiResponse = await askGemini(question);
+        const botMsg = { id: Date.now() + 1, type: 'bot', text: aiResponse + brandSuffix };
+        setMessages(prev => [...prev, botMsg]);
+        setIsTyping(false);
+    }
+};
 
-    const suggestedQuestions = [
-        "Is my data safe?",
-        "HDFC vs ICICI rate?",
-        "Poonawalla speed?",
-        "Zero foreclosure bank?"
-    ];
+const suggestedQuestions = [
+    "Is my data safe?",
+    "HDFC vs ICICI rate?",
+    "Poonawalla speed?",
+    "Zero foreclosure bank?"
+];
 
-    return (
-        <div className="neural-chat-widget">
-            <div className={`chat-attention-label ${isOpen ? 'hidden' : ''}`}>
-                <span>AI Chat Assistant for you</span>
-            </div>
-
-            <button
-                className={`chat-toggle-btn ${isOpen ? 'open' : ''}`}
-                onClick={() => setIsOpen(!isOpen)}
-            >
-                {isOpen ? <X size={28} /> : <MessageSquare size={28} />}
-                {!isOpen && <div className="chat-notification-pulse" />}
-            </button>
-
-            {isOpen && (
-                <div className="chat-window shadow-xl">
-                    <div className="chat-header">
-                        <div className="bot-avatar">
-                            <Cpu size={20} />
-                        </div>
-                        <div className="chat-header-info">
-                            <h4>Laxmi Neural AI</h4>
-                            <span><Zap size={10} fill="#00ff88" stroke="transparent" /> 2025 Brain Active</span>
-                        </div>
-                    </div>
-
-                    <div className="messages-container">
-                        {messages.map(msg => (
-                            <div key={msg.id} className={`message ${msg.type}`}>
-                                {msg.text}
-                            </div>
-                        ))}
-                        {isTyping && (
-                            <div className="typing-indicator">
-                                <div className="typing-dot" style={{ animationDelay: '0s' }} />
-                                <div className="typing-dot" style={{ animationDelay: '0.2s' }} />
-                                <div className="typing-dot" style={{ animationDelay: '0.4s' }} />
-                            </div>
-                        )}
-                        <div ref={messagesEndRef} />
-                    </div>
-
-                    <div className="suggested-chips">
-                        {suggestedQuestions.map((q, i) => (
-                            <div key={i} className="chip" onClick={() => {
-                                setInputValue(q);
-                                setTimeout(() => {
-                                    const userMsg = { id: Date.now(), type: 'user', text: q };
-                                    setMessages(prev => [...prev, userMsg]);
-                                    setInputValue('');
-                                    setIsTyping(true);
-                                    setTimeout(() => {
-                                        const response = findOptimalResponse(q);
-                                        const botMsg = { id: Date.now() + 1, type: 'bot', text: response };
-                                        setMessages(prev => [...prev, botMsg]);
-                                        setIsTyping(false);
-                                    }, 1000);
-                                }, 100);
-                            }}>
-                                {q}
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="chat-security-badge" style={{ padding: '0 20px', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '10px', color: 'rgba(255,255,255,0.4)', marginBottom: '5px' }}>
-                        <ShieldCheck size={12} />
-                        End-to-End Encrypted Analysis
-                        <Heart size={10} fill="#ff4444" stroke="transparent" style={{ marginLeft: 'auto' }} />
-                        Laxmi AI Help
-                    </div>
-
-                    <form className="chat-input-area" onSubmit={handleSendMessage}>
-                        <input
-                            type="text"
-                            placeholder="Ask about hacks, policies, or safety..."
-                            value={inputValue}
-                            onChange={(e) => setInputValue(e.target.value)}
-                        />
-                        <button type="submit" className="send-btn">
-                            <Send size={18} />
-                        </button>
-                    </form>
-                </div>
-            )}
+return (
+    <div className="neural-chat-widget">
+        <div className={`chat-attention-label ${isOpen ? 'hidden' : ''}`}>
+            <span>AI Chat Assistant for you</span>
         </div>
-    );
+
+        <button
+            className={`chat-toggle-btn ${isOpen ? 'open' : ''}`}
+            onClick={() => setIsOpen(!isOpen)}
+        >
+            {isOpen ? <X size={28} /> : <MessageSquare size={28} />}
+            {!isOpen && <div className="chat-notification-pulse" />}
+        </button>
+
+        {isOpen && (
+            <div className="chat-window shadow-xl">
+                <div className="chat-header">
+                    <div className="bot-avatar">
+                        <Cpu size={20} />
+                    </div>
+                    <div className="chat-header-info">
+                        <h4>Laxmi Neural AI</h4>
+                        <span><Zap size={10} fill="#00ff88" stroke="transparent" /> 2025 Brain Active</span>
+                    </div>
+                </div>
+
+                <div className="messages-container">
+                    {messages.map(msg => (
+                        <div key={msg.id} className={`message ${msg.type}`}>
+                            {msg.text}
+                        </div>
+                    ))}
+                    {isTyping && (
+                        <div className="typing-indicator">
+                            <div className="typing-dot" style={{ animationDelay: '0s' }} />
+                            <div className="typing-dot" style={{ animationDelay: '0.2s' }} />
+                            <div className="typing-dot" style={{ animationDelay: '0.4s' }} />
+                        </div>
+                    )}
+                    <div ref={messagesEndRef} />
+                </div>
+
+                <div className="suggested-chips">
+                    {suggestedQuestions.map((q, i) => (
+                        <div key={i} className="chip" onClick={() => {
+                            setInputValue(q);
+                            setTimeout(() => {
+                                const userMsg = { id: Date.now(), type: 'user', text: q };
+                                setMessages(prev => [...prev, userMsg]);
+                                setInputValue('');
+                                setIsTyping(true);
+                                setTimeout(() => {
+                                    const response = findOptimalResponse(q);
+                                    const botMsg = { id: Date.now() + 1, type: 'bot', text: response };
+                                    setMessages(prev => [...prev, botMsg]);
+                                    setIsTyping(false);
+                                }, 1000);
+                            }, 100);
+                        }}>
+                            {q}
+                        </div>
+                    ))}
+                </div>
+
+                <div className="chat-security-badge" style={{ padding: '0 20px', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '10px', color: 'rgba(255,255,255,0.4)', marginBottom: '5px' }}>
+                    <ShieldCheck size={12} />
+                    End-to-End Encrypted Analysis
+                    <Heart size={10} fill="#ff4444" stroke="transparent" style={{ marginLeft: 'auto' }} />
+                    Laxmi AI Help
+                </div>
+
+                <form className="chat-input-area" onSubmit={handleSendMessage}>
+                    <input
+                        type="text"
+                        placeholder="Ask about hacks, policies, or safety..."
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                    />
+                    <button type="submit" className="send-btn">
+                        <Send size={18} />
+                    </button>
+                </form>
+            </div>
+        )}
+    </div>
+);
 };
 
 export default NeuralChatBot;
