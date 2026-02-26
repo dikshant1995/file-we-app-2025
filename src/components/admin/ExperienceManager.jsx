@@ -8,9 +8,14 @@ const ExperienceManager = () => {
 
     useEffect(() => {
         const loadFeedback = () => {
-            const stored = localStorage.getItem('laxmi_feedback');
-            const localFeedback = stored ? JSON.parse(stored) : [];
-            setFeedbacks(Array.isArray(localFeedback) ? localFeedback : []);
+            try {
+                const stored = localStorage.getItem('laxmi_feedback');
+                const localFeedback = stored ? JSON.parse(stored) : [];
+                setFeedbacks(Array.isArray(localFeedback) ? localFeedback : []);
+            } catch (err) {
+                console.error('Error parsing feedback:', err);
+                setFeedbacks([]);
+            }
         };
         loadFeedback();
 
