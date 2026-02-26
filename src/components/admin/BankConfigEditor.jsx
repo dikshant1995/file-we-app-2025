@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { getAllBankConfig, getBankConfig } from '../../services/bankConfigService';
 import './BankConfigEditor.css';
 import InterestRateEditor from './InterestRateEditor';
 import CategoriesEditor from './CategoriesEditor';
@@ -60,7 +61,7 @@ const BankConfigEditor = ({ selectedBank, section, activeLocation }) => {
   );
 };
 
-import { getAllBankConfig, getBankConfig } from '../../services/bankConfigService';
+
 
 // Updated AllConfigSection to show actual values based on location
 const AllConfigSection = ({ bank, activeLocation }) => {
