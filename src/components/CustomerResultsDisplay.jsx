@@ -87,13 +87,14 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
 
   return (
     <div className="customer-results-display professional-grid-bg">
-      {/* Disclosure Note */}
-      <div className="results-disclosure">
-        <p>
-          This result shows results based on your salary, company name and bank calculation logics.
-          <br />
-          <span className="note-highlight">Note:</span> if someone's CIBIL is low that might impact the result on bank's hand.
-        </p>
+      {/* Elevated Disclosure Note */}
+      <div className="results-disclosure-elevated glass-panel">
+        <div className="disclosure-icon-pulse">
+          <Shield size={20} color="#00d4ff" />
+        </div>
+        <div className="disclosure-text">
+          <p><strong>Note:</strong> This result is based on your Salary, Company Profile, and standard Bank Logic. If your CIBIL score is low, it might impact the final bank approval.</p>
+        </div>
       </div>
 
       {/* Results Header */}
