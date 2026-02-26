@@ -18,8 +18,10 @@ const LeadManager = () => {
     // Load Leads from Persistence
     React.useEffect(() => {
         const loadLeads = () => {
-            const localLeads = JSON.parse(localStorage.getItem('laxmi_leads') || '[]');
-            setLeads([...localLeads, ...mockLeads]);
+            const stored = localStorage.getItem('laxmi_leads');
+            const localLeads = stored ? JSON.parse(stored) : [];
+            // Safely spread only if localLeads is an array
+            setLeads([...(Array.isArray(localLeads) ? localLeads : []), ...mockLeads]);
         };
         loadLeads();
         window.addEventListener('storage', loadLeads);
@@ -39,6 +41,7 @@ const LeadManager = () => {
         if (dateFilter === 'all') return true;
 
         // Parse date from "DD/MM/YYYY, HH:MM:SS"
+        if (!lead?.timestamp) return true; // Show items with missing timestamp at top/unsorted
         const [datePart] = lead.timestamp.split(', ');
         const [day, month, year] = datePart.split('/').map(Number);
         const leadDate = new Date(year, month - 1, day);
