@@ -7,9 +7,14 @@ const BlogHome = () => {
     const [allPosts, setAllPosts] = React.useState([]);
 
     React.useEffect(() => {
-        const localBlogs = JSON.parse(localStorage.getItem('laxmi_blogs') || '[]');
-        // Merge: Dynamic blogs first, then static ones
-        setAllPosts([...localBlogs, ...blogPosts]);
+        try {
+            const localBlogs = JSON.parse(localStorage.getItem('laxmi_blogs') || '[]');
+            // Merge: Dynamic blogs first, then static ones
+            setAllPosts([...(Array.isArray(localBlogs) ? localBlogs : []), ...blogPosts]);
+        } catch (err) {
+            console.error('Error parsing blogs:', err);
+            setAllPosts([...blogPosts]);
+        }
     }, []);
 
     return (
