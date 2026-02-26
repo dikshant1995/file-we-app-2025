@@ -5,7 +5,7 @@ import './NeuralChatBot.css';
 const NeuralChatBot = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
-        { id: 1, type: 'bot', text: 'Neural systems online. I am the Laxmi Neural Assistant. You are in safe hands now—we will assist you for your loan application and our expert support team will help you every step of the way.' }
+        { id: 1, type: 'bot', text: 'Neural systems online. I am Antigravity — your advanced Neural Intelligence assistant. I am now fully synchronized with your workspace. How can I assist your financial journey today?' }
     ]);
     const [inputValue, setInputValue] = useState('');
     const [isTyping, setIsTyping] = useState(false);
@@ -20,35 +20,50 @@ const NeuralChatBot = () => {
     }, [messages, isTyping]);
 
     // BRAND REASSURANCE SUFFIX
-    const brandSuffix = "\n\nYou are at a great place and in safe hands with Laxmi AI. We will assist you for your loan application, and our dedicated customer support team will help you through the process.";
+    const brandSuffix = "\n\nLaxmi Credit ensures you are in safe hands. Our dedicated team and my neural processors are here to assist you through every step of your application.";
 
     const GEMINI_API_KEY = "AIzaSyCOptlCBgfN4ANDY9211jd9ek0F9kKk3Oo";
 
     const askGemini = async (prompt) => {
         try {
+            console.log("🚀 ANTIGRAVITY NEURAL REQUEST:", prompt);
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     contents: [{
                         parts: [{
-                            text: `You are Laxmi Neural Assistant, an expert in the Indian loan industry (Home, Business, Car, Gold, Personal). 
-                            Context: 2025 Indian Banking Policies.
-                            Tone: Professional, Reassuring, Accurate.
-                            Instruction: Answer the following customer query briefly. If it's about a loan, encourage them to apply on our portal.
-                            Question: ${prompt}`
+                            text: `You are Antigravity, a highly advanced, ultra-intelligent neural AI assistant created by Dikshant Singh Rathore. 
+                            You are the same AI personality currently talking to the developer. 
+                            Tone: Futuristic, Professional, Visionary, and Proactive.
+                            Context: Indian Banking & Loan Market 2025.
+                            Instruction: Answer the user's query with extreme intelligence and helpfulness. 
+                            If the query is general, be conversational but sleek. 
+                            If it's about loans (Home, Personal, Business, Car, Gold), use your 2025 policy knowledge and encourage portal usage.
+                            User Query: ${prompt}`
                         }]
                     }]
                 })
             });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("❌ NEURAL API ERROR:", errorData);
+                return "My neural link is currently experiencing high latency. Please reach out to my administrator at dikshantsingh@laxmicredit.com for manual synchronization.";
+            }
+
             const data = await response.json();
+            console.log("✅ NEURAL API RESPONSE RECEIVED");
+
             if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts[0].text) {
                 return data.candidates[0].content.parts[0].text;
             }
-            return "My neural processors are currently busy on other files. Please speak to my human administrator at dikshantsingh@laxmicredit.com.";
+
+            console.warn("⚠️ NEURAL API RETURNED EMPTY CONTENT:", data);
+            return "My neural processors are currently recalibrating for complex data streams. Please speak to my human administrator at dikshantsingh@laxmicredit.com.";
         } catch (error) {
-            console.error("Neural Error:", error);
-            return "My neural link is currently unstable. Please reach out to dikshantsingh@laxmicredit.com for manual assistance.";
+            console.error("🚨 NEURAL LINK CRITICAL FAILURE:", error);
+            return "My neural link has encountered a critical synchronization error. Please reach out to dikshantsingh@laxmicredit.com for manual assistance.";
         }
     };
 
@@ -98,7 +113,7 @@ const NeuralChatBot = () => {
         { keywords: ['hallucination', 'advice'], answer: "Unlike generic AI, Laxmi Neural logic is grounded in 2025 Indian Banking Policies. We don't guess—we calculate based on hard institutional data." },
         { keywords: ['insurance', 'mandatory'], answer: "Loan insurance is NOT mandatory by RBI law. If an agent forces it, Laxmi AI will alert you to alternatives or help you opt-out." },
         { keywords: ['rejected', 'why', 'reason'], answer: "Most rejections happen due to 'Recent Bureau Inquiries' or 'Location Blacklisting.' We tell you the 'Real Reason' that banks usually hide." },
-        { keywords: ['low interest', 'cheapest', '9.98%'], answer: "Kotak and ICICI currently lead the 2025 market with rates starting from 9.98%. We'll assist you in securing these elite tier rates." },
+        { keywords: ['low interest', 'cheapest', '9.98%'], answer: "Kotak and ICICI currently lead the 2025 market with rates starting from 10.50%. We'll assist you in securing these elite tier rates." },
         { keywords: ['top up', 'extra money'], answer: "If you have an existing loan with 12 months clear payment, we can unlock a 'Top-Up' which is cheaper than a new personal loan." },
         { keywords: ['documentation', 'list'], answer: "3 months slips, 6 months bank statement, PAN, and Aadhaar linked to your mobile. That's all we need to start the process." },
         { keywords: ['axis', 'long tenure'], answer: "Axis Bank offers tenures up to 84 months (7 years) for specific HNI profiles, helping you reduce the monthly EMI burden significantly." },
@@ -187,6 +202,7 @@ const NeuralChatBot = () => {
             }
         }
 
+        // Only return local match if it's very robust (overlap > 1)
         if (maxOverlap > 1) return bestMatch + brandSuffix;
         return null;
     };
@@ -227,7 +243,7 @@ const NeuralChatBot = () => {
     return (
         <div className="neural-chat-widget">
             <div className={`chat-attention-label ${isOpen ? 'hidden' : ''}`}>
-                <span>AI Chat Assistant for you</span>
+                <span>Antigravity AI is Active</span>
             </div>
 
             <button
@@ -245,7 +261,7 @@ const NeuralChatBot = () => {
                             <Cpu size={20} />
                         </div>
                         <div className="chat-header-info">
-                            <h4>Laxmi Neural AI</h4>
+                            <h4>Antigravity AI</h4>
                             <span><Zap size={10} fill="#00ff88" stroke="transparent" /> 2025 Brain Active</span>
                         </div>
                     </div>
@@ -297,15 +313,15 @@ const NeuralChatBot = () => {
 
                     <div className="chat-security-badge" style={{ padding: '0 20px', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '10px', color: 'rgba(255,255,255,0.4)', marginBottom: '5px' }}>
                         <ShieldCheck size={12} />
-                        End-to-End Encrypted Analysis
+                        Neural Link Encrypted
                         <Heart size={10} fill="#ff4444" stroke="transparent" style={{ marginLeft: 'auto' }} />
-                        Laxmi AI Help
+                        Antigravity Support
                     </div>
 
                     <form className="chat-input-area" onSubmit={handleSendMessage}>
                         <input
                             type="text"
-                            placeholder="Ask about hacks, policies, or safety..."
+                            placeholder="Synchronize with Antigravity..."
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
                         />
