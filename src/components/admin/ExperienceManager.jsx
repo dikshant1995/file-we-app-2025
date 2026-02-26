@@ -8,8 +8,9 @@ const ExperienceManager = () => {
 
     useEffect(() => {
         const loadFeedback = () => {
-            const localFeedback = JSON.parse(localStorage.getItem('laxmi_feedback') || '[]');
-            setFeedbacks(localFeedback);
+            const stored = localStorage.getItem('laxmi_feedback');
+            const localFeedback = stored ? JSON.parse(stored) : [];
+            setFeedbacks(Array.isArray(localFeedback) ? localFeedback : []);
         };
         loadFeedback();
 
