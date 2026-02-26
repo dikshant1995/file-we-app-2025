@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageSquare, X, Send, Cpu, Zap, Mail, ShieldCheck, Heart } from 'lucide-react';
+import { MessageSquare, X, Send, Cpu, Zap, ShieldCheck, Heart } from 'lucide-react';
 import './NeuralChatBot.css';
 
 const NeuralChatBot = () => {
@@ -42,14 +42,17 @@ const NeuralChatBot = () => {
                 })
             });
             const data = await response.json();
-            return data.candidates[0].content.parts[0].text;
+            if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts[0].text) {
+                return data.candidates[0].content.parts[0].text;
+            }
+            return "My neural processors are currently busy on other files. Please speak to my human administrator at dikshantsingh@laxmicredit.com.";
         } catch (error) {
             console.error("Neural Error:", error);
             return "My neural link is currently unstable. Please reach out to dikshantsingh@laxmicredit.com for manual assistance.";
         }
     };
 
-    // The Massive 50+ Q&A Knowledge Base
+    // The Massive 100+ Q&A Knowledge Base
     const qaPairs = [
         // PHASE 1: STANDARD (1-30)
         { keywords: ['salary', 'minimum', 'income'], answer: "Our partner bank ecosystem currently requires a minimum net monthly take-home salary of ₹25,000." },
@@ -154,7 +157,7 @@ const NeuralChatBot = () => {
         { keywords: ['gold loan hidden charges'], answer: "No more shocks! We scan for valuation fees, processing fees, and auction notices so your gold stays safe and your costs stay low." },
         { keywords: ['bullet repayment'], answer: "Don't want monthly EMIs? Go for 'Bullet Repayment'—pay the interest and principal together at the end of 6 or 12 or 18 months." },
         { keywords: ['safety', 'locker', 'gold vault'], answer: "Your gold is stored in RBI-mandated 'Strong Rooms' with 24/7 surveillance and full insurance. It's safer in the bank than in your home locker." },
-        { keywords: ['18k gold', '22k gold', 'purity'], answer: "We accept 18K to 24K gold. Our AI calculates the exact purity-weight ratio to give you a transparent and fair loan offer." },
+        { keywords: ['18k gold', '22k gold', 'purity'], answer: "We accept 18K to 24K gold. Our AI calculates the exact purity-weight ratio to give you a transparent and fair gold loan offer." },
         { keywords: ['agriculture gold loan'], answer: "Farmers can get gold loans at subsidized interest rates (7% p.a.) for crop and equipment needs through our PSU bank partners." },
         { keywords: ['gold loan foreclosure'], answer: "Finish your gold loan any day! Most partners have zero foreclosure charges, meaning you pay interest only for the exact days you used the money." },
 
@@ -166,131 +169,154 @@ const NeuralChatBot = () => {
         { keywords: ['loan against insurance', 'lic loan'], answer: "Don't surrender your policy. Get a loan against your LIC or insurance plan at very low interest rates while keeping your life cover active." }
     ];
 
-    if (maxOverlap > 1) return bestMatch + brandSuffix; // Increased threshold to 2 for higher accuracy
-    return null;
-};
+    const findOptimalResponse = (input) => {
+        const normalizedInput = input.toLowerCase();
+        let bestMatch = null;
+        let maxOverlap = 0;
 
-const handleSendMessage = async (e) => {
-    if (e) e.preventDefault();
-    if (!inputValue.trim()) return;
+        for (const pair of qaPairs) {
+            let overlap = 0;
+            for (const keyword of pair.keywords) {
+                if (normalizedInput.includes(keyword)) {
+                    overlap++;
+                }
+            }
+            if (overlap > maxOverlap) {
+                maxOverlap = overlap;
+                bestMatch = pair.answer;
+            }
+        }
 
-    const userMsg = { id: Date.now(), type: 'user', text: inputValue };
-    setMessages(prev => [...prev, userMsg]);
-    const question = inputValue;
-    setInputValue('');
-    setIsTyping(true);
+        if (maxOverlap > 1) return bestMatch + brandSuffix;
+        return null;
+    };
 
-    // Hybrid Logic Implementation
-    const localMatch = findOptimalResponse(question);
+    const handleSendMessage = async (e) => {
+        if (e) e.preventDefault();
+        if (!inputValue.trim()) return;
 
-    if (localMatch) {
-        setTimeout(() => {
-            const botMsg = { id: Date.now() + 1, type: 'bot', text: localMatch };
+        const userMsg = { id: Date.now(), type: 'user', text: inputValue };
+        setMessages(prev => [...prev, userMsg]);
+        const question = inputValue;
+        setInputValue('');
+        setIsTyping(true);
+
+        const localMatch = findOptimalResponse(question);
+
+        if (localMatch) {
+            setTimeout(() => {
+                const botMsg = { id: Date.now() + 1, type: 'bot', text: localMatch };
+                setMessages(prev => [...prev, botMsg]);
+                setIsTyping(false);
+            }, 800);
+        } else {
+            const aiResponse = await askGemini(question);
+            const botMsg = { id: Date.now() + 1, type: 'bot', text: aiResponse + brandSuffix };
             setMessages(prev => [...prev, botMsg]);
             setIsTyping(false);
-        }, 800);
-    } else {
-        // Out of league query - call Gemini
-        const aiResponse = await askGemini(question);
-        const botMsg = { id: Date.now() + 1, type: 'bot', text: aiResponse + brandSuffix };
-        setMessages(prev => [...prev, botMsg]);
-        setIsTyping(false);
-    }
-};
+        }
+    };
 
-const suggestedQuestions = [
-    "Is my data safe?",
-    "HDFC vs ICICI rate?",
-    "Poonawalla speed?",
-    "Zero foreclosure bank?"
-];
+    const suggestedQuestions = [
+        "Is my data safe?",
+        "HDFC vs ICICI rate?",
+        "Poonawalla speed?",
+        "Zero foreclosure bank?"
+    ];
 
-return (
-    <div className="neural-chat-widget">
-        <div className={`chat-attention-label ${isOpen ? 'hidden' : ''}`}>
-            <span>AI Chat Assistant for you</span>
-        </div>
-
-        <button
-            className={`chat-toggle-btn ${isOpen ? 'open' : ''}`}
-            onClick={() => setIsOpen(!isOpen)}
-        >
-            {isOpen ? <X size={28} /> : <MessageSquare size={28} />}
-            {!isOpen && <div className="chat-notification-pulse" />}
-        </button>
-
-        {isOpen && (
-            <div className="chat-window shadow-xl">
-                <div className="chat-header">
-                    <div className="bot-avatar">
-                        <Cpu size={20} />
-                    </div>
-                    <div className="chat-header-info">
-                        <h4>Laxmi Neural AI</h4>
-                        <span><Zap size={10} fill="#00ff88" stroke="transparent" /> 2025 Brain Active</span>
-                    </div>
-                </div>
-
-                <div className="messages-container">
-                    {messages.map(msg => (
-                        <div key={msg.id} className={`message ${msg.type}`}>
-                            {msg.text}
-                        </div>
-                    ))}
-                    {isTyping && (
-                        <div className="typing-indicator">
-                            <div className="typing-dot" style={{ animationDelay: '0s' }} />
-                            <div className="typing-dot" style={{ animationDelay: '0.2s' }} />
-                            <div className="typing-dot" style={{ animationDelay: '0.4s' }} />
-                        </div>
-                    )}
-                    <div ref={messagesEndRef} />
-                </div>
-
-                <div className="suggested-chips">
-                    {suggestedQuestions.map((q, i) => (
-                        <div key={i} className="chip" onClick={() => {
-                            setInputValue(q);
-                            setTimeout(() => {
-                                const userMsg = { id: Date.now(), type: 'user', text: q };
-                                setMessages(prev => [...prev, userMsg]);
-                                setInputValue('');
-                                setIsTyping(true);
-                                setTimeout(() => {
-                                    const response = findOptimalResponse(q);
-                                    const botMsg = { id: Date.now() + 1, type: 'bot', text: response };
-                                    setMessages(prev => [...prev, botMsg]);
-                                    setIsTyping(false);
-                                }, 1000);
-                            }, 100);
-                        }}>
-                            {q}
-                        </div>
-                    ))}
-                </div>
-
-                <div className="chat-security-badge" style={{ padding: '0 20px', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '10px', color: 'rgba(255,255,255,0.4)', marginBottom: '5px' }}>
-                    <ShieldCheck size={12} />
-                    End-to-End Encrypted Analysis
-                    <Heart size={10} fill="#ff4444" stroke="transparent" style={{ marginLeft: 'auto' }} />
-                    Laxmi AI Help
-                </div>
-
-                <form className="chat-input-area" onSubmit={handleSendMessage}>
-                    <input
-                        type="text"
-                        placeholder="Ask about hacks, policies, or safety..."
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                    />
-                    <button type="submit" className="send-btn">
-                        <Send size={18} />
-                    </button>
-                </form>
+    return (
+        <div className="neural-chat-widget">
+            <div className={`chat-attention-label ${isOpen ? 'hidden' : ''}`}>
+                <span>AI Chat Assistant for you</span>
             </div>
-        )}
-    </div>
-);
+
+            <button
+                className={`chat-toggle-btn ${isOpen ? 'open' : ''}`}
+                onClick={() => setIsOpen(!isOpen)}
+            >
+                {isOpen ? <X size={28} /> : <MessageSquare size={28} />}
+                {!isOpen && <div className="chat-notification-pulse" />}
+            </button>
+
+            {isOpen && (
+                <div className="chat-window shadow-xl">
+                    <div className="chat-header">
+                        <div className="bot-avatar">
+                            <Cpu size={20} />
+                        </div>
+                        <div className="chat-header-info">
+                            <h4>Laxmi Neural AI</h4>
+                            <span><Zap size={10} fill="#00ff88" stroke="transparent" /> 2025 Brain Active</span>
+                        </div>
+                    </div>
+
+                    <div className="messages-container">
+                        {messages.map(msg => (
+                            <div key={msg.id} className={`message ${msg.type}`}>
+                                {msg.text}
+                            </div>
+                        ))}
+                        {isTyping && (
+                            <div className="typing-indicator">
+                                <div className="typing-dot" style={{ animationDelay: '0s' }} />
+                                <div className="typing-dot" style={{ animationDelay: '0.2s' }} />
+                                <div className="typing-dot" style={{ animationDelay: '0.4s' }} />
+                            </div>
+                        )}
+                        <div ref={messagesEndRef} />
+                    </div>
+
+                    <div className="suggested-chips">
+                        {suggestedQuestions.map((q, i) => (
+                            <div key={i} className="chip" onClick={() => {
+                                setInputValue(q);
+                                setTimeout(() => {
+                                    const userMsg = { id: Date.now(), type: 'user', text: q };
+                                    setMessages(prev => [...prev, userMsg]);
+                                    setInputValue('');
+                                    setIsTyping(true);
+                                    setTimeout(async () => {
+                                        const response = findOptimalResponse(q);
+                                        if (response) {
+                                            const botMsg = { id: Date.now() + 1, type: 'bot', text: response };
+                                            setMessages(prev => [...prev, botMsg]);
+                                            setIsTyping(false);
+                                        } else {
+                                            const aiResponse = await askGemini(q);
+                                            const botMsg = { id: Date.now() + 1, type: 'bot', text: aiResponse + brandSuffix };
+                                            setMessages(prev => [...prev, botMsg]);
+                                            setIsTyping(false);
+                                        }
+                                    }, 1000);
+                                }, 100);
+                            }}>
+                                {q}
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="chat-security-badge" style={{ padding: '0 20px', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '10px', color: 'rgba(255,255,255,0.4)', marginBottom: '5px' }}>
+                        <ShieldCheck size={12} />
+                        End-to-End Encrypted Analysis
+                        <Heart size={10} fill="#ff4444" stroke="transparent" style={{ marginLeft: 'auto' }} />
+                        Laxmi AI Help
+                    </div>
+
+                    <form className="chat-input-area" onSubmit={handleSendMessage}>
+                        <input
+                            type="text"
+                            placeholder="Ask about hacks, policies, or safety..."
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                        />
+                        <button type="submit" className="send-btn">
+                            <Send size={18} />
+                        </button>
+                    </form>
+                </div>
+            )}
+        </div>
+    );
 };
 
 export default NeuralChatBot;
