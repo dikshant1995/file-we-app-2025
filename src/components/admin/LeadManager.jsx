@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Share2, Download, Search, MessageCircle } from 'lucide-react';
+import { Mail, Download, Search, MessageCircle, Copy, Trash2, Plus, Share2 } from 'lucide-react';
 import './LeadManager.css';
 
 const LeadManager = () => {
@@ -36,9 +36,9 @@ const LeadManager = () => {
     // Filter by Search and Date
     const filteredLeads = leads.filter(lead => {
         // Search Filter
-        const matchesSearch = (lead.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (lead.mobile || '').includes(searchTerm) ||
-            (lead.company || '').toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = (lead?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (lead?.mobile || '').includes(searchTerm) ||
+            (lead?.company || lead?.employer || '').toLowerCase().includes(searchTerm.toLowerCase());
 
         if (!matchesSearch) return false;
 
@@ -46,8 +46,9 @@ const LeadManager = () => {
         if (dateFilter === 'all') return true;
 
         // Parse date from "DD/MM/YYYY, HH:MM:SS"
-        if (!lead?.timestamp) return true; // Show items with missing timestamp at top/unsorted
+        if (!lead?.timestamp) return true;
         const [datePart] = lead.timestamp.split(', ');
+        if (!datePart) return true;
         const [day, month, year] = datePart.split('/').map(Number);
         const leadDate = new Date(year, month - 1, day);
         const now = new Date();
@@ -82,8 +83,15 @@ const LeadManager = () => {
         }
     };
 
+    const handleDelete = (id) => {
+        if (window.confirm('Are you sure you want to delete this lead?')) {
+            const updated = leads.filter(l => l.id !== id);
+            setLeads(updated);
+            localStorage.setItem('laxmi_leads', JSON.stringify(updated.filter(l => !l.id.startsWith('m'))));
+        }
+    };
+
     const handleDownloadCSV = () => {
-        // Priority: Selected Leads > Filtered Leads
         const exportData = selectedLeadIds.size > 0
             ? leads.filter(l => selectedLeadIds.has(l.id))
             : filteredLeads;
@@ -100,8 +108,8 @@ const LeadManager = () => {
                 l.timestamp,
                 `"${l.name}"`,
                 l.mobile,
-                `"${l.company}"`,
-                l.totalIncome,
+                `"${l.company || l.employer}"`,
+                l.totalIncome || l.monthlyIncome,
                 l.existingEMI,
                 `"${l.selectedBanks}"`
             ].join(','))
@@ -117,20 +125,34 @@ const LeadManager = () => {
     };
 
     const handleWhatsAppShare = (lead) => {
-        const message = `*New Lead Detail from LaxmiCredit*%0A%0A*Name:* ${lead.name}%0A*Mobile:* ${lead.mobile}%0A*Company:* ${lead.company}%0A*Income:* ₹${lead.totalIncome}%0A*Banks:* ${lead.selectedBanks}`;
+        const message = `*New Lead Detail from LaxmiCredit*%0A%0A*Name:* ${lead?.name}%0A*Mobile:* ${lead?.mobile}%0A*Company:* ${lead?.company || lead?.employer}%0A*Income:* ₹${lead?.totalIncome || lead?.monthlyIncome}%0A*Banks:* ${lead?.selectedBanks}`;
         window.open(`https://wa.me/?text=${message}`, '_blank');
     };
 
     const handleEmailShare = (lead) => {
-        const subject = `Lead Detail: ${lead.name}`;
-        const body = `Customer Lead Information:\n\nName: ${lead.name}\nMobile: ${lead.mobile}\nCompany: ${lead.company}\nMonthly Income: ₹${lead.totalIncome}\nExisting EMI: ₹${lead.existingEMI}\nInterested Banks: ${lead.selectedBanks}\n\nTimestamp: ${lead.timestamp}`;
+        const subject = `Lead Detail: ${lead?.name}`;
+        const body = `Customer Lead Information:\n\nName: ${lead?.name}\nMobile: ${lead?.mobile}\nCompany: ${lead?.company || lead?.employer}\nMonthly Income: ₹${lead?.totalIncome || lead?.monthlyIncome}\nExisting EMI: ₹${lead?.existingEMI}\nInterested Banks: ${lead?.selectedBanks}\n\nTimestamp: ${lead?.timestamp}`;
         window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     };
 
     const handleCopyLead = (lead) => {
-        const text = `Customer: ${lead.name} (${lead.mobile})\nCompany: ${lead.company}\nIncome: ₹${lead.totalIncome}\nExisting EMI: ₹${lead.existingEMI}\nInterested Banks: ${lead.selectedBanks}\nTimestamp: ${lead.timestamp}`;
+        const text = `
+LOAN LEAD DETAILS
+-----------------
+Name: ${lead?.name || 'N/A'}
+Mobile: ${lead?.mobile || 'N/A'}
+Monthly Income: ₹${Number(lead?.totalIncome || lead?.monthlyIncome || 0).toLocaleString()}
+Monthly Incentives: ₹${Number(lead?.incentives || 0).toLocaleString()}
+Employer: ${lead?.company || lead?.employer || 'N/A'}
+Location: ${lead?.city || 'N/A'}, ${lead?.state || 'N/A'}
+Timestamp: ${lead?.timestamp || 'N/A'}
+
+SELECTED BANKS:
+${(lead?.selectedBanks || '').split(',').map(b => `- ${b.trim()}`).join('\n') || 'None'}
+        `.trim();
+
         navigator.clipboard.writeText(text).then(() => {
-            alert(`Summary for ${lead.name} copied to clipboard!`);
+            alert('Full lead data copied to clipboard!');
         });
     };
 
@@ -201,46 +223,46 @@ const LeadManager = () => {
                     </thead>
                     <tbody>
                         {filteredLeads.map(lead => (
-                            <tr key={lead.id} className={selectedLeadIds.has(lead.id) ? 'selected-row' : ''}>
+                            <tr key={lead?.id} className={selectedLeadIds.has(lead?.id) ? 'selected-row' : ''}>
                                 <td className="checkbox-col">
                                     <input
                                         type="checkbox"
                                         className="lead-checkbox"
-                                        checked={selectedLeadIds.has(lead.id)}
-                                        onChange={() => handleSelectLead(lead.id)}
+                                        checked={selectedLeadIds.has(lead?.id)}
+                                        onChange={() => handleSelectLead(lead?.id)}
                                     />
                                 </td>
                                 <td>
-                                    <div className="lead-name">{lead.name}</div>
-                                    <div className="lead-time">{lead.timestamp}</div>
+                                    <div className="lead-name">{lead?.name || 'Anonymous'}</div>
+                                    <div className="lead-time">{lead?.timestamp || 'N/A'}</div>
                                 </td>
                                 <td>
-                                    <div className="lead-mobile">{lead.mobile}</div>
+                                    <div className="lead-mobile">{lead?.mobile || 'N/A'}</div>
                                 </td>
                                 <td>
-                                    <div className="lead-company">{lead.company}</div>
-                                    <div className="lead-income">₹{lead.totalIncome.toLocaleString()} p.m.</div>
+                                    <div className="lead-company">{lead?.company || lead?.employer || 'N/A'}</div>
+                                    <div className="lead-income">₹{(lead?.totalIncome || lead?.monthlyIncome || 0).toLocaleString()} p.m.</div>
                                 </td>
                                 <td>
                                     <div className="lead-banks">
-                                        {lead.selectedBanks.split(',').map(bank => (
-                                            <span key={bank} className="bank-tag">{bank.trim()}</span>
+                                        {(lead?.selectedBanks || '').split(',').map((bank, index) => (
+                                            bank.trim() && <span key={index} className="bank-tag">{bank.trim()}</span>
                                         ))}
                                     </div>
-                                    <div className="lead-emi">Existing EMI: ₹{lead.existingEMI}</div>
+                                    <div className="lead-emi">Existing EMI: ₹{lead?.existingEMI || 0}</div>
                                 </td>
                                 <td>
                                     <div className="action-buttons">
                                         <button
                                             className="action-btn-advanced wa"
-                                            title="Quick Actions: WhatsApp Customer"
+                                            title="WhatsApp Customer"
                                             onClick={() => handleWhatsAppShare(lead)}
                                         >
                                             <MessageCircle size={18} color="#25D366" strokeWidth={2.5} />
                                         </button>
                                         <button
                                             className="action-btn-advanced mail"
-                                            title="Quick Actions: Email Lead Details"
+                                            title="Email Lead Details"
                                             onClick={() => handleEmailShare(lead)}
                                         >
                                             <Mail size={18} color="#EA4335" strokeWidth={2.5} />
@@ -250,12 +272,26 @@ const LeadManager = () => {
                                             title="Copy Lead Data"
                                             onClick={() => handleCopyLead(lead)}
                                         >
-                                            <Share2 size={18} color="#00d4ff" strokeWidth={2.5} />
+                                            <Copy size={18} color="#00d4ff" strokeWidth={2.5} />
+                                        </button>
+                                        <button
+                                            className="action-btn-advanced delete"
+                                            title="Delete Lead"
+                                            onClick={() => handleDelete(lead?.id)}
+                                        >
+                                            <Trash2 size={18} color="#ff4444" strokeWidth={2} />
                                         </button>
                                     </div>
                                 </td>
                             </tr>
                         ))}
+                        {filteredLeads.length === 0 && (
+                            <tr>
+                                <td colSpan="6" className="empty-state">
+                                    No leads found matching your criteria.
+                                </td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>
