@@ -16,8 +16,13 @@ const BlogManager = () => {
 
     // Load blogs on mount
     useEffect(() => {
-        const localBlogs = JSON.parse(localStorage.getItem('laxmi_blogs') || '[]');
-        setBlogs(localBlogs);
+        try {
+            const localBlogs = JSON.parse(localStorage.getItem('laxmi_blogs') || '[]');
+            setBlogs(Array.isArray(localBlogs) ? localBlogs : []);
+        } catch (err) {
+            console.error('Error parsing blogs:', err);
+            setBlogs([]);
+        }
     }, []);
 
     const handleSaveBlog = (e) => {
