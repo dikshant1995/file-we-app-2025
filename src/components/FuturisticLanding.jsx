@@ -400,15 +400,24 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
               </p>
             </div>
 
-            <a
-              href="https://instagram.com/dikshant_singh_rathore"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="founder-social"
-            >
-              <Instagram size={16} />
-              @dikshant_singh_rathore
-            </a>
+            <div className="founder-social-row">
+              <a
+                href="https://instagram.com/dikshant_singh_rathore"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="founder-social"
+              >
+                <Instagram size={16} />
+                @dikshant_singh_rathore
+              </a>
+              <a
+                href="mailto:dikshantsingh@laxmicredit.com"
+                className="founder-social"
+              >
+                <Mail size={16} />
+                dikshantsingh@laxmicredit.com
+              </a>
+            </div>
           </motion.div>
         </div>
       </section>
