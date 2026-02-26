@@ -5,7 +5,7 @@ import './NeuralChatBot.css';
 const NeuralChatBot = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
-        { id: 1, type: 'bot', text: 'Neural systems online. I am Antigravity — your advanced Neural Intelligence assistant. I am now fully synchronized with your workspace. How can I assist your financial journey today?' }
+        { id: 1, type: 'bot', text: 'Neural systems online. I am Laxmi AI — your advanced loan assistant. I am ready to guide you through your financial journey. How can I help you today?' }
     ]);
     const [inputValue, setInputValue] = useState('');
     const [isTyping, setIsTyping] = useState(false);
@@ -20,25 +20,30 @@ const NeuralChatBot = () => {
     }, [messages, isTyping]);
 
     // BRAND REASSURANCE SUFFIX
-    const brandSuffix = "\n\nLaxmi Credit ensures you are in safe hands. Our dedicated team and my neural processors are here to assist you through every step of your application.";
+    const brandSuffix = "\n\nYou are in safe hands with Laxmi AI. We will assist you for your loan application and our expert support team will help you every step of the way.";
 
     const GEMINI_API_KEY = "AIzaSyCOptlCBgfN4ANDY9211jd9ek0F9kKk3Oo";
 
+    const isLoanRelated = (text) => {
+        const lowerText = text.toLowerCase();
+        const keywords = ['loan', 'eligible', 'salary', 'income', 'cibil', 'interest', 'emi', 'tenure', 'bank', 'hdfc', 'icici', 'sbi', 'axis', 'kotak', 'idfc', 'finance', 'apply'];
+        return keywords.some(k => lowerText.includes(k));
+    };
+
     const askGemini = async (prompt) => {
         try {
-            console.log("🚀 ANTIGRAVITY NEURAL REQUEST:", prompt);
+            console.log("🚀 NEURAL REQUEST:", prompt);
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     contents: [{
                         parts: [{
-                            text: `You are Antigravity, a highly advanced, ultra-intelligent neural AI assistant created by Dikshant Singh Rathore. 
-                            You are the same AI personality currently talking to the developer. 
-                            Tone: Futuristic, Professional, Visionary, and Proactive.
+                            text: `You are Laxmi AI, a highly advanced, ultra-intelligent financial assistant for Laxmi Credit.
+                            Tone: Professional, Reassuring, and Expert.
                             Context: Indian Banking & Loan Market 2025.
-                            Instruction: Answer the user's query with extreme intelligence and helpfulness. 
-                            If the query is general, be conversational but sleek. 
+                            Instruction: Answer the user's query briefly and intelligently. 
+                            Identify yourself as Laxmi AI if asked.
                             If it's about loans (Home, Personal, Business, Car, Gold), use your 2025 policy knowledge and encourage portal usage.
                             User Query: ${prompt}`
                         }]
@@ -49,7 +54,7 @@ const NeuralChatBot = () => {
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error("❌ NEURAL API ERROR:", errorData);
-                return "My neural link is currently experiencing high latency. Please reach out to my administrator at dikshantsingh@laxmicredit.com for manual synchronization.";
+                return "My neural processors are temporarily recalibrating. Please reach out to our team at dikshantsingh@laxmicredit.com for assistance.";
             }
 
             const data = await response.json();
@@ -59,11 +64,10 @@ const NeuralChatBot = () => {
                 return data.candidates[0].content.parts[0].text;
             }
 
-            console.warn("⚠️ NEURAL API RETURNED EMPTY CONTENT:", data);
-            return "My neural processors are currently recalibrating for complex data streams. Please speak to my human administrator at dikshantsingh@laxmicredit.com.";
+            return "I am currently processing complex data. Please reach out to dikshantsingh@laxmicredit.com for a direct answer.";
         } catch (error) {
-            console.error("🚨 NEURAL LINK CRITICAL FAILURE:", error);
-            return "My neural link has encountered a critical synchronization error. Please reach out to dikshantsingh@laxmicredit.com for manual assistance.";
+            console.error("🚨 NEURAL LINK FAILURE:", error);
+            return "My connection is temporarily unstable. Please reach out to dikshantsingh@laxmicredit.com.";
         }
     };
 
@@ -203,7 +207,10 @@ const NeuralChatBot = () => {
         }
 
         // Only return local match if it's very robust (overlap > 1)
-        if (maxOverlap > 1) return bestMatch + brandSuffix;
+        if (maxOverlap > 1) {
+            // Append suffix ONLY for loan related local matches
+            return isLoanRelated(input) ? bestMatch + brandSuffix : bestMatch;
+        }
         return null;
     };
 
@@ -227,7 +234,8 @@ const NeuralChatBot = () => {
             }, 800);
         } else {
             const aiResponse = await askGemini(question);
-            const botMsg = { id: Date.now() + 1, type: 'bot', text: aiResponse + brandSuffix };
+            const isLoan = isLoanRelated(question) || isLoanRelated(aiResponse);
+            const botMsg = { id: Date.now() + 1, type: 'bot', text: isLoan ? aiResponse + brandSuffix : aiResponse };
             setMessages(prev => [...prev, botMsg]);
             setIsTyping(false);
         }
@@ -243,7 +251,7 @@ const NeuralChatBot = () => {
     return (
         <div className="neural-chat-widget">
             <div className={`chat-attention-label ${isOpen ? 'hidden' : ''}`}>
-                <span>Antigravity AI is Active</span>
+                <span>Laxmi AI is Active</span>
             </div>
 
             <button
@@ -261,7 +269,7 @@ const NeuralChatBot = () => {
                             <Cpu size={20} />
                         </div>
                         <div className="chat-header-info">
-                            <h4>Antigravity AI</h4>
+                            <h4>Laxmi AI</h4>
                             <span><Zap size={10} fill="#00ff88" stroke="transparent" /> 2025 Brain Active</span>
                         </div>
                     </div>
@@ -299,7 +307,8 @@ const NeuralChatBot = () => {
                                             setIsTyping(false);
                                         } else {
                                             const aiResponse = await askGemini(q);
-                                            const botMsg = { id: Date.now() + 1, type: 'bot', text: aiResponse + brandSuffix };
+                                            const isLoan = isLoanRelated(q) || isLoanRelated(aiResponse);
+                                            const botMsg = { id: Date.now() + 1, type: 'bot', text: isLoan ? aiResponse + brandSuffix : aiResponse };
                                             setMessages(prev => [...prev, botMsg]);
                                             setIsTyping(false);
                                         }
@@ -315,13 +324,13 @@ const NeuralChatBot = () => {
                         <ShieldCheck size={12} />
                         Neural Link Encrypted
                         <Heart size={10} fill="#ff4444" stroke="transparent" style={{ marginLeft: 'auto' }} />
-                        Antigravity Support
+                        Laxmi AI Support
                     </div>
 
                     <form className="chat-input-area" onSubmit={handleSendMessage}>
                         <input
                             type="text"
-                            placeholder="Synchronize with Antigravity..."
+                            placeholder="Ask Laxmi AI about hacks, policies, or safety..."
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
                         />
