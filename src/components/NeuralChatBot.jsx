@@ -19,6 +19,15 @@ const NeuralChatBot = () => {
         scrollToBottom();
     }, [messages, isTyping]);
 
+    // RESET HISTORY ON CLOSE
+    useEffect(() => {
+        if (!isOpen) {
+            setMessages([
+                { id: 1, type: 'bot', text: 'Neural systems online. I am Laxmi AI — your advanced loan assistant. I am ready to guide you through your financial journey. How can I help you today?' }
+            ]);
+        }
+    }, [isOpen]);
+
     // BRAND REASSURANCE SUFFIX
     const brandSuffix = "\n\nYou are in safe hands with Laxmi AI. We will assist you for your loan application and our expert support team will help you every step of the way.";
 
