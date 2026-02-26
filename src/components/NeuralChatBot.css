@@ -269,11 +269,47 @@
     color: #000;
 }
 
+
+/* Attention Label & Pointing Hand */
+.chat-attention-label {
+    position: absolute;
+    bottom: 15px;
+    right: 80px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0, 212, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    padding: 8px 16px;
+    border-radius: 12px;
+    color: #ffffff;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    opacity: 1;
+    transform: translateX(0);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+}
+
+.chat-attention-label.hidden {
+    opacity: 0;
+    transform: translateX(20px);
+    pointer-events: none;
+}
+
 /* Mobile Responsiveness */
 @media (max-width: 480px) {
     .chat-window {
         width: calc(100vw - 40px);
         right: -10px;
         height: 500px;
+    }
+
+    .chat-attention-label {
+        right: 70px;
+        font-size: 0.75rem;
+        padding: 6px 12px;
     }
 }
