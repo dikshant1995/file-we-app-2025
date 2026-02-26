@@ -13,6 +13,14 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
   const [feedbackName, setFeedbackName] = useState('');
   const [feedbackText, setFeedbackText] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [currentTestimonial, setCurrentTestimonial] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => setTick(t => t + 1), 80);
@@ -79,20 +87,38 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
   const testimonials = [
     {
       name: "Arjun Mehta",
-      role: "Business Consultant",
-      text: "The speed of this AI is unbelievable. I got tailored loan offers from 5 different banks in less than 3 seconds. Truly authentic and remarkably precise!",
+      role: "Software Engineer",
+      text: "I was struggling to find a personal loan with a 710 CIBIL score. This AI directed me to Piramal Finance where I got ₹8L disbursed in 24 hours. The accuracy is 100%!",
       rating: 5
     },
     {
       name: "Priya Sharma",
-      role: "Tech Lead",
-      text: "Finally, a portal that doesn't just guess numbers. The policy-driven results matched exactly what I was told at the bank branch. Highly recommended for its accuracy.",
+      role: "Corporate Lead",
+      text: "The balance transfer logic saved me ₹4.2 Lakhs on my existing high-interest personal loan. Laxmi AI showed me Kotak's 10.99% offer which I didn't even know existed.",
       rating: 5
     },
     {
       name: "Vikram Malhotra",
-      role: "Entrepreneur",
-      text: "Securing a business loan used to be a black box. This tool provided total transparency into bank policies that I didn't even know existed. A game changer!",
+      role: "Business Consultant",
+      text: "Needed a quick medical emergency loan. The speed of Laxmi AI in comparing 12+ bank policies at once is unbelievable. Got my HDFC 10sec disbursal instantly!",
+      rating: 5
+    },
+    {
+      name: "Sneha Reddy",
+      role: "Bank Professional",
+      text: "Even as a banker, I use this tool to verify current institutional multipliers. It's the most up-to-date policy engine in the Indian market today.",
+      rating: 5
+    },
+    {
+      name: "Rohan Das",
+      role: "New to Credit",
+      text: "I had zero loan history. Laxmi AI identified me as a 'Fresh Category A' profile and helped me secure my first ₹5L loan from ICICI bank without any hassle.",
+      rating: 5
+    },
+    {
+      name: "Anjali Gupta",
+      role: "Project Manager",
+      text: "Transparent, fast, and incredibly accurate. It tells you the rejection reasons before you even apply, saving your CIBIL from unnecessary hard hits.",
       rating: 5
     }
   ];
@@ -310,36 +336,45 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
           <p>Real-time feedback from our latest neural processing cycles</p>
         </div>
 
-        <div className="testimonials-grid">
-          {testimonials.map((t, i) => (
+        <div className="testimonials-carousel-container">
+          <AnimatePresence mode='wait'>
             <motion.div
-              key={i}
-              className="testimonial-card glass-card"
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              whileHover={{ y: -5, boxShadow: '0 10px 30px rgba(0, 212, 255, 0.15)' }}
+              key={currentTestimonial}
+              className="testimonial-card featured-slide"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -50 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
             >
               <div className="quote-icon">“</div>
-              <p className="testimonial-text">{t.text}</p>
+              <p className="testimonial-text">{testimonials[currentTestimonial].text}</p>
               <div className="testimonial-footer">
                 <div className="user-profile">
-                  <div className="user-avatar">{t.name.charAt(0)}</div>
+                  <div className="user-avatar">{testimonials[currentTestimonial].name.charAt(0)}</div>
                   <div className="user-info">
-                    <div className="user-name">{t.name}</div>
-                    <div className="user-role">{t.role}</div>
+                    <div className="user-name">{testimonials[currentTestimonial].name}</div>
+                    <div className="user-role">{testimonials[currentTestimonial].role}</div>
                   </div>
                 </div>
                 <div className="testimonial-rating">
-                  {[...Array(t.rating)].map((_, i) => (
+                  {[...Array(testimonials[currentTestimonial].rating)].map((_, i) => (
                     <Sparkles key={i} size={12} color="#f59e0b" fill="#f59e0b" />
                   ))}
                 </div>
               </div>
               <div className="card-neural-lines" />
             </motion.div>
-          ))}
+          </AnimatePresence>
+
+          <div className="carousel-controls">
+            {testimonials.map((_, i) => (
+              <button
+                key={i}
+                className={`carousel-dot ${i === currentTestimonial ? 'active' : ''}`}
+                onClick={() => setCurrentTestimonial(i)}
+              />
+            ))}
+          </div>
         </div>
       </section>
 
