@@ -12,6 +12,32 @@
   font-family: 'Inter', system-ui, sans-serif;
 }
 
+/* ── Disclosure Note ─────────────────────────────────────── */
+.results-disclosure {
+  background: rgba(0, 212, 255, 0.08);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 12px;
+  padding: 16px 24px;
+  margin-bottom: 32px;
+  text-align: center;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  backdrop-filter: blur(10px);
+}
+
+.results-disclosure p {
+  color: #c8dff0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.results-disclosure .note-highlight {
+  color: var(--accent-cyan);
+  font-weight: 700;
+}
+
 /* ── Results Header ─────────────────────────────────────── */
 .results-header {
   text-align: center;
