@@ -15,11 +15,18 @@ const BlogArticle = () => {
         if (staticPost) {
             setPost(staticPost);
         } else {
-            const localBlogs = JSON.parse(localStorage.getItem('laxmi_blogs') || '[]');
-            const dynamicPost = localBlogs.find(p => p.slug === slug);
-            if (dynamicPost) {
-                setPost(dynamicPost);
-            } else {
+            try {
+                const stored = localStorage.getItem('laxmi_blogs');
+                const localBlogs = stored ? JSON.parse(stored) : [];
+                const dynamicPost = Array.isArray(localBlogs) ? localBlogs.find(p => p.slug === slug) : null;
+
+                if (dynamicPost) {
+                    setPost(dynamicPost);
+                } else {
+                    navigate('/blog');
+                }
+            } catch (err) {
+                console.error('Error parsing blogs:', err);
                 navigate('/blog');
             }
         }
