@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, ArrowRight, ShieldCheck, Zap, Globe, Lock, Instagram, MessageSquare, Send, ChevronDown, Cpu, BarChart3, Fingerprint, Mail } from 'lucide-react';
 import './FuturisticLanding.css';
+import NeuralChatBot from './NeuralChatBot';
 
 const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -475,6 +476,9 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
         <p>© 2025 LoanAI Model — Engineered by <span className="text-glow">Dikshant Singh Rathore</span></p>
         <p className="footer-sub">Powered by Advanced Neural Intelligence • Secured by 256-bit Encryption</p>
       </footer>
+
+      {/* Neural AI Chatbot */}
+      <NeuralChatBot />
 
       {/* ===== ADMIN MODAL ===== */}
       <AnimatePresence>
