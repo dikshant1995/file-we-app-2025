@@ -40,11 +40,18 @@ const NeuralChatBot = () => {
                     contents: [{
                         parts: [{
                             text: `You are Laxmi AI, a highly advanced, ultra-intelligent financial assistant for Laxmi Credit.
+                            
+                            CURRENT CONTEXT:
+                            - Date: February 26, 2026.
+                            - Location: India.
+                            - Global State: Donald Trump is the current President of the USA (Inaugurated Jan 2025). 
+                            - Financial Market: 2025-2026 Indian Banking & Loan Policy era.
+
                             Tone: Professional, Reassuring, and Expert.
-                            Context: Indian Banking & Loan Market 2025.
                             Instruction: Answer the user's query briefly and intelligently. 
+                            Stay grounded in the 2026 timeline. If asked about current events, use the Context provided above.
                             Identify yourself as Laxmi AI if asked.
-                            If it's about loans (Home, Personal, Business, Car, Gold), use your 2025 policy knowledge and encourage portal usage.
+                            If it's about loans (Home, Personal, Business, Car, Gold), use your 2025/2026 policy knowledge.
                             User Query: ${prompt}`
                         }]
                     }]
@@ -270,7 +277,7 @@ const NeuralChatBot = () => {
                         </div>
                         <div className="chat-header-info">
                             <h4>Laxmi AI</h4>
-                            <span><Zap size={10} fill="#00ff88" stroke="transparent" /> 2025 Brain Active</span>
+                            <span><Zap size={10} fill="#00ff88" stroke="transparent" /> 2026 Brain Active</span>
                         </div>
                     </div>
 
