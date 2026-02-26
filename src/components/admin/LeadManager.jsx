@@ -18,10 +18,15 @@ const LeadManager = () => {
     // Load Leads from Persistence
     React.useEffect(() => {
         const loadLeads = () => {
-            const stored = localStorage.getItem('laxmi_leads');
-            const localLeads = stored ? JSON.parse(stored) : [];
-            // Safely spread only if localLeads is an array
-            setLeads([...(Array.isArray(localLeads) ? localLeads : []), ...mockLeads]);
+            try {
+                const stored = localStorage.getItem('laxmi_leads');
+                const localLeads = stored ? JSON.parse(stored) : [];
+                // Safely spread only if localLeads is an array
+                setLeads([...(Array.isArray(localLeads) ? localLeads : []), ...mockLeads]);
+            } catch (err) {
+                console.error('Error parsing leads:', err);
+                setLeads([...mockLeads]);
+            }
         };
         loadLeads();
         window.addEventListener('storage', loadLeads);
