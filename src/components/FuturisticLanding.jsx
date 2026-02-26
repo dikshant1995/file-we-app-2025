@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, ArrowRight, ShieldCheck, Zap, Globe, Lock, Instagram, ChevronDown, Cpu, BarChart3, Fingerprint } from 'lucide-react';
+import { Sparkles, ArrowRight, ShieldCheck, Zap, Globe, Lock, Instagram, MessageSquare, Send, ChevronDown, Cpu, BarChart3, Fingerprint, Mail } from 'lucide-react';
 import './FuturisticLanding.css';
 import NeuralChatBot from './NeuralChatBot';
 
