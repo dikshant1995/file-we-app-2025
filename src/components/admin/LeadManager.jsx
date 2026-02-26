@@ -119,6 +119,13 @@ const LeadManager = () => {
         window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     };
 
+    const handleCopyLead = (lead) => {
+        const text = `Customer: ${lead.name} (${lead.mobile})\nCompany: ${lead.company}\nIncome: ₹${lead.totalIncome}\nExisting EMI: ₹${lead.existingEMI}\nInterested Banks: ${lead.selectedBanks}\nTimestamp: ${lead.timestamp}`;
+        navigator.clipboard.writeText(text).then(() => {
+            alert(`Summary for ${lead.name} copied to clipboard!`);
+        });
+    };
+
     return (
         <div className="lead-manager-container">
             <div className="lead-header">
@@ -221,26 +228,19 @@ const LeadManager = () => {
                                             title="Quick Actions: WhatsApp Customer"
                                             onClick={() => handleWhatsAppShare(lead)}
                                         >
-                                            <img
-                                                src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
-                                                alt="WhatsApp"
-                                                className="action-logo"
-                                            />
+                                            <MessageCircle size={18} color="#25D366" strokeWidth={2.5} />
                                         </button>
                                         <button
                                             className="action-btn-advanced mail"
                                             title="Quick Actions: Email Lead Details"
                                             onClick={() => handleEmailShare(lead)}
                                         >
-                                            <img
-                                                src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg"
-                                                alt="Gmail"
-                                                className="action-logo"
-                                            />
+                                            <Mail size={18} color="#EA4335" strokeWidth={2.5} />
                                         </button>
                                         <button
                                             className="action-btn-advanced share"
                                             title="Copy Lead Data"
+                                            onClick={() => handleCopyLead(lead)}
                                         >
                                             <Share2 size={18} color="#00d4ff" strokeWidth={2.5} />
                                         </button>
