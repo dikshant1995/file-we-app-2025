@@ -57,13 +57,13 @@ const AdminDashboard = ({ onBackToCustomer }) => {
   };
 
   const menuItems = [
-    { id: 'region-setup', icon: <MapPin size={18} />, label: 'Region Setup', component: 'RegionSetup' },
-    { id: 'leads', icon: <Layout size={18} />, label: 'Customer Lead Pipeline', component: 'LeadManager' },
-    { id: 'banks', icon: <Database size={18} />, label: 'Institutional Overview', component: 'BankList' },
-    { id: 'locations', icon: <MapPin size={18} />, label: 'City-Wise Overrides', component: 'LocationOverrideManager' },
-    { id: 'blog', icon: <FileText size={18} />, label: 'Neural Hub (Blogs)', component: 'BlogManager' },
-    { id: 'experience', icon: <Zap size={18} />, label: 'Experience Protocol', component: 'ExperienceManager' },
-    { id: 'config', icon: <Settings size={18} />, label: 'Generic Configuration', component: 'BankConfigEditor' },
+    { id: 'region-setup', icon: <MapPin size={18} stroke="#00d4ff" strokeWidth={2.5} />, label: 'Region Setup', component: 'RegionSetup' },
+    { id: 'leads', icon: <Layout size={18} stroke="#00d4ff" strokeWidth={2.5} />, label: 'Customer Lead Pipeline', component: 'LeadManager' },
+    { id: 'banks', icon: <Database size={18} stroke="#00d4ff" strokeWidth={2.5} />, label: 'Institutional Overview', component: 'BankList' },
+    { id: 'locations', icon: <MapPin size={18} stroke="#00d4ff" strokeWidth={2.5} />, label: 'City-Wise Overrides', component: 'LocationOverrideManager' },
+    { id: 'blog', icon: <FileText size={18} stroke="#00d4ff" strokeWidth={2.5} />, label: 'Neural Hub (Blogs)', component: 'BlogManager' },
+    { id: 'experience', icon: <Zap size={18} stroke="#00d4ff" strokeWidth={2.5} />, label: 'Experience Protocol', component: 'ExperienceManager' },
+    { id: 'config', icon: <Settings size={18} stroke="#00d4ff" strokeWidth={2.5} />, label: 'Generic Configuration', component: 'BankConfigEditor' },
     { id: 'categories', icon: '', label: 'Categorization Models', component: 'BankConfigEditor', section: 'categories' },
     { id: 'interest', icon: '', label: 'Rate Structures', component: 'BankConfigEditor', section: 'interest' },
     { id: 'loan-capping', icon: '', label: 'Capital Capping', component: 'BankConfigEditor', section: 'loanCapping' },
@@ -77,9 +77,9 @@ const AdminDashboard = ({ onBackToCustomer }) => {
     { id: 'documents', icon: '', label: 'Documentation Protocol', component: 'BankConfigEditor', section: 'documents' },
     { id: 'special', icon: '', label: 'Exceptional Policies', component: 'BankConfigEditor', section: 'special' },
     { id: 'fees', icon: '', label: 'Fee Schedules', component: 'BankConfigEditor', section: 'fees' },
-    { id: 'analytics', icon: <BarChart2 size={18} />, label: 'Strategic Analytics', component: 'Analytics' },
-    { id: 'import-export', icon: <ShieldCheck size={18} />, label: 'Data Governance', component: 'ImportExport' },
-    { id: 'audit', icon: <ShieldCheck size={18} />, label: 'Governance Logs', component: 'AuditLog' }
+    { id: 'analytics', icon: <BarChart2 size={18} stroke="#00d4ff" strokeWidth={2.5} />, label: 'Strategic Analytics', component: 'Analytics' },
+    { id: 'import-export', icon: <ShieldCheck size={18} stroke="#00d4ff" strokeWidth={2.5} />, label: 'Data Governance', component: 'ImportExport' },
+    { id: 'audit', icon: <ShieldCheck size={18} stroke="#00d4ff" strokeWidth={2.5} />, label: 'Governance Logs', component: 'AuditLog' }
   ];
 
   const renderContent = () => {
@@ -268,12 +268,12 @@ const AdminDashboard = ({ onBackToCustomer }) => {
           </div>
           <div className="header-right header-user-info">
             <div className="user-badge">
-              <User size={16} />
+              <User size={16} stroke="#00d4ff" strokeWidth={2.5} />
               <span>{user.displayName || user.email}</span>
               <span className="role-tag">{user.role?.toUpperCase()}</span>
             </div>
             <button className="btn-logout" onClick={handleLogout} title="Sign Out">
-              <LogOut size={18} />
+              <LogOut size={18} stroke="#ff4444" strokeWidth={2.5} />
             </button>
           </div>
         </div>
