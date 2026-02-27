@@ -96,17 +96,55 @@ const AdminDashboard = ({ onBackToCustomer }) => {
       case 'ExperienceManager':
         return <ExperienceManager />;
       case 'LocationOverrideManager':
+        if (!selectedBank) {
+          return (
+            <div className="no-bank-selected">
+              <div className="empty-state">
+                <div className="empty-icon">🏦</div>
+                <h3>Institutional Mandate Required</h3>
+                <p>Please select a specific Bank from the Institutional Overview to manage its regional overrides.</p>
+                <button className="btn-select-bank" onClick={() => setActiveMenu('banks')}>
+                  Go to Banks Overview
+                </button>
+              </div>
+            </div>
+          );
+        }
+
+        const bankConfig = getAllBankConfig(selectedBank.name);
+        // Collate all location names from all sections' overrides
+        const allLocationNames = new Set();
+        if (bankConfig.locationOverrides) {
+          Object.values(bankConfig.locationOverrides).forEach(sectionOverrides => {
+            Object.keys(sectionOverrides).forEach(locName => allLocationNames.add(locName));
+          });
+        }
+
+        const overridesObj = {};
+        allLocationNames.forEach(name => overridesObj[name] = true);
+
         return <LocationOverrideManager
-          overrides={{}} // Future: integrate with Firestore
+          overrides={overridesObj}
           activeLocation={activeLocation ? (activeLocation.city || activeLocation.state) : null}
           onSelectLocation={(loc) => {
-            // loc is string from LocationOverrideManager
             if (!loc) setActiveLocation(null);
             else {
-              // Basic heuristic: check if it's a state or city
-              // For now, simpler to just pass it as an object
+              // We store it as a simple object for now
               setActiveLocation({ state: loc, city: loc });
             }
+          }}
+          onAddLocation={(loc) => {
+            // Adding a location just sets it as active so user can edit rules
+            setActiveLocation({ state: loc, city: loc });
+            // Alert user to proceed to config sections
+            alert(`Location override for "${loc}" initialized.\n\nPlease navigate to the specific Policy sections (Multiplier, BT, etc.) to define local parameters.`);
+          }}
+          onRemoveLocation={(loc) => {
+            if (activeLocation?.city === loc || activeLocation?.state === loc) {
+              setActiveLocation(null);
+            }
+            alert(`Location override for "${loc}" removed from the active session.`);
+            // In a real app, we'd delete from Firestore/localStorage here
           }}
         />;
       case 'BankConfigEditor':

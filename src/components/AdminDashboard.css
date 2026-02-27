@@ -1,9 +1,21 @@
+:root {
+  --accent-cyan: #00d4ff;
+  --accent-green: #00ff88;
+  --accent-purple: #a855f7;
+  --bg-dark: #050811;
+  --bg-card: rgba(13, 22, 38, 0.7);
+  --border-glow: rgba(0, 255, 136, 0.1);
+  --text-muted: rgba(255, 255, 255, 0.5);
+  --danger: #ff4444;
+}
+
 .admin-dashboard {
   min-height: 100vh;
-  background: #050811;
+  background: var(--bg-dark);
   display: flex;
   flex-direction: column;
   color: #fff;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 /* Dashboard Header */
