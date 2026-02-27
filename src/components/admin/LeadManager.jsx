@@ -238,7 +238,8 @@ ${(lead?.selectedBanks || '').split(',').map(b => `- ${b.trim()}`).join('\n') ||
                             <th>Customer</th>
                             <th>Mobile</th>
                             <th>Employment / Income</th>
-                            <th>Eligibility Details</th>
+                            <th>Max Eligible Amount</th>
+                            <th>Preferred Institutions</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -267,12 +268,18 @@ ${(lead?.selectedBanks || '').split(',').map(b => `- ${b.trim()}`).join('\n') ||
                                     <div className="lead-income">₹{(lead?.totalIncome || lead?.monthlyIncome || 0).toLocaleString()} p.m.</div>
                                 </td>
                                 <td>
-                                    <div className="lead-banks">
-                                        {(lead?.selectedBanks || '').split(',').map((bank, index) => (
-                                            bank.trim() && <span key={index} className="bank-tag">{bank.trim()}</span>
-                                        ))}
+                                    <div className="lead-max-amount">
+                                        {lead?.maxLoanAmount ? `₹${Number(lead.maxLoanAmount).toLocaleString()}` : (lead?.maxLoanAmount === 0 ? '₹0' : 'Not Calculated')}
                                     </div>
-                                    <div className="lead-emi">Existing EMI: ₹{lead?.existingEMI || 0}</div>
+                                    <div className="lead-emi-detail">EMI: ₹{lead?.existingEMI || 0}</div>
+                                </td>
+                                <td>
+                                    <div className="lead-preferred-banks">
+                                        {(lead?.selectedBanks || '').split(',').map((bank, index) => (
+                                            bank.trim() && <span key={index} className="bank-tag-neural">{bank.trim()}</span>
+                                        ))}
+                                        {!(lead?.selectedBanks) && <span className="no-selection">No selection yet</span>}
+                                    </div>
                                 </td>
                                 <td>
                                     <div className="action-buttons">
