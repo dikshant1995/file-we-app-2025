@@ -360,3 +360,223 @@
     linear-gradient(90deg, rgba(0, 255, 136, 0.05) 1px, transparent 1px);
   background-size: 40px 40px;
 }
+
+/* Neural Gateway Styles */
+.location-gateway-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 8, 17, 0.85);
+  backdrop-filter: blur(12px);
+  padding: 20px;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.gateway-card {
+  width: 100%;
+  max-width: 500px;
+  background: rgba(13, 22, 38, 0.95);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 212, 255, 0.1);
+  text-align: center;
+}
+
+.gateway-header {
+  margin-bottom: 30px;
+}
+
+.gateway-icon {
+  color: var(--accent-cyan);
+  width: 48px;
+  height: 48px;
+  margin-bottom: 15px;
+}
+
+.gateway-header h2 {
+  font-size: 1.8rem;
+  margin: 0 0 10px 0;
+  background: linear-gradient(135deg, #00d4ff, #00ff88);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gateway-header p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.gateway-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.gateway-input {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.gateway-input:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
+  outline: none;
+}
+
+.btn-gateway-go {
+  margin-top: 10px;
+  padding: 15px;
+  background: linear-gradient(135deg, #00d4ff, #00ff88);
+  border: none;
+  border-radius: 10px;
+  color: #050811;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3);
+}
+
+.btn-gateway-go:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 255, 136, 0.5);
+}
+
+.btn-gateway-go:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.gateway-footer {
+  margin-top: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Operating Region Banner */
+.operating-region-banner {
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  padding: 12px 25px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  backdrop-filter: blur(5px);
+}
+
+.region-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--accent-cyan);
+  font-size: 0.9rem;
+}
+
+.region-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.editing-tag {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.btn-banner-action {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-banner-action:hover {
+  background: rgba(0, 212, 255, 0.2);
+  border-color: var(--accent-cyan);
+}
+
+.btn-banner-action.reset {
+  color: #ffaa00;
+  border-color: rgba(255, 170, 0, 0.3);
+}
+
+.btn-banner-action.reset:hover {
+  background: rgba(255, 170, 0, 0.1);
+  border-color: #ffaa00;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Integrated Region Setup View */
+.region-setup-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 200px);
+  padding: 20px;
+}
+
+.gateway-card.integrated {
+  background: rgba(13, 22, 38, 0.4);
+  border: 1px solid rgba(0, 255, 136, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-width: 600px;
+  backdrop-filter: blur(5px);
+}
+
+.gateway-card.integrated .gateway-header h2 {
+  background: linear-gradient(135deg, #00ff88, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
