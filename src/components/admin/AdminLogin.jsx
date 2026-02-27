@@ -21,18 +21,19 @@ const AdminLogin = ({ onLoginSuccess }) => {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            // Check role in Firestore
             const userDoc = await getDoc(doc(db, 'users', user.uid));
             if (userDoc.exists()) {
-                const userData = userDoc.data();
-                onLoginSuccess(userData);
+                onLoginSuccess(userDoc.data());
             } else {
-                // Handle case where user exists in Auth but not in Firestore (shouldn't happen with proper flow)
-                setError('Profile not found in database. Contact support.');
+                setError('Auth successful, but no Profile found. Please use "Setup" mode to initialize.');
             }
         } catch (err) {
             console.error('Login Error:', err);
-            setError('Invalid credentials or neural connection failure.');
+            if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+                setError('Invalid credentials. Check email/key.');
+            } else {
+                setError('Neural connection failure: ' + err.message);
+            }
         } finally {
             setLoading(false);
         }
@@ -60,7 +61,13 @@ const AdminLogin = ({ onLoginSuccess }) => {
             onLoginSuccess(ceoProfile);
         } catch (err) {
             console.error('Setup Error:', err);
-            setError('Account setup failed. Possibly already exists.');
+            if (err.code === 'auth/email-already-in-use') {
+                setError('Email already registered. Click "Sign In" below.');
+            } else if (err.code === 'auth/weak-password') {
+                setError('Key too weak. Use at least 6 characters.');
+            } else {
+                setError('Setup failed: ' + err.message);
+            }
         } finally {
             setLoading(false);
         }
