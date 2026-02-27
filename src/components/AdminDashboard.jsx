@@ -62,6 +62,13 @@ const AdminDashboard = ({ onBackToCustomer }) => {
     { id: 'age-rules', icon: '', label: 'Demographic Rules', component: 'BankConfigEditor', section: 'ageRules' },
     { id: 'tenure', icon: '', label: 'Tenure Optimization', component: 'BankConfigEditor', section: 'tenureRules' },
     { id: 'foir', icon: '', label: 'FOIR Parameters', component: 'BankConfigEditor', section: 'foir' },
+    { id: 'multiplier', icon: '', label: 'Multiplier Logic', component: 'BankConfigEditor', section: 'multiplier' },
+    { id: 'bt', icon: '', label: 'Liability Consolidation', component: 'BankConfigEditor', section: 'bt' },
+    { id: 'credit-score', icon: '', label: 'Risk Assessment', component: 'BankConfigEditor', section: 'creditScore' },
+    { id: 'employment', icon: '', label: 'Employment Credentialing', component: 'BankConfigEditor', section: 'employment' },
+    { id: 'documents', icon: '', label: 'Documentation Protocol', component: 'BankConfigEditor', section: 'documents' },
+    { id: 'special', icon: '', label: 'Exceptional Policies', component: 'BankConfigEditor', section: 'special' },
+    { id: 'fees', icon: '', label: 'Fee Schedules', component: 'BankConfigEditor', section: 'fees' },
     { id: 'analytics', icon: <BarChart2 size={18} />, label: 'Strategic Analytics', component: 'Analytics' },
     { id: 'import-export', icon: <ShieldCheck size={18} />, label: 'Data Governance', component: 'ImportExport' },
     { id: 'audit', icon: <ShieldCheck size={18} />, label: 'Governance Logs', component: 'AuditLog' }
@@ -88,9 +95,17 @@ const AdminDashboard = ({ onBackToCustomer }) => {
         return <ExperienceManager />;
       case 'LocationOverrideManager':
         return <LocationOverrideManager
-          overrides={{}} // We will link this to the selected bank's data soon
-          activeLocation={activeLocation}
-          onSelectLocation={(loc) => setActiveLocation(loc)}
+          overrides={{}} // Future: integrate with Firestore
+          activeLocation={activeLocation ? (activeLocation.city || activeLocation.state) : null}
+          onSelectLocation={(loc) => {
+            // loc is string from LocationOverrideManager
+            if (!loc) setActiveLocation(null);
+            else {
+              // Basic heuristic: check if it's a state or city
+              // For now, simpler to just pass it as an object
+              setActiveLocation({ state: loc, city: loc });
+            }
+          }}
         />;
       case 'BankConfigEditor':
         return <BankConfigEditor
