@@ -6,12 +6,13 @@ import Analytics from './admin/Analytics';
 import ImportExport from './admin/ImportExport';
 import AuditLog from './admin/AuditLog';
 import AddBankModal from './admin/AddBankModal';
-import LeadManager from './admin/LeadManager';
-import AdminLogin from './admin/AdminLogin';
+import BlogManager from './admin/BlogManager';
+import LocationOverrideManager from './admin/LocationOverrideManager';
+import ExperienceManager from './admin/ExperienceManager';
 import { auth, db } from '../config/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
-import { LogOut, User } from 'lucide-react';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { LogOut, User, Layout, FileText, MapPin, Settings, BarChart2, Database, ShieldCheck, Zap } from 'lucide-react';
 
 const AdminDashboard = ({ onBackToCustomer }) => {
   const [activeMenu, setActiveMenu] = useState('leads');
@@ -20,6 +21,7 @@ const AdminDashboard = ({ onBackToCustomer }) => {
   const [customBanks, setCustomBanks] = useState([]);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeLocation, setActiveLocation] = useState(null); // {state, city} or null for global
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -48,25 +50,21 @@ const AdminDashboard = ({ onBackToCustomer }) => {
   };
 
   const menuItems = [
-    { id: 'leads', icon: '', label: 'Customer Lead Pipeline', component: 'LeadManager' },
-    { id: 'banks', icon: '', label: 'Institutional Overview', component: 'BankList' },
-    { id: 'config', icon: '', label: 'Policy Configuration', component: 'BankConfigEditor' },
+    { id: 'leads', icon: <Layout size={18} />, label: 'Customer Lead Pipeline', component: 'LeadManager' },
+    { id: 'banks', icon: <Database size={18} />, label: 'Institutional Overview', component: 'BankList' },
+    { id: 'locations', icon: <MapPin size={18} />, label: 'City-Wise Overrides', component: 'LocationOverrideManager' },
+    { id: 'blog', icon: <FileText size={18} />, label: 'Neural Hub (Blogs)', component: 'BlogManager' },
+    { id: 'experience', icon: <Zap size={18} />, label: 'Experience Protocol', component: 'ExperienceManager' },
+    { id: 'config', icon: <Settings size={18} />, label: 'Generic Configuration', component: 'BankConfigEditor' },
     { id: 'categories', icon: '', label: 'Categorization Models', component: 'BankConfigEditor', section: 'categories' },
     { id: 'interest', icon: '', label: 'Rate Structures', component: 'BankConfigEditor', section: 'interest' },
     { id: 'loan-capping', icon: '', label: 'Capital Capping', component: 'BankConfigEditor', section: 'loanCapping' },
     { id: 'age-rules', icon: '', label: 'Demographic Rules', component: 'BankConfigEditor', section: 'ageRules' },
     { id: 'tenure', icon: '', label: 'Tenure Optimization', component: 'BankConfigEditor', section: 'tenureRules' },
     { id: 'foir', icon: '', label: 'FOIR Parameters', component: 'BankConfigEditor', section: 'foir' },
-    { id: 'multiplier', icon: '', label: 'Multiplier Logic', component: 'BankConfigEditor', section: 'multiplier' },
-    { id: 'bt', icon: '', label: 'Liability Consolidation', component: 'BankConfigEditor', section: 'bt' },
-    { id: 'credit-score', icon: '', label: 'Risk Assessment', component: 'BankConfigEditor', section: 'creditScore' },
-    { id: 'employment', icon: '', label: 'Employment Credentialing', component: 'BankConfigEditor', section: 'employment' },
-    { id: 'documents', icon: '', label: 'Documentation Protocol', component: 'BankConfigEditor', section: 'documents' },
-    { id: 'special', icon: '', label: 'Exceptional Policies', component: 'BankConfigEditor', section: 'special' },
-    { id: 'fees', icon: '', label: 'Fee Schedules', component: 'BankConfigEditor', section: 'fees' },
-    { id: 'analytics', icon: '', label: 'Performance Analytics', component: 'Analytics' },
-    { id: 'import-export', icon: '', label: 'Data Migration', component: 'ImportExport' },
-    { id: 'audit', icon: '', label: 'Governance Logs', component: 'AuditLog' }
+    { id: 'analytics', icon: <BarChart2 size={18} />, label: 'Strategic Analytics', component: 'Analytics' },
+    { id: 'import-export', icon: <ShieldCheck size={18} />, label: 'Data Governance', component: 'ImportExport' },
+    { id: 'audit', icon: <ShieldCheck size={18} />, label: 'Governance Logs', component: 'AuditLog' }
   ];
 
   const renderContent = () => {
@@ -84,8 +82,23 @@ const AdminDashboard = ({ onBackToCustomer }) => {
         />;
       case 'LeadManager':
         return <LeadManager userRole={user?.role} />;
+      case 'BlogManager':
+        return <BlogManager />;
+      case 'ExperienceManager':
+        return <ExperienceManager />;
+      case 'LocationOverrideManager':
+        return <LocationOverrideManager
+          overrides={{}} // We will link this to the selected bank's data soon
+          activeLocation={activeLocation}
+          onSelectLocation={(loc) => setActiveLocation(loc)}
+        />;
       case 'BankConfigEditor':
-        return <BankConfigEditor selectedBank={selectedBank} section={activeItem.section} onNavigate={(id) => setActiveMenu(id)} />;
+        return <BankConfigEditor
+          selectedBank={selectedBank}
+          section={activeItem.section}
+          activeLocation={activeLocation || {}} // Ensure it's an object
+          onNavigate={(id) => setActiveMenu(id)}
+        />;
       case 'Analytics':
         return <Analytics />;
       case 'ImportExport':
@@ -131,7 +144,7 @@ const AdminDashboard = ({ onBackToCustomer }) => {
             <button className="btn-back-portal" onClick={onBackToCustomer}>
               ← Back to Portal
             </button>
-            <h1>Bank Governance & Policy Control</h1>
+            <h1>{menuItems.find(i => i.id === activeMenu)?.label || "Bank Governance"}</h1>
           </div>
           <div className="header-right header-user-info">
             <div className="user-badge">
