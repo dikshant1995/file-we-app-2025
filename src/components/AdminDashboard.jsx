@@ -1,112 +1,91 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import {
-  Users,
-  Settings,
-  Database,
-  LogOut,
-  LayoutDashboard,
-  BarChart2,
-  Bell,
-  Shield,
-  FileText,
-  MessageCircle,
-  Archive,
-  Lock,
-  ChevronRight,
-  Layers,
-  History,
-  TrendingUp,
-  BarChart3,
-  Zap,
-  Target,
-  ArrowLeftRight,
-  ShieldCheck,
-  Clock,
-  Briefcase,
-  UserCheck,
-  FileSignature,
-  Percent
-} from 'lucide-react';
+import { useState, useEffect } from 'react';
+import './AdminDashboard.css';
 import BankList from './admin/BankList';
-import LeadManager from './admin/LeadManager';
-import BlogManager from './admin/BlogManager';
-import ExperienceManager from './admin/ExperienceManager';
 import BankConfigEditor from './admin/BankConfigEditor';
 import Analytics from './admin/Analytics';
 import ImportExport from './admin/ImportExport';
 import AuditLog from './admin/AuditLog';
+import AddBankModal from './admin/AddBankModal';
+import LeadManager from './admin/LeadManager';
 import AdminLogin from './admin/AdminLogin';
-import './AdminDashboard.css';
+import { auth, db } from '../config/firebase';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { LogOut, User } from 'lucide-react';
 
 const AdminDashboard = ({ onBackToCustomer }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return localStorage.getItem('admin_authenticated') === 'true';
-  });
-  const [activeTab, setActiveTab] = useState('leads');
+  const [activeMenu, setActiveMenu] = useState('leads');
+  const [selectedBank, setSelectedBank] = useState(null);
+  const [showAddBankModal, setShowAddBankModal] = useState(false);
+  const [customBanks, setCustomBanks] = useState([]);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleLogin = () => {
-    setIsAuthenticated(true);
-    localStorage.setItem('admin_authenticated', 'true');
-  };
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        // Fetch user profile from Firestore
+        const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+        if (userDoc.exists()) {
+          setUser(userDoc.data());
+        }
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    });
 
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    localStorage.removeItem('admin_authenticated');
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setUser(null);
+    } catch (err) {
+      console.error('Logout Error:', err);
+    }
   };
 
   const menuItems = [
-    { id: 'leads', icon: <Users size={18} />, label: 'Customer Lead Pipeline', component: 'LeadManager' },
-    { id: 'blogs', icon: <FileText size={18} />, label: 'Financial Hub (Blogs)', component: 'BlogManager' },
-    { id: 'feedback', icon: <MessageCircle size={18} />, label: 'Experience Pulses', component: 'ExperienceManager' },
-    { id: 'banks', icon: <Database size={18} />, label: 'Institutional Overview', component: 'BankList' },
-    { id: 'config', icon: <Settings size={18} />, label: 'Policy Configuration', component: 'BankConfigEditor' },
-    { id: 'categories', icon: <Layers size={18} />, label: 'Categorization Models', component: 'BankConfigEditor', section: 'categories' },
-    { id: 'interest', icon: <Percent size={18} />, label: 'Rate Structures', component: 'BankConfigEditor', section: 'interest' },
-    { id: 'loan-capping', icon: <Lock size={18} />, label: 'Capital Capping', component: 'BankConfigEditor', section: 'loanCapping' },
-    { id: 'age-rules', icon: <UserCheck size={18} />, label: 'Demographic Rules', component: 'BankConfigEditor', section: 'ageRules' },
-    { id: 'tenure', icon: <Clock size={18} />, label: 'Tenure Optimization', component: 'BankConfigEditor', section: 'tenureRules' },
-    { id: 'foir', icon: <Target size={18} />, label: 'FOIR Parameters', component: 'BankConfigEditor', section: 'foir' },
-    { id: 'multiplier', icon: <Zap size={18} />, label: 'Multiplier Logic', component: 'BankConfigEditor', section: 'multiplier' },
-    { id: 'bt', icon: <ArrowLeftRight size={18} />, label: 'Liability Consolidation', component: 'BankConfigEditor', section: 'bt' },
-    { id: 'credit-score', icon: <ShieldCheck size={18} />, label: 'Risk Assessment', component: 'BankConfigEditor', section: 'creditScore' },
-    { id: 'employment', icon: <Briefcase size={18} />, label: 'Employment Credentialing', component: 'BankConfigEditor', section: 'employment' },
-    { id: 'documents', icon: <FileSignature size={18} />, label: 'Documentation Protocol', component: 'BankConfigEditor', section: 'documents' },
-    { id: 'special', icon: <FileText size={18} />, label: 'Exceptional Policies', component: 'BankConfigEditor', section: 'special' },
-    { id: 'fees', icon: <Percent size={18} />, label: 'Fee Schedules', component: 'BankConfigEditor', section: 'fees' },
-    { id: 'analytics', icon: <BarChart3 size={18} />, label: 'Performance Analytics', component: 'Analytics' },
-    { id: 'import-export', icon: <ArrowLeftRight size={18} />, label: 'Data Operations', component: 'ImportExport' },
-    { id: 'audit', icon: <History size={18} />, label: 'System Audit Log', component: 'AuditLog' }
+    { id: 'leads', icon: '', label: 'Customer Lead Pipeline', component: 'LeadManager' },
+    { id: 'banks', icon: '', label: 'Institutional Overview', component: 'BankList' },
+    { id: 'config', icon: '', label: 'Policy Configuration', component: 'BankConfigEditor' },
+    { id: 'categories', icon: '', label: 'Categorization Models', component: 'BankConfigEditor', section: 'categories' },
+    { id: 'interest', icon: '', label: 'Rate Structures', component: 'BankConfigEditor', section: 'interest' },
+    { id: 'loan-capping', icon: '', label: 'Capital Capping', component: 'BankConfigEditor', section: 'loanCapping' },
+    { id: 'age-rules', icon: '', label: 'Demographic Rules', component: 'BankConfigEditor', section: 'ageRules' },
+    { id: 'tenure', icon: '', label: 'Tenure Optimization', component: 'BankConfigEditor', section: 'tenureRules' },
+    { id: 'foir', icon: '', label: 'FOIR Parameters', component: 'BankConfigEditor', section: 'foir' },
+    { id: 'multiplier', icon: '', label: 'Multiplier Logic', component: 'BankConfigEditor', section: 'multiplier' },
+    { id: 'bt', icon: '', label: 'Liability Consolidation', component: 'BankConfigEditor', section: 'bt' },
+    { id: 'credit-score', icon: '', label: 'Risk Assessment', component: 'BankConfigEditor', section: 'creditScore' },
+    { id: 'employment', icon: '', label: 'Employment Credentialing', component: 'BankConfigEditor', section: 'employment' },
+    { id: 'documents', icon: '', label: 'Documentation Protocol', component: 'BankConfigEditor', section: 'documents' },
+    { id: 'special', icon: '', label: 'Exceptional Policies', component: 'BankConfigEditor', section: 'special' },
+    { id: 'fees', icon: '', label: 'Fee Schedules', component: 'BankConfigEditor', section: 'fees' },
+    { id: 'analytics', icon: '', label: 'Performance Analytics', component: 'Analytics' },
+    { id: 'import-export', icon: '', label: 'Data Migration', component: 'ImportExport' },
+    { id: 'audit', icon: '', label: 'Governance Logs', component: 'AuditLog' }
   ];
 
-  const [selectedBank, setSelectedBank] = useState(null);
-  const [activeLocation, setActiveLocation] = useState({ state: '', city: '' });
-
-  const renderView = () => {
-    const activeItem = menuItems.find(item => item.id === activeTab);
+  const renderContent = () => {
+    const activeItem = menuItems.find(item => item.id === activeMenu);
 
     switch (activeItem?.component) {
-      case 'LeadManager':
-        return <LeadManager />;
-      case 'BlogManager':
-        return <BlogManager />;
-      case 'ExperienceManager':
-        return <ExperienceManager />;
       case 'BankList':
         return <BankList
-          activeLocation={activeLocation}
+          customBanks={customBanks}
           onSelectBank={(bank) => {
             setSelectedBank(bank);
-            setActiveTab('config');
+            setActiveMenu('config');
           }}
+          onAddBank={() => setShowAddBankModal(true)}
         />;
+      case 'LeadManager':
+        return <LeadManager userRole={user?.role} />;
       case 'BankConfigEditor':
-        return <BankConfigEditor
-          selectedBank={selectedBank}
-          section={activeItem.section}
-          activeLocation={activeLocation}
-          onNavigate={(id) => setActiveTab(id)}
-        />;
+        return <BankConfigEditor selectedBank={selectedBank} section={activeItem.section} onNavigate={(id) => setActiveMenu(id)} />;
       case 'Analytics':
         return <Analytics />;
       case 'ImportExport':
@@ -114,101 +93,100 @@ const AdminDashboard = ({ onBackToCustomer }) => {
       case 'AuditLog':
         return <AuditLog />;
       default:
-        return <LeadManager />;
+        return <div>Select a menu item</div>;
     }
   };
 
-  if (!isAuthenticated) {
-    return <AdminLogin onLogin={handleLogin} />;
+  if (loading) {
+    return (
+      <div className="admin-loading">
+        <div className="loader"></div>
+        <p>Syncing Neural Networks...</p>
+      </div>
+    );
   }
 
+  if (!user) {
+    return <AdminLogin onLoginSuccess={(userData) => setUser(userData)} />;
+  }
+
+  const handleBankAdded = (newBank) => {
+    setCustomBanks([...customBanks, newBank]);
+    alert(`Institution "${newBank.name}" initialized successfully with standard regulatory frameworks.\n\nYou may now proceed with granular policy configuration.`);
+  };
+
   return (
-    <div className="admin-dashboard-layout">
-      {/* Sidebar */}
-      <aside className="dashboard-sidebar">
-        <div className="sidebar-header">
-          <div className="logo-box">
-            <Shield size={22} className="logo-icon" />
-            <div className="logo-text">
-              <span className="logo-main">LAXMI</span>
-              <span className="logo-sub">CREDIT ROOT</span>
+    <div className="admin-dashboard professional-grid-bg">
+      {/* Add Bank Modal */}
+      {showAddBankModal && (
+        <AddBankModal
+          onClose={() => setShowAddBankModal(false)}
+          onBankAdded={handleBankAdded}
+        />
+      )}
+      {/* Top Header */}
+      <header className="dashboard-header">
+        <div className="header-content">
+          <div className="header-left">
+            <button className="btn-back-portal" onClick={onBackToCustomer}>
+              ← Back to Portal
+            </button>
+            <h1>Bank Governance & Policy Control</h1>
+          </div>
+          <div className="header-right header-user-info">
+            <div className="user-badge">
+              <User size={16} />
+              <span>{user.displayName || user.email}</span>
+              <span className="role-tag">{user.role?.toUpperCase()}</span>
             </div>
+            <button className="btn-logout" onClick={handleLogout} title="Sign Out">
+              <LogOut size={18} />
+            </button>
           </div>
         </div>
+      </header>
 
-        <nav className="sidebar-nav">
-          <div className="nav-group">
-            <div className="nav-group-label">Core Operations</div>
-            {menuItems.slice(0, 3).map(item => (
-              <button
-                key={item.id}
-                className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
-                onClick={() => setActiveTab(item.id)}
-              >
-                {item.icon}
-                <span>{item.label}</span>
-                {activeTab === item.id && <motion.div layoutId="activeNav" className="active-indicator" />}
+      <div className="dashboard-container">
+        {/* Sidebar Navigation */}
+        <aside className="dashboard-sidebar">
+          <div className="sidebar-content">
+            <h3>Navigation</h3>
+            <nav className="sidebar-menu">
+              {menuItems.map(item => {
+                // Future: Role-based filtering of menu items
+                if (user.role === 'employee' && item.id !== 'leads') return null;
+
+                return (
+                  <button
+                    key={item.id}
+                    className={`menu-item ${activeMenu === item.id ? 'active' : ''}`}
+                    onClick={() => setActiveMenu(item.id)}
+                  >
+                    <span className="menu-icon">{item.icon}</span>
+                    <span className="menu-label">{item.label}</span>
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+        </aside>
+
+        {/* Main Content Area */}
+        <main className="dashboard-main">
+          {selectedBank && activeMenu !== 'banks' && activeMenu !== 'analytics' && activeMenu !== 'import-export' && activeMenu !== 'audit' && (
+            <div className="selected-bank-banner">
+              <span>Editing: <strong>{selectedBank.name}</strong></span>
+              <button className="btn-change-bank" onClick={() => setActiveMenu('banks')}>
+                Change Bank
               </button>
-            ))}
-          </div>
-
-          <div className="nav-group">
-            <div className="nav-group-label">System Control</div>
-            {menuItems.slice(3).map(item => (
-              <button
-                key={item.id}
-                className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
-                onClick={() => setActiveTab(item.id)}
-              >
-                {item.icon}
-                <span>{item.label}</span>
-                {activeTab === item.id && <motion.div layoutId="activeNav" className="active-indicator" />}
-              </button>
-            ))}
-          </div>
-        </nav>
-
-        <div className="sidebar-footer">
-          <button className="btn-logout" onClick={handleLogout}>
-            <LogOut size={18} />
-            <span>TERMINATE SESSION</span>
-          </button>
-          <button
-            className="btn-logout"
-            onClick={onBackToCustomer}
-            style={{ marginTop: '8px', background: 'rgba(255,255,255,0.05)', color: '#94a3b8', borderColor: 'rgba(255,255,255,0.1)' }}
-          >
-            <ArrowLeftRight size={16} />
-            <span>EXIT TO PORTAL</span>
-          </button>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="dashboard-main">
-        <header className="dashboard-top-bar">
-          <div className="top-bar-left">
-            <div className="view-title">
-              {menuItems.find(i => i.id === activeTab)?.label || 'System Overview'}
             </div>
-          </div>
+          )}
 
-          <div className="top-bar-right">
-            <div className="system-status">
-              <span className="status-dot"></span>
-              Neural Link: Active
-            </div>
-            <div className="notification-bell">
-              <Bell size={18} />
-              <span className="notification-badge"></span>
-            </div>
+          <div className="content-area">
+            {renderContent()}
           </div>
-        </header>
-
-        <div className="dashboard-content">
-          {renderView()}
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 };
