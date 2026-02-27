@@ -65,7 +65,10 @@ const BankConfigEditor = ({ selectedBank, section, activeLocation }) => {
 
 // Updated AllConfigSection to show actual values based on location
 const AllConfigSection = ({ bank, activeLocation }) => {
-  const context = { state: activeLocation.state, city: activeLocation.city };
+  const context = {
+    state: activeLocation ? activeLocation.state : null,
+    city: activeLocation ? activeLocation.city : null
+  };
 
   const getDisplayValue = (section, key, subKey = null) => {
     const sectionConfig = getBankConfig(bank.name, section, context);
@@ -85,7 +88,7 @@ const AllConfigSection = ({ bank, activeLocation }) => {
     <div className="config-section">
       <div className="section-header-summary">
         <h2>Unified Policy Framework: {bank.name}</h2>
-        <p>Viewing parameters for: <strong>{activeLocation.city || activeLocation.state || 'All India (National)'}</strong></p>
+        <p>Viewing parameters for: <strong>{activeLocation ? (activeLocation.city || activeLocation.state) : 'All India (National)'}</strong></p>
       </div>
 
       <div className="config-overview">

@@ -54,7 +54,10 @@ const InterestRateEditor = ({ bank, onSave, activeLocation }) => {
     setLocationOverrides(fullConfig.locationOverrides?.interestRates || {});
 
     // 2. Load specific rates based on activeLocation prop
-    const context = { state: activeLocation.state, city: activeLocation.city };
+    const context = {
+      state: activeLocation ? activeLocation.state : null,
+      city: activeLocation ? activeLocation.city : null
+    };
     const savedConfig = getBankConfig(bank.name, 'interestRates', context);
 
     if (savedConfig && savedConfig.categorySlabRates) {
@@ -79,7 +82,7 @@ const InterestRateEditor = ({ bank, onSave, activeLocation }) => {
 
   const handleSave = () => {
     // Determine the specific location string for saving override
-    const locationKey = activeLocation.city || activeLocation.state || null;
+    const locationKey = activeLocation ? (activeLocation.city || activeLocation.state) : null;
 
     const success = saveBankConfig(bank.name, 'interestRates', config, locationKey);
     if (success) {
@@ -101,14 +104,14 @@ const InterestRateEditor = ({ bank, onSave, activeLocation }) => {
     <div className="config-editor">
       <div className="editor-header">
         <h2>📈 Interest Rate Matrix - {bank.name}</h2>
-        <p>Configuring for: <strong>{activeLocation.city || activeLocation.state || 'All India (National)'}</strong></p>
+        <p>Configuring for: <strong>{activeLocation ? (activeLocation.city || activeLocation.state) : 'All India (National)'}</strong></p>
       </div>
 
       <div className="existing-overrides-badges">
         <span className="badge-label">Available Overrides for this bank:</span>
         {Object.keys(locationOverrides).length > 0 ? (
           Object.keys(locationOverrides).map(loc => (
-            <span key={loc} className={`loc-badge ${(activeLocation.state === loc || activeLocation.city === loc) ? 'active' : ''}`}>
+            <span key={loc} className={`loc-badge ${(activeLocation && (activeLocation.state === loc || activeLocation.city === loc)) ? 'active' : ''}`}>
               📍 {loc}
             </span>
           ))

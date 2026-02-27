@@ -323,7 +323,10 @@ const CategoriesEditor = ({ bank, onSave, activeLocation }) => {
     setLocationOverrides(fullConfig.locationOverrides?.categories || {});
 
     // 2. Load specific categories based on activeLocation prop
-    const context = { state: activeLocation.state, city: activeLocation.city };
+    const context = {
+      state: activeLocation ? activeLocation.state : null,
+      city: activeLocation ? activeLocation.city : null
+    };
     const savedConfig = getBankConfig(bank.name, 'categories', context);
 
     if (savedConfig) {
@@ -357,7 +360,7 @@ const CategoriesEditor = ({ bank, onSave, activeLocation }) => {
   };
 
   const handleSave = () => {
-    const locationKey = activeLocation.city || activeLocation.state || null;
+    const locationKey = activeLocation ? (activeLocation.city || activeLocation.state) : null;
     const success = saveBankConfig(bank.name, 'categories', categories, locationKey);
     if (success) {
       onSave && onSave(categories);
@@ -376,14 +379,14 @@ const CategoriesEditor = ({ bank, onSave, activeLocation }) => {
     <div className="config-editor">
       <div className="editor-header">
         <h2>📊 Category Configuration - {bank.name}</h2>
-        <p>Configuring for: <strong>{activeLocation.city || activeLocation.state || 'All India (National)'}</strong></p>
+        <p>Configuring for: <strong>{activeLocation ? (activeLocation.city || activeLocation.state) : 'All India (National)'}</strong></p>
       </div>
 
       <div className="existing-overrides-badges">
         <span className="badge-label">Available Overrides (this section):</span>
         {Object.keys(locationOverrides).length > 0 ? (
           Object.keys(locationOverrides).map(loc => (
-            <span key={loc} className={`loc-badge ${(activeLocation.state === loc || activeLocation.city === loc) ? 'active' : ''}`}>
+            <span key={loc} className={`loc-badge ${(activeLocation && (activeLocation.state === loc || activeLocation.city === loc)) ? 'active' : ''}`}>
               📍 {loc}
             </span>
           ))
