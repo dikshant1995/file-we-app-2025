@@ -1,11 +1,11 @@
 /* Professional Unified Action Buttons */
 .action-btn-advanced {
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 12px;
+    border-radius: 6px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.1);
     color: rgba(255, 255, 255, 0.6);
@@ -13,6 +13,56 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: visible;
+}
+
+/* Compacting Table Styles */
+.leads-table th {
+    padding: 12px 15px !important;
+    font-size: 0.75rem !important;
+}
+
+.leads-table td {
+    padding: 10px 15px !important;
+}
+
+.lead-name {
+    font-size: 0.9rem !important;
+    margin-bottom: 1px !important;
+}
+
+.lead-time {
+    font-size: 0.7rem !important;
+}
+
+.lead-mobile {
+    font-size: 0.85rem !important;
+}
+
+.lead-company {
+    font-size: 0.85rem !important;
+    margin-bottom: 1px !important;
+}
+
+.lead-income,
+.lead-max-amount {
+    font-size: 0.75rem !important;
+}
+
+.lead-emi-detail,
+.lead-emi {
+    font-size: 0.7rem !important;
+}
+
+.bank-tag-neural,
+.bank-tag {
+    font-size: 0.65rem !important;
+    padding: 1px 6px !important;
+}
+
+.action-buttons {
+    display: flex !important;
+    gap: 6px !important;
+    flex-wrap: nowrap !important;
 }
 
 .action-btn-advanced:hover {
@@ -39,10 +89,10 @@ svg.lucide,
     vertical-align: middle !important;
     stroke: currentColor !important;
     stroke-width: 2.5px !important;
-    width: 20px !important;
-    height: 20px !important;
-    min-width: 20px !important;
-    min-height: 20px !important;
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    min-height: 16px !important;
     fill: none !important;
     visibility: visible !important;
     opacity: 1 !important;
