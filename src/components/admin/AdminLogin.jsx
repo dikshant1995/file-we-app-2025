@@ -10,7 +10,8 @@ const AdminLogin = ({ onLoginSuccess }) => {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [isSignUp, setIsSignUp] = useState(false); // Locked for security
+    const [isSignUp] = useState(false); // Locked for security
+
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -43,7 +44,7 @@ const AdminLogin = ({ onLoginSuccess }) => {
                         <Shield size={32} color="#00ff88" />
                     </div>
                     <h2>Laxmi Neural Gate</h2>
-                    <p>Enterprise Access Protocol</p>
+                    <p>{isSignUp ? "Initialize Master CEO Account" : "Enterprise Access Protocol"}</p>
                 </div>
 
                 <form className="login-form" onSubmit={handleLogin}>
