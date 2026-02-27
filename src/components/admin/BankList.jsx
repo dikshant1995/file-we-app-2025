@@ -26,7 +26,10 @@ const BankList = ({ onSelectBank, onAddBank, customBanks = [], activeLocation })
 
   // Helper to get bank summary rules with location context
   const getBankSummary = (bankName) => {
-    const context = { state: activeLocation.state, city: activeLocation.city };
+    const context = {
+      state: activeLocation ? activeLocation.state : null,
+      city: activeLocation ? activeLocation.city : null
+    };
     const age = getBankConfig(bankName, 'ageRules', context);
     const salary = getBankConfig(bankName, 'employmentRules', context);
     const capping = getBankConfig(bankName, 'loanCapping', context);
