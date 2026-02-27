@@ -49,6 +49,7 @@ export const saveLead = async (formData, submissionData) => {
             creditCards: creditCards || 'None',
             state: formData.state || submissionData.state || '',
             city: formData.city || submissionData.city || '',
+            maxLoanAmount: submissionData.maxLoanAmount || 0
         };
 
         await fetch(APPS_SCRIPT_URL, {
