@@ -50,7 +50,8 @@ function CustomerFacingApp() {
       setMetadata(formData._metadata);
 
       // 🔴 Save lead to Google Sheets (silent, non-blocking via proxy)
-      saveLead(lastFormDataRef.current || {}, formData);
+      const maxEligibleAmount = Math.max(0, ...calculationResults.map(r => r.maxEligibleAmount || 0));
+      saveLead(lastFormDataRef.current || {}, { ...formData, maxLoanAmount: maxEligibleAmount });
 
       setTimeout(() => {
         document.getElementById('results-section')?.scrollIntoView({
