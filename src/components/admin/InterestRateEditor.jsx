@@ -145,7 +145,7 @@ const InterestRateEditor = ({ bank, onSave, activeLocation }) => {
                       <input
                         type="number"
                         step="0.01"
-                        value={config.categorySlabRates[category]?.[slab.label] || 11.0}
+                        value={config?.categorySlabRates?.[category]?.[slab.label] || 11.0}
                         onChange={(e) => handleRateChange(category, slab.label, e.target.value)}
                         style={{
                           width: '80px',
