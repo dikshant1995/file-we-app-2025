@@ -3,7 +3,7 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyD9D1bKRLvS6GwnJLfjRDBjMKKkQtvlifE",
+    apiKey: "AIzaSyD9D1bKRLvS6GwnJLfjRDBjMkKkQtvlifE",
     authDomain: "laxmi-credit-enterprise.firebaseapp.com",
     projectId: "laxmi-credit-enterprise",
     storageBucket: "laxmi-credit-enterprise.firebasestorage.app",
