@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Download, Search, MessageCircle, Copy, Trash2, Plus, Share2 } from 'lucide-react';
+import { Mail, Download, Search, MessageCircle, Copy, Trash2, Plus, Share2, Lock } from 'lucide-react';
 import './LeadManager.css';
 
 const LeadManager = ({ userRole }) => {

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './CustomerResultsDisplay.css';
 import { saveSelectedBanks } from '../services/leadService';
+import { Shield } from 'lucide-react';
 
 const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
   const [sortBy, setSortBy] = useState('loanAmount');

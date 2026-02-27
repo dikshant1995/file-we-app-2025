@@ -14,6 +14,7 @@ import AdminLogin from './admin/AdminLogin';
 import { auth, db } from '../config/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { getAllBankConfig } from '../services/bankConfigService';
 import { LogOut, User, Layout, FileText, MapPin, Settings, BarChart2, Database, ShieldCheck, Zap } from 'lucide-react';
 
 const AdminDashboard = ({ onBackToCustomer }) => {
@@ -83,6 +84,7 @@ const AdminDashboard = ({ onBackToCustomer }) => {
       case 'BankList':
         return <BankList
           customBanks={customBanks}
+          activeLocation={activeLocation || {}}
           onSelectBank={(bank) => {
             setSelectedBank(bank);
             setActiveMenu('config');
