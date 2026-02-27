@@ -191,26 +191,39 @@
     color: #00d4ff;
 }
 
-.lead-banks {
+.lead-max-amount {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #00ff88;
+    margin-bottom: 2px;
+}
+
+.lead-emi-detail {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.lead-preferred-banks {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    margin-bottom: 5px;
 }
 
-.bank-tag {
+.bank-tag-neural {
     background: rgba(168, 85, 247, 0.1);
     color: #a855f7;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 0.7rem;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
     font-weight: 600;
     border: 1px solid rgba(168, 85, 247, 0.2);
+    display: inline-block;
 }
 
-.lead-emi {
+.no-selection {
     font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.2);
+    font-style: italic;
 }
 
 .action-buttons {
@@ -297,4 +310,18 @@
     background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Global Icon Fix - Resolves Square/Invisible Icon Issue */
+svg.lucide {
+    display: inline-block !important;
+    vertical-align: middle !important;
+    stroke: currentColor !important;
+    width: 1.2em;
+    height: 1.2em;
+}
+
+.action-buttons svg.lucide {
+    width: 18px !important;
+    height: 18px !important;
 }
