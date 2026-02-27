@@ -98,16 +98,16 @@ const LoanCappingEditor = ({ bank, onSave, activeLocation }) => {
       <div className="config-section">
         <h3>📊 Category-Based Maximum</h3>
         <div className="category-grid">
-          {Object.keys(config.categoryBasedMax).map(cat => (
+          {Object.keys(config?.categoryBasedMax || {}).map(cat => (
             <div key={cat} className="input-group">
               <label>Category {cat} Max (₹)</label>
               <input
                 type="number"
-                value={config.categoryBasedMax[cat] || ''}
+                value={config?.categoryBasedMax?.[cat] || ''}
                 onChange={(e) => setConfig({
                   ...config,
                   categoryBasedMax: {
-                    ...config.categoryBasedMax,
+                    ...(config?.categoryBasedMax || {}),
                     [cat]: e.target.value === '' ? null : parseInt(e.target.value)
                   }
                 })}
@@ -127,11 +127,11 @@ const LoanCappingEditor = ({ bank, onSave, activeLocation }) => {
             <label>Salaried Max (₹)</label>
             <input
               type="number"
-              value={config.employmentTypeMax.salaried || ''}
+              value={config?.employmentTypeMax?.salaried || ''}
               onChange={(e) => setConfig({
                 ...config,
                 employmentTypeMax: {
-                  ...config.employmentTypeMax,
+                  ...(config?.employmentTypeMax || {}),
                   salaried: e.target.value === '' ? null : parseInt(e.target.value)
                 }
               })}
@@ -144,11 +144,11 @@ const LoanCappingEditor = ({ bank, onSave, activeLocation }) => {
             <label>Self-Employed Max (₹)</label>
             <input
               type="number"
-              value={config.employmentTypeMax.selfEmployed || ''}
+              value={config?.employmentTypeMax?.selfEmployed || ''}
               onChange={(e) => setConfig({
                 ...config,
                 employmentTypeMax: {
-                  ...config.employmentTypeMax,
+                  ...(config?.employmentTypeMax || {}),
                   selfEmployed: e.target.value === '' ? null : parseInt(e.target.value)
                 }
               })}
@@ -166,11 +166,11 @@ const LoanCappingEditor = ({ bank, onSave, activeLocation }) => {
           <div className="input-group">
             <label>Enable Bachelor Capping</label>
             <select
-              value={config.bachelorCapping.enabled}
+              value={config?.bachelorCapping?.enabled || false}
               onChange={(e) => setConfig({
                 ...config,
                 bachelorCapping: {
-                  ...config.bachelorCapping,
+                  ...(config?.bachelorCapping || {}),
                   enabled: e.target.value === 'true'
                 }
               })}
@@ -185,16 +185,16 @@ const LoanCappingEditor = ({ bank, onSave, activeLocation }) => {
             <label>Bachelor Capping %</label>
             <input
               type="number"
-              value={config.bachelorCapping.percentage}
+              value={config?.bachelorCapping?.percentage || 0}
               onChange={(e) => setConfig({
                 ...config,
                 bachelorCapping: {
-                  ...config.bachelorCapping,
+                  ...(config?.bachelorCapping || {}),
                   percentage: parseInt(e.target.value)
                 }
               })}
               className="config-input"
-              disabled={!config.bachelorCapping.enabled}
+              disabled={!config?.bachelorCapping?.enabled}
             />
             <span className="input-hint">% of regular loan amount</span>
           </div>
@@ -215,7 +215,7 @@ const LoanCappingEditor = ({ bank, onSave, activeLocation }) => {
           </div>
           <div className="preview-card">
             <div className="preview-label">Bachelor Capping</div>
-            <div className="preview-value">{config.bachelorCapping.enabled ? config.bachelorCapping.percentage + '%' : 'OFF'}</div>
+            <div className="preview-value">{config?.bachelorCapping?.enabled ? config?.bachelorCapping?.percentage + '%' : 'OFF'}</div>
           </div>
         </div>
       </div>
