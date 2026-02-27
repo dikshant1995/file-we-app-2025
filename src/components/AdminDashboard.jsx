@@ -11,6 +11,7 @@ import LocationOverrideManager from './admin/LocationOverrideManager';
 import ExperienceManager from './admin/ExperienceManager';
 import LeadManager from './admin/LeadManager';
 import AdminLogin from './admin/AdminLogin';
+import { indianStates, stateCityData } from '../data/locationData';
 import { auth, db } from '../config/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -18,13 +19,16 @@ import { getAllBankConfig } from '../services/bankConfigService';
 import { LogOut, User, Layout, FileText, MapPin, Settings, BarChart2, Database, ShieldCheck, Zap } from 'lucide-react';
 
 const AdminDashboard = ({ onBackToCustomer }) => {
-  const [activeMenu, setActiveMenu] = useState('leads');
+  const [activeMenu, setActiveMenu] = useState('region-setup');
   const [selectedBank, setSelectedBank] = useState(null);
   const [showAddBankModal, setShowAddBankModal] = useState(false);
   const [customBanks, setCustomBanks] = useState([]);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeLocation, setActiveLocation] = useState(null); // {state, city} or null for global
+  const [isLocationLocked, setIsLocationLocked] = useState(false);
+  const [tempState, setTempState] = useState('');
+  const [tempCity, setTempCity] = useState('');
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -53,6 +57,7 @@ const AdminDashboard = ({ onBackToCustomer }) => {
   };
 
   const menuItems = [
+    { id: 'region-setup', icon: <MapPin size={18} />, label: 'Region Setup', component: 'RegionSetup' },
     { id: 'leads', icon: <Layout size={18} />, label: 'Customer Lead Pipeline', component: 'LeadManager' },
     { id: 'banks', icon: <Database size={18} />, label: 'Institutional Overview', component: 'BankList' },
     { id: 'locations', icon: <MapPin size={18} />, label: 'City-Wise Overrides', component: 'LocationOverrideManager' },
@@ -79,6 +84,71 @@ const AdminDashboard = ({ onBackToCustomer }) => {
 
   const renderContent = () => {
     const activeItem = menuItems.find(item => item.id === activeMenu);
+
+    // Level 0 Dashboard: Region Setup
+    if (activeItem?.id === 'region-setup') {
+      return (
+        <div className="region-setup-container">
+          <div className="gateway-card glass-morphism integrated">
+            <div className="gateway-header">
+              <MapPin className="gateway-icon animate-pulse" />
+              <h2>Neural Gateway: Regional Audit</h2>
+              <p>Initialize operating region to activate institutional policies</p>
+            </div>
+
+            <div className="gateway-form">
+              <div className="input-group">
+                <label>Target State</label>
+                <select
+                  value={tempState}
+                  onChange={(e) => { setTempState(e.target.value); setTempCity(''); }}
+                  className="gateway-input"
+                >
+                  <option value="">Select State...</option>
+                  <option value="Global">🌐 All India (National Default)</option>
+                  {indianStates.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+
+              {tempState && tempState !== 'Global' && stateCityData[tempState] && (
+                <div className="input-group">
+                  <label>Target City (Optional)</label>
+                  <select
+                    value={tempCity}
+                    onChange={(e) => setTempCity(e.target.value)}
+                    className="gateway-input"
+                  >
+                    <option value="">Specific City (Optional)...</option>
+                    {stateCityData[tempState].map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+              )}
+
+              <button
+                className="btn-gateway-go"
+                disabled={!tempState}
+                onClick={() => {
+                  if (tempState === 'Global') {
+                    setActiveLocation(null);
+                  } else {
+                    setActiveLocation({ state: tempState, city: tempCity });
+                  }
+                  setIsLocationLocked(true);
+                  setActiveMenu('banks'); // BOOM: Unlock banks
+                }}
+              >
+                Lock Operating Region & Go →
+              </button>
+            </div>
+
+            <div className="gateway-footer">
+              <ShieldCheck size={14} />
+              <span>Secure Session: RSA-256 Encrypted Audit</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     switch (activeItem?.component) {
       case 'BankList':
@@ -114,7 +184,6 @@ const AdminDashboard = ({ onBackToCustomer }) => {
         }
 
         const bankConfig = getAllBankConfig(selectedBank.name);
-        // Collate all location names from all sections' overrides
         const allLocationNames = new Set();
         if (bankConfig.locationOverrides) {
           Object.values(bankConfig.locationOverrides).forEach(sectionOverrides => {
@@ -131,14 +200,11 @@ const AdminDashboard = ({ onBackToCustomer }) => {
           onSelectLocation={(loc) => {
             if (!loc) setActiveLocation(null);
             else {
-              // We store it as a simple object for now
               setActiveLocation({ state: loc, city: loc });
             }
           }}
           onAddLocation={(loc) => {
-            // Adding a location just sets it as active so user can edit rules
             setActiveLocation({ state: loc, city: loc });
-            // Alert user to proceed to config sections
             alert(`Location override for "${loc}" initialized.\n\nPlease navigate to the specific Policy sections (Multiplier, BT, etc.) to define local parameters.`);
           }}
           onRemoveLocation={(loc) => {
@@ -146,14 +212,13 @@ const AdminDashboard = ({ onBackToCustomer }) => {
               setActiveLocation(null);
             }
             alert(`Location override for "${loc}" removed from the active session.`);
-            // In a real app, we'd delete from Firestore/localStorage here
           }}
         />;
       case 'BankConfigEditor':
         return <BankConfigEditor
           selectedBank={selectedBank}
           section={activeItem.section}
-          activeLocation={activeLocation || {}} // Ensure it's an object
+          activeLocation={activeLocation || {}}
           onNavigate={(id) => setActiveMenu(id)}
         />;
       case 'Analytics':
@@ -182,19 +247,17 @@ const AdminDashboard = ({ onBackToCustomer }) => {
 
   const handleBankAdded = (newBank) => {
     setCustomBanks([...customBanks, newBank]);
-    alert(`Institution "${newBank.name}" initialized successfully with standard regulatory frameworks.\n\nYou may now proceed with granular policy configuration.`);
+    alert(`Institution "${newBank.name}" initialized successfully with standard regulatory frameworks.`);
   };
 
   return (
     <div className="admin-dashboard professional-grid-bg">
-      {/* Add Bank Modal */}
       {showAddBankModal && (
         <AddBankModal
           onClose={() => setShowAddBankModal(false)}
           onBankAdded={handleBankAdded}
         />
       )}
-      {/* Top Header */}
       <header className="dashboard-header">
         <div className="header-content">
           <div className="header-left">
@@ -217,14 +280,26 @@ const AdminDashboard = ({ onBackToCustomer }) => {
       </header>
 
       <div className="dashboard-container">
-        {/* Sidebar Navigation */}
         <aside className="dashboard-sidebar">
           <div className="sidebar-content">
             <h3>Navigation</h3>
             <nav className="sidebar-menu">
               {menuItems.map(item => {
-                // Future: Role-based filtering of menu items
                 if (user.role === 'employee' && item.id !== 'leads') return null;
+
+                // --- TRIPLE-LOCK VISIBILITY LOGIC ---
+
+                // Level 0: Always show (Leads, Blogs, Region Setup)
+                const isLevel0 = ['leads', 'blog', 'region-setup', 'analytics', 'import-export', 'audit'].includes(item.id);
+
+                // Level 1: Institutional Overview (Unlock after Region Lock)
+                const isLevel1 = item.id === 'banks' || item.id === 'locations';
+
+                // Level 2: Policy Editors (Unlock after Bank Selection)
+                const isLevel2 = item.component === 'BankConfigEditor' || item.id === 'experience';
+
+                if (isLevel1 && !isLocationLocked) return null;
+                if (isLevel2 && !selectedBank) return null;
 
                 return (
                   <button
@@ -241,14 +316,24 @@ const AdminDashboard = ({ onBackToCustomer }) => {
           </div>
         </aside>
 
-        {/* Main Content Area */}
         <main className="dashboard-main">
-          {selectedBank && activeMenu !== 'banks' && activeMenu !== 'analytics' && activeMenu !== 'import-export' && activeMenu !== 'audit' && (
-            <div className="selected-bank-banner">
-              <span>Editing: <strong>{selectedBank.name}</strong></span>
-              <button className="btn-change-bank" onClick={() => setActiveMenu('banks')}>
-                Change Bank
-              </button>
+          {isLocationLocked && (
+            <div className="operating-region-banner">
+              <div className="region-info">
+                <MapPin size={14} />
+                <span>Region: <strong>{activeLocation ? (activeLocation.city || activeLocation.state) : 'All India (National)'}</strong></span>
+              </div>
+              <div className="region-actions">
+                {selectedBank && activeMenu !== 'banks' && activeMenu !== 'analytics' && activeMenu !== 'import-export' && activeMenu !== 'audit' && (
+                  <>
+                    <span className="editing-tag">| Editing: <strong>{selectedBank.name}</strong></span>
+                    <button className="btn-banner-action" onClick={() => setActiveMenu('banks')}>Change Bank</button>
+                  </>
+                )}
+                <button className="btn-banner-action reset" onClick={() => { setIsLocationLocked(false); setSelectedBank(null); }}>
+                  Change Region
+                </button>
+              </div>
             </div>
           )}
 
