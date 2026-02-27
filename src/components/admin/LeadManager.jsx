@@ -288,21 +288,21 @@ ${(lead?.selectedBanks || '').split(',').map(b => `- ${b.trim()}`).join('\n') ||
                                             title="WhatsApp Customer"
                                             onClick={() => handleWhatsAppShare(lead)}
                                         >
-                                            <MessageCircle size={18} color="#25D366" strokeWidth={2.5} />
+                                            <MessageCircle size={18} />
                                         </button>
                                         <button
                                             className="action-btn-advanced mail"
                                             title="Email Lead Details"
                                             onClick={() => handleEmailShare(lead)}
                                         >
-                                            <Mail size={18} color="#EA4335" strokeWidth={2.5} />
+                                            <Mail size={18} />
                                         </button>
                                         <button
                                             className="action-btn-advanced share"
                                             title="Copy Lead Data"
                                             onClick={() => handleCopyLead(lead)}
                                         >
-                                            <Copy size={18} color="#00d4ff" strokeWidth={2.5} />
+                                            <Copy size={18} />
                                         </button>
                                         {!isEmployee && (
                                             <button
@@ -310,7 +310,7 @@ ${(lead?.selectedBanks || '').split(',').map(b => `- ${b.trim()}`).join('\n') ||
                                                 title="Delete Lead"
                                                 onClick={() => handleDelete(lead?.id)}
                                             >
-                                                <Trash2 size={18} color="#ff4444" strokeWidth={2} />
+                                                <Trash2 size={18} />
                                             </button>
                                         )}
                                     </div>
