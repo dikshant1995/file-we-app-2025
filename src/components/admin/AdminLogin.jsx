@@ -10,7 +10,7 @@ const AdminLogin = ({ onLoginSuccess }) => {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [isSignUp, setIsSignUp] = useState(false); // Only for the very first CEO account setup
+    const [isSignUp, setIsSignUp] = useState(false); // Locked for security
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -25,49 +25,11 @@ const AdminLogin = ({ onLoginSuccess }) => {
             if (userDoc.exists()) {
                 onLoginSuccess(userDoc.data());
             } else {
-                setError('Auth successful, but no Profile found. Please use "Setup" mode to initialize.');
+                setError('Neural Access Error: Profile Not Recognized.');
             }
         } catch (err) {
             console.error('Login Error:', err);
-            if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
-                setError('Invalid credentials. Check email/key.');
-            } else {
-                setError('Neural connection failure: ' + err.message);
-            }
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleInitialSetup = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError('');
-
-        try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-
-            const ceoProfile = {
-                uid: user.uid,
-                email: user.email,
-                role: 'ceo',
-                displayName: 'Global Administrator',
-                department: 'HQ',
-                createdAt: new Date().toISOString()
-            };
-
-            await setDoc(doc(db, 'users', user.uid), ceoProfile);
-            onLoginSuccess(ceoProfile);
-        } catch (err) {
-            console.error('Setup Error:', err);
-            if (err.code === 'auth/email-already-in-use') {
-                setError('Email already registered. Click "Sign In" below.');
-            } else if (err.code === 'auth/weak-password') {
-                setError('Key too weak. Use at least 6 characters.');
-            } else {
-                setError('Setup failed: ' + err.message);
-            }
+            setError('Neural Verification Failed. Access Denied.');
         } finally {
             setLoading(false);
         }
@@ -81,10 +43,10 @@ const AdminLogin = ({ onLoginSuccess }) => {
                         <Shield size={32} color="#00ff88" />
                     </div>
                     <h2>Laxmi Neural Gate</h2>
-                    <p>{isSignUp ? "Initialize Master CEO Account" : "Enterprise Access Protocol"}</p>
+                    <p>Enterprise Access Protocol</p>
                 </div>
 
-                <form className="login-form" onSubmit={isSignUp ? handleInitialSetup : handleLogin}>
+                <form className="login-form" onSubmit={handleLogin}>
                     <div className="input-group">
                         <Mail size={18} className="input-icon" />
                         <input
@@ -115,15 +77,12 @@ const AdminLogin = ({ onLoginSuccess }) => {
                     )}
 
                     <button type="submit" className="login-btn" disabled={loading}>
-                        {loading ? "Decrypting..." : (isSignUp ? "Create Master ID" : "Authorize Access")}
+                        {loading ? "Decrypting..." : "AUTHORIZE ACCESS"}
                         <ChevronRight size={18} />
                     </button>
                 </form>
 
                 <div className="login-footer">
-                    <p onClick={() => setIsSignUp(!isSignUp)}>
-                        {isSignUp ? "Already have a Master ID? Sign In" : "Need to setup the first Master ID?"}
-                    </p>
                     <div className="security-tag">
                         <Zap size={10} fill="#00ff88" stroke="transparent" />
                         256-Bit Neural Encryption Active
