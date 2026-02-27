@@ -395,7 +395,7 @@ const CategoriesEditor = ({ bank, onSave, activeLocation }) => {
         )}
       </div>
 
-      {Object.keys(categories).map(cat => (
+      {Object.keys(categories || {}).map(cat => (
         <div key={cat} className="config-section">
           <h3>Category {cat}</h3>
 
@@ -405,7 +405,7 @@ const CategoriesEditor = ({ bank, onSave, activeLocation }) => {
               <label>Minimum Salary (₹)</label>
               <input
                 type="number"
-                value={categories[cat].salaryRange.min || ''}
+                value={categories?.[cat]?.salaryRange?.min || ''}
                 onChange={(e) => updateSalaryRange(cat, 'min', e.target.value)}
                 className="config-input"
                 placeholder="e.g., 25000"
@@ -416,7 +416,7 @@ const CategoriesEditor = ({ bank, onSave, activeLocation }) => {
               <label>Maximum Salary (₹)</label>
               <input
                 type="number"
-                value={categories[cat].salaryRange.max || ''}
+                value={categories?.[cat]?.salaryRange?.max || ''}
                 onChange={(e) => updateSalaryRange(cat, 'max', e.target.value)}
                 className="config-input"
                 placeholder="No limit"
@@ -429,7 +429,7 @@ const CategoriesEditor = ({ bank, onSave, activeLocation }) => {
               <label>FOIR %</label>
               <input
                 type="number"
-                value={categories[cat].foir}
+                value={categories?.[cat]?.foir || 0}
                 onChange={(e) => updateCategory(cat, 'foir', parseInt(e.target.value))}
                 className="config-input"
               />
@@ -441,7 +441,7 @@ const CategoriesEditor = ({ bank, onSave, activeLocation }) => {
               <label>Salary Multiplier</label>
               <input
                 type="number"
-                value={categories[cat].multiplier}
+                value={categories?.[cat]?.multiplier || 0}
                 onChange={(e) => updateCategory(cat, 'multiplier', parseInt(e.target.value))}
                 className="config-input"
               />
@@ -453,7 +453,7 @@ const CategoriesEditor = ({ bank, onSave, activeLocation }) => {
               <label>Max Tenure (Months)</label>
               <input
                 type="number"
-                value={categories[cat].maxTenureMonths}
+                value={categories?.[cat]?.maxTenureMonths || 0}
                 onChange={(e) => updateCategory(cat, 'maxTenureMonths', parseInt(e.target.value))}
                 className="config-input"
               />
@@ -464,7 +464,7 @@ const CategoriesEditor = ({ bank, onSave, activeLocation }) => {
               <label>Max Loan Amount (₹)</label>
               <input
                 type="number"
-                value={categories[cat].maxLoanAmount || ''}
+                value={categories?.[cat]?.maxLoanAmount || ''}
                 onChange={(e) => updateCategory(cat, 'maxLoanAmount', e.target.value === '' ? null : parseInt(e.target.value))}
                 className="config-input"
                 placeholder="No limit"
@@ -478,7 +478,7 @@ const CategoriesEditor = ({ bank, onSave, activeLocation }) => {
             <label>Category Description</label>
             <input
               type="text"
-              value={categories[cat].description}
+              value={categories?.[cat]?.description || ''}
               onChange={(e) => updateCategory(cat, 'description', e.target.value)}
               className="config-input"
             />
@@ -490,14 +490,14 @@ const CategoriesEditor = ({ bank, onSave, activeLocation }) => {
       <div className="config-preview">
         <h3>👀 Quick Preview</h3>
         <div className="preview-grid">
-          {Object.keys(categories).map(cat => (
+          {Object.keys(categories || {}).map(cat => (
             <div key={cat} className="preview-card">
               <div className="preview-label">Category {cat}</div>
               <div className="preview-value" style={{ fontSize: '1.5em' }}>
-                ₹{categories[cat].salaryRange.min?.toLocaleString('en-IN')}+
+                ₹{(categories?.[cat]?.salaryRange?.min || 0).toLocaleString('en-IN')}+
               </div>
               <div style={{ fontSize: '0.9em', marginTop: '10px' }}>
-                FOIR: {categories[cat].foir}% | {categories[cat].multiplier}x
+                FOIR: {categories?.[cat]?.foir || 0}% | {categories?.[cat]?.multiplier || 0}x
               </div>
             </div>
           ))}
