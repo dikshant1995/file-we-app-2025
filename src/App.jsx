@@ -80,7 +80,7 @@ function App() {
   return (
     <div className="App">
       {showAdminDashboard ? (
-        <AdminDashboard />
+        <AdminDashboard onBackToCustomer={() => setShowAdminDashboard(false)} />
       ) : (
         <>
           <header>
@@ -125,7 +125,7 @@ function App() {
               )
             )}
 
-            {import.meta.env.DEV && (
+            {process.env.NODE_ENV === 'development' && (
               <DebugInfo userData={userData} results={results} />
             )}
           </main>
