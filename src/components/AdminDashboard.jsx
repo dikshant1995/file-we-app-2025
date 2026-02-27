@@ -9,6 +9,8 @@ import AddBankModal from './admin/AddBankModal';
 import BlogManager from './admin/BlogManager';
 import LocationOverrideManager from './admin/LocationOverrideManager';
 import ExperienceManager from './admin/ExperienceManager';
+import LeadManager from './admin/LeadManager';
+import AdminLogin from './admin/AdminLogin';
 import { auth, db } from '../config/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
