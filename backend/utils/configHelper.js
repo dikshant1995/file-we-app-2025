@@ -23,31 +23,36 @@ const loadConfigs = () => {
 
 /**
  * Mirror of the frontend getBankConfig service
- * Returns the section config with location-based overrides
+ * Returns the section config with location-based overrides with a fallback chain
  */
 export const getBankConfig = (bankName, sectionName, locationContext = {}) => {
-    // Always reload for freshness in dev/small scale (can be optimized later)
+    // Always reload for freshness in dev/small scale
     loadConfigs();
 
     const bankConfig = serverBankConfigs[bankName] || {};
 
+    // --- FALLBACK CHAIN ---
+
     // 1. Check for Overrides (City > State)
     const overrides = bankConfig.locationOverrides?.[sectionName] || {};
 
-    // Check City Override
+    // Check City Override (e.g., Jaipur)
     if (locationContext.city && overrides[locationContext.city]) {
         return overrides[locationContext.city];
     }
 
-    // Check State Override
+    // Check State Override (e.g., Rajasthan)
     if (locationContext.state && overrides[locationContext.state]) {
         return overrides[locationContext.state];
     }
 
-    // 2. Return Global Config
+    // 2. Check Global Admin Config (National Default in Dashboard)
     if (bankConfig[sectionName]) {
         return bankConfig[sectionName];
     }
 
+    // 3. Ultimate Safety Net: Hardcoded Defaults
+    // This part will be handled in the calculator itself via the nullish coalescing (??)
+    // but we return null here to signify "No Admin Overhaul" to the calculator.
     return null;
 };
