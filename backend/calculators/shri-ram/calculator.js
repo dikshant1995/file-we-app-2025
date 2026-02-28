@@ -192,7 +192,7 @@ export const calculateShriRamEligibility = (userData) => {
   if (availableEMI <= 0) {
     return {
       eligible: false,
-      reason: `Existing EMI (₹${existingEMI.toLocaleString()}) exceeds FOIR limit of ₹${Math.round(foirCap).toLocaleString()}`
+      reason: `Existing EMI (₹${existingEMI?.toLocaleString() || '0'}) exceeds FOIR limit of ₹${Math.round(foirCap)?.toLocaleString() || '0'}`
     };
   }
 
