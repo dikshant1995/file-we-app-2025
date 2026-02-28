@@ -10,13 +10,15 @@ import BlogManager from './admin/BlogManager';
 import LocationOverrideManager from './admin/LocationOverrideManager';
 import ExperienceManager from './admin/ExperienceManager';
 import LeadManager from './admin/LeadManager';
+import UserManager from './admin/UserManager';
 import AdminLogin from './admin/AdminLogin';
 import { indianStates, stateCityData } from '../data/locationData';
 import { auth, db } from '../config/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { getAllBankConfig } from '../services/bankConfigService';
-import { LogOut, User, Layout, FileText, MapPin, Settings, BarChart2, Database, ShieldCheck, Zap } from 'lucide-react';
+import { getAllBankConfig } from '../services/bankConfigService';
+import { LogOut, User, Layout, FileText, MapPin, Settings, BarChart2, Database, ShieldCheck, Zap, UserPlus } from 'lucide-react';
 
 const AdminDashboard = ({ onBackToCustomer }) => {
   const [activeMenu, setActiveMenu] = useState('region-setup');
@@ -58,6 +60,7 @@ const AdminDashboard = ({ onBackToCustomer }) => {
 
   const menuItems = [
     { id: 'region-setup', icon: <MapPin size={18} stroke="#00d4ff" strokeWidth={2.5} />, label: 'Region Setup', component: 'RegionSetup' },
+    { id: 'user-management', icon: <UserPlus size={18} stroke="#00d4ff" strokeWidth={2.5} />, label: 'Nexus Control (Users)', component: 'UserManager' },
     { id: 'leads', icon: <Layout size={18} stroke="#00d4ff" strokeWidth={2.5} />, label: 'Customer Lead Pipeline', component: 'LeadManager' },
     { id: 'banks', icon: <Database size={18} stroke="#00d4ff" strokeWidth={2.5} />, label: 'Institutional Overview', component: 'BankList' },
     { id: 'locations', icon: <MapPin size={18} stroke="#00d4ff" strokeWidth={2.5} />, label: 'City-Wise Overrides', component: 'LocationOverrideManager' },
@@ -163,6 +166,8 @@ const AdminDashboard = ({ onBackToCustomer }) => {
         />;
       case 'LeadManager':
         return <LeadManager userRole={user?.role} />;
+      case 'UserManager':
+        return <UserManager />;
       case 'BlogManager':
         return <BlogManager />;
       case 'ExperienceManager':
@@ -286,6 +291,7 @@ const AdminDashboard = ({ onBackToCustomer }) => {
             <nav className="sidebar-menu">
               {menuItems.map(item => {
                 if (user.role === 'employee' && item.id !== 'leads') return null;
+                if (item.id === 'user-management' && user.role !== 'ceo') return null;
 
                 // --- TRIPLE-LOCK VISIBILITY LOGIC ---
 
