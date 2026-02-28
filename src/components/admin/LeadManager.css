@@ -172,7 +172,8 @@
 }
 
 .lead-time {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
+    /* Reduced from 0.7rem */
     color: rgba(255, 255, 255, 0.4);
 }
 
@@ -213,13 +214,15 @@
     color: #a855f7;
     padding: 1px 6px;
     border-radius: 4px;
-    font-size: 0.65rem;
+    font-size: 0.6rem;
+    /* Reduced from 0.65rem */
     font-weight: 600;
     border: 1px solid rgba(168, 85, 247, 0.2);
 }
 
 .lead-emi {
-    font-size: 0.7rem;
+    font-size: 0.68rem;
+    /* Reduced from 0.7rem */
     color: rgba(255, 255, 255, 0.3);
 }
 
