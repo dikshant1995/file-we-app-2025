@@ -102,8 +102,8 @@ export const calculateIdfcEligibility = (userData) => {
 
   // Check age eligibility - Use dynamic config from admin dashboard
   const ageConfig = getBankConfig('IDFC First Bank', 'ageRules', { state: userData.state, city: userData.city });
-  const minAge = ageConfig ? ageConfig.minAge : idfcConfig.minAge;
-  const maxAge = ageConfig ? ageConfig.maxAge : idfcConfig.maxAge;
+  const minAge = ageConfig?.minAge ?? idfcConfig.minAge;
+  const maxAge = ageConfig?.maxAge ?? idfcConfig.maxAge;
 
   if (age && (age < minAge || age > maxAge)) {
     return {
@@ -163,7 +163,7 @@ export const calculateIdfcEligibility = (userData) => {
 
   // Check minimum salary requirement based on category
   const salConfig = getBankConfig('IDFC First Bank', 'employmentRules', { state: userData.state, city: userData.city });
-  const effectiveMinSalary = salConfig ? salConfig.salariedMinSalary : idfcConfig.minSalary;
+  const effectiveMinSalary = salConfig?.salariedMinSalary ?? idfcConfig.minSalary;
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < effectiveMinSalary) {
@@ -172,8 +172,8 @@ export const calculateIdfcEligibility = (userData) => {
 
   // Get loan capping config
   const cappingConfig = getBankConfig('IDFC First Bank', 'loanCapping', { state: userData.state, city: userData.city });
-  const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : idfcConfig.maxLoanAmount;
-  const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : 100000;
+  const absoluteMaxLoan = cappingConfig?.absoluteMaxLoan ?? idfcConfig.maxLoanAmount;
+  const minLoanAmount = cappingConfig?.minLoanAmount ?? 100000;
 
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
