@@ -1,6 +1,23 @@
 // Bank Configuration Service - Centralized storage and retrieval
 const STORAGE_KEY = 'bank_configurations';
 
+// Sync from Server on Load
+export const initBankConfig = async () => {
+  try {
+    console.log('🔄 Syncing bank configs from server...');
+    const response = await fetch('/api/bank-configs');
+    if (response.ok) {
+      const serverConfigs = await response.json();
+      if (serverConfigs && Object.keys(serverConfigs).length > 0) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(serverConfigs));
+        console.log('✅ LocalStorage synced with server configs');
+      }
+    }
+  } catch (error) {
+    console.warn('⚠️ Could not sync with server, using local fallback:', error);
+  }
+};
+
 // Default configurations for all banks
 const defaultConfigs = {
   'HDFC Bank': {
@@ -79,39 +96,31 @@ const defaultConfigs = {
 
 // Save configuration for a specific bank and section
 // location can be a state name or city name for an override
-export const saveBankConfig = (bankName, sectionName, config, location = null) => {
+export const saveBankConfig = async (bankName, sectionName, config, location = null) => {
   try {
-    // Get all configs from localStorage
-    // SSR Guard
-    if (typeof localStorage === 'undefined') return defaultConfigs[bankName] || {};
-
+    // 1. Save to localStorage (Instant UI update)
     const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-
-    // Initialize bank config if doesn't exist
-    if (!allConfigs[bankName]) {
-      allConfigs[bankName] = { ...defaultConfigs[bankName] };
-    }
+    if (!allConfigs[bankName]) allConfigs[bankName] = { ...defaultConfigs[bankName] };
 
     if (location) {
-      // Initialize locationOverrides structure
-      if (!allConfigs[bankName].locationOverrides) {
-        allConfigs[bankName].locationOverrides = {};
-      }
-      if (!allConfigs[bankName].locationOverrides[sectionName]) {
-        allConfigs[bankName].locationOverrides[sectionName] = {};
-      }
-
-      // Save override
+      if (!allConfigs[bankName].locationOverrides) allConfigs[bankName].locationOverrides = {};
+      if (!allConfigs[bankName].locationOverrides[sectionName]) allConfigs[bankName].locationOverrides[sectionName] = {};
       allConfigs[bankName].locationOverrides[sectionName][location] = config;
-      console.log(`✅ Saved ${location} override for ${sectionName} in ${bankName}:`, config);
     } else {
-      // Update global section
       allConfigs[bankName][sectionName] = config;
-      console.log(`✅ Saved global ${sectionName} for ${bankName}:`, config);
     }
-
-    // Save back to localStorage
     localStorage.setItem(STORAGE_KEY, JSON.stringify(allConfigs));
+
+    // 2. Sync to Backend (The "Secret Vault")
+    const response = await fetch('/api/bank-configs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bankName, sectionName, config, locationKey: location })
+    });
+
+    if (!response.ok) throw new Error('Failed to sync config to server');
+
+    console.log(`✅ Config synced to server for ${bankName}`);
     return true;
   } catch (error) {
     console.error('Error saving bank config:', error);
@@ -123,9 +132,6 @@ export const saveBankConfig = (bankName, sectionName, config, location = null) =
 // locationContext: { state: string, city: string }
 export const getBankConfig = (bankName, sectionName, locationContext = {}) => {
   try {
-    // SSR Guard
-    if (typeof localStorage === 'undefined') return defaultConfigs[bankName] || {};
-
     const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
     const bankConfig = allConfigs[bankName] || defaultConfigs[bankName] || {};
 
@@ -164,9 +170,6 @@ export const getBankConfig = (bankName, sectionName, locationContext = {}) => {
 // Get all configuration for a bank
 export const getAllBankConfig = (bankName) => {
   try {
-    // SSR Guard
-    if (typeof localStorage === 'undefined') return defaultConfigs[bankName] || {};
-
     const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
 
     if (allConfigs[bankName]) {
@@ -183,9 +186,6 @@ export const getAllBankConfig = (bankName) => {
 // Reset to defaults
 export const resetBankConfig = (bankName) => {
   try {
-    // SSR Guard
-    if (typeof localStorage === 'undefined') return defaultConfigs[bankName] || {};
-
     const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
     allConfigs[bankName] = { ...defaultConfigs[bankName] };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(allConfigs));
@@ -199,9 +199,6 @@ export const resetBankConfig = (bankName) => {
 // Export all configs (for backup)
 export const exportAllConfigs = () => {
   try {
-    // SSR Guard
-    if (typeof localStorage === 'undefined') return defaultConfigs[bankName] || {};
-
     const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
     return JSON.stringify(allConfigs, null, 2);
   } catch (error) {
