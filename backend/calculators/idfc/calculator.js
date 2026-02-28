@@ -81,7 +81,7 @@ export const calculateIdfcEligibility = (userData) => {
     const creditCardDeduction = creditCardObligation || 0;
     adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
     if (adjustedIncome <= 0) {
-      return { eligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains`, isBTMode: true };
+      return { eligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction)?.toLocaleString() || '0'}), no income remains`, isBTMode: true };
     }
   }
 
@@ -167,7 +167,7 @@ export const calculateIdfcEligibility = (userData) => {
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < effectiveMinSalary) {
-    return { eligible: false, reason: `Minimum salary of ₹${effectiveMinSalary.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+    return { eligible: false, reason: `Minimum salary of ₹${effectiveMinSalary?.toLocaleString() || '0'} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
   // Get loan capping config
@@ -179,7 +179,7 @@ export const calculateIdfcEligibility = (userData) => {
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
     return {
       eligible: false,
-      reason: `Minimum loan amount required by this bank is ₹${minLoanAmount.toLocaleString()}. Requested: ₹${desiredLoanAmount.toLocaleString()}`,
+      reason: `Minimum loan amount required by this bank is ₹${minLoanAmount?.toLocaleString() || '0'}. Requested: ₹${desiredLoanAmount?.toLocaleString() || '0'}`,
       isBTMode: isBT
     };
   }
