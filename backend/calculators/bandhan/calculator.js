@@ -1,4 +1,5 @@
 import { bandhanConfig } from './config.js';
+import { getBankConfig } from '../../utils/configHelper.js';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -93,6 +94,8 @@ export const calculateBandhanEligibility = (userData) => {
     btTotalEMI,
     btTotalOutstanding
   } = userData;
+
+  const companyCategory = category || getCompanyCategory(companyName, employmentType);
 
   const isBT = isBTMode && loansForBT && loansForBT.length > 0;
   let adjustedIncome = monthlyIncome;
