@@ -102,14 +102,23 @@
 }
 
 .um-input-group input,
-.um-input-group select {
-    background: rgba(255, 255, 255, 0.03);
+.um-select {
+    background: #0a1118 !important;
+    /* Force darker background for select */
     border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 12px 15px;
     border-radius: 8px;
-    color: #fff;
+    color: #fff !important;
     outline: none;
     transition: all 0.2s;
+    appearance: none;
+    cursor: pointer;
+}
+
+.opt-dark {
+    background-color: #0a1118;
+    color: #fff;
+    padding: 10px;
 }
 
 .um-input-group input:focus,
