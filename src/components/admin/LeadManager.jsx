@@ -108,7 +108,7 @@ const LeadManager = ({ userRole }) => {
             return;
         }
 
-        const headers = ['Timestamp', 'Name', 'Mobile', 'Company', 'Monthly Income', 'Existing EMI', 'Selected Banks'];
+        const headers = ['Timestamp', 'Name', 'Mobile', 'Company', 'Monthly Income', 'Location', 'Max Offering', 'Selected Banks'];
         const csvContent = [
             headers.join(','),
             ...exportData.map(l => [
@@ -117,7 +117,8 @@ const LeadManager = ({ userRole }) => {
                 l.mobile,
                 `"${l.company || l.employer}"`,
                 l.totalIncome || l.monthlyIncome,
-                l.existingEMI,
+                `"${l.city || 'N/A'}, ${l.state || 'N/A'}"`,
+                `"₹${(l.maxEligibility || 0).toLocaleString()} from ${l.bestBank || 'N/A'}"`,
                 `"${l.selectedBanks}"`
             ].join(','))
         ].join('\n');
@@ -132,13 +133,15 @@ const LeadManager = ({ userRole }) => {
     };
 
     const handleWhatsAppShare = (lead) => {
-        const message = `*New Lead Detail from LaxmiCredit*%0A%0A*Name:* ${lead?.name}%0A*Mobile:* ${lead?.mobile}%0A*Company:* ${lead?.company || lead?.employer}%0A*Income:* ₹${lead?.totalIncome || lead?.monthlyIncome}%0A*Banks:* ${lead?.selectedBanks}`;
+        const result = lead?.maxEligibility ? `%0A*Max Offer:* ₹${lead.maxEligibility.toLocaleString()} (${lead.bestBank})` : '';
+        const message = `*New Lead Detail from LaxmiCredit*%0A%0A*Name:* ${lead?.name}%0A*Mobile:* ${lead?.mobile}%0A*Location:* ${lead?.city}, ${lead?.state}%0A*Company:* ${lead?.company || lead?.employer}%0A*Income:* ₹${lead?.totalIncome || lead?.monthlyIncome}${result}%0A*Selected:* ${lead?.selectedBanks}`;
         window.open(`https://wa.me/?text=${message}`, '_blank');
     };
 
     const handleEmailShare = (lead) => {
         const subject = `Lead Detail: ${lead?.name}`;
-        const body = `Customer Lead Information:\n\nName: ${lead?.name}\nMobile: ${lead?.mobile}\nCompany: ${lead?.company || lead?.employer}\nMonthly Income: ₹${lead?.totalIncome || lead?.monthlyIncome}\nExisting EMI: ₹${lead?.existingEMI}\nInterested Banks: ${lead?.selectedBanks}\n\nTimestamp: ${lead?.timestamp}`;
+        const result = lead?.maxEligibility ? `Max Offering: ₹${lead.maxEligibility.toLocaleString()} from ${lead.bestBank}\n` : '';
+        const body = `Customer Lead Information:\n\nName: ${lead?.name}\nMobile: ${lead?.mobile}\nLocation: ${lead?.city}, ${lead?.state}\nCompany: ${lead?.company || lead?.employer}\nMonthly Income: ₹${lead?.totalIncome || lead?.monthlyIncome}\n${result}Existing EMI: ₹${lead?.existingEMI}\nInterested Banks: ${lead?.selectedBanks}\n\nTimestamp: ${lead?.timestamp}`;
         window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     };
 
@@ -152,6 +155,7 @@ Monthly Income: ₹${Number(lead?.totalIncome || lead?.monthlyIncome || 0).toLoc
 Monthly Incentives: ₹${Number(lead?.incentives || 0).toLocaleString()}
 Employer: ${lead?.company || lead?.employer || 'N/A'}
 Location: ${lead?.city || 'N/A'}, ${lead?.state || 'N/A'}
+Max Offering: ₹${(lead?.maxEligibility || 0).toLocaleString()} (${lead?.bestBank || 'N/A'})
 Timestamp: ${lead?.timestamp || 'N/A'}
 
 SELECTED BANKS:
@@ -237,9 +241,8 @@ ${(lead?.selectedBanks || '').split(',').map(b => `- ${b.trim()}`).join('\n') ||
                             )}
                             <th>Customer</th>
                             <th>Mobile</th>
-                            <th>Employment / Income</th>
-                            <th>Max Eligible Amount</th>
-                            <th>Preferred Institutions</th>
+                            <th>Employment / Location</th>
+                            <th>Neural Result / Banks</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -265,21 +268,32 @@ ${(lead?.selectedBanks || '').split(',').map(b => `- ${b.trim()}`).join('\n') ||
                                 </td>
                                 <td>
                                     <div className="lead-company">{lead?.company || lead?.employer || 'N/A'}</div>
+                                    <div className="lead-location" style={{ fontSize: '0.85em', opacity: 0.8 }}>📍 {lead?.city || 'Unknown'}, {lead?.state || 'N/A'}</div>
                                     <div className="lead-income">₹{(lead?.totalIncome || lead?.monthlyIncome || 0).toLocaleString()} p.m.</div>
                                 </td>
                                 <td>
-                                    <div className="lead-max-amount">
-                                        {lead?.maxLoanAmount ? `₹${Number(lead.maxLoanAmount).toLocaleString()}` : (lead?.maxLoanAmount === 0 ? '₹0' : 'Not Calculated')}
-                                    </div>
-                                    <div className="lead-emi-detail">EMI: ₹{lead?.existingEMI || 0}</div>
-                                </td>
-                                <td>
-                                    <div className="lead-preferred-banks">
+                                    {lead?.maxEligibility ? (
+                                        <div className="lead-result-badge" style={{
+                                            background: 'rgba(0, 255, 136, 0.1)',
+                                            border: '1px solid rgba(0, 255, 136, 0.3)',
+                                            padding: '4px 8px',
+                                            borderRadius: '4px',
+                                            marginBottom: '8px'
+                                        }}>
+                                            <div style={{ color: '#00ff88', fontWeight: 'bold', fontSize: '0.9em' }}>
+                                                ₹{lead.maxEligibility.toLocaleString()}
+                                            </div>
+                                            <div style={{ fontSize: '0.75em', opacity: 0.7 }}>via {lead.bestBank}</div>
+                                        </div>
+                                    ) : (
+                                        <div style={{ fontSize: '0.8em', opacity: 0.5, marginBottom: '8px' }}>No Result Logged</div>
+                                    )}
+                                    <div className="lead-banks">
                                         {(lead?.selectedBanks || '').split(',').map((bank, index) => (
-                                            bank.trim() && <span key={index} className="bank-tag-neural">{bank.trim()}</span>
+                                            bank.trim() && <span key={index} className="bank-tag">{bank.trim()}</span>
                                         ))}
-                                        {!(lead?.selectedBanks) && <span className="no-selection">No selection yet</span>}
                                     </div>
+                                    <div className="lead-emi" style={{ fontSize: '0.75em', opacity: 0.6 }}>Existing EMI: ₹{lead?.existingEMI || 0}</div>
                                 </td>
                                 <td>
                                     <div className="action-buttons">
@@ -288,21 +302,21 @@ ${(lead?.selectedBanks || '').split(',').map(b => `- ${b.trim()}`).join('\n') ||
                                             title="WhatsApp Customer"
                                             onClick={() => handleWhatsAppShare(lead)}
                                         >
-                                            <MessageCircle size={16} stroke="#00ff88" strokeWidth={2.5} />
+                                            <MessageCircle size={16} color="#25D366" strokeWidth={2.5} />
                                         </button>
                                         <button
                                             className="action-btn-advanced mail"
                                             title="Email Lead Details"
                                             onClick={() => handleEmailShare(lead)}
                                         >
-                                            <Mail size={16} stroke="#ff4444" strokeWidth={2.5} />
+                                            <Mail size={16} color="#EA4335" strokeWidth={2.5} />
                                         </button>
                                         <button
                                             className="action-btn-advanced share"
                                             title="Copy Lead Data"
                                             onClick={() => handleCopyLead(lead)}
                                         >
-                                            <Copy size={16} stroke="#00d4ff" strokeWidth={2.5} />
+                                            <Copy size={16} color="#00d4ff" strokeWidth={2.5} />
                                         </button>
                                         {!isEmployee && (
                                             <button
@@ -310,7 +324,7 @@ ${(lead?.selectedBanks || '').split(',').map(b => `- ${b.trim()}`).join('\n') ||
                                                 title="Delete Lead"
                                                 onClick={() => handleDelete(lead?.id)}
                                             >
-                                                <Trash2 size={16} stroke="#ffaa00" strokeWidth={2.5} />
+                                                <Trash2 size={16} color="#ff4444" strokeWidth={2} />
                                             </button>
                                         )}
                                     </div>
