@@ -1,4 +1,5 @@
 import { piramalConfig } from './config.js';
+import { getBankConfig } from '../../utils/configHelper.js';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
