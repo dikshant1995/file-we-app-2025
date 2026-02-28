@@ -147,8 +147,8 @@ export const calculatePoonawalaEligibility = (userData) => {
 
   // Check age eligibility - Use dynamic config from admin dashboard
   const ageConfig = getBankConfig('Poonawala Finance', 'ageRules', { state: userData.state, city: userData.city });
-  const minAge = ageConfig ? ageConfig.minAge : poonawalaConfig.minAge;
-  const maxAge = ageConfig ? ageConfig.maxAge : poonawalaConfig.maxAge;
+  const minAge = ageConfig?.minAge ?? poonawalaConfig.minAge;
+  const maxAge = ageConfig?.maxAge ?? poonawalaConfig.maxAge;
 
   if (age && (age < minAge || age > maxAge)) {
     return {
@@ -197,7 +197,7 @@ export const calculatePoonawalaEligibility = (userData) => {
   // Check minimum salary requirement based on category
   const salConfig = getBankConfig('Poonawala Finance', 'employmentRules', { state: userData.state, city: userData.city });
   const catMinSalary = poonawalaConfig.minNTHBySegment[customerSegment];
-  const effectiveMinSalary = salConfig ? salConfig.salariedMinSalary : catMinSalary;
+  const effectiveMinSalary = salConfig?.salariedMinSalary ?? catMinSalary;
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < effectiveMinSalary) {
@@ -206,8 +206,8 @@ export const calculatePoonawalaEligibility = (userData) => {
 
   // Get loan capping config
   const cappingConfig = getBankConfig('Poonawala Finance', 'loanCapping', { state: userData.state, city: userData.city });
-  const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : poonawalaConfig.maxLoanAmount;
-  const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : 100000;
+  const absoluteMaxLoan = cappingConfig?.absoluteMaxLoan ?? poonawalaConfig.maxLoanAmount;
+  const minLoanAmount = cappingConfig?.minLoanAmount ?? 100000;
 
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
