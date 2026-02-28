@@ -185,8 +185,8 @@ export const calculateHdfcEligibility = (userData) => {
 
   // Check age eligibility - Use dynamic config from admin dashboard
   const ageConfig = getBankConfig('HDFC Bank', 'ageRules', { state: userData.state, city: userData.city });
-  const minAge = ageConfig ? ageConfig.minAge : hdfcConfig.minAge;
-  const maxAge = ageConfig ? ageConfig.maxAge : hdfcConfig.maxAge;
+  const minAge = ageConfig?.minAge ?? hdfcConfig.minAge;
+  const maxAge = ageConfig?.maxAge ?? hdfcConfig.maxAge;
 
   if (age && (age < minAge || age > maxAge)) {
     return {
@@ -232,7 +232,7 @@ export const calculateHdfcEligibility = (userData) => {
   const salConfig = getBankConfig('HDFC Bank', 'employmentRules', { state: userData.state, city: userData.city });
   const catMinSalary = hdfcConfig.minSalary[companyCategory] || hdfcConfig.minSalary['A'];
   // For HDFC, if we have dynamic config, we use the salariedMinSalary
-  const effectiveMinSalary = salConfig ? salConfig.salariedMinSalary : catMinSalary;
+  const effectiveMinSalary = salConfig?.salariedMinSalary ?? catMinSalary;
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < effectiveMinSalary) {
@@ -245,8 +245,8 @@ export const calculateHdfcEligibility = (userData) => {
 
   // Get loan capping config
   const cappingConfig = getBankConfig('HDFC Bank', 'loanCapping', { state: userData.state, city: userData.city });
-  const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : hdfcConfig.maxLoanAmount;
-  const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : (hdfcConfig.minLoanAmount || 100000);
+  const absoluteMaxLoan = cappingConfig?.absoluteMaxLoan ?? hdfcConfig.maxLoanAmount;
+  const minLoanAmount = cappingConfig?.minLoanAmount ?? (hdfcConfig.minLoanAmount || 100000);
 
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
