@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import './CustomerLoanForm.css';
 import { loadUniversalCompanies, getCompanySuggestions, initializeBankDatabases } from '../services/companyDatabaseService';
+import { indianStates, stateCityData } from '../data/locationData';
 
 const CustomerLoanForm = ({ onSubmit, loading }) => {
   const [formData, setFormData] = useState({
@@ -15,6 +16,8 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
     category: 'B', // Default to Category B
     employmentType: 'salaried',
     companyName: '',
+    state: '',
+    city: '',
     hasExistingLoans: false,
     existingLoans: [],
     // NEW: Balance Transfer options
@@ -148,6 +151,15 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
       document.getElementById('mobileNumber')?.focus();
       return;
     }
+
+    if (!formData.state) {
+      setValidationError('Please select your State to identify regional bank policies.');
+      return;
+    }
+    if (!formData.city) {
+      setValidationError('Please select your City for accurate local eligibility check.');
+      return;
+    }
     // ───────────────────────────────────────────────────────────────────────
 
     // Parse data EXACTLY as backend expects
@@ -229,7 +241,9 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
         selectedLoansForBT: formData.selectedLoansForBT,
         state: formData.state,
         city: formData.city
-      }
+      },
+      state: formData.state,
+      city: formData.city
     };
 
     // Pass submissionData to loan engine AND raw formData to lead service
@@ -296,7 +310,44 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
               </small>
             )}
           </div>
+        </div>
 
+        {/* Location Selection */}
+        <div className="location-selection-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '20px' }}>
+          <div className="form-group">
+            <label htmlFor="state">State <span className="required">*</span></label>
+            <select
+              id="state"
+              name="state"
+              value={formData.state}
+              onChange={(e) => {
+                handleInputChange(e);
+                setFormData(prev => ({ ...prev, city: '' })); // Reset city when state changes
+              }}
+              required
+            >
+              <option value="">-- Select State --</option>
+              {indianStates.map(state => (
+                <option key={state} value={state}>{state}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="city">City <span className="required">*</span></label>
+            <select
+              id="city"
+              name="city"
+              value={formData.city}
+              onChange={handleInputChange}
+              required
+              disabled={!formData.state}
+            >
+              <option value="">-- Select City --</option>
+              {formData.state && stateCityData[formData.state]?.map(city => (
+                <option key={city} value={city}>{city}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
