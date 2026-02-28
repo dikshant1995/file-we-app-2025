@@ -1,4 +1,5 @@
 import { cholaConfig } from './config.js';
+import { getBankConfig } from '../../utils/configHelper.js';
 
 // Helper: Calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
