@@ -69,7 +69,7 @@ export const calculateIndusindEligibility = (userData) => {
     const creditCardDeduction = creditCardObligation || 0;
     adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
     if (adjustedIncome <= 0) {
-      return { eligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains`, isBTMode: true };
+      return { eligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction)?.toLocaleString() || '0'}), no income remains`, isBTMode: true };
     }
   }
 
@@ -145,7 +145,7 @@ export const calculateIndusindEligibility = (userData) => {
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < effectiveMinSalary) {
-    return { eligible: false, reason: `Minimum salary of ₹${effectiveMinSalary.toLocaleString()} required for category ${category}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+    return { eligible: false, reason: `Minimum salary of ₹${effectiveMinSalary?.toLocaleString() || '0'} required for category ${category}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
   // Get loan capping config
@@ -157,7 +157,7 @@ export const calculateIndusindEligibility = (userData) => {
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
     return {
       eligible: false,
-      reason: `Minimum loan amount required by this bank is ₹${minLoanAmount.toLocaleString()}. Requested: ₹${desiredLoanAmount.toLocaleString()}`,
+      reason: `Minimum loan amount required by this bank is ₹${minLoanAmount?.toLocaleString() || '0'}. Requested: ₹${desiredLoanAmount?.toLocaleString() || '0'}`,
       isBTMode: isBT
     };
   }
@@ -172,7 +172,7 @@ export const calculateIndusindEligibility = (userData) => {
   const multiplier = indusindConfig.multiplierTable[category][salaryBand];
 
   if (!multiplier) {
-    return { eligible: false, reason: `No multiplier available for category ${category} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
+    return { eligible: false, reason: `No multiplier available for category ${category} at salary ₹${incomeForCalculation?.toLocaleString() || '0'}`, isBTMode: isBT };
   }
 
   // IMPORTANT: For multiplier, use salary after deducting existing EMI and credit card obligation (non-BT mode)
