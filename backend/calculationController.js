@@ -71,7 +71,7 @@ const handleRegularCalculation = (userData) => {
         { name: 'Cholamandalam Finance', calc: calculateCholaEligibility },
         { name: 'Axis Finance', calc: calculateAxisFinEligibility },
         { name: 'IndusInd Bank', calc: calculateIndusindEligibility },
-        { name: 'Shri Ram Finance', calc: calculateShriRamEligibility },
+        { name: 'Shriram Finance', calc: calculateShriRamEligibility },
         { name: 'Piramal Finance', calc: calculatePiramalEligibility }
     ];
 
@@ -138,7 +138,7 @@ const handleBTCalculation = (userData) => {
         { name: 'Axis Finance', calc: calculateAxisFinEligibility, config: axisFinConfig },
         { name: 'IndusInd Bank', calc: calculateIndusindEligibility, config: indusindConfig },
         { name: 'IDFC Bank', calc: calculateIdfcEligibility, config: idfcConfig },
-        { name: 'Shri Ram Finance', calc: calculateShriRamEligibility, config: shriRamConfig },
+        { name: 'Shriram Finance', calc: calculateShriRamEligibility, config: shriRamConfig },
         { name: 'Piramal Finance', calc: calculatePiramalEligibility, config: piramalConfig }
     ];
 
