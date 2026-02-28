@@ -200,8 +200,8 @@ export const calculateKotakEligibility = (userData) => {
 
   // Check age eligibility - Use dynamic config from admin dashboard
   const ageConfig = getBankConfig('Kotak Mahindra Bank', 'ageRules', { state: userData.state, city: userData.city });
-  const minAge = ageConfig ? ageConfig.minAge : kotakConfig.minAge;
-  const maxAge = ageConfig ? ageConfig.maxAge : kotakConfig.maxAge;
+  const minAge = ageConfig?.minAge ?? kotakConfig.minAge;
+  const maxAge = ageConfig?.maxAge ?? kotakConfig.maxAge;
 
   if (age && (age < minAge || age > maxAge)) {
     return {
@@ -246,8 +246,8 @@ export const calculateKotakEligibility = (userData) => {
   // Use dynamic config from admin dashboard
   const salConfig = getBankConfig('Kotak Mahindra Bank', 'employmentRules', { state: userData.state, city: userData.city });
   const catMinSalary = companyCategory === 'D' ?
-    (salConfig ? salConfig.selfEmployedMinIncome / 12 : kotakConfig.minSalary['D']) :
-    (salConfig ? salConfig.salariedMinSalary : kotakConfig.minSalary['A']);
+    (salConfig?.selfEmployedMinIncome ? salConfig.selfEmployedMinIncome / 12 : kotakConfig.minSalary['D']) :
+    (salConfig?.salariedMinSalary ?? kotakConfig.minSalary['A']);
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < catMinSalary) {
@@ -260,8 +260,8 @@ export const calculateKotakEligibility = (userData) => {
 
   // Get loan capping config
   const cappingConfig = getBankConfig('Kotak Mahindra Bank', 'loanCapping', { state: userData.state, city: userData.city });
-  const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : kotakConfig.maxLoanAmount;
-  const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : 100000;
+  const absoluteMaxLoan = cappingConfig?.absoluteMaxLoan ?? kotakConfig.maxLoanAmount;
+  const minLoanAmount = cappingConfig?.minLoanAmount ?? 100000;
 
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
