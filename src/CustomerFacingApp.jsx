@@ -49,9 +49,19 @@ function CustomerFacingApp() {
       setResults(calculationResults);
       setMetadata(formData._metadata);
 
+      // Find max eligibility for lead capture
+      const validResults = calculationResults.filter(r => r.eligible && !r.error);
+      const bestOffer = validResults.length > 0
+        ? validResults.reduce((prev, current) => (prev.maxLoanAmount > current.maxLoanAmount) ? prev : current)
+        : null;
+
+      if (bestOffer) {
+        formData.maxEligibility = bestOffer.maxLoanAmount;
+        formData.bestBank = bestOffer.bankName;
+      }
+
       // 🔴 Save lead to Google Sheets (silent, non-blocking via proxy)
-      const maxEligibleAmount = Math.max(0, ...calculationResults.map(r => r.maxEligibleAmount || 0));
-      saveLead(lastFormDataRef.current || {}, { ...formData, maxLoanAmount: maxEligibleAmount });
+      saveLead(lastFormDataRef.current || {}, formData);
 
       setTimeout(() => {
         document.getElementById('results-section')?.scrollIntoView({
