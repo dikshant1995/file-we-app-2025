@@ -90,8 +90,8 @@ export const calculateIndusindEligibility = (userData) => {
 
   // Check age eligibility - Use dynamic config from admin dashboard
   const ageConfig = getBankConfig('IndusInd Bank', 'ageRules', { state: userData.state, city: userData.city });
-  const minAge = ageConfig ? ageConfig.minAge : indusindConfig.minAge;
-  const maxAge = ageConfig ? ageConfig.maxAge : indusindConfig.maxAge;
+  const minAge = ageConfig?.minAge ?? indusindConfig.minAge;
+  const maxAge = ageConfig?.maxAge ?? indusindConfig.maxAge;
 
   if (age && (age < minAge || age > maxAge)) {
     return {
@@ -137,7 +137,7 @@ export const calculateIndusindEligibility = (userData) => {
   // Check minimum salary requirement based on category
   const salConfig = getBankConfig('IndusInd Bank', 'employmentRules', { state: userData.state, city: userData.city });
   const catMinSalary = indusindConfig.minSalaryByCategory[category];
-  const effectiveMinSalary = salConfig ? salConfig.salariedMinSalary : catMinSalary;
+  const effectiveMinSalary = salConfig?.salariedMinSalary ?? catMinSalary;
 
   if (!effectiveMinSalary) {
     return { eligible: false, reason: `Category ${category} not supported by IndusInd Bank`, isBTMode: isBT };
@@ -150,8 +150,8 @@ export const calculateIndusindEligibility = (userData) => {
 
   // Get loan capping config
   const cappingConfig = getBankConfig('IndusInd Bank', 'loanCapping', { state: userData.state, city: userData.city });
-  const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : indusindConfig.maxLoanAmount;
-  const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : 100000;
+  const absoluteMaxLoan = cappingConfig?.absoluteMaxLoan ?? indusindConfig.maxLoanAmount;
+  const minLoanAmount = cappingConfig?.minLoanAmount ?? 100000;
 
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
