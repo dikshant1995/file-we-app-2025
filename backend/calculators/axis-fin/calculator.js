@@ -192,7 +192,7 @@ export const calculateAxisFinEligibility = (userData) => {
   if (isBT) {
     const btFreshAmount = cappedFinalLoan - btTotalOutstanding;
     if (btFreshAmount < 0) {
-      return { eligible: false, reason: `BT Outstanding (₹${btTotalOutstanding.toLocaleString()}) exceeds max loan (₹${Math.round(cappedFinalLoan).toLocaleString()})`, isBTMode: true };
+      return { eligible: false, reason: `BT Outstanding (₹${btTotalOutstanding?.toLocaleString() || '0'}) exceeds max loan (₹${Math.round(cappedFinalLoan)?.toLocaleString() || '0'})`, isBTMode: true };
     }
     btDetails = {
       isBTMode: true,
