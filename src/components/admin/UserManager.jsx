@@ -32,7 +32,7 @@ const UserManager = () => {
         displayName: '',
         email: '',
         password: '',
-        role: 'employee'
+        role: 'manager'
     });
 
     const fetchUsers = async () => {
@@ -173,9 +173,10 @@ const UserManager = () => {
                             <select
                                 value={formData.role}
                                 onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                                className="um-select"
                             >
-                                <option value="employee">Field Agent (Employee)</option>
-                                <option value="manager">System Manager (Full Policy Access)</option>
+                                <option value="manager" className="opt-dark">System Manager (Full Policy Access)</option>
+                                <option value="employee" className="opt-dark">Field Agent (Employee - Leads Only)</option>
                             </select>
                         </div>
 
