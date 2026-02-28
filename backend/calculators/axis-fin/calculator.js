@@ -86,8 +86,8 @@ export const calculateAxisFinEligibility = (userData) => {
 
   // Check age eligibility - Use dynamic config from admin dashboard
   const ageConfig = getBankConfig('Axis Finance', 'ageRules', { state: userData.state, city: userData.city });
-  const minAge = ageConfig ? ageConfig.minAge : axisFinConfig.minAge;
-  const maxAge = ageConfig ? ageConfig.maxAge : axisFinConfig.maxAge;
+  const minAge = ageConfig?.minAge ?? axisFinConfig.minAge;
+  const maxAge = ageConfig?.maxAge ?? axisFinConfig.maxAge;
 
   if (age && (age < minAge || age > maxAge)) {
     return {
@@ -140,7 +140,7 @@ export const calculateAxisFinEligibility = (userData) => {
 
   // Check minimum salary requirement based on category
   const salConfig = getBankConfig('Axis Finance', 'employmentRules', { state: userData.state, city: userData.city });
-  const effectiveMinSalary = salConfig ? salConfig.salariedMinSalary : axisFinConfig.minSalary;
+  const effectiveMinSalary = salConfig?.salariedMinSalary ?? axisFinConfig.minSalary;
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < effectiveMinSalary) {
@@ -149,8 +149,8 @@ export const calculateAxisFinEligibility = (userData) => {
 
   // Get loan capping config
   const cappingConfig = getBankConfig('Axis Finance', 'loanCapping', { state: userData.state, city: userData.city });
-  const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : axisFinConfig.maxLoanAmount;
-  const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : 100000;
+  const absoluteMaxLoan = cappingConfig?.absoluteMaxLoan ?? axisFinConfig.maxLoanAmount;
+  const minLoanAmount = cappingConfig?.minLoanAmount ?? 100000;
 
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
