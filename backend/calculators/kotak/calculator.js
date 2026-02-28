@@ -176,7 +176,7 @@ export const calculateKotakEligibility = (userData) => {
     if (adjustedIncome <= 0) {
       return {
         eligible: false,
-        reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains for Balance Transfer`,
+        reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction)?.toLocaleString() || '0'}), no income remains for Balance Transfer`,
         isBTMode: true
       };
     }
@@ -253,7 +253,7 @@ export const calculateKotakEligibility = (userData) => {
   if (incomeToCheck < catMinSalary) {
     return {
       eligible: false,
-      reason: `Minimum monthly income required is ₹${catMinSalary.toLocaleString()} for Category ${companyCategory}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`,
+      reason: `Minimum monthly income required is ₹${catMinSalary?.toLocaleString() || '0'} for Category ${companyCategory}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`,
       isBTMode: isBT
     };
   }
@@ -267,7 +267,7 @@ export const calculateKotakEligibility = (userData) => {
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
     return {
       eligible: false,
-      reason: `Minimum loan amount required by this bank is ₹${minLoanAmount.toLocaleString()}. Requested: ₹${desiredLoanAmount.toLocaleString()}`,
+      reason: `Minimum loan amount required by this bank is ₹${minLoanAmount?.toLocaleString() || '0'}. Requested: ₹${desiredLoanAmount?.toLocaleString() || '0'}`,
       isBTMode: isBT
     };
   }
