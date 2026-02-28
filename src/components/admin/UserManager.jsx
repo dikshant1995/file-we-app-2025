@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { db } from '../../config/firebase';
 import { collection, query, getDocs, doc, setDoc, deleteDoc, Timestamp } from 'firebase/firestore';
@@ -17,7 +17,8 @@ const firebaseConfig = {
     appId: "1:439589007843:web:63d32a89b258686144f0d6"
 };
 
-const secondaryApp = initializeApp(firebaseConfig, 'Secondary');
+const secondaryApp = getApps().find(app => app.name === 'Secondary')
+    || initializeApp(firebaseConfig, 'Secondary');
 const secondaryAuth = getAuth(secondaryApp);
 
 const UserManager = () => {
