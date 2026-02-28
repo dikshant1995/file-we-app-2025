@@ -109,8 +109,8 @@ export const calculatePiramalEligibility = (userData) => {
 
   // Check age eligibility - Use dynamic config from admin dashboard
   const ageConfig = getBankConfig('Piramal Finance', 'ageRules', { state: userData.state, city: userData.city });
-  const minAge = ageConfig ? ageConfig.minAge : piramalConfig.minAge;
-  const maxAge = ageConfig ? ageConfig.maxAge : piramalConfig.maxAge;
+  const minAge = ageConfig?.minAge ?? piramalConfig.minAge;
+  const maxAge = ageConfig?.maxAge ?? piramalConfig.maxAge;
 
   if (age && (age < minAge || age > maxAge)) {
     return {
@@ -155,7 +155,7 @@ export const calculatePiramalEligibility = (userData) => {
 
   // Check minimum salary requirement based on category
   const salConfig = getBankConfig('Piramal Finance', 'employmentRules', { state: userData.state, city: userData.city });
-  const effectiveMinSalary = salConfig ? salConfig.salariedMinSalary : piramalConfig.minNTH;
+  const effectiveMinSalary = salConfig?.salariedMinSalary ?? piramalConfig.minNTH;
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < effectiveMinSalary) {
@@ -164,8 +164,8 @@ export const calculatePiramalEligibility = (userData) => {
 
   // Get loan capping config
   const cappingConfig = getBankConfig('Piramal Finance', 'loanCapping', { state: userData.state, city: userData.city });
-  const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : piramalConfig.maxLoanAmount;
-  const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : 100000;
+  const absoluteMaxLoan = cappingConfig?.absoluteMaxLoan ?? piramalConfig.maxLoanAmount;
+  const minLoanAmount = cappingConfig?.minLoanAmount ?? 100000;
 
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
