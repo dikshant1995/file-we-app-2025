@@ -47,84 +47,28 @@ const BANK_TO_DB_KEY = {
 
 /**
  * Calculate loan eligibility across all 12 banks
+ * REDIRECTED TO SECURE BACKEND
  */
 export const calculateLoanEligibility = async (userData) => {
-  console.log('🏛️  --- ROBUST LOAN ENGINE ACTIVATED ---');
+  console.log('🏛️  --- SECURE NEURAL ENGINE ACTIVATED ---');
 
-  const isBTMode = userData.wantsBT && userData.selectedLoansForBT?.length > 0;
+  try {
+    const response = await fetch('/api/loan-eligibility', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...userData,
+        calculationType: 'regular'
+      })
+    });
 
-  // Standardize calculator input
-  const baseInput = {
-    desiredLoanAmount: parseFloat(userData.desiredLoanAmount) || null,
-    loanTenure: parseInt(userData.loanTenure) || 5,
-    monthlyIncome: parseFloat(userData.monthlyIncome) || 0,
-    existingEMI: parseFloat(userData.existingEMI) || 0,
-    companyName: userData.companyName || '',
-    category: userData.category || 'B', // Primary fallback from UI
-    creditScore: parseInt(userData.creditScore) || 700,
-    employmentType: userData.employmentType || 'salaried',
-    age: parseInt(userData.age) || null,
-    existingLoanBanks: userData.existingLoanBanks || [],
-    isBTMode: isBTMode,
-    loansForBT: isBTMode ? userData.loansForBT : [],
-    btTotalEMI: isBTMode ? userData.loansForBT.reduce((sum, l) => sum + (parseFloat(l.monthlyEMI) || 0), 0) : 0,
-    btTotalOutstanding: isBTMode ? userData.loansForBT.reduce((sum, l) => sum + (parseFloat(l.outstandingAmount) || 0), 0) : 0,
-    state: userData.state || userData._metadata?.state || '',
-    city: userData.city || userData._metadata?.city || ''
-  };
+    if (!response.ok) throw new Error('Backend engine error');
 
-  const bankCalculators = [
-    { name: 'Kotak Mahindra Bank', calc: calculateKotakEligibility, config: kotakConfig },
-    { name: 'Tata Capital', calc: calculateTataEligibility, config: tataConfig },
-    { name: 'Poonawala Finance', calc: calculatePoonawalaEligibility, config: poonawalaConfig },
-    { name: 'IDFC Bank', calc: calculateIdfcEligibility, config: idfcConfig },
-    { name: 'HDFC Bank', calc: calculateHdfcEligibility, config: hdfcConfig },
-    { name: 'ICICI Bank', calc: calculateIciciEligibility, config: iciciConfig },
-    { name: 'Bandhan Bank', calc: calculateBandhanEligibility, config: bandhanConfig, noDb: true },
-    { name: 'Cholamandalam Finance', calc: calculateCholaEligibility, config: cholaConfig },
-    { name: 'Axis Finance', calc: calculateAxisFinEligibility, config: axisFinConfig },
-    { name: 'IndusInd Bank', calc: calculateIndusindEligibility, config: indusindConfig },
-    { name: 'Shri Ram Finance', calc: calculateShriRamEligibility, config: shriRamConfig, noDb: true },
-    { name: 'Piramal Finance', calc: calculatePiramalEligibility, config: piramalConfig, noDb: true }
-  ];
-
-  return bankCalculators.map(({ name, calc, config, noDb }) => {
-    try {
-      const dbKey = BANK_TO_DB_KEY[name];
-
-      // Determine category with fail-safe fallback
-      let category = baseInput.category;
-      if (!noDb && dbKey && baseInput.companyName) {
-        // This will return baseInput.category if DB fetch failed or company is not found
-        category = getCompanyCategoryForBank(baseInput.companyName, dbKey, baseInput.category);
-
-        // HDFC Special Mapping Logic
-        if (dbKey === 'hdfc') {
-          const hdfcMap = { 'SCATA': 'Super A', 'CATGA': 'A', 'CATGB': 'B', 'CATGC': 'C', 'GOVT': 'Govt' };
-          category = hdfcMap[category] || category;
-        }
-      }
-
-      const result = calc({ ...baseInput, category });
-
-      return {
-        ...result,
-        bankName: result.bankName || name,
-        category, // Transparency: show which category was used
-        btConfig: config.btConfig,
-        incentivePercentage: config.incentivePercentage,
-        isBTMode,
-        btTotalEMI: baseInput.btTotalEMI,
-        loansForBT: baseInput.loansForBT
-      };
-    } catch (error) {
-      console.error(`🚨 Failure in ${name}:`, error);
-      return {
-        bankName: name,
-        eligible: false,
-        reason: 'Calculation engine error. Please contact support.',
-        category: baseInput.category
-      };
-    }
-  });
+    const results = await response.json();
+    console.log('✅ Secure results received from server');
+    return results;
+  } catch (error) {
+    console.error('🚨 Backend Bridge Failure:', error);
+    throw error;
+  }
 };
