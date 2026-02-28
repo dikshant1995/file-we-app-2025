@@ -99,8 +99,8 @@ export const calculateCholaEligibility = (userData) => {
 
   // Check age eligibility - Use dynamic config from admin dashboard
   const ageConfig = getBankConfig('Cholamandalam Finance', 'ageRules', { state: userData.state, city: userData.city });
-  const minAge = ageConfig ? ageConfig.minAge : cholaConfig.minAge;
-  const maxAge = ageConfig ? ageConfig.maxAge : cholaConfig.maxAge;
+  const minAge = ageConfig?.minAge ?? cholaConfig.minAge;
+  const maxAge = ageConfig?.maxAge ?? cholaConfig.maxAge;
 
   if (age && (age < minAge || age > maxAge)) {
     return {
@@ -153,7 +153,7 @@ export const calculateCholaEligibility = (userData) => {
 
   const salConfig = getBankConfig('Cholamandalam Finance', 'employmentRules', { state: userData.state, city: userData.city });
   const catMinSalary = cholaConfig.minSalary[category];
-  const effectiveMinSalary = salConfig ? salConfig.salariedMinSalary : catMinSalary;
+  const effectiveMinSalary = salConfig?.salariedMinSalary ?? catMinSalary;
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (!effectiveMinSalary || incomeToCheck < effectiveMinSalary) {
@@ -162,8 +162,8 @@ export const calculateCholaEligibility = (userData) => {
 
   // Get loan capping config
   const cappingConfig = getBankConfig('Cholamandalam Finance', 'loanCapping', { state: userData.state, city: userData.city });
-  const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : cholaConfig.maxLoanAmount;
-  const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : 100000;
+  const absoluteMaxLoan = cappingConfig?.absoluteMaxLoan ?? cholaConfig.maxLoanAmount;
+  const minLoanAmount = cappingConfig?.minLoanAmount ?? 100000;
 
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
