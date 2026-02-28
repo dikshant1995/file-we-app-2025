@@ -346,7 +346,7 @@ export const calculateKotakEligibility = (userData) => {
     if (btFreshAmount < 0) {
       return {
         eligible: false,
-        reason: `BT Outstanding (₹${btTotalOutstanding.toLocaleString()}) exceeds maximum eligible loan amount (₹${Math.round(finalLoanAmount).toLocaleString()})`,
+        reason: `BT Outstanding (₹${btTotalOutstanding?.toLocaleString() || '0'}) exceeds maximum eligible loan amount (₹${Math.round(finalLoanAmount)?.toLocaleString() || '0'})`,
         isBTMode: true
       };
     }
