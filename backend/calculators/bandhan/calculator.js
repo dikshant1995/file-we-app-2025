@@ -134,12 +134,10 @@ export const calculateBandhanEligibility = (userData) => {
   // Use user-provided interest rate or default to bank config
   const effectiveInterestRate = interestRate || bandhanConfig.interestRate;
 
-  // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('Bandhan Bank', 'ageRules', { state: userData.state, city: userData.city });
   // Check minimum salary requirement based on category
   const salConfig = getBankConfig('Bandhan Bank', 'employmentRules', { state: userData.state, city: userData.city });
   const catMinSalary = bandhanConfig.minSalary[companyCategory];
-  const effectiveMinSalary = salConfig ? salConfig.salariedMinSalary : catMinSalary;
+  const effectiveMinSalary = salConfig?.salariedMinSalary ?? catMinSalary;
 
   if (effectiveMinSalary === null) {
     return { eligible: false, reason: `Bandhan Bank does not provide loans to ${companyCategory} companies` };
@@ -152,8 +150,8 @@ export const calculateBandhanEligibility = (userData) => {
 
   // Get loan capping config
   const cappingConfig = getBankConfig('Bandhan Bank', 'loanCapping', { state: userData.state, city: userData.city });
-  const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : bandhanConfig.maxLoanAmount;
-  const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : 100000;
+  const absoluteMaxLoan = cappingConfig?.absoluteMaxLoan ?? bandhanConfig.maxLoanAmount;
+  const minLoanAmount = cappingConfig?.minLoanAmount ?? 100000;
 
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
