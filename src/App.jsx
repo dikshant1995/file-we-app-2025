@@ -80,7 +80,7 @@ function App() {
   return (
     <div className="App">
       {showAdminDashboard ? (
-        <AdminDashboard onBackToCustomer={() => setShowAdminDashboard(false)} />
+        <AdminDashboard />
       ) : (
         <>
           <header>
