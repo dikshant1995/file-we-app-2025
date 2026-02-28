@@ -115,7 +115,7 @@ export const calculateIciciEligibility = (userData) => {
     if (adjustedIncome <= 0) {
       return {
         eligible: false,
-        reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains`,
+        reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction)?.toLocaleString() || '0'}), no income remains`,
         isBTMode: true
       };
     }
@@ -190,7 +190,7 @@ export const calculateIciciEligibility = (userData) => {
   if (incomeToCheck < effectiveMinSalary) {
     return {
       eligible: false,
-      reason: `Minimum monthly income required for ${companyCategory} category is ₹${effectiveMinSalary.toLocaleString()}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`,
+      reason: `Minimum monthly income required for ${companyCategory} category is ₹${effectiveMinSalary?.toLocaleString() || '0'}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`,
       isBTMode: isBT
     };
   }
@@ -204,7 +204,7 @@ export const calculateIciciEligibility = (userData) => {
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
     return {
       eligible: false,
-      reason: `Minimum loan amount required by this bank is ₹${minLoanAmount.toLocaleString()}. Requested: ₹${desiredLoanAmount.toLocaleString()}`,
+      reason: `Minimum loan amount required by this bank is ₹${minLoanAmount?.toLocaleString() || '0'}. Requested: ₹${desiredLoanAmount?.toLocaleString() || '0'}`,
       isBTMode: isBT
     };
   }
