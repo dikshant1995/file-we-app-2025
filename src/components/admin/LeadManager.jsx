@@ -280,7 +280,7 @@ ${(lead?.selectedBanks || '').split(',').map(b => `- ${b.trim()}`).join('\n') ||
                                             borderRadius: '4px',
                                             marginBottom: '8px'
                                         }}>
-                                            <div style={{ color: '#00ff88', fontWeight: 'bold', fontSize: '0.9em' }}>
+                                            <div style={{ color: '#00ff88', fontWeight: 'bold', fontSize: '0.82rem' }}>
                                                 ₹{lead.maxEligibility.toLocaleString()}
                                             </div>
                                             <div style={{ fontSize: '0.75em', opacity: 0.7 }}>via {lead.bestBank}</div>
