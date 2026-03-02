@@ -49,30 +49,33 @@ export const saveLead = async (formData, submissionData) => {
             creditCards: creditCards || 'None',
             state: formData.state || submissionData.state || '',
             city: formData.city || submissionData.city || '',
-            maxEligibility: submissionData.maxEligibility || 0,
-            bestBank: submissionData.bestBank || 'N/A'
         };
 
-        await fetch(APPS_SCRIPT_URL, {
-            method: 'POST',
-            // Apps Script requires text/plain to avoid CORS preflight
-            headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify(lead),
-        });
-
-        // ── PERSIST LOCALLY FOR ADMIN PANEL ──────────────────────────────────────
+        // ── PERSIST LOCALLY FOR ADMIN PANEL (IMMEDIATE) ─────────────────────────
         try {
             const localLeads = JSON.parse(localStorage.getItem('laxmi_leads') || '[]');
-            const leadWithId = { ...lead, id: Date.now() }; // Add ID for React rendering
-            localLeads.unshift(leadWithId); // Add to top
-            localStorage.setItem('laxmi_leads', JSON.stringify(localLeads.slice(0, 50))); // Keep last 50
-            console.log('💾 Lead persisted locally for Admin Panel');
+            const leadWithId = { ...lead, id: Date.now() };
+            localLeads.unshift(leadWithId);
+            localStorage.setItem('laxmi_leads', JSON.stringify(localLeads.slice(0, 50)));
+            console.log('💾 Lead captured immediately for local pipeline');
         } catch (localErr) {
-            console.warn('⚠️ Could not save lead to localStorage:', localErr);
+            console.warn('⚠️ Local save failed but continuing...', localErr);
         }
-        // ─────────────────────────────────────────────────────────────────────────
 
-        console.log('✅ Lead saved to Google Sheets:', lead.name, lead.mobile);
+        // ── GOOGLE SHEETS & BACKEND SYNC (NON-BLOCKING) ──────────────────────────
+        fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify(lead),
+        }).then(() => console.log('✅ Google Sheets synced'))
+            .catch(e => console.warn('⚠️ Google Sheets sync failed:', e));
+
+        fetch('/api/leads', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(lead)
+        }).then(() => console.log('✅ Backend synced'))
+            .catch(e => console.warn('⚠️ Backend sync failed:', e));
     } catch (err) {
         // Never block the user — just log the error
         console.error('❌ leadService: Failed to save lead:', err.message);
@@ -130,3 +133,4 @@ export const saveSelectedBanks = async (metadata, selectedBanks) => {
         console.error('❌ leadService: Failed to save bank selection:', err.message);
     }
 };
+
