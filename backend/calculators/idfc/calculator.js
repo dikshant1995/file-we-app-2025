@@ -1,28 +1,9 @@
 import { idfcConfig } from './config.js';
-import { getBankConfig } from '../../utils/configHelper.js';
+import { getBankConfig, getDynamicInterestRate } from '../../utils/configHelper.js';
 
 // Helper: Get interest rate based on category and loan amount
 const getInterestRateForLoan = (category, loanAmount, userData = {}) => {
-  const rateConfig = getBankConfig('IDFC First Bank', 'interestRates', { state: userData.state, city: userData.city });
-
-  if (!rateConfig || !rateConfig.categorySlabRates || !rateConfig.categorySlabRates[category]) {
-    return idfcConfig.interestRate;
-  }
-
-  const slabs = rateConfig.categorySlabRates[category];
-
-  for (const slabLabel in slabs) {
-    const match = slabLabel.match(/₹(\d+)-(\d+)/);
-    if (match) {
-      const min = parseInt(match[1]);
-      const max = parseInt(match[2]);
-      if (loanAmount >= min && loanAmount <= max) {
-        return slabs[slabLabel];
-      }
-    }
-  }
-
-  return idfcConfig.interestRate;
+  return getDynamicInterestRate('IDFC First Bank', category, loanAmount, { state: userData.state, city: userData.city }, idfcConfig.interestRate);
 };
 
 // Function to calculate EMI
