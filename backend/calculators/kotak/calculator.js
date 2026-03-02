@@ -1,39 +1,9 @@
 import { kotakConfig } from './config.js';
-import { getBankConfig } from '../../utils/configHelper.js';
+import { getBankConfig, getDynamicInterestRate } from '../../utils/configHelper.js';
 
 // Helper function to get interest rate based on category and loan amount
 const getInterestRateForLoan = (category, loanAmount, userData = {}) => {
-  const rateConfig = getBankConfig('Kotak Mahindra Bank', 'interestRates', { state: userData.state, city: userData.city });
-
-  console.log('🔍 Rate Config:', rateConfig);
-
-  if (!rateConfig || !rateConfig.categorySlabRates || !rateConfig.categorySlabRates[category]) {
-    console.log('⚠️ No rate config found, using default:', kotakConfig.interestRate);
-    return kotakConfig.interestRate;
-  }
-
-  const slabs = rateConfig.categorySlabRates[category];
-
-  console.log(`📊 Loan: ₹${loanAmount}, Category: ${category}`);
-  console.log('📋 Available slabs:', Object.keys(slabs));
-
-  // Find matching slab by parsing rupee ranges (e.g., "₹100000-500000")
-  for (const slabLabel in slabs) {
-    // Extract min and max from label like "₹100000-500000"
-    const match = slabLabel.match(/₹(\d+)-(\d+)/);
-    if (match) {
-      const min = parseInt(match[1]);
-      const max = parseInt(match[2]);
-
-      if (loanAmount >= min && loanAmount <= max) {
-        console.log(`✅ Matched slab: ${slabLabel} (₹${min}-₹${max}) = ${slabs[slabLabel]}%`);
-        return slabs[slabLabel];
-      }
-    }
-  }
-
-  console.log('⚠️ No matching slab, using default');
-  return kotakConfig.interestRate;
+  return getDynamicInterestRate('Kotak Mahindra Bank', category, loanAmount, { state: userData.state, city: userData.city }, kotakConfig.interestRate);
 };
 
 // Function to calculate EMI
