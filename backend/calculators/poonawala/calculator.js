@@ -153,7 +153,7 @@ export const calculatePoonawalaEligibility = (userData) => {
   const maxTenureForCategory = poonawalaConfig.maxTenureByCategory[customerSegment];
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `No loans available for Category ${customerSegment}`
     };
   }
@@ -170,7 +170,7 @@ export const calculatePoonawalaEligibility = (userData) => {
   // Check loan tenure
   if (loanTenure > poonawalaConfig.maxLoanTenure) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Maximum loan tenure is ${poonawalaConfig.maxLoanTenure} years`
     };
   }
@@ -180,9 +180,8 @@ export const calculatePoonawalaEligibility = (userData) => {
   const catMinSalary = poonawalaConfig.minNTHBySegment[customerSegment];
   const effectiveMinSalary = salConfig?.salariedMinSalary ?? catMinSalary;
 
-  const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < effectiveMinSalary) {
-    return { eligible: false, reason: `Minimum NTH salary of ₹${effectiveMinSalary?.toLocaleString() || '0'} required for ${customerSegment} segment${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+    return { isEligible: false, reason: `Minimum NTH salary of ₹${effectiveMinSalary?.toLocaleString() || '0'} required for ${customerSegment} segment${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
   // Get loan capping config
@@ -193,7 +192,7 @@ export const calculatePoonawalaEligibility = (userData) => {
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Minimum loan amount required by this bank is ₹${minLoanAmount?.toLocaleString() || '0'}. Requested: ₹${desiredLoanAmount?.toLocaleString() || '0'}`,
       isBTMode: isBT
     };
@@ -203,7 +202,7 @@ export const calculatePoonawalaEligibility = (userData) => {
   const foirPercentage = getNTHBandFOIR(customerSegment, incomeForCalculation);
 
   if (foirPercentage === null) {
-    return { eligible: false, reason: `No FOIR available for ${customerSegment} segment at NTH ₹${incomeForCalculation?.toLocaleString() || '0'}`, isBTMode: isBT };
+    return { isEligible: false, reason: `No FOIR available for ${customerSegment} segment at NTH ₹${incomeForCalculation?.toLocaleString() || '0'}`, isBTMode: isBT };
   }
 
   const foirCap = incomeForCalculation * foirPercentage;
@@ -212,7 +211,7 @@ export const calculatePoonawalaEligibility = (userData) => {
 
   if (availableEMI <= 0) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Existing EMI (₹${existingEMI.toLocaleString()}) exceeds FOIR limit of ₹${Math.round(foirCap).toLocaleString()}`
     };
   }
@@ -255,7 +254,7 @@ export const calculatePoonawalaEligibility = (userData) => {
   if (isBT) {
     const btFreshAmount = cappedFinalLoan - btTotalOutstanding;
     if (btFreshAmount < 0) {
-      return { eligible: false, reason: `BT Outstanding (₹${btTotalOutstanding?.toLocaleString() || '0'}) exceeds max loan (₹${Math.round(cappedFinalLoan)?.toLocaleString() || '0'})`, isBTMode: true };
+      return { isEligible: false, reason: `BT Outstanding (₹${btTotalOutstanding?.toLocaleString() || '0'}) exceeds max loan (₹${Math.round(cappedFinalLoan)?.toLocaleString() || '0'})`, isBTMode: true };
     }
     btDetails = {
       isBTMode: true,
@@ -275,10 +274,11 @@ export const calculatePoonawalaEligibility = (userData) => {
   const monthlyEMI = calculateEMI(cappedFinalLoan, finalInterestRate, cappedTenureYears);
 
   return {
-    eligible: true,
+    isEligible: true,
     bankId: poonawalaConfig.id,
     bankName: poonawalaConfig.name,
     loanAmount: Math.round(cappedFinalLoan),
+    maxLoanAmount: Math.round(cappedFinalLoan),
     maxLoanCap: absoluteMaxLoan,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
@@ -290,6 +290,7 @@ export const calculatePoonawalaEligibility = (userData) => {
     requestedTenureMonths: requestedTenureMonths,
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
+    companyCategory: category,
     customerSegment: customerSegment,
     foirPercentage: foirPercentage,
     availableEMI: Math.round(availableEMI),
