@@ -1,5 +1,5 @@
 import { cholaConfig } from './config.js';
-import { getBankConfig } from '../../utils/configHelper.js';
+import { getBankConfig, getDynamicInterestRate } from '../../utils/configHelper.js';
 
 // Helper: Calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -227,7 +227,10 @@ export const calculateCholaEligibility = (userData) => {
     };
   }
 
-  const finalEMI = calculateEMI(cappedFinalLoan, cholaConfig.interestRate, cappedTenureYears);
+  // Use dynamic interest rate from Admin settings
+  const dynamicRate = getDynamicInterestRate('Cholamandalam Finance', category, desiredLoanAmount || monthlyIncome * 20, { state: userData.state, city: userData.city }, cholaConfig.interestRate);
+
+  const finalEMI = calculateEMI(cappedFinalLoan, dynamicRate, cappedTenureYears);
 
   return {
     eligible: true,
@@ -237,7 +240,7 @@ export const calculateCholaEligibility = (userData) => {
     maxLoanCap: absoluteMaxLoan,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
-    interestRate: cholaConfig.interestRate,
+    interestRate: dynamicRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,
     tenureCapped: tenureCapped,
