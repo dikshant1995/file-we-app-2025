@@ -1,5 +1,4 @@
 import { bandhanConfig } from './config.js';
-import { getBankConfig, getDynamicInterestRate } from '../../services/bankConfigService';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -132,16 +131,15 @@ export const calculateBandhanEligibility = (userData) => {
     };
   }
 
-  // Use user-provided interest rate or calculate based on category and loan amount from Admin settings
-  const effectiveInterestRate = interestRate || getDynamicInterestRate('Bandhan Bank', category || 'B', desiredLoanAmount || monthlyIncome * 20, { state: userData.state, city: userData.city }, bandhanConfig.interestRate);
+  // Use default interest rate
+  const effectiveInterestRate = interestRate || bandhanConfig.interestRate;
 
-  // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('Bandhan Bank', 'ageRules', { state: userData.state, city: userData.city });
+  // Check age eligibility
+  const minAge = bandhanConfig.minAge;
+  const maxAge = bandhanConfig.maxAge;
   // Check minimum salary requirement based on category
-  const salConfig = getBankConfig('Bandhan Bank', 'employmentRules', { state: userData.state, city: userData.city });
-  const companyCategory = getCompanyCategory(companyName, employmentType);
   const catMinSalary = bandhanConfig.minSalary[companyCategory];
-  const effectiveMinSalary = salConfig ? salConfig.salariedMinSalary : catMinSalary;
+  const effectiveMinSalary = catMinSalary;
 
   if (effectiveMinSalary === null) {
     return { isEligible: false, reason: `Bandhan Bank does not provide loans to ${companyCategory} companies` };
@@ -152,10 +150,9 @@ export const calculateBandhanEligibility = (userData) => {
     return { isEligible: false, reason: `Minimum NTH salary of ₹${effectiveMinSalary.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
-  // Get loan capping config
-  const cappingConfig = getBankConfig('Bandhan Bank', 'loanCapping', { state: userData.state, city: userData.city });
-  const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : bandhanConfig.maxLoanAmount;
-  const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : 100000;
+  // Bank's absolute maximum loan limit
+  const absoluteMaxLoan = bandhanConfig.maxLoanAmount;
+  const minLoanAmount = 100000;
 
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
