@@ -177,8 +177,8 @@ function CustomerFacingApp() {
               <div id="results-section">
                 <CustomerResultsDisplay
                   results={results}
-                  userData={metadata}
-                  onBack={handleNewCalculation}
+                  metadata={metadata}
+                  onNewCalculation={handleNewCalculation}
                 />
               </div>
             )}
