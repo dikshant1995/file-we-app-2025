@@ -62,7 +62,7 @@ export const calculateIdfcEligibility = (userData) => {
     const creditCardDeduction = creditCardObligation || 0;
     adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
     if (adjustedIncome <= 0) {
-      return { eligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains`, isBTMode: true };
+      return { isEligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains`, isBTMode: true };
     }
   }
 
@@ -75,8 +75,8 @@ export const calculateIdfcEligibility = (userData) => {
 
     if (hasExistingIdfcLoan) {
       return {
-        eligible: false,
-        reason: 'As an existing customer of IDFC Bank with an active personal loan, you are not eligible for a new loan from this bank'
+        isEligible: false,
+        reason: 'As an existing customer of IDFC First Bank with an active personal loan, you are not eligible for a new loan from this bank'
       };
     }
   }
@@ -88,7 +88,7 @@ export const calculateIdfcEligibility = (userData) => {
 
   if (age && (age < minAge || age > maxAge)) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
     };
   }
@@ -96,8 +96,8 @@ export const calculateIdfcEligibility = (userData) => {
   // Check employment type
   if (!idfcConfig.employmentTypes.includes(employmentType)) {
     return {
-      eligible: false,
-      reason: `Employment type ${employmentType} not supported by IDFC Bank`
+      isEligible: false,
+      reason: `Employment type ${employmentType} not supported by IDFC First Bank`
     };
   }
 
@@ -108,7 +108,7 @@ export const calculateIdfcEligibility = (userData) => {
   const maxTenureForCategory = idfcConfig.maxTenureByCategory[mappedCategory];
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `No loans available for Category ${mappedCategory}`
     };
   }
@@ -125,7 +125,7 @@ export const calculateIdfcEligibility = (userData) => {
   // Check loan tenure
   if (loanTenure > idfcConfig.maxLoanTenure) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Maximum loan tenure is ${idfcConfig.maxLoanTenure} years`
     };
   }
@@ -133,13 +133,13 @@ export const calculateIdfcEligibility = (userData) => {
   // Check if category is supported
   if (category === 'UNLISTED') {
     return {
-      eligible: false,
+      isEligible: false,
       reason: 'IDFC Bank does not provide loans to UNLISTED category employees'
     };
   }
 
   if (!idfcConfig.multiplierTable[mappedCategory]) {
-    return { eligible: false, reason: `Category ${category} not supported by IDFC Bank`, isBTMode: isBT };
+    return { isEligible: false, reason: `Category ${category} not supported by IDFC Bank`, isBTMode: isBT };
   }
 
   // Check minimum salary requirement based on category
@@ -148,7 +148,7 @@ export const calculateIdfcEligibility = (userData) => {
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < effectiveMinSalary) {
-    return { eligible: false, reason: `Minimum salary of ₹${effectiveMinSalary.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+    return { isEligible: false, reason: `Minimum monthly income of ₹${effectiveMinSalary.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
   // Get loan capping config
@@ -159,7 +159,7 @@ export const calculateIdfcEligibility = (userData) => {
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Minimum loan amount required by this bank is ₹${minLoanAmount.toLocaleString()}. Requested: ₹${desiredLoanAmount.toLocaleString()}`,
       isBTMode: isBT
     };
@@ -171,7 +171,7 @@ export const calculateIdfcEligibility = (userData) => {
   const multiplier = idfcConfig.multiplierTable[mappedCategory][salaryBand];
 
   if (!multiplier) {
-    return { eligible: false, reason: `No multiplier available for category ${category} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
+    return { isEligible: false, reason: `No multiplier available for category ${category} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
   }
 
   // IMPORTANT: For multiplier, use salary after deducting existing EMI and credit card obligation (non-BT mode)
@@ -203,7 +203,11 @@ export const calculateIdfcEligibility = (userData) => {
   if (isBT) {
     const btFreshAmount = cappedFinalLoan - btTotalOutstanding;
     if (btFreshAmount < 0) {
-      return { eligible: false, reason: `BT Outstanding (₹${btTotalOutstanding.toLocaleString()}) exceeds max loan (₹${Math.round(cappedFinalLoan).toLocaleString()})`, isBTMode: true };
+      return {
+        isEligible: false,
+        reason: `BT Outstanding (₹${btTotalOutstanding.toLocaleString()}) exceeds max loan (₹${Math.round(cappedFinalLoan).toLocaleString()})`,
+        isBTMode: true
+      };
     }
     btDetails = {
       isBTMode: true,
@@ -223,10 +227,11 @@ export const calculateIdfcEligibility = (userData) => {
   const monthlyEMI = calculateEMI(cappedFinalLoan, finalInterestRate, cappedTenureYears);
 
   return {
-    eligible: true,
+    isEligible: true,
     bankId: idfcConfig.id,
     bankName: idfcConfig.name,
     loanAmount: Math.round(cappedFinalLoan),
+    maxLoanAmount: Math.round(cappedFinalLoan),
     maxLoanCap: absoluteMaxLoan,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
