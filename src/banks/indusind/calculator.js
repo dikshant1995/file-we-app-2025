@@ -1,5 +1,4 @@
 import { indusindConfig } from './config.js';
-import { getBankConfig, getDynamicInterestRate } from '../../services/bankConfigService';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -88,10 +87,9 @@ export const calculateIndusindEligibility = (userData) => {
     }
   }
 
-  // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('IndusInd Bank', 'ageRules', { state: userData.state, city: userData.city });
-  const minAge = ageConfig ? ageConfig.minAge : indusindConfig.minAge;
-  const maxAge = ageConfig ? ageConfig.maxAge : indusindConfig.maxAge;
+  // Check age eligibility
+  const minAge = indusindConfig.minAge;
+  const maxAge = indusindConfig.maxAge;
 
   if (age && (age < minAge || age > maxAge)) {
     return {
@@ -135,9 +133,8 @@ export const calculateIndusindEligibility = (userData) => {
   }
 
   // Check minimum salary requirement based on category
-  const salConfig = getBankConfig('IndusInd Bank', 'employmentRules', { state: userData.state, city: userData.city });
   const catMinSalary = indusindConfig.minSalaryByCategory[category];
-  const effectiveMinSalary = salConfig ? salConfig.salariedMinSalary : catMinSalary;
+  const effectiveMinSalary = catMinSalary;
 
   if (!effectiveMinSalary) {
     return { isEligible: false, reason: `Category ${category} not supported by IndusInd Bank`, isBTMode: isBT };
@@ -148,10 +145,9 @@ export const calculateIndusindEligibility = (userData) => {
     return { isEligible: false, reason: `Minimum salary of ₹${effectiveMinSalary.toLocaleString()} required for category ${category}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
-  // Get loan capping config
-  const cappingConfig = getBankConfig('IndusInd Bank', 'loanCapping', { state: userData.state, city: userData.city });
-  const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : indusindConfig.maxLoanAmount;
-  const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : 100000;
+  // Bank's absolute maximum loan limit
+  const absoluteMaxLoan = indusindConfig.maxLoanAmount;
+  const minLoanAmount = 100000;
 
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
@@ -210,8 +206,8 @@ export const calculateIndusindEligibility = (userData) => {
     };
   }
 
-  // Use dynamic interest rate from Admin settings
-  const dynamicRate = getDynamicInterestRate('IndusInd Bank', category, cappedFinalLoan || monthlyIncome * 20, { state: userData.state, city: userData.city }, indusindConfig.interestRate);
+  // Use default interest rate
+  const dynamicRate = indusindConfig.interestRate;
 
   const monthlyEMI = calculateEMI(cappedFinalLoan, dynamicRate, cappedTenureYears);
 
