@@ -146,7 +146,7 @@ const handleBTCalculation = (userData) => {
         try {
             // Basic BT checks (Availability, Fintech)
             if (config.btConfig && !config.btConfig.isAvailable) {
-                return { bankName: name, eligible: false, reason: 'BT not available at this bank', btType: 'BT' };
+                return { bankName: name, isEligible: false, reason: 'BT not available at this bank', btType: 'BT' };
             }
 
             const result = calc(btInput);
