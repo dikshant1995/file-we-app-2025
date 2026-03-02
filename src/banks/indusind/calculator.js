@@ -1,5 +1,5 @@
 import { indusindConfig } from './config.js';
-import { getBankConfig } from '../../services/bankConfigService';
+import { getBankConfig, getDynamicInterestRate } from '../../services/bankConfigService';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -210,7 +210,10 @@ export const calculateIndusindEligibility = (userData) => {
     };
   }
 
-  const monthlyEMI = calculateEMI(cappedFinalLoan, indusindConfig.interestRate, cappedTenureYears);
+  // Use dynamic interest rate from Admin settings
+  const dynamicRate = getDynamicInterestRate('IndusInd Bank', category, cappedFinalLoan || monthlyIncome * 20, { state: userData.state, city: userData.city }, indusindConfig.interestRate);
+
+  const monthlyEMI = calculateEMI(cappedFinalLoan, dynamicRate, cappedTenureYears);
 
   return {
     eligible: true,
@@ -220,7 +223,7 @@ export const calculateIndusindEligibility = (userData) => {
     maxLoanCap: absoluteMaxLoan,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
-    interestRate: indusindConfig.interestRate,
+    interestRate: dynamicRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,
     tenureCapped: tenureCapped,
