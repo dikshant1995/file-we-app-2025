@@ -45,15 +45,15 @@ import { piramalConfig } from '../banks/piramal/config.js';
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
   const monthlyInterestRate = annualInterestRate / 12 / 100;
   const numberOfMonths = tenureInYears * 12;
-  
+
   if (monthlyInterestRate === 0) {
     return principal / numberOfMonths;
   }
-  
-  const emi = principal * monthlyInterestRate * 
-    Math.pow(1 + monthlyInterestRate, numberOfMonths) / 
+
+  const emi = principal * monthlyInterestRate *
+    Math.pow(1 + monthlyInterestRate, numberOfMonths) /
     (Math.pow(1 + monthlyInterestRate, numberOfMonths) - 1);
-    
+
   return Math.round(emi);
 };
 
@@ -82,11 +82,11 @@ export const calculatePersonalLoanBT = async (userData) => {
   } = userData;
 
   // Separate loans by type
-  const personalLoans = allLoans.filter(loan => 
+  const personalLoans = allLoans.filter(loan =>
     loan.loanType === 'personal' || loan.loanType === 'Personal Loan'
   );
-  
-  const nonPersonalLoans = allLoans.filter(loan => 
+
+  const nonPersonalLoans = allLoans.filter(loan =>
     loan.loanType !== 'personal' && loan.loanType !== 'Personal Loan'
   );
 
@@ -102,7 +102,7 @@ export const calculatePersonalLoanBT = async (userData) => {
   // Validation: Effective salary must be positive
   if (effectiveSalary <= 0) {
     return [{
-      eligible: false,
+      isEligible: false,
       reason: `Non-personal loan EMIs (₹${nonPersonalLoansEMI.toLocaleString()}) exceed or equal salary (₹${monthlyIncome.toLocaleString()}). No capacity for personal loan BT.`,
       btType: 'PERSONAL_LOAN_BT'
     }];
@@ -141,37 +141,37 @@ export const calculatePersonalLoanBT = async (userData) => {
     try {
       // Check BT loan capping constraint
       const numberOfPersonalLoans = personalLoans.length;
-      
+
       // Check if bank offers BT
       if (config.btConfig && !config.btConfig.isAvailable) {
         return {
           bankName: config.name || name,
-          eligible: false,
+          isEligible: false,
           reason: `${config.name || name} does not offer Balance Transfer facility for personal loans`,
           btType: 'PERSONAL_LOAN_BT',
           btCappingIssue: true
         };
       }
-      
+
       // Check for Fintech loans in personal loans
       const hasFintechLoans = personalLoans.some(loan => loan.isFintechLoan === true || loan.loanSource === 'fintech');
       if (hasFintechLoans && config.btConfig && config.btConfig.acceptsFintechLoans === false) {
         const fintechLoanCount = personalLoans.filter(loan => loan.isFintechLoan === true || loan.loanSource === 'fintech').length;
         return {
           bankName: config.name || name,
-          eligible: false,
+          isEligible: false,
           reason: `Fintech Loan Policy: ${config.name || name} does not accept Balance Transfer for loans from Fintech/digital lending platforms. You have ${fintechLoanCount} Fintech personal loan(s).`,
           btType: 'PERSONAL_LOAN_BT',
           fintechLoanIssue: true,
           fintechLoansCount: fintechLoanCount
         };
       }
-      
+
       // Check loan capping limit for personal loans
       if (config.btConfig && config.btConfig.maxLoansForBT < numberOfPersonalLoans) {
         return {
           bankName: config.name || name,
-          eligible: false,
+          isEligible: false,
           reason: `Loan Capping Exceeded: You have ${numberOfPersonalLoans} personal loans, but ${config.name || name} allows BT for maximum ${config.btConfig.maxLoansForBT} loans`,
           btType: 'PERSONAL_LOAN_BT',
           btCappingIssue: true,
@@ -179,13 +179,13 @@ export const calculatePersonalLoanBT = async (userData) => {
           currentPersonalLoans: numberOfPersonalLoans
         };
       }
-      
+
       const result = calculator(btInput);
-      
-      if (!result.eligible) {
+
+      if (!result.isEligible) {
         return {
           bankName: result.bankName || name,
-          eligible: false,
+          isEligible: false,
           reason: result.reason,
           btType: 'PERSONAL_LOAN_BT'
         };
@@ -199,7 +199,7 @@ export const calculatePersonalLoanBT = async (userData) => {
       if (freshAmount <= 0) {
         return {
           bankName: result.bankName || name,
-          eligible: false,
+          isEligible: false,
           reason: `Personal Loan POS (₹${personalLoansPOS.toLocaleString()}) exceeds max loan capacity (₹${maxLoanAmount.toLocaleString()})`,
           btType: 'PERSONAL_LOAN_BT'
         };
@@ -212,38 +212,38 @@ export const calculatePersonalLoanBT = async (userData) => {
 
       return {
         bankName: result.bankName || name,
-        eligible: true,
+        isEligible: true,
         btType: 'PERSONAL_LOAN_BT',
-        
+
         // BT-specific fields
         maxPersonalLoanAmount: Math.round(maxLoanAmount),
         personalLoanPOS: Math.round(personalLoansPOS),
         freshAmountDisbursed: Math.round(freshAmount),
-        
+
         // EMI breakdown
         newPersonalLoanEMI: Math.round(newPersonalLoanEMI),
         nonPersonalLoansEMI: Math.round(nonPersonalLoansEMI),
         totalMonthlyOutflow: Math.round(totalMonthlyOutflow),
-        
+
         // Loan details
         interestRate: result.interestRate,
         tenure: loanTenure,
         processingFee: result.processingFee,
-        
+
         // Salary calculation details
         originalSalary: parseFloat(monthlyIncome),
         effectiveSalary: Math.round(effectiveSalary),
-        
+
         // Previous loan details
         previousPersonalLoanEMI: Math.round(personalLoansEMI),
         previousTotalEMI: Math.round(originalTotalEMI),
         numberOfPersonalLoansConsolidated: personalLoans.length,
         numberOfNonPersonalLoansRemaining: nonPersonalLoans.length,
-        
+
         // Changes
         emiDifference: Math.round(totalMonthlyOutflow - originalTotalEMI),
         personalLoanEMIDifference: Math.round(newPersonalLoanEMI - personalLoansEMI),
-        
+
         // Breakdown of loans
         personalLoansDetails: personalLoans.map(l => ({
           name: l.loanName,
@@ -257,7 +257,7 @@ export const calculatePersonalLoanBT = async (userData) => {
           emi: l.emi,
           pos: l.pos
         })),
-        
+
         // Full result
         ...result
       };
@@ -265,7 +265,7 @@ export const calculatePersonalLoanBT = async (userData) => {
       console.error(`Error calculating Personal Loan BT for ${name}:`, error);
       return {
         bankName: name,
-        eligible: false,
+        isEligible: false,
         reason: 'Personal Loan BT calculation error occurred',
         btType: 'PERSONAL_LOAN_BT'
       };
@@ -286,35 +286,35 @@ export const calculatePersonalLoanBT = async (userData) => {
  */
 export const getPersonalLoanBTRecommendations = (btResults) => {
   // Filter eligible banks
-  const eligibleBanks = btResults.filter(result => result.eligible);
-  
+  const eligibleBanks = btResults.filter(result => result.isEligible);
+
   if (eligibleBanks.length === 0) {
     return {
       hasRecommendations: false,
       message: 'No banks eligible for Personal Loan Balance Transfer with current profile'
     };
   }
-  
+
   // Sort by fresh amount (descending)
   const sortedByFreshAmount = [...eligibleBanks].sort(
     (a, b) => b.freshAmountDisbursed - a.freshAmountDisbursed
   );
-  
+
   // Sort by lowest total monthly outflow
   const sortedByTotalOutflow = [...eligibleBanks].sort(
     (a, b) => a.totalMonthlyOutflow - b.totalMonthlyOutflow
   );
-  
+
   // Sort by lowest interest rate
   const sortedByInterest = [...eligibleBanks].sort(
     (a, b) => a.interestRate - b.interestRate
   );
-  
+
   // Sort by lowest personal loan EMI
   const sortedByPersonalEMI = [...eligibleBanks].sort(
     (a, b) => a.newPersonalLoanEMI - b.newPersonalLoanEMI
   );
-  
+
   return {
     hasRecommendations: true,
     bestForFreshFunds: sortedByFreshAmount[0],
@@ -333,33 +333,33 @@ export const getPersonalLoanBTRecommendations = (btResults) => {
  */
 export const validatePersonalLoanBTData = (userData) => {
   const { allLoans, monthlyIncome } = userData;
-  
+
   // Check if there are any personal loans
-  const personalLoans = allLoans.filter(loan => 
+  const personalLoans = allLoans.filter(loan =>
     loan.loanType === 'personal' || loan.loanType === 'Personal Loan'
   );
-  
+
   if (personalLoans.length === 0) {
     return {
       valid: false,
       message: 'No personal loans found. BT applies only to personal loans.'
     };
   }
-  
+
   // Check if non-personal loan EMIs are reasonable
-  const nonPersonalLoans = allLoans.filter(loan => 
+  const nonPersonalLoans = allLoans.filter(loan =>
     loan.loanType !== 'personal' && loan.loanType !== 'Personal Loan'
   );
-  
+
   const nonPersonalLoansEMI = nonPersonalLoans.reduce((sum, loan) => sum + parseFloat(loan.emi), 0);
-  
+
   if (nonPersonalLoansEMI >= parseFloat(monthlyIncome)) {
     return {
       valid: false,
       message: `Non-personal loan EMIs (₹${nonPersonalLoansEMI.toLocaleString()}) exceed salary. No capacity for personal loan BT.`
     };
   }
-  
+
   return {
     valid: true,
     message: 'Data validated successfully for Personal Loan BT',
