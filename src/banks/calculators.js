@@ -11,8 +11,8 @@ import { calculateShriRamEligibility } from './shri-ram/calculator.js';
 import { calculatePiramalEligibility } from './piramal/calculator.js';
 import { calculateIndusindEligibility } from './indusind/calculator.js';
 import { calculateIdfcEligibility } from './idfc/calculator.js';
-import { calculateBajajFinanceEligibility } from './bajaj-finance/calculator.js';
-import { calculateLntFinanceEligibility } from './lnt-finance/calculator.js';
+// import { calculateBajajFinanceEligibility } from './bajaj-finance/calculator.js';
+// import { calculateLntFinanceEligibility } from './lnt-finance/calculator.js';
 
 // Export all calculators in an array
 export const bankCalculators = [
@@ -28,6 +28,6 @@ export const bankCalculators = [
   calculatePiramalEligibility,
   calculateIndusindEligibility,
   calculateIdfcEligibility,
-  calculateBajajFinanceEligibility,
-  calculateLntFinanceEligibility
+  // calculateBajajFinanceEligibility,
+  // calculateLntFinanceEligibility
 ];
