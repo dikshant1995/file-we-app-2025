@@ -1,5 +1,5 @@
 import { shriRamConfig } from './config.js';
-import { getBankConfig } from '../../utils/configHelper.js';
+import { getBankConfig, getDynamicInterestRate } from '../../utils/configHelper.js';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -240,7 +240,10 @@ export const calculateShriRamEligibility = (userData) => {
     };
   }
 
-  const monthlyEMI = calculateEMI(cappedFinalLoan, shriRamConfig.interestRate, cappedTenureYears);
+  // Use dynamic interest rate from Admin settings
+  const dynamicRate = getDynamicInterestRate('Shriram Finance', category, desiredLoanAmount || monthlyIncome * 20, { state: userData.state, city: userData.city }, shriRamConfig.interestRate);
+
+  const monthlyEMI = calculateEMI(cappedFinalLoan, dynamicRate, cappedTenureYears);
 
   return {
     eligible: true,
@@ -250,7 +253,7 @@ export const calculateShriRamEligibility = (userData) => {
     maxLoanCap: absoluteMaxLoan,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
-    interestRate: shriRamConfig.interestRate,
+    interestRate: dynamicRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,
     tenureCapped: tenureCapped,
