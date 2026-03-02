@@ -83,7 +83,7 @@ export const calculateTataEligibility = (userData) => {
     const creditCardDeduction = creditCardObligation || 0;
     adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
     if (adjustedIncome <= 0) {
-      return { eligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains`, isBTMode: true };
+      return { isEligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains`, isBTMode: true };
     }
   }
 
@@ -96,7 +96,7 @@ export const calculateTataEligibility = (userData) => {
 
     if (hasExistingTataLoan) {
       return {
-        eligible: false,
+        isEligible: false,
         reason: 'As an existing customer of Tata Capital with an active personal loan, you are not eligible for a new loan from this bank'
       };
     }
@@ -109,7 +109,7 @@ export const calculateTataEligibility = (userData) => {
 
   if (age && (age < minAge || age > maxAge)) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
     };
   }
@@ -117,8 +117,8 @@ export const calculateTataEligibility = (userData) => {
   // 1. Check employment type
   if (!tataConfig.employmentTypes.includes(employmentType)) {
     return {
-      eligible: false,
-      reason: `Employment type ${employmentType} not supported`
+      isEligible: false,
+      reason: `Employment type ${employmentType} not supported by Tata Capital`
     };
   }
 
@@ -126,7 +126,7 @@ export const calculateTataEligibility = (userData) => {
   const maxTenureForCategory = tataConfig.maxTenureByCategory[category];
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `No loans available for Category ${category}`
     };
   }
@@ -145,7 +145,7 @@ export const calculateTataEligibility = (userData) => {
   // 4. Check loan tenure
   if (loanTenure > tataConfig.maxLoanTenure) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Maximum loan tenure is ${tataConfig.maxLoanTenure} years`
     };
   }
@@ -157,7 +157,7 @@ export const calculateTataEligibility = (userData) => {
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (!effectiveMinSalary || incomeToCheck < effectiveMinSalary) {
-    return { eligible: false, reason: `Minimum salary for ${category} is ₹${effectiveMinSalary?.toLocaleString() || 'N/A'}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+    return { isEligible: false, reason: `Minimum salary for ${category} is ₹${effectiveMinSalary?.toLocaleString() || 'N/A'}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
   // Get loan capping config
@@ -168,7 +168,7 @@ export const calculateTataEligibility = (userData) => {
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Minimum loan amount required by this bank is ₹${minLoanAmount.toLocaleString()}. Requested: ₹${desiredLoanAmount.toLocaleString()}`,
       isBTMode: isBT
     };
@@ -182,7 +182,7 @@ export const calculateTataEligibility = (userData) => {
   const multiplier = tataConfig.multiplierTable[multiplierBand][category];
 
   if (!multiplier) {
-    return { eligible: false, reason: `Category ${category} not found in multiplier table`, isBTMode: isBT };
+    return { isEligible: false, reason: `Category ${category} not found in multiplier table`, isBTMode: isBT };
   }
 
   const foirCap = incomeForCalculation * foirPercentage;
@@ -190,7 +190,7 @@ export const calculateTataEligibility = (userData) => {
 
   if (availableEMI <= 0) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Existing EMI exceeds FOIR limit`
     };
   }
@@ -234,7 +234,7 @@ export const calculateTataEligibility = (userData) => {
   if (isBT) {
     const btFreshAmount = cappedFinalLoan - btTotalOutstanding;
     if (btFreshAmount < 0) {
-      return { eligible: false, reason: `BT Outstanding (₹${btTotalOutstanding.toLocaleString()}) exceeds max loan (₹${Math.round(cappedFinalLoan).toLocaleString()})`, isBTMode: true };
+      return { isEligible: false, reason: `BT Outstanding (₹${btTotalOutstanding.toLocaleString()}) exceeds max loan (₹${Math.round(cappedFinalLoan).toLocaleString()})`, isBTMode: true };
     }
     btDetails = {
       isBTMode: true,
@@ -254,10 +254,11 @@ export const calculateTataEligibility = (userData) => {
   const finalEMI = calculateEMI(cappedFinalLoan, finalInterestRate, cappedTenureYears);
 
   return {
-    eligible: true,
+    isEligible: true,
     bankId: tataConfig.id,
     bankName: tataConfig.name,
     loanAmount: Math.round(cappedFinalLoan),
+    maxLoanAmount: Math.round(cappedFinalLoan),
     maxLoanCap: absoluteMaxLoan,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
@@ -268,8 +269,8 @@ export const calculateTataEligibility = (userData) => {
     requestedTenure: loanTenure,
     requestedTenureMonths: requestedTenureMonths,
     maxTenureForCategory: maxTenureForCategory,
-    monthlyEMI: finalEMI,
-    category: category,
+    monthlyEMI: Math.round(finalEMI),
+    companyCategory: category,
     calculationMethod: 'Combined (FOIR + Multiplier)',
     details: {
       foirPercentage: (foirPercentage * 100).toFixed(0) + '%',
