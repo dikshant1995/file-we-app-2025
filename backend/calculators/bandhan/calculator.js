@@ -107,7 +107,11 @@ export const calculateBandhanEligibility = (userData) => {
     const creditCardDeduction = creditCardObligation || 0;
     adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
     if (adjustedIncome <= 0) {
-      return { eligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction)?.toLocaleString() || '0'}), no income remains`, isBTMode: true };
+      return {
+        isEligible: false,
+        reason: `After deducting non-BT obligations (₹${(existingEMI + creditCardObligation)?.toLocaleString() || '0'}), no income remains for Balance Transfer`,
+        isBTMode: true
+      };
     }
   }
 
@@ -120,7 +124,7 @@ export const calculateBandhanEligibility = (userData) => {
 
     if (hasExistingBandhanLoan) {
       return {
-        eligible: false,
+        isEligible: false,
         reason: 'As an existing customer of Bandhan Bank with an active personal loan, you are not eligible for a new loan from this bank'
       };
     }
@@ -129,7 +133,7 @@ export const calculateBandhanEligibility = (userData) => {
   // Check age eligibility
   if (age && (age < bandhanConfig.minAge || age > bandhanConfig.maxAge)) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Age must be between ${bandhanConfig.minAge} and ${bandhanConfig.maxAge} years. Current age: ${age}`
     };
   }
@@ -146,12 +150,16 @@ export const calculateBandhanEligibility = (userData) => {
   const effectiveMinSalary = salConfig?.salariedMinSalary ?? catMinSalary;
 
   if (effectiveMinSalary === null) {
-    return { eligible: false, reason: `Bandhan Bank does not provide loans to ${companyCategory} companies` };
+    return { isEligible: false, reason: `Bandhan Bank does not provide loans to ${companyCategory} companies` };
   }
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < effectiveMinSalary) {
-    return { eligible: false, reason: `Minimum monthly income required for ${companyCategory} category is ₹${effectiveMinSalary?.toLocaleString() || '0'}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+    return {
+      isEligible: false,
+      reason: `Minimum monthly income required is ₹${catMinSalary?.toLocaleString() || '0'} for Category ${companyCategory}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`,
+      isBTMode: isBT
+    };
   }
 
   // Get loan capping config
@@ -162,7 +170,7 @@ export const calculateBandhanEligibility = (userData) => {
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Minimum loan amount required by this bank is ₹${minLoanAmount?.toLocaleString() || '0'}. Requested: ₹${desiredLoanAmount?.toLocaleString() || '0'}`,
       isBTMode: isBT
     };
@@ -172,8 +180,8 @@ export const calculateBandhanEligibility = (userData) => {
   const maxTenureForCategory = bandhanConfig.maxTenureByCategory[companyCategory];
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
-      eligible: false,
-      reason: `Bandhan Bank does not provide loans to ${companyCategory} companies`
+      isEligible: false,
+      reason: `No loans available for Category ${companyCategory}`
     };
   }
 
@@ -188,7 +196,7 @@ export const calculateBandhanEligibility = (userData) => {
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
   const foirPercentage = getFoirPercentage(incomeForCalculation);
   if (!foirPercentage) {
-    return { eligible: false, reason: 'Unable to determine FOIR percentage for the provided salary', isBTMode: isBT };
+    return { isEligible: false, reason: 'Unable to determine FOIR percentage for the provided salary and category', isBTMode: isBT };
   }
 
   const foirCap = incomeForCalculation * foirPercentage;
@@ -211,7 +219,7 @@ export const calculateBandhanEligibility = (userData) => {
   if (isBT) {
     const btFreshAmount = finalLoanAmount - btTotalOutstanding;
     if (btFreshAmount < 0) {
-      return { eligible: false, reason: `BT Outstanding (₹${btTotalOutstanding?.toLocaleString() || '0'}) exceeds max loan (₹${Math.round(finalLoanAmount)?.toLocaleString() || '0'})`, isBTMode: true };
+      return { isEligible: false, reason: `BT Outstanding (₹${btTotalOutstanding?.toLocaleString() || '0'}) exceeds max loan (₹${Math.round(finalLoanAmount)?.toLocaleString() || '0'})`, isBTMode: true };
     }
     btDetails = {
       isBTMode: true,
@@ -231,10 +239,11 @@ export const calculateBandhanEligibility = (userData) => {
   const monthlyEMI = calculateEMI(finalLoanAmount, effectiveInterestRate, cappedTenureYears);
 
   return {
-    eligible: true,
+    isEligible: true,
     bankId: bandhanConfig.id,
     bankName: bandhanConfig.name,
     loanAmount: Math.round(finalLoanAmount),
+    maxLoanAmount: Math.round(finalLoanAmount),
     maxLoanCap: absoluteMaxLoan,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(maxLoanAmount) : null,
