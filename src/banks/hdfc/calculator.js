@@ -1,5 +1,4 @@
 import { hdfcConfig } from './config.js';
-import { getBankConfig, getDynamicInterestRate } from '../../services/bankConfigService';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -183,10 +182,9 @@ export const calculateHdfcEligibility = (userData) => {
     }
   }
 
-  // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('HDFC Bank', 'ageRules', { state: userData.state, city: userData.city });
-  const minAge = ageConfig ? ageConfig.minAge : hdfcConfig.minAge;
-  const maxAge = ageConfig ? ageConfig.maxAge : hdfcConfig.maxAge;
+  // Check age eligibility
+  const minAge = hdfcConfig.minAge;
+  const maxAge = hdfcConfig.maxAge;
 
   if (age && (age < minAge || age > maxAge)) {
     return {
@@ -195,8 +193,8 @@ export const calculateHdfcEligibility = (userData) => {
     };
   }
 
-  // Use user-provided interest rate or calculate based on category and loan amount from Admin settings
-  const effectiveInterestRate = interestRate || getDynamicInterestRate('HDFC Bank', companyCategory, desiredLoanAmount || monthlyIncome * 20, { state: userData.state, city: userData.city }, hdfcConfig.interestRate);
+  // Use user-provided interest rate or default
+  const effectiveInterestRate = interestRate || hdfcConfig.interestRate;
 
   // Check employment type
   if (!hdfcConfig.employmentTypes.includes(employmentType)) {
@@ -228,11 +226,8 @@ export const calculateHdfcEligibility = (userData) => {
   const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
 
   // Check minimum salary requirement based on category
-  // Use dynamic config from admin dashboard
-  const salConfig = getBankConfig('HDFC Bank', 'employmentRules', { state: userData.state, city: userData.city });
   const catMinSalary = hdfcConfig.minSalary[companyCategory] || hdfcConfig.minSalary['A'];
-  // For HDFC, if we have dynamic config, we use the salariedMinSalary
-  const effectiveMinSalary = salConfig ? salConfig.salariedMinSalary : catMinSalary;
+  const effectiveMinSalary = catMinSalary;
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < effectiveMinSalary) {
@@ -243,10 +238,9 @@ export const calculateHdfcEligibility = (userData) => {
     };
   }
 
-  // Get loan capping config
-  const cappingConfig = getBankConfig('HDFC Bank', 'loanCapping', { state: userData.state, city: userData.city });
-  const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : hdfcConfig.maxLoanAmount;
-  const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : (hdfcConfig.minLoanAmount || 100000);
+  // Bank's absolute maximum loan limit
+  const absoluteMaxLoan = hdfcConfig.maxLoanAmount;
+  const minLoanAmount = hdfcConfig.minLoanAmount || 100000;
 
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
