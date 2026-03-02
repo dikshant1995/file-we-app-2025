@@ -54,10 +54,7 @@ const InterestRateEditor = ({ bank, onSave, activeLocation }) => {
     setLocationOverrides(fullConfig.locationOverrides?.interestRates || {});
 
     // 2. Load specific rates based on activeLocation prop
-    const context = {
-      state: activeLocation ? activeLocation.state : null,
-      city: activeLocation ? activeLocation.city : null
-    };
+    const context = { state: activeLocation.state, city: activeLocation.city };
     const savedConfig = getBankConfig(bank.name, 'interestRates', context);
 
     if (savedConfig && savedConfig.categorySlabRates) {
@@ -80,11 +77,11 @@ const InterestRateEditor = ({ bank, onSave, activeLocation }) => {
     });
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     // Determine the specific location string for saving override
-    const locationKey = activeLocation ? (activeLocation.city || activeLocation.state) : null;
+    const locationKey = activeLocation.city || activeLocation.state || null;
 
-    const success = saveBankConfig(bank.name, 'interestRates', config, locationKey);
+    const success = await saveBankConfig(bank.name, 'interestRates', config, locationKey);
     if (success) {
       onSave && onSave(config);
       alert(`✅ Interest rates saved for ${bank.name} (${locationKey || 'All India'})!`);
@@ -98,20 +95,31 @@ const InterestRateEditor = ({ bank, onSave, activeLocation }) => {
     }
   };
 
+  // const handleAddLocation = (loc) => setActiveLocation(loc); // Removed as per instruction
+
+  // const handleRemoveLocation = (loc) => { // Removed as per instruction
+  //   if (removeBankOverride(bank.name, 'interestRates', loc)) {
+  //     const newOverrides = { ...locationOverrides };
+  //     delete newOverrides[loc];
+  //     setLocationOverrides(newOverrides);
+  //     if (activeLocation === loc) setActiveLocation(null);
+  //   }
+  // };
+
   const categories = ['SUPER-A', 'A', 'B', 'C', 'D', 'GOVT'];
 
   return (
     <div className="config-editor">
       <div className="editor-header">
         <h2>📈 Interest Rate Matrix - {bank.name}</h2>
-        <p>Configuring for: <strong>{activeLocation ? (activeLocation.city || activeLocation.state) : 'All India (National)'}</strong></p>
+        <p>Configuring for: <strong>{activeLocation.city || activeLocation.state || 'All India (National)'}</strong></p>
       </div>
 
       <div className="existing-overrides-badges">
         <span className="badge-label">Available Overrides for this bank:</span>
         {Object.keys(locationOverrides).length > 0 ? (
           Object.keys(locationOverrides).map(loc => (
-            <span key={loc} className={`loc-badge ${(activeLocation && (activeLocation.state === loc || activeLocation.city === loc)) ? 'active' : ''}`}>
+            <span key={loc} className={`loc-badge ${(activeLocation.state === loc || activeLocation.city === loc) ? 'active' : ''}`}>
               📍 {loc}
             </span>
           ))
@@ -129,9 +137,9 @@ const InterestRateEditor = ({ bank, onSave, activeLocation }) => {
             <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', borderRadius: '8px' }}>
               <thead>
                 <tr style={{ background: '#f8f9fa' }}>
-                  <th style={{ padding: '15px', textAlign: 'left', borderBottom: '2px solid #e0e0e0', fontWeight: '600' }}>Loan Amount</th>
+                  <th style={{ padding: '15px', textAlign: 'left', borderBottom: '2px solid #e0e0e0', fontWeight: '600', color: '#333' }}>Loan Amount</th>
                   {slabs.map(slab => (
-                    <th key={slab.label} style={{ padding: '15px', textAlign: 'center', borderBottom: '2px solid #e0e0e0', fontWeight: '600' }}>
+                    <th key={slab.label} style={{ padding: '15px', textAlign: 'center', borderBottom: '2px solid #e0e0e0', fontWeight: '600', color: '#333' }}>
                       {slab.label}
                     </th>
                   ))}
@@ -139,13 +147,13 @@ const InterestRateEditor = ({ bank, onSave, activeLocation }) => {
               </thead>
               <tbody>
                 <tr>
-                  <td style={{ padding: '15px', fontWeight: '600', borderBottom: '1px solid #e0e0e0' }}>Interest Rate (%)</td>
+                  <td style={{ padding: '15px', fontWeight: '600', borderBottom: '1px solid #e0e0e0', color: '#333' }}>Interest Rate (%)</td>
                   {slabs.map(slab => (
                     <td key={slab.label} style={{ padding: '10px', textAlign: 'center', borderBottom: '1px solid #e0e0e0' }}>
                       <input
                         type="number"
                         step="0.01"
-                        value={config?.categorySlabRates?.[category]?.[slab.label] || 11.0}
+                        value={config.categorySlabRates[category]?.[slab.label] || 11.0}
                         onChange={(e) => handleRateChange(category, slab.label, e.target.value)}
                         style={{
                           width: '80px',
