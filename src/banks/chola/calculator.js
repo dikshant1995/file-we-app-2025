@@ -1,5 +1,4 @@
 import { cholaConfig } from './config.js';
-import { getBankConfig, getDynamicInterestRate } from '../../services/bankConfigService';
 
 // Helper: Calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -98,10 +97,9 @@ export const calculateCholaEligibility = (userData) => {
     }
   }
 
-  // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('Cholamandalam Finance', 'ageRules', { state: userData.state, city: userData.city });
-  const minAge = ageConfig ? ageConfig.minAge : cholaConfig.minAge;
-  const maxAge = ageConfig ? ageConfig.maxAge : cholaConfig.maxAge;
+  // Check age eligibility
+  const minAge = cholaConfig.minAge;
+  const maxAge = cholaConfig.maxAge;
 
   if (age && (age < minAge || age > maxAge)) {
     return {
@@ -152,19 +150,18 @@ export const calculateCholaEligibility = (userData) => {
     };
   }
 
-  const salConfig = getBankConfig('Cholamandalam Finance', 'employmentRules', { state: userData.state, city: userData.city });
+  // Check minimum salary requirement based on category
   const catMinSalary = cholaConfig.minSalary[category];
-  const effectiveMinSalary = salConfig ? salConfig.salariedMinSalary : catMinSalary;
+  const effectiveMinSalary = catMinSalary;
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (!effectiveMinSalary || incomeToCheck < effectiveMinSalary) {
     return { isEligible: false, reason: `Minimum monthly income of ₹${effectiveMinSalary.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
-  // Get loan capping config
-  const cappingConfig = getBankConfig('Cholamandalam Finance', 'loanCapping', { state: userData.state, city: userData.city });
-  const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : cholaConfig.maxLoanAmount;
-  const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : 100000;
+  // Bank's absolute maximum loan limit
+  const absoluteMaxLoan = cholaConfig.maxLoanAmount;
+  const minLoanAmount = 100000;
 
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
@@ -194,8 +191,8 @@ export const calculateCholaEligibility = (userData) => {
     };
   }
 
-  // Use dynamic interest rate from Admin settings
-  const dynamicRate = getDynamicInterestRate('Cholamandalam Finance', category, cappedFinalLoan || monthlyIncome * 20, { state: userData.state, city: userData.city }, cholaConfig.interestRate);
+  // Use default interest rate
+  const dynamicRate = cholaConfig.interestRate;
 
   // 8. Calculate loan amount from available EMI using capped tenure
   const calculatedLoanAmount = calculatePrincipalFromEMI(availableEMI, dynamicRate, cappedTenureYears);
