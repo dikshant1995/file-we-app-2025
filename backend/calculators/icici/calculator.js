@@ -114,8 +114,8 @@ export const calculateIciciEligibility = (userData) => {
     adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
     if (adjustedIncome <= 0) {
       return {
-        eligible: false,
-        reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction)?.toLocaleString() || '0'}), no income remains`,
+        isEligible: false,
+        reason: `After deducting non-BT obligations (₹${((existingEMI || 0) + (creditCardObligation || 0))?.toLocaleString() || '0'}), no income remains for Balance Transfer`,
         isBTMode: true
       };
     }
@@ -131,7 +131,7 @@ export const calculateIciciEligibility = (userData) => {
 
     if (hasExistingIciciLoan) {
       return {
-        eligible: false,
+        isEligible: false,
         reason: 'As an existing customer of ICICI Bank with an active personal loan, you are not eligible for a new loan from this bank'
       };
     }
@@ -144,7 +144,7 @@ export const calculateIciciEligibility = (userData) => {
 
   if (age && (age < minAge || age > maxAge)) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
     };
   }
@@ -158,7 +158,7 @@ export const calculateIciciEligibility = (userData) => {
   // Check employment type
   if (!iciciConfig.employmentTypes.includes(employmentType)) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Employment type ${employmentType} not supported by this bank`
     };
   }
@@ -170,7 +170,7 @@ export const calculateIciciEligibility = (userData) => {
   const maxTenureForCategory = iciciConfig.maxTenureByCategory[companyCategory];
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `No loans available for Category ${companyCategory}`
     };
   }
@@ -192,8 +192,8 @@ export const calculateIciciEligibility = (userData) => {
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < effectiveMinSalary) {
     return {
-      eligible: false,
-      reason: `Minimum monthly income required for ${companyCategory} category is ₹${effectiveMinSalary?.toLocaleString() || '0'}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`,
+      isEligible: false,
+      reason: `Minimum monthly income required is ₹${catMinSalary?.toLocaleString() || '0'} for Category ${companyCategory}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`,
       isBTMode: isBT
     };
   }
@@ -206,7 +206,7 @@ export const calculateIciciEligibility = (userData) => {
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Minimum loan amount required by this bank is ₹${minLoanAmount?.toLocaleString() || '0'}. Requested: ₹${desiredLoanAmount?.toLocaleString() || '0'}`,
       isBTMode: isBT
     };
@@ -217,8 +217,8 @@ export const calculateIciciEligibility = (userData) => {
   const foirPercentage = getFoirPercentage(incomeForCalculation);
   if (!foirPercentage) {
     return {
-      eligible: false,
-      reason: 'Unable to determine FOIR percentage for the provided salary',
+      isEligible: false,
+      reason: 'Unable to determine FOIR percentage for the provided salary and category',
       isBTMode: isBT
     };
   }
@@ -246,7 +246,7 @@ export const calculateIciciEligibility = (userData) => {
     const btFreshAmount = finalLoanAmount - btTotalOutstanding;
     if (btFreshAmount < 0) {
       return {
-        eligible: false,
+        isEligible: false,
         reason: `BT Outstanding (₹${btTotalOutstanding?.toLocaleString() || '0'}) exceeds maximum eligible loan (₹${Math.round(finalLoanAmount)?.toLocaleString() || '0'})`,
         isBTMode: true
       };
@@ -271,10 +271,11 @@ export const calculateIciciEligibility = (userData) => {
   const monthlyEMI = calculateEMI(finalLoanAmount, effectiveInterestRate, cappedTenureYears);
 
   return {
-    eligible: true,
+    isEligible: true,
     bankId: iciciConfig.id,
     bankName: iciciConfig.name,
     loanAmount: Math.round(finalLoanAmount),
+    maxLoanAmount: Math.round(finalLoanAmount),
     maxLoanCap: absoluteMaxLoan,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(maxLoanAmount) : null,
