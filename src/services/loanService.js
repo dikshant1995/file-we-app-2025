@@ -159,7 +159,7 @@ const BANK_RULES = [
 // Mock company data categorized by tiers
 const COMPANY_CATEGORIES = {
   "A": [
-    "Google", "Microsoft", "Apple", "Amazon", "Facebook", 
+    "Google", "Microsoft", "Apple", "Amazon", "Facebook",
     "Netflix", "Tesla", "Walmart", "JPMorgan", "Bank of America"
   ],
   "B": [
@@ -176,7 +176,7 @@ const COMPANY_CATEGORIES = {
 // Function to determine company category
 const getCompanyCategory = (companyName) => {
   for (const [category, companies] of Object.entries(COMPANY_CATEGORIES)) {
-    if (companies.some(company => 
+    if (companies.some(company =>
       companyName.toLowerCase().includes(company.toLowerCase()) ||
       company.toLowerCase().includes(companyName.toLowerCase())
     )) {
@@ -191,15 +191,15 @@ const getCompanyCategory = (companyName) => {
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
   const monthlyInterestRate = annualInterestRate / 12 / 100;
   const numberOfMonths = tenureInYears * 12;
-  
+
   if (monthlyInterestRate === 0) {
     return principal / numberOfMonths;
   }
-  
-  const emi = principal * monthlyInterestRate * 
-    (Math.pow(1 + monthlyInterestRate, numberOfMonths)) / 
+
+  const emi = principal * monthlyInterestRate *
+    (Math.pow(1 + monthlyInterestRate, numberOfMonths)) /
     (Math.pow(1 + monthlyInterestRate, numberOfMonths) - 1);
-    
+
   return Math.round(emi);
 };
 
@@ -213,57 +213,57 @@ const checkBankEligibility = (userData, bankRule) => {
     companyName,
     creditScore
   } = userData;
-  
+
   // Check credit score
   if (creditScore && creditScore < bankRule.minCreditScore) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Minimum credit score required is ${bankRule.minCreditScore}`
     };
   }
-  
+
   // Check loan tenure
   if (loanTenure > bankRule.maxLoanTenure) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Maximum loan tenure is ${bankRule.maxLoanTenure} years`
     };
   }
-  
+
   // Check company category
   const userCompanyCategory = getCompanyCategory(companyName);
   if (userCompanyCategory !== bankRule.companyCategory && bankRule.companyCategory !== "A") {
     // If bank requires specific category and user doesn't match (except for A category banks which are more inclusive)
     // For simplicity, we'll allow all for A category banks
   }
-  
+
   // Calculate FOIR-based loan amount
   const netMonthlyIncome = monthlyIncome - (existingEMI || 0);
   const eligibleEMI = netMonthlyIncome * bankRule.foirPercentage;
-  
+
   // Calculate multiplier-based loan amount
   const multiplierLoanAmount = monthlyIncome * bankRule.incomeMultiplier;
-  
+
   // Take the minimum of the two calculations
   const maxLoanAmount = Math.min(
     desiredLoanAmount || Infinity,
     multiplierLoanAmount
   );
-  
+
   // Calculate EMI for the loan amount
   const monthlyEMI = calculateEMI(maxLoanAmount, bankRule.interestRate, loanTenure);
-  
+
   // Check if EMI is within FOIR limits
   if (monthlyEMI > eligibleEMI) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `EMI of ₹${monthlyEMI.toLocaleString()} exceeds FOIR limit of ₹${eligibleEMI.toLocaleString()}`
     };
   }
-  
+
   return {
-    eligible: true,
-    loanAmount: Math.round(maxLoanAmount),
+    isEligible: true,
+    maxLoanAmount: Math.round(maxLoanAmount),
     interestRate: bankRule.interestRate,
     monthlyEMI: Math.round(monthlyEMI),
     processingFee: Math.round(maxLoanAmount * bankRule.processingFee)
@@ -277,15 +277,15 @@ export const calculateLoanEligibility = async (userData) => {
   try {
     // In a real implementation, this would call the backend API
     // For now, we'll simulate the calculation using our bank calculators
-    
+
     // Process each bank's calculation
     const results = bankCalculators.map(calculator => {
       return calculator(userData);
     });
-    
+
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     return results;
   } catch (error) {
     console.error('Error calculating loan eligibility:', error);
@@ -298,10 +298,10 @@ export const getBanks = async () => {
   try {
     // In a real implementation, this would fetch from the backend
     // For now, we'll simulate the response
-    
+
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 500));
-    
+
     // Return mock data
     return [
       { id: 1, name: "Kotak Mahindra Bank" },
@@ -330,10 +330,10 @@ export const getCompanyCategories = async () => {
   try {
     // In a real implementation, this would fetch from the backend
     // For now, we'll simulate the response
-    
+
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 500));
-    
+
     // Return mock data
     return {
       "AA": ["Google", "Microsoft", "Apple", "Amazon"],
