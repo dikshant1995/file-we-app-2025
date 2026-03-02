@@ -156,7 +156,7 @@ export const calculateAxisFinEligibility = (userData) => {
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Minimum loan amount required by this bank is ₹${minLoanAmount?.toLocaleString() || '0'}. Requested: ₹${desiredLoanAmount?.toLocaleString() || '0'}`,
       isBTMode: isBT
     };
@@ -166,13 +166,13 @@ export const calculateAxisFinEligibility = (userData) => {
   const salaryBand = getSalaryBand(incomeForCalculation, axisFinConfig.multiplierTable);
 
   if (!salaryBand) {
-    return { eligible: false, reason: 'Salary does not fall within any eligible band', isBTMode: isBT };
+    return { isEligible: false, reason: 'Salary does not fall within any eligible band', isBTMode: isBT };
   }
 
   const multiplier = axisFinConfig.multiplierTable[salaryBand]?.[category];
 
   if (!multiplier) {
-    return { eligible: false, reason: `No multiplier available for category ${category} at salary ₹${incomeForCalculation?.toLocaleString() || '0'}`, isBTMode: isBT };
+    return { isEligible: false, reason: `No multiplier available for category ${category} at salary ₹${incomeForCalculation?.toLocaleString() || '0'}`, isBTMode: isBT };
   }
 
   // IMPORTANT: For multiplier, use salary after deducting existing EMI and credit card obligation (non-BT mode)
@@ -193,7 +193,7 @@ export const calculateAxisFinEligibility = (userData) => {
   if (isBT) {
     const btFreshAmount = cappedFinalLoan - btTotalOutstanding;
     if (btFreshAmount < 0) {
-      return { eligible: false, reason: `BT Outstanding (₹${btTotalOutstanding?.toLocaleString() || '0'}) exceeds max loan (₹${Math.round(cappedFinalLoan)?.toLocaleString() || '0'})`, isBTMode: true };
+      return { isEligible: false, reason: `BT Outstanding (₹${btTotalOutstanding?.toLocaleString() || '0'}) exceeds max loan (₹${Math.round(cappedFinalLoan)?.toLocaleString() || '0'})`, isBTMode: true };
     }
     btDetails = {
       isBTMode: true,
@@ -216,10 +216,11 @@ export const calculateAxisFinEligibility = (userData) => {
   const monthlyEMI = calculateEMI(cappedFinalLoan, dynamicRate, cappedTenureYears);
 
   return {
-    eligible: true,
+    isEligible: true,
     bankId: axisFinConfig.id,
     bankName: axisFinConfig.name,
     loanAmount: Math.round(cappedFinalLoan),
+    maxLoanAmount: Math.round(cappedFinalLoan),
     maxLoanCap: absoluteMaxLoan,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
@@ -233,7 +234,7 @@ export const calculateAxisFinEligibility = (userData) => {
     monthlyEMI: Math.round(monthlyEMI),
     multiplier: multiplier,
     salaryBand: salaryBand,
-    category: category,
+    companyCategory: category,
     calculationMethod: 'Multiplier Only (No FOIR)',
     details: {
       multiplier: multiplier + 'x',
