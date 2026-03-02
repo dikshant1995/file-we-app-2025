@@ -50,13 +50,13 @@ function CustomerFacingApp() {
       setMetadata(formData._metadata);
 
       // Find max eligibility for lead capture
-      const validResults = calculationResults.filter(r => r.eligible && !r.error);
+      const validResults = calculationResults.filter(r => r.isEligible && !r.error);
       const bestOffer = validResults.length > 0
-        ? validResults.reduce((prev, current) => (prev.loanAmount > current.loanAmount) ? prev : current)
+        ? validResults.reduce((prev, current) => (prev.maxLoanAmount > current.maxLoanAmount) ? prev : current)
         : null;
 
       if (bestOffer) {
-        formData.maxEligibility = bestOffer.loanAmount;
+        formData.maxEligibility = bestOffer.maxLoanAmount;
         formData.bestBank = bestOffer.bankName;
       }
 
