@@ -222,7 +222,7 @@ Scan for detailed breakdowns at LaxmiCredit.
             {nonEligibleBanks.map(bank => (
               <div key={bank.name} className="non-eligible-card glass">
                 <span className="ne-name">{bank.name}</span>
-                <span className="ne-reason">Policy mismatch: {bank.rejectionReason || 'Criteria not met'}</span>
+                <span className="ne-reason">Policy mismatch: {bank.rejectionReason || bank.reason || 'Criteria not met'}</span>
               </div>
             ))}
           </div>
