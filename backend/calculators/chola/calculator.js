@@ -158,7 +158,7 @@ export const calculateCholaEligibility = (userData) => {
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (!effectiveMinSalary || incomeToCheck < effectiveMinSalary) {
-    return { eligible: false, reason: `Minimum salary for ${category} is ₹${effectiveMinSalary?.toLocaleString() || 'N/A'}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+    return { isEligible: false, reason: `Minimum monthly income required is ₹${catMinSalary?.toLocaleString() || '0'} for Category ${category}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
   // Get loan capping config
@@ -169,7 +169,7 @@ export const calculateCholaEligibility = (userData) => {
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Minimum loan amount required by this bank is ₹${minLoanAmount?.toLocaleString() || '0'}. Requested: ₹${desiredLoanAmount?.toLocaleString() || '0'}`,
       isBTMode: isBT
     };
@@ -180,7 +180,7 @@ export const calculateCholaEligibility = (userData) => {
   const foirPercentage = cholaConfig.foirTable[foirBand]?.[category];
 
   if (!foirPercentage) {
-    return { eligible: false, reason: `FOIR not defined for category ${category} at salary band ${foirBand}`, isBTMode: isBT };
+    return { isEligible: false, reason: `FOIR not defined for category ${category} at salary band ${foirBand}`, isBTMode: isBT };
   }
 
   const foirCap = incomeForCalculation * foirPercentage;
@@ -189,7 +189,7 @@ export const calculateCholaEligibility = (userData) => {
 
   if (availableEMI <= 0) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: 'Existing EMI exceeds FOIR limit'
     };
   }
@@ -210,7 +210,7 @@ export const calculateCholaEligibility = (userData) => {
   if (isBT) {
     const btFreshAmount = cappedFinalLoan - btTotalOutstanding;
     if (btFreshAmount < 0) {
-      return { eligible: false, reason: `BT Outstanding (₹${btTotalOutstanding?.toLocaleString() || '0'}) exceeds max loan (₹${Math.round(cappedFinalLoan)?.toLocaleString() || '0'})`, isBTMode: true };
+      return { isEligible: false, reason: `BT Outstanding (₹${btTotalOutstanding?.toLocaleString() || '0'}) exceeds max loan (₹${Math.round(cappedFinalLoan)?.toLocaleString() || '0'})`, isBTMode: true };
     }
     btDetails = {
       isBTMode: true,
@@ -233,10 +233,11 @@ export const calculateCholaEligibility = (userData) => {
   const finalEMI = calculateEMI(cappedFinalLoan, dynamicRate, cappedTenureYears);
 
   return {
-    eligible: true,
+    isEligible: true,
     bankId: cholaConfig.id,
     bankName: cholaConfig.name,
     loanAmount: Math.round(cappedFinalLoan),
+    maxLoanAmount: Math.round(cappedFinalLoan),
     maxLoanCap: absoluteMaxLoan,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
@@ -248,7 +249,7 @@ export const calculateCholaEligibility = (userData) => {
     requestedTenureMonths: requestedTenureMonths,
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: finalEMI,
-    category: category,
+    companyCategory: category,
     calculationMethod: 'FOIR Only',
     details: {
       foirPercentage: (foirPercentage * 100).toFixed(0) + '%',
