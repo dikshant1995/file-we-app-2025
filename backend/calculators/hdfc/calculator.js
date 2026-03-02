@@ -1,5 +1,5 @@
 import { hdfcConfig } from './config.js';
-import { getBankConfig } from '../../utils/configHelper.js';
+import { getBankConfig, getDynamicInterestRate } from '../../utils/configHelper.js';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -195,8 +195,11 @@ export const calculateHdfcEligibility = (userData) => {
     };
   }
 
-  // Use user-provided interest rate or default to bank config
-  const effectiveInterestRate = interestRate || hdfcConfig.interestRate;
+  // Use dynamic interest rate from Admin settings
+  const dynamicRate = getDynamicInterestRate('HDFC Bank', companyCategory, desiredLoanAmount || monthlyIncome * 20, { state: userData.state, city: userData.city }, hdfcConfig.interestRate);
+
+  // Use user-provided interest rate or dynamic rate from Admin settings
+  const effectiveInterestRate = interestRate || dynamicRate;
 
   // Check employment type
   if (!hdfcConfig.employmentTypes.includes(employmentType)) {
