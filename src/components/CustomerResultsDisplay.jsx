@@ -116,29 +116,29 @@ Scan for detailed breakdowns at LaxmiCredit.
         </div>
 
         <div className="banks-grid">
-          {results.filter(r => r.isEligible).sort((a, b) => b.maxLoanAmount - a.maxLoanAmount).map((bank, index) => (
+          {results.filter(r => r.isEligible).sort((a, b) => (b.maxLoanAmount || b.loanAmount || 0) - (a.maxLoanAmount || a.loanAmount || 0)).map((bank, index) => (
             <motion.div
-              key={bank.name}
-              className={`bank-card glass ${selectedBank === bank.name ? 'active' : ''}`}
+              key={bank.bankName || bank.name}
+              className={`bank-card glass ${selectedBank === (bank.bankName || bank.name) ? 'active' : ''}`}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 * index }}
-              onClick={() => setSelectedBank(selectedBank === bank.name ? null : bank.name)}
+              onClick={() => setSelectedBank(selectedBank === (bank.bankName || bank.name) ? null : (bank.bankName || bank.name))}
             >
               <div className="bank-card-main">
                 <div className="bank-brand">
                   <div className="bank-logo-sim">
-                    {bank.name.charAt(0)}
+                    {(bank.bankName || bank.name)?.charAt(0)}
                   </div>
                   <div className="bank-info">
-                    <h3 className="bank-name">{bank.name}</h3>
+                    <h3 className="bank-name">{bank.bankName || bank.name}</h3>
                     <span className="bank-type">Personal Loan</span>
                   </div>
                 </div>
 
                 <div className="loan-amount-box">
                   <span className="amount-label">MAX AMOUNT</span>
-                  <span className="amount-value">₹{bank.maxLoanAmount.toLocaleString()}</span>
+                  <span className="amount-value">₹{(bank.maxLoanAmount || bank.loanAmount || 0).toLocaleString()}</span>
                 </div>
 
                 <div className="bank-card-footer">
@@ -146,14 +146,14 @@ Scan for detailed breakdowns at LaxmiCredit.
                     <Calendar size={14} /> 60 Months
                   </div>
                   <div className="view-details-trigger">
-                    {selectedBank === bank.name ? 'Hide Policy' : 'View Policy'}
-                    <ChevronDown size={14} style={{ transform: selectedBank === bank.name ? 'rotate(180deg)' : 'none' }} />
+                    {selectedBank === (bank.bankName || bank.name) ? 'Hide Policy' : 'View Policy'}
+                    <ChevronDown size={14} style={{ transform: selectedBank === (bank.bankName || bank.name) ? 'rotate(180deg)' : 'none' }} />
                   </div>
                 </div>
               </div>
 
               <AnimatePresence>
-                {selectedBank === bank.name && (
+                {selectedBank === (bank.bankName || bank.name) && (
                   <motion.div
                     className="bank-policy-drawer"
                     initial={{ height: 0, opacity: 0 }}
@@ -192,16 +192,16 @@ Scan for detailed breakdowns at LaxmiCredit.
                         </div>
                         <div className="calc-step total">
                           <span>Policy Limit Applied</span>
-                          <span>₹{bank.maxLoanAmount.toLocaleString()}</span>
+                          <span>₹{(bank.maxLoanAmount || bank.loanAmount || 0).toLocaleString()}</span>
                         </div>
                       </div>
                     </div>
 
                     <button className="apply-btn-bank" onClick={(e) => {
                       e.stopPropagation();
-                      alert(`Initiating application for ${bank.name}...`);
+                      alert(`Initiating application for ${bank.bankName || bank.name}...`);
                     }}>
-                      Apply with {bank.name} <ArrowRight size={16} />
+                      Apply with {bank.bankName || bank.name} <ArrowRight size={16} />
                     </button>
                   </motion.div>
                 )}
@@ -220,8 +220,8 @@ Scan for detailed breakdowns at LaxmiCredit.
           </div>
           <div className="non-eligible-grid">
             {nonEligibleBanks.map(bank => (
-              <div key={bank.name} className="non-eligible-card glass">
-                <span className="ne-name">{bank.name}</span>
+              <div key={bank.bankName || bank.name} className="non-eligible-card glass">
+                <span className="ne-name">{bank.bankName || bank.name}</span>
                 <span className="ne-reason">Policy mismatch: {bank.rejectionReason || bank.reason || 'Criteria not met'}</span>
               </div>
             ))}
