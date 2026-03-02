@@ -23,10 +23,10 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
     const text = `
 LaxmiCredit Eligibility Report
 ----------------------------
-Customer: ${userData.name}
-Employment: ${userData.employer}
+Customer: ${metadata?.customerName || metadata?.name || 'Customer'}
+Employment: ${metadata?.companyName || metadata?.employer || 'Not specified'}
 Company Category: ${results.find(r => r.isEligible)?.category || 'N/A'}
-Monthly Income: ₹${userData.monthlyIncome.toLocaleString()}
+Monthly Income: ₹${metadata?.monthlyIncome?.toLocaleString() || '0'}
 
 SUMMARY:
 • Banks Qualified: ${eligibleCount}
@@ -57,7 +57,7 @@ Scan for detailed breakdowns at LaxmiCredit.
           <span>NEURAL VERIFICATION COMPLETE</span>
         </div>
         <h1>Analysis Results</h1>
-        <p>Calculated across {results.length} institutional policies for {userData.name}</p>
+        <p>Calculated across {results.length} institutional policies for {metadata?.customerName || metadata?.name || 'Customer'}</p>
       </motion.header>
 
       {/* Disclosure Alert - NEW PREMIUM STYLE */}
