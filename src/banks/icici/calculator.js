@@ -1,5 +1,4 @@
 import { iciciConfig } from './config.js';
-import { getBankConfig, getDynamicInterestRate } from '../../services/bankConfigService';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -137,10 +136,9 @@ export const calculateIciciEligibility = (userData) => {
     }
   }
 
-  // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('ICICI Bank', 'ageRules');
-  const minAge = ageConfig ? ageConfig.minAge : iciciConfig.minAge;
-  const maxAge = ageConfig ? ageConfig.maxAge : iciciConfig.maxAge;
+  // Check age eligibility
+  const minAge = iciciConfig.minAge;
+  const maxAge = iciciConfig.maxAge;
 
   if (age && (age < minAge || age > maxAge)) {
     return {
@@ -149,8 +147,8 @@ export const calculateIciciEligibility = (userData) => {
     };
   }
 
-  // Use user-provided interest rate or calculate based on category and loan amount from Admin settings
-  const effectiveInterestRate = interestRate || getDynamicInterestRate('ICICI Bank', companyCategory, desiredLoanAmount || monthlyIncome * 20, { state: userData.state, city: userData.city }, iciciConfig.interestRate);
+  // Use user-provided interest rate or default
+  const effectiveInterestRate = interestRate || iciciConfig.interestRate;
 
   // Check employment type
   if (!iciciConfig.employmentTypes.includes(employmentType)) {
@@ -182,9 +180,8 @@ export const calculateIciciEligibility = (userData) => {
   const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
 
   // Check minimum salary requirement based on category
-  const salConfig = getBankConfig('ICICI Bank', 'employmentRules');
   const catMinSalary = iciciConfig.minSalary[companyCategory];
-  const effectiveMinSalary = salConfig ? salConfig.salariedMinSalary : catMinSalary;
+  const effectiveMinSalary = catMinSalary;
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < effectiveMinSalary) {
@@ -195,10 +192,9 @@ export const calculateIciciEligibility = (userData) => {
     };
   }
 
-  // Get loan capping config
-  const cappingConfig = getBankConfig('ICICI Bank', 'loanCapping');
-  const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : iciciConfig.maxLoanAmount;
-  const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : 100000;
+  // Bank's absolute maximum loan limit
+  const absoluteMaxLoan = iciciConfig.maxLoanAmount;
+  const minLoanAmount = 100000;
 
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
