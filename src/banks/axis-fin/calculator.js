@@ -66,7 +66,7 @@ export const calculateAxisFinEligibility = (userData) => {
     const creditCardDeduction = creditCardObligation || 0;
     adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
     if (adjustedIncome <= 0) {
-      return { eligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains`, isBTMode: true };
+      return { isEligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains`, isBTMode: true };
     }
   }
 
@@ -79,7 +79,7 @@ export const calculateAxisFinEligibility = (userData) => {
 
     if (hasExistingAxisLoan) {
       return {
-        eligible: false,
+        isEligible: false,
         reason: 'As an existing customer of Axis Finance with an active personal loan, you are not eligible for a new loan from this bank'
       };
     }
@@ -92,7 +92,7 @@ export const calculateAxisFinEligibility = (userData) => {
 
   if (age && (age < minAge || age > maxAge)) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
     };
   }
@@ -100,7 +100,7 @@ export const calculateAxisFinEligibility = (userData) => {
   // Check employment type
   if (!axisFinConfig.employmentTypes.includes(employmentType)) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Employment type ${employmentType} not supported by Axis Finance`
     };
   }
@@ -109,7 +109,7 @@ export const calculateAxisFinEligibility = (userData) => {
   const maxTenureForCategory = axisFinConfig.maxTenureByCategory[category];
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `No loans available for Category ${category}`
     };
   }
@@ -126,7 +126,7 @@ export const calculateAxisFinEligibility = (userData) => {
   // Check loan tenure
   if (loanTenure > axisFinConfig.maxLoanTenure) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Maximum loan tenure is ${axisFinConfig.maxLoanTenure} years`
     };
   }
@@ -134,7 +134,7 @@ export const calculateAxisFinEligibility = (userData) => {
   // Check if category is supported
   if (category === 'UNLISTED') {
     return {
-      eligible: false,
+      isEligible: false,
       reason: 'Axis Finance does not provide loans to UNLISTED company employees'
     };
   }
@@ -145,7 +145,7 @@ export const calculateAxisFinEligibility = (userData) => {
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < effectiveMinSalary) {
-    return { eligible: false, reason: `Minimum salary of ₹${effectiveMinSalary.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+    return { isEligible: false, reason: `Minimum salary of ₹${effectiveMinSalary.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
   // Get loan capping config
@@ -156,7 +156,7 @@ export const calculateAxisFinEligibility = (userData) => {
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Minimum loan amount required by this bank is ₹${minLoanAmount.toLocaleString()}. Requested: ₹${desiredLoanAmount.toLocaleString()}`,
       isBTMode: isBT
     };
@@ -166,13 +166,13 @@ export const calculateAxisFinEligibility = (userData) => {
   const salaryBand = getSalaryBand(incomeForCalculation, axisFinConfig.multiplierTable);
 
   if (!salaryBand) {
-    return { eligible: false, reason: 'Salary does not fall within any eligible band', isBTMode: isBT };
+    return { isEligible: false, reason: 'Salary does not fall within any eligible band', isBTMode: isBT };
   }
 
   const multiplier = axisFinConfig.multiplierTable[salaryBand]?.[category];
 
   if (!multiplier) {
-    return { eligible: false, reason: `No multiplier available for category ${category} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
+    return { isEligible: false, reason: `No multiplier available for category ${category} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
   }
 
   // IMPORTANT: For multiplier, use salary after deducting existing EMI and credit card obligation (non-BT mode)
@@ -193,7 +193,7 @@ export const calculateAxisFinEligibility = (userData) => {
   if (isBT) {
     const btFreshAmount = cappedFinalLoan - btTotalOutstanding;
     if (btFreshAmount < 0) {
-      return { eligible: false, reason: `BT Outstanding (₹${btTotalOutstanding.toLocaleString()}) exceeds max loan (₹${Math.round(cappedFinalLoan).toLocaleString()})`, isBTMode: true };
+      return { isEligible: false, reason: `BT Outstanding (₹${btTotalOutstanding.toLocaleString()}) exceeds max loan (₹${Math.round(cappedFinalLoan).toLocaleString()})`, isBTMode: true };
     }
     btDetails = {
       isBTMode: true,
@@ -216,10 +216,10 @@ export const calculateAxisFinEligibility = (userData) => {
   const monthlyEMI = calculateEMI(cappedFinalLoan, dynamicRate, cappedTenureYears);
 
   return {
-    eligible: true,
+    isEligible: true,
     bankId: axisFinConfig.id,
     bankName: axisFinConfig.name,
-    loanAmount: Math.round(cappedFinalLoan),
+    maxLoanAmount: Math.round(cappedFinalLoan),
     maxLoanCap: absoluteMaxLoan,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
