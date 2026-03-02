@@ -1,5 +1,4 @@
 import { hdfcConfig } from './config.js';
-import { hdfcConfig } from './config.js';
 import { getBankConfig, getDynamicInterestRate } from '../../services/bankConfigService';
 
 // Function to calculate EMI
@@ -155,7 +154,7 @@ export const calculateHdfcEligibility = (userData) => {
     // Check if adjusted income is positive
     if (adjustedIncome <= 0) {
       return {
-        eligible: false,
+        isEligible: false,
         reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains for Balance Transfer calculation`,
         isBTMode: true
       };
@@ -178,7 +177,7 @@ export const calculateHdfcEligibility = (userData) => {
     if (hasExistingHdfcLoan) {
       console.log('❌ HDFC - REJECTING due to existing personal loan');
       return {
-        eligible: false,
+        isEligible: false,
         reason: 'As an existing customer of HDFC Bank with an active personal loan, you are not eligible for a new loan from this bank'
       };
     }
@@ -191,7 +190,7 @@ export const calculateHdfcEligibility = (userData) => {
 
   if (age && (age < minAge || age > maxAge)) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
     };
   }
@@ -202,7 +201,7 @@ export const calculateHdfcEligibility = (userData) => {
   // Check employment type
   if (!hdfcConfig.employmentTypes.includes(employmentType)) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Employment type ${employmentType} not supported by this bank`
     };
   }
@@ -214,7 +213,7 @@ export const calculateHdfcEligibility = (userData) => {
   const maxTenureForCategory = hdfcConfig.maxTenureByCategory[companyCategory];
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `No loans available for Category ${companyCategory}`
     };
   }
@@ -238,7 +237,7 @@ export const calculateHdfcEligibility = (userData) => {
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < effectiveMinSalary) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Minimum monthly income required for ${companyCategory} category is ₹${effectiveMinSalary.toLocaleString()}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`,
       isBTMode: isBT
     };
@@ -252,7 +251,7 @@ export const calculateHdfcEligibility = (userData) => {
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Minimum loan amount required by this bank is ₹${minLoanAmount.toLocaleString()}. Requested: ₹${desiredLoanAmount.toLocaleString()}`,
       isBTMode: isBT
     };
@@ -264,7 +263,7 @@ export const calculateHdfcEligibility = (userData) => {
   const multiplier = getMultiplier(incomeForCalculation, companyCategory);
   if (!multiplier) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: 'Unable to determine multiplier for the provided salary and category',
       isBTMode: isBT
     };
@@ -279,7 +278,7 @@ export const calculateHdfcEligibility = (userData) => {
   const foirPercentage = getFoirPercentage(incomeForCalculation, companyCategory);
   if (!foirPercentage) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: 'Unable to determine FOIR percentage for the provided salary and category',
       isBTMode: isBT
     };
@@ -317,7 +316,7 @@ export const calculateHdfcEligibility = (userData) => {
 
     if (btFreshAmount < 0) {
       return {
-        eligible: false,
+        isEligible: false,
         reason: `BT Outstanding (₹${btTotalOutstanding.toLocaleString()}) exceeds maximum eligible loan amount (₹${Math.round(finalLoanAmount).toLocaleString()})`,
         isBTMode: true,
         maxEligibleLoan: Math.round(finalLoanAmount),
@@ -345,10 +344,11 @@ export const calculateHdfcEligibility = (userData) => {
   const monthlyEMI = calculateEMI(finalLoanAmount, effectiveInterestRate, cappedTenureYears);
 
   return {
-    eligible: true,
+    isEligible: true,
     bankId: hdfcConfig.id,
     bankName: hdfcConfig.name,
     loanAmount: Math.round(finalLoanAmount),
+    maxLoanAmount: Math.round(finalLoanAmount),
     maxLoanCap: absoluteMaxLoan,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(maxLoanAmount) : null,
