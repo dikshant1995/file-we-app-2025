@@ -9,7 +9,7 @@ const BANK_RULES = [
     foirPercentage: 0.5,
     interestRate: 8.5,
     processingFee: 0.01,
-    companyCategory: "A"
+    category: "A"
   },
   {
     id: 2,
