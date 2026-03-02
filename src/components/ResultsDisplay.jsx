@@ -2,14 +2,14 @@ import './ResultsDisplay.css'
 
 const ResultsDisplay = ({ results, onReset }) => {
   // Filter eligible and not eligible results
-  const eligibleResults = results.filter(r => r.eligible);
-  const notEligibleResults = results.filter(r => !r.eligible);
-  
+  const eligibleResults = results.filter(r => r.isEligible);
+  const notEligibleResults = results.filter(r => !r.isEligible);
+
   // Find the best offer
-  const bestOffer = eligibleResults.length > 0 
-    ? eligibleResults.reduce((best, current) => 
-        current.loanAmount > best.loanAmount ? current : best
-      )
+  const bestOffer = eligibleResults.length > 0
+    ? eligibleResults.reduce((best, current) =>
+      current.maxLoanAmount > best.maxLoanAmount ? current : best
+    )
     : null;
 
   return (
@@ -18,15 +18,15 @@ const ResultsDisplay = ({ results, onReset }) => {
         <h2>Loan Offers from 12 Banks</h2>
         <button className="reset-btn" onClick={onReset}>New Calculation</button>
       </div>
-      
+
       {bestOffer && (
         <div className="best-offer">
           <h3>🏆 Best Offer</h3>
           <p>
-            <strong>{bestOffer.bankName}</strong> offers <strong>₹{bestOffer.loanAmount.toLocaleString()}</strong>
+            <strong>{bestOffer.bankName}</strong> offers <strong>₹{bestOffer.maxLoanAmount.toLocaleString()}</strong>
           </p>
           <p className="offer-details">
-            Interest Rate: <strong>{bestOffer.interestRate}%</strong> | 
+            Interest Rate: <strong>{bestOffer.interestRate}%</strong> |
             Monthly EMI: <strong>₹{bestOffer.monthlyEMI.toLocaleString()}</strong>
             {bestOffer.calculationMethod && (
               <span> | Method: {bestOffer.calculationMethod}</span>
@@ -34,7 +34,7 @@ const ResultsDisplay = ({ results, onReset }) => {
           </p>
         </div>
       )}
-      
+
       <div className="results-table-container">
         <table className="results-table">
           <thead>
@@ -50,45 +50,45 @@ const ResultsDisplay = ({ results, onReset }) => {
           </thead>
           <tbody>
             {results.map((bankResult, index) => (
-              <tr key={index} className={bankResult.eligible ? 'eligible' : 'not-eligible'}>
+              <tr key={index} className={bankResult.isEligible ? 'eligible' : 'not-eligible'}>
                 <td><strong>{bankResult.bankName}</strong></td>
-                <td className={bankResult.eligible ? 'status-eligible' : 'status-not-eligible'}>
-                  {bankResult.eligible ? '✅ Eligible' : '❌ Not Eligible'}
+                <td className={bankResult.isEligible ? 'status-eligible' : 'status-not-eligible'}>
+                  {bankResult.isEligible ? '✅ Eligible' : '❌ Not Eligible'}
                 </td>
                 <td className="amount-cell">
-                  {bankResult.eligible ? (
-                    <span className="approved-amount">₹{bankResult.loanAmount.toLocaleString()}</span>
+                  {bankResult.isEligible ? (
+                    <span className="approved-amount">₹{bankResult.maxLoanAmount.toLocaleString()}</span>
                   ) : (
                     <span className="not-available">N/A</span>
                   )}
                 </td>
                 <td className="amount-cell">
-                  {bankResult.eligible ? (
+                  {bankResult.isEligible ? (
                     <span className="max-amount">
-                      {bankResult.maxLoanAmount ? 
-                        `₹${bankResult.maxLoanAmount.toLocaleString()}` : 
-                        `₹${bankResult.loanAmount.toLocaleString()}`}
+                      {bankResult.maxLoanAmount ?
+                        `₹${bankResult.maxLoanAmount.toLocaleString()}` :
+                        `₹${bankResult.maxLoanAmount.toLocaleString()}`}
                     </span>
                   ) : (
                     <span className="not-available">N/A</span>
                   )}
                 </td>
                 <td>
-                  {bankResult.eligible ? (
+                  {bankResult.isEligible ? (
                     <span>{bankResult.interestRate}%</span>
                   ) : (
                     <span className="not-available">N/A</span>
                   )}
                 </td>
                 <td>
-                  {bankResult.eligible ? (
+                  {bankResult.isEligible ? (
                     <span>₹{bankResult.monthlyEMI.toLocaleString()}</span>
                   ) : (
                     <span className="not-available">N/A</span>
                   )}
                 </td>
                 <td className="method-cell">
-                  {bankResult.eligible ? (
+                  {bankResult.isEligible ? (
                     <span className="method-badge">
                       {bankResult.calculationMethod || 'Standard'}
                     </span>
@@ -103,7 +103,7 @@ const ResultsDisplay = ({ results, onReset }) => {
           </tbody>
         </table>
       </div>
-      
+
       {/* Rejection Reasons Section */}
       {notEligibleResults.length > 0 && (
         <div className="rejection-details">
@@ -117,7 +117,7 @@ const ResultsDisplay = ({ results, onReset }) => {
           </div>
         </div>
       )}
-      
+
       <div className="summary">
         <h3>Summary</h3>
         <p>
@@ -130,7 +130,7 @@ const ResultsDisplay = ({ results, onReset }) => {
         )}
         {bestOffer && (
           <p>
-            Best offer: <strong>₹{bestOffer.loanAmount.toLocaleString()}</strong> from {bestOffer.bankName}
+            Best offer: <strong>₹{bestOffer.maxLoanAmount.toLocaleString()}</strong> from {bestOffer.bankName}
           </p>
         )}
       </div>
