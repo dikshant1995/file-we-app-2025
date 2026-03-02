@@ -1,9 +1,8 @@
 import { poonawalaConfig } from './config.js';
-import { getBankConfig, getDynamicInterestRate } from '../../services/bankConfigService';
 
 // Helper: Get interest rate based on category and loan amount
 const getInterestRateForLoan = (category, loanAmount, userData = {}) => {
-  return getDynamicInterestRate('Poonawala Finance', category, loanAmount, { state: userData.state, city: userData.city }, poonawalaConfig.interestRate);
+  return poonawalaConfig.interestRate;
 };
 
 // Function to calculate EMI
@@ -126,10 +125,9 @@ export const calculatePoonawalaEligibility = (userData) => {
     }
   }
 
-  // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('Poonawala Finance', 'ageRules', { state: userData.state, city: userData.city });
-  const minAge = ageConfig ? ageConfig.minAge : poonawalaConfig.minAge;
-  const maxAge = ageConfig ? ageConfig.maxAge : poonawalaConfig.maxAge;
+  // Check age eligibility
+  const minAge = poonawalaConfig.minAge;
+  const maxAge = poonawalaConfig.maxAge;
 
   if (age && (age < minAge || age > maxAge)) {
     return {
@@ -176,19 +174,17 @@ export const calculatePoonawalaEligibility = (userData) => {
   }
 
   // Check minimum salary requirement based on category
-  const salConfig = getBankConfig('Poonawala Finance', 'employmentRules', { state: userData.state, city: userData.city });
   const catMinSalary = poonawalaConfig.minNTHBySegment[customerSegment];
-  const effectiveMinSalary = salConfig ? salConfig.salariedMinSalary : catMinSalary;
+  const effectiveMinSalary = catMinSalary;
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < effectiveMinSalary) {
     return { isEligible: false, reason: `Minimum NTH salary of ₹${effectiveMinSalary.toLocaleString()} required for ${customerSegment} segment${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
-  // Get loan capping config
-  const cappingConfig = getBankConfig('Poonawala Finance', 'loanCapping', { state: userData.state, city: userData.city });
-  const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : poonawalaConfig.maxLoanAmount;
-  const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : 100000;
+  // Bank's absolute maximum loan limit
+  const absoluteMaxLoan = poonawalaConfig.maxLoanAmount;
+  const minLoanAmount = 100000;
 
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
