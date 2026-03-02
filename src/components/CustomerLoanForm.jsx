@@ -229,6 +229,9 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
 
       // Additional data for display purposes (not used in calculation)
       _metadata: {
+        name: formData.customerName, // Added for Results display parity
+        monthlyIncome: totalMonthlyIncome, // Added for Results display parity
+        employer: formData.companyName, // Added for Results display parity
         customerName: formData.customerName,
         mobileNumber: formData.mobileNumber,
         basicSalary: basicSalary,
