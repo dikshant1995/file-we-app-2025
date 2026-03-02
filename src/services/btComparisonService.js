@@ -11,8 +11,8 @@
  * @returns {Object} Comprehensive comparison with recommendations
  */
 export const compareBTResults = (btResults) => {
-  // Filter only eligible banks
-  const eligibleBanks = btResults.filter(bank => bank.isEligible);
+  // Filter only eligible banks (handle both possible flag names)
+  const eligibleBanks = btResults.filter(bank => bank.eligible || bank.isEligible);
 
   if (eligibleBanks.length === 0) {
     return {
