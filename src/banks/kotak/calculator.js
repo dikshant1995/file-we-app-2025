@@ -211,7 +211,7 @@ export const calculateKotakEligibility = (userData) => {
   }
 
   // Use user-provided interest rate or calculate based on category and loan amount
-  const effectiveInterestRate = interestRate || getInterestRateForLoan(category || 'B', desiredLoanAmount || monthlyIncome * 20);
+  const effectiveInterestRate = interestRate || getInterestRateForLoan(category || 'B', desiredLoanAmount || monthlyIncome * 20, userData);
 
   // Check employment type
   if (!kotakConfig.employmentTypes.includes(employmentType)) {
@@ -318,7 +318,7 @@ export const calculateKotakEligibility = (userData) => {
   const preliminaryLoanAmount = Math.min(preliminaryMaxLoanAmount, absoluteMaxLoan);
 
   // ========== PASS 2: Get correct interest rate based on preliminary loan amount ==========
-  const finalInterestRate = interestRate || getInterestRateForLoan(companyCategory, preliminaryLoanAmount);
+  const finalInterestRate = interestRate || getInterestRateForLoan(companyCategory, preliminaryLoanAmount, userData);
 
   console.log(`🔄 Two-Pass Calculation: Preliminary=₹${preliminaryLoanAmount}, Rate=${finalInterestRate}%`);
 
