@@ -1,5 +1,4 @@
 import { shriRamConfig } from './config.js';
-import { getBankConfig, getDynamicInterestRate } from '../../services/bankConfigService';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -106,10 +105,9 @@ export const calculateShriRamEligibility = (userData) => {
     }
   }
 
-  // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('Shriram Finance', 'ageRules', { state: userData.state, city: userData.city });
-  const minAge = ageConfig ? ageConfig.minAge : shriRamConfig.minAge;
-  const maxAge = ageConfig ? ageConfig.maxAge : shriRamConfig.maxAge;
+  // Check age eligibility
+  const minAge = shriRamConfig.minAge;
+  const maxAge = shriRamConfig.maxAge;
 
   if (age && (age < minAge || age > maxAge)) {
     return {
@@ -153,19 +151,17 @@ export const calculateShriRamEligibility = (userData) => {
   }
 
   // Check minimum salary requirement based on category
-  const salConfig = getBankConfig('Shriram Finance', 'employmentRules', { state: userData.state, city: userData.city });
   const catMinSalary = shriRamConfig.minSalaryByCategory[category] || shriRamConfig.minSalaryByCategory['C'];
-  const effectiveMinSalary = salConfig ? salConfig.salariedMinSalary : catMinSalary;
+  const effectiveMinSalary = catMinSalary;
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < effectiveMinSalary) {
     return { isEligible: false, reason: `Minimum salary of ₹${effectiveMinSalary.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
-  // Get loan capping config
-  const cappingConfig = getBankConfig('Shriram Finance', 'loanCapping', { state: userData.state, city: userData.city });
-  const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : shriRamConfig.maxLoanAmount;
-  const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : 100000;
+  // Bank's absolute maximum loan limit
+  const absoluteMaxLoan = shriRamConfig.maxLoanAmount;
+  const minLoanAmount = 100000;
 
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
@@ -197,8 +193,8 @@ export const calculateShriRamEligibility = (userData) => {
     };
   }
 
-  // Use dynamic interest rate from Admin settings
-  const dynamicRate = getDynamicInterestRate('Shriram Finance', category, cappedFinalLoan || monthlyIncome * 20, { state: userData.state, city: userData.city }, shriRamConfig.interestRate);
+  // Use default interest rate
+  const dynamicRate = shriRamConfig.interestRate;
 
   const foirLoanAmount = calculatePrincipalFromEMI(
     availableEMI,
