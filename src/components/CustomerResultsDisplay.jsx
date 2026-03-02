@@ -25,7 +25,7 @@ LaxmiCredit Eligibility Report
 ----------------------------
 Customer: ${userData.name}
 Employment: ${userData.employer}
-Company Category: ${results.find(r => r.isEligible)?.companyCategory || 'N/A'}
+Company Category: ${results.find(r => r.isEligible)?.category || 'N/A'}
 Monthly Income: ₹${userData.monthlyIncome.toLocaleString()}
 
 SUMMARY:
@@ -163,7 +163,7 @@ Scan for detailed breakdowns at LaxmiCredit.
                     <div className="policy-grid">
                       <div className="policy-item">
                         <span className="p-label">Company Category</span>
-                        <span className="p-badge-cat">{bank.companyCategory || 'B'}</span>
+                        <span className="p-badge-cat">{bank.category || 'B'}</span>
                       </div>
                       <div className="policy-item">
                         <span className="p-label">Min Interest</span>
