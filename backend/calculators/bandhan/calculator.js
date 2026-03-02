@@ -1,5 +1,5 @@
 import { bandhanConfig } from './config.js';
-import { getBankConfig } from '../../utils/configHelper.js';
+import { getBankConfig, getDynamicInterestRate } from '../../utils/configHelper.js';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -134,8 +134,11 @@ export const calculateBandhanEligibility = (userData) => {
     };
   }
 
-  // Use user-provided interest rate or default to bank config
-  const effectiveInterestRate = interestRate || bandhanConfig.interestRate;
+  // Use dynamic interest rate from Admin settings
+  const dynamicRate = getDynamicInterestRate('Bandhan Bank', companyCategory, desiredLoanAmount || monthlyIncome * 20, { state: userData.state, city: userData.city }, bandhanConfig.interestRate);
+
+  // Use user-provided interest rate or dynamic rate from Admin settings
+  const effectiveInterestRate = interestRate || dynamicRate;
 
   // Check minimum salary requirement based on category
   const salConfig = getBankConfig('Bandhan Bank', 'employmentRules', { state: userData.state, city: userData.city });
