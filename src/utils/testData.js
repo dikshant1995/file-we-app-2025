@@ -14,7 +14,7 @@ export const sampleBankResults = [
   {
     bankId: 1,
     bankName: "Bank A",
-    eligible: true,
+    isEligible: true,
     loanAmount: 4500000,
     interestRate: 8.5,
     monthlyEMI: 38678,
@@ -23,7 +23,7 @@ export const sampleBankResults = [
   {
     bankId: 2,
     bankName: "Bank B",
-    eligible: true,
+    isEligible: true,
     loanAmount: 5000000,
     interestRate: 8.2,
     monthlyEMI: 42356,
@@ -32,13 +32,13 @@ export const sampleBankResults = [
   {
     bankId: 3,
     bankName: "Bank C",
-    eligible: false,
+    isEligible: false,
     reason: "Minimum credit score required is 650"
   },
   {
     bankId: 4,
     bankName: "Bank D",
-    eligible: true,
+    isEligible: true,
     loanAmount: 4800000,
     interestRate: 8.0,
     monthlyEMI: 40234,
