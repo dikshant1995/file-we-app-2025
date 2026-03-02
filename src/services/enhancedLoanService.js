@@ -20,11 +20,11 @@ export const calculateEnhancedLoanEligibility = (bank, userData, locationContext
 
   // 2. Validate Basic Eligibility
   if (userData.age < (ageRules?.minAge || 21) || userData.age > (ageRules?.maxAge || 60)) {
-    return { eligible: false, reason: 'Age outside policy limits' };
+    return { isEligible: false, reason: 'Age outside policy limits' };
   }
 
   if (userData.monthlySalary < (employment?.salariedMinSalary || 25000)) {
-    return { eligible: false, reason: 'Income below minimum threshold' };
+    return { isEligible: false, reason: 'Income below minimum threshold' };
   }
 
   // 3. Determine Category & Multiplier
@@ -45,7 +45,7 @@ export const calculateEnhancedLoanEligibility = (bank, userData, locationContext
   const availableEMI = maxEMI - currentObligations;
 
   if (availableEMI <= 0) {
-    return { eligible: false, reason: 'Existing obligations exceed FOIR limit' };
+    return { isEligible: false, reason: 'Existing obligations exceed FOIR limit' };
   }
 
   // 5. Interest Rate Lookup (Slab-based)
@@ -77,7 +77,7 @@ export const calculateEnhancedLoanEligibility = (bank, userData, locationContext
   }
 
   return {
-    eligible: true,
+    isEligible: true,
     maxLoanAmount: Math.floor(eligibleAmount),
     interestRate: rate,
     tenure: categoryRule?.maxTenureMonths || 60,
