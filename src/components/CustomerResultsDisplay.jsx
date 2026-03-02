@@ -7,29 +7,32 @@ import {
 } from 'lucide-react';
 import './CustomerResultsDisplay.css';
 
-const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
+const CustomerResultsDisplay = ({ results, metadata, userData, onNewCalculation, onBack }) => {
   const [selectedBank, setSelectedBank] = useState(null);
   const [showCopySuccess, setShowCopySuccess] = useState(false);
 
+  // Use either metadata or userData for customer info
+  const user = metadata || userData || {};
+  const callback = onNewCalculation || onBack;
+
   // Grouping banks by categories
-  const recommendedBanks = results.filter(r => r.isEligible && r.maxLoanAmount >= 500000);
-  const otherEligibleBanks = results.filter(r => r.isEligible && r.maxLoanAmount < 500000);
   const nonEligibleBanks = results.filter(r => !r.isEligible);
+  const eligibleResults = results.filter(r => r.isEligible);
+
+  const bestAmount = eligibleResults.length > 0
+    ? Math.max(...eligibleResults.map(r => r.maxLoanAmount || r.loanAmount || 0))
+    : 0;
 
   const handleCopySummary = () => {
-    const eligibleCount = results.filter(r => r.isEligible).length;
-    const bestAmount = Math.max(...results.map(r => r.maxLoanAmount), 0);
-
     const text = `
 LaxmiCredit Eligibility Report
 ----------------------------
-Customer: ${metadata?.customerName || metadata?.name || 'Customer'}
-Employment: ${metadata?.companyName || metadata?.employer || 'Not specified'}
-Company Category: ${results.find(r => r.isEligible)?.category || 'N/A'}
-Monthly Income: ₹${metadata?.monthlyIncome?.toLocaleString() || '0'}
+Customer: ${user.customerName || user.name || 'Customer'}
+Employment: ${user.companyName || user.employer || 'Not specified'}
+Monthly Income: ₹${user.monthlyIncome?.toLocaleString() || '0'}
 
 SUMMARY:
-• Banks Qualified: ${eligibleCount}
+• Banks Qualified: ${eligibleResults.length}
 • Maximum Possible Loan: ₹${bestAmount.toLocaleString()}
 
 Scan for detailed breakdowns at LaxmiCredit.
@@ -57,7 +60,7 @@ Scan for detailed breakdowns at LaxmiCredit.
           <span>NEURAL VERIFICATION COMPLETE</span>
         </div>
         <h1>Analysis Results</h1>
-        <p>Calculated across {results.length} institutional policies for {metadata?.customerName || metadata?.name || 'Customer'}</p>
+        <p>Calculated across {results.length} institutional policies for {user.customerName || user.name || 'Customer'}</p>
       </motion.header>
 
       {/* Disclosure Alert - NEW PREMIUM STYLE */}
@@ -92,7 +95,7 @@ Scan for detailed breakdowns at LaxmiCredit.
           <div className="stat-icon amount"><Banknote /></div>
           <div className="stat-info">
             <span className="stat-label">Max Eligibility</span>
-            <span className="stat-value">₹{Math.max(...results.map(r => r.maxLoanAmount), 0).toLocaleString()}</span>
+            <span className="stat-value">₹{bestAmount.toLocaleString()}</span>
           </div>
         </motion.div>
 
@@ -103,7 +106,7 @@ Scan for detailed breakdowns at LaxmiCredit.
           <div className="stat-icon count"><Building2 /></div>
           <div className="stat-info">
             <span className="stat-label">Banks Found</span>
-            <span className="stat-value">{results.filter(r => r.isEligible).length} Eligible</span>
+            <span className="stat-value">{eligibleResults.length} Eligible</span>
           </div>
         </motion.div>
       </div>
@@ -116,7 +119,7 @@ Scan for detailed breakdowns at LaxmiCredit.
         </div>
 
         <div className="banks-grid">
-          {results.filter(r => r.isEligible).sort((a, b) => (b.maxLoanAmount || b.loanAmount || 0) - (a.maxLoanAmount || a.loanAmount || 0)).map((bank, index) => (
+          {eligibleResults.sort((a, b) => (b.maxLoanAmount || b.loanAmount || 0) - (a.maxLoanAmount || a.loanAmount || 0)).map((bank, index) => (
             <motion.div
               key={bank.bankName || bank.name}
               className={`bank-card glass ${selectedBank === (bank.bankName || bank.name) ? 'active' : ''}`}
@@ -162,12 +165,8 @@ Scan for detailed breakdowns at LaxmiCredit.
                   >
                     <div className="policy-grid">
                       <div className="policy-item">
-                        <span className="p-label">Company Category</span>
-                        <span className="p-badge-cat">{bank.category || 'B'}</span>
-                      </div>
-                      <div className="policy-item">
                         <span className="p-label">Min Interest</span>
-                        <span className="p-value">{bank.interestRate}% </span>
+                        <span className="p-value">11.0% Static</span>
                       </div>
                       <div className="policy-item">
                         <span className="p-label">Processing Fee</span>
@@ -177,10 +176,14 @@ Scan for detailed breakdowns at LaxmiCredit.
                         <span className="p-label">Pre-payment</span>
                         <span className="p-value">Allowed after 12 EMIs</span>
                       </div>
+                      <div className="policy-item">
+                        <span className="p-label">Verification</span>
+                        <span className="p-value">Physical/Digital</span>
+                      </div>
                     </div>
 
                     <div className="calculation-breakdown">
-                      <h4>Institutional Logic Breakdown</h4>
+                      <h4>Calculation Logic Breakdown</h4>
                       <div className="calc-steps">
                         <div className="calc-step">
                           <span>Multiplier Method</span>
@@ -188,7 +191,7 @@ Scan for detailed breakdowns at LaxmiCredit.
                         </div>
                         <div className="calc-step">
                           <span>EMI Capping (FOIR)</span>
-                          <span>{bank.foirPercentage * 100}% of Net</span>
+                          <span>{(bank.foirPercentage * 100).toFixed(0)}% of Net</span>
                         </div>
                         <div className="calc-step total">
                           <span>Policy Limit Applied</span>
@@ -233,7 +236,7 @@ Scan for detailed breakdowns at LaxmiCredit.
       <div className="results-footer-actions">
         <motion.button
           className="btn-secondary"
-          onClick={onNewCalculation}
+          onClick={callback}
           whileHover={{ x: -5 }}
         >
           Edit Data
