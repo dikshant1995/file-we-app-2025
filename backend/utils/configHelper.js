@@ -52,7 +52,43 @@ export const getBankConfig = (bankName, sectionName, locationContext = {}) => {
     }
 
     // 3. Ultimate Safety Net: Hardcoded Defaults
-    // This part will be handled in the calculator itself via the nullish coalescing (??)
-    // but we return null here to signify "No Admin Overhaul" to the calculator.
     return null;
+};
+
+/**
+ * Dynamic Interest Rate Matrix Resolver
+ * Parses the rate based on loan amount slabs and category
+ */
+export const getDynamicInterestRate = (bankName, category, loanAmount, locationContext = {}, fallbackRate = 11.0) => {
+    const rateConfig = getBankConfig(bankName, 'interestRates', locationContext);
+
+    if (!rateConfig || !rateConfig.categorySlabRates || !rateConfig.categorySlabRates[category]) {
+        return fallbackRate;
+    }
+
+    const slabs = rateConfig.categorySlabRates[category];
+
+    // Iterate through slabs to find match
+    for (const slabLabel in slabs) {
+        // Handle range format: ₹100000-500000
+        const rangeMatch = slabLabel.match(/₹(\d+)-(\d+)/);
+        if (rangeMatch) {
+            const min = parseInt(rangeMatch[1]);
+            const max = parseInt(rangeMatch[2]);
+            if (loanAmount >= min && loanAmount <= max) {
+                return slabs[slabLabel];
+            }
+        }
+
+        // Handle single value or plus format: ₹3000001+
+        const plusMatch = slabLabel.match(/₹(\d+)\+/);
+        if (plusMatch) {
+            const min = parseInt(plusMatch[1]);
+            if (loanAmount >= min) {
+                return slabs[slabLabel];
+            }
+        }
+    }
+
+    return fallbackRate;
 };
