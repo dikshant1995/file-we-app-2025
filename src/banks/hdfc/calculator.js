@@ -354,7 +354,7 @@ export const calculateHdfcEligibility = (userData) => {
     requestedTenureMonths: requestedTenureMonths,
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
-    companyCategory: companyCategory,
+    category: companyCategory,
     calculationMethod: 'Combined (Multiplier and FOIR)',
     multiplier: multiplier,
     foirPercentage: foirPercentage,
