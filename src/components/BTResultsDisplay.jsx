@@ -4,23 +4,23 @@ import './BTResultsDisplay.css';
 
 const BTResultsDisplay = ({ results, onReset }) => {
   const [showDetailedComparison, setShowDetailedComparison] = useState(false);
-  
+
   // Get comprehensive comparison
   const comparison = compareBTResults(results);
   const message = generateComparisonMessage(comparison);
-  
+
   // Check if credit cards were consolidated
-  const bestBank = results.filter(r => r.eligible).sort((a, b) => b.freshAmountDisbursed - a.freshAmountDisbursed)[0];
+  const bestBank = results.filter(r => r.isEligible).sort((a, b) => b.freshAmountDisbursed - a.freshAmountDisbursed)[0];
   const hasCreditCards = bestBank && bestBank.numberOfCreditCardsCleared > 0;
   const creditCardOutstanding = hasCreditCards ? bestBank.totalCreditCardOutstanding : 0;
-  
+
   if (!comparison.hasEligibleBanks) {
     return (
       <div className="bt-results-display">
         <div className="no-results">
           <h2>❌ {message.title}</h2>
           <p className="error-message">{message.message}</p>
-          
+
           <div className="suggestions">
             <h3>💡 Suggestions to Improve Eligibility:</h3>
             <ul>
@@ -29,7 +29,7 @@ const BTResultsDisplay = ({ results, onReset }) => {
               ))}
             </ul>
           </div>
-          
+
           <div className="rejection-details">
             <h3>Rejection Reasons by Bank:</h3>
             {comparison.rejectionReasons.map((rejection, index) => (
@@ -38,15 +38,15 @@ const BTResultsDisplay = ({ results, onReset }) => {
               </div>
             ))}
           </div>
-          
+
           <button className="reset-btn" onClick={onReset}>Try Again</button>
         </div>
       </div>
     );
   }
-  
+
   const { recommendations, savingsComparison, bankRankings, eligibleCount, totalBanks } = comparison;
-  
+
   return (
     <div className="bt-results-display">
       {/* Header */}
@@ -55,7 +55,7 @@ const BTResultsDisplay = ({ results, onReset }) => {
         <p className="subtitle">{eligibleCount} of {totalBanks} banks eligible • Smart recommendations based on your priorities</p>
         <button className="reset-btn" onClick={onReset}>New Calculation</button>
       </div>
-      
+
       {/* Credit Card Savings Banner - NEW! */}
       {hasCreditCards && creditCardOutstanding > 0 && (
         <div className="credit-card-savings-banner">
@@ -63,7 +63,7 @@ const BTResultsDisplay = ({ results, onReset }) => {
             <h3>💳 CREDIT CARD DEBT CONSOLIDATION - MASSIVE SAVINGS!</h3>
             <p className="cc-tagline">You're breaking free from the 42% interest trap!</p>
           </div>
-          
+
           <div className="cc-savings-grid">
             {/* Before */}
             <div className="cc-before">
@@ -86,13 +86,13 @@ const BTResultsDisplay = ({ results, onReset }) => {
               </div>
               <p className="cc-warning">⚠️ Minimum payment trap - could take 20-50 years to clear!</p>
             </div>
-            
+
             {/* Arrow */}
             <div className="cc-arrow">
               <div className="arrow-symbol">→</div>
               <div className="arrow-text">CONVERTED TO</div>
             </div>
-            
+
             {/* After */}
             <div className="cc-after">
               <h4>✅ AFTER (Personal Loan Freedom)</h4>
@@ -115,7 +115,7 @@ const BTResultsDisplay = ({ results, onReset }) => {
               <p className="cc-success">✅ Clear path to debt freedom with fixed EMI!</p>
             </div>
           </div>
-          
+
           {/* Savings Highlight */}
           <div className="cc-total-savings">
             <div className="savings-row">
@@ -131,15 +131,15 @@ const BTResultsDisplay = ({ results, onReset }) => {
               <span className="savings-value">₹{Math.round((((creditCardOutstanding * 42) / 1200) - ((creditCardOutstanding * 11) / 1200)) * 12).toLocaleString()}</span>
             </div>
           </div>
-          
+
           <p className="cc-footer">🏆 <strong>YOU'RE FREE FROM THE CREDIT CARD TRAP!</strong> No more minimum payment cycles. Fixed repayment schedule. Clear debt freedom timeline.</p>
         </div>
       )}
-      
+
       {/* Top Recommendations */}
       <div className="top-recommendations">
         <h3>🎯 Top Recommendations</h3>
-        
+
         {/* Best Overall */}
         <div className="recommendation-card overall-best">
           <div className="card-header" style={{ backgroundColor: recommendations.bestOverall.badgeColor }}>
@@ -152,7 +152,7 @@ const BTResultsDisplay = ({ results, onReset }) => {
             <div className="metric-value">{recommendations.bestOverall.value}</div>
             <p className="advantage">✓ {recommendations.bestOverall.advantage}</p>
             <p className="why-text">{recommendations.bestOverall.why}</p>
-            
+
             {recommendations.bestOverall.scoreBreakdown && (
               <div className="score-breakdown">
                 <div className="score-item">
@@ -178,7 +178,7 @@ const BTResultsDisplay = ({ results, onReset }) => {
                 </div>
               </div>
             )}
-            
+
             <div className="bank-details">
               <div className="detail-item">
                 <span className="label">Fresh Funds</span>
@@ -192,13 +192,13 @@ const BTResultsDisplay = ({ results, onReset }) => {
                 <span className="label">Interest Rate</span>
                 <span className="value">{recommendations.bestOverall.bank.interestRate}%</span>
               </div>
-              
+
               {/* Credit Card & Loan Breakdown - NEW! */}
               {(recommendations.bestOverall.bank.totalPersonalLoanPOS > 0 || recommendations.bestOverall.bank.totalCreditCardOutstanding > 0) && (
                 <>
                   <div className="detail-item breakdown-header">
-                    <span className="label" style={{fontWeight: 'bold', color: '#007bff'}}>💰 Debt Breakdown:</span>
-                    <span className="value" style={{fontWeight: 'bold', color: '#007bff'}}>₹{(recommendations.bestOverall.bank.totalDebtCleared || (recommendations.bestOverall.bank.totalPersonalLoanPOS + recommendations.bestOverall.bank.totalCreditCardOutstanding)).toLocaleString()}</span>
+                    <span className="label" style={{ fontWeight: 'bold', color: '#007bff' }}>💰 Debt Breakdown:</span>
+                    <span className="value" style={{ fontWeight: 'bold', color: '#007bff' }}>₹{(recommendations.bestOverall.bank.totalDebtCleared || (recommendations.bestOverall.bank.totalPersonalLoanPOS + recommendations.bestOverall.bank.totalCreditCardOutstanding)).toLocaleString()}</span>
                   </div>
                   {recommendations.bestOverall.bank.totalPersonalLoanPOS > 0 && (
                     <div className="detail-item sub-item">
@@ -209,7 +209,7 @@ const BTResultsDisplay = ({ results, onReset }) => {
                   {recommendations.bestOverall.bank.totalCreditCardOutstanding > 0 && (
                     <div className="detail-item sub-item">
                       <span className="label">  └ Credit Cards Debt</span>
-                      <span className="value" style={{color: '#ff6b6b'}}>₹{recommendations.bestOverall.bank.totalCreditCardOutstanding.toLocaleString()}</span>
+                      <span className="value" style={{ color: '#ff6b6b' }}>₹{recommendations.bestOverall.bank.totalCreditCardOutstanding.toLocaleString()}</span>
                     </div>
                   )}
                 </>
@@ -217,7 +217,7 @@ const BTResultsDisplay = ({ results, onReset }) => {
             </div>
           </div>
         </div>
-        
+
         {/* Other Top Picks */}
         <div className="other-recommendations">
           {/* Best for Fresh Funds */}
@@ -233,7 +233,7 @@ const BTResultsDisplay = ({ results, onReset }) => {
               <p className="why-text-small">{recommendations.bestForFreshFunds.why.substring(0, 150)}...</p>
             </div>
           </div>
-          
+
           {/* Best for Low EMI */}
           <div className="recommendation-card">
             <div className="card-header" style={{ backgroundColor: recommendations.bestForLowEMI.badgeColor }}>
@@ -247,7 +247,7 @@ const BTResultsDisplay = ({ results, onReset }) => {
               <p className="why-text-small">{recommendations.bestForLowEMI.why.substring(0, 150)}...</p>
             </div>
           </div>
-          
+
           {/* Best for Low Interest */}
           <div className="recommendation-card">
             <div className="card-header" style={{ backgroundColor: recommendations.bestForLowInterest.badgeColor }}>
@@ -263,7 +263,7 @@ const BTResultsDisplay = ({ results, onReset }) => {
           </div>
         </div>
       </div>
-      
+
       {/* Bank Rankings */}
       <div className="bank-rankings">
         <h3>🏅 Bank Rankings</h3>
@@ -281,7 +281,7 @@ const BTResultsDisplay = ({ results, onReset }) => {
               ))}
             </ol>
           </div>
-          
+
           {/* By EMI */}
           <div className="ranking-column">
             <h4>📉 By Lowest EMI</h4>
@@ -295,7 +295,7 @@ const BTResultsDisplay = ({ results, onReset }) => {
               ))}
             </ol>
           </div>
-          
+
           {/* Note about Interest Rate */}
           <div className="ranking-column">
             <h4>📊 Interest Rate</h4>
@@ -306,22 +306,22 @@ const BTResultsDisplay = ({ results, onReset }) => {
           </div>
         </div>
       </div>
-      
+
       {/* Detailed Comparison Toggle */}
       <div className="detailed-comparison-toggle">
-        <button 
+        <button
           className="toggle-btn"
           onClick={() => setShowDetailedComparison(!showDetailedComparison)}
         >
           {showDetailedComparison ? '▼ Hide' : '▶ Show'} Detailed Comparison Table
         </button>
       </div>
-      
+
       {/* Detailed Comparison Table */}
       {showDetailedComparison && (
         <div className="detailed-comparison">
           <h3>📊 Detailed Bank Comparison</h3>
-          
+
           {/* Add debt breakdown summary if credit cards present */}
           {hasCreditCards && creditCardOutstanding > 0 && (
             <div className="debt-summary-box" style={{
@@ -335,24 +335,24 @@ const BTResultsDisplay = ({ results, onReset }) => {
               gap: '15px'
             }}>
               <div>
-                <div style={{fontSize: '14px', opacity: 0.9}}>💼 Total Debt Cleared</div>
-                <div style={{fontSize: '24px', fontWeight: 'bold'}}>₹{(bestBank.totalDebtCleared || (bestBank.totalPersonalLoanPOS + bestBank.totalCreditCardOutstanding)).toLocaleString()}</div>
+                <div style={{ fontSize: '14px', opacity: 0.9 }}>💼 Total Debt Cleared</div>
+                <div style={{ fontSize: '24px', fontWeight: 'bold' }}>₹{(bestBank.totalDebtCleared || (bestBank.totalPersonalLoanPOS + bestBank.totalCreditCardOutstanding)).toLocaleString()}</div>
               </div>
               <div>
-                <div style={{fontSize: '14px', opacity: 0.9}}>📊 Personal Loans POS</div>
-                <div style={{fontSize: '20px', fontWeight: '600'}}>₹{bestBank.totalPersonalLoanPOS.toLocaleString()}</div>
+                <div style={{ fontSize: '14px', opacity: 0.9 }}>📊 Personal Loans POS</div>
+                <div style={{ fontSize: '20px', fontWeight: '600' }}>₹{bestBank.totalPersonalLoanPOS.toLocaleString()}</div>
               </div>
               <div>
-                <div style={{fontSize: '14px', opacity: 0.9}}>💳 Credit Cards Debt</div>
-                <div style={{fontSize: '20px', fontWeight: '600', color: '#ffd43b'}}>₹{bestBank.totalCreditCardOutstanding.toLocaleString()}</div>
+                <div style={{ fontSize: '14px', opacity: 0.9 }}>💳 Credit Cards Debt</div>
+                <div style={{ fontSize: '20px', fontWeight: '600', color: '#ffd43b' }}>₹{bestBank.totalCreditCardOutstanding.toLocaleString()}</div>
               </div>
               <div>
-                <div style={{fontSize: '14px', opacity: 0.9}}>🎯 Cards Consolidated</div>
-                <div style={{fontSize: '20px', fontWeight: '600'}}>{bestBank.numberOfCreditCardsCleared} cards</div>
+                <div style={{ fontSize: '14px', opacity: 0.9 }}>🎯 Cards Consolidated</div>
+                <div style={{ fontSize: '20px', fontWeight: '600' }}>{bestBank.numberOfCreditCardsCleared} cards</div>
               </div>
             </div>
           )}
-          
+
           <div className="comparison-table-container">
             <table className="comparison-table">
               <thead>
@@ -383,14 +383,14 @@ const BTResultsDisplay = ({ results, onReset }) => {
               </tbody>
             </table>
           </div>
-          
+
           {/* Savings Insight */}
           <div className="savings-insight">
             <h4>💡 Interest Cost Insight</h4>
             <p>
-              <strong>{savingsComparison.lowestInterestCost.bankName}</strong> has the lowest total interest cost of 
-              <strong> ₹{savingsComparison.lowestInterestCost.totalInterest.toLocaleString()}</strong>, while 
-              <strong> {savingsComparison.highestInterestCost.bankName}</strong> has the highest at 
+              <strong>{savingsComparison.lowestInterestCost.bankName}</strong> has the lowest total interest cost of
+              <strong> ₹{savingsComparison.lowestInterestCost.totalInterest.toLocaleString()}</strong>, while
+              <strong> {savingsComparison.highestInterestCost.bankName}</strong> has the highest at
               <strong> ₹{savingsComparison.highestInterestCost.totalInterest.toLocaleString()}</strong>.
             </p>
             <p className="savings-amount">
@@ -399,7 +399,7 @@ const BTResultsDisplay = ({ results, onReset }) => {
           </div>
         </div>
       )}
-      
+
       {/* Rejected Banks (if any) */}
       {comparison.rejectedBanks.length > 0 && (
         <div className="rejected-banks">
