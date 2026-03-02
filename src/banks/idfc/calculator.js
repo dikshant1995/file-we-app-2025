@@ -1,9 +1,8 @@
 import { idfcConfig } from './config.js';
-import { getBankConfig, getDynamicInterestRate } from '../../services/bankConfigService';
 
 // Helper: Get interest rate based on category and loan amount
 const getInterestRateForLoan = (category, loanAmount, userData = {}) => {
-  return getDynamicInterestRate('IDFC First Bank', category, loanAmount, { state: userData.state, city: userData.city }, idfcConfig.interestRate);
+  return idfcConfig.interestRate;
 };
 
 // Function to calculate EMI
@@ -81,10 +80,9 @@ export const calculateIdfcEligibility = (userData) => {
     }
   }
 
-  // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('IDFC First Bank', 'ageRules', { state: userData.state, city: userData.city });
-  const minAge = ageConfig ? ageConfig.minAge : idfcConfig.minAge;
-  const maxAge = ageConfig ? ageConfig.maxAge : idfcConfig.maxAge;
+  // Check age eligibility
+  const minAge = idfcConfig.minAge;
+  const maxAge = idfcConfig.maxAge;
 
   if (age && (age < minAge || age > maxAge)) {
     return {
@@ -143,18 +141,16 @@ export const calculateIdfcEligibility = (userData) => {
   }
 
   // Check minimum salary requirement based on category
-  const salConfig = getBankConfig('IDFC First Bank', 'employmentRules', { state: userData.state, city: userData.city });
-  const effectiveMinSalary = salConfig ? salConfig.salariedMinSalary : idfcConfig.minSalary;
+  const effectiveMinSalary = idfcConfig.minSalary;
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < effectiveMinSalary) {
     return { isEligible: false, reason: `Minimum monthly income of ₹${effectiveMinSalary.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
-  // Get loan capping config
-  const cappingConfig = getBankConfig('IDFC First Bank', 'loanCapping', { state: userData.state, city: userData.city });
-  const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : idfcConfig.maxLoanAmount;
-  const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : 100000;
+  // Bank's absolute maximum loan limit
+  const absoluteMaxLoan = idfcConfig.maxLoanAmount;
+  const minLoanAmount = 100000;
 
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
