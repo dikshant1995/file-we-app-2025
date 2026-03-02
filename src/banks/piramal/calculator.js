@@ -1,5 +1,4 @@
 import { piramalConfig } from './config.js';
-import { getBankConfig, getDynamicInterestRate } from '../../services/bankConfigService';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -108,10 +107,9 @@ export const calculatePiramalEligibility = (userData) => {
     }
   }
 
-  // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('Piramal Finance', 'ageRules', { state: userData.state, city: userData.city });
-  const minAge = ageConfig ? ageConfig.minAge : piramalConfig.minAge;
-  const maxAge = ageConfig ? ageConfig.maxAge : piramalConfig.maxAge;
+  // Check age eligibility
+  const minAge = piramalConfig.minAge;
+  const maxAge = piramalConfig.maxAge;
 
   if (age && (age < minAge || age > maxAge)) {
     return {
@@ -155,18 +153,16 @@ export const calculatePiramalEligibility = (userData) => {
   }
 
   // Check minimum salary requirement based on category
-  const salConfig = getBankConfig('Piramal Finance', 'employmentRules', { state: userData.state, city: userData.city });
-  const effectiveMinSalary = salConfig ? salConfig.salariedMinSalary : piramalConfig.minNTH;
+  const effectiveMinSalary = piramalConfig.minNTH;
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < effectiveMinSalary) {
     return { isEligible: false, reason: `Minimum NTH salary of ₹${effectiveMinSalary.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
-  // Get loan capping config
-  const cappingConfig = getBankConfig('Piramal Finance', 'loanCapping', { state: userData.state, city: userData.city });
-  const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : piramalConfig.maxLoanAmount;
-  const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : 100000;
+  // Bank's absolute maximum loan limit
+  const absoluteMaxLoan = piramalConfig.maxLoanAmount;
+  const minLoanAmount = 100000;
 
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
@@ -195,8 +191,8 @@ export const calculatePiramalEligibility = (userData) => {
     };
   }
 
-  // Use dynamic interest rate from Admin settings
-  const dynamicRate = getDynamicInterestRate('Piramal Finance', category, cappedFinalLoan || monthlyIncome * 20, { state: userData.state, city: userData.city }, piramalConfig.interestRate);
+  // Use default interest rate
+  const dynamicRate = piramalConfig.interestRate;
 
   // Calculate loan amount from available EMI using capped tenure
   const calculatedLoanAmount = calculatePrincipalFromEMI(
