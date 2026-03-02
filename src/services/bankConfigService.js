@@ -167,6 +167,35 @@ export const getBankConfig = (bankName, sectionName, locationContext = {}) => {
   }
 };
 
+/**
+ * Helper to get interest rate from slab-based config
+ * Used by bank calculators to support Admin Dashboard overrides
+ */
+export const getDynamicInterestRate = (bankName, category, loanAmount, locationContext = {}, fallbackRate = 11.0) => {
+  const rateConfig = getBankConfig(bankName, 'interestRates', locationContext);
+
+  if (!rateConfig || !rateConfig.categorySlabRates || !rateConfig.categorySlabRates[category]) {
+    return fallbackRate;
+  }
+
+  const slabs = rateConfig.categorySlabRates[category];
+
+  // Find matching slab by parsing rupee ranges (e.g., "₹100000-500000")
+  for (const slabLabel in slabs) {
+    const match = slabLabel.match(/₹(\d+)-(\d+)/);
+    if (match) {
+      const min = parseInt(match[1]);
+      const max = parseInt(match[2]);
+
+      if (loanAmount >= min && loanAmount <= max) {
+        return slabs[slabLabel];
+      }
+    }
+  }
+
+  return fallbackRate;
+};
+
 // Get all configuration for a bank
 export const getAllBankConfig = (bankName) => {
   try {
