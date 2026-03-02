@@ -145,7 +145,7 @@ export const calculateKotakEligibility = (userData) => {
 
     if (adjustedIncome <= 0) {
       return {
-        eligible: false,
+        isEligible: false,
         reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction)?.toLocaleString() || '0'}), no income remains for Balance Transfer`,
         isBTMode: true
       };
@@ -162,7 +162,7 @@ export const calculateKotakEligibility = (userData) => {
 
     if (hasExistingKotakLoan) {
       return {
-        eligible: false,
+        isEligible: false,
         reason: 'As an existing customer of Kotak Mahindra Bank with an active personal loan, you are not eligible for a new loan from this bank'
       };
     }
@@ -175,7 +175,7 @@ export const calculateKotakEligibility = (userData) => {
 
   if (age && (age < minAge || age > maxAge)) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
     };
   }
@@ -186,7 +186,7 @@ export const calculateKotakEligibility = (userData) => {
   // Check employment type
   if (!kotakConfig.employmentTypes.includes(employmentType)) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Employment type ${employmentType} not supported by this bank`
     };
   }
@@ -198,7 +198,7 @@ export const calculateKotakEligibility = (userData) => {
   const maxTenureForCategory = kotakConfig.maxTenureByCategory[companyCategory];
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `No loans available for Category ${companyCategory}`
     };
   }
@@ -222,7 +222,7 @@ export const calculateKotakEligibility = (userData) => {
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < catMinSalary) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Minimum monthly income required is ₹${catMinSalary?.toLocaleString() || '0'} for Category ${companyCategory}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`,
       isBTMode: isBT
     };
@@ -236,7 +236,7 @@ export const calculateKotakEligibility = (userData) => {
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Minimum loan amount required by this bank is ₹${minLoanAmount?.toLocaleString() || '0'}. Requested: ₹${desiredLoanAmount?.toLocaleString() || '0'}`,
       isBTMode: isBT
     };
@@ -250,7 +250,7 @@ export const calculateKotakEligibility = (userData) => {
   const multiplier = getMultiplier(incomeForCalculation, companyCategory);
   if (!multiplier) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: 'Unable to determine multiplier for the provided salary and category',
       isBTMode: isBT
     };
@@ -265,7 +265,7 @@ export const calculateKotakEligibility = (userData) => {
   const foirPercentage = getFoirPercentage(incomeForCalculation, companyCategory);
   if (!foirPercentage) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: 'Unable to determine FOIR percentage for the provided salary and category',
       isBTMode: isBT
     };
@@ -315,7 +315,7 @@ export const calculateKotakEligibility = (userData) => {
 
     if (btFreshAmount < 0) {
       return {
-        eligible: false,
+        isEligible: false,
         reason: `BT Outstanding (₹${btTotalOutstanding?.toLocaleString() || '0'}) exceeds maximum eligible loan amount (₹${Math.round(finalLoanAmount)?.toLocaleString() || '0'})`,
         isBTMode: true
       };
@@ -341,10 +341,11 @@ export const calculateKotakEligibility = (userData) => {
   const monthlyEMI = calculateEMI(finalLoanAmount, finalInterestRate, cappedTenureYears);
 
   return {
-    eligible: true,
+    isEligible: true,
     bankId: kotakConfig.id,
     bankName: kotakConfig.name,
     loanAmount: Math.round(finalLoanAmount),
+    maxLoanAmount: Math.round(finalLoanAmount),
     maxLoanCap: absoluteMaxLoan,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(maxLoanAmount) : null,
