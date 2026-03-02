@@ -147,7 +147,7 @@ export const calculateShriRamEligibility = (userData) => {
   // Check loan tenure
   if (loanTenure > shriRamConfig.maxLoanTenure) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Maximum loan tenure is ${shriRamConfig.maxLoanTenure} years`
     };
   }
@@ -159,7 +159,7 @@ export const calculateShriRamEligibility = (userData) => {
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < effectiveMinSalary) {
-    return { eligible: false, reason: `Minimum salary of ₹${effectiveMinSalary?.toLocaleString() || '0'} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+    return { isEligible: false, reason: `Minimum salary of ₹${effectiveMinSalary?.toLocaleString() || '0'} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
   // Get loan capping config
@@ -170,7 +170,7 @@ export const calculateShriRamEligibility = (userData) => {
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Minimum loan amount required by this bank is ₹${minLoanAmount?.toLocaleString() || '0'}. Requested: ₹${desiredLoanAmount?.toLocaleString() || '0'}`,
       isBTMode: isBT
     };
@@ -180,7 +180,7 @@ export const calculateShriRamEligibility = (userData) => {
   const salaryBand = getSalaryBand(incomeForCalculation, shriRamConfig.salaryBandTable);
 
   if (!salaryBand) {
-    return { eligible: false, reason: 'Salary does not fall within any eligible band', isBTMode: isBT };
+    return { isEligible: false, reason: 'Salary does not fall within any eligible band', isBTMode: isBT };
   }
 
   const bandData = shriRamConfig.salaryBandTable[salaryBand];
@@ -192,7 +192,7 @@ export const calculateShriRamEligibility = (userData) => {
 
   if (availableEMI <= 0) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Existing EMI (₹${existingEMI?.toLocaleString() || '0'}) exceeds FOIR limit of ₹${Math.round(foirCap)?.toLocaleString() || '0'}`
     };
   }
@@ -223,7 +223,7 @@ export const calculateShriRamEligibility = (userData) => {
   if (isBT) {
     const btFreshAmount = cappedFinalLoan - btTotalOutstanding;
     if (btFreshAmount < 0) {
-      return { eligible: false, reason: `BT Outstanding (₹${btTotalOutstanding?.toLocaleString() || '0'}) exceeds max loan (₹${Math.round(cappedFinalLoan)?.toLocaleString() || '0'})`, isBTMode: true };
+      return { isEligible: false, reason: `BT Outstanding (₹${btTotalOutstanding?.toLocaleString() || '0'}) exceeds max loan (₹${Math.round(cappedFinalLoan)?.toLocaleString() || '0'})`, isBTMode: true };
     }
     btDetails = {
       isBTMode: true,
@@ -246,10 +246,11 @@ export const calculateShriRamEligibility = (userData) => {
   const monthlyEMI = calculateEMI(cappedFinalLoan, dynamicRate, cappedTenureYears);
 
   return {
-    eligible: true,
+    isEligible: true,
     bankId: shriRamConfig.id,
     bankName: shriRamConfig.name,
     loanAmount: Math.round(cappedFinalLoan),
+    maxLoanAmount: Math.round(cappedFinalLoan),
     maxLoanCap: absoluteMaxLoan,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
@@ -264,6 +265,7 @@ export const calculateShriRamEligibility = (userData) => {
     multiplier: multiplier,
     foirPercentage: foirPercentage,
     salaryBand: salaryBand,
+    companyCategory: category,
     availableEMI: Math.round(availableEMI),
     foirLoanAmount: Math.round(foirLoanAmount),
     multiplierLoanAmount: Math.round(multiplierLoanAmount),
