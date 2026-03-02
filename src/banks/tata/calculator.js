@@ -1,9 +1,8 @@
 import { tataConfig } from './config.js';
-import { getBankConfig, getDynamicInterestRate } from '../../services/bankConfigService';
 
 // Helper: Get interest rate based on category and loan amount
 const getInterestRateForLoan = (category, loanAmount, userData = {}) => {
-  return getDynamicInterestRate('Tata Capital', category, loanAmount, { state: userData.state, city: userData.city }, tataConfig.interestRate);
+  return tataConfig.interestRate;
 };
 
 // Helper: Calculate EMI
@@ -102,10 +101,9 @@ export const calculateTataEligibility = (userData) => {
     }
   }
 
-  // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('Tata Capital', 'ageRules', { state: userData.state, city: userData.city });
-  const minAge = ageConfig ? ageConfig.minAge : tataConfig.minAge;
-  const maxAge = ageConfig ? ageConfig.maxAge : tataConfig.maxAge;
+  // Check age eligibility
+  const minAge = tataConfig.minAge;
+  const maxAge = tataConfig.maxAge;
 
   if (age && (age < minAge || age > maxAge)) {
     return {
@@ -151,19 +149,17 @@ export const calculateTataEligibility = (userData) => {
   }
 
   // Check minimum salary requirement based on category
-  const salConfig = getBankConfig('Tata Capital', 'employmentRules', { state: userData.state, city: userData.city });
   const catMinSalary = tataConfig.minSalaryByCategory[category];
-  const effectiveMinSalary = salConfig ? salConfig.salariedMinSalary : catMinSalary;
+  const effectiveMinSalary = catMinSalary;
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (!effectiveMinSalary || incomeToCheck < effectiveMinSalary) {
     return { isEligible: false, reason: `Minimum salary for ${category} is ₹${effectiveMinSalary?.toLocaleString() || 'N/A'}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
-  // Get loan capping config
-  const cappingConfig = getBankConfig('Tata Capital', 'loanCapping', { state: userData.state, city: userData.city });
-  const absoluteMaxLoan = cappingConfig ? cappingConfig.absoluteMaxLoan : tataConfig.maxLoanAmount;
-  const minLoanAmount = cappingConfig ? cappingConfig.minLoanAmount : 100000;
+  // Bank's absolute maximum loan limit
+  const absoluteMaxLoan = tataConfig.maxLoanAmount;
+  const minLoanAmount = 100000;
 
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
