@@ -111,7 +111,7 @@ export const calculateCholaEligibility = (userData) => {
   // 1. Check if UNLISTED (completely ineligible)
   if (category === 'UNLISTED') {
     return {
-      eligible: false,
+      isEligible: false,
       reason: 'Cholamandalam Finance does not provide loans to UNLISTED company employees'
     };
   }
