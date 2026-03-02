@@ -1,5 +1,5 @@
 import { axisFinConfig } from './config.js';
-import { getBankConfig } from '../../utils/configHelper.js';
+import { getBankConfig, getDynamicInterestRate } from '../../utils/configHelper.js';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -210,7 +210,10 @@ export const calculateAxisFinEligibility = (userData) => {
     };
   }
 
-  const monthlyEMI = calculateEMI(cappedFinalLoan, axisFinConfig.interestRate, cappedTenureYears);
+  // Use dynamic interest rate from Admin settings
+  const dynamicRate = getDynamicInterestRate('Axis Finance', category, desiredLoanAmount || monthlyIncome * 20, { state: userData.state, city: userData.city }, axisFinConfig.interestRate);
+
+  const monthlyEMI = calculateEMI(cappedFinalLoan, dynamicRate, cappedTenureYears);
 
   return {
     eligible: true,
@@ -220,7 +223,7 @@ export const calculateAxisFinEligibility = (userData) => {
     maxLoanCap: absoluteMaxLoan,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
-    interestRate: axisFinConfig.interestRate,
+    interestRate: dynamicRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,
     tenureCapped: tenureCapped,
