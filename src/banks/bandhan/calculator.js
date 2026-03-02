@@ -1,5 +1,5 @@
 import { bandhanConfig } from './config.js';
-import { getBankConfig } from '../../services/bankConfigService';
+import { getBankConfig, getDynamicInterestRate } from '../../services/bankConfigService';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -124,23 +124,20 @@ export const calculateBandhanEligibility = (userData) => {
     }
   }
 
-  // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('Bandhan Bank', 'ageRules', { state: userData.state, city: userData.city });
-  const minAge = ageConfig ? ageConfig.minAge : bandhanConfig.minAge;
-  const maxAge = ageConfig ? ageConfig.maxAge : bandhanConfig.maxAge;
-
-  if (age && (age < minAge || age > maxAge)) {
+  // Check age eligibility
+  if (age && (age < bandhanConfig.minAge || age > bandhanConfig.maxAge)) {
     return {
       eligible: false,
-      reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
+      reason: `Age must be between ${bandhanConfig.minAge} and ${bandhanConfig.maxAge} years. Current age: ${age}`
     };
   }
 
-  // Use user-provided interest rate or default to bank config
-  const effectiveInterestRate = interestRate || bandhanConfig.interestRate;
+  // Use user-provided interest rate or calculate based on category and loan amount from Admin settings
+  const effectiveInterestRate = interestRate || getDynamicInterestRate('Bandhan Bank', category || 'B', desiredLoanAmount || monthlyIncome * 20, { state: userData.state, city: userData.city }, bandhanConfig.interestRate);
 
+  // Check age eligibility - Use dynamic config from admin dashboard
+  const ageConfig = getBankConfig('Bandhan Bank', 'ageRules', { state: userData.state, city: userData.city });
   // Check minimum salary requirement based on category
-  const companyCategory = category || 'B';
   const salConfig = getBankConfig('Bandhan Bank', 'employmentRules', { state: userData.state, city: userData.city });
   const catMinSalary = bandhanConfig.minSalary[companyCategory];
   const effectiveMinSalary = salConfig ? salConfig.salariedMinSalary : catMinSalary;
