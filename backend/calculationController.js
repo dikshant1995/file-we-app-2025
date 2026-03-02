@@ -84,7 +84,7 @@ const handleRegularCalculation = (userData) => {
             };
         } catch (error) {
             console.error(`🚨 Backend Failure in ${name}:`, error);
-            return { bankName: name, eligible: false, reason: 'Server calculation error' };
+            return { bankName: name, isEligible: false, reason: 'Server calculation error' };
         }
     });
 };
@@ -150,19 +150,19 @@ const handleBTCalculation = (userData) => {
             }
 
             const result = calc(btInput);
-            if (!result.eligible) return { ...result, bankName: name, btType: 'BT' };
+            if (!result.isEligible) return { ...result, bankName: name, btType: 'BT' };
 
             const maxLoanAmount = result.maxLoanAmount || result.loanAmount;
             const freshAmount = maxLoanAmount - totalDebtToClear;
 
             if (freshAmount <= 0) {
-                return { bankName: name, eligible: false, reason: 'Existing debt exceeds max capacity', btType: 'BT' };
+                return { bankName: name, isEligible: false, reason: 'Existing debt exceeds max capacity', btType: 'BT' };
             }
 
             return {
                 ...result,
                 bankName: name,
-                eligible: true,
+                isEligible: true,
                 btType: 'BT',
                 maxLoanAmount: Math.round(maxLoanAmount),
                 totalDebtCleared: Math.round(totalDebtToClear),
@@ -171,7 +171,7 @@ const handleBTCalculation = (userData) => {
             };
         } catch (error) {
             console.error(`🚨 BT Backend Failure in ${name}:`, error);
-            return { bankName: name, eligible: false, reason: 'Server BT calculation error' };
+            return { bankName: name, isEligible: false, reason: 'Server BT calculation error' };
         }
     });
 };
