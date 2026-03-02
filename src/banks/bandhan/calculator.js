@@ -245,7 +245,7 @@ export const calculateBandhanEligibility = (userData) => {
     requestedTenureMonths: requestedTenureMonths,
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
-    companyCategory: companyCategory,
+    category: companyCategory,
     calculationMethod: 'FOIR-based',
     foirPercentage: foirPercentage,
     details: {
