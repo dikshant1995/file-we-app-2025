@@ -94,30 +94,34 @@ const calculateLoanAmountFromEMI = (emi, annualInterestRate, tenureInYears) => {
  * @param {Object} userData - User data with existing loans
  * @returns {Promise<Array>} BT calculation results for all banks
  */
+import { calculateFullBT as localFullBT } from './enhancedLoanService.js';
+
 /**
- * Unified BT Calculation Proxy - REDIRECTED TO SECURE BACKEND
+ * Unified BT Calculation Proxy - RESTORED TO LOCAL ENGINE
  */
 const performBTCalculation = async (userData, type) => {
-  console.log(`🏛️  --- SECURE BT ENGINE ACTIVATED (${type}) ---`);
+  console.log(`🏛️  --- LOCAL BT ENGINE ACTIVATED (${type}) ---`);
 
   try {
-    const response = await fetch('/api/loan-eligibility', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...userData,
-        calculationType: 'bt',
-        btType: type
-      })
-    });
+    // Map the old btData structure to the enhancedLoanService expectations
+    const existingLiabilities = [
+      ...(userData.existingLoans || []).map(loan => ({
+        ...loan,
+        outstandingAmount: loan.pos,
+        monthlyPayment: loan.emi
+      })),
+      ...(userData.creditCards || []).map(card => ({
+        ...card,
+        outstandingAmount: card.outstandingAmount,
+        type: 'Credit Card'
+      }))
+    ];
 
-    if (!response.ok) throw new Error('Backend BT engine error');
-
-    const results = await response.json();
-    console.log('✅ Secure BT results received from server');
+    const results = await localFullBT(userData, existingLiabilities);
+    console.log('✅ Local BT results calculated successfully');
     return results;
   } catch (error) {
-    console.error('🚨 Backend BT Bridge Failure:', error);
+    console.error('🚨 Local BT Engine Failure:', error);
     throw error;
   }
 };
