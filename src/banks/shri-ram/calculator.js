@@ -105,15 +105,11 @@ export const calculateShriRamEligibility = (userData) => {
     }
   }
 
-  // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('Shriram Finance', 'ageRules', { state: userData.state, city: userData.city });
-  const minAge = ageConfig ? ageConfig.minAge : shriRamConfig.minAge;
-  const maxAge = ageConfig ? ageConfig.maxAge : shriRamConfig.maxAge;
-
-  if (age && (age < minAge || age > maxAge)) {
+  // Check age eligibility
+  if (age && (age < shriRamConfig.minAge || age > shriRamConfig.maxAge)) {
     return {
       eligible: false,
-      reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
+      reason: `Age must be between ${shriRamConfig.minAge} and ${shriRamConfig.maxAge} years. Current age: ${age}`
     };
   }
 
@@ -151,26 +147,10 @@ export const calculateShriRamEligibility = (userData) => {
     };
   }
 
-  // Check minimum salary requirement based on category
-  const catMinSalary = shriRamConfig.minSalaryByCategory[category] || shriRamConfig.minSalaryByCategory['C'];
-  const effectiveMinSalary = catMinSalary;
-
+  const minSalaryRequired = shriRamConfig.minSalaryByCategory[category] || shriRamConfig.minSalaryByCategory['C'];
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
-  if (incomeToCheck < effectiveMinSalary) {
-    return { eligible: false, reason: `Minimum salary of ₹${effectiveMinSalary.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
-  }
-
-  // Bank's absolute maximum loan limit
-  const absoluteMaxLoan = shriRamConfig.maxLoanAmount;
-  const minLoanAmount = 100000;
-
-  // Check minimum loan amount
-  if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
-    return {
-      eligible: false,
-      reason: `Minimum loan amount required by this bank is ₹${minLoanAmount.toLocaleString()}. Requested: ₹${desiredLoanAmount.toLocaleString()}`,
-      isBTMode: isBT
-    };
+  if (incomeToCheck < minSalaryRequired) {
+    return { eligible: false, reason: `Minimum salary of ₹${minSalaryRequired.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
@@ -194,12 +174,9 @@ export const calculateShriRamEligibility = (userData) => {
     };
   }
 
-  // Use default interest rate
-  const dynamicRate = shriRamConfig.interestRate;
-
   const foirLoanAmount = calculatePrincipalFromEMI(
     availableEMI,
-    dynamicRate,
+    shriRamConfig.interestRate,
     cappedTenureYears
   );
 
@@ -216,8 +193,8 @@ export const calculateShriRamEligibility = (userData) => {
     desiredLoanAmount || Infinity
   );
 
-  const cappedFinalLoan = Math.min(finalLoanAmount, absoluteMaxLoan);
-  const loanCapped = finalLoanAmount > absoluteMaxLoan;
+  const cappedFinalLoan = Math.min(finalLoanAmount, shriRamConfig.maxLoanAmount);
+  const loanCapped = finalLoanAmount > shriRamConfig.maxLoanAmount;
 
   let btDetails = null;
   if (isBT) {
@@ -240,18 +217,17 @@ export const calculateShriRamEligibility = (userData) => {
     };
   }
 
-  const monthlyEMI = calculateEMI(cappedFinalLoan, dynamicRate, cappedTenureYears);
+  const monthlyEMI = calculateEMI(cappedFinalLoan, shriRamConfig.interestRate, cappedTenureYears);
 
   return {
     eligible: true,
     bankId: shriRamConfig.id,
     bankName: shriRamConfig.name,
     loanAmount: Math.round(cappedFinalLoan),
-    maxLoanAmount: Math.round(cappedFinalLoan),
-    maxLoanCap: absoluteMaxLoan,
+    maxLoanCap: shriRamConfig.maxLoanAmount,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
-    interestRate: dynamicRate,
+    interestRate: shriRamConfig.interestRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,
     tenureCapped: tenureCapped,
