@@ -10,11 +10,11 @@ export const hdfcConfig = {
   bachelorMaxLoanAmount: 2000000, // ₹20 Lakhs maximum for unmarried individuals
   interestRate: 11.0, // Fixed at 11% for all banks as per policy
   processingFee: 0.006,
-  
+
   // Incentive policy
   incentivePercentage: 0.50, // 50% of average incentive
   incentivePeriodMonths: 3, // Last 3 months
-  
+
   // Multiplier table based on salary bands and categories
   multiplierTable: {
     '25000-35000': {
@@ -95,7 +95,7 @@ export const hdfcConfig = {
   },
   employmentTypes: ['salaried', 'government'],
   specialPrograms: ['hdfc-premium', 'salaried-classic', 'women-advantage'],
-  
+
   // Balance Transfer (BT) Configuration
   btConfig: {
     isAvailable: true, // BT facility is available
