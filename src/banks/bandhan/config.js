@@ -10,11 +10,11 @@ export const bandhanConfig = {
   bachelorMaxLoanAmount: 2000000, // ₹20 Lakhs maximum for unmarried individuals
   interestRate: 11.0, // Fixed at 11% for all banks as per policy
   processingFee: 0.012,
-  
+
   // Incentive policy
   incentivePercentage: 0.25, // 25% of average incentive
   incentivePeriodMonths: 3, // Last 3 months
-  
+
   // FOIR table based on salary bands
   foirTable: {
     '<75000': 0.60,
@@ -40,7 +40,7 @@ export const bandhanConfig = {
   },
   employmentTypes: ['salaried', 'self-employed', 'agriculture', 'government'],
   specialPrograms: ['rural-development', 'agriculture-finance', 'msme-support'],
-  
+
   // Balance Transfer (BT) Configuration
   btConfig: {
     isAvailable: false, // BT facility is NOT available for Bandhan Bank
