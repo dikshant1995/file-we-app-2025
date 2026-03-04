@@ -238,46 +238,63 @@
 
 .action-buttons {
     display: flex;
-    gap: 6px;
+    gap: 12px;
     flex-wrap: nowrap;
 }
 
 .action-btn-advanced {
-    width: 30px;
-    height: 30px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 6px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.action-btn-advanced::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.4s;
+    background: radial-gradient(circle at center, currentColor 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.action-btn-advanced:hover::after {
+    opacity: 0.15;
 }
 
 .action-btn-advanced:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: translateY(-2px);
+    transform: translateY(-3px) scale(1.1);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .action-btn-advanced.wa:hover {
-    background: rgba(37, 211, 102, 0.1);
-    border-color: rgba(37, 211, 102, 0.3);
+    box-shadow: 0 0 15px rgba(37, 211, 102, 0.4);
+    border-color: rgba(37, 211, 102, 0.6);
 }
 
 .action-btn-advanced.mail:hover {
-    background: rgba(234, 67, 53, 0.1);
-    border-color: rgba(234, 67, 53, 0.3);
+    box-shadow: 0 0 15px rgba(234, 67, 53, 0.4);
+    border-color: rgba(234, 67, 53, 0.6);
 }
 
 .action-btn-advanced.share:hover {
-    background: rgba(0, 212, 255, 0.1);
-    border-color: rgba(0, 212, 255, 0.3);
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+    border-color: rgba(0, 212, 255, 0.6);
 }
 
 .action-btn-advanced.delete:hover {
-    background: rgba(255, 68, 68, 0.1);
-    border-color: rgba(255, 68, 68, 0.3);
+    box-shadow: 0 0 15px rgba(255, 68, 68, 0.4);
+    border-color: rgba(255, 68, 68, 0.6);
 }
 
 .checkbox-col {
