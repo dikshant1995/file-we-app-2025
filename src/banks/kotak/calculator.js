@@ -1,4 +1,40 @@
 import { kotakConfig } from './config.js';
+import { getBankConfig } from '../../services/bankConfigService';
+
+// Helper function to get interest rate based on category and loan amount
+const getInterestRateForLoan = (category, loanAmount) => {
+  const rateConfig = getBankConfig('Kotak Mahindra Bank', 'interestRates');
+
+  console.log('🔍 Rate Config:', rateConfig);
+
+  if (!rateConfig || !rateConfig.categorySlabRates || !rateConfig.categorySlabRates[category]) {
+    console.log('⚠️ No rate config found, using default:', kotakConfig.interestRate);
+    return kotakConfig.interestRate;
+  }
+
+  const slabs = rateConfig.categorySlabRates[category];
+
+  console.log(`📊 Loan: ₹${loanAmount}, Category: ${category}`);
+  console.log('📋 Available slabs:', Object.keys(slabs));
+
+  // Find matching slab by parsing rupee ranges (e.g., "₹100000-500000")
+  for (const slabLabel in slabs) {
+    // Extract min and max from label like "₹100000-500000"
+    const match = slabLabel.match(/₹(\d+)-(\d+)/);
+    if (match) {
+      const min = parseInt(match[1]);
+      const max = parseInt(match[2]);
+
+      if (loanAmount >= min && loanAmount <= max) {
+        console.log(`✅ Matched slab: ${slabLabel} (₹${min}-₹${max}) = ${slabs[slabLabel]}%`);
+        return slabs[slabLabel];
+      }
+    }
+  }
+
+  console.log('⚠️ No matching slab, using default');
+  return kotakConfig.interestRate;
+};
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -162,9 +198,10 @@ export const calculateKotakEligibility = (userData) => {
     }
   }
 
-  // Check age eligibility
-  const minAge = kotakConfig.minAge;
-  const maxAge = kotakConfig.maxAge;
+  // Check age eligibility - Use dynamic config from admin dashboard
+  const ageConfig = getBankConfig('Kotak Mahindra Bank', 'ageRules');
+  const minAge = ageConfig ? ageConfig.minAge : kotakConfig.minAge;
+  const maxAge = ageConfig ? ageConfig.maxAge : kotakConfig.maxAge;
 
   if (age && (age < minAge || age > maxAge)) {
     return {
@@ -173,8 +210,8 @@ export const calculateKotakEligibility = (userData) => {
     };
   }
 
-  // Use user-provided interest rate or default
-  const effectiveInterestRate = interestRate || kotakConfig.interestRate;
+  // Use user-provided interest rate or calculate based on category and loan amount
+  const effectiveInterestRate = interestRate || getInterestRateForLoan(category || 'B', desiredLoanAmount || monthlyIncome * 20);
 
   // Check employment type
   if (!kotakConfig.employmentTypes.includes(employmentType)) {
@@ -206,33 +243,82 @@ export const calculateKotakEligibility = (userData) => {
   const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
 
   // Check minimum salary requirement based on category
-  const catMinSalary = (companyCategory === 'D' ? kotakConfig.minSalary['D'] : kotakConfig.minSalary['A']);
+  const minSalary = companyCategory === 'D' ?
+    kotakConfig.minSalary['D'] :
+    kotakConfig.minSalary['A'];
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
-  if (incomeToCheck < catMinSalary) {
+  if (incomeToCheck < minSalary) {
     return {
       eligible: false,
-      reason: `Minimum monthly income required is ₹${catMinSalary.toLocaleString()} for Category ${companyCategory}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`,
+      reason: `Minimum monthly income required is ₹${minSalary.toLocaleString()} for Category ${companyCategory}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`,
       isBTMode: isBT
     };
   }
 
-  // Bank's absolute maximum loan limit
-  const absoluteMaxLoan = kotakConfig.maxLoanAmount;
-  const minLoanAmount = 100000;
+  // ========== PASS 1: Calculate preliminary loan amount with base rate ==========
+  const baseRate = kotakConfig.interestRate; // Use default 11% for initial calculation
 
-  // Check minimum loan amount
-  if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
+  // Calculate using Multiplier method
+  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
+  const multiplier = getMultiplier(incomeForCalculation, companyCategory);
+  if (!multiplier) {
     return {
       eligible: false,
-      reason: `Minimum loan amount required by this bank is ₹${minLoanAmount.toLocaleString()}. Requested: ₹${desiredLoanAmount.toLocaleString()}`,
+      reason: 'Unable to determine multiplier for the provided salary and category',
       isBTMode: isBT
     };
   }
 
-  // Calculate final loan amount with effective interest rate
-  const finalLoanAmount = Math.min(maxLoanAmount, absoluteMaxLoan);
-  const loanCapped = maxLoanAmount > absoluteMaxLoan;
+  // IMPORTANT: For multiplier, use salary after deducting existing EMI + credit card obligations (non-BT mode)
+  const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
+  const availableSalary = isBT ? incomeForCalculation : (monthlyIncome - totalObligations);
+  const multiplierLoanAmount = availableSalary * multiplier;
+
+  // Calculate using FOIR method with base rate
+  const foirPercentage = getFoirPercentage(incomeForCalculation, companyCategory);
+  if (!foirPercentage) {
+    return {
+      eligible: false,
+      reason: 'Unable to determine FOIR percentage for the provided salary and category',
+      isBTMode: isBT
+    };
+  }
+
+  const foirCap = incomeForCalculation * foirPercentage;
+  const availableEMI = isBT ? foirCap : (foirCap - totalObligations);
+
+  // Calculate preliminary loan amount with base rate
+  const preliminaryFoirLoanAmount = calculateLoanAmountFromEMI(availableEMI, baseRate, cappedTenureYears);
+
+  // Take the minimum of the two calculations
+  const preliminaryMaxLoanAmount = Math.min(
+    desiredLoanAmount || Infinity,
+    multiplierLoanAmount,
+    preliminaryFoirLoanAmount
+  );
+
+  // Apply bank's maximum loan cap
+  const preliminaryLoanAmount = Math.min(preliminaryMaxLoanAmount, kotakConfig.maxLoanAmount);
+
+  // ========== PASS 2: Get correct interest rate based on preliminary loan amount ==========
+  const finalInterestRate = interestRate || getInterestRateForLoan(companyCategory, preliminaryLoanAmount);
+
+  console.log(`🔄 Two-Pass Calculation: Preliminary=₹${preliminaryLoanAmount}, Rate=${finalInterestRate}%`);
+
+  // Recalculate FOIR loan amount with final interest rate
+  const foirLoanAmount = calculateLoanAmountFromEMI(availableEMI, finalInterestRate, cappedTenureYears);
+
+  // Take the minimum again with final rate
+  const maxLoanAmount = Math.min(
+    desiredLoanAmount || Infinity,
+    multiplierLoanAmount,
+    foirLoanAmount
+  );
+
+  // Apply bank's maximum loan cap
+  const finalLoanAmount = Math.min(maxLoanAmount, kotakConfig.maxLoanAmount);
+  const loanCapped = maxLoanAmount > kotakConfig.maxLoanAmount;
 
   // ========== BALANCE TRANSFER CALCULATION ==========
   let btFreshAmount = 0;
@@ -265,18 +351,18 @@ export const calculateKotakEligibility = (userData) => {
   }
   // ========== END BT CALCULATION ==========
 
-  // Calculate final EMI for the loan amount using capped tenure and static rate
-  const monthlyEMI = calculateEMI(finalLoanAmount, effectiveInterestRate, cappedTenureYears);
+  // Calculate final EMI for the loan amount using capped tenure and final rate
+  const monthlyEMI = calculateEMI(finalLoanAmount, finalInterestRate, cappedTenureYears);
 
   return {
     eligible: true,
     bankId: kotakConfig.id,
     bankName: kotakConfig.name,
     loanAmount: Math.round(finalLoanAmount),
-    maxLoanCap: absoluteMaxLoan,
+    maxLoanCap: kotakConfig.maxLoanAmount,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(maxLoanAmount) : null,
-    interestRate: effectiveInterestRate,
+    interestRate: finalInterestRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,
     tenureCapped: tenureCapped,
@@ -284,7 +370,7 @@ export const calculateKotakEligibility = (userData) => {
     requestedTenureMonths: requestedTenureMonths,
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
-    category: companyCategory,
+    companyCategory: companyCategory,
     calculationMethod: 'Combined (Multiplier and FOIR)',
     multiplier: multiplier,
     foirPercentage: foirPercentage,
