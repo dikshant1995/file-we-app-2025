@@ -1,7 +1,27 @@
 import { tataConfig } from './config.js';
+import { getBankConfig } from '../../services/bankConfigService';
 
 // Helper: Get interest rate based on category and loan amount
-const getInterestRateForLoan = (category, loanAmount, userData = {}) => {
+const getInterestRateForLoan = (category, loanAmount) => {
+  const rateConfig = getBankConfig('Tata Capital', 'interestRates');
+
+  if (!rateConfig || !rateConfig.categorySlabRates || !rateConfig.categorySlabRates[category]) {
+    return tataConfig.interestRate;
+  }
+
+  const slabs = rateConfig.categorySlabRates[category];
+
+  for (const slabLabel in slabs) {
+    const match = slabLabel.match(/₹(\d+)-(\d+)/);
+    if (match) {
+      const min = parseInt(match[1]);
+      const max = parseInt(match[2]);
+      if (loanAmount >= min && loanAmount <= max) {
+        return slabs[slabLabel];
+      }
+    }
+  }
+
   return tataConfig.interestRate;
 };
 
@@ -102,13 +122,10 @@ export const calculateTataEligibility = (userData) => {
   }
 
   // Check age eligibility
-  const minAge = tataConfig.minAge;
-  const maxAge = tataConfig.maxAge;
-
-  if (age && (age < minAge || age > maxAge)) {
+  if (age && (age < tataConfig.minAge || age > tataConfig.maxAge)) {
     return {
       eligible: false,
-      reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
+      reason: `Age must be between ${tataConfig.minAge} and ${tataConfig.maxAge} years. Current age: ${age}`
     };
   }
 
@@ -138,7 +155,9 @@ export const calculateTataEligibility = (userData) => {
   const requestedTenureMonths = loanTenure * 12;
   const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
 
-  // Check loan tenure
+  // 3. Check credit score - REMOVED as per user requirement
+
+  // 4. Check loan tenure
   if (loanTenure > tataConfig.maxLoanTenure) {
     return {
       eligible: false,
@@ -146,26 +165,10 @@ export const calculateTataEligibility = (userData) => {
     };
   }
 
-  // Check minimum salary requirement based on category
-  const catMinSalary = tataConfig.minSalaryByCategory[category];
-  const effectiveMinSalary = catMinSalary;
-
+  const minSalary = tataConfig.minSalaryByCategory[category];
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
-  if (!effectiveMinSalary || incomeToCheck < effectiveMinSalary) {
-    return { eligible: false, reason: `Minimum salary for ${category} is ₹${effectiveMinSalary?.toLocaleString() || 'N/A'}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
-  }
-
-  // Bank's absolute maximum loan limit
-  const absoluteMaxLoan = tataConfig.maxLoanAmount;
-  const minLoanAmount = 100000;
-
-  // Check minimum loan amount
-  if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
-    return {
-      eligible: false,
-      reason: `Minimum loan amount required by this bank is ₹${minLoanAmount.toLocaleString()}. Requested: ₹${desiredLoanAmount.toLocaleString()}`,
-      isBTMode: isBT
-    };
+  if (!minSalary || incomeToCheck < minSalary) {
+    return { eligible: false, reason: `Minimum salary for ${category} is ₹${minSalary?.toLocaleString() || 'N/A'}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
@@ -206,10 +209,10 @@ export const calculateTataEligibility = (userData) => {
     desiredLoanAmount || Infinity
   );
 
-  const preliminaryCappedLoan = Math.min(preliminaryLoanAmount, absoluteMaxLoan);
+  const preliminaryCappedLoan = Math.min(preliminaryLoanAmount, tataConfig.maxLoanAmount);
 
   // Pass 2: Get correct rate based on preliminary loan amount
-  const finalInterestRate = getInterestRateForLoan(category, preliminaryCappedLoan, userData);
+  const finalInterestRate = getInterestRateForLoan(category, preliminaryCappedLoan);
 
   // Recalculate FOIR loan with final rate
   const foirLoanAmount = calculatePrincipalFromEMI(availableEMI, finalInterestRate, cappedTenureYears);
@@ -221,8 +224,8 @@ export const calculateTataEligibility = (userData) => {
     desiredLoanAmount || Infinity
   );
 
-  const cappedFinalLoan = Math.min(finalLoanAmount, absoluteMaxLoan);
-  const loanCapped = finalLoanAmount > absoluteMaxLoan;
+  const cappedFinalLoan = Math.min(finalLoanAmount, tataConfig.maxLoanAmount);
+  const loanCapped = finalLoanAmount > tataConfig.maxLoanAmount;
 
   let btDetails = null;
   if (isBT) {
@@ -252,8 +255,7 @@ export const calculateTataEligibility = (userData) => {
     bankId: tataConfig.id,
     bankName: tataConfig.name,
     loanAmount: Math.round(cappedFinalLoan),
-    maxLoanAmount: Math.round(cappedFinalLoan),
-    maxLoanCap: absoluteMaxLoan,
+    maxLoanCap: tataConfig.maxLoanAmount,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
     interestRate: finalInterestRate,
