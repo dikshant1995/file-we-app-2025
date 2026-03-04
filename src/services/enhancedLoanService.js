@@ -110,9 +110,31 @@ export const calculateFreshLoan = async (customerInfo) => {
   const results = bankCalculators.map(({ name, calculator }) => {
     try {
       const result = calculator(calculatorInput);
+
+      // --- NEURAL NORMALIZATION BRIDGE ---
+      // Ensures the professional v2.0 UI gets perfectly formatted data
+      const rawMultiplier = result.multiplier || result.details?.multiplier;
+      const rawFOIR = result.foirPercentage || result.details?.foirPercentage;
+
+      // Clean Multiplier (Target: Numeric, e.g., 26)
+      let cleanMultiplier = typeof rawMultiplier === 'string'
+        ? parseFloat(rawMultiplier.replace(/[^0-9.]/g, ''))
+        : rawMultiplier;
+
+      // Clean FOIR/EMI Cap (Target: Percentage 0-100, e.g., 60)
+      let cleanEMICap = 0;
+      if (typeof rawFOIR === 'string') {
+        cleanEMICap = parseFloat(rawFOIR.replace(/[^0-9.]/g, ''));
+      } else if (typeof rawFOIR === 'number') {
+        // If it's a decimal like 0.6, convert to 60. If it's already 60, keep it.
+        cleanEMICap = rawFOIR <= 1 ? rawFOIR * 100 : rawFOIR;
+      }
+
       return {
         bankName: result.bankName || name,
-        ...result
+        ...result,
+        multiplier: cleanMultiplier || 26, // Fallback for breakdown display
+        emiCap: cleanEMICap || 0
       };
     } catch (error) {
       console.error(`Error calculating fresh loan for ${name}:`, error);
