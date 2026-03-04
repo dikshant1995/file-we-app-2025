@@ -1,46 +1,40 @@
 import { useState, useEffect } from 'react';
 import './ConfigEditor.css';
-import { saveBankConfig, getBankConfig, getAllBankConfig } from '../../services/bankConfigService';
+import { saveBankConfig, getBankConfig } from '../../services/bankConfigService';
 
-const LoanCappingEditor = ({ bank, onSave, activeLocation }) => {
+const LoanCappingEditor = ({ bank, onSave }) => {
   const [config, setConfig] = useState({
     absoluteMaxLoan: 5000000,
-    categoryBasedMax: { A: null, B: 3000000, C: 2000000, D: 1000000 },
-    employmentTypeMax: { salaried: null, selfEmployed: 3000000 },
-    bachelorCapping: { enabled: true, percentage: 50 },
+    categoryBasedMax: {
+      A: null,
+      B: 3000000,
+      C: 2000000,
+      D: 1000000
+    },
+    employmentTypeMax: {
+      salaried: null,
+      selfEmployed: 3000000
+    },
+    bachelorCapping: {
+      enabled: true,
+      percentage: 50
+    },
     minLoanAmount: 100000
   });
-  const [locationOverrides, setLocationOverrides] = useState({});
 
-  // Load saved config on mount or when bank/location prop changes
+  // Load saved config on mount
   useEffect(() => {
-    // 1. Load full bank config to get available overrides
-    const fullConfig = getAllBankConfig(bank.name);
-    setLocationOverrides(fullConfig.locationOverrides?.loanCapping || {});
-
-    // 2. Load specific config based on activeLocation
-    const context = {
-      state: activeLocation ? activeLocation.state : null,
-      city: activeLocation ? activeLocation.city : null
-    };
-    const savedConfig = getBankConfig(bank.name, 'loanCapping', context);
-
+    const savedConfig = getBankConfig(bank.name, 'loanCapping');
     if (savedConfig) {
       setConfig(savedConfig);
     }
-  }, [bank.name, activeLocation]);
+  }, [bank.name]);
 
   const handleSave = () => {
-    const locationKey = activeLocation ? (activeLocation.city || activeLocation.state) : null;
-    const success = saveBankConfig(bank.name, 'loanCapping', config, locationKey);
+    const success = saveBankConfig(bank.name, 'loanCapping', config);
     if (success) {
       onSave && onSave(config);
-      alert(`✅ Loan capping rules saved for ${bank.name} (${locationKey || 'All India'})!`);
-
-      // Refresh overrides list if we added a new one
-      if (locationKey && !locationOverrides[locationKey]) {
-        setLocationOverrides({ ...locationOverrides, [locationKey]: config });
-      }
+      alert(`✅ Loan capping rules saved for ${bank.name}!`);
     } else {
       alert(`❌ Failed to save. Please try again.`);
     }
@@ -50,20 +44,7 @@ const LoanCappingEditor = ({ bank, onSave, activeLocation }) => {
     <div className="config-editor">
       <div className="editor-header">
         <h2>💰 Loan Amount Capping - {bank.name}</h2>
-        <p>Configuring for: <strong>{activeLocation ? (activeLocation.city || activeLocation.state) : 'All India (National)'}</strong></p>
-      </div>
-
-      <div className="existing-overrides-badges">
-        <span className="badge-label">Available Overrides (this section):</span>
-        {Object.keys(locationOverrides).length > 0 ? (
-          Object.keys(locationOverrides).map(loc => (
-            <span key={loc} className={`loc-badge ${(activeLocation && (activeLocation.state === loc || activeLocation.city === loc)) ? 'active' : ''}`}>
-              📍 {loc}
-            </span>
-          ))
-        ) : (
-          <span className="no-overrides">No location rules set yet. Use the top selector to add.</span>
-        )}
+        <p>Configure maximum and minimum loan amounts for different scenarios</p>
       </div>
 
       {/* Absolute Max & Min */}
@@ -72,10 +53,10 @@ const LoanCappingEditor = ({ bank, onSave, activeLocation }) => {
         <div className="category-grid">
           <div className="input-group">
             <label>Absolute Maximum Loan (₹)</label>
-            <input
+            <input 
               type="number"
               value={config.absoluteMaxLoan}
-              onChange={(e) => setConfig({ ...config, absoluteMaxLoan: parseInt(e.target.value) })}
+              onChange={(e) => setConfig({...config, absoluteMaxLoan: parseInt(e.target.value)})}
               className="config-input"
             />
             <span className="input-hint">No loan can exceed this amount</span>
@@ -83,10 +64,10 @@ const LoanCappingEditor = ({ bank, onSave, activeLocation }) => {
 
           <div className="input-group">
             <label>Minimum Loan Amount (₹)</label>
-            <input
+            <input 
               type="number"
               value={config.minLoanAmount}
-              onChange={(e) => setConfig({ ...config, minLoanAmount: parseInt(e.target.value) })}
+              onChange={(e) => setConfig({...config, minLoanAmount: parseInt(e.target.value)})}
               className="config-input"
             />
             <span className="input-hint">Reject loans below this amount</span>
@@ -98,16 +79,16 @@ const LoanCappingEditor = ({ bank, onSave, activeLocation }) => {
       <div className="config-section">
         <h3>📊 Category-Based Maximum</h3>
         <div className="category-grid">
-          {Object.keys(config?.categoryBasedMax || {}).map(cat => (
+          {Object.keys(config.categoryBasedMax).map(cat => (
             <div key={cat} className="input-group">
               <label>Category {cat} Max (₹)</label>
-              <input
+              <input 
                 type="number"
-                value={config?.categoryBasedMax?.[cat] || ''}
+                value={config.categoryBasedMax[cat] || ''}
                 onChange={(e) => setConfig({
                   ...config,
                   categoryBasedMax: {
-                    ...(config?.categoryBasedMax || {}),
+                    ...config.categoryBasedMax,
                     [cat]: e.target.value === '' ? null : parseInt(e.target.value)
                   }
                 })}
@@ -125,13 +106,13 @@ const LoanCappingEditor = ({ bank, onSave, activeLocation }) => {
         <div className="category-grid">
           <div className="input-group">
             <label>Salaried Max (₹)</label>
-            <input
+            <input 
               type="number"
-              value={config?.employmentTypeMax?.salaried || ''}
+              value={config.employmentTypeMax.salaried || ''}
               onChange={(e) => setConfig({
                 ...config,
                 employmentTypeMax: {
-                  ...(config?.employmentTypeMax || {}),
+                  ...config.employmentTypeMax,
                   salaried: e.target.value === '' ? null : parseInt(e.target.value)
                 }
               })}
@@ -142,13 +123,13 @@ const LoanCappingEditor = ({ bank, onSave, activeLocation }) => {
 
           <div className="input-group">
             <label>Self-Employed Max (₹)</label>
-            <input
+            <input 
               type="number"
-              value={config?.employmentTypeMax?.selfEmployed || ''}
+              value={config.employmentTypeMax.selfEmployed || ''}
               onChange={(e) => setConfig({
                 ...config,
                 employmentTypeMax: {
-                  ...(config?.employmentTypeMax || {}),
+                  ...config.employmentTypeMax,
                   selfEmployed: e.target.value === '' ? null : parseInt(e.target.value)
                 }
               })}
@@ -165,12 +146,12 @@ const LoanCappingEditor = ({ bank, onSave, activeLocation }) => {
         <div className="category-grid">
           <div className="input-group">
             <label>Enable Bachelor Capping</label>
-            <select
-              value={config?.bachelorCapping?.enabled || false}
+            <select 
+              value={config.bachelorCapping.enabled}
               onChange={(e) => setConfig({
                 ...config,
                 bachelorCapping: {
-                  ...(config?.bachelorCapping || {}),
+                  ...config.bachelorCapping,
                   enabled: e.target.value === 'true'
                 }
               })}
@@ -183,18 +164,18 @@ const LoanCappingEditor = ({ bank, onSave, activeLocation }) => {
 
           <div className="input-group">
             <label>Bachelor Capping %</label>
-            <input
+            <input 
               type="number"
-              value={config?.bachelorCapping?.percentage || 0}
+              value={config.bachelorCapping.percentage}
               onChange={(e) => setConfig({
                 ...config,
                 bachelorCapping: {
-                  ...(config?.bachelorCapping || {}),
+                  ...config.bachelorCapping,
                   percentage: parseInt(e.target.value)
                 }
               })}
               className="config-input"
-              disabled={!config?.bachelorCapping?.enabled}
+              disabled={!config.bachelorCapping.enabled}
             />
             <span className="input-hint">% of regular loan amount</span>
           </div>
@@ -215,7 +196,7 @@ const LoanCappingEditor = ({ bank, onSave, activeLocation }) => {
           </div>
           <div className="preview-card">
             <div className="preview-label">Bachelor Capping</div>
-            <div className="preview-value">{config?.bachelorCapping?.enabled ? config?.bachelorCapping?.percentage + '%' : 'OFF'}</div>
+            <div className="preview-value">{config.bachelorCapping.enabled ? config.bachelorCapping.percentage + '%' : 'OFF'}</div>
           </div>
         </div>
       </div>

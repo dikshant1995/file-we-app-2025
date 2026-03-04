@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import './ConfigEditor.css';
-import { saveBankConfig, getBankConfig, getAllBankConfig } from '../../services/bankConfigService';
+import { saveBankConfig, getBankConfig } from '../../services/bankConfigService';
 
 // Bank-specific category definitions
 const bankCategoryDefaults = {
@@ -307,34 +307,24 @@ const bankCategoryDefaults = {
   }
 };
 
-const CategoriesEditor = ({ bank, onSave, activeLocation }) => {
+const CategoriesEditor = ({ bank, onSave }) => {
   // Get bank-specific default categories
   const getBankDefaults = () => {
     return bankCategoryDefaults[bank.name] || bankCategoryDefaults['Default'];
   };
 
   const [categories, setCategories] = useState(getBankDefaults());
-  const [locationOverrides, setLocationOverrides] = useState({});
 
-  // Load saved config when bank or activeLocation prop changes
+  // Load saved config on mount or when bank changes
   useEffect(() => {
-    // 1. Load full bank config to get available overrides list
-    const fullConfig = getAllBankConfig(bank.name);
-    setLocationOverrides(fullConfig.locationOverrides?.categories || {});
-
-    // 2. Load specific categories based on activeLocation prop
-    const context = {
-      state: activeLocation ? activeLocation.state : null,
-      city: activeLocation ? activeLocation.city : null
-    };
-    const savedConfig = getBankConfig(bank.name, 'categories', context);
-
+    const savedConfig = getBankConfig(bank.name, 'categories');
     if (savedConfig) {
       setCategories(savedConfig);
     } else {
+      // Use bank-specific defaults
       setCategories(getBankDefaults());
     }
-  }, [bank.name, activeLocation]);
+  }, [bank.name]);
 
   const updateCategory = (cat, field, value) => {
     setCategories({
@@ -360,16 +350,10 @@ const CategoriesEditor = ({ bank, onSave, activeLocation }) => {
   };
 
   const handleSave = () => {
-    const locationKey = activeLocation ? (activeLocation.city || activeLocation.state) : null;
-    const success = saveBankConfig(bank.name, 'categories', categories, locationKey);
+    const success = saveBankConfig(bank.name, 'categories', categories);
     if (success) {
       onSave && onSave(categories);
-      alert(`✅ Category configuration saved for ${bank.name} (${locationKey || 'All India'})!`);
-
-      // Refresh overrides list
-      if (locationKey && !locationOverrides[locationKey]) {
-        setLocationOverrides({ ...locationOverrides, [locationKey]: categories });
-      }
+      alert(`✅ Category configuration saved for ${bank.name}!`);
     } else {
       alert(`❌ Failed to save. Please try again.`);
     }
@@ -379,33 +363,20 @@ const CategoriesEditor = ({ bank, onSave, activeLocation }) => {
     <div className="config-editor">
       <div className="editor-header">
         <h2>📊 Category Configuration - {bank.name}</h2>
-        <p>Configuring for: <strong>{activeLocation ? (activeLocation.city || activeLocation.state) : 'All India (National)'}</strong></p>
+        <p>Configure salary categories ({Object.keys(categories).join(', ')}) and their eligibility rules</p>
       </div>
 
-      <div className="existing-overrides-badges">
-        <span className="badge-label">Available Overrides (this section):</span>
-        {Object.keys(locationOverrides).length > 0 ? (
-          Object.keys(locationOverrides).map(loc => (
-            <span key={loc} className={`loc-badge ${(activeLocation && (activeLocation.state === loc || activeLocation.city === loc)) ? 'active' : ''}`}>
-              📍 {loc}
-            </span>
-          ))
-        ) : (
-          <span className="no-overrides">No location rules set yet. Use the top selector to add.</span>
-        )}
-      </div>
-
-      {Object.keys(categories || {}).map(cat => (
+      {Object.keys(categories).map(cat => (
         <div key={cat} className="config-section">
           <h3>Category {cat}</h3>
-
-          <div className="category-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
+          
+          <div className="category-grid" style={{gridTemplateColumns: 'repeat(2, 1fr)'}}>
             {/* Salary Range */}
             <div className="input-group">
               <label>Minimum Salary (₹)</label>
-              <input
+              <input 
                 type="number"
-                value={categories?.[cat]?.salaryRange?.min || ''}
+                value={categories[cat].salaryRange.min || ''}
                 onChange={(e) => updateSalaryRange(cat, 'min', e.target.value)}
                 className="config-input"
                 placeholder="e.g., 25000"
@@ -414,9 +385,9 @@ const CategoriesEditor = ({ bank, onSave, activeLocation }) => {
 
             <div className="input-group">
               <label>Maximum Salary (₹)</label>
-              <input
+              <input 
                 type="number"
-                value={categories?.[cat]?.salaryRange?.max || ''}
+                value={categories[cat].salaryRange.max || ''}
                 onChange={(e) => updateSalaryRange(cat, 'max', e.target.value)}
                 className="config-input"
                 placeholder="No limit"
@@ -427,9 +398,9 @@ const CategoriesEditor = ({ bank, onSave, activeLocation }) => {
             {/* FOIR */}
             <div className="input-group">
               <label>FOIR %</label>
-              <input
+              <input 
                 type="number"
-                value={categories?.[cat]?.foir || 0}
+                value={categories[cat].foir}
                 onChange={(e) => updateCategory(cat, 'foir', parseInt(e.target.value))}
                 className="config-input"
               />
@@ -439,9 +410,9 @@ const CategoriesEditor = ({ bank, onSave, activeLocation }) => {
             {/* Multiplier */}
             <div className="input-group">
               <label>Salary Multiplier</label>
-              <input
+              <input 
                 type="number"
-                value={categories?.[cat]?.multiplier || 0}
+                value={categories[cat].multiplier}
                 onChange={(e) => updateCategory(cat, 'multiplier', parseInt(e.target.value))}
                 className="config-input"
               />
@@ -451,9 +422,9 @@ const CategoriesEditor = ({ bank, onSave, activeLocation }) => {
             {/* Max Tenure */}
             <div className="input-group">
               <label>Max Tenure (Months)</label>
-              <input
+              <input 
                 type="number"
-                value={categories?.[cat]?.maxTenureMonths || 0}
+                value={categories[cat].maxTenureMonths}
                 onChange={(e) => updateCategory(cat, 'maxTenureMonths', parseInt(e.target.value))}
                 className="config-input"
               />
@@ -462,9 +433,9 @@ const CategoriesEditor = ({ bank, onSave, activeLocation }) => {
             {/* Max Loan Amount */}
             <div className="input-group">
               <label>Max Loan Amount (₹)</label>
-              <input
+              <input 
                 type="number"
-                value={categories?.[cat]?.maxLoanAmount || ''}
+                value={categories[cat].maxLoanAmount || ''}
                 onChange={(e) => updateCategory(cat, 'maxLoanAmount', e.target.value === '' ? null : parseInt(e.target.value))}
                 className="config-input"
                 placeholder="No limit"
@@ -476,9 +447,9 @@ const CategoriesEditor = ({ bank, onSave, activeLocation }) => {
           {/* Description */}
           <div className="input-group">
             <label>Category Description</label>
-            <input
+            <input 
               type="text"
-              value={categories?.[cat]?.description || ''}
+              value={categories[cat].description}
               onChange={(e) => updateCategory(cat, 'description', e.target.value)}
               className="config-input"
             />
@@ -490,14 +461,14 @@ const CategoriesEditor = ({ bank, onSave, activeLocation }) => {
       <div className="config-preview">
         <h3>👀 Quick Preview</h3>
         <div className="preview-grid">
-          {Object.keys(categories || {}).map(cat => (
+          {Object.keys(categories).map(cat => (
             <div key={cat} className="preview-card">
               <div className="preview-label">Category {cat}</div>
-              <div className="preview-value" style={{ fontSize: '1.5em' }}>
-                ₹{(categories?.[cat]?.salaryRange?.min || 0).toLocaleString('en-IN')}+
+              <div className="preview-value" style={{fontSize: '1.5em'}}>
+                ₹{categories[cat].salaryRange.min?.toLocaleString('en-IN')}+
               </div>
-              <div style={{ fontSize: '0.9em', marginTop: '10px' }}>
-                FOIR: {categories?.[cat]?.foir || 0}% | {categories?.[cat]?.multiplier || 0}x
+              <div style={{fontSize: '0.9em', marginTop: '10px'}}>
+                FOIR: {categories[cat].foir}% | {categories[cat].multiplier}x
               </div>
             </div>
           ))}
