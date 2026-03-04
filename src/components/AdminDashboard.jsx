@@ -7,44 +7,47 @@ import ImportExport from './admin/ImportExport';
 import AuditLog from './admin/AuditLog';
 import AddBankModal from './admin/AddBankModal';
 import BlogManager from './admin/BlogManager';
-import LocationOverrideManager from './admin/LocationOverrideManager';
-import ExperienceManager from './admin/ExperienceManager';
 import LeadManager from './admin/LeadManager';
 import UserManager from './admin/UserManager';
 import AdminLogin from './admin/AdminLogin';
-import { indianStates, stateCityData } from '../data/locationData';
+import AdminLocationSelector from './admin/AdminLocationSelector';
 import { auth, db } from '../config/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { getAllBankConfig } from '../services/bankConfigService';
-import { LogOut, User, Layout, FileText, MapPin, Settings, BarChart2, Database, ShieldCheck, Zap, UserPlus } from 'lucide-react';
+import { doc, getDoc } from 'firebase/firestore';
+import { LogOut, User, Layout, FileText, MapPin, Settings, BarChart2, Database, ShieldCheck, Zap, UserPlus, TrendingUp, Shield, Layers, Users, FileMinus } from 'lucide-react';
 
 const AdminDashboard = ({ onBackToCustomer }) => {
-  const [activeMenu, setActiveMenu] = useState('region-setup');
+  const [activeMenu, setActiveMenu] = useState('leads'); // Default to leads for employees
+  const [selectedLocation, setSelectedLocation] = useState({ state: '', city: '' });
   const [selectedBank, setSelectedBank] = useState(null);
   const [showAddBankModal, setShowAddBankModal] = useState(false);
   const [customBanks, setCustomBanks] = useState([]);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeLocation, setActiveLocation] = useState(null); // {state, city} or null for global
-  const [isLocationLocked, setIsLocationLocked] = useState(false);
-  const [tempState, setTempState] = useState('');
-  const [tempCity, setTempCity] = useState('');
+
+  // Persistence of custom banks (if any)
+  useEffect(() => {
+    const stored = localStorage.getItem('laxmi_custom_banks');
+    if (stored) setCustomBanks(JSON.parse(stored));
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        // Fetch user profile from Firestore
         const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
         if (userDoc.exists()) {
-          setUser(userDoc.data());
+          const userData = userDoc.data();
+          setUser(userData);
+          // If CEO/Manager, they might want to start with institutional overview
+          if (userData.role !== 'employee') {
+            // setActiveMenu('banks');
+          }
         }
       } else {
         setUser(null);
       }
       setLoading(false);
     });
-
     return () => unsubscribe();
   }, []);
 
@@ -58,253 +61,153 @@ const AdminDashboard = ({ onBackToCustomer }) => {
   };
 
   const menuItems = [
-    { id: 'region-setup', icon: <MapPin size={18} stroke="#00d4ff" strokeWidth={2.5} />, label: 'Region Setup', component: 'RegionSetup' },
-    { id: 'user-management', icon: <UserPlus size={18} stroke="#00d4ff" strokeWidth={2.5} />, label: 'Nexus Control (Users)', component: 'UserManager' },
-    { id: 'leads', icon: <Layout size={18} stroke="#00d4ff" strokeWidth={2.5} />, label: 'Customer Lead Pipeline', component: 'LeadManager' },
-    { id: 'banks', icon: <Database size={18} stroke="#00d4ff" strokeWidth={2.5} />, label: 'Institutional Overview', component: 'BankList' },
-    { id: 'locations', icon: <MapPin size={18} stroke="#00d4ff" strokeWidth={2.5} />, label: 'City-Wise Overrides', component: 'LocationOverrideManager' },
-    { id: 'blog', icon: <FileText size={18} stroke="#00d4ff" strokeWidth={2.5} />, label: 'Neural Hub (Blogs)', component: 'BlogManager' },
-    { id: 'experience', icon: <Zap size={18} stroke="#00d4ff" strokeWidth={2.5} />, label: 'Experience Protocol', component: 'ExperienceManager' },
-    { id: 'config', icon: <Settings size={18} stroke="#00d4ff" strokeWidth={2.5} />, label: 'Generic Configuration', component: 'BankConfigEditor' },
-    { id: 'categories', icon: '', label: 'Categorization Models', component: 'BankConfigEditor', section: 'categories' },
-    { id: 'interest', icon: '', label: 'Rate Structures', component: 'BankConfigEditor', section: 'interest' },
-    { id: 'loan-capping', icon: '', label: 'Capital Capping', component: 'BankConfigEditor', section: 'loanCapping' },
-    { id: 'age-rules', icon: '', label: 'Demographic Rules', component: 'BankConfigEditor', section: 'ageRules' },
-    { id: 'tenure', icon: '', label: 'Tenure Optimization', component: 'BankConfigEditor', section: 'tenureRules' },
-    { id: 'foir', icon: '', label: 'FOIR Parameters', component: 'BankConfigEditor', section: 'foir' },
-    { id: 'multiplier', icon: '', label: 'Multiplier Logic', component: 'BankConfigEditor', section: 'multiplier' },
-    { id: 'bt', icon: '', label: 'Liability Consolidation', component: 'BankConfigEditor', section: 'bt' },
-    { id: 'credit-score', icon: '', label: 'Risk Assessment', component: 'BankConfigEditor', section: 'creditScore' },
-    { id: 'employment', icon: '', label: 'Employment Credentialing', component: 'BankConfigEditor', section: 'employment' },
-    { id: 'documents', icon: '', label: 'Documentation Protocol', component: 'BankConfigEditor', section: 'documents' },
-    { id: 'special', icon: '', label: 'Exceptional Policies', component: 'BankConfigEditor', section: 'special' },
-    { id: 'fees', icon: '', label: 'Fee Schedules', component: 'BankConfigEditor', section: 'fees' },
-    { id: 'analytics', icon: <BarChart2 size={18} stroke="#00d4ff" strokeWidth={2.5} />, label: 'Strategic Analytics', component: 'Analytics' },
-    { id: 'import-export', icon: <ShieldCheck size={18} stroke="#00d4ff" strokeWidth={2.5} />, label: 'Data Governance', component: 'ImportExport' },
-    { id: 'audit', icon: <ShieldCheck size={18} stroke="#00d4ff" strokeWidth={2.5} />, label: 'Governance Logs', component: 'AuditLog' }
+    { id: 'leads', icon: <Users size={18} stroke="#00d4ff" />, label: 'Lead Management', component: 'LeadManager' },
+    { id: 'banks', icon: <Database size={18} stroke="#00d4ff" />, label: 'Institutional Overview', component: 'BankList' },
+    { id: 'config', icon: <Settings size={18} stroke="#00d4ff" />, label: 'Generic Configuration', component: 'BankConfigEditor' },
+    { id: 'categories', icon: <Layers size={18} stroke="#00d4ff" />, label: 'Categorization Models', component: 'BankConfigEditor', section: 'categories' },
+    { id: 'interest', icon: <TrendingUp size={18} stroke="#00d4ff" />, label: 'Rate Structures', component: 'BankConfigEditor', section: 'interest' },
+    { id: 'loan-capping', icon: <Zap size={18} stroke="#00d4ff" />, label: 'Capital Capping', component: 'BankConfigEditor', section: 'loanCapping' },
+    { id: 'age-rules', icon: <User size={18} stroke="#00d4ff" />, label: 'Demographic Rules', component: 'BankConfigEditor', section: 'ageRules' },
+    { id: 'tenure', icon: <Zap size={18} stroke="#00d4ff" />, label: 'Tenure Optimization', component: 'BankConfigEditor', section: 'tenureRules' },
+    { id: 'foir', icon: <Shield size={18} stroke="#00d4ff" />, label: 'FOIR Parameters', component: 'BankConfigEditor', section: 'foir' },
+    { id: 'multiplier', icon: <Zap size={18} stroke="#00d4ff" />, label: 'Multiplier Logic', component: 'BankConfigEditor', section: 'multiplier' },
+    { id: 'bt', icon: <Zap size={18} stroke="#00d4ff" />, label: 'Liability Consolidation', component: 'BankConfigEditor', section: 'bt' },
+    { id: 'credit-score', icon: <Shield size={18} stroke="#00d4ff" />, label: 'Risk Assessment', component: 'BankConfigEditor', section: 'creditScore' },
+    { id: 'employment', icon: <Zap size={18} stroke="#00d4ff" />, label: 'Employment Credentialing', component: 'BankConfigEditor', section: 'employment' },
+    { id: 'documents', icon: <FileText size={18} stroke="#00d4ff" />, label: 'Documentation Protocol', component: 'BankConfigEditor', section: 'documents' },
+    { id: 'special', icon: <Zap size={18} stroke="#00d4ff" />, label: 'Exceptional Policies', component: 'BankConfigEditor', section: 'special' },
+    { id: 'fees', icon: <Zap size={18} stroke="#00d4ff" />, label: 'Fee Schedules', component: 'BankConfigEditor', section: 'fees' },
+    { id: 'blog', icon: <FileText size={18} stroke="#00d4ff" />, label: 'Financial Hub Manager', component: 'BlogManager' },
+    { id: 'user-management', icon: <UserPlus size={18} stroke="#00d4ff" />, label: 'Nexus Control', component: 'UserManager' },
+    { id: 'analytics', icon: <BarChart2 size={18} stroke="#00d4ff" />, label: 'Strategic Analytics', component: 'Analytics' },
+    { id: 'import-export', icon: <ShieldCheck size={18} stroke="#00d4ff" />, label: 'Data Migration', component: 'ImportExport' },
+    { id: 'audit', icon: <ShieldCheck size={18} stroke="#00d4ff" />, label: 'Governance Logs', component: 'AuditLog' }
   ];
 
   const renderContent = () => {
-    const activeItem = menuItems.find(item => item.id === activeMenu);
+    // Level 0 Dashboard: Global/Lead Management (No Hierarchy Required)
+    if (activeMenu === 'leads') return <LeadManager userRole={user.role} />;
+    if (activeMenu === 'blog') return <BlogManager />;
+    if (activeMenu === 'user-management') return <UserManager />;
+    if (activeMenu === 'analytics') return <Analytics />;
+    if (activeMenu === 'import-export') return <ImportExport />;
+    if (activeMenu === 'audit') return <AuditLog />;
 
-    // Level 0 Dashboard: Region Setup
-    if (activeItem?.id === 'region-setup') {
+    // 🛡️ HIERARCHY GATE 1: Location Selection (For all policy/bank menus)
+    if (!selectedLocation.state || !selectedLocation.city) {
       return (
-        <div className="region-setup-container">
-          <div className="gateway-card glass-morphism integrated">
-            <div className="gateway-header">
-              <MapPin className="gateway-icon animate-pulse" />
-              <h2>Neural Gateway: Regional Audit</h2>
-              <p>Initialize operating region to activate institutional policies</p>
+        <div className="hierarchy-placeholder">
+          <div className="neural-card glass-panel">
+            <div className="pulse-icon-container">
+              <MapPin size={48} className="animate-pulse" color="#00d4ff" />
             </div>
-
-            <div className="gateway-form">
-              <div className="input-group">
-                <label>Target State</label>
-                <select
-                  value={tempState}
-                  onChange={(e) => { setTempState(e.target.value); setTempCity(''); }}
-                  className="gateway-input"
-                >
-                  <option value="">Select State...</option>
-                  <option value="Global">🌐 All India (National Default)</option>
-                  {indianStates.map(s => <option key={s} value={s}>{s}</option>)}
-                </select>
-              </div>
-
-              {tempState && tempState !== 'Global' && stateCityData[tempState] && (
-                <div className="input-group">
-                  <label>Target City (Optional)</label>
-                  <select
-                    value={tempCity}
-                    onChange={(e) => setTempCity(e.target.value)}
-                    className="gateway-input"
-                  >
-                    <option value="">Specific City (Optional)...</option>
-                    {stateCityData[tempState].map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                </div>
-              )}
-
-              <button
-                className="btn-gateway-go"
-                disabled={!tempState}
-                onClick={() => {
-                  if (tempState === 'Global') {
-                    setActiveLocation(null);
-                  } else {
-                    setActiveLocation({ state: tempState, city: tempCity });
-                  }
-                  setIsLocationLocked(true);
-                  setActiveMenu('banks'); // BOOM: Unlock banks
-                }}
-              >
-                Lock Operating Region & Go →
-              </button>
+            <h2>Geographical Context Required</h2>
+            <p className="subtitle">Please select a State and City to activate local policy layers.</p>
+            <div className="selector-wrapper mt-8">
+              <AdminLocationSelector
+                activeLocation={selectedLocation}
+                onLocationChange={(loc) => setSelectedLocation(loc)}
+              />
             </div>
-
-            <div className="gateway-footer">
-              <ShieldCheck size={14} />
-              <span>Secure Session: RSA-256 Encrypted Audit</span>
+            <div className="neural-handshake-status mt-6">
+              <span className="dot"></span> Waiting for Location Lock...
             </div>
           </div>
         </div>
       );
     }
 
+    // 🛡️ HIERARCHY GATE 2: Bank Selection (For granular editors)
+    const isGranularEditor = ['config', 'categories', 'interest', 'loan-capping', 'age-rules', 'tenure', 'foir', 'multiplier', 'bt', 'credit-score', 'employment', 'documents', 'special', 'fees'].includes(activeMenu);
+
+    if (isGranularEditor && !selectedBank) {
+      return (
+        <div className="hierarchy-placeholder">
+          <div className="neural-card glass-panel">
+            <div className="pulse-icon-container">
+              <Database size={48} className="animate-pulse" color="#00ff88" />
+            </div>
+            <h2>Institutional Target Required</h2>
+            <p className="subtitle">Location Context: <strong>{selectedLocation.city}, {selectedLocation.state}</strong></p>
+            <p className="hint">Initialize bank selection from the Institutional Overview to access policy editors.</p>
+            <button className="btn-save mt-8" onClick={() => setActiveMenu('banks')}>
+              Proceed to Institutional Overview
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    const activeItem = menuItems.find(item => item.id === activeMenu);
+
     switch (activeItem?.component) {
       case 'BankList':
         return <BankList
           customBanks={customBanks}
-          activeLocation={activeLocation || {}}
           onSelectBank={(bank) => {
             setSelectedBank(bank);
             setActiveMenu('config');
           }}
           onAddBank={() => setShowAddBankModal(true)}
         />;
-      case 'LeadManager':
-        return <LeadManager userRole={user?.role} />;
-      case 'UserManager':
-        return <UserManager />;
-      case 'BlogManager':
-        return <BlogManager />;
-      case 'ExperienceManager':
-        return <ExperienceManager />;
-      case 'LocationOverrideManager':
-        if (!selectedBank) {
-          return (
-            <div className="no-bank-selected">
-              <div className="empty-state">
-                <div className="empty-icon">🏦</div>
-                <h3>Institutional Mandate Required</h3>
-                <p>Please select a specific Bank from the Institutional Overview to manage its regional overrides.</p>
-                <button className="btn-select-bank" onClick={() => setActiveMenu('banks')}>
-                  Go to Banks Overview
-                </button>
-              </div>
-            </div>
-          );
-        }
-
-        const bankConfig = getAllBankConfig(selectedBank.name);
-        const allLocationNames = new Set();
-        if (bankConfig.locationOverrides) {
-          Object.values(bankConfig.locationOverrides).forEach(sectionOverrides => {
-            Object.keys(sectionOverrides).forEach(locName => allLocationNames.add(locName));
-          });
-        }
-
-        const overridesObj = {};
-        allLocationNames.forEach(name => overridesObj[name] = true);
-
-        return <LocationOverrideManager
-          overrides={overridesObj}
-          activeLocation={activeLocation ? (activeLocation.city || activeLocation.state) : null}
-          onSelectLocation={(loc) => {
-            if (!loc) setActiveLocation(null);
-            else {
-              setActiveLocation({ state: loc, city: loc });
-            }
-          }}
-          onAddLocation={(loc) => {
-            setActiveLocation({ state: loc, city: loc });
-            alert(`Location override for "${loc}" initialized.\n\nPlease navigate to the specific Policy sections (Multiplier, BT, etc.) to define local parameters.`);
-          }}
-          onRemoveLocation={(loc) => {
-            if (activeLocation?.city === loc || activeLocation?.state === loc) {
-              setActiveLocation(null);
-            }
-            alert(`Location override for "${loc}" removed from the active session.`);
-          }}
-        />;
       case 'BankConfigEditor':
         return <BankConfigEditor
           selectedBank={selectedBank}
           section={activeItem.section}
-          activeLocation={activeLocation || {}}
-          onNavigate={(id) => setActiveMenu(id)}
+          activeLocation={selectedLocation}
         />;
-      case 'Analytics':
-        return <Analytics />;
-      case 'ImportExport':
-        return <ImportExport />;
-      case 'AuditLog':
-        return <AuditLog />;
       default:
-        return <div>Select a menu item</div>;
+        return <div>Component under development</div>;
     }
   };
 
-  if (loading) {
-    return (
-      <div className="admin-loading">
-        <div className="loader"></div>
-        <p>Syncing Neural Networks...</p>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <AdminLogin onLoginSuccess={(userData) => setUser(userData)} />;
-  }
-
-  const handleBankAdded = (newBank) => {
-    setCustomBanks([...customBanks, newBank]);
-    alert(`Institution "${newBank.name}" initialized successfully with standard regulatory frameworks.`);
-  };
+  if (loading) return <div className="neural-loading">Syncing Neural Networks...</div>;
+  if (!user) return <AdminLogin onLoginSuccess={(u) => setUser(u)} />;
 
   return (
     <div className="admin-dashboard professional-grid-bg">
       {showAddBankModal && (
         <AddBankModal
           onClose={() => setShowAddBankModal(false)}
-          onBankAdded={handleBankAdded}
+          onBankAdded={(newBank) => setCustomBanks([...customBanks, newBank])}
         />
       )}
-      <header className="dashboard-header">
+
+      <header className="dashboard-header glass-panel">
         <div className="header-content">
           <div className="header-left">
-            <button className="btn-back-portal" onClick={onBackToCustomer}>
-              ← Back to Portal
-            </button>
-            <h1>{menuItems.find(i => i.id === activeMenu)?.label || "Bank Governance"}</h1>
+            <button className="btn-back-portal" onClick={onBackToCustomer}>← Return to Portal</button>
+            <div className="neural-brand">LAXMI NEURAL CORE v2.0</div>
           </div>
-          <div className="header-right header-user-info">
-            <div className="user-badge">
-              <User size={16} stroke="#00d4ff" strokeWidth={2.5} />
-              <span>{user.displayName || user.email}</span>
-              <span className="role-tag">{user.role?.toUpperCase()}</span>
+          <div className="header-right">
+            <div className="presence-metadata">
+              {selectedLocation.state && (
+                <div className="loc-badge">📍 {selectedLocation.city}, {selectedLocation.state}</div>
+              )}
+              <div className="user-entity-badge">
+                <div className="entity-icon">👤</div>
+                <div className="entity-info">
+                  <span className="entity-name">{user.displayName || 'System Admin'}</span>
+                  <span className={`entity-role ${user.role}`}>{user.role?.toUpperCase()}</span>
+                </div>
+              </div>
             </div>
-            <button className="btn-logout" onClick={handleLogout} title="Sign Out">
-              <LogOut size={18} stroke="#ff4444" strokeWidth={2.5} />
+            <button className="btn-logout-neural" onClick={handleLogout} title="Sever Connection">
+              <LogOut size={18} />
             </button>
           </div>
         </div>
       </header>
 
       <div className="dashboard-container">
-        <aside className="dashboard-sidebar">
-          <div className="sidebar-content">
-            <h3>Navigation</h3>
+        <aside className="dashboard-sidebar glass-panel">
+          <div className="sidebar-scrollable">
+            <div className="sidebar-group-label">PRIMARY CONTROL</div>
             <nav className="sidebar-menu">
               {menuItems.map(item => {
-                if (user.role === 'employee' && item.id !== 'leads') return null;
+                // Role-based filtering
+                if (user.role === 'employee' && !['leads', 'blog'].includes(item.id)) return null;
                 if (item.id === 'user-management' && user.role !== 'ceo') return null;
-
-                // --- TRIPLE-LOCK VISIBILITY LOGIC ---
-
-                // Level 0: Always show (Leads, Blogs, Region Setup)
-                const isLevel0 = ['leads', 'blog', 'region-setup', 'analytics', 'import-export', 'audit'].includes(item.id);
-
-                // Level 1: Institutional Overview (Unlock after Region Lock)
-                const isLevel1 = item.id === 'banks' || item.id === 'locations';
-
-                // Level 2: Policy Editors (Unlock after Bank Selection)
-                const isLevel2 = item.component === 'BankConfigEditor' || item.id === 'experience';
-
-                if (isLevel1 && !isLocationLocked) return null;
-                if (isLevel2 && !selectedBank) return null;
 
                 return (
                   <button
@@ -318,30 +221,27 @@ const AdminDashboard = ({ onBackToCustomer }) => {
                 );
               })}
             </nav>
+            {selectedLocation.state && (
+              <div className="sidebar-footer-action">
+                <button className="btn-reset-context" onClick={() => { setSelectedLocation({ state: '', city: '' }); setSelectedBank(null); }}>
+                  🔄 Reset Context
+                </button>
+              </div>
+            )}
           </div>
         </aside>
 
         <main className="dashboard-main">
-          {isLocationLocked && (
-            <div className="operating-region-banner">
-              <div className="region-info">
-                <MapPin size={14} />
-                <span>Region: <strong>{activeLocation ? (activeLocation.city || activeLocation.state) : 'All India (National)'}</strong></span>
+          {selectedBank && ['config', 'categories', 'interest', 'loan-capping', 'age-rules', 'tenure', 'foir', 'multiplier', 'bt', 'credit-score', 'employment', 'documents', 'special', 'fees'].includes(activeMenu) && (
+            <div className="active-context-banner glass-panel">
+              <div className="context-visual">
+                <span className="ctx-item">🏦 {selectedBank.name}</span>
+                <span className="ctx-divider">|</span>
+                <span className="ctx-item">📍 {selectedLocation.city}, {selectedLocation.state}</span>
               </div>
-              <div className="region-actions">
-                {selectedBank && activeMenu !== 'banks' && activeMenu !== 'analytics' && activeMenu !== 'import-export' && activeMenu !== 'audit' && (
-                  <>
-                    <span className="editing-tag">| Editing: <strong>{selectedBank.name}</strong></span>
-                    <button className="btn-banner-action" onClick={() => setActiveMenu('banks')}>Change Bank</button>
-                  </>
-                )}
-                <button className="btn-banner-action reset" onClick={() => { setIsLocationLocked(false); setSelectedBank(null); }}>
-                  Change Region
-                </button>
-              </div>
+              <button className="btn-change-bank-small" onClick={() => setActiveMenu('banks')}>Change Institution</button>
             </div>
           )}
-
           <div className="content-area">
             {renderContent()}
           </div>
