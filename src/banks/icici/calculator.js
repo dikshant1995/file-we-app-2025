@@ -1,4 +1,5 @@
 import { iciciConfig } from './config.js';
+import { getBankConfig } from '../../services/bankConfigService';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -136,9 +137,10 @@ export const calculateIciciEligibility = (userData) => {
     }
   }
 
-  // Check age eligibility
-  const minAge = iciciConfig.minAge;
-  const maxAge = iciciConfig.maxAge;
+  // Check age eligibility - Use dynamic config from admin dashboard
+  const ageConfig = getBankConfig('ICICI Bank', 'ageRules');
+  const minAge = ageConfig ? ageConfig.minAge : iciciConfig.minAge;
+  const maxAge = ageConfig ? ageConfig.maxAge : iciciConfig.maxAge;
 
   if (age && (age < minAge || age > maxAge)) {
     return {
@@ -147,7 +149,7 @@ export const calculateIciciEligibility = (userData) => {
     };
   }
 
-  // Use user-provided interest rate or default
+  // Use user-provided interest rate or default to bank config
   const effectiveInterestRate = interestRate || iciciConfig.interestRate;
 
   // Check employment type
@@ -180,27 +182,12 @@ export const calculateIciciEligibility = (userData) => {
   const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
 
   // Check minimum salary requirement based on category
-  const catMinSalary = iciciConfig.minSalary[companyCategory];
-  const effectiveMinSalary = catMinSalary;
-
+  const categoryMinSalary = iciciConfig.minSalary[companyCategory];
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
-  if (incomeToCheck < effectiveMinSalary) {
+  if (incomeToCheck < categoryMinSalary) {
     return {
       eligible: false,
-      reason: `Minimum monthly income required for ${companyCategory} category is ₹${effectiveMinSalary.toLocaleString()}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`,
-      isBTMode: isBT
-    };
-  }
-
-  // Bank's absolute maximum loan limit
-  const absoluteMaxLoan = iciciConfig.maxLoanAmount;
-  const minLoanAmount = 100000;
-
-  // Check minimum loan amount
-  if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
-    return {
-      eligible: false,
-      reason: `Minimum loan amount required by this bank is ₹${minLoanAmount.toLocaleString()}. Requested: ₹${desiredLoanAmount.toLocaleString()}`,
+      reason: `Minimum monthly income required for ${companyCategory} category is ₹${categoryMinSalary.toLocaleString()}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`,
       isBTMode: isBT
     };
   }
@@ -230,8 +217,8 @@ export const calculateIciciEligibility = (userData) => {
   );
 
   // Apply bank's maximum loan cap
-  const finalLoanAmount = Math.min(maxLoanAmount, absoluteMaxLoan);
-  const loanCapped = maxLoanAmount > absoluteMaxLoan;
+  const finalLoanAmount = Math.min(maxLoanAmount, iciciConfig.maxLoanAmount);
+  const loanCapped = maxLoanAmount > iciciConfig.maxLoanAmount;
 
   // ========== BALANCE TRANSFER CALCULATION ==========
   let btDetails = null;
@@ -268,7 +255,7 @@ export const calculateIciciEligibility = (userData) => {
     bankId: iciciConfig.id,
     bankName: iciciConfig.name,
     loanAmount: Math.round(finalLoanAmount),
-    maxLoanCap: absoluteMaxLoan,
+    maxLoanCap: iciciConfig.maxLoanAmount,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(maxLoanAmount) : null,
     interestRate: effectiveInterestRate,
@@ -279,7 +266,7 @@ export const calculateIciciEligibility = (userData) => {
     requestedTenureMonths: requestedTenureMonths,
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
-    category: companyCategory,
+    companyCategory: companyCategory,
     calculationMethod: 'FOIR-based',
     foirPercentage: foirPercentage,
     details: {
