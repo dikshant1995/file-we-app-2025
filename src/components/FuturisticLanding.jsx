@@ -508,8 +508,20 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
       {/* ===== FOOTER ===== */}
       <footer className="holo-footer">
         <div className="footer-line" />
-        <p>© 2025 LoanAI Model — Engineered by <span className="text-glow">Dikshant Singh Rathore</span></p>
-        <p className="footer-sub">Powered by Advanced Neural Intelligence • Secured by 256-bit Encryption</p>
+        <div className="footer-content">
+          <p>© 2025 LoanAI Model — Engineered by <span className="text-glow">Dikshant Singh Rathore</span></p>
+          <p className="footer-sub">Powered by Advanced Neural Intelligence • Secured by 256-bit Encryption</p>
+        </div>
+        <motion.button
+          className="admin-access-trigger"
+          onClick={handleAdminButtonClick}
+          whileHover={{ scale: 1.1, rotate: 5 }}
+          whileTap={{ scale: 0.9 }}
+          title="Root Access"
+        >
+          <Lock size={14} />
+          <div className="trigger-pulse" />
+        </motion.button>
       </footer>
 
       {/* Neural AI Chatbot */}
