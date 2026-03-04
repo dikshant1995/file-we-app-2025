@@ -3,7 +3,7 @@ import './ConfigEditor.css';
 import { saveBankConfig, getBankConfig } from '../../services/bankConfigService';
 
 // Age Rules Editor
-export const AgeRulesEditor = ({ bank, onSave }) => {
+export const AgeRulesEditor = ({ bank, onSave, location }) => {
   const [config, setConfig] = useState({
     minAge: 21,
     maxAge: 60,
@@ -13,17 +13,17 @@ export const AgeRulesEditor = ({ bank, onSave }) => {
 
   // Load saved config on mount
   useEffect(() => {
-    const savedConfig = getBankConfig(bank.name, 'ageRules');
+    const savedConfig = getBankConfig(bank.name, 'ageRules', location);
     if (savedConfig) {
       setConfig(savedConfig);
     }
-  }, [bank.name]);
+  }, [bank.name, location]);
 
   const handleSave = () => {
-    const success = saveBankConfig(bank.name, 'ageRules', config);
+    const success = saveBankConfig(bank.name, 'ageRules', config, location);
     if (success) {
       onSave && onSave(config);
-      alert(`Demographic parameters successfully committed for ${bank.name}.`);
+      alert(`Demographic parameters successfully committed for ${bank.name}${location ? ` in ${location}` : ''}.`);
     } else {
       alert(`System Error: Transaction failed. Please retry.`);
     }
@@ -62,7 +62,7 @@ export const AgeRulesEditor = ({ bank, onSave }) => {
 };
 
 // Tenure Rules Editor
-export const TenureRulesEditor = ({ bank, onSave }) => {
+export const TenureRulesEditor = ({ bank, onSave, location }) => {
   const [config, setConfig] = useState({
     minTenureMonths: 12,
     maxTenureMonths: 84,
@@ -70,12 +70,12 @@ export const TenureRulesEditor = ({ bank, onSave }) => {
   });
 
   useEffect(() => {
-    const savedConfig = getBankConfig(bank.name, 'tenureRules');
+    const savedConfig = getBankConfig(bank.name, 'tenureRules', location);
     if (savedConfig) setConfig(savedConfig);
-  }, [bank.name]);
+  }, [bank.name, location]);
 
   const handleSave = () => {
-    if (saveBankConfig(bank.name, 'tenureRules', config)) {
+    if (saveBankConfig(bank.name, 'tenureRules', config, location)) {
       onSave && onSave(config);
       alert(`Tenure structural logic successfully committed for ${bank.name}.`);
     }
@@ -112,7 +112,7 @@ export const TenureRulesEditor = ({ bank, onSave }) => {
 };
 
 // FOIR Editor
-export const FoirEditor = ({ bank, onSave }) => {
+export const FoirEditor = ({ bank, onSave, location }) => {
   const [config, setConfig] = useState({
     categoryBasedFOIR: { A: 65, B: 60, C: 55, D: 50 },
     creditCardObligationPercentage: 5,
@@ -120,12 +120,12 @@ export const FoirEditor = ({ bank, onSave }) => {
   });
 
   useEffect(() => {
-    const savedConfig = getBankConfig(bank.name, 'foirSettings');
+    const savedConfig = getBankConfig(bank.name, 'foirSettings', location);
     if (savedConfig) setConfig(savedConfig);
-  }, [bank.name]);
+  }, [bank.name, location]);
 
   const handleSave = () => {
-    if (saveBankConfig(bank.name, 'foirSettings', config)) {
+    if (saveBankConfig(bank.name, 'foirSettings', config, location)) {
       onSave && onSave(config);
       alert(`FOIR thresholds successfully committed for ${bank.name}.`);
     }
@@ -158,19 +158,19 @@ export const FoirEditor = ({ bank, onSave }) => {
 };
 
 // Multiplier Editor
-export const MultiplierEditor = ({ bank, onSave }) => {
+export const MultiplierEditor = ({ bank, onSave, location }) => {
   const [config, setConfig] = useState({
     categoryBasedMultiplier: { A: 35, B: 30, C: 25, D: 20 },
     employmentTypeMultiplier: { salaried: 1.0, selfEmployed: 0.8 }
   });
 
   useEffect(() => {
-    const savedConfig = getBankConfig(bank.name, 'multiplierRules');
+    const savedConfig = getBankConfig(bank.name, 'multiplierRules', location);
     if (savedConfig) setConfig(savedConfig);
-  }, [bank.name]);
+  }, [bank.name, location]);
 
   const handleSave = () => {
-    if (saveBankConfig(bank.name, 'multiplierRules', config)) {
+    if (saveBankConfig(bank.name, 'multiplierRules', config, location)) {
       onSave && onSave(config);
       alert(`Multiplier algorithms successfully committed for ${bank.name}.`);
     }
@@ -199,7 +199,7 @@ export const MultiplierEditor = ({ bank, onSave }) => {
 };
 
 // BT Configuration Editor
-export const BTEditor = ({ bank, onSave }) => {
+export const BTEditor = ({ bank, onSave, location }) => {
   const [config, setConfig] = useState({
     enabled: true,
     maxLoansForBT: 3,
@@ -209,12 +209,12 @@ export const BTEditor = ({ bank, onSave }) => {
   });
 
   useEffect(() => {
-    const savedConfig = getBankConfig(bank.name, 'btConfiguration');
+    const savedConfig = getBankConfig(bank.name, 'btConfiguration', location);
     if (savedConfig) setConfig(savedConfig);
-  }, [bank.name]);
+  }, [bank.name, location]);
 
   const handleSave = () => {
-    if (saveBankConfig(bank.name, 'btConfiguration', config)) {
+    if (saveBankConfig(bank.name, 'btConfiguration', config, location)) {
       onSave && onSave(config);
       alert(`Liability consolidation framework successfully committed for ${bank.name}.`);
     }
@@ -259,7 +259,7 @@ export const BTEditor = ({ bank, onSave }) => {
 };
 
 // Credit Score Editor
-export const CreditScoreEditor = ({ bank, onSave }) => {
+export const CreditScoreEditor = ({ bank, onSave, location }) => {
   const [config, setConfig] = useState({
     minCreditScore: 650,
     recommendedScore: 700,
@@ -268,12 +268,12 @@ export const CreditScoreEditor = ({ bank, onSave }) => {
   });
 
   useEffect(() => {
-    const savedConfig = getBankConfig(bank.name, 'creditScoreRules');
+    const savedConfig = getBankConfig(bank.name, 'creditScoreRules', location);
     if (savedConfig) setConfig(savedConfig);
-  }, [bank.name]);
+  }, [bank.name, location]);
 
   const handleSave = () => {
-    if (saveBankConfig(bank.name, 'creditScoreRules', config)) {
+    if (saveBankConfig(bank.name, 'creditScoreRules', config, location)) {
       onSave && onSave(config);
       alert(`Risk assessment thresholds successfully committed for ${bank.name}.`);
     }
@@ -312,7 +312,7 @@ export const CreditScoreEditor = ({ bank, onSave }) => {
 };
 
 // Employment & Fees Combined
-export const EmploymentEditor = ({ bank, onSave }) => {
+export const EmploymentEditor = ({ bank, onSave, location }) => {
   const [config, setConfig] = useState({
     salariedMinSalary: 25000,
     selfEmployedMinIncome: 300000,
@@ -320,12 +320,12 @@ export const EmploymentEditor = ({ bank, onSave }) => {
   });
 
   useEffect(() => {
-    const savedConfig = getBankConfig(bank.name, 'employmentRules');
+    const savedConfig = getBankConfig(bank.name, 'employmentRules', location);
     if (savedConfig) setConfig(savedConfig);
-  }, [bank.name]);
+  }, [bank.name, location]);
 
   const handleSave = () => {
-    if (saveBankConfig(bank.name, 'employmentRules', config)) {
+    if (saveBankConfig(bank.name, 'employmentRules', config, location)) {
       onSave && onSave(config);
       alert(`Employment credentialing logic successfully committed for ${bank.name}.`);
     }
@@ -359,7 +359,7 @@ export const EmploymentEditor = ({ bank, onSave }) => {
   );
 };
 
-export const FeesEditor = ({ bank, onSave }) => {
+export const FeesEditor = ({ bank, onSave, location }) => {
   const [config, setConfig] = useState({
     processingFeePercentage: 3.5,
     btChargesPercentage: 1.5,
@@ -367,12 +367,12 @@ export const FeesEditor = ({ bank, onSave }) => {
   });
 
   useEffect(() => {
-    const savedConfig = getBankConfig(bank.name, 'feesAndCharges');
+    const savedConfig = getBankConfig(bank.name, 'feesAndCharges', location);
     if (savedConfig) setConfig(savedConfig);
-  }, [bank.name]);
+  }, [bank.name, location]);
 
   const handleSave = () => {
-    if (saveBankConfig(bank.name, 'feesAndCharges', config)) {
+    if (saveBankConfig(bank.name, 'feesAndCharges', config, location)) {
       onSave && onSave(config);
       alert(`Fee schedules and capital charges successfully committed for ${bank.name}.`);
     }
