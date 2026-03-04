@@ -97,15 +97,11 @@ export const calculateCholaEligibility = (userData) => {
     }
   }
 
-  // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('Cholamandalam Finance', 'ageRules', { state: userData.state, city: userData.city });
-  const minAge = ageConfig ? ageConfig.minAge : cholaConfig.minAge;
-  const maxAge = ageConfig ? ageConfig.maxAge : cholaConfig.maxAge;
-
-  if (age && (age < minAge || age > maxAge)) {
+  // Check age eligibility
+  if (age && (age < cholaConfig.minAge || age > cholaConfig.maxAge)) {
     return {
       eligible: false,
-      reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
+      reason: `Age must be between ${cholaConfig.minAge} and ${cholaConfig.maxAge} years. Current age: ${age}`
     };
   }
 
@@ -151,26 +147,10 @@ export const calculateCholaEligibility = (userData) => {
     };
   }
 
-  // Check minimum salary requirement based on category
-  const catMinSalary = cholaConfig.minSalary[category];
-  const effectiveMinSalary = catMinSalary;
-
+  const minSalary = cholaConfig.minSalary[category];
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
-  if (!effectiveMinSalary || incomeToCheck < effectiveMinSalary) {
-    return { eligible: false, reason: `Minimum salary for ${category} is ₹${effectiveMinSalary?.toLocaleString() || 'N/A'}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
-  }
-
-  // Bank's absolute maximum loan limit
-  const absoluteMaxLoan = cholaConfig.maxLoanAmount;
-  const minLoanAmount = 100000;
-
-  // Check minimum loan amount
-  if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
-    return {
-      eligible: false,
-      reason: `Minimum loan amount required by this bank is ₹${minLoanAmount.toLocaleString()}. Requested: ₹${desiredLoanAmount.toLocaleString()}`,
-      isBTMode: isBT
-    };
+  if (!minSalary || incomeToCheck < minSalary) {
+    return { eligible: false, reason: `Minimum salary for ${category} is ₹${minSalary?.toLocaleString() || 'N/A'}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
@@ -192,11 +172,8 @@ export const calculateCholaEligibility = (userData) => {
     };
   }
 
-  // Use default interest rate
-  const dynamicRate = cholaConfig.interestRate;
-
   // 8. Calculate loan amount from available EMI using capped tenure
-  const calculatedLoanAmount = calculatePrincipalFromEMI(availableEMI, dynamicRate, cappedTenureYears);
+  const calculatedLoanAmount = calculatePrincipalFromEMI(availableEMI, cholaConfig.interestRate, cappedTenureYears);
 
   // 9. Final loan = minimum of calculated and desired
   const finalLoanAmount = Math.min(
@@ -204,8 +181,8 @@ export const calculateCholaEligibility = (userData) => {
     desiredLoanAmount || Infinity
   );
 
-  const cappedFinalLoan = Math.min(finalLoanAmount, absoluteMaxLoan);
-  const loanCapped = finalLoanAmount > absoluteMaxLoan;
+  const cappedFinalLoan = Math.min(finalLoanAmount, cholaConfig.maxLoanAmount);
+  const loanCapped = finalLoanAmount > cholaConfig.maxLoanAmount;
 
   let btDetails = null;
   if (isBT) {
@@ -235,11 +212,10 @@ export const calculateCholaEligibility = (userData) => {
     bankId: cholaConfig.id,
     bankName: cholaConfig.name,
     loanAmount: Math.round(cappedFinalLoan),
-    maxLoanAmount: Math.round(cappedFinalLoan),
-    maxLoanCap: absoluteMaxLoan,
+    maxLoanCap: cholaConfig.maxLoanAmount,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
-    interestRate: dynamicRate,
+    interestRate: cholaConfig.interestRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,
     tenureCapped: tenureCapped,
