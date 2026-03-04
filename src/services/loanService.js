@@ -7,7 +7,7 @@ const BANK_RULES = [
     maxLoanTenure: 30,
     incomeMultiplier: 15,
     foirPercentage: 0.5,
-    interestRate: 8.5,
+    interestRate: 11.0,
     processingFee: 0.01,
     category: "A"
   },
@@ -18,9 +18,9 @@ const BANK_RULES = [
     maxLoanTenure: 25,
     incomeMultiplier: 18,
     foirPercentage: 0.55,
-    interestRate: 8.2,
+    interestRate: 11.0,
     processingFee: 0.008,
-    companyCategory: "A"
+    category: "A"
   },
   {
     id: 3,
@@ -29,9 +29,9 @@ const BANK_RULES = [
     maxLoanTenure: 20,
     incomeMultiplier: 12,
     foirPercentage: 0.45,
-    interestRate: 9.0,
+    interestRate: 11.0,
     processingFee: 0.012,
-    companyCategory: "B"
+    category: "B"
   },
   {
     id: 4,
@@ -40,9 +40,9 @@ const BANK_RULES = [
     maxLoanTenure: 30,
     incomeMultiplier: 20,
     foirPercentage: 0.6,
-    interestRate: 8.0,
+    interestRate: 11.0,
     processingFee: 0.007,
-    companyCategory: "A"
+    category: "A"
   },
   {
     id: 5,
@@ -51,9 +51,9 @@ const BANK_RULES = [
     maxLoanTenure: 15,
     incomeMultiplier: 10,
     foirPercentage: 0.4,
-    interestRate: 9.5,
+    interestRate: 11.0,
     processingFee: 0.015,
-    companyCategory: "C"
+    category: "C"
   },
   {
     id: 6,
@@ -62,9 +62,9 @@ const BANK_RULES = [
     maxLoanTenure: 35,
     incomeMultiplier: 22,
     foirPercentage: 0.65,
-    interestRate: 7.8,
+    interestRate: 11.0,
     processingFee: 0.005,
-    companyCategory: "A"
+    category: "A"
   },
   {
     id: 7,
@@ -73,9 +73,9 @@ const BANK_RULES = [
     maxLoanTenure: 25,
     incomeMultiplier: 14,
     foirPercentage: 0.48,
-    interestRate: 8.8,
+    interestRate: 11.0,
     processingFee: 0.011,
-    companyCategory: "B"
+    category: "B"
   },
   {
     id: 8,
@@ -84,9 +84,9 @@ const BANK_RULES = [
     maxLoanTenure: 20,
     incomeMultiplier: 16,
     foirPercentage: 0.52,
-    interestRate: 8.6,
+    interestRate: 11.0,
     processingFee: 0.009,
-    companyCategory: "B"
+    category: "B"
   },
   {
     id: 9,
@@ -95,9 +95,9 @@ const BANK_RULES = [
     maxLoanTenure: 30,
     incomeMultiplier: 19,
     foirPercentage: 0.58,
-    interestRate: 8.1,
+    interestRate: 11.0,
     processingFee: 0.0075,
-    companyCategory: "A"
+    category: "A"
   },
   {
     id: 10,
@@ -106,9 +106,9 @@ const BANK_RULES = [
     maxLoanTenure: 15,
     incomeMultiplier: 11,
     foirPercentage: 0.42,
-    interestRate: 9.3,
+    interestRate: 11.0,
     processingFee: 0.013,
-    companyCategory: "C"
+    category: "C"
   },
   {
     id: 11,
@@ -117,9 +117,9 @@ const BANK_RULES = [
     maxLoanTenure: 25,
     incomeMultiplier: 17,
     foirPercentage: 0.54,
-    interestRate: 8.3,
+    interestRate: 11.0,
     processingFee: 0.0085,
-    companyCategory: "B"
+    category: "B"
   },
   {
     id: 12,
@@ -128,9 +128,9 @@ const BANK_RULES = [
     maxLoanTenure: 40,
     incomeMultiplier: 25,
     foirPercentage: 0.7,
-    interestRate: 7.5,
+    interestRate: 11.0,
     processingFee: 0.004,
-    companyCategory: "A"
+    category: "A"
   },
   {
     id: 13,
@@ -139,9 +139,9 @@ const BANK_RULES = [
     maxLoanTenure: 20,
     incomeMultiplier: 13,
     foirPercentage: 0.46,
-    interestRate: 8.9,
+    interestRate: 11.0,
     processingFee: 0.0125,
-    companyCategory: "C"
+    category: "C"
   },
   {
     id: 14,
@@ -150,9 +150,9 @@ const BANK_RULES = [
     maxLoanTenure: 30,
     incomeMultiplier: 18,
     foirPercentage: 0.55,
-    interestRate: 8.4,
+    interestRate: 11.0,
     processingFee: 0.0095,
-    companyCategory: "B"
+    category: "B"
   }
 ];
 
@@ -217,7 +217,7 @@ const checkBankEligibility = (userData, bankRule) => {
   // Check credit score
   if (creditScore && creditScore < bankRule.minCreditScore) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `Minimum credit score required is ${bankRule.minCreditScore}`
     };
   }
@@ -225,16 +225,9 @@ const checkBankEligibility = (userData, bankRule) => {
   // Check loan tenure
   if (loanTenure > bankRule.maxLoanTenure) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `Maximum loan tenure is ${bankRule.maxLoanTenure} years`
     };
-  }
-
-  // Check company category
-  const userCompanyCategory = getCompanyCategory(companyName);
-  if (userCompanyCategory !== bankRule.companyCategory && bankRule.companyCategory !== "A") {
-    // If bank requires specific category and user doesn't match (except for A category banks which are more inclusive)
-    // For simplicity, we'll allow all for A category banks
   }
 
   // Calculate FOIR-based loan amount
@@ -256,13 +249,14 @@ const checkBankEligibility = (userData, bankRule) => {
   // Check if EMI is within FOIR limits
   if (monthlyEMI > eligibleEMI) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `EMI of ₹${monthlyEMI.toLocaleString()} exceeds FOIR limit of ₹${eligibleEMI.toLocaleString()}`
     };
   }
 
   return {
-    isEligible: true,
+    eligible: true,
+    loanAmount: Math.round(maxLoanAmount),
     maxLoanAmount: Math.round(maxLoanAmount),
     interestRate: bankRule.interestRate,
     monthlyEMI: Math.round(monthlyEMI),
@@ -275,12 +269,28 @@ import { bankCalculators } from '../banks/calculators.js';
 // Function to calculate loan eligibility by calling bank-specific calculators
 export const calculateLoanEligibility = async (userData) => {
   try {
-    // In a real implementation, this would call the backend API
-    // For now, we'll simulate the calculation using our bank calculators
+    // PRE-PROCESSING: Calculate Balance Transfer totals if in BT mode
+    const processedUserData = { ...userData };
+
+    if (userData.wantsBT && userData.loansForBT && userData.loansForBT.length > 0) {
+      console.log('🔄 loanService - Processing Balance Transfer Totals');
+
+      const btTotalEMI = userData.loansForBT.reduce((sum, loan) =>
+        sum + (parseFloat(loan.monthlyEMI) || 0), 0);
+
+      const btTotalOutstanding = userData.loansForBT.reduce((sum, loan) =>
+        sum + (parseFloat(loan.outstandingAmount) || parseFloat(loan.creditLimitUsed) || 0), 0);
+
+      processedUserData.isBTMode = true;
+      processedUserData.btTotalEMI = btTotalEMI;
+      processedUserData.btTotalOutstanding = btTotalOutstanding;
+
+      console.log('📊 BT Totals Calculated:', { btTotalEMI, btTotalOutstanding });
+    }
 
     // Process each bank's calculation
     const results = bankCalculators.map(calculator => {
-      return calculator(userData);
+      return calculator(processedUserData);
     });
 
     // Simulate API delay

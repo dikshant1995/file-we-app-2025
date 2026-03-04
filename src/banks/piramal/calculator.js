@@ -88,7 +88,7 @@ export const calculatePiramalEligibility = (userData) => {
     const creditCardDeduction = creditCardObligation || 0;
     adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
     if (adjustedIncome <= 0) {
-      return { isEligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains`, isBTMode: true };
+      return { eligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains`, isBTMode: true };
     }
   }
 
@@ -101,19 +101,20 @@ export const calculatePiramalEligibility = (userData) => {
 
     if (hasExistingPiramalLoan) {
       return {
-        isEligible: false,
+        eligible: false,
         reason: 'As an existing customer of Piramal Finance with an active personal loan, you are not eligible for a new loan from this bank'
       };
     }
   }
 
-  // Check age eligibility
-  const minAge = piramalConfig.minAge;
-  const maxAge = piramalConfig.maxAge;
+  // Check age eligibility - Use dynamic config from admin dashboard
+  const ageConfig = getBankConfig('Piramal Finance', 'ageRules', { state: userData.state, city: userData.city });
+  const minAge = ageConfig ? ageConfig.minAge : piramalConfig.minAge;
+  const maxAge = ageConfig ? ageConfig.maxAge : piramalConfig.maxAge;
 
   if (age && (age < minAge || age > maxAge)) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
     };
   }
@@ -121,7 +122,7 @@ export const calculatePiramalEligibility = (userData) => {
   // Check employment type
   if (!piramalConfig.employmentTypes.includes(employmentType)) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `Employment type ${employmentType} not supported by Piramal Finance`
     };
   }
@@ -130,7 +131,7 @@ export const calculatePiramalEligibility = (userData) => {
   const maxTenureForCategory = piramalConfig.maxTenureByCategory[category];
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `No loans available for Category ${category}`
     };
   }
@@ -147,7 +148,7 @@ export const calculatePiramalEligibility = (userData) => {
   // Check loan tenure
   if (loanTenure > piramalConfig.maxLoanTenure) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `Maximum loan tenure is ${piramalConfig.maxLoanTenure} years`
     };
   }
@@ -157,7 +158,7 @@ export const calculatePiramalEligibility = (userData) => {
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < effectiveMinSalary) {
-    return { isEligible: false, reason: `Minimum NTH salary of ₹${effectiveMinSalary.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+    return { eligible: false, reason: `Minimum NTH salary of ₹${effectiveMinSalary.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
   // Bank's absolute maximum loan limit
@@ -167,7 +168,7 @@ export const calculatePiramalEligibility = (userData) => {
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `Minimum loan amount required by this bank is ₹${minLoanAmount.toLocaleString()}. Requested: ₹${desiredLoanAmount.toLocaleString()}`,
       isBTMode: isBT
     };
@@ -177,7 +178,7 @@ export const calculatePiramalEligibility = (userData) => {
   const foirPercentage = getNTHBand(incomeForCalculation, piramalConfig.nthFoirTable);
 
   if (foirPercentage === null) {
-    return { isEligible: false, reason: `No FOIR available for NTH ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
+    return { eligible: false, reason: `No FOIR available for NTH ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
   }
 
   const foirCap = incomeForCalculation * foirPercentage;
@@ -186,7 +187,7 @@ export const calculatePiramalEligibility = (userData) => {
 
   if (availableEMI <= 0) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `Existing EMI (₹${existingEMI.toLocaleString()}) exceeds FOIR limit of ₹${Math.round(foirCap).toLocaleString()}`
     };
   }
@@ -214,7 +215,7 @@ export const calculatePiramalEligibility = (userData) => {
   if (isBT) {
     const btFreshAmount = cappedFinalLoan - btTotalOutstanding;
     if (btFreshAmount < 0) {
-      return { isEligible: false, reason: `BT Outstanding (₹${btTotalOutstanding.toLocaleString()}) exceeds max loan (₹${Math.round(cappedFinalLoan).toLocaleString()})`, isBTMode: true };
+      return { eligible: false, reason: `BT Outstanding (₹${btTotalOutstanding.toLocaleString()}) exceeds max loan (₹${Math.round(cappedFinalLoan).toLocaleString()})`, isBTMode: true };
     }
     btDetails = {
       isBTMode: true,
@@ -234,7 +235,7 @@ export const calculatePiramalEligibility = (userData) => {
   const monthlyEMI = calculateEMI(cappedFinalLoan, dynamicRate, cappedTenureYears);
 
   return {
-    isEligible: true,
+    eligible: true,
     bankId: piramalConfig.id,
     bankName: piramalConfig.name,
     loanAmount: Math.round(cappedFinalLoan),

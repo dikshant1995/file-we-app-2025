@@ -139,7 +139,7 @@ export const calculateKotakEligibility = (userData) => {
 
     if (adjustedIncome <= 0) {
       return {
-        isEligible: false,
+        eligible: false,
         reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains for Balance Transfer`,
         isBTMode: true
       };
@@ -156,7 +156,7 @@ export const calculateKotakEligibility = (userData) => {
 
     if (hasExistingKotakLoan) {
       return {
-        isEligible: false,
+        eligible: false,
         reason: 'As an existing customer of Kotak Mahindra Bank with an active personal loan, you are not eligible for a new loan from this bank'
       };
     }
@@ -168,7 +168,7 @@ export const calculateKotakEligibility = (userData) => {
 
   if (age && (age < minAge || age > maxAge)) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
     };
   }
@@ -179,7 +179,7 @@ export const calculateKotakEligibility = (userData) => {
   // Check employment type
   if (!kotakConfig.employmentTypes.includes(employmentType)) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `Employment type ${employmentType} not supported by this bank`
     };
   }
@@ -191,7 +191,7 @@ export const calculateKotakEligibility = (userData) => {
   const maxTenureForCategory = kotakConfig.maxTenureByCategory[companyCategory];
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `No loans available for Category ${companyCategory}`
     };
   }
@@ -211,7 +211,7 @@ export const calculateKotakEligibility = (userData) => {
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < catMinSalary) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `Minimum monthly income required is ₹${catMinSalary.toLocaleString()} for Category ${companyCategory}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`,
       isBTMode: isBT
     };
@@ -224,7 +224,7 @@ export const calculateKotakEligibility = (userData) => {
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `Minimum loan amount required by this bank is ₹${minLoanAmount.toLocaleString()}. Requested: ₹${desiredLoanAmount.toLocaleString()}`,
       isBTMode: isBT
     };
@@ -243,7 +243,7 @@ export const calculateKotakEligibility = (userData) => {
 
     if (btFreshAmount < 0) {
       return {
-        isEligible: false,
+        eligible: false,
         reason: `BT Outstanding (₹${btTotalOutstanding.toLocaleString()}) exceeds maximum eligible loan amount (₹${Math.round(finalLoanAmount).toLocaleString()})`,
         isBTMode: true
       };
@@ -269,11 +269,10 @@ export const calculateKotakEligibility = (userData) => {
   const monthlyEMI = calculateEMI(finalLoanAmount, effectiveInterestRate, cappedTenureYears);
 
   return {
-    isEligible: true,
+    eligible: true,
     bankId: kotakConfig.id,
     bankName: kotakConfig.name,
     loanAmount: Math.round(finalLoanAmount),
-    maxLoanAmount: Math.round(finalLoanAmount),
     maxLoanCap: absoluteMaxLoan,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(maxLoanAmount) : null,

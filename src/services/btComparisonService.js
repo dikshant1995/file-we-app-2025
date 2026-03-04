@@ -12,7 +12,7 @@
  */
 export const compareBTResults = (btResults) => {
   // Filter only eligible banks
-  const eligibleBanks = btResults.filter(bank => bank.isEligible);
+  const eligibleBanks = btResults.filter(bank => bank.eligible);
 
   if (eligibleBanks.length === 0) {
     return {
@@ -62,7 +62,7 @@ export const compareBTResults = (btResults) => {
     allEligibleBanks: eligibleBanks,
 
     // Rejection summary
-    rejectedBanks: btResults.filter(bank => !bank.isEligible).map(bank => ({
+    rejectedBanks: btResults.filter(bank => !bank.eligible).map(bank => ({
       bankName: bank.bankName,
       reason: bank.reason
     }))
@@ -174,11 +174,15 @@ const findBestOverall = (eligibleBanks) => {
     const emi = bank.newSingleEMI || bank.newBTLoanEMI;
 
     // Normalize values (0-100 scale)
-    const maxFresh = Math.max(...eligibleBanks.map(b => b.freshAmountDisbursed));
-    const minEMI = Math.min(...eligibleBanks.map(b => b.newSingleEMI || b.newBTLoanEMI));
-    const maxEMI = Math.max(...eligibleBanks.map(b => b.newSingleEMI || b.newBTLoanEMI));
-    const minRate = Math.min(...eligibleBanks.map(b => b.interestRate));
-    const maxRate = Math.max(...eligibleBanks.map(b => b.interestRate));
+    const freshFundsList = eligibleBanks.map(b => b.freshAmountDisbursed || 0);
+    const emiList = eligibleBanks.map(b => b.newSingleEMI || b.newBTLoanEMI || b.monthlyEMI || 0);
+    const rateList = eligibleBanks.map(b => b.interestRate || 11.0);
+
+    const maxFresh = freshFundsList.length > 0 ? Math.max(...freshFundsList) : 0;
+    const minEMI = emiList.length > 0 ? Math.min(...emiList) : 0;
+    const maxEMI = emiList.length > 0 ? Math.max(...emiList) : 0;
+    const minRate = rateList.length > 0 ? Math.min(...rateList) : 0;
+    const maxRate = rateList.length > 0 ? Math.max(...rateList) : 0;
 
     // Check if all banks have same interest rate
     const allSameRate = maxRate === minRate;

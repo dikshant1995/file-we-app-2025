@@ -28,6 +28,10 @@ import { piramalConfig } from '../banks/piramal/config.js';
 
 /**
  * Calculate EMI for a given loan amount, interest rate, and tenure
+ * @param {number} principal - Loan amount
+ * @param {number} annualInterestRate - Annual interest rate (percentage)
+ * @param {number} tenureInYears - Loan tenure in years
+ * @returns {number} Monthly EMI
  */
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
   const monthlyInterestRate = annualInterestRate / 12 / 100;
@@ -45,14 +49,39 @@ const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
 };
 
 /**
- * Calculate Fresh Loan Eligibility
+ * Calculate loan amount from EMI, interest rate, and tenure
+ * @param {number} emi - Monthly EMI
+ * @param {number} annualInterestRate - Annual interest rate (percentage)
+ * @param {number} tenureInYears - Loan tenure in years
+ * @returns {number} Loan amount
+ */
+const calculateLoanAmountFromEMI = (emi, annualInterestRate, tenureInYears) => {
+  const monthlyInterestRate = annualInterestRate / 12 / 100;
+  const numberOfMonths = tenureInYears * 12;
+
+  if (monthlyInterestRate === 0) {
+    return emi * numberOfMonths;
+  }
+
+  const loanAmount = emi *
+    (Math.pow(1 + monthlyInterestRate, numberOfMonths) - 1) /
+    (monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfMonths));
+
+  return Math.round(loanAmount);
+};
+
+/**
+ * Calculate Fresh Loan Eligibility (without BT)
+ * @param {Object} customerInfo - Customer financial information
+ * @returns {Promise<Array>} Results from all banks for fresh loan
  */
 export const calculateFreshLoan = async (customerInfo) => {
+  // Transform form data to match calculator expectations
   const calculatorInput = {
     desiredLoanAmount: customerInfo.desiredLoanAmount ? parseFloat(customerInfo.desiredLoanAmount) : null,
     loanTenure: customerInfo.loanTenure ? parseInt(customerInfo.loanTenure) : 5,
     monthlyIncome: customerInfo.monthlyIncome ? parseFloat(customerInfo.monthlyIncome) : 0,
-    existingEMI: 0,
+    existingEMI: 0, // For fresh loan, we start with 0 existing EMI
     companyName: customerInfo.companyName || '',
     category: customerInfo.category || 'A',
     creditScore: customerInfo.creditScore ? parseInt(customerInfo.creditScore) : 700,
@@ -61,6 +90,7 @@ export const calculateFreshLoan = async (customerInfo) => {
     city: customerInfo.city || ''
   };
 
+  // Array of bank calculators with their names
   const bankCalculators = [
     { name: 'Kotak Mahindra Bank', calculator: calculateKotakEligibility },
     { name: 'HDFC Bank', calculator: calculateHdfcEligibility },
@@ -76,7 +106,8 @@ export const calculateFreshLoan = async (customerInfo) => {
     { name: 'Piramal Finance', calculator: calculatePiramalEligibility }
   ];
 
-  return bankCalculators.map(({ name, calculator }) => {
+  // Calculate eligibility for each bank
+  const results = bankCalculators.map(({ name, calculator }) => {
     try {
       const result = calculator(calculatorInput);
       return {
@@ -84,30 +115,49 @@ export const calculateFreshLoan = async (customerInfo) => {
         ...result
       };
     } catch (error) {
+      console.error(`Error calculating fresh loan for ${name}:`, error);
       return {
         bankName: name,
-        isEligible: false,
-        reason: 'Calculation error: ' + error.message
+        eligible: false,
+        reason: 'Calculation error occurred: ' + error.message
       };
     }
   });
+
+  return results;
 };
 
 /**
- * Calculate Full Balance Transfer
+ * Calculate Full Balance Transfer (all existing loans)
+ * @param {Object} customerInfo - Customer financial information
+ * @param {Array} existingLiabilities - All existing loans and credit cards
+ * @returns {Promise<Array>} Results from all banks for full BT
  */
 export const calculateFullBT = async (customerInfo, existingLiabilities) => {
-  const validLiabilities = existingLiabilities.filter(l => l.outstandingAmount && parseFloat(l.outstandingAmount) > 0);
-  if (validLiabilities.length === 0) return await calculateFreshLoan(customerInfo);
+  // Filter out only the liabilities with valid outstanding amounts
+  const validLiabilities = existingLiabilities.filter(liability =>
+    liability.outstandingAmount && parseFloat(liability.outstandingAmount) > 0
+  );
 
-  const totalPOS = validLiabilities.reduce((sum, l) => sum + parseFloat(l.outstandingAmount), 0);
-  const totalExistingEMI = validLiabilities.reduce((sum, l) => sum + (parseFloat(l.monthlyPayment) || 0), 0);
+  if (validLiabilities.length === 0) {
+    // If no valid liabilities, return fresh loan results
+    return await calculateFreshLoan(customerInfo);
+  }
 
+  // Calculate total POS (Principal Outstanding) of all existing loans
+  const totalPOS = validLiabilities.reduce((sum, liability) =>
+    sum + parseFloat(liability.outstandingAmount), 0);
+
+  // Calculate total existing EMI (for information only, not used in BT calculation)
+  const totalExistingEMI = validLiabilities.reduce((sum, liability) =>
+    sum + (parseFloat(liability.monthlyPayment) || 0), 0);
+
+  // For BT, we ignore existing EMI and use full salary to calculate capacity
   const btInput = {
-    desiredLoanAmount: null,
+    desiredLoanAmount: null, // We'll calculate max amount
     loanTenure: customerInfo.loanTenure ? parseInt(customerInfo.loanTenure) : 5,
     monthlyIncome: customerInfo.monthlyIncome ? parseFloat(customerInfo.monthlyIncome) : 0,
-    existingEMI: 0,
+    existingEMI: 0, // KEY: Set to 0 for BT calculation
     companyName: customerInfo.companyName || '',
     category: customerInfo.category || 'A',
     creditScore: customerInfo.creditScore ? parseInt(customerInfo.creditScore) : 700,
@@ -116,6 +166,7 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
     city: customerInfo.city || ''
   };
 
+  // Array of bank calculators with configurations
   const bankCalculators = [
     { name: 'Kotak Mahindra Bank', calculator: calculateKotakEligibility, config: kotakConfig },
     { name: 'HDFC Bank', calculator: calculateHdfcEligibility, config: hdfcConfig },
@@ -131,53 +182,140 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
     { name: 'Piramal Finance', calculator: calculatePiramalEligibility, config: piramalConfig }
   ];
 
-  return bankCalculators.map(({ name, calculator, config }) => {
+  // Calculate BT eligibility for each bank
+  const results = bankCalculators.map(({ name, calculator, config }) => {
     try {
-      if (config.btConfig && !config.btConfig.isAvailable) {
-        return { bankName: config.name || name, isEligible: false, reason: 'BT not available' };
-      }
-      const result = calculator(btInput);
-      if (!result.isEligible) return { bankName: result.bankName || name, isEligible: false, reason: result.reason };
+      // Check BT loan capping constraint
+      const numberOfLoans = validLiabilities.length;
 
+      // Check if bank offers BT
+      if (config.btConfig && !config.btConfig.isAvailable) {
+        return {
+          bankName: config.name || name,
+          eligible: false,
+          reason: `${config.name || name} does not offer Balance Transfer facility for personal loans`
+        };
+      }
+
+      // Check for Fintech loans if bank doesn't accept them
+      const hasFintechLoans = validLiabilities.some(liability =>
+        liability.isFintechLoan === true || liability.loanSource === 'fintech');
+      if (hasFintechLoans && config.btConfig && config.btConfig.acceptsFintechLoans === false) {
+        const fintechLoanCount = validLiabilities.filter(liability =>
+          liability.isFintechLoan === true || liability.loanSource === 'fintech').length;
+        return {
+          bankName: config.name || name,
+          eligible: false,
+          reason: `Fintech Loan Policy: ${config.name || name} does not accept Balance Transfer for loans from Fintech/digital lending platforms. You have ${fintechLoanCount} Fintech loan(s).`
+        };
+      }
+
+      // Check loan capping limit
+      if (config.btConfig && config.btConfig.maxLoansForBT < numberOfLoans) {
+        return {
+          bankName: config.name || name,
+          eligible: false,
+          reason: `Loan Capping Exceeded: You have ${numberOfLoans} existing loans, but ${config.name || name} allows BT for maximum ${config.btConfig.maxLoansForBT} loans`
+        };
+      }
+
+      const result = calculator(btInput);
+
+      if (!result.eligible) {
+        return {
+          bankName: result.bankName || name,
+          eligible: false,
+          reason: result.reason
+        };
+      }
+
+      // Calculate BT-specific values
       const maxLoanAmount = result.maxLoanAmount || result.loanAmount;
       const freshAmount = maxLoanAmount - totalPOS;
-      if (freshAmount <= 0) return { bankName: result.bankName || name, isEligible: false, reason: 'Outstanding exceeds eligibility' };
 
+      // Check if fresh amount is positive
+      if (freshAmount <= 0) {
+        return {
+          bankName: result.bankName || name,
+          eligible: false,
+          reason: `Total outstanding amount (₹${totalPOS.toLocaleString()}) exceeds maximum loan eligibility (₹${maxLoanAmount.toLocaleString()}). Not eligible for BT.`
+        };
+      }
+
+      // Return BT result with additional information
       return {
         bankName: result.bankName || name,
-        isEligible: true,
-        maxLoanAmount,
+        eligible: true,
+        maxLoanAmount: maxLoanAmount,
         freshAmountDisbursed: freshAmount,
-        totalPOS,
-        totalExistingEMI,
-        monthlyEMI: result.monthlyEMI,
-        interestRate: result.interestRate || 11,
-        tenure: btInput.loanTenure
+        totalPOS: totalPOS,
+        totalExistingEMI: totalExistingEMI,
+        newBTLoanEMI: result.monthlyEMI,
+        newSingleEMI: result.monthlyEMI,
+        interestRate: result.interestRate || 11, // Default to 11% if not provided
+        tenure: btInput.loanTenure,
+        calculationMethod: result.calculationMethod || 'BT Calculation'
       };
     } catch (error) {
-      return { bankName: name, isEligible: false, reason: 'Error: ' + error.message };
+      console.error(`Error calculating full BT for ${name}:`, error);
+      return {
+        bankName: name,
+        eligible: false,
+        reason: 'Calculation error occurred: ' + error.message
+      };
     }
   });
+
+  return results;
 };
 
 /**
- * Calculate Partial Balance Transfer
+ * Calculate Partial Balance Transfer (selected loans only)
+ * @param {Object} customerInfo - Customer financial information
+ * @param {Array} existingLiabilities - All existing loans and credit cards
+ * @param {Array} selectedLiabilityIds - IDs of selected liabilities for partial BT
+ * @returns {Promise<Array>} Results from all banks for partial BT
  */
 export const calculatePartialBT = async (customerInfo, existingLiabilities, selectedLiabilityIds) => {
-  const selectedLiabilities = existingLiabilities.filter(l => selectedLiabilityIds.includes(l.id) && l.outstandingAmount && parseFloat(l.outstandingAmount) > 0);
-  if (selectedLiabilities.length === 0) return await calculateFreshLoan(customerInfo);
+  // Filter only selected liabilities
+  const selectedLiabilities = existingLiabilities.filter(liability =>
+    selectedLiabilityIds.includes(liability.id)
+  );
 
-  const selectedPOS = selectedLiabilities.reduce((sum, l) => sum + parseFloat(l.outstandingAmount), 0);
-  const selectedEMI = selectedLiabilities.reduce((sum, l) => sum + (parseFloat(l.monthlyPayment) || 0), 0);
+  // Filter out only the liabilities with valid outstanding amounts
+  const validSelectedLiabilities = selectedLiabilities.filter(liability =>
+    liability.outstandingAmount && parseFloat(liability.outstandingAmount) > 0
+  );
 
-  const nonSelectedLiabilities = existingLiabilities.filter(l => !selectedLiabilityIds.includes(l.id) && l.outstandingAmount && parseFloat(l.outstandingAmount) > 0);
-  const nonSelectedEMI = nonSelectedLiabilities.reduce((sum, l) => sum + (parseFloat(l.monthlyPayment) || 0), 0);
+  if (validSelectedLiabilities.length === 0) {
+    // If no selected liabilities, return fresh loan results
+    return await calculateFreshLoan(customerInfo);
+  }
 
+  // Calculate total POS of selected loans
+  const selectedPOS = validSelectedLiabilities.reduce((sum, liability) =>
+    sum + parseFloat(liability.outstandingAmount), 0);
+
+  // Calculate total existing EMI of selected loans (for information only)
+  const selectedExistingEMI = validSelectedLiabilities.reduce((sum, liability) =>
+    sum + (parseFloat(liability.monthlyPayment) || 0), 0);
+
+  // Calculate total existing EMI of non-selected loans (these will continue separately)
+  const nonSelectedLiabilities = existingLiabilities.filter(liability =>
+    !selectedLiabilityIds.includes(liability.id) &&
+    liability.outstandingAmount && parseFloat(liability.outstandingAmount) > 0
+  );
+
+  const nonSelectedEMI = nonSelectedLiabilities.reduce((sum, liability) =>
+    sum + (parseFloat(liability.monthlyPayment) || 0), 0);
+
+  // For partial BT, we use adjusted salary (full salary minus non-selected EMI)
+  // But for the BT calculation itself, we still ignore existing EMIs
   const btInput = {
-    desiredLoanAmount: null,
+    desiredLoanAmount: null, // We'll calculate max amount
     loanTenure: customerInfo.loanTenure ? parseInt(customerInfo.loanTenure) : 5,
     monthlyIncome: customerInfo.monthlyIncome ? parseFloat(customerInfo.monthlyIncome) : 0,
-    existingEMI: 0,
+    existingEMI: 0, // Still set to 0 for BT calculation
     companyName: customerInfo.companyName || '',
     category: customerInfo.category || 'A',
     creditScore: customerInfo.creditScore ? parseInt(customerInfo.creditScore) : 700,
@@ -186,6 +324,7 @@ export const calculatePartialBT = async (customerInfo, existingLiabilities, sele
     city: customerInfo.city || ''
   };
 
+  // Array of bank calculators with configurations
   const bankCalculators = [
     { name: 'Kotak Mahindra Bank', calculator: calculateKotakEligibility, config: kotakConfig },
     { name: 'HDFC Bank', calculator: calculateHdfcEligibility, config: hdfcConfig },
@@ -201,47 +340,122 @@ export const calculatePartialBT = async (customerInfo, existingLiabilities, sele
     { name: 'Piramal Finance', calculator: calculatePiramalEligibility, config: piramalConfig }
   ];
 
-  return bankCalculators.map(({ name, calculator, config }) => {
+  // Calculate BT eligibility for each bank
+  const results = bankCalculators.map(({ name, calculator, config }) => {
     try {
-      if (config.btConfig && !config.btConfig.isAvailable) {
-        return { bankName: config.name || name, isEligible: false, reason: 'BT not available' };
-      }
-      const result = calculator(btInput);
-      if (!result.isEligible) return { bankName: result.bankName || name, isEligible: false, reason: result.reason };
+      // Check BT loan capping constraint
+      const numberOfLoans = validSelectedLiabilities.length;
 
+      // Check if bank offers BT
+      if (config.btConfig && !config.btConfig.isAvailable) {
+        return {
+          bankName: config.name || name,
+          eligible: false,
+          reason: `${config.name || name} does not offer Balance Transfer facility for personal loans`
+        };
+      }
+
+      // Check for Fintech loans if bank doesn't accept them
+      const hasFintechLoans = validSelectedLiabilities.some(liability =>
+        liability.isFintechLoan === true || liability.loanSource === 'fintech');
+      if (hasFintechLoans && config.btConfig && config.btConfig.acceptsFintechLoans === false) {
+        const fintechLoanCount = validSelectedLiabilities.filter(liability =>
+          liability.isFintechLoan === true || liability.loanSource === 'fintech').length;
+        return {
+          bankName: config.name || name,
+          eligible: false,
+          reason: `Fintech Loan Policy: ${config.name || name} does not accept Balance Transfer for loans from Fintech/digital lending platforms. You have ${fintechLoanCount} Fintech loan(s).`
+        };
+      }
+
+      // Check loan capping limit
+      if (config.btConfig && config.btConfig.maxLoansForBT < numberOfLoans) {
+        return {
+          bankName: config.name || name,
+          eligible: false,
+          reason: `Loan Capping Exceeded: You have ${numberOfLoans} selected loans, but ${config.name || name} allows BT for maximum ${config.btConfig.maxLoansForBT} loans`
+        };
+      }
+
+      const result = calculator(btInput);
+
+      if (!result.eligible) {
+        return {
+          bankName: result.bankName || name,
+          eligible: false,
+          reason: result.reason
+        };
+      }
+
+      // Calculate BT-specific values
       const maxLoanAmount = result.maxLoanAmount || result.loanAmount;
       const freshAmount = maxLoanAmount - selectedPOS;
-      if (freshAmount <= 0) return { bankName: result.bankName || name, isEligible: false, reason: 'Outstanding exceeds eligibility' };
 
+      // Check if fresh amount is positive
+      if (freshAmount <= 0) {
+        return {
+          bankName: result.bankName || name,
+          eligible: false,
+          reason: `Selected outstanding amount (₹${selectedPOS.toLocaleString()}) exceeds maximum loan eligibility (₹${maxLoanAmount.toLocaleString()}). Not eligible for partial BT.`
+        };
+      }
+
+      // Return BT result with additional information
       return {
         bankName: result.bankName || name,
-        isEligible: true,
-        maxLoanAmount,
+        eligible: true,
+        maxLoanAmount: maxLoanAmount,
         freshAmountDisbursed: freshAmount,
-        selectedPOS,
-        selectedEMI,
-        nonSelectedEMI,
-        monthlyEMI: result.monthlyEMI,
-        totalOutflow: result.monthlyEMI + nonSelectedEMI,
-        interestRate: result.interestRate || 11,
-        tenure: btInput.loanTenure
+        selectedPOS: selectedPOS,
+        selectedExistingEMI: selectedExistingEMI,
+        nonSelectedEMI: nonSelectedEMI,
+        newBTLoanEMI: result.monthlyEMI,
+        newSingleEMI: result.monthlyEMI,
+        totalMonthlyOutflow: result.monthlyEMI + nonSelectedEMI,
+        interestRate: result.interestRate || 11, // Default to 11% if not provided
+        tenure: btInput.loanTenure,
+        calculationMethod: result.calculationMethod || 'Partial BT Calculation',
+        selectedLiabilities: validSelectedLiabilities,
+        nonSelectedLiabilities: nonSelectedLiabilities
       };
     } catch (error) {
-      return { bankName: name, isEligible: false, reason: 'Error: ' + error.message };
+      console.error(`Error calculating partial BT for ${name}:`, error);
+      return {
+        bankName: name,
+        eligible: false,
+        reason: 'Calculation error occurred: ' + error.message
+      };
     }
   });
+
+  return results;
 };
 
 /**
- * Calculate all scenarios
+ * Calculate all three loan scenarios
+ * @param {Object} formData - Complete form data including customer info and liabilities
+ * @returns {Promise<Object>} Results for all three scenarios
  */
 export const calculateAllScenarios = async (formData) => {
   const { customerInfo, existingLiabilities, selectedLiabilities } = formData;
-  const [fresh, full, partial] = await Promise.all([
-    calculateFreshLoan(customerInfo),
-    calculateFullBT(customerInfo, existingLiabilities),
-    calculatePartialBT(customerInfo, existingLiabilities, selectedLiabilities)
-  ]);
 
-  return { freshLoan: fresh, fullBT: full, partialBT: partial };
+  try {
+    // Calculate all three scenarios in parallel
+    const [freshLoanResults, fullBTResults, partialBTResults] = await Promise.all([
+      calculateFreshLoan(customerInfo),
+      calculateFullBT(customerInfo, existingLiabilities),
+      calculatePartialBT(customerInfo, existingLiabilities, selectedLiabilities)
+    ]);
+
+    return {
+      freshLoan: freshLoanResults,
+      fullBT: fullBTResults,
+      partialBT: partialBTResults,
+      selectedLiabilities: existingLiabilities.filter(liability =>
+        selectedLiabilities.includes(liability.id))
+    };
+  } catch (error) {
+    console.error('Error calculating all scenarios:', error);
+    throw new Error('Failed to calculate loan scenarios: ' + error.message);
+  }
 };

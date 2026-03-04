@@ -136,7 +136,7 @@ export const calculateSmartBT = async (userData) => {
 };
 
 export const getBTRecommendations = (btResults) => {
-  const eligibleBanks = btResults.filter(result => result.isEligible);
+  const eligibleBanks = btResults.filter(result => result.eligible);
   if (eligibleBanks.length === 0) return { hasRecommendations: false, message: 'No banks eligible' };
 
   const sortedByFreshAmount = [...eligibleBanks].sort((a, b) => b.freshAmountDisbursed - a.freshAmountDisbursed);

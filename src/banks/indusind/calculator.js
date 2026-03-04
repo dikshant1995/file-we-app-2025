@@ -68,7 +68,7 @@ export const calculateIndusindEligibility = (userData) => {
     const creditCardDeduction = creditCardObligation || 0;
     adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
     if (adjustedIncome <= 0) {
-      return { isEligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains`, isBTMode: true };
+      return { eligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains`, isBTMode: true };
     }
   }
 
@@ -81,19 +81,20 @@ export const calculateIndusindEligibility = (userData) => {
 
     if (hasExistingIndusindLoan) {
       return {
-        isEligible: false,
+        eligible: false,
         reason: 'As an existing customer of IndusInd Bank with an active personal loan, you are not eligible for a new loan from this bank'
       };
     }
   }
 
-  // Check age eligibility
-  const minAge = indusindConfig.minAge;
-  const maxAge = indusindConfig.maxAge;
+  // Check age eligibility - Use dynamic config from admin dashboard
+  const ageConfig = getBankConfig('IndusInd Bank', 'ageRules', { state: userData.state, city: userData.city });
+  const minAge = ageConfig ? ageConfig.minAge : indusindConfig.minAge;
+  const maxAge = ageConfig ? ageConfig.maxAge : indusindConfig.maxAge;
 
   if (age && (age < minAge || age > maxAge)) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
     };
   }
@@ -101,7 +102,7 @@ export const calculateIndusindEligibility = (userData) => {
   // Check employment type
   if (!indusindConfig.employmentTypes.includes(employmentType)) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `Employment type ${employmentType} not supported by IndusInd Bank`
     };
   }
@@ -110,7 +111,7 @@ export const calculateIndusindEligibility = (userData) => {
   const maxTenureForCategory = indusindConfig.maxTenureByCategory[category];
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `No loans available for Category ${category}`
     };
   }
@@ -127,7 +128,7 @@ export const calculateIndusindEligibility = (userData) => {
   // Check loan tenure
   if (loanTenure > indusindConfig.maxLoanTenure) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `Maximum loan tenure is ${indusindConfig.maxLoanTenure} years`
     };
   }
@@ -137,12 +138,12 @@ export const calculateIndusindEligibility = (userData) => {
   const effectiveMinSalary = catMinSalary;
 
   if (!effectiveMinSalary) {
-    return { isEligible: false, reason: `Category ${category} not supported by IndusInd Bank`, isBTMode: isBT };
+    return { eligible: false, reason: `Category ${category} not supported by IndusInd Bank`, isBTMode: isBT };
   }
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < effectiveMinSalary) {
-    return { isEligible: false, reason: `Minimum salary of ₹${effectiveMinSalary.toLocaleString()} required for category ${category}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+    return { eligible: false, reason: `Minimum salary of ₹${effectiveMinSalary.toLocaleString()} required for category ${category}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
   // Bank's absolute maximum loan limit
@@ -152,7 +153,7 @@ export const calculateIndusindEligibility = (userData) => {
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `Minimum loan amount required by this bank is ₹${minLoanAmount.toLocaleString()}. Requested: ₹${desiredLoanAmount.toLocaleString()}`,
       isBTMode: isBT
     };
@@ -162,13 +163,13 @@ export const calculateIndusindEligibility = (userData) => {
   const salaryBand = getSalaryBand(incomeForCalculation, category, indusindConfig.multiplierTable);
 
   if (!salaryBand) {
-    return { isEligible: false, reason: `Salary does not fall within any eligible band for category ${category}`, isBTMode: isBT };
+    return { eligible: false, reason: `Salary does not fall within any eligible band for category ${category}`, isBTMode: isBT };
   }
 
   const multiplier = indusindConfig.multiplierTable[category][salaryBand];
 
   if (!multiplier) {
-    return { isEligible: false, reason: `No multiplier available for category ${category} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
+    return { eligible: false, reason: `No multiplier available for category ${category} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
   }
 
   // IMPORTANT: For multiplier, use salary after deducting existing EMI and credit card obligation (non-BT mode)
@@ -189,7 +190,7 @@ export const calculateIndusindEligibility = (userData) => {
   if (isBT) {
     const btFreshAmount = cappedFinalLoan - btTotalOutstanding;
     if (btFreshAmount < 0) {
-      return { isEligible: false, reason: `BT Outstanding (₹${btTotalOutstanding.toLocaleString()}) exceeds max loan (₹${Math.round(cappedFinalLoan).toLocaleString()})`, isBTMode: true };
+      return { eligible: false, reason: `BT Outstanding (₹${btTotalOutstanding.toLocaleString()}) exceeds max loan (₹${Math.round(cappedFinalLoan).toLocaleString()})`, isBTMode: true };
     }
     btDetails = {
       isBTMode: true,
@@ -212,9 +213,10 @@ export const calculateIndusindEligibility = (userData) => {
   const monthlyEMI = calculateEMI(cappedFinalLoan, dynamicRate, cappedTenureYears);
 
   return {
-    isEligible: true,
+    eligible: true,
     bankId: indusindConfig.id,
     bankName: indusindConfig.name,
+    loanAmount: Math.round(cappedFinalLoan),
     maxLoanAmount: Math.round(cappedFinalLoan),
     maxLoanCap: absoluteMaxLoan,
     loanCappedByBank: loanCapped,

@@ -78,7 +78,7 @@ export const calculateCholaEligibility = (userData) => {
     const creditCardDeduction = creditCardObligation || 0;
     adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
     if (adjustedIncome <= 0) {
-      return { isEligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains`, isBTMode: true };
+      return { eligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains`, isBTMode: true };
     }
   }
 
@@ -91,19 +91,20 @@ export const calculateCholaEligibility = (userData) => {
 
     if (hasExistingCholaLoan) {
       return {
-        isEligible: false,
+        eligible: false,
         reason: 'As an existing customer of Cholamandalam Finance with an active personal loan, you are not eligible for a new loan from this bank'
       };
     }
   }
 
-  // Check age eligibility
-  const minAge = cholaConfig.minAge;
-  const maxAge = cholaConfig.maxAge;
+  // Check age eligibility - Use dynamic config from admin dashboard
+  const ageConfig = getBankConfig('Cholamandalam Finance', 'ageRules', { state: userData.state, city: userData.city });
+  const minAge = ageConfig ? ageConfig.minAge : cholaConfig.minAge;
+  const maxAge = ageConfig ? ageConfig.maxAge : cholaConfig.maxAge;
 
   if (age && (age < minAge || age > maxAge)) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
     };
   }
@@ -111,7 +112,7 @@ export const calculateCholaEligibility = (userData) => {
   // 1. Check if UNLISTED (completely ineligible)
   if (category === 'UNLISTED') {
     return {
-      isEligible: false,
+      eligible: false,
       reason: 'Cholamandalam Finance does not provide loans to UNLISTED company employees'
     };
   }
@@ -120,7 +121,7 @@ export const calculateCholaEligibility = (userData) => {
   const maxTenureForCategory = cholaConfig.maxTenureByCategory[category];
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `No loans available for Category ${category}`
     };
   }
@@ -137,15 +138,15 @@ export const calculateCholaEligibility = (userData) => {
   // 3. Check employment type
   if (!cholaConfig.employmentTypes.includes(employmentType)) {
     return {
-      isEligible: false,
-      reason: `Employment type ${employmentType} not supported by Cholamandalam Finance`
+      eligible: false,
+      reason: `Employment type ${employmentType} not supported`
     };
   }
 
   // 4. Check loan tenure
   if (loanTenure > cholaConfig.maxLoanTenure) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `Maximum loan tenure is ${cholaConfig.maxLoanTenure} years`
     };
   }
@@ -156,7 +157,7 @@ export const calculateCholaEligibility = (userData) => {
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (!effectiveMinSalary || incomeToCheck < effectiveMinSalary) {
-    return { isEligible: false, reason: `Minimum monthly income of ₹${effectiveMinSalary.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+    return { eligible: false, reason: `Minimum salary for ${category} is ₹${effectiveMinSalary?.toLocaleString() || 'N/A'}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
   // Bank's absolute maximum loan limit
@@ -166,7 +167,7 @@ export const calculateCholaEligibility = (userData) => {
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `Minimum loan amount required by this bank is ₹${minLoanAmount.toLocaleString()}. Requested: ₹${desiredLoanAmount.toLocaleString()}`,
       isBTMode: isBT
     };
@@ -177,7 +178,7 @@ export const calculateCholaEligibility = (userData) => {
   const foirPercentage = cholaConfig.foirTable[foirBand]?.[category];
 
   if (!foirPercentage) {
-    return { isEligible: false, reason: `FOIR not defined for category ${category} at salary band ${fooirBand}`, isBTMode: isBT };
+    return { eligible: false, reason: `FOIR not defined for category ${category} at salary band ${foirBand}`, isBTMode: isBT };
   }
 
   const foirCap = incomeForCalculation * foirPercentage;
@@ -186,7 +187,7 @@ export const calculateCholaEligibility = (userData) => {
 
   if (availableEMI <= 0) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: 'Existing EMI exceeds FOIR limit'
     };
   }
@@ -210,11 +211,7 @@ export const calculateCholaEligibility = (userData) => {
   if (isBT) {
     const btFreshAmount = cappedFinalLoan - btTotalOutstanding;
     if (btFreshAmount < 0) {
-      return {
-        isEligible: false,
-        reason: `BT Outstanding (₹${btTotalOutstanding.toLocaleString()}) exceeds max loan (₹${Math.round(cappedFinalLoan).toLocaleString()})`,
-        isBTMode: true
-      };
+      return { eligible: false, reason: `BT Outstanding (₹${btTotalOutstanding.toLocaleString()}) exceeds max loan (₹${Math.round(cappedFinalLoan).toLocaleString()})`, isBTMode: true };
     }
     btDetails = {
       isBTMode: true,
@@ -234,9 +231,10 @@ export const calculateCholaEligibility = (userData) => {
   const finalEMI = calculateEMI(cappedFinalLoan, cholaConfig.interestRate, cappedTenureYears);
 
   return {
-    isEligible: true,
+    eligible: true,
     bankId: cholaConfig.id,
     bankName: cholaConfig.name,
+    loanAmount: Math.round(cappedFinalLoan),
     maxLoanAmount: Math.round(cappedFinalLoan),
     maxLoanCap: absoluteMaxLoan,
     loanCappedByBank: loanCapped,
@@ -248,7 +246,7 @@ export const calculateCholaEligibility = (userData) => {
     requestedTenure: loanTenure,
     requestedTenureMonths: requestedTenureMonths,
     maxTenureForCategory: maxTenureForCategory,
-    monthlyEMI: Math.round(finalEMI),
+    monthlyEMI: finalEMI,
     category: category,
     calculationMethod: 'FOIR Only',
     details: {
