@@ -8,12 +8,12 @@
  */
 
 // Regular Loan Services
-export { 
-  calculateLoanEligibility 
+export {
+  calculateLoanEligibility
 } from './realLoanService.js';
 
 // Balance Transfer Services (All Loans)
-export { 
+export {
   calculateFullBT,
   calculatePartialBT,
   calculateSmartBT,
@@ -21,8 +21,14 @@ export {
 } from './btLoanService.js';
 
 // Personal Loan BT Services (Personal Loans Only)
-export { 
+export {
   calculatePersonalLoanBT,
   getPersonalLoanBTRecommendations,
   validatePersonalLoanBTData
 } from './btPersonalLoanService.js';
+
+// Lead Services
+export {
+  saveLead,
+  saveSelectedBanks
+} from './leadService.js';
