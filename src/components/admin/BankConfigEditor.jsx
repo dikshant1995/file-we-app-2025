@@ -5,56 +5,63 @@ import CategoriesEditor from './CategoriesEditor';
 import LoanCappingEditor from './LoanCappingEditor';
 import { AgeRulesEditor, TenureRulesEditor, FoirEditor, MultiplierEditor, BTEditor, CreditScoreEditor, EmploymentEditor, FeesEditor, DocumentsEditor, SpecialRulesEditor } from './AllEditors';
 
-const BankConfigEditor = ({ selectedBank, section }) => {
+const BankConfigEditor = ({ selectedBank, section, activeLocation }) => {
   if (!selectedBank) {
     return (
       <div className="no-bank-selected">
         <div className="empty-state">
           <div className="empty-icon">🏦</div>
           <h3>No Bank Selected</h3>
-          <p>Please select a bank from the Banks Overview to configure its settings</p>
-          <button className="btn-select-bank">Go to Banks Overview</button>
+          <p>Please select a bank from the Institutional Overview to configure its settings</p>
+          <button className="btn-select-bank">Go to Institutional Overview</button>
         </div>
       </div>
     );
   }
 
+  const locationString = activeLocation ? `${activeLocation.city}, ${activeLocation.state}` : null;
+
   // Bank configuration will be loaded here
   const renderSection = () => {
+    const props = { bank: selectedBank, location: locationString };
+
     switch (section) {
       case 'categories':
-        return <CategoriesSection bank={selectedBank} />;
+        return <CategoriesSection {...props} />;
       case 'interest':
-        return <InterestSection bank={selectedBank} />;
+        return <InterestSection {...props} />;
       case 'loanCapping':
-        return <LoanCappingSection bank={selectedBank} />;
+        return <LoanCappingSection {...props} />;
       case 'ageRules':
-        return <AgeRulesSection bank={selectedBank} />;
+        return <AgeRulesSection {...props} />;
       case 'tenureRules':
-        return <TenureRulesSection bank={selectedBank} />;
+        return <TenureRulesSection {...props} />;
       case 'foir':
-        return <FoirSection bank={selectedBank} />;
+        return <FoirSection {...props} />;
       case 'multiplier':
-        return <MultiplierSection bank={selectedBank} />;
+        return <MultiplierSection {...props} />;
       case 'bt':
-        return <BTSection bank={selectedBank} />;
+        return <BTSection {...props} />;
       case 'creditScore':
-        return <CreditScoreSection bank={selectedBank} />;
+        return <CreditScoreSection {...props} />;
       case 'employment':
-        return <EmploymentSection bank={selectedBank} />;
+        return <EmploymentSection {...props} />;
       case 'documents':
-        return <DocumentsSection bank={selectedBank} />;
+        return <DocumentsSection {...props} />;
       case 'special':
-        return <SpecialRulesSection bank={selectedBank} />;
+        return <SpecialRulesSection {...props} />;
       case 'fees':
-        return <FeesSection bank={selectedBank} />;
+        return <FeesSection {...props} />;
       default:
-        return <AllConfigSection bank={selectedBank} />;
+        return <AllConfigSection {...props} />;
     }
   };
 
   return (
     <div className="bank-config-editor">
+      <div className="location-context-bar glass-panel mb-4">
+        📍 Operating Context: <strong>{locationString || "Global Default"}</strong>
+      </div>
       {renderSection()}
     </div>
   );
