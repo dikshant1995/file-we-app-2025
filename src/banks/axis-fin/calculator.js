@@ -85,13 +85,10 @@ export const calculateAxisFinEligibility = (userData) => {
   }
 
   // Check age eligibility
-  const minAge = axisFinConfig.minAge;
-  const maxAge = axisFinConfig.maxAge;
-
-  if (age && (age < minAge || age > maxAge)) {
+  if (age && (age < axisFinConfig.minAge || age > axisFinConfig.maxAge)) {
     return {
       eligible: false,
-      reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
+      reason: `Age must be between ${axisFinConfig.minAge} and ${axisFinConfig.maxAge} years. Current age: ${age}`
     };
   }
 
@@ -137,25 +134,9 @@ export const calculateAxisFinEligibility = (userData) => {
     };
   }
 
-  // Check minimum salary requirement based on category
-  const effectiveMinSalary = axisFinConfig.minSalary;
-
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
-  if (incomeToCheck < effectiveMinSalary) {
-    return { eligible: false, reason: `Minimum salary of ₹${effectiveMinSalary.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
-  }
-
-  // Bank's absolute maximum loan limit
-  const absoluteMaxLoan = axisFinConfig.maxLoanAmount;
-  const minLoanAmount = 100000;
-
-  // Check minimum loan amount
-  if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
-    return {
-      eligible: false,
-      reason: `Minimum loan amount required by this bank is ₹${minLoanAmount.toLocaleString()}. Requested: ₹${desiredLoanAmount.toLocaleString()}`,
-      isBTMode: isBT
-    };
+  if (incomeToCheck < axisFinConfig.minSalary) {
+    return { eligible: false, reason: `Minimum salary of ₹${axisFinConfig.minSalary.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
@@ -182,8 +163,8 @@ export const calculateAxisFinEligibility = (userData) => {
     desiredLoanAmount || Infinity
   );
 
-  const cappedFinalLoan = Math.min(finalLoanAmount, absoluteMaxLoan);
-  const loanCapped = finalLoanAmount > absoluteMaxLoan;
+  const cappedFinalLoan = Math.min(finalLoanAmount, axisFinConfig.maxLoanAmount);
+  const loanCapped = finalLoanAmount > axisFinConfig.maxLoanAmount;
 
   let btDetails = null;
   if (isBT) {
@@ -206,21 +187,17 @@ export const calculateAxisFinEligibility = (userData) => {
     };
   }
 
-  // Use default interest rate
-  const dynamicRate = axisFinConfig.interestRate;
-
-  const monthlyEMI = calculateEMI(cappedFinalLoan, dynamicRate, cappedTenureYears);
+  const monthlyEMI = calculateEMI(cappedFinalLoan, axisFinConfig.interestRate, cappedTenureYears);
 
   return {
     eligible: true,
     bankId: axisFinConfig.id,
     bankName: axisFinConfig.name,
     loanAmount: Math.round(cappedFinalLoan),
-    maxLoanAmount: Math.round(cappedFinalLoan),
-    maxLoanCap: absoluteMaxLoan,
+    maxLoanCap: axisFinConfig.maxLoanAmount,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
-    interestRate: dynamicRate,
+    interestRate: axisFinConfig.interestRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,
     tenureCapped: tenureCapped,
