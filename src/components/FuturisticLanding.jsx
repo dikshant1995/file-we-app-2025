@@ -117,6 +117,31 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
       </div>
 
 
+      {/* ===== NEW HOLOGRAPHIC HEADER ===== */}
+      <header className="holo-header">
+        <div className="header-glass-blur" />
+        <div className="header-inner-nav">
+          <div className="nav-left">
+            <div className="neural-logo-small">
+              <Cpu size={20} color="#00d4ff" />
+              <span className="logo-text">LAXMI AI</span>
+            </div>
+          </div>
+          <div className="nav-right">
+            <motion.button
+              className="topo-admin-btn"
+              onClick={onAdminClick}
+              whileHover={{ scale: 1.05, background: "rgba(0, 212, 255, 0.15)" }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Lock size={14} />
+              <span>ADMIN PANEL</span>
+              <div className="btn-scanline" />
+            </motion.button>
+          </div>
+        </div>
+      </header>
+
       {/* ===== HERO ===== */}
       <section className="holo-hero">
         <div className="hero-inner">
@@ -488,16 +513,6 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
           <p>© 2025 LoanAI Model — Engineered by <span className="text-glow">Dikshant Singh Rathore</span></p>
           <p className="footer-sub">Powered by Advanced Neural Intelligence • Secured by 256-bit Encryption</p>
         </div>
-        <motion.button
-          className="admin-access-trigger"
-          onClick={onAdminClick}
-          whileHover={{ scale: 1.1, rotate: 5 }}
-          whileTap={{ scale: 0.9 }}
-          title="Root Access"
-        >
-          <Lock size={14} />
-          <div className="trigger-pulse" />
-        </motion.button>
       </footer>
 
       {/* Neural AI Chatbot */}
