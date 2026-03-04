@@ -1,7 +1,27 @@
 import { poonawalaConfig } from './config.js';
+import { getBankConfig } from '../../services/bankConfigService';
 
 // Helper: Get interest rate based on category and loan amount
-const getInterestRateForLoan = (category, loanAmount, userData = {}) => {
+const getInterestRateForLoan = (category, loanAmount) => {
+  const rateConfig = getBankConfig('Poonawala Finance', 'interestRates');
+
+  if (!rateConfig || !rateConfig.categorySlabRates || !rateConfig.categorySlabRates[category]) {
+    return poonawalaConfig.interestRate;
+  }
+
+  const slabs = rateConfig.categorySlabRates[category];
+
+  for (const slabLabel in slabs) {
+    const match = slabLabel.match(/₹(\d+)-(\d+)/);
+    if (match) {
+      const min = parseInt(match[1]);
+      const max = parseInt(match[2]);
+      if (loanAmount >= min && loanAmount <= max) {
+        return slabs[slabLabel];
+      }
+    }
+  }
+
   return poonawalaConfig.interestRate;
 };
 
@@ -125,15 +145,11 @@ export const calculatePoonawalaEligibility = (userData) => {
     }
   }
 
-  // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('Poonawala Finance', 'ageRules', { state: userData.state, city: userData.city });
-  const minAge = ageConfig ? ageConfig.minAge : poonawalaConfig.minAge;
-  const maxAge = ageConfig ? ageConfig.maxAge : poonawalaConfig.maxAge;
-
-  if (age && (age < minAge || age > maxAge)) {
+  // Check age eligibility
+  if (age && (age < poonawalaConfig.minAge || age > poonawalaConfig.maxAge)) {
     return {
       eligible: false,
-      reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
+      reason: `Age must be between ${poonawalaConfig.minAge} and ${poonawalaConfig.maxAge} years. Current age: ${age}`
     };
   }
 
@@ -174,26 +190,10 @@ export const calculatePoonawalaEligibility = (userData) => {
     };
   }
 
-  // Check minimum salary requirement based on category
-  const catMinSalary = poonawalaConfig.minNTHBySegment[customerSegment];
-  const effectiveMinSalary = catMinSalary;
-
+  const minNTHRequired = poonawalaConfig.minNTHBySegment[customerSegment];
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
-  if (incomeToCheck < effectiveMinSalary) {
-    return { eligible: false, reason: `Minimum NTH salary of ₹${effectiveMinSalary.toLocaleString()} required for ${customerSegment} segment${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
-  }
-
-  // Bank's absolute maximum loan limit
-  const absoluteMaxLoan = poonawalaConfig.maxLoanAmount;
-  const minLoanAmount = 100000;
-
-  // Check minimum loan amount
-  if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
-    return {
-      eligible: false,
-      reason: `Minimum loan amount required by this bank is ₹${minLoanAmount.toLocaleString()}. Requested: ₹${desiredLoanAmount.toLocaleString()}`,
-      isBTMode: isBT
-    };
+  if (incomeToCheck < minNTHRequired) {
+    return { eligible: false, reason: `Minimum NTH salary of ₹${minNTHRequired.toLocaleString()} required for ${customerSegment} segment${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
@@ -227,10 +227,10 @@ export const calculatePoonawalaEligibility = (userData) => {
     desiredLoanAmount || Infinity
   );
 
-  const preliminaryCappedLoan = Math.min(preliminaryLoanAmount, absoluteMaxLoan);
+  const preliminaryCappedLoan = Math.min(preliminaryLoanAmount, poonawalaConfig.maxLoanAmount);
 
   // Pass 2: Get correct rate based on preliminary loan amount
-  const finalInterestRate = getInterestRateForLoan(category, preliminaryCappedLoan, userData);
+  const finalInterestRate = getInterestRateForLoan(category, preliminaryCappedLoan);
 
   // Recalculate loan with final rate
   const calculatedLoanAmount = calculatePrincipalFromEMI(
@@ -245,8 +245,8 @@ export const calculatePoonawalaEligibility = (userData) => {
     desiredLoanAmount || Infinity
   );
 
-  const cappedFinalLoan = Math.min(finalLoanAmount, absoluteMaxLoan);
-  const loanCapped = finalLoanAmount > absoluteMaxLoan;
+  const cappedFinalLoan = Math.min(finalLoanAmount, poonawalaConfig.maxLoanAmount);
+  const loanCapped = finalLoanAmount > poonawalaConfig.maxLoanAmount;
 
   let btDetails = null;
   if (isBT) {
@@ -276,8 +276,7 @@ export const calculatePoonawalaEligibility = (userData) => {
     bankId: poonawalaConfig.id,
     bankName: poonawalaConfig.name,
     loanAmount: Math.round(cappedFinalLoan),
-    maxLoanAmount: Math.round(cappedFinalLoan),
-    maxLoanCap: absoluteMaxLoan,
+    maxLoanCap: poonawalaConfig.maxLoanAmount,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
     interestRate: finalInterestRate,
