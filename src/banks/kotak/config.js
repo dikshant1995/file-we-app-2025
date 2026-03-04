@@ -15,7 +15,7 @@ export const kotakConfig = {
   incentivePeriodMonths: 3, // Last 3 months
   employmentTypes: ['salaried', 'government'],
   specialPrograms: ['kotak-premium', 'women-empowerment', 'salaried-plus'],
-  
+
   // Balance Transfer (BT) Configuration
   btConfig: {
     isAvailable: true, // BT facility is available
