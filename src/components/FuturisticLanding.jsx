@@ -5,10 +5,6 @@ import './FuturisticLanding.css';
 import NeuralChatBot from './NeuralChatBot';
 
 const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [loginError, setLoginError] = useState('');
   const [tick, setTick] = useState(0);
   const [feedbackName, setFeedbackName] = useState('');
   const [feedbackText, setFeedbackText] = useState('');
@@ -46,26 +42,6 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
     setFeedbackText('');
 
     setTimeout(() => setIsSubmitted(false), 5000);
-  };
-
-  const ADMIN_USERNAME = 'admin';
-  const ADMIN_PASSWORD = 'admin123';
-
-  const handleAdminButtonClick = () => {
-    setShowLoginModal(true);
-    setLoginError('');
-    setUsername('');
-    setPassword('');
-  };
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-      setShowLoginModal(false);
-      onAdminClick();
-    } else {
-      setLoginError('ACCESS DENIED — Invalid credentials');
-    }
   };
 
   const stats = [
@@ -514,7 +490,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
         </div>
         <motion.button
           className="admin-access-trigger"
-          onClick={handleAdminButtonClick}
+          onClick={onAdminClick}
           whileHover={{ scale: 1.1, rotate: 5 }}
           whileTap={{ scale: 0.9 }}
           title="Root Access"
@@ -526,70 +502,6 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
 
       {/* Neural AI Chatbot */}
       <NeuralChatBot />
-
-      {/* ===== ADMIN MODAL ===== */}
-      <AnimatePresence>
-        {showLoginModal && (
-          <motion.div
-            className="holo-modal-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div
-              className="holo-modal"
-              initial={{ scale: 0.85, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.85, opacity: 0 }}
-              transition={{ type: 'spring', damping: 20 }}
-            >
-              <div className="modal-corner mc-tl" />
-              <div className="modal-corner mc-tr" />
-              <div className="modal-corner mc-bl" />
-              <div className="modal-corner mc-br" />
-
-              <div className="modal-header">
-                <div className="modal-icon"><Lock size={20} color="#00d4ff" /></div>
-                <div>
-                  <h3>ROOT ACCESS</h3>
-                  <p>Authorized personnel only</p>
-                </div>
-              </div>
-
-              <form onSubmit={handleLogin} className="modal-form">
-                <div className="modal-field">
-                  <label>IDENTITY</label>
-                  <input
-                    type="text"
-                    className="glass-input"
-                    placeholder="Enter username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    autoFocus
-                  />
-                </div>
-                <div className="modal-field">
-                  <label>ACCESS KEY</label>
-                  <input
-                    type="password"
-                    className="glass-input"
-                    placeholder="Enter password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
-                {loginError && (
-                  <div className="modal-error">⚠ {loginError}</div>
-                )}
-                <div className="modal-actions">
-                  <button type="button" onClick={() => setShowLoginModal(false)} className="modal-abort">ABORT</button>
-                  <button type="submit" className="modal-auth">AUTHENTICATE</button>
-                </div>
-              </form>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };
