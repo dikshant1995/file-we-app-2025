@@ -10,18 +10,18 @@ export const tataConfig = {
   bachelorMaxLoanAmount: 2000000, // ₹20 Lakhs maximum for unmarried individuals
   interestRate: 11.0, // Fixed at 11% for all banks as per policy
   processingFee: 0.006,
-  
+
   // Incentive policy
   incentivePercentage: 1.0, // 100% of average incentive
   incentivePeriodMonths: 3, // Last 3 months
-  
+
   // FOIR table based on salary only (no category distinction)
   foirTable: {
     '25000-50000': 0.60,
     '50001-75000': 0.65,
     '75001+': 0.75
   },
-  
+
   // Multiplier table based on salary bands and categories
   multiplierTable: {
     '25000-50000': {
@@ -49,10 +49,10 @@ export const tataConfig = {
       'UNLISTED': 15
     }
   },
-  
+
   // Minimum salary requirement (overall)
   minSalary: 25000,
-  
+
   // Minimum salary requirements by category
   minSalaryByCategory: {
     'SUP-A': 25000,
@@ -63,7 +63,7 @@ export const tataConfig = {
     'D': 25000,
     'UNLISTED': 40000  // Higher minimum salary for UNLISTED category
   },
-  
+
   // Maximum tenure by category (in months)
   maxTenureByCategory: {
     'SUP-A': 72,     // 6 years - CAT SUP-A
@@ -74,7 +74,7 @@ export const tataConfig = {
     'D': 48,         // 4 years - CAT D
     'UNLISTED': 48   // 4 years - UNLISTED
   },
-  
+
   // Company categories
   companyCategories: {
     'SUP-A': { minIncome: 25000, description: 'Superior A - Premium Companies/Profiles' },
@@ -85,10 +85,10 @@ export const tataConfig = {
     'D': { minIncome: 25000, description: 'Category D - Standard Companies' },
     'UNLISTED': { minIncome: 40000, description: 'Unlisted/Lower Category Companies - Higher minimum required' }
   },
-  
+
   employmentTypes: ['salaried', 'government'],
   specialPrograms: ['tata-employee', 'mnc-professional', 'high-net-worth'],
-  
+
   // Balance Transfer (BT) Configuration
   btConfig: {
     isAvailable: true, // BT facility is available
