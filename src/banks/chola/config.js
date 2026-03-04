@@ -10,11 +10,11 @@ export const cholaConfig = {
   bachelorMaxLoanAmount: 2000000, // ₹20 Lakhs maximum for unmarried individuals (same as overall cap)
   interestRate: 11.0, // Fixed at 11% for all banks as per policy
   processingFee: 0.01,
-  
+
   // Incentive policy
   incentivePercentage: 0.60, // 60% of average incentive
   incentivePeriodMonths: 3, // Last 3 months
-  
+
   // FOIR table based on salary bands and categories
   foirTable: {
     '20000-30000': {
@@ -46,7 +46,7 @@ export const cholaConfig = {
       'D': 0.65
     }
   },
-  
+
   // Minimum salary requirements by category
   minSalary: {
     'A': 20000,
@@ -56,7 +56,7 @@ export const cholaConfig = {
     'GOVT': 20000,
     'UNLISTED': null  // UNLISTED companies are NOT ELIGIBLE
   },
-  
+
   // Maximum tenure by category (in months)
   maxTenureByCategory: {
     'A': 84,        // 7 years - CAT A
@@ -65,7 +65,7 @@ export const cholaConfig = {
     'C': 84,        // 7 years - CAT C
     'D': 60         // 5 years - CAT D
   },
-  
+
   // Company categories
   companyCategories: {
     'A': { minIncome: 20000, description: 'Category A Companies' },
@@ -75,13 +75,13 @@ export const cholaConfig = {
     'GOVT': { minIncome: 20000, description: 'Government Employees' },
     'UNLISTED': { minIncome: null, description: 'UNLISTED Companies - NOT ELIGIBLE' }
   },
-  
+
   employmentTypes: ['salaried', 'government', 'self-employed'],
   specialPrograms: ['auto-finance', 'retail-loan', 'service-sector'],
-  
+
   // Special note: UNLISTED companies are not eligible for loans
   unlistedEligible: false,
-  
+
   // Balance Transfer (BT) Configuration
   btConfig: {
     isAvailable: true, // BT facility is available
