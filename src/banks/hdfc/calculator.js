@@ -1,5 +1,5 @@
 import { hdfcConfig } from './config.js';
-
+import { getBankConfig } from '../../services/bankConfigService';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -183,9 +183,10 @@ export const calculateHdfcEligibility = (userData) => {
     }
   }
 
-  // Check age eligibility
-  const minAge = hdfcConfig.minAge;
-  const maxAge = hdfcConfig.maxAge;
+  // Check age eligibility - Use dynamic config from admin dashboard
+  const ageConfig = getBankConfig('HDFC Bank', 'ageRules');
+  const minAge = ageConfig ? ageConfig.minAge : hdfcConfig.minAge;
+  const maxAge = ageConfig ? ageConfig.maxAge : hdfcConfig.maxAge;
 
   if (age && (age < minAge || age > maxAge)) {
     return {
@@ -194,7 +195,7 @@ export const calculateHdfcEligibility = (userData) => {
     };
   }
 
-  // Use user-provided interest rate or default
+  // Use user-provided interest rate or default to bank config
   const effectiveInterestRate = interestRate || hdfcConfig.interestRate;
 
   // Check employment type
@@ -227,27 +228,13 @@ export const calculateHdfcEligibility = (userData) => {
   const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
 
   // Check minimum salary requirement based on category
-  const catMinSalary = hdfcConfig.minSalary[companyCategory] || hdfcConfig.minSalary['A'];
-  const effectiveMinSalary = catMinSalary;
-
+  // For BT mode, use adjusted income for salary checks
+  const categoryMinSalary = hdfcConfig.minSalary[companyCategory] || hdfcConfig.minSalary['A'];
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
-  if (incomeToCheck < effectiveMinSalary) {
+  if (incomeToCheck < categoryMinSalary) {
     return {
       eligible: false,
-      reason: `Minimum monthly income required for ${companyCategory} category is ₹${effectiveMinSalary.toLocaleString()}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`,
-      isBTMode: isBT
-    };
-  }
-
-  // Bank's absolute maximum loan limit
-  const absoluteMaxLoan = hdfcConfig.maxLoanAmount;
-  const minLoanAmount = hdfcConfig.minLoanAmount || 100000;
-
-  // Check minimum loan amount
-  if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
-    return {
-      eligible: false,
-      reason: `Minimum loan amount required by this bank is ₹${minLoanAmount.toLocaleString()}. Requested: ₹${desiredLoanAmount.toLocaleString()}`,
+      reason: `Minimum monthly income required for ${companyCategory} category is ₹${categoryMinSalary.toLocaleString()}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`,
       isBTMode: isBT
     };
   }
@@ -294,8 +281,8 @@ export const calculateHdfcEligibility = (userData) => {
   );
 
   // Apply bank's maximum loan cap
-  const finalLoanAmount = Math.min(maxLoanAmount, absoluteMaxLoan);
-  const loanCapped = maxLoanAmount > absoluteMaxLoan;
+  const finalLoanAmount = Math.min(maxLoanAmount, hdfcConfig.maxLoanAmount);
+  const loanCapped = maxLoanAmount > hdfcConfig.maxLoanAmount;
 
   // ========== BALANCE TRANSFER CALCULATION ==========
   let btFreshAmount = 0;
@@ -343,8 +330,7 @@ export const calculateHdfcEligibility = (userData) => {
     bankId: hdfcConfig.id,
     bankName: hdfcConfig.name,
     loanAmount: Math.round(finalLoanAmount),
-    maxLoanAmount: Math.round(finalLoanAmount),
-    maxLoanCap: absoluteMaxLoan,
+    maxLoanCap: hdfcConfig.maxLoanAmount,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(maxLoanAmount) : null,
     interestRate: effectiveInterestRate,
@@ -355,7 +341,7 @@ export const calculateHdfcEligibility = (userData) => {
     requestedTenureMonths: requestedTenureMonths,
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
-    category: companyCategory,
+    companyCategory: companyCategory,
     calculationMethod: 'Combined (Multiplier and FOIR)',
     multiplier: multiplier,
     foirPercentage: foirPercentage,
