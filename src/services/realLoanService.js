@@ -45,30 +45,22 @@ const BANK_TO_DB_KEY = {
   'Axis Finance': 'axis_fin'
 };
 
+import { calculateFreshLoan } from './enhancedLoanService.js';
+
 /**
  * Calculate loan eligibility across all 12 banks
- * REDIRECTED TO SECURE BACKEND
+ * RESTORED TO LOCAL NEURAL ENGINE
  */
 export const calculateLoanEligibility = async (userData) => {
-  console.log('🏛️  --- SECURE NEURAL ENGINE ACTIVATED ---');
+  console.log('🏛️  --- LOCAL NEURAL ENGINE ACTIVATED ---');
 
   try {
-    const response = await fetch('/api/loan-eligibility', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...userData,
-        calculationType: 'regular'
-      })
-    });
-
-    if (!response.ok) throw new Error('Backend engine error');
-
-    const results = await response.json();
-    console.log('✅ Secure results received from server');
+    // enhancedLoanService already handles the transformation and bank mapping
+    const results = await calculateFreshLoan(userData);
+    console.log('✅ Local results calculated successfully');
     return results;
   } catch (error) {
-    console.error('🚨 Backend Bridge Failure:', error);
+    console.error('🚨 Local Engine Failure:', error);
     throw error;
   }
 };
