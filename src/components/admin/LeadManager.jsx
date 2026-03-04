@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Mail, Download, Search, MessageCircle, Copy, Trash2, Plus, Share2 } from 'lucide-react';
 import './LeadManager.css';
 
-const LeadManager = () => {
+const LeadManager = ({ userRole }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [leads, setLeads] = useState([]);
     const [selectedLeadIds, setSelectedLeadIds] = useState(new Set());
@@ -36,7 +36,6 @@ const LeadManager = () => {
                 setLeads(uniqueLeads.length > 0 ? uniqueLeads : mockLeads);
             } catch (err) {
                 console.error('Error loading leads:', err);
-                // Fallback to local only
                 const stored = localStorage.getItem('laxmi_leads');
                 setLeads(stored ? JSON.parse(stored) : mockLeads);
             }
@@ -48,17 +47,13 @@ const LeadManager = () => {
 
     // Filter by Search and Date
     const filteredLeads = leads.filter(lead => {
-        // Search Filter
         const matchesSearch = (lead?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             (lead?.mobile || '').includes(searchTerm) ||
             (lead?.company || lead?.employer || '').toLowerCase().includes(searchTerm.toLowerCase());
 
         if (!matchesSearch) return false;
-
-        // Date Filter
         if (dateFilter === 'all') return true;
 
-        // Parse date from "DD/MM/YYYY, HH:MM:SS"
         if (!lead?.timestamp) return true;
         const [datePart] = lead.timestamp.split(', ');
         if (!datePart) return true;
@@ -71,7 +66,7 @@ const LeadManager = () => {
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
         switch (dateFilter) {
-            case 'today': return diffDays <= 0; // Allow 0 for today
+            case 'today': return diffDays <= 0;
             case '2days': return diffDays <= 1;
             case 'week': return diffDays <= 7;
             case 'month': return diffDays <= 30;
@@ -97,7 +92,11 @@ const LeadManager = () => {
     };
 
     const handleDelete = (id) => {
-        if (window.confirm('Are you sure you want to delete this lead?')) {
+        if (userRole !== 'ceo') {
+            alert('SECURITY VIOLATION: Access Denied. Only CEO identities can purge neural lead records.');
+            return;
+        }
+        if (window.confirm('PROTOCOL WARNING: Are you sure you want to permanently delete this identity data?')) {
             const updated = leads.filter(l => l.id !== id);
             setLeads(updated);
             localStorage.setItem('laxmi_leads', JSON.stringify(updated.filter(l => !l.id.startsWith('m'))));
