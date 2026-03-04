@@ -1,4 +1,5 @@
 import { indusindConfig } from './config.js';
+import { getBankConfig } from '../../services/bankConfigService';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -88,7 +89,7 @@ export const calculateIndusindEligibility = (userData) => {
   }
 
   // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('IndusInd Bank', 'ageRules', { state: userData.state, city: userData.city });
+  const ageConfig = getBankConfig('IndusInd Bank', 'ageRules');
   const minAge = ageConfig ? ageConfig.minAge : indusindConfig.minAge;
   const maxAge = ageConfig ? ageConfig.maxAge : indusindConfig.maxAge;
 
@@ -133,30 +134,14 @@ export const calculateIndusindEligibility = (userData) => {
     };
   }
 
-  // Check minimum salary requirement based on category
-  const catMinSalary = indusindConfig.minSalaryByCategory[category];
-  const effectiveMinSalary = catMinSalary;
-
-  if (!effectiveMinSalary) {
+  const minSalaryRequired = indusindConfig.minSalaryByCategory[category];
+  if (!minSalaryRequired) {
     return { eligible: false, reason: `Category ${category} not supported by IndusInd Bank`, isBTMode: isBT };
   }
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
-  if (incomeToCheck < effectiveMinSalary) {
-    return { eligible: false, reason: `Minimum salary of ₹${effectiveMinSalary.toLocaleString()} required for category ${category}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
-  }
-
-  // Bank's absolute maximum loan limit
-  const absoluteMaxLoan = indusindConfig.maxLoanAmount;
-  const minLoanAmount = 100000;
-
-  // Check minimum loan amount
-  if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
-    return {
-      eligible: false,
-      reason: `Minimum loan amount required by this bank is ₹${minLoanAmount.toLocaleString()}. Requested: ₹${desiredLoanAmount.toLocaleString()}`,
-      isBTMode: isBT
-    };
+  if (incomeToCheck < minSalaryRequired) {
+    return { eligible: false, reason: `Minimum salary of ₹${minSalaryRequired.toLocaleString()} required for category ${category}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
@@ -183,8 +168,8 @@ export const calculateIndusindEligibility = (userData) => {
     desiredLoanAmount || Infinity
   );
 
-  const cappedFinalLoan = Math.min(finalLoanAmount, absoluteMaxLoan);
-  const loanCapped = finalLoanAmount > absoluteMaxLoan;
+  const cappedFinalLoan = Math.min(finalLoanAmount, indusindConfig.maxLoanAmount);
+  const loanCapped = finalLoanAmount > indusindConfig.maxLoanAmount;
 
   let btDetails = null;
   if (isBT) {
@@ -207,21 +192,17 @@ export const calculateIndusindEligibility = (userData) => {
     };
   }
 
-  // Use default interest rate
-  const dynamicRate = indusindConfig.interestRate;
-
-  const monthlyEMI = calculateEMI(cappedFinalLoan, dynamicRate, cappedTenureYears);
+  const monthlyEMI = calculateEMI(cappedFinalLoan, indusindConfig.interestRate, cappedTenureYears);
 
   return {
     eligible: true,
     bankId: indusindConfig.id,
     bankName: indusindConfig.name,
     loanAmount: Math.round(cappedFinalLoan),
-    maxLoanAmount: Math.round(cappedFinalLoan),
-    maxLoanCap: absoluteMaxLoan,
+    maxLoanCap: indusindConfig.maxLoanAmount,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
-    interestRate: dynamicRate,
+    interestRate: indusindConfig.interestRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,
     tenureCapped: tenureCapped,
