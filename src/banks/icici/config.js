@@ -10,11 +10,11 @@ export const iciciConfig = {
   bachelorMaxLoanAmount: 2000000, // ₹20 Lakhs maximum for unmarried individuals
   interestRate: 11.0, // Fixed at 11% for all banks as per policy
   processingFee: 0.008,
-  
+
   // Incentive policy
   incentivePercentage: 0.0, // 0% - Does not consider incentives
   incentivePeriodMonths: 0, // N/A
-  
+
   // FOIR table based on salary bands
   foirTable: {
     '<50000': 0.55,
@@ -40,7 +40,7 @@ export const iciciConfig = {
   },
   employmentTypes: ['salaried', 'self-employed', 'government'],
   specialPrograms: ['icici-premier', 'young-professional', 'self-employed-plus'],
-  
+
   // Balance Transfer (BT) Configuration
   btConfig: {
     isAvailable: true, // BT facility is available
