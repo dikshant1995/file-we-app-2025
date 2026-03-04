@@ -12,11 +12,11 @@ export const idfcConfig = {
   bachelorMaxLoanAmount: 2000000, // ₹20 Lakhs maximum for unmarried individuals
   interestRate: 11.0, // Fixed at 11% for all banks as per policy
   processingFee: 0.012,
-  
+
   // Incentive policy
   incentivePercentage: 1.0, // 100% of average incentive
   incentivePeriodMonths: 3, // Last 3 months
-  
+
   // Multiplier table based on salary bands and categories
   // Formula: Loan Amount = Monthly Salary × Multiplier
   multiplierTable: {
@@ -55,10 +55,10 @@ export const idfcConfig = {
       '>75001': 18
     }
   },
-  
+
   // Universal minimum salary requirement - ₹20,000 for ALL categories
   minSalary: 20000,
-  
+
   // Minimum salary requirements by category (all same)
   minSalaryByCategory: {
     'SUPER-A': 20000,
@@ -68,7 +68,7 @@ export const idfcConfig = {
     'D': 20000,
     'GOVT': 20000
   },
-  
+
   // Maximum tenure by category (in months)
   maxTenureByCategory: {
     'SUPER-A': 84,  // 7 years - CAT SUPER A
@@ -78,7 +78,7 @@ export const idfcConfig = {
     'C': 72,        // 6 years - CAT C
     'D': 72         // 6 years - CAT D
   },
-  
+
   // Category descriptions
   categories: {
     'SUPER-A': { description: 'Super Category A - Premium Companies (Highest Multipliers)' },
@@ -88,10 +88,10 @@ export const idfcConfig = {
     'C': { description: 'Category C - Standard Companies (Lower Multipliers)' },
     'D': { description: 'Category D - Lower-Tier Companies (Lowest Multipliers)' }
   },
-  
+
   employmentTypes: ['salaried', 'government'],
   specialPrograms: ['idfc-first', 'government-special', 'premium-banking'],
-  
+
   // Calculation method
   calculationMethod: 'Multiplier-Only',
   approach: 'Universal ₹20K Minimum + Category-Based Tiered Multipliers',
@@ -103,7 +103,7 @@ export const idfcConfig = {
     'Category C & D start with same low multiplier (11x)',
     'Progressive multipliers that reward higher incomes'
   ],
-  
+
   // Balance Transfer (BT) Configuration
   btConfig: {
     isAvailable: true, // BT facility is available
