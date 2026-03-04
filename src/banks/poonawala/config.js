@@ -12,11 +12,11 @@ export const poonawalaConfig = {
   bachelorMaxLoanAmount: 2000000, // ₹20 Lakhs maximum for unmarried individuals
   interestRate: 11.0, // Fixed at 11% for all banks as per policy
   processingFee: 0.013,
-  
+
   // Incentive policy
   incentivePercentage: 0.25, // 25% of average incentive
   incentivePeriodMonths: 3, // Last 3 months
-  
+
   // Two-Dimensional FOIR Matrix
   // Rows: Customer Segment (SUP-A/A, B/GOVT, C/D, E)
   // Columns: NTH (Net Take-Home) Salary Bands
@@ -36,7 +36,7 @@ export const poonawalaConfig = {
       'PRIME': { minNTH: 50000, maxNTH: 75000, foir: 0.65 },
       'OTHERS': { minNTH: 30000, maxNTH: 50000, foir: 0.60 }
     },
-    
+
     // B and Government (Mid-High Customer Segment)
     'B': {
       'SUP-HNI': { minNTH: 250000, maxNTH: null, foir: 0.70 },
@@ -52,7 +52,7 @@ export const poonawalaConfig = {
       'PRIME': { minNTH: 50000, maxNTH: 75000, foir: 0.60 },
       'OTHERS': { minNTH: 30000, maxNTH: 50000, foir: 0.50 }
     },
-    
+
     // C/D (Mid-Low Customer Segment)
     'C': {
       'SUP-HNI': { minNTH: 250000, maxNTH: null, foir: 0.65 },
@@ -68,7 +68,7 @@ export const poonawalaConfig = {
       'PRIME': { minNTH: 50000, maxNTH: 75000, foir: 0.55 },
       'OTHERS': { minNTH: 30000, maxNTH: 50000, foir: 0.50 }
     },
-    
+
     // E (Lowest Customer Segment - Highest Risk)
     'E': {
       'SUP-HNI': { minNTH: 250000, maxNTH: null, foir: 0.60 },
@@ -78,7 +78,7 @@ export const poonawalaConfig = {
       'OTHERS': { minNTH: 30000, maxNTH: 50000, foir: null }          // NA - Not Eligible
     }
   },
-  
+
   // Minimum NTH (Net Take-Home) salary by segment
   minNTHBySegment: {
     'SUP-A': 30000,
@@ -89,7 +89,7 @@ export const poonawalaConfig = {
     'D': 30000,
     'E': 30000  // E segment (UNLISTED) minimum NTH same as others, but lower FOIR
   },
-  
+
   // Maximum tenure by category (in months)
   maxTenureByCategory: {
     'SUP-A': 84,     // 7 years - CAT SUPER A
@@ -100,10 +100,10 @@ export const poonawalaConfig = {
     'D': 60,         // 5 years - CAT D
     'E': 60          // 5 years - UNLISTED (mapped to E)
   },
-  
+
   // Overall minimum NTH salary
   minNTH: 30000,
-  
+
   // Customer segment categories
   customerSegments: {
     'SUP-A': { description: 'Superior A - Premium Companies/Profiles (Lowest Risk)' },
@@ -114,7 +114,7 @@ export const poonawalaConfig = {
     'D': { description: 'Category D - Standard Companies (Mid-Low Risk)' },
     'E': { description: 'Category E - Lower Companies (Highest Risk)' }
   },
-  
+
   // NTH Salary bands description
   nthBands: {
     'SUP-HNI': { minNTH: 250000, description: 'Super High Net-Worth Individuals (>₹2.5L NTH)' },
@@ -123,10 +123,10 @@ export const poonawalaConfig = {
     'PRIME': { minNTH: 50000, description: 'Prime (₹50K-75K NTH)' },
     'OTHERS': { minNTH: 30000, description: 'Others (₹30K-50K NTH)' }
   },
-  
+
   employmentTypes: ['salaried', 'government', 'self-employed'],
   specialPrograms: ['premium-lending', 'government-special', 'hni-program'],
-  
+
   // Special notes
   calculationMethod: 'FOIR-Only',
   foirApproach: 'Two-Dimensional Matrix (Segment × NTH Salary)',
@@ -137,7 +137,7 @@ export const poonawalaConfig = {
     'Higher FOIR for premium segments and high earners',
     'Granular risk-based lending'
   ],
-  
+
   // Balance Transfer (BT) Configuration
   btConfig: {
     isAvailable: true, // BT facility is available
