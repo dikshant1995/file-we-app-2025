@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import './CustomerLoanForm.css';
 import { loadUniversalCompanies, getCompanySuggestions, initializeBankDatabases } from '../services/companyDatabaseService';
-import { indianStates, stateCityData } from '../data/locationData';
 
 const CustomerLoanForm = ({ onSubmit, loading }) => {
   const [formData, setFormData] = useState({
@@ -16,8 +15,6 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
     category: 'B', // Default to Category B
     employmentType: 'salaried',
     companyName: '',
-    state: '',
-    city: '',
     hasExistingLoans: false,
     existingLoans: [],
     // NEW: Balance Transfer options
@@ -151,15 +148,6 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
       document.getElementById('mobileNumber')?.focus();
       return;
     }
-
-    if (!formData.state) {
-      setValidationError('Please select your State to identify regional bank policies.');
-      return;
-    }
-    if (!formData.city) {
-      setValidationError('Please select your City for accurate local eligibility check.');
-      return;
-    }
     // ───────────────────────────────────────────────────────────────────────
 
     // Parse data EXACTLY as backend expects
@@ -229,9 +217,6 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
 
       // Additional data for display purposes (not used in calculation)
       _metadata: {
-        name: formData.customerName, // Added for Results display parity
-        monthlyIncome: totalMonthlyIncome, // Added for Results display parity
-        employer: formData.companyName, // Added for Results display parity
         customerName: formData.customerName,
         mobileNumber: formData.mobileNumber,
         basicSalary: basicSalary,
@@ -244,9 +229,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
         selectedLoansForBT: formData.selectedLoansForBT,
         state: formData.state,
         city: formData.city
-      },
-      state: formData.state,
-      city: formData.city
+      }
     };
 
     // Pass submissionData to loan engine AND raw formData to lead service
@@ -313,44 +296,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
               </small>
             )}
           </div>
-        </div>
 
-        {/* Location Selection */}
-        <div className="location-selection-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '20px' }}>
-          <div className="form-group">
-            <label htmlFor="state">State <span className="required">*</span></label>
-            <select
-              id="state"
-              name="state"
-              value={formData.state}
-              onChange={(e) => {
-                handleInputChange(e);
-                setFormData(prev => ({ ...prev, city: '' })); // Reset city when state changes
-              }}
-              required
-            >
-              <option value="">-- Select State --</option>
-              {indianStates.map(state => (
-                <option key={state} value={state}>{state}</option>
-              ))}
-            </select>
-          </div>
-          <div className="form-group">
-            <label htmlFor="city">City <span className="required">*</span></label>
-            <select
-              id="city"
-              name="city"
-              value={formData.city}
-              onChange={handleInputChange}
-              required
-              disabled={!formData.state}
-            >
-              <option value="">-- Select City --</option>
-              {formData.state && stateCityData[formData.state]?.map(city => (
-                <option key={city} value={city}>{city}</option>
-              ))}
-            </select>
-          </div>
         </div>
       </div>
 
@@ -849,6 +795,12 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
                       .reduce((sum, loan) => sum + (parseFloat(loan.monthlyEMI) || 0), 0)
                       .toLocaleString('en-IN')}
                   </div>
+                  <div style={{ marginTop: '5px', fontSize: '0.9em' }}>
+                    <strong>Total Outstanding to Transfer:</strong> ₹{formData.existingLoans
+                      .filter(loan => formData.selectedLoansForBT.includes(loan.id))
+                      .reduce((sum, loan) => sum + (parseFloat(loan.outstandingAmount) || 0), 0)
+                      .toLocaleString('en-IN')}
+                  </div>
                 </div>
               )}
             </div>
@@ -856,11 +808,21 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
         </div>
       )}
 
-      {/* Submit Button */}
-      <div className="form-submit">
+      {/* Submit Section */}
+      <div className="form-actions">
         <button type="submit" className="btn-submit" disabled={loading}>
-          {loading ? 'Processing Analysis...' : 'Generate Institutional Report'}
+          {loading ? 'Analyzing Data...' : 'Initiate Institutional Analysis'}
         </button>
+      </div>
+
+      <div className="form-note">
+        <p>📋 Analysis Protocol:</p>
+        <ul>
+          <li>Calculations are based on verified institutional policies.</li>
+          <li>Your data is encrypted and processed through our proprietary analysis engine.</li>
+          <li>Incentive consideration varies by institution (25% to 100%).</li>
+          <li>Age-based tenure capping is automatically applied.</li>
+        </ul>
       </div>
     </form>
   );
