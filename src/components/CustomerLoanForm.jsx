@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import './CustomerLoanForm.css';
 import { loadUniversalCompanies, getCompanySuggestions, initializeBankDatabases } from '../services/companyDatabaseService';
+import { indianStates, stateCityData } from '../data/locationData';
 
 const CustomerLoanForm = ({ onSubmit, loading }) => {
   const [formData, setFormData] = useState({
@@ -19,7 +20,9 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
     existingLoans: [],
     // NEW: Balance Transfer options
     wantsBT: false, // Does customer want to do BT?
-    selectedLoansForBT: [] // Array of loan IDs selected for BT
+    selectedLoansForBT: [], // Array of loan IDs selected for BT
+    state: '',
+    city: ''
   });
 
   const [companySuggestions, setCompanySuggestions] = useState([]);
@@ -296,7 +299,48 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
               </small>
             )}
           </div>
+        </div>
 
+        <div className="form-row-two" style={{ marginTop: '20px' }}>
+          <div className="form-group">
+            <label htmlFor="state">
+              State <span className="required">*</span>
+            </label>
+            <select
+              id="state"
+              name="state"
+              value={formData.state}
+              onChange={(e) => {
+                const newState = e.target.value;
+                setFormData(prev => ({ ...prev, state: newState, city: '' }));
+              }}
+              required
+            >
+              <option value="">-- Select State --</option>
+              {indianStates.map(state => (
+                <option key={state} value={state}>{state}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="city">
+              City <span className="required">*</span>
+            </label>
+            <select
+              id="city"
+              name="city"
+              value={formData.city}
+              onChange={handleInputChange}
+              required
+              disabled={!formData.state}
+            >
+              <option value="">-- Select City --</option>
+              {formData.state && stateCityData[formData.state]?.map(city => (
+                <option key={city} value={city}>{city}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
@@ -803,25 +847,36 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
                   </div>
                 </div>
               )}
+
+              {formData.selectedLoansForBT.length === 0 && (
+                <div style={{ marginTop: '15px', padding: '12px', background: '#fff3cd', borderRadius: '6px', fontSize: '0.9em', color: '#856404' }}>
+                  ⚠️ Please select at least one loan for Balance Transfer
+                </div>
+              )}
             </div>
           )}
         </div>
       )}
 
-      {/* Submit Section */}
+      {/* Submit Button */}
       <div className="form-actions">
-        <button type="submit" className="btn-submit" disabled={loading}>
-          {loading ? 'Analyzing Data...' : 'Initiate Institutional Analysis'}
+        <button
+          type="submit"
+          className="btn-submit"
+          disabled={loading}
+        >
+          {loading ? 'Processing Analysis...' : 'Generate Eligibility Report'}
         </button>
       </div>
 
+      {/* Information Note */}
       <div className="form-note">
-        <p>📋 Analysis Protocol:</p>
+        <p><strong>Note:</strong></p>
         <ul>
-          <li>Calculations are based on verified institutional policies.</li>
-          <li>Your data is encrypted and processed through our proprietary analysis engine.</li>
-          <li>Incentive consideration varies by institution (25% to 100%).</li>
-          <li>Age-based tenure capping is automatically applied.</li>
+          <li>Fixed 11% interest rate calculation across all institutions</li>
+          <li>Optimized loan tenure based on specific banking algorithms</li>
+          <li>Maximum eligibility limit assessment in real-time</li>
+          <li>Comprehensive multi-bank comparison reports</li>
         </ul>
       </div>
     </form>
