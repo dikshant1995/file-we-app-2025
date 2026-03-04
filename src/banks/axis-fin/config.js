@@ -12,11 +12,11 @@ export const axisFinConfig = {
   bachelorMaxLoanAmount: 2000000, // ₹20 Lakhs maximum for unmarried individuals
   interestRate: 11.0, // Fixed at 11% for all banks as per policy
   processingFee: 0.009,
-  
+
   // Incentive policy
   incentivePercentage: 1.0, // 100% of average incentive
   incentivePeriodMonths: 6, // Last 6 months (unique to Axis)
-  
+
   // Multiplier table based on salary bands and categories
   // Formula: Loan Amount = Monthly Salary × Multiplier
   multiplierTable: {
@@ -42,10 +42,10 @@ export const axisFinConfig = {
       'D': 18  // Lower than A/B/GOVT's lowest multiplier (24)
     }
   },
-  
+
   // Universal minimum salary requirement
   minSalary: 25000,
-  
+
   // Minimum salary requirements by category (all same)
   minSalaryByCategory: {
     'A': 25000,
@@ -54,7 +54,7 @@ export const axisFinConfig = {
     'C': 25000,
     'D': 25000
   },
-  
+
   // Maximum tenure by category (in months)
   maxTenureByCategory: {
     'A': 84,        // 7 years - CAT A
@@ -63,7 +63,7 @@ export const axisFinConfig = {
     'C': 60,        // 5 years - CAT C
     'D': 48         // 4 years - CAT D
   },
-  
+
   // Category descriptions
   categories: {
     'A': { description: 'Category A - Top Tier Companies (Highest Multipliers)' },
@@ -72,10 +72,10 @@ export const axisFinConfig = {
     'C': { description: 'Category C - Mid-Tier Companies (Moderate Multipliers)' },
     'D': { description: 'Category D - Lower-Tier Companies (Constrained Multipliers)' }
   },
-  
+
   employmentTypes: ['salaried', 'government'],
   specialPrograms: ['axis-select', 'government-special', 'premium-lending'],
-  
+
   // Calculation method
   calculationMethod: 'Multiplier-Only',
   approach: 'Universal Minimum Salary + Category-Based Multipliers',
@@ -86,7 +86,7 @@ export const axisFinConfig = {
     'Category D significantly constrained even at high income',
     'Risk-adjusted lending through multipliers'
   ],
-  
+
   // Balance Transfer (BT) Configuration
   btConfig: {
     isAvailable: true, // BT facility is available
