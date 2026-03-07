@@ -383,6 +383,77 @@
   letter-spacing: -0.02em;
 }
 
+/* Logic Bridge Styles */
+.logic-bridge-active-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 255, 157, 0.1);
+  color: #00ff9d;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  border: 1px solid rgba(0, 255, 157, 0.3);
+}
+
+.dot.pulse {
+  width: 6px;
+  height: 6px;
+  background: #00ff9d;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(0, 255, 157, 0.7);
+  }
+
+  70% {
+    transform: scale(1.2);
+    opacity: 0.7;
+    box-shadow: 0 0 0 6px rgba(0, 255, 157, 0);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(0, 255, 157, 0);
+  }
+}
+
+.admin-sync-tag {
+  font-size: 0.65rem;
+  color: #4facfe;
+  margin-bottom: 10px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.salary-warning {
+  border-left: 3px solid #ff4b2b !important;
+  background: rgba(255, 75, 43, 0.05) !important;
+}
+
+.suggestion-box {
+  margin-top: 10px;
+  font-size: 0.75rem;
+  color: #888;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 8px;
+  border-radius: 4px;
+  font-style: italic;
+}
+
 /* Rejection Style */
 .bank-card.rejected {
   opacity: 0.7;
