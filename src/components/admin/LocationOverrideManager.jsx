@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import './ConfigEditor.css';
-import { indianStates, stateCityData } from '../../data/locationData';
+import { indianStates, stateCityData } from '../../data/locationData.js';
 
 const LocationOverrideManager = ({
     overrides = {},
