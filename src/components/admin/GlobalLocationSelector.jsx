@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { indianStates, stateCityData } from '../../data/locationData';
+import { indianStates, stateCityData } from '../../data/locationData.js';
 import './GlobalLocationSelector.css';
 
 const GlobalLocationSelector = ({ activeLocation, onLocationChange }) => {
