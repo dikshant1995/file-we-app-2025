@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import './AddBankModal.css';
-import { saveBankConfig } from '../../services/bankConfigService';
+import { saveBankConfig } from '../../services/bankConfigService.js';
 
 const AddBankModal = ({ onClose, onBankAdded }) => {
   const [bankName, setBankName] = useState('');
