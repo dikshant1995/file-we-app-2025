@@ -53,6 +53,14 @@ export const calculateIndusindEligibility = (userData) => {
     employmentType,
     age,
     existingLoanBanks,
+    // Admin Overrides (Logic Bridge)
+    interestRateOverride,
+    isGovtEmployee,
+    govtROI,
+    govtFOIR,
+    govtMultiplier,
+    govtMaxTenure,
+    // Balance Transfer fields
     isBTMode,
     loansForBT,
     btTotalEMI,
@@ -109,7 +117,9 @@ export const calculateIndusindEligibility = (userData) => {
   }
 
   // Apply tenure capping based on category (tenure is in months)
-  const maxTenureForCategory = indusindConfig.maxTenureByCategory[category];
+  // Logic Bridge: Support govtMaxTenure override
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : indusindConfig.maxTenureByCategory[category];
+
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
       eligible: false,
@@ -145,13 +155,9 @@ export const calculateIndusindEligibility = (userData) => {
   }
 
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
-  const salaryBand = getSalaryBand(incomeForCalculation, category, indusindConfig.multiplierTable);
 
-  if (!salaryBand) {
-    return { eligible: false, reason: `Salary does not fall within any eligible band for category ${category}`, isBTMode: isBT };
-  }
-
-  const multiplier = indusindConfig.multiplierTable[category][salaryBand];
+  // Logic Bridge: Support govtMultiplier override
+  let multiplier = isGovtEmployee && govtMultiplier ? govtMultiplier : indusindConfig.multiplierTable[category][salaryBand];
 
   if (!multiplier) {
     return { eligible: false, reason: `No multiplier available for category ${category} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
@@ -192,7 +198,11 @@ export const calculateIndusindEligibility = (userData) => {
     };
   }
 
-  const monthlyEMI = calculateEMI(cappedFinalLoan, indusindConfig.interestRate, cappedTenureYears);
+  // Logic Bridge: Support ROI overrides
+  let effectiveInterestRate = interestRateOverride || indusindConfig.interestRate;
+  if (isGovtEmployee && govtROI) effectiveInterestRate = govtROI;
+
+  const monthlyEMI = calculateEMI(cappedFinalLoan, effectiveInterestRate, cappedTenureYears);
 
   return {
     eligible: true,
