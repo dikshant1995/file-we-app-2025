@@ -88,6 +88,14 @@ export const calculateBandhanEligibility = (userData) => {
     age,
     category,
     existingLoanBanks,
+    // Admin Overrides (Logic Bridge)
+    interestRateOverride,
+    isGovtEmployee,
+    govtROI,
+    govtFOIR,
+    govtMultiplier,
+    govtMaxTenure,
+    // Balance Transfer fields
     isBTMode,
     loansForBT,
     btTotalEMI,
@@ -132,7 +140,9 @@ export const calculateBandhanEligibility = (userData) => {
   }
 
   // Use user-provided interest rate or default to bank config
-  const effectiveInterestRate = interestRate || bandhanConfig.interestRate;
+  // Logic Bridge: Support logic bridge overrides
+  let effectiveInterestRate = interestRateOverride || interestRate || bandhanConfig.interestRate;
+  if (isGovtEmployee && govtROI) effectiveInterestRate = govtROI;
 
   // Check employment type
   if (!bandhanConfig.employmentTypes.includes(employmentType)) {
@@ -146,7 +156,9 @@ export const calculateBandhanEligibility = (userData) => {
   const companyCategory = category || 'B'; // Default to B if not provided
 
   // Apply tenure capping based on category (tenure is in months)
-  const maxTenureForCategory = bandhanConfig.maxTenureByCategory[companyCategory];
+  // Logic Bridge: Support govtMaxTenure override
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : bandhanConfig.maxTenureByCategory[companyCategory];
+
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
       eligible: false,
@@ -175,8 +187,12 @@ export const calculateBandhanEligibility = (userData) => {
     return { eligible: false, reason: `Minimum monthly income required for ${companyCategory} category is ₹${categoryMinSalary.toLocaleString()}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
+  // Calculate using FOIR method
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
-  const foirPercentage = getFoirPercentage(incomeForCalculation);
+
+  // Logic Bridge: Support govtFOIR override
+  let foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : getFoirPercentage(incomeForCalculation);
+
   if (!foirPercentage) {
     return { eligible: false, reason: 'Unable to determine FOIR percentage for the provided salary', isBTMode: isBT };
   }
