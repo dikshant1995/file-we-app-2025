@@ -1,4 +1,11 @@
 import { bandhanConfig } from './config.js';
+import { getSlabRate } from '../../utils/policyUtils.js';
+
+// Helper function to get interest rate based on category and loan amount
+const getInterestRateForLoan = (category, loanAmount, location = null) => {
+  let lookupCategory = category === 'Govt' ? 'A' : category;
+  return getSlabRate('Bandhan Bank', lookupCategory, loanAmount, location, bandhanConfig.interestRate);
+};
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -139,10 +146,8 @@ export const calculateBandhanEligibility = (userData) => {
     };
   }
 
-  // Use user-provided interest rate or default to bank config
-  // Logic Bridge: Support logic bridge overrides
-  let effectiveInterestRate = interestRateOverride || interestRate || bandhanConfig.interestRate;
-  if (isGovtEmployee && govtROI) effectiveInterestRate = govtROI;
+  // Pass 1: Preliminary ROI for initial calculation
+  const baseRate = bandhanConfig.interestRate;
 
   // Check employment type
   if (!bandhanConfig.employmentTypes.includes(employmentType)) {
@@ -157,7 +162,8 @@ export const calculateBandhanEligibility = (userData) => {
 
   // Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
-  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : bandhanConfig.maxTenureByCategory[companyCategory];
+  let lookupCategory = companyCategory === 'Govt' ? 'A' : companyCategory;
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : bandhanConfig.maxTenureByCategory[lookupCategory];
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
@@ -176,7 +182,8 @@ export const calculateBandhanEligibility = (userData) => {
   const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
 
   // Check minimum salary requirement based on category
-  const categoryMinSalary = bandhanConfig.minSalary[companyCategory];
+  let lookupCategorySalary = companyCategory === 'Govt' ? 'A' : companyCategory;
+  const categoryMinSalary = bandhanConfig.minSalary[lookupCategorySalary];
 
   if (categoryMinSalary === null) {
     return { eligible: false, reason: `Bandhan Bank does not provide loans to UNLISTED companies` };
@@ -201,7 +208,17 @@ export const calculateBandhanEligibility = (userData) => {
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
   const availableEMI = isBT ? foirCap : (foirCap - totalObligations);
 
-  // Calculate loan amount based on available EMI using the capped tenure (in years)
+  // Calculate preliminary loan amount based on available EMI using base rate
+  const preliminaryLoanAmount = calculateLoanAmountFromEMI(availableEMI, baseRate, cappedTenureYears);
+
+  // Pass 2: Get final ROI based on preliminary loan amount
+  let finalInterestRate = interestRateOverride || interestRate;
+  if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(companyCategory, preliminaryLoanAmount, userData.city || userData.state);
+
+  const effectiveInterestRate = finalInterestRate;
+
+  // Recalculate loan amount based on available EMI using the final interest rate
   const foirLoanAmount = calculateLoanAmountFromEMI(availableEMI, effectiveInterestRate, cappedTenureYears);
 
   // Take the minimum of desired loan amount and FOIR-based loan amount
