@@ -83,6 +83,9 @@ const InterestRateEditor = ({ bank, onSave, location }) => {
       <div className="editor-header">
         <h2>📈 Interest Rate Matrix - {bank.name}</h2>
         <p>Configure interest rates by category and loan amount slabs (Max: ₹{(maxLoan / 100000).toFixed(0)}L)</p>
+        {location && (
+          <p className="location-indicator">📍 Current Override: <strong>{location}</strong></p>
+        )}
       </div>
 
       {/* Rate Matrix by Category */}
