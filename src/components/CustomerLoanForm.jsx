@@ -15,6 +15,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
     age: '', // AGE is required for banks to decide tenure capping
     category: 'B', // Default to Category B
     employmentType: 'salaried',
+    salaryMode: 'bank', // Default to bank transfer
     companyName: '',
     hasExistingLoans: false,
     existingLoans: [],
@@ -231,7 +232,8 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
         wantsBT: formData.wantsBT,
         selectedLoansForBT: formData.selectedLoansForBT,
         state: formData.state,
-        city: formData.city
+        city: formData.city,
+        salaryMode: formData.salaryMode, // Add salaryMode to metadata
       }
     };
 
@@ -484,7 +486,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
                 </strong>
               </div>
             </div>
-            <div style={{ marginTop: '10px', fontSize: '0.85em', color: '#555', fontStyle: 'italic' }}>
+            <div style={{ marginTop: '10px', fontSize: '0.85em', fontStyle: 'italic', color: '#555' }}>
               Note: Banks will apply their own percentage (25%-100%) to this average based on their policies.
             </div>
           </div>
@@ -580,6 +582,28 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
             </small>
           </div>
         )}
+
+        {/* String 8: Salary Mode Selection */}
+        <div className="form-group">
+          <label htmlFor="salaryMode">
+            Salary Received In <span className="required">*</span>
+          </label>
+          <select
+            id="salaryMode"
+            name="salaryMode"
+            value={formData.salaryMode || 'bank'}
+            onChange={handleInputChange}
+            required
+            className="salary-mode-select"
+          >
+            <option value="bank">Bank Transfer</option>
+            <option value="cash">Cash</option>
+            <option value="cheque">Cheque</option>
+          </select>
+          <small className="help-text" style={{ display: 'block', marginTop: '5px', fontSize: '0.85em', color: '#666' }}>
+            Most institutional banks strictly required a "Bank Transfer" salary.
+          </small>
+        </div>
       </div>
 
       {/* Existing Loans */}
