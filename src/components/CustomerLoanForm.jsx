@@ -204,7 +204,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
     const submissionData = {
       monthlyIncome: totalMonthlyIncome, // Total income (banks will apply their incentive % internally)
       age: parseInt(formData.age), // AGE required for tenure capping
-      category: formData.category, // B, C, or GOVT only
+      category: formData.employmentType === 'government' ? 'GOVT' : formData.category, // Auto-select GOVT for govt employees
       employmentType: formData.employmentType,
       companyName: formData.companyName,
       existingEMI: totalExistingEMI,
@@ -528,42 +528,6 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="companyName">
-            Company Name <span className="required">*</span>
-          </label>
-          <input
-            type="text"
-            id="companyName"
-            name="companyName"
-            value={formData.companyName}
-            onChange={handleInputChange}
-            placeholder="Start typing company name..."
-            required
-            autoComplete="off"
-          />
-          {companySuggestions.length > 0 && (
-            <div className="autocomplete-dropdown">
-              {companySuggestions.map((company, idx) => (
-                <div
-                  key={idx}
-                  className="autocomplete-item"
-                  onMouseDown={() => {
-                    console.log('🏢 Company Selected:', company);
-                    setFormData(prev => ({ ...prev, companyName: company }));
-                    setCompanySuggestions([]);
-                  }}
-                >
-                  {company}
-                </div>
-              ))}
-            </div>
-          )}
-          <small className="help-text">
-            Type your company name. We'll check each bank's database for your category.
-          </small>
-        </div>
-
-        <div className="form-group">
           <label htmlFor="employmentType">
             Employment Type <span className="required">*</span>
           </label>
@@ -574,10 +538,48 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
             onChange={handleInputChange}
             required
           >
-            <option value="salaried">Salaried</option>
-            <option value="government">Government</option>
+            <option value="salaried">Private</option>
+            <option value="government">Government Employee</option>
           </select>
         </div>
+
+        {formData.employmentType === 'salaried' && (
+          <div className="form-group">
+            <label htmlFor="companyName">
+              Company Name <span className="required">*</span>
+            </label>
+            <input
+              type="text"
+              id="companyName"
+              name="companyName"
+              value={formData.companyName}
+              onChange={handleInputChange}
+              placeholder="Start typing company name..."
+              required={formData.employmentType === 'salaried'}
+              autoComplete="off"
+            />
+            {companySuggestions.length > 0 && (
+              <div className="autocomplete-dropdown">
+                {companySuggestions.map((company, idx) => (
+                  <div
+                    key={idx}
+                    className="autocomplete-item"
+                    onMouseDown={() => {
+                      console.log('🏢 Company Selected:', company);
+                      setFormData(prev => ({ ...prev, companyName: company }));
+                      setCompanySuggestions([]);
+                    }}
+                  >
+                    {company}
+                  </div>
+                ))}
+              </div>
+            )}
+            <small className="help-text">
+              Type your company name. We'll check each bank's database for your category.
+            </small>
+          </div>
+        )}
       </div>
 
       {/* Existing Loans */}
@@ -762,101 +764,103 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
       </div>
 
       {/* Balance Transfer Section */}
-      {formData.hasExistingLoans && formData.existingLoans.length > 0 && (
-        <div className="form-section" style={{ background: '#f0f7ff', borderLeft: '4px solid #2196f3' }}>
-          <h3>Balance Transfer Optimization</h3>
+      {
+        formData.hasExistingLoans && formData.existingLoans.length > 0 && (
+          <div className="form-section" style={{ background: '#f0f7ff', borderLeft: '4px solid #2196f3' }}>
+            <h3>Balance Transfer Optimization</h3>
 
-          <div className="form-group checkbox-group">
-            <label>
-              <input
-                type="checkbox"
-                name="wantsBT"
-                checked={formData.wantsBT}
-                onChange={handleInputChange}
-              />
-              <strong>Yes, I want to do Balance Transfer</strong>
-            </label>
-            <small className="help-text" style={{ display: 'block', marginTop: '5px', marginLeft: '24px' }}>
-              Select which specific loans you want to transfer to a new bank with better rates
-            </small>
-          </div>
-
-          {formData.wantsBT && (
-            <div style={{ marginTop: '20px' }}>
-              <h4 style={{ marginBottom: '15px', color: '#1976d2' }}>Select Loans for Balance Transfer:</h4>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {formData.existingLoans.map((loan, index) => (
-                  <div
-                    key={loan.id}
-                    style={{
-                      padding: '15px',
-                      background: 'white',
-                      borderRadius: '8px',
-                      border: formData.selectedLoansForBT.includes(loan.id) ? '2px solid #2196f3' : '2px solid #e0e0e0',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease'
-                    }}
-                    onClick={() => handleBTToggle(loan.id)}
-                  >
-                    <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      <input
-                        type="checkbox"
-                        checked={formData.selectedLoansForBT.includes(loan.id)}
-                        onChange={() => handleBTToggle(loan.id)}
-                        style={{ marginTop: '4px', width: '18px', height: '18px', cursor: 'pointer' }}
-                      />
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: '600', fontSize: '1.05em', marginBottom: '8px', color: '#333' }}>
-                          Loan {index + 1}: {loan.type}
-                        </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px', fontSize: '0.9em', color: '#666' }}>
-                          <div>🏦 <strong>Bank:</strong> <span style={{ textTransform: 'capitalize' }}>{loan.lender || 'Not specified'}</span></div>
-                          {loan.type === 'Credit Card' ? (
-                            <>
-                              <div>💳 <strong>Credit Limit:</strong> ₹{loan.creditLimit ? parseFloat(loan.creditLimit).toLocaleString('en-IN') : '0'}</div>
-                              <div>💵 <strong>Used:</strong> ₹{loan.creditLimitUsed ? parseFloat(loan.creditLimitUsed).toLocaleString('en-IN') : '0'}</div>
-                            </>
-                          ) : (
-                            <>
-                              <div>💵 <strong>Outstanding:</strong> ₹{loan.outstandingAmount ? parseFloat(loan.outstandingAmount).toLocaleString('en-IN') : '0'}</div>
-                              <div>💳 <strong>EMI:</strong> ₹{loan.monthlyEMI ? parseFloat(loan.monthlyEMI).toLocaleString('en-IN') : '0'}</div>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </label>
-                  </div>
-                ))}
-              </div>
-
-              {formData.selectedLoansForBT.length > 0 && (
-                <div style={{ marginTop: '15px', padding: '15px', background: '#e8f5e9', borderRadius: '8px', borderLeft: '4px solid #4caf50' }}>
-                  <strong>✅ Selected for BT:</strong> {formData.selectedLoansForBT.length} loan(s)
-                  <div style={{ marginTop: '8px', fontSize: '0.9em' }}>
-                    <strong>Total EMI to Transfer:</strong> ₹{formData.existingLoans
-                      .filter(loan => formData.selectedLoansForBT.includes(loan.id))
-                      .reduce((sum, loan) => sum + (parseFloat(loan.monthlyEMI) || 0), 0)
-                      .toLocaleString('en-IN')}
-                  </div>
-                  <div style={{ marginTop: '5px', fontSize: '0.9em' }}>
-                    <strong>Total Outstanding to Transfer:</strong> ₹{formData.existingLoans
-                      .filter(loan => formData.selectedLoansForBT.includes(loan.id))
-                      .reduce((sum, loan) => sum + (parseFloat(loan.outstandingAmount) || 0), 0)
-                      .toLocaleString('en-IN')}
-                  </div>
-                </div>
-              )}
-
-              {formData.selectedLoansForBT.length === 0 && (
-                <div style={{ marginTop: '15px', padding: '12px', background: '#fff3cd', borderRadius: '6px', fontSize: '0.9em', color: '#856404' }}>
-                  ⚠️ Please select at least one loan for Balance Transfer
-                </div>
-              )}
+            <div className="form-group checkbox-group">
+              <label>
+                <input
+                  type="checkbox"
+                  name="wantsBT"
+                  checked={formData.wantsBT}
+                  onChange={handleInputChange}
+                />
+                <strong>Yes, I want to do Balance Transfer</strong>
+              </label>
+              <small className="help-text" style={{ display: 'block', marginTop: '5px', marginLeft: '24px' }}>
+                Select which specific loans you want to transfer to a new bank with better rates
+              </small>
             </div>
-          )}
-        </div>
-      )}
+
+            {formData.wantsBT && (
+              <div style={{ marginTop: '20px' }}>
+                <h4 style={{ marginBottom: '15px', color: '#1976d2' }}>Select Loans for Balance Transfer:</h4>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {formData.existingLoans.map((loan, index) => (
+                    <div
+                      key={loan.id}
+                      style={{
+                        padding: '15px',
+                        background: 'white',
+                        borderRadius: '8px',
+                        border: formData.selectedLoansForBT.includes(loan.id) ? '2px solid #2196f3' : '2px solid #e0e0e0',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onClick={() => handleBTToggle(loan.id)}
+                    >
+                      <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                        <input
+                          type="checkbox"
+                          checked={formData.selectedLoansForBT.includes(loan.id)}
+                          onChange={() => handleBTToggle(loan.id)}
+                          style={{ marginTop: '4px', width: '18px', height: '18px', cursor: 'pointer' }}
+                        />
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontWeight: '600', fontSize: '1.05em', marginBottom: '8px', color: '#333' }}>
+                            Loan {index + 1}: {loan.type}
+                          </div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px', fontSize: '0.9em', color: '#666' }}>
+                            <div>🏦 <strong>Bank:</strong> <span style={{ textTransform: 'capitalize' }}>{loan.lender || 'Not specified'}</span></div>
+                            {loan.type === 'Credit Card' ? (
+                              <>
+                                <div>💳 <strong>Credit Limit:</strong> ₹{loan.creditLimit ? parseFloat(loan.creditLimit).toLocaleString('en-IN') : '0'}</div>
+                                <div>💵 <strong>Used:</strong> ₹{loan.creditLimitUsed ? parseFloat(loan.creditLimitUsed).toLocaleString('en-IN') : '0'}</div>
+                              </>
+                            ) : (
+                              <>
+                                <div>💵 <strong>Outstanding:</strong> ₹{loan.outstandingAmount ? parseFloat(loan.outstandingAmount).toLocaleString('en-IN') : '0'}</div>
+                                <div>💳 <strong>EMI:</strong> ₹{loan.monthlyEMI ? parseFloat(loan.monthlyEMI).toLocaleString('en-IN') : '0'}</div>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </label>
+                    </div>
+                  ))}
+                </div>
+
+                {formData.selectedLoansForBT.length > 0 && (
+                  <div style={{ marginTop: '15px', padding: '15px', background: '#e8f5e9', borderRadius: '8px', borderLeft: '4px solid #4caf50' }}>
+                    <strong>✅ Selected for BT:</strong> {formData.selectedLoansForBT.length} loan(s)
+                    <div style={{ marginTop: '8px', fontSize: '0.9em' }}>
+                      <strong>Total EMI to Transfer:</strong> ₹{formData.existingLoans
+                        .filter(loan => formData.selectedLoansForBT.includes(loan.id))
+                        .reduce((sum, loan) => sum + (parseFloat(loan.monthlyEMI) || 0), 0)
+                        .toLocaleString('en-IN')}
+                    </div>
+                    <div style={{ marginTop: '5px', fontSize: '0.9em' }}>
+                      <strong>Total Outstanding to Transfer:</strong> ₹{formData.existingLoans
+                        .filter(loan => formData.selectedLoansForBT.includes(loan.id))
+                        .reduce((sum, loan) => sum + (parseFloat(loan.outstandingAmount) || 0), 0)
+                        .toLocaleString('en-IN')}
+                    </div>
+                  </div>
+                )}
+
+                {formData.selectedLoansForBT.length === 0 && (
+                  <div style={{ marginTop: '15px', padding: '12px', background: '#fff3cd', borderRadius: '6px', fontSize: '0.9em', color: '#856404' }}>
+                    ⚠️ Please select at least one loan for Balance Transfer
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )
+      }
 
       {/* Submit Button */}
       <div className="form-actions">
