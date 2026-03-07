@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
 import './App.css'
-import UserInputForm from './components/UserInputForm'
-import ResultsDisplay from './components/ResultsDisplay'
-import BTResultsDisplay from './components/BTResultsDisplay'
-import DebugInfo from './components/DebugInfo'
-import AdminDashboard from './components/AdminDashboard'
-import { calculateLoanEligibility } from './services/realLoanService'
-import { calculateBTWithCreditCards } from './services/btLoanService'
+import UserInputForm from './components/UserInputForm.js'
+import ResultsDisplay from './components/ResultsDisplay.js'
+import BTResultsDisplay from './components/BTResultsDisplay.js'
+import DebugInfo from './components/DebugInfo.js'
+import AdminDashboard from './components/AdminDashboard.js'
+import { calculateLoanEligibility } from './services/realLoanService.js'
+import { calculateBTWithCreditCards } from './services/btLoanService.js'
 
 function App() {
   const [userData, setUserData] = useState(null)
