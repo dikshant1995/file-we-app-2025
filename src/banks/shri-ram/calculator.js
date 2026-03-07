@@ -1,4 +1,5 @@
 import { shriRamConfig } from './config.js';
+import { getBankConfig } from '../../services/bankConfigService';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -71,11 +72,19 @@ export const calculateShriRamEligibility = (userData) => {
     employmentType,
     age,
     existingLoanBanks,
+    // Admin Overrides (Logic Bridge)
+    interestRateOverride,
+    isGovtEmployee,
+    govtROI,
+    govtFOIR,
+    govtMultiplier,
+    govtMaxTenure,
+    // Balance Transfer fields
     isBTMode,
     loansForBT,
     btTotalEMI,
     btTotalOutstanding,
-    creditCardObligation = 0  // Add default value
+    creditCardObligation = 0
   } = userData;
 
   const isBT = isBTMode && loansForBT && loansForBT.length > 0;
@@ -122,7 +131,9 @@ export const calculateShriRamEligibility = (userData) => {
   }
 
   // Apply tenure capping based on category (tenure is in months)
-  const maxTenureForCategory = shriRamConfig.maxTenureByCategory[category];
+  // Logic Bridge: Support govtMaxTenure override
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : shriRamConfig.maxTenureByCategory[category];
+
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
       eligible: false,
@@ -161,8 +172,10 @@ export const calculateShriRamEligibility = (userData) => {
   }
 
   const bandData = shriRamConfig.salaryBandTable[salaryBand];
-  const multiplier = bandData.multiplier;
-  const foirPercentage = bandData.foir;
+
+  // Logic Bridge: Support govtMultiplier and govtFOIR overrides
+  let multiplier = isGovtEmployee && govtMultiplier ? govtMultiplier : bandData.multiplier;
+  let foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : bandData.foir;
 
   const foirCap = incomeForCalculation * foirPercentage;
   const availableEMI = isBT ? foirCap : (foirCap - existingEMI);
@@ -174,9 +187,13 @@ export const calculateShriRamEligibility = (userData) => {
     };
   }
 
+  // Logic Bridge: Support ROI overrides
+  let effectiveInterestRate = interestRateOverride || shriRamConfig.interestRate;
+  if (isGovtEmployee && govtROI) effectiveInterestRate = govtROI;
+
   const foirLoanAmount = calculatePrincipalFromEMI(
     availableEMI,
-    shriRamConfig.interestRate,
+    effectiveInterestRate,
     cappedTenureYears
   );
 
