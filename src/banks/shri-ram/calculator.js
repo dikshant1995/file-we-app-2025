@@ -195,6 +195,12 @@ export const calculateShriRamEligibility = (userData) => {
     };
   }
 
+  // Method 2: Multiplier-based calculation
+  // IMPORTANT: For multiplier, use salary after deducting existing EMI + credit card obligations (non-BT mode)
+  const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
+  const availableSalary = isBT ? incomeForCalculation : (monthlyIncome - totalObligations);
+  const multiplierLoanAmount = availableSalary * multiplier;
+
   // Pass 1: Preliminary ROI for initial calculation
   const baseRate = shriRamConfig.interestRate;
 
@@ -221,11 +227,6 @@ export const calculateShriRamEligibility = (userData) => {
   // Recalculate FOIR-based principal with final effective interest rate
   const foirLoanAmount = calculatePrincipalFromEMI(availableEMI, effectiveInterestRate, cappedTenureYears);
 
-  // Method 2: Multiplier-based calculation
-  // IMPORTANT: For multiplier, use salary after deducting existing EMI + credit card obligations (non-BT mode)
-  const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
-  const availableSalary = isBT ? incomeForCalculation : (monthlyIncome - totalObligations);
-  const multiplierLoanAmount = availableSalary * multiplier;
 
   // Final loan amount is minimum of both methods and desired amount
   const finalLoanAmount = Math.min(
