@@ -1,28 +1,11 @@
 import { tataConfig } from './config.js';
-import { getBankConfig } from '../../services/bankConfigService';
+import { getBankConfig } from '../../services/bankConfigService.js';
+import { getSlabRate } from '../../utils/policyUtils.js';
 
 // Helper: Get interest rate based on category and loan amount
-const getInterestRateForLoan = (category, loanAmount) => {
-  const rateConfig = getBankConfig('Tata Capital', 'interestRates');
-
-  if (!rateConfig || !rateConfig.categorySlabRates || !rateConfig.categorySlabRates[category]) {
-    return tataConfig.interestRate;
-  }
-
-  const slabs = rateConfig.categorySlabRates[category];
-
-  for (const slabLabel in slabs) {
-    const match = slabLabel.match(/₹(\d+)-(\d+)/);
-    if (match) {
-      const min = parseInt(match[1]);
-      const max = parseInt(match[2]);
-      if (loanAmount >= min && loanAmount <= max) {
-        return slabs[slabLabel];
-      }
-    }
-  }
-
-  return tataConfig.interestRate;
+const getInterestRateForLoan = (category, loanAmount, location = null) => {
+  let lookupCategory = category === 'Govt' ? 'A' : category;
+  return getSlabRate('Tata Capital', lookupCategory, loanAmount, location, tataConfig.interestRate);
 };
 
 // Helper: Calculate EMI
@@ -147,7 +130,8 @@ export const calculateTataEligibility = (userData) => {
 
   // 2. Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure and category-based tenure capping
-  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : tataConfig.maxTenureByCategory[category];
+  let lookupCategory = category === 'Govt' ? 'A' : category;
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : tataConfig.maxTenureByCategory[lookupCategory];
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
@@ -228,7 +212,7 @@ export const calculateTataEligibility = (userData) => {
   // Logic Bridge: Support ROI overrides
   let finalInterestRate = interestRateOverride;
   if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
-  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(category, preliminaryCappedLoan);
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(category, preliminaryCappedLoan, userData.city || userData.state);
 
   // Recalculate FOIR loan with final rate
   const foirLoanAmount = calculatePrincipalFromEMI(availableEMI, finalInterestRate, cappedTenureYears);
