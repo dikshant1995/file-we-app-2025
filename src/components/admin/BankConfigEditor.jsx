@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import './BankConfigEditor.css';
-import InterestRateEditor from './InterestRateEditor.js';
-import CategoriesEditor from './CategoriesEditor.js';
-import LoanCappingEditor from './LoanCappingEditor.js';
-import { AgeRulesEditor, TenureRulesEditor, FoirEditor, MultiplierEditor, BTEditor, CreditScoreEditor, EmploymentEditor, FeesEditor, DocumentsEditor, SpecialRulesEditor, GovtPolicyEditor } from './AllEditors.js';
+import InterestRateEditor from './InterestRateEditor.jsx';
+import CategoriesEditor from './CategoriesEditor.jsx';
+import LoanCappingEditor from './LoanCappingEditor.jsx';
+import { AgeRulesEditor, TenureRulesEditor, FoirEditor, MultiplierEditor, BTEditor, CreditScoreEditor, EmploymentEditor, FeesEditor, DocumentsEditor, SpecialRulesEditor, GovtPolicyEditor } from './AllEditors.jsx';
 
 const BankConfigEditor = ({ selectedBank, section, activeLocation }) => {
   if (!selectedBank) {
