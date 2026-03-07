@@ -1,5 +1,12 @@
 import { hdfcConfig } from './config.js';
-import { getBankConfig } from '../../services/bankConfigService';
+import { getBankConfig } from '../../services/bankConfigService.js';
+import { getSlabRate } from '../../utils/policyUtils.js';
+
+// Helper function to get interest rate based on category and loan amount
+const getInterestRateForLoan = (category, loanAmount, location = null) => {
+  let lookupCategory = category === 'Govt' ? 'A' : category;
+  return getSlabRate('HDFC Bank', lookupCategory, loanAmount, location, hdfcConfig.interestRate);
+};
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -202,12 +209,11 @@ export const calculateHdfcEligibility = (userData) => {
     };
   }
 
-  // Use user-provided interest rate or default to bank config
-  // Logic Bridge: Support interestRateOverride and govtROI
-  let effectiveInterestRate = interestRateOverride || interestRate || hdfcConfig.interestRate;
-  if (isGovtEmployee && govtROI) effectiveInterestRate = govtROI;
+  // Pass 1: Preliminary ROI for initial calculation
+  const baseRate = hdfcConfig.interestRate;
 
-  // Check employment type
+  // Use user-provided category (from frontend: B, C, or GOVT)
+  const companyCategory = category || 'B'; // Default to B if not provided
   if (!hdfcConfig.employmentTypes.includes(employmentType)) {
     return {
       eligible: false,
@@ -215,12 +221,11 @@ export const calculateHdfcEligibility = (userData) => {
     };
   }
 
-  // Use user-provided category (from frontend: B, C, or GOVT)
-  const companyCategory = category || 'B'; // Default to B if not provided
 
   // Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Use govtMaxTenure if available
-  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : hdfcConfig.maxTenureByCategory[companyCategory];
+  let lookupCategory = companyCategory === 'Govt' ? 'A' : companyCategory;
+  let maxTenureForCategory = (isGovtEmployee && govtMaxTenure) ? govtMaxTenure : hdfcConfig.maxTenureByCategory[lookupCategory];
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
@@ -240,7 +245,8 @@ export const calculateHdfcEligibility = (userData) => {
 
   // Check minimum salary requirement based on category
   // For BT mode, use adjusted income for salary checks
-  const categoryMinSalary = hdfcConfig.minSalary[companyCategory] || hdfcConfig.minSalary['A'];
+  let lookupCategoryMinSalary = companyCategory === 'Govt' ? 'A' : companyCategory;
+  const categoryMinSalary = hdfcConfig.minSalary[lookupCategoryMinSalary] || hdfcConfig.minSalary['A'];
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < categoryMinSalary) {
     return {
@@ -255,7 +261,8 @@ export const calculateHdfcEligibility = (userData) => {
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
 
   // Logic Bridge: Use govtMultiplier if available
-  let multiplier = isGovtEmployee && govtMultiplier ? govtMultiplier : getMultiplier(incomeForCalculation, companyCategory);
+  let lookupCategoryMultiplier = companyCategory === 'Govt' ? 'A' : companyCategory;
+  let multiplier = (isGovtEmployee && govtMultiplier) ? govtMultiplier : getMultiplier(incomeForCalculation, lookupCategoryMultiplier);
 
   if (!multiplier) {
     return {
@@ -272,7 +279,8 @@ export const calculateHdfcEligibility = (userData) => {
 
   // Calculate using FOIR method
   // Logic Bridge: Use govtFOIR if available
-  let foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : getFoirPercentage(incomeForCalculation, companyCategory);
+  let lookupCategoryFOIR = companyCategory === 'Govt' ? 'A' : companyCategory;
+  let foirPercentage = (isGovtEmployee && govtFOIR) ? (govtFOIR / 100) : getFoirPercentage(incomeForCalculation, lookupCategoryFOIR);
 
   if (!foirPercentage) {
     return {
@@ -286,7 +294,27 @@ export const calculateHdfcEligibility = (userData) => {
   // For BT mode: existingEMI already adjusted (set to 0 or minimal), use full FOIR capacity
   const availableEMI = isBT ? foirCap : (foirCap - totalObligations);
 
-  // Calculate loan amount based on available EMI using the capped tenure (in years)
+  // Calculate preliminary loan amount based on available EMI using base rate
+  const preliminaryFoirLoanAmount = calculateLoanAmountFromEMI(availableEMI, baseRate, cappedTenureYears);
+
+  // Take the minimum for first pass
+  const preliminaryMaxLoanAmount = Math.min(
+    desiredLoanAmount || Infinity,
+    multiplierLoanAmount,
+    preliminaryFoirLoanAmount
+  );
+
+  // Apply bank's maximum loan cap for pass 1
+  const preliminaryLoanAmount = Math.min(preliminaryMaxLoanAmount, hdfcConfig.maxLoanAmount);
+
+  // Pass 2: Get final ROI based on preliminary loan amount
+  let finalInterestRate = interestRateOverride || interestRate;
+  if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(companyCategory, preliminaryLoanAmount, userData.city || userData.state);
+
+  const effectiveInterestRate = finalInterestRate;
+
+  // Recalculate FOIR loan amount with final effective interest rate
   const foirLoanAmount = calculateLoanAmountFromEMI(availableEMI, effectiveInterestRate, cappedTenureYears);
 
   // For HDFC, take the minimum of Multiplier and FOIR calculations
