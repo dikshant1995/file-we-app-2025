@@ -66,7 +66,7 @@ export const TenureRulesEditor = ({ bank, onSave, location }) => {
   const [config, setConfig] = useState({
     minTenureMonths: 12,
     maxTenureMonths: 84,
-    categoryBasedMaxTenure: { A: 84, B: 84, C: 72, D: 60 }
+    categoryBasedMaxTenure: { 'SUPER-A': 84, A: 84, B: 84, C: 72, D: 60, GOVT: 84 }
   });
 
   useEffect(() => {
@@ -114,7 +114,7 @@ export const TenureRulesEditor = ({ bank, onSave, location }) => {
 // FOIR Editor
 export const FoirEditor = ({ bank, onSave, location }) => {
   const [config, setConfig] = useState({
-    categoryBasedFOIR: { A: 65, B: 60, C: 55, D: 50 },
+    categoryBasedFOIR: { 'SUPER-A': 75, A: 65, B: 60, C: 55, D: 50, GOVT: 70 },
     creditCardObligationPercentage: 5,
     btModeFOIRAdjustment: 0
   });
@@ -160,7 +160,7 @@ export const FoirEditor = ({ bank, onSave, location }) => {
 // Multiplier Editor
 export const MultiplierEditor = ({ bank, onSave, location }) => {
   const [config, setConfig] = useState({
-    categoryBasedMultiplier: { A: 35, B: 30, C: 25, D: 20 },
+    categoryBasedMultiplier: { 'SUPER-A': 40, A: 35, B: 30, C: 25, D: 20, GOVT: 35 },
     employmentTypeMultiplier: { salaried: 1.0, selfEmployed: 0.8 }
   });
 
