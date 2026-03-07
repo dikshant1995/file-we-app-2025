@@ -95,6 +95,13 @@ export const calculateIciciEligibility = (userData) => {
     age,
     category,
     existingLoanBanks,
+    // Admin Overrides (Logic Bridge)
+    interestRateOverride,
+    isGovtEmployee,
+    govtROI,
+    govtFOIR,
+    govtMultiplier,
+    govtMaxTenure,
     // Balance Transfer fields
     isBTMode,
     loansForBT,
@@ -150,7 +157,9 @@ export const calculateIciciEligibility = (userData) => {
   }
 
   // Use user-provided interest rate or default to bank config
-  const effectiveInterestRate = interestRate || iciciConfig.interestRate;
+  // Logic Bridge: Support logic bridge overrides
+  let effectiveInterestRate = interestRateOverride || interestRate || iciciConfig.interestRate;
+  if (isGovtEmployee && govtROI) effectiveInterestRate = govtROI;
 
   // Check employment type
   if (!iciciConfig.employmentTypes.includes(employmentType)) {
@@ -164,7 +173,9 @@ export const calculateIciciEligibility = (userData) => {
   const companyCategory = category || 'B'; // Default to B if not provided
 
   // Apply tenure capping based on category (tenure is in months)
-  const maxTenureForCategory = iciciConfig.maxTenureByCategory[companyCategory];
+  // Logic Bridge: Support govtMaxTenure override
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : iciciConfig.maxTenureByCategory[companyCategory];
+
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
       eligible: false,
@@ -194,7 +205,10 @@ export const calculateIciciEligibility = (userData) => {
 
   // Calculate using FOIR method
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
-  const foirPercentage = getFoirPercentage(incomeForCalculation);
+
+  // Logic Bridge: Support govtFOIR override
+  let foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : getFoirPercentage(incomeForCalculation);
+
   if (!foirPercentage) {
     return {
       eligible: false,
