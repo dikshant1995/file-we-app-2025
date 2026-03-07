@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import './ConfigEditor.css';
-import { saveBankConfig, getBankConfig } from '../../services/bankConfigService';
+import { saveBankConfig, getBankConfig } from '../../services/bankConfigService.js';
 
 // Bank-specific category definitions
 const bankCategoryDefaults = {
