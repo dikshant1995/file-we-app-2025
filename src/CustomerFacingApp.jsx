@@ -1,12 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import CustomerLoanForm from './components/CustomerLoanForm';
-import CustomerResultsDisplay from './components/CustomerResultsDisplay';
-import FuturisticLanding from './components/FuturisticLanding';
-import AdminDashboard from './components/AdminDashboard';
-import { calculateLoanEligibility } from './services/realLoanService';
-import { calculateBTWithCreditCards } from './services/btLoanService';
-import { saveLead } from './services/leadService';
+import CustomerLoanForm from './components/CustomerLoanForm.js';
+import CustomerResultsDisplay from './components/CustomerResultsDisplay.js';
+import FuturisticLanding from './components/FuturisticLanding.js';
+import AdminDashboard from './components/AdminDashboard.js';
+import { calculateLoanEligibility } from './services/realLoanService.js';
+import { calculateBTWithCreditCards } from './services/btLoanService.js';
+import { saveLead } from './services/leadService.js';
 import './CustomerFacingApp.css';
 
 function CustomerFacingApp() {
