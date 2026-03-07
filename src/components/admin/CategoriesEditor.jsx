@@ -47,6 +47,14 @@ const bankCategoryDefaults = {
     }
   },
   'ICICI Bank': {
+    'SUPER-A': {
+      salaryRange: { min: 75000, max: null },
+      foir: 70,
+      multiplier: 35,
+      maxTenureMonths: 84,
+      maxLoanAmount: null,
+      description: 'SUPER-A - Premium MNCs and Top Corporates'
+    },
     'A': {
       salaryRange: { min: 30000, max: null },
       foir: 65,
