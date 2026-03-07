@@ -316,7 +316,9 @@ export const EmploymentEditor = ({ bank, onSave, location }) => {
   const [config, setConfig] = useState({
     salariedMinSalary: 25000,
     selfEmployedMinIncome: 300000,
-    itrYearsRequired: 2
+    itrYearsRequired: 2,
+    allowCashSalary: false,
+    allowChequeSalary: false
   });
 
   useEffect(() => {
@@ -349,6 +351,20 @@ export const EmploymentEditor = ({ bank, onSave, location }) => {
           <div className="input-group">
             <label>ITR Years Required</label>
             <input type="number" value={config.itrYearsRequired} onChange={(e) => setConfig({ ...config, itrYearsRequired: parseInt(e.target.value) })} className="config-input" />
+          </div>
+          <div className="input-group">
+            <label>Allow Cash Salary?</label>
+            <select value={config.allowCashSalary} onChange={(e) => setConfig({ ...config, allowCashSalary: e.target.value === 'true' })} className="config-input">
+              <option value="false">No (Rejected)</option>
+              <option value="true">Yes (Enabled)</option>
+            </select>
+          </div>
+          <div className="input-group">
+            <label>Allow Cheque Salary?</label>
+            <select value={config.allowChequeSalary} onChange={(e) => setConfig({ ...config, allowChequeSalary: e.target.value === 'true' })} className="config-input">
+              <option value="false">No (Rejected)</option>
+              <option value="true">Yes (Enabled)</option>
+            </select>
           </div>
         </div>
       </div>
