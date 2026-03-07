@@ -1,39 +1,22 @@
 import { kotakConfig } from './config.js';
-import { getBankConfig } from '../../services/bankConfigService';
+import { getBankConfig } from '../../services/bankConfigService.js';
+import { getSlabRate } from '../../utils/policyUtils.js';
 
 // Helper function to get interest rate based on category and loan amount
-const getInterestRateForLoan = (category, loanAmount) => {
-  const rateConfig = getBankConfig('Kotak Mahindra Bank', 'interestRates');
+const getInterestRateForLoan = (category, loanAmount, location = null) => {
+  let lookupCategory = category === 'Govt' ? 'A' : category;
 
-  console.log('🔍 Rate Config:', rateConfig);
+  // Use centralized slab rate finder
+  const effectiveRate = getSlabRate(
+    'Kotak Mahindra Bank',
+    lookupCategory,
+    loanAmount,
+    location,
+    kotakConfig.interestRate
+  );
 
-  if (!rateConfig || !rateConfig.categorySlabRates || !rateConfig.categorySlabRates[category]) {
-    console.log('⚠️ No rate config found, using default:', kotakConfig.interestRate);
-    return kotakConfig.interestRate;
-  }
-
-  const slabs = rateConfig.categorySlabRates[category];
-
-  console.log(`📊 Loan: ₹${loanAmount}, Category: ${category}`);
-  console.log('📋 Available slabs:', Object.keys(slabs));
-
-  // Find matching slab by parsing rupee ranges (e.g., "₹100000-500000")
-  for (const slabLabel in slabs) {
-    // Extract min and max from label like "₹100000-500000"
-    const match = slabLabel.match(/₹(\d+)-(\d+)/);
-    if (match) {
-      const min = parseInt(match[1]);
-      const max = parseInt(match[2]);
-
-      if (loanAmount >= min && loanAmount <= max) {
-        console.log(`✅ Matched slab: ${slabLabel} (₹${min}-₹${max}) = ${slabs[slabLabel]}%`);
-        return slabs[slabLabel];
-      }
-    }
-  }
-
-  console.log('⚠️ No matching slab, using default');
-  return kotakConfig.interestRate;
+  console.log(`📊 Kotak ROI Search: Cat ${category}, Amount ₹${loanAmount} -> ${effectiveRate}%`);
+  return effectiveRate;
 };
 
 // Function to calculate EMI
@@ -219,7 +202,10 @@ export const calculateKotakEligibility = (userData) => {
 
   // Use user-provided interest rate or calculate based on category and loan amount
   // Logic Bridge: Support logic bridge overrides
-  let effectiveInterestRate = interestRateOverride || interestRate || getInterestRateForLoan(category || 'B', desiredLoanAmount || monthlyIncome * 20);
+  let lookupCategory = category || 'B';
+  if (lookupCategory === 'Govt') lookupCategory = 'A';
+
+  let effectiveInterestRate = interestRateOverride || interestRate || getInterestRateForLoan(lookupCategory, desiredLoanAmount || monthlyIncome * 20, userData.city || userData.state);
   if (isGovtEmployee && govtROI) effectiveInterestRate = govtROI;
 
   // Check employment type
@@ -235,7 +221,8 @@ export const calculateKotakEligibility = (userData) => {
 
   // Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
-  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : kotakConfig.maxTenureByCategory[companyCategory];
+  let lookupCategoryTenure = companyCategory === 'Govt' ? 'A' : companyCategory;
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : kotakConfig.maxTenureByCategory[lookupCategoryTenure];
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
@@ -321,7 +308,7 @@ export const calculateKotakEligibility = (userData) => {
   // Logic Bridge: Use overrides if present, otherwise re-calculate
   let finalInterestRate = interestRateOverride || interestRate;
   if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
-  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(companyCategory, preliminaryLoanAmount);
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(companyCategory, preliminaryLoanAmount, userData.city || userData.state);
 
   console.log(`🔄 Two-Pass Calculation: Preliminary=₹${preliminaryLoanAmount}, Rate=${finalInterestRate}%`);
 
