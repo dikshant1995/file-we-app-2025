@@ -1,28 +1,11 @@
 import { idfcConfig } from './config.js';
-import { getBankConfig } from '../../services/bankConfigService';
+import { getBankConfig } from '../../services/bankConfigService.js';
+import { getSlabRate } from '../../utils/policyUtils.js';
 
 // Helper: Get interest rate based on category and loan amount
-const getInterestRateForLoan = (category, loanAmount) => {
-  const rateConfig = getBankConfig('IDFC First Bank', 'interestRates');
-
-  if (!rateConfig || !rateConfig.categorySlabRates || !rateConfig.categorySlabRates[category]) {
-    return idfcConfig.interestRate;
-  }
-
-  const slabs = rateConfig.categorySlabRates[category];
-
-  for (const slabLabel in slabs) {
-    const match = slabLabel.match(/₹(\d+)-(\d+)/);
-    if (match) {
-      const min = parseInt(match[1]);
-      const max = parseInt(match[2]);
-      if (loanAmount >= min && loanAmount <= max) {
-        return slabs[slabLabel];
-      }
-    }
-  }
-
-  return idfcConfig.interestRate;
+const getInterestRateForLoan = (category, loanAmount, location = null) => {
+  let lookupCategory = category === 'Govt' ? 'A' : category;
+  return getSlabRate('IDFC First Bank', lookupCategory, loanAmount, location, idfcConfig.interestRate);
 };
 
 // Function to calculate EMI
@@ -128,8 +111,9 @@ export const calculateIdfcEligibility = (userData) => {
     };
   }
 
-  // Map A+ to SUPER-A for consistency
-  const mappedCategory = category === 'A+' ? 'SUPER-A' : category;
+  // Map A+ to SUPER-A for consistency. Handle Govt fallback.
+  let mappedCategory = category === 'A+' ? 'SUPER-A' : category;
+  if (mappedCategory === 'Govt') mappedCategory = 'A';
 
   // Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
@@ -203,7 +187,7 @@ export const calculateIdfcEligibility = (userData) => {
   // Logic Bridge: Support ROI overrides
   let finalInterestRate = interestRateOverride;
   if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
-  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(mappedCategory, preliminaryCappedLoan);
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(mappedCategory, preliminaryCappedLoan, userData.city || userData.state);
 
   // Final loan amount is minimum of calculated and desired
   const finalLoanAmount = Math.min(
