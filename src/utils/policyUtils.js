@@ -1,4 +1,4 @@
-import { getAllBankConfig } from '../services/bankConfigService';
+import { getAllBankConfig } from '../services/bankConfigService.js';
 
 /**
  * Deep merges override configuration into base configuration.
@@ -79,5 +79,55 @@ export const getEffectiveConfig = (bankName, hardcodedConfig) => {
     } catch (error) {
         console.error(`Error merging config for ${bankName}:`, error);
         return hardcodedConfig;
+    }
+};
+
+/**
+ * Centrally finds the appropriate interest rate from a slab-based matrix.
+ * 
+ * @param {string} bankName - Full name of the bank.
+ * @param {string} category - Normalized category (Super A, A, B, C, D, Govt).
+ * @param {number} loanAmount - Calculated or desired loan amount.
+ * @param {string} [location] - Optional location for overrides.
+ * @param {number} [defaultRate=11.0] - Fallback rate if no match found.
+ * @returns {number} The effective annual interest rate.
+ */
+export const getSlabRate = (bankName, category, loanAmount, location = null, defaultRate = 11.0) => {
+    try {
+        const config = getAllBankConfig(bankName, location);
+
+        // Safety check for matrix existence
+        if (!config || !config.interestRates || !config.interestRates.categorySlabRates) {
+            return defaultRate;
+        }
+
+        const categoryMatrix = config.interestRates.categorySlabRates[category];
+        if (!categoryMatrix) {
+            // Fallback to global category-based rate if matrix doesn't have this specific category
+            return config.interestRates.categoryRates?.[category] || defaultRate;
+        }
+
+        // Iterate through labels like "100000-500000" or "₹100000-500000"
+        for (const label in categoryMatrix) {
+            // Remove all non-numeric characters EXCEPT the hyphen for range identification
+            const sanitizedLabel = label.replace(/[^\d-]/g, '');
+            const parts = sanitizedLabel.split('-');
+
+            if (parts.length === 2) {
+                const min = parseInt(parts[0]);
+                const max = parseInt(parts[1]);
+
+                if (loanAmount >= min && loanAmount <= max) {
+                    const rate = parseFloat(categoryMatrix[label]);
+                    if (!isNaN(rate)) return rate;
+                }
+            }
+        }
+
+        // No slab matched? Use category-level or default
+        return config.interestRates.categoryRates?.[category] || defaultRate;
+    } catch (error) {
+        console.error(`Slab lookup error for ${bankName}:`, error);
+        return defaultRate;
     }
 };
