@@ -1,5 +1,12 @@
 import { shriRamConfig } from './config.js';
-import { getBankConfig } from '../../services/bankConfigService';
+import { getBankConfig } from '../../services/bankConfigService.js';
+import { getSlabRate } from '../../utils/policyUtils.js';
+
+// Helper function to get interest rate based on category and loan amount
+const getInterestRateForLoan = (category, loanAmount, location = null) => {
+  let lookupCategory = category === 'Govt' ? 'C' : category;
+  return getSlabRate('Shri Ram Finance', lookupCategory, loanAmount, location, shriRamConfig.interestRate);
+};
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -132,7 +139,8 @@ export const calculateShriRamEligibility = (userData) => {
 
   // Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
-  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : shriRamConfig.maxTenureByCategory[category];
+  let lookupCategory = category === 'Govt' ? 'C' : category; // Fallback Govt to C for Shri Ram
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : shriRamConfig.maxTenureByCategory[lookupCategory];
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
@@ -187,15 +195,31 @@ export const calculateShriRamEligibility = (userData) => {
     };
   }
 
-  // Logic Bridge: Support ROI overrides
-  let effectiveInterestRate = interestRateOverride || shriRamConfig.interestRate;
-  if (isGovtEmployee && govtROI) effectiveInterestRate = govtROI;
+  // Pass 1: Preliminary ROI for initial calculation
+  const baseRate = shriRamConfig.interestRate;
 
-  const foirLoanAmount = calculatePrincipalFromEMI(
-    availableEMI,
-    effectiveInterestRate,
-    cappedTenureYears
+  // Calculate preliminary loan amount based on available EMI using base rate
+  const preliminaryFoirLoanAmount = calculatePrincipalFromEMI(availableEMI, baseRate, cappedTenureYears);
+
+  // Take the minimum for first pass
+  const preliminaryMaxLoanAmount = Math.min(
+    desiredLoanAmount || Infinity,
+    multiplierLoanAmount,
+    preliminaryFoirLoanAmount
   );
+
+  // Apply bank's maximum loan cap for pass 1
+  const preliminaryLoanAmount = Math.min(preliminaryMaxLoanAmount, shriRamConfig.maxLoanAmount);
+
+  // Pass 2: Get final ROI based on preliminary loan amount
+  let finalInterestRate = interestRateOverride;
+  if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(category, preliminaryLoanAmount, userData.city || userData.state);
+
+  const effectiveInterestRate = finalInterestRate;
+
+  // Recalculate FOIR-based principal with final effective interest rate
+  const foirLoanAmount = calculatePrincipalFromEMI(availableEMI, effectiveInterestRate, cappedTenureYears);
 
   // Method 2: Multiplier-based calculation
   // IMPORTANT: For multiplier, use salary after deducting existing EMI + credit card obligations (non-BT mode)
@@ -234,7 +258,7 @@ export const calculateShriRamEligibility = (userData) => {
     };
   }
 
-  const monthlyEMI = calculateEMI(cappedFinalLoan, shriRamConfig.interestRate, cappedTenureYears);
+  const monthlyEMI = calculateEMI(cappedFinalLoan, effectiveInterestRate, cappedTenureYears);
 
   return {
     eligible: true,
@@ -244,7 +268,7 @@ export const calculateShriRamEligibility = (userData) => {
     maxLoanCap: shriRamConfig.maxLoanAmount,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
-    interestRate: shriRamConfig.interestRate,
+    interestRate: effectiveInterestRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,
     tenureCapped: tenureCapped,
