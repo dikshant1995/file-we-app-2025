@@ -214,7 +214,10 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
       // NEW: Balance Transfer data
       wantsBT: formData.wantsBT,
       selectedLoansForBT: formData.wantsBT ? formData.selectedLoansForBT : [],
-      loansForBT: formData.wantsBT ? formData.existingLoans.filter(loan => formData.selectedLoansForBT.includes(loan.id)) : [],
+      creditScore: formData.creditScore ? parseInt(formData.creditScore) : 700,
+      state: formData.state,
+      city: formData.city,
+      salaryMode: formData.salaryMode || 'bank',
       // loanTenure will default to 5 years in backend, banks will cap based on age
       // desiredLoanAmount not provided - banks calculate maximum
       // creditScore will default to 700 in backend (used by some banks internally)
