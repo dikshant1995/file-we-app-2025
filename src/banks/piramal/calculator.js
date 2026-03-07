@@ -1,4 +1,5 @@
 import { piramalConfig } from './config.js';
+import { getBankConfig } from '../../services/bankConfigService';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -72,6 +73,14 @@ export const calculatePiramalEligibility = (userData) => {
     employmentType,
     age,
     existingLoanBanks,
+    // Admin Overrides (Logic Bridge)
+    interestRateOverride,
+    isGovtEmployee,
+    govtROI,
+    govtFOIR,
+    govtMultiplier,
+    govtMaxTenure,
+    // Balance Transfer fields
     isBTMode,
     loansForBT,
     btTotalEMI,
@@ -124,7 +133,9 @@ export const calculatePiramalEligibility = (userData) => {
   }
 
   // Apply tenure capping based on category (tenure is in months)
-  const maxTenureForCategory = piramalConfig.maxTenureByCategory[category];
+  // Logic Bridge: Support govtMaxTenure override
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : piramalConfig.maxTenureByCategory[category];
+
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
       eligible: false,
@@ -155,7 +166,9 @@ export const calculatePiramalEligibility = (userData) => {
   }
 
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
-  const foirPercentage = getNTHBand(incomeForCalculation, piramalConfig.nthFoirTable);
+
+  // Logic Bridge: Support govtFOIR override
+  let foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : getNTHBand(incomeForCalculation, piramalConfig.nthFoirTable);
 
   if (foirPercentage === null) {
     return { eligible: false, reason: `No FOIR available for NTH ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
@@ -173,9 +186,13 @@ export const calculatePiramalEligibility = (userData) => {
   }
 
   // Calculate loan amount from available EMI using capped tenure
+  // Logic Bridge: Support ROI overrides
+  let effectiveInterestRate = interestRateOverride || piramalConfig.interestRate;
+  if (isGovtEmployee && govtROI) effectiveInterestRate = govtROI;
+
   const calculatedLoanAmount = calculatePrincipalFromEMI(
     availableEMI,
-    piramalConfig.interestRate,
+    effectiveInterestRate,
     cappedTenureYears
   );
 
@@ -209,7 +226,7 @@ export const calculatePiramalEligibility = (userData) => {
     };
   }
 
-  const monthlyEMI = calculateEMI(cappedFinalLoan, piramalConfig.interestRate, cappedTenureYears);
+  const monthlyEMI = calculateEMI(cappedFinalLoan, effectiveInterestRate, cappedTenureYears);
 
   return {
     eligible: true,
