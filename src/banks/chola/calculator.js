@@ -1,4 +1,11 @@
 import { cholaConfig } from './config.js';
+import { getSlabRate } from '../../utils/policyUtils.js';
+
+// Helper function to get interest rate based on category and loan amount
+const getInterestRateForLoan = (category, loanAmount, location = null) => {
+  let lookupCategory = category === 'Govt' ? 'A' : category;
+  return getSlabRate('Chola Finance', lookupCategory, loanAmount, location, cholaConfig.interestRate);
+};
 
 // Helper: Calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -166,7 +173,8 @@ export const calculateCholaEligibility = (userData) => {
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
   const foirBand = getSalaryBand(incomeForCalculation, cholaConfig.foirTable);
   // Logic Bridge: Support govtFOIR override
-  let foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : cholaConfig.foirTable[foirBand]?.[category];
+  let lookupCategoryFOIR = category === 'Govt' ? 'A' : category;
+  let foirPercentage = (isGovtEmployee && govtFOIR) ? (govtFOIR / 100) : cholaConfig.foirTable[foirBand]?.[lookupCategoryFOIR];
 
   if (!foirPercentage) {
     return { eligible: false, reason: `FOIR not defined for category ${category} at salary band ${foirBand}`, isBTMode: isBT };
@@ -183,11 +191,20 @@ export const calculateCholaEligibility = (userData) => {
     };
   }
 
-  // 8. Calculate loan amount from available EMI using capped tenure
-  // Logic Bridge: Support ROI overrides
-  let effectiveInterestRate = interestRateOverride || cholaConfig.interestRate;
-  if (isGovtEmployee && govtROI) effectiveInterestRate = govtROI;
+  // Pass 1: Preliminary ROI for initial calculation
+  const baseRate = cholaConfig.interestRate;
 
+  // Calculate preliminary loan amount based on available EMI using base rate
+  const preliminaryLoanAmount = calculatePrincipalFromEMI(availableEMI, baseRate, cappedTenureYears);
+
+  // Pass 2: Get final ROI based on preliminary loan amount
+  let finalInterestRate = interestRateOverride || interestRate;
+  if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(category, preliminaryLoanAmount, userData.city || userData.state);
+
+  const effectiveInterestRate = finalInterestRate;
+
+  // Recalculate loan amount with final effective interest rate
   const calculatedLoanAmount = calculatePrincipalFromEMI(availableEMI, effectiveInterestRate, cappedTenureYears);
 
   // 9. Final loan = minimum of calculated and desired
@@ -230,7 +247,7 @@ export const calculateCholaEligibility = (userData) => {
     maxLoanCap: cholaConfig.maxLoanAmount,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
-    interestRate: cholaConfig.interestRate,
+    interestRate: effectiveInterestRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,
     tenureCapped: tenureCapped,
