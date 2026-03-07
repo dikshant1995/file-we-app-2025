@@ -198,7 +198,7 @@ export const calculateCholaEligibility = (userData) => {
   const preliminaryLoanAmount = calculatePrincipalFromEMI(availableEMI, baseRate, cappedTenureYears);
 
   // Pass 2: Get final ROI based on preliminary loan amount
-  let finalInterestRate = interestRateOverride || interestRate;
+  let finalInterestRate = interestRateOverride;
   if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
   if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(category, preliminaryLoanAmount, userData.city || userData.state);
 
