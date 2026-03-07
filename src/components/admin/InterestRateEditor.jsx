@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import './ConfigEditor.css';
-import { saveBankConfig, getBankConfig } from '../../services/bankConfigService';
+import { saveBankConfig, getBankConfig } from '../../services/bankConfigService.js';
 
 const InterestRateEditor = ({ bank, onSave, location }) => {
   // Get loan capping to determine max slabs
@@ -90,13 +90,13 @@ const InterestRateEditor = ({ bank, onSave, location }) => {
         <div key={category} className="config-section" style={{ marginBottom: '30px' }}>
           <h3>🏷️ Category {category}</h3>
 
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', borderRadius: '8px' }}>
+          <div style={{ overflowX: 'auto', borderRadius: '12px', border: '1px solid var(--border-glow)' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', background: 'rgba(13, 22, 38, 0.6)', backdropFilter: 'blur(10px)' }}>
               <thead>
-                <tr style={{ background: '#f8f9fa' }}>
-                  <th style={{ padding: '15px', textAlign: 'left', borderBottom: '2px solid #e0e0e0', fontWeight: '600' }}>Loan Amount</th>
+                <tr style={{ background: 'rgba(0, 212, 255, 0.05)' }}>
+                  <th style={{ padding: '20px 15px', textAlign: 'left', borderBottom: '1px solid var(--border-glow)', color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Loan Amount</th>
                   {slabs.map(slab => (
-                    <th key={slab.label} style={{ padding: '15px', textAlign: 'center', borderBottom: '2px solid #e0e0e0', fontWeight: '600' }}>
+                    <th key={slab.label} style={{ padding: '20px 15px', textAlign: 'center', borderBottom: '1px solid var(--border-glow)', color: '#fff', fontSize: '0.85rem', fontWeight: '700' }}>
                       ₹{slab.label}
                     </th>
                   ))}
@@ -104,21 +104,21 @@ const InterestRateEditor = ({ bank, onSave, location }) => {
               </thead>
               <tbody>
                 <tr>
-                  <td style={{ padding: '15px', fontWeight: '600', borderBottom: '1px solid #e0e0e0' }}>Interest Rate (%)</td>
+                  <td style={{ padding: '20px 15px', color: 'var(--accent-cyan)', fontWeight: '800', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Rate (%)</td>
                   {slabs.map(slab => (
-                    <td key={slab.label} style={{ padding: '10px', textAlign: 'center', borderBottom: '1px solid #e0e0e0' }}>
+                    <td key={slab.label} style={{ padding: '15px', textAlign: 'center' }}>
                       <input
                         type="number"
                         step="0.01"
                         value={config.categorySlabRates[category]?.[slab.label] || 11.0}
                         onChange={(e) => handleRateChange(category, slab.label, e.target.value)}
+                        className="table-input"
                         style={{
                           width: '80px',
-                          padding: '8px',
-                          border: '1px solid #ddd',
-                          borderRadius: '4px',
                           textAlign: 'center',
-                          fontSize: '14px'
+                          fontWeight: '700',
+                          border: '1px solid var(--border-glow)',
+                          background: 'rgba(0, 0, 0, 0.3)'
                         }}
                       />
                     </td>
