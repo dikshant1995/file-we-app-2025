@@ -87,6 +87,14 @@ export const calculateTataEligibility = (userData) => {
     employmentType = 'salaried',
     age,
     existingLoanBanks,
+    // Admin Overrides (Logic Bridge)
+    interestRateOverride,
+    isGovtEmployee,
+    govtROI,
+    govtFOIR,
+    govtMultiplier,
+    govtMaxTenure,
+    // Balance Transfer fields
     isBTMode,
     loansForBT,
     btTotalEMI,
@@ -138,7 +146,9 @@ export const calculateTataEligibility = (userData) => {
   }
 
   // 2. Apply tenure capping based on category (tenure is in months)
-  const maxTenureForCategory = tataConfig.maxTenureByCategory[category];
+  // Logic Bridge: Support govtMaxTenure and category-based tenure capping
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : tataConfig.maxTenureByCategory[category];
+
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
       eligible: false,
@@ -193,7 +203,10 @@ export const calculateTataEligibility = (userData) => {
   }
 
   // Pass 1: Calculate preliminary loan with base rate
-  const baseRate = tataConfig.interestRate;
+  // Logic Bridge: Use govtROI or interestRateOverride if available
+  let baseRate = interestRateOverride || tataConfig.interestRate;
+  if (isGovtEmployee && govtROI) baseRate = govtROI;
+
   const foirLoanAmountPass1 = calculatePrincipalFromEMI(availableEMI, baseRate, cappedTenureYears);
 
   // 9. Calculate Multiplier-based loan
@@ -212,7 +225,10 @@ export const calculateTataEligibility = (userData) => {
   const preliminaryCappedLoan = Math.min(preliminaryLoanAmount, tataConfig.maxLoanAmount);
 
   // Pass 2: Get correct rate based on preliminary loan amount
-  const finalInterestRate = getInterestRateForLoan(category, preliminaryCappedLoan);
+  // Logic Bridge: Support ROI overrides
+  let finalInterestRate = interestRateOverride;
+  if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(category, preliminaryCappedLoan);
 
   // Recalculate FOIR loan with final rate
   const foirLoanAmount = calculatePrincipalFromEMI(availableEMI, finalInterestRate, cappedTenureYears);
