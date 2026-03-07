@@ -1,5 +1,12 @@
 import { piramalConfig } from './config.js';
-import { getBankConfig } from '../../services/bankConfigService';
+import { getBankConfig } from '../../services/bankConfigService.js';
+import { getSlabRate } from '../../utils/policyUtils.js';
+
+// Helper function to get interest rate based on category and loan amount
+const getInterestRateForLoan = (category, loanAmount, location = null) => {
+  let lookupCategory = category === 'Govt' ? 'A' : category;
+  return getSlabRate('Piramal Finance', lookupCategory, loanAmount, location, piramalConfig.interestRate);
+};
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -134,7 +141,8 @@ export const calculatePiramalEligibility = (userData) => {
 
   // Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
-  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : piramalConfig.maxTenureByCategory[category];
+  let lookupCategory = category === 'Govt' ? 'A' : category;
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : piramalConfig.maxTenureByCategory[lookupCategory];
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
@@ -185,10 +193,18 @@ export const calculatePiramalEligibility = (userData) => {
     };
   }
 
-  // Calculate loan amount from available EMI using capped tenure
-  // Logic Bridge: Support ROI overrides
-  let effectiveInterestRate = interestRateOverride || piramalConfig.interestRate;
-  if (isGovtEmployee && govtROI) effectiveInterestRate = govtROI;
+  // Pass 1: Preliminary ROI for initial calculation
+  const baseRate = piramalConfig.interestRate;
+
+  // Calculate preliminary loan amount based on available EMI using base rate
+  const preliminaryLoanAmount = calculatePrincipalFromEMI(availableEMI, baseRate, cappedTenureYears);
+
+  // Pass 2: Get final ROI based on preliminary loan amount
+  let finalInterestRate = interestRateOverride;
+  if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(category, preliminaryLoanAmount, userData.city || userData.state);
+
+  const effectiveInterestRate = finalInterestRate;
 
   const calculatedLoanAmount = calculatePrincipalFromEMI(
     availableEMI,
@@ -236,7 +252,7 @@ export const calculatePiramalEligibility = (userData) => {
     maxLoanCap: piramalConfig.maxLoanAmount,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
-    interestRate: piramalConfig.interestRate,
+    interestRate: effectiveInterestRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,
     tenureCapped: tenureCapped,
