@@ -22,7 +22,7 @@ export const poonawalaConfig = {
   // Columns: NTH (Net Take-Home) Salary Bands
   foirMatrix: {
     // SUP A and A (Top Customer Segment - Lowest Risk)
-    'SUP-A': {
+    'SUPER-A': {
       'SUP-HNI': { minNTH: 250000, maxNTH: null, foir: 0.75 },        // >2.5L NTH
       'HNI': { minNTH: 150000, maxNTH: 250000, foir: 0.75 },          // 1.5L-2.5L NTH
       'AFFLUENT': { minNTH: 75000, maxNTH: 150000, foir: 0.70 },      // 75K-1.5L NTH
@@ -81,7 +81,7 @@ export const poonawalaConfig = {
 
   // Minimum NTH (Net Take-Home) salary by segment
   minNTHBySegment: {
-    'SUP-A': 30000,
+    'SUPER-A': 30000,
     'A': 30000,
     'B': 30000,
     'GOVT': 30000,
@@ -92,7 +92,7 @@ export const poonawalaConfig = {
 
   // Maximum tenure by category (in months)
   maxTenureByCategory: {
-    'SUP-A': 84,     // 7 years - CAT SUPER A
+    'SUPER-A': 84,     // 7 years - CAT SUPER A
     'A': 84,         // 7 years - CAT A
     'B': 72,         // 6 years - CAT B
     'GOVT': 72,      // 6 years - CAT GOVT
@@ -106,7 +106,7 @@ export const poonawalaConfig = {
 
   // Customer segment categories
   customerSegments: {
-    'SUP-A': { description: 'Superior A - Premium Companies/Profiles (Lowest Risk)' },
+    'SUPER-A': { description: 'Superior A - Premium Companies/Profiles (Lowest Risk)' },
     'A': { description: 'Category A - Top Tier Companies (Lowest Risk)' },
     'B': { description: 'Category B - Good Companies (Mid-High Risk)' },
     'GOVT': { description: 'Government Employees (Mid-High Risk, Stable)' },
