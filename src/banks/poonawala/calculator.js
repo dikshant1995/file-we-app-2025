@@ -1,28 +1,11 @@
 import { poonawalaConfig } from './config.js';
-import { getBankConfig } from '../../services/bankConfigService';
+import { getBankConfig } from '../../services/bankConfigService.js';
+import { getSlabRate } from '../../utils/policyUtils.js';
 
 // Helper: Get interest rate based on category and loan amount
-const getInterestRateForLoan = (category, loanAmount) => {
-  const rateConfig = getBankConfig('Poonawala Finance', 'interestRates');
-
-  if (!rateConfig || !rateConfig.categorySlabRates || !rateConfig.categorySlabRates[category]) {
-    return poonawalaConfig.interestRate;
-  }
-
-  const slabs = rateConfig.categorySlabRates[category];
-
-  for (const slabLabel in slabs) {
-    const match = slabLabel.match(/₹(\d+)-(\d+)/);
-    if (match) {
-      const min = parseInt(match[1]);
-      const max = parseInt(match[2]);
-      if (loanAmount >= min && loanAmount <= max) {
-        return slabs[slabLabel];
-      }
-    }
-  }
-
-  return poonawalaConfig.interestRate;
+const getInterestRateForLoan = (category, loanAmount, location = null) => {
+  let lookupCategory = category === 'Govt' ? 'A' : category;
+  return getSlabRate('Poonawala Finance', lookupCategory, loanAmount, location, poonawalaConfig.interestRate);
 };
 
 // Function to calculate EMI
@@ -174,7 +157,10 @@ export const calculatePoonawalaEligibility = (userData) => {
 
   // Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
-  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : poonawalaConfig.maxTenureByCategory[customerSegment];
+  let lookupSegment = customerSegment === 'GOVT' ? 'SUP-A' : customerSegment;
+  if (category === 'GOVT') lookupSegment = 'SUP-A'; // Double check for Govt
+
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : poonawalaConfig.maxTenureByCategory[lookupSegment];
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
@@ -248,7 +234,7 @@ export const calculatePoonawalaEligibility = (userData) => {
   // Logic Bridge: Support ROI overrides
   let finalInterestRate = interestRateOverride;
   if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
-  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(category, preliminaryCappedLoan);
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(category, preliminaryCappedLoan, userData.city || userData.state);
 
   // Recalculate loan with final rate
   const calculatedLoanAmount = calculatePrincipalFromEMI(
