@@ -1,4 +1,5 @@
 import { axisFinConfig } from './config.js';
+import { getBankConfig } from '../../services/bankConfigService';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -49,6 +50,14 @@ export const calculateAxisFinEligibility = (userData) => {
     employmentType,
     age,
     existingLoanBanks,
+    // Admin Overrides (Logic Bridge)
+    interestRateOverride,
+    isGovtEmployee,
+    govtROI,
+    govtFOIR,
+    govtMultiplier,
+    govtMaxTenure,
+    // Balance Transfer fields
     isBTMode,
     loansForBT,
     btTotalEMI,
@@ -100,8 +109,10 @@ export const calculateAxisFinEligibility = (userData) => {
     };
   }
 
-  // Apply tenure capping based on category (tenure is in months)
-  const maxTenureForCategory = axisFinConfig.maxTenureByCategory[category];
+  // 2. Apply tenure capping based on category (tenure is in months)
+  // Logic Bridge: Support govtMaxTenure override
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : axisFinConfig.maxTenureByCategory[category];
+
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
       eligible: false,
@@ -146,7 +157,8 @@ export const calculateAxisFinEligibility = (userData) => {
     return { eligible: false, reason: 'Salary does not fall within any eligible band', isBTMode: isBT };
   }
 
-  const multiplier = axisFinConfig.multiplierTable[salaryBand]?.[category];
+  // Logic Bridge: Support govtMultiplier override
+  let multiplier = isGovtEmployee && govtMultiplier ? govtMultiplier : axisFinConfig.multiplierTable[salaryBand]?.[category];
 
   if (!multiplier) {
     return { eligible: false, reason: `No multiplier available for category ${category} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
@@ -187,7 +199,11 @@ export const calculateAxisFinEligibility = (userData) => {
     };
   }
 
-  const monthlyEMI = calculateEMI(cappedFinalLoan, axisFinConfig.interestRate, cappedTenureYears);
+  // Logic Bridge: Support ROI overrides
+  let effectiveInterestRate = interestRateOverride || axisFinConfig.interestRate;
+  if (isGovtEmployee && govtROI) effectiveInterestRate = govtROI;
+
+  const monthlyEMI = calculateEMI(cappedFinalLoan, effectiveInterestRate, cappedTenureYears);
 
   return {
     eligible: true,
