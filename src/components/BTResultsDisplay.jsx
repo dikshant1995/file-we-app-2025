@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { compareBTResults, generateComparisonMessage } from '../services/btComparisonService';
+import { compareBTResults, generateComparisonMessage } from '../services/btComparisonService.js';
 import './BTResultsDisplay.css';
 
 const BTResultsDisplay = ({ results, onReset }) => {
