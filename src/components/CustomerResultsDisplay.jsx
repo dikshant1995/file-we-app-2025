@@ -102,6 +102,10 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
           </button>
           <div style={{ flex: 1, textAlign: 'center', marginRight: '100px' }}>
             <h2>Institutional Eligibility Analysis</h2>
+            <div className="logic-bridge-active-badge">
+              <span className="dot pulse"></span>
+              Neural Logic Bridge Active: Real-time Admin Sync
+            </div>
             <p>Verified assessment results across 12 banking institutions</p>
           </div>
         </div>
@@ -294,6 +298,12 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
                     </div>
                   </div>
 
+                  {bank.adminApplied && bank.eligible && (
+                    <div className="admin-sync-tag">
+                      <span className="icon">✓</span> Institutional Policies Applied
+                    </div>
+                  )}
+
                   {bank.eligible ? (
                     <div className="bank-card-body">
                       {/* LOAN AMOUNT DISPLAY — clean for all modes */}
@@ -327,8 +337,11 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
                     </div>
                   ) : (
                     <div className="bank-card-body rejected-body">
-                      <div className="rejection-reason">
+                      <div className={`rejection-reason ${bank.reason?.toLowerCase().includes('salary') ? 'salary-warning' : ''}`}>
                         <span className="reason-text">Exclusion Parameter: {bank.reason || 'Criteria mismatch'}</span>
+                        {bank.reason?.toLowerCase().includes('cash') && (
+                          <div className="suggestion-box">💡 Tip: Most Tier-1 banks require salary via Bank Transfer. Try selecting NBFCs if available.</div>
+                        )}
                       </div>
                     </div>
                   )}
