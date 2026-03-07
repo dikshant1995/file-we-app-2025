@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import './App.css';
-import EnhancedUserInputForm from './components/EnhancedUserInputForm';
-import EnhancedResultsDisplay from './components/EnhancedResultsDisplay';
-import { calculateAllScenarios } from './services/enhancedLoanService';
+import EnhancedUserInputForm from './components/EnhancedUserInputForm.js';
+import EnhancedResultsDisplay from './components/EnhancedResultsDisplay.js';
+import { calculateAllScenarios } from './services/enhancedLoanService.js';
 
 function EnhancedApp() {
   const [results, setResults] = useState(null);
