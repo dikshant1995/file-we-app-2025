@@ -18,28 +18,28 @@ export const hdfcConfig = {
   // Multiplier table based on salary bands and categories
   multiplierTable: {
     '25000-35000': {
-      'Super A': 19,
+      'SUPER-A': 19,
       'A': 19,
       'Govt': 19,
       'B': 12,
       'C': null  // Not Applicable
     },
     '35001-50000': {
-      'Super A': 22,
+      'SUPER-A': 22,
       'A': 20,
       'Govt': 20,
       'B': 15,
       'C': 13
     },
     '50001-75000': {
-      'Super A': 25,
+      'SUPER-A': 25,
       'A': 23,
       'Govt': 23,
       'B': 20,
       'C': 20
     },
     '75001+': {
-      'Super A': 27,
+      'SUPER-A': 27,
       'A': 24,
       'Govt': 24,
       'B': 22,
@@ -49,28 +49,28 @@ export const hdfcConfig = {
   // FOIR table based on salary bands and categories
   foirTable: {
     '25000-50000': {
-      'Super A': 0.55,
+      'SUPER-A': 0.55,
       'A': 0.55,
       'B': 0.55,
       'C': 0.50,
       'Govt': 0.55
     },
     '50001-75000': {
-      'Super A': 0.65,
+      'SUPER-A': 0.65,
       'A': 0.65,
       'B': 0.65,
       'C': 0.65,
       'Govt': 0.65
     },
     '75001-100000': {
-      'Super A': 0.70,
+      'SUPER-A': 0.70,
       'A': 0.70,
       'B': 0.70,
       'C': 0.70,
       'Govt': 0.70
     },
     '100001+': {
-      'Super A': 0.70,
+      'SUPER-A': 0.70,
       'A': 0.70,
       'B': 0.70,
       'C': 0.70,
@@ -79,7 +79,7 @@ export const hdfcConfig = {
   },
   // Minimum salary requirements by category
   minSalary: {
-    'Super A': 25000,
+    'SUPER-A': 25000,
     'A': 25000,
     'B': 25000,
     'C': 35000,
@@ -87,7 +87,7 @@ export const hdfcConfig = {
   },
   // Maximum tenure by category (in months)
   maxTenureByCategory: {
-    'Super A': 72,  // 6 years - CAT SUPER A
+    'SUPER-A': 72,  // 6 years - CAT SUPER A
     'A': 72,        // 6 years - CAT A
     'Govt': 72,     // 6 years - CAT GOVT
     'B': 72,        // 6 years - CAT B
