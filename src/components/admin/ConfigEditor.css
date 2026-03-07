@@ -214,3 +214,14 @@
   background: rgba(255, 255, 255, 0.05);
   color: #fff;
 }
+
+.location-indicator {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: var(--accent-cyan);
+  background: rgba(0, 212, 255, 0.05);
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+}
