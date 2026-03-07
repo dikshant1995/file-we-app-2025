@@ -25,7 +25,7 @@ export const tataConfig = {
   // Multiplier table based on salary bands and categories
   multiplierTable: {
     '25000-50000': {
-      'SUP-A': 21,
+      'SUPER-A': 21,
       'A': 20,
       'GOVT': 20,
       'B': 19,
@@ -33,7 +33,7 @@ export const tataConfig = {
       'UNLISTED': 13
     },
     '50001-75000': {
-      'SUP-A': 24,
+      'SUPER-A': 24,
       'A': 23,
       'GOVT': 23,
       'B': 22,
@@ -41,7 +41,7 @@ export const tataConfig = {
       'UNLISTED': 15
     },
     '75001+': {
-      'SUP-A': 27,
+      'SUPER-A': 27,
       'A': 27,
       'GOVT': 27,
       'B': 25,
@@ -55,7 +55,7 @@ export const tataConfig = {
 
   // Minimum salary requirements by category
   minSalaryByCategory: {
-    'SUP-A': 25000,
+    'SUPER-A': 25000,
     'A': 25000,
     'GOVT': 25000,
     'B': 25000,
@@ -66,7 +66,7 @@ export const tataConfig = {
 
   // Maximum tenure by category (in months)
   maxTenureByCategory: {
-    'SUP-A': 72,     // 6 years - CAT SUP-A
+    'SUPER-A': 72,     // 6 years - CAT SUPER A
     'A': 72,         // 6 years - CAT A
     'GOVT': 72,      // 6 years - CAT GOVT
     'B': 60,         // 5 years - CAT B
@@ -77,7 +77,7 @@ export const tataConfig = {
 
   // Company categories
   companyCategories: {
-    'SUP-A': { minIncome: 25000, description: 'Superior A - Premium Companies/Profiles' },
+    'SUPER-A': { minIncome: 25000, description: 'Superior A - Premium Companies/Profiles' },
     'A': { minIncome: 25000, description: 'Category A - Top Tier Companies' },
     'GOVT': { minIncome: 25000, description: 'Government Employees' },
     'B': { minIncome: 25000, description: 'Category B - Good Companies' },
