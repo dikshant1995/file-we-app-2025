@@ -6,10 +6,12 @@ const LoanCappingEditor = ({ bank, onSave, location }) => {
   const [config, setConfig] = useState({
     absoluteMaxLoan: 5000000,
     categoryBasedMax: {
-      A: null,
+      'SUPER-A': 10000000,
+      A: 5000000,
       B: 3000000,
       C: 2000000,
-      D: 1000000
+      D: 1000000,
+      GOVT: 5000000
     },
     employmentTypeMax: {
       salaried: null,
