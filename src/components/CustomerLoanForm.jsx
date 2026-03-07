@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import './CustomerLoanForm.css';
-import { loadUniversalCompanies, getCompanySuggestions, initializeBankDatabases } from '../services/companyDatabaseService';
-import { indianStates, stateCityData } from '../data/locationData';
+import { loadUniversalCompanies, getCompanySuggestions, initializeBankDatabases } from '../services/companyDatabaseService.js';
+import { indianStates, stateCityData } from '../data/locationData.js';
 
 const CustomerLoanForm = ({ onSubmit, loading }) => {
   const [formData, setFormData] = useState({
