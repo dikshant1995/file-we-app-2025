@@ -1,5 +1,6 @@
 import { axisFinConfig } from './config.js';
 import { getBankConfig } from '../../services/bankConfigService.js';
+import { getSlabRate } from '../../utils/policyUtils.js';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -200,9 +201,14 @@ export const calculateAxisFinEligibility = (userData) => {
     };
   }
 
-  // Logic Bridge: Support ROI overrides
-  let effectiveInterestRate = interestRateOverride || axisFinConfig.interestRate;
-  if (isGovtEmployee && govtROI) effectiveInterestRate = govtROI;
+  // ROI Calculation using Logic Bridge and Slabs
+  let effectiveInterestRate = interestRateOverride;
+  if (isGovtEmployee && govtROI) {
+    effectiveInterestRate = govtROI;
+  } else if (!effectiveInterestRate) {
+    // Check dynamic slabs in Admin Matrix
+    effectiveInterestRate = getSlabRate('Axis Finance', lookupCategory, cappedFinalLoan, userData.city || userData.state, axisFinConfig.interestRate);
+  }
 
   const monthlyEMI = calculateEMI(cappedFinalLoan, effectiveInterestRate, cappedTenureYears);
 
