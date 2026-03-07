@@ -104,12 +104,20 @@ export const calculatePoonawalaEligibility = (userData) => {
     loanTenure,
     monthlyIncome,
     existingEMI = 0,
-    creditCardObligation, // NEW: 5% of non-BT credit card balances
+    creditCardObligation = 0, // NEW: 5% of non-BT credit card balances
     category = 'C',
     creditScore,
     employmentType,
     age,
     existingLoanBanks,
+    // Admin Overrides (Logic Bridge)
+    interestRateOverride,
+    isGovtEmployee,
+    govtROI,
+    govtFOIR,
+    govtMultiplier,
+    govtMaxTenure,
+    // Balance Transfer fields
     isBTMode,
     loansForBT,
     btTotalEMI,
@@ -165,7 +173,9 @@ export const calculatePoonawalaEligibility = (userData) => {
   const customerSegment = getCustomerSegment(category);
 
   // Apply tenure capping based on category (tenure is in months)
-  const maxTenureForCategory = poonawalaConfig.maxTenureByCategory[customerSegment];
+  // Logic Bridge: Support govtMaxTenure override
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : poonawalaConfig.maxTenureByCategory[customerSegment];
+
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
       eligible: false,
@@ -197,7 +207,9 @@ export const calculatePoonawalaEligibility = (userData) => {
   }
 
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
-  const foirPercentage = getNTHBandFOIR(customerSegment, incomeForCalculation);
+
+  // Logic Bridge: Support govtFOIR override
+  let foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : getNTHBandFOIR(customerSegment, incomeForCalculation);
 
   if (foirPercentage === null) {
     return { eligible: false, reason: `No FOIR available for ${customerSegment} segment at NTH ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
@@ -215,7 +227,10 @@ export const calculatePoonawalaEligibility = (userData) => {
   }
 
   // Pass 1: Calculate preliminary loan with base rate
-  const baseRate = poonawalaConfig.interestRate;
+  // Logic Bridge: Support interestRateOverride or govtROI
+  let baseRate = interestRateOverride || poonawalaConfig.interestRate;
+  if (isGovtEmployee && govtROI) baseRate = govtROI;
+
   const calculatedLoanAmountPass1 = calculatePrincipalFromEMI(
     availableEMI,
     baseRate,
@@ -230,7 +245,10 @@ export const calculatePoonawalaEligibility = (userData) => {
   const preliminaryCappedLoan = Math.min(preliminaryLoanAmount, poonawalaConfig.maxLoanAmount);
 
   // Pass 2: Get correct rate based on preliminary loan amount
-  const finalInterestRate = getInterestRateForLoan(category, preliminaryCappedLoan);
+  // Logic Bridge: Support ROI overrides
+  let finalInterestRate = interestRateOverride;
+  if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(category, preliminaryCappedLoan);
 
   // Recalculate loan with final rate
   const calculatedLoanAmount = calculatePrincipalFromEMI(
