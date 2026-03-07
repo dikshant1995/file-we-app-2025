@@ -1,5 +1,5 @@
 import { indusindConfig } from './config.js';
-import { getBankConfig } from '../../services/bankConfigService';
+import { getBankConfig } from '../../services/bankConfigService.js';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -118,7 +118,8 @@ export const calculateIndusindEligibility = (userData) => {
 
   // Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
-  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : indusindConfig.maxTenureByCategory[category];
+  let lookupCategory = category === 'Govt' ? 'A' : category;
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : indusindConfig.maxTenureByCategory[lookupCategory];
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
@@ -155,9 +156,14 @@ export const calculateIndusindEligibility = (userData) => {
   }
 
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
+  const salaryBand = getSalaryBand(incomeForCalculation, category === 'Govt' ? 'A' : category, indusindConfig.multiplierTable);
+
+  if (!salaryBand && !govtMultiplier) {
+    return { eligible: false, reason: `Salary does not fall within any eligible band for category ${category}`, isBTMode: isBT };
+  }
 
   // Logic Bridge: Support govtMultiplier override
-  let multiplier = isGovtEmployee && govtMultiplier ? govtMultiplier : indusindConfig.multiplierTable[category][salaryBand];
+  let multiplier = (isGovtEmployee && govtMultiplier) ? govtMultiplier : (indusindConfig.multiplierTable[category === 'Govt' ? 'A' : category]?.[salaryBand]);
 
   if (!multiplier) {
     return { eligible: false, reason: `No multiplier available for category ${category} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
