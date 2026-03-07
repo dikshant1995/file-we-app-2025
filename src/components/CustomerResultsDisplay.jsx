@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import './CustomerResultsDisplay.css';
-import { saveSelectedBanks } from '../services/leadService';
+import { saveSelectedBanks } from '../services/leadService.js';
 
 const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
   const [sortBy, setSortBy] = useState('loanAmount');
