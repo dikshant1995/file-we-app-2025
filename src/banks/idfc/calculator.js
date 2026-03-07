@@ -65,6 +65,14 @@ export const calculateIdfcEligibility = (userData) => {
     employmentType,
     age,
     existingLoanBanks,
+    // Admin Overrides (Logic Bridge)
+    interestRateOverride,
+    isGovtEmployee,
+    govtROI,
+    govtFOIR,
+    govtMultiplier,
+    govtMaxTenure,
+    // Balance Transfer fields
     isBTMode,
     loansForBT,
     btTotalEMI,
@@ -124,7 +132,9 @@ export const calculateIdfcEligibility = (userData) => {
   const mappedCategory = category === 'A+' ? 'SUPER-A' : category;
 
   // Apply tenure capping based on category (tenure is in months)
-  const maxTenureForCategory = idfcConfig.maxTenureByCategory[mappedCategory];
+  // Logic Bridge: Support govtMaxTenure override
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : idfcConfig.maxTenureByCategory[mappedCategory];
+
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
       eligible: false,
@@ -169,7 +179,8 @@ export const calculateIdfcEligibility = (userData) => {
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
   const salaryBand = getSalaryBand(incomeForCalculation);
 
-  const multiplier = idfcConfig.multiplierTable[mappedCategory][salaryBand];
+  // Logic Bridge: Support govtMultiplier override
+  let multiplier = isGovtEmployee && govtMultiplier ? govtMultiplier : idfcConfig.multiplierTable[mappedCategory][salaryBand];
 
   if (!multiplier) {
     return { eligible: false, reason: `No multiplier available for category ${category} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
@@ -189,7 +200,10 @@ export const calculateIdfcEligibility = (userData) => {
   const preliminaryCappedLoan = Math.min(preliminaryLoanAmount, idfcConfig.maxLoanAmount);
 
   // Get correct rate based on preliminary loan amount
-  const finalInterestRate = getInterestRateForLoan(mappedCategory, preliminaryCappedLoan);
+  // Logic Bridge: Support ROI overrides
+  let finalInterestRate = interestRateOverride;
+  if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(mappedCategory, preliminaryCappedLoan);
 
   // Final loan amount is minimum of calculated and desired
   const finalLoanAmount = Math.min(
