@@ -3,6 +3,7 @@ import './BankConfigEditor.css';
 import InterestRateEditor from './InterestRateEditor.jsx';
 import CategoriesEditor from './CategoriesEditor.jsx';
 import LoanCappingEditor from './LoanCappingEditor.jsx';
+import CompanyListEditor from './CompanyListEditor.jsx';
 import { AgeRulesEditor, TenureRulesEditor, FoirEditor, MultiplierEditor, BTEditor, CreditScoreEditor, EmploymentEditor, FeesEditor, DocumentsEditor, SpecialRulesEditor, GovtPolicyEditor } from './AllEditors.jsx';
 
 const BankConfigEditor = ({ selectedBank, section, activeLocation }) => {
@@ -54,6 +55,8 @@ const BankConfigEditor = ({ selectedBank, section, activeLocation }) => {
         return <SpecialRulesSection {...props} />;
       case 'fees':
         return <FeesSection {...props} />;
+      case 'company-db':
+        return <CompanyListSection {...props} />;
       default:
         return <AllConfigSection {...props} />;
     }
@@ -118,5 +121,7 @@ const DocumentsSection = ({ bank, location }) => <DocumentsEditor bank={bank} lo
 const SpecialRulesSection = ({ bank, location }) => <SpecialRulesEditor bank={bank} location={location} onSave={(config) => console.log('Special rules saved:', config)} />;
 
 const FeesSection = ({ bank, location }) => <FeesEditor bank={bank} location={location} onSave={(config) => console.log('Fees saved:', config)} />;
+
+const CompanyListSection = ({ bank }) => <CompanyListEditor bank={bank} />;
 
 export default BankConfigEditor;
