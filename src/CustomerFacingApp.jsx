@@ -1,9 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import CustomerLoanForm from './components/CustomerLoanForm.js';
-import CustomerResultsDisplay from './components/CustomerResultsDisplay.js';
-import FuturisticLanding from './components/FuturisticLanding.js';
-import AdminDashboard from './components/AdminDashboard.js';
+import CustomerLoanForm from './components/CustomerLoanForm.jsx';
+import CustomerResultsDisplay from './components/CustomerResultsDisplay.jsx';
+import FuturisticLanding from './components/FuturisticLanding.jsx';
+import AdminDashboard from './components/AdminDashboard.jsx';
 import { calculateLoanEligibility } from './services/realLoanService.js';
 import { calculateBTWithCreditCards } from './services/btLoanService.js';
 import { saveLead } from './services/leadService.js';
