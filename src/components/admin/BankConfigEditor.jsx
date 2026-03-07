@@ -3,7 +3,7 @@ import './BankConfigEditor.css';
 import InterestRateEditor from './InterestRateEditor';
 import CategoriesEditor from './CategoriesEditor';
 import LoanCappingEditor from './LoanCappingEditor';
-import { AgeRulesEditor, TenureRulesEditor, FoirEditor, MultiplierEditor, BTEditor, CreditScoreEditor, EmploymentEditor, FeesEditor, DocumentsEditor, SpecialRulesEditor } from './AllEditors';
+import { AgeRulesEditor, TenureRulesEditor, FoirEditor, MultiplierEditor, BTEditor, CreditScoreEditor, EmploymentEditor, FeesEditor, DocumentsEditor, SpecialRulesEditor, GovtPolicyEditor } from './AllEditors';
 
 const BankConfigEditor = ({ selectedBank, section, activeLocation }) => {
   if (!selectedBank) {
@@ -46,6 +46,8 @@ const BankConfigEditor = ({ selectedBank, section, activeLocation }) => {
         return <CreditScoreSection {...props} />;
       case 'employment':
         return <EmploymentSection {...props} />;
+      case 'govt-policy':
+        return <GovtPolicySection {...props} />;
       case 'documents':
         return <DocumentsSection {...props} />;
       case 'special':
@@ -108,6 +110,8 @@ const BTSection = ({ bank }) => <BTEditor bank={bank} onSave={(config) => consol
 const CreditScoreSection = ({ bank }) => <CreditScoreEditor bank={bank} onSave={(config) => console.log('Credit score saved:', config)} />;
 
 const EmploymentSection = ({ bank }) => <EmploymentEditor bank={bank} onSave={(config) => console.log('Employment saved:', config)} />;
+
+const GovtPolicySection = ({ bank, location }) => <GovtPolicyEditor bank={bank} location={location} onSave={(config) => console.log('Govt Policy saved:', config)} />;
 
 const DocumentsSection = ({ bank }) => <DocumentsEditor bank={bank} onSave={(config) => console.log('Documents saved:', config)} />;
 
