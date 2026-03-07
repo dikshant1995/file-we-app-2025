@@ -429,3 +429,65 @@ export const SpecialRulesEditor = ({ bank, onSave }) => (
     </div>
   </div>
 );
+
+// Government Policy Editor
+export const GovtPolicyEditor = ({ bank, onSave, location }) => {
+  const [config, setConfig] = useState({
+    minSalary: 25000,
+    roi: 10.5,
+    foir: 65,
+    multiplier: 40,
+    maxTenureMonths: 84
+  });
+
+  useEffect(() => {
+    const savedConfig = getBankConfig(bank.name, 'govtPolicy', location);
+    if (savedConfig) setConfig(savedConfig);
+  }, [bank.name, location]);
+
+  const handleSave = () => {
+    const success = saveBankConfig(bank.name, 'govtPolicy', config, location);
+    if (success) {
+      onSave && onSave(config);
+      alert(`Government institutional policies successfully committed for ${bank.name}${location ? ` in ${location}` : ''}.`);
+    } else {
+      alert(`System Error: Transaction failed. Please retry.`);
+    }
+  };
+
+  return (
+    <div className="config-editor">
+      <div className="editor-header">
+        <h2>Government Institutional Policies - {bank.name}</h2>
+        <p>Specific overrides for verified government employees</p>
+      </div>
+      <div className="config-section">
+        <div className="category-grid">
+          <div className="input-group">
+            <label>Minimum Salary (Govt)</label>
+            <input type="number" value={config.minSalary} onChange={(e) => setConfig({ ...config, minSalary: parseInt(e.target.value) })} className="config-input" placeholder="₹ 25,000" />
+          </div>
+          <div className="input-group">
+            <label>Govt Interest Rate (ROI %)</label>
+            <input type="number" step="0.01" value={config.roi} onChange={(e) => setConfig({ ...config, roi: parseFloat(e.target.value) })} className="config-input" placeholder="10.5%" />
+          </div>
+          <div className="input-group">
+            <label>Govt FOIR (%)</label>
+            <input type="number" value={config.foir} onChange={(e) => setConfig({ ...config, foir: parseInt(e.target.value) })} className="config-input" placeholder="65%" />
+          </div>
+          <div className="input-group">
+            <label>Govt Multiplier (X)</label>
+            <input type="number" value={config.multiplier} onChange={(e) => setConfig({ ...config, multiplier: parseInt(e.target.value) })} className="config-input" placeholder="40" />
+          </div>
+          <div className="input-group">
+            <label>Govt Max Tenure (Months)</label>
+            <input type="number" value={config.maxTenureMonths} onChange={(e) => setConfig({ ...config, maxTenureMonths: parseInt(e.target.value) })} className="config-input" placeholder="84" />
+          </div>
+        </div>
+      </div>
+      <div className="editor-actions">
+        <button className="btn-save" onClick={handleSave}>Commit Govt Policies</button>
+      </div>
+    </div>
+  );
+};
