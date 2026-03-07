@@ -78,6 +78,7 @@ const AdminDashboard = ({ onBackToCustomer }) => {
     { id: 'documents', icon: <FileText size={18} stroke="#00d4ff" />, label: 'Documentation Protocol', component: 'BankConfigEditor', section: 'documents' },
     { id: 'special', icon: <Zap size={18} stroke="#00d4ff" />, label: 'Exceptional Policies', component: 'BankConfigEditor', section: 'special' },
     { id: 'fees', icon: <Zap size={18} stroke="#00d4ff" />, label: 'Fee Schedules', component: 'BankConfigEditor', section: 'fees' },
+    { id: 'company-db', icon: <Database size={18} stroke="#00ff88" />, label: 'Company Database', component: 'BankConfigEditor', section: 'company-db' },
     { id: 'blog', icon: <FileText size={18} stroke="#00d4ff" />, label: 'Financial Hub Manager', component: 'BlogManager' },
     { id: 'user-management', icon: <UserPlus size={18} stroke="#00d4ff" />, label: 'Nexus Control', component: 'UserManager' },
     { id: 'analytics', icon: <BarChart2 size={18} stroke="#00d4ff" />, label: 'Strategic Analytics', component: 'Analytics' },
