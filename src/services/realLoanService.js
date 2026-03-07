@@ -32,6 +32,9 @@ import { getCompanyCategoryForBank } from './companyDatabaseService.js';
 // 🚫 IMPORT 5-LAYER PROCESSING FEE GUARD
 import { protectAgainstProcessingFee } from '../utils/processingFeeGuard.js';
 
+// Import bank configuration service for logic bridge
+import { getBankConfig, getAllBankConfig } from './bankConfigService.js';
+
 /**
  * Calculate loan eligibility across all 12 banks
  * @param {Object} userData - User input data
@@ -71,12 +74,15 @@ export const calculateLoanEligibility = async (userData) => {
     employmentType: userData.employmentType || 'salaried',
     age: userData.age ? parseInt(userData.age) : null, // AGE for tenure capping
     existingLoanBanks: userData.existingLoanBanks || [], // CRITICAL: Banks where customer has existing loans
+    state: userData.state || '',
+    city: userData.city || '',
+    salaryMode: userData.salaryMode || 'bank',
     // Balance Transfer specific data
     isBTMode: isBTMode,
     loansForBT: isBTMode ? userData.loansForBT : [],
     btTotalEMI: isBTMode ? userData.loansForBT.reduce((sum, loan) => sum + (parseFloat(loan.monthlyEMI) || 0), 0) : 0,
     btTotalOutstanding: isBTMode ? userData.loansForBT.reduce((sum, loan) => sum + (parseFloat(loan.outstandingAmount) || 0), 0) : 0
-    // Note: Interest rate is fixed at 11% for all banks, so we don't pass it from user input
+    // Note: Interest rate will be pulled dynamically from Admin Config in the loop below
   };
 
   console.log('⚙️  Transformed input for calculators:', calculatorInput);
@@ -87,95 +93,125 @@ export const calculateLoanEligibility = async (userData) => {
   // Array of bank calculators with their names and configs
   const bankCalculators = [
     // 4 NEW BANKS: With company database + dynamic rates
-    { name: 'Kotak Mahindra Bank', calculator: calculateKotakEligibility, config: kotakConfig, hasDatabase: true },
-    { name: 'Tata Capital', calculator: calculateTataEligibility, config: tataConfig, hasDatabase: true },
-    { name: 'Poonawala Finance', calculator: calculatePoonawalaEligibility, config: poonawalaConfig, hasDatabase: true },
-    { name: 'IDFC Bank', calculator: calculateIdfcEligibility, config: idfcConfig, hasDatabase: true },
+    { id: 'kotak', name: 'Kotak Mahindra Bank', calculator: calculateKotakEligibility, config: kotakConfig, hasDatabase: true },
+    { id: 'tata', name: 'Tata Capital', calculator: calculateTataEligibility, config: tataConfig, hasDatabase: true },
+    { id: 'poonawala', name: 'Poonawala Finance', calculator: calculatePoonawalaEligibility, config: poonawalaConfig, hasDatabase: true },
+    { id: 'idfc', name: 'IDFC Bank', calculator: calculateIdfcEligibility, config: idfcConfig, hasDatabase: true },
 
     // 8 OLD BANKS: No database, default Category B + 11% rate
-    { name: 'HDFC Bank', calculator: calculateHdfcEligibility, config: hdfcConfig, hasDatabase: true },
-    { name: 'ICICI Bank', calculator: calculateIciciEligibility, config: iciciConfig, hasDatabase: true },
-    { name: 'Bandhan Bank', calculator: calculateBandhanEligibility, config: bandhanConfig, hasDatabase: false },
-    { name: 'Cholamandalam Finance', calculator: calculateCholaEligibility, config: cholaConfig, hasDatabase: true },
-    { name: 'Axis Finance', calculator: calculateAxisFinEligibility, config: axisFinConfig, hasDatabase: true },
-    { name: 'IndusInd Bank', calculator: calculateIndusindEligibility, config: indusindConfig, hasDatabase: true },
-    { name: 'Shri Ram Finance', calculator: calculateShriRamEligibility, config: shriRamConfig, hasDatabase: false },
-    { name: 'Piramal Finance', calculator: calculatePiramalEligibility, config: piramalConfig, hasDatabase: false }
+    { id: 'hdfc', name: 'HDFC Bank', calculator: calculateHdfcEligibility, config: hdfcConfig, hasDatabase: true },
+    { id: 'icici', name: 'ICICI Bank', calculator: calculateIciciEligibility, config: iciciConfig, hasDatabase: true },
+    { id: 'bandhan', name: 'Bandhan Bank', calculator: calculateBandhanEligibility, config: bandhanConfig, hasDatabase: false },
+    { id: 'chola', name: 'Cholamandalam Finance', calculator: calculateCholaEligibility, config: cholaConfig, hasDatabase: true },
+    { id: 'axis', name: 'Axis Finance', calculator: calculateAxisFinEligibility, config: axisFinConfig, hasDatabase: true },
+    { id: 'indusind', name: 'IndusInd Bank', calculator: calculateIndusindEligibility, config: indusindConfig, hasDatabase: true },
+    { id: 'shriram', name: 'Shri Ram Finance', calculator: calculateShriRamEligibility, config: shriRamConfig, hasDatabase: false },
+    { id: 'piramal', name: 'Piramal Finance', calculator: calculatePiramalEligibility, config: piramalConfig, hasDatabase: false }
   ];
 
   // Calculate eligibility for each bank
-  console.log('🏛️  Calling 12 banks (4 with database, 8 with default Category B)...');
+  console.log('🏛️  Calling 12 banks with Logic Bridge active...');
   console.log('='.repeat(60));
 
-  const results = bankCalculators.map(({ name, calculator, config, hasDatabase }, index) => {
+  const results = bankCalculators.map(({ id, name, calculator, config, hasDatabase }, index) => {
     const bankStartTime = performance.now();
     console.log(`🏦 [${index + 1}/12] Calculating: ${name}...`);
 
     try {
+      // 🧊 LOGIC BRIDGE: Retrieve real-time Admin Panel settings
+      const location = calculatorInput.city || calculatorInput.state;
+      const adminAllConfig = getAllBankConfig(name, location);
+
+      // 1. STRING 8: SALARY MODE GATE
+      if (calculatorInput.salaryMode === 'cash' && adminAllConfig.employmentRules?.allowCashSalary === false) {
+        return { bankName: name, eligible: false, reason: 'Cash salaries not accepted by this institution.', category: 'REJECTED' };
+      }
+      if (calculatorInput.salaryMode === 'cheque' && adminAllConfig.employmentRules?.allowChequeSalary === false) {
+        return { bankName: name, eligible: false, reason: 'Cheque salaries not accepted by this institution.', category: 'REJECTED' };
+      }
+
+      // 2. STRING 2 & 3: BASIC ELIGIBILITY GATES
+      if (calculatorInput.age && adminAllConfig.ageRules) {
+        if (calculatorInput.age < adminAllConfig.ageRules.minAge) {
+          return { bankName: name, eligible: false, reason: `Age below criteria (Min: ${adminAllConfig.ageRules.minAge})`, category: 'REJECTED' };
+        }
+        if (calculatorInput.age > adminAllConfig.ageRules.maxAge) {
+          return { bankName: name, eligible: false, reason: `Age above criteria (Max: ${adminAllConfig.ageRules.maxAge})`, category: 'REJECTED' };
+        }
+      }
+
+      if (calculatorInput.monthlyIncome < (adminAllConfig.employmentRules?.salariedMinSalary || 25000)) {
+        return { bankName: name, eligible: false, reason: `Income below bank threshold (Min: ₹${adminAllConfig.employmentRules?.salariedMinSalary || 25000})`, category: 'REJECTED' };
+      }
+
       let bankCategory;
+      let govtPolicy = null;
 
-      if (hasDatabase) {
-        // NEW BANKS: Look up category from database
-        const bankDbKey = name.toLowerCase().replace(/\s+/g, '').includes('kotak') ? 'kotak'
-          : name.toLowerCase().replace(/\s+/g, '').includes('tata') ? 'tata'
-            : name.toLowerCase().replace(/\s+/g, '').includes('poonawala') ? 'poonawala'
-              : name.toLowerCase().replace(/\s+/g, '').includes('idfc') ? 'idfc'
-                : name.toLowerCase().replace(/\s+/g, '').includes('hdfc') ? 'hdfc'
-                  : name.toLowerCase().replace(/\s+/g, '').includes('icici') ? 'icici'
-                    : name.toLowerCase().replace(/\s+/g, '').includes('chola') ? 'chola'
-                      : name.toLowerCase().replace(/\s+/g, '').includes('indusind') ? 'indusind'
-                        : name.toLowerCase().replace(/\s+/g, '').includes('axis') ? 'axis-fin'
-                          : null;
+      // 3. STRING 7: GOVT DIRECT INJECTION
+      if (calculatorInput.employmentType === 'government') {
+        bankCategory = 'Govt';
+        govtPolicy = getBankConfig(name, 'govtPolicy', location);
+        console.log(`   🏛️ ${name}: Govt Direct Injection Active`, govtPolicy);
+      } else if (hasDatabase) {
+        // PRIVATE SECTOR PATH
+        const bankDbKey = id === 'shriram' ? 'shriram' : id; // Match Database keys
 
-        if (bankDbKey && calculatorInput.companyName) {
+        if (calculatorInput.companyName) {
           bankCategory = getCompanyCategoryForBank(calculatorInput.companyName, bankDbKey);
 
-          // HDFC Specific Mapping (IDFC keys to HDFC keys)
-          if (bankDbKey === 'hdfc') {
+          // HDFC Specific Mapping
+          if (name === 'HDFC Bank') {
             if (bankCategory === 'SCATA') bankCategory = 'Super A';
             else if (bankCategory === 'CATGA') bankCategory = 'A';
             else if (bankCategory === 'CATGB') bankCategory = 'B';
             else if (bankCategory === 'CATGC') bankCategory = 'C';
             else if (bankCategory === 'GOVT') bankCategory = 'Govt';
-            // Any other category (like UNLISTED) remains as is
           }
-
           console.log(`   🏭 ${name}: ${calculatorInput.companyName} → ${bankCategory}`);
         } else {
           bankCategory = calculatorInput.category;
         }
       } else {
-        // OLD BANKS: Default to Category B
         bankCategory = 'B';
         console.log(`   🏭 ${name}: Using default Category B (no database)`);
       }
 
-      // Create bank-specific input with correct category
+      // 🌉 INJECT ADMIN OVERRIDES INTO THE ENGINE
       const bankInput = {
         ...calculatorInput,
         category: bankCategory
       };
 
+      // Apply Govt Overrides if available
+      if (govtPolicy) {
+        // Note: These flags tell the individual bank calculators to use Govt rules
+        bankInput.isGovtEmployee = true;
+        bankInput.govtROI = govtPolicy.roi;
+        bankInput.govtFOIR = govtPolicy.foir;
+        bankInput.govtMultiplier = govtPolicy.multiplier;
+        bankInput.govtMaxTenure = govtPolicy.maxTenureMonths;
+      }
+
+      // Apply Global Multiplier/Rate Overrides from Admin Panel
+      if (adminAllConfig.interestRates && !govtPolicy) {
+        const catRate = adminAllConfig.interestRates.categoryRates?.[bankCategory] || adminAllConfig.interestRates.defaultRate;
+        if (catRate) bankInput.interestRateOverride = catRate;
+      }
+
       const result = calculator(bankInput);
       const bankEndTime = performance.now();
       const bankTime = (bankEndTime - bankStartTime).toFixed(2);
 
-      // Enhance result with config data for TRANSPARENCY
+      // 💎 ENHANCED RESULT WITH ADMIN TRANSPARENCY
       const enhancedResult = {
         bankName: result.bankName || name,
         ...result,
-        // Add config info to show HOW bank calculated
-        btConfig: config.btConfig,
-        incentivePercentage: config.incentivePercentage,
-        incentivePeriodMonths: config.incentivePeriodMonths,
-        bachelorMaxLoanAmount: config.bachelorMaxLoanAmount,
-        category: bankCategory, // Show the category used for this bank
-        employmentType: calculatorInput.employmentType,
-        // BT-specific metadata
-        isBTMode: calculatorInput.isBTMode,
-        btTotalEMI: calculatorInput.btTotalEMI,
-        btTotalOutstanding: calculatorInput.btTotalOutstanding,
-        loansForBT: calculatorInput.loansForBT
+        category: bankCategory,
+        salaryMode: calculatorInput.salaryMode,
+        adminApplied: true, // Marker for Logic Bridge
+        // Pass through Admin config for UI display
+        btConfig: adminAllConfig.btConfig || config.btConfig,
+        processingFee: adminAllConfig.feesAndCharges?.processingFeePercentage,
       };
 
       if (result.eligible) {
