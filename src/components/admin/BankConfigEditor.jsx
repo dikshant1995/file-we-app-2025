@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import './BankConfigEditor.css';
-import InterestRateEditor from './InterestRateEditor';
-import CategoriesEditor from './CategoriesEditor';
-import LoanCappingEditor from './LoanCappingEditor';
-import { AgeRulesEditor, TenureRulesEditor, FoirEditor, MultiplierEditor, BTEditor, CreditScoreEditor, EmploymentEditor, FeesEditor, DocumentsEditor, SpecialRulesEditor, GovtPolicyEditor } from './AllEditors';
+import InterestRateEditor from './InterestRateEditor.js';
+import CategoriesEditor from './CategoriesEditor.js';
+import LoanCappingEditor from './LoanCappingEditor.js';
+import { AgeRulesEditor, TenureRulesEditor, FoirEditor, MultiplierEditor, BTEditor, CreditScoreEditor, EmploymentEditor, FeesEditor, DocumentsEditor, SpecialRulesEditor, GovtPolicyEditor } from './AllEditors.js';
 
 const BankConfigEditor = ({ selectedBank, section, activeLocation }) => {
   if (!selectedBank) {
@@ -91,32 +91,32 @@ const AllConfigSection = ({ bank }) => (
   </div>
 );
 
-const CategoriesSection = ({ bank }) => <CategoriesEditor bank={bank} onSave={(config) => console.log('Categories saved:', config)} />;
+const CategoriesSection = ({ bank, location }) => <CategoriesEditor bank={bank} location={location} onSave={(config) => console.log('Categories saved:', config)} />;
 
-const InterestSection = ({ bank }) => <InterestRateEditor bank={bank} onSave={(config) => console.log('Saved:', config)} />;
+const InterestSection = ({ bank, location }) => <InterestRateEditor bank={bank} location={location} onSave={(config) => console.log('Saved:', config)} />;
 
-const LoanCappingSection = ({ bank }) => <LoanCappingEditor bank={bank} onSave={(config) => console.log('Capping saved:', config)} />;
+const LoanCappingSection = ({ bank, location }) => <LoanCappingEditor bank={bank} location={location} onSave={(config) => console.log('Capping saved:', config)} />;
 
-const AgeRulesSection = ({ bank }) => <AgeRulesEditor bank={bank} onSave={(config) => console.log('Age rules saved:', config)} />;
+const AgeRulesSection = ({ bank, location }) => <AgeRulesEditor bank={bank} location={location} onSave={(config) => console.log('Age rules saved:', config)} />;
 
-const TenureRulesSection = ({ bank }) => <TenureRulesEditor bank={bank} onSave={(config) => console.log('Tenure saved:', config)} />;
+const TenureRulesSection = ({ bank, location }) => <TenureRulesEditor bank={bank} location={location} onSave={(config) => console.log('Tenure saved:', config)} />;
 
-const FoirSection = ({ bank }) => <FoirEditor bank={bank} onSave={(config) => console.log('FOIR saved:', config)} />;
+const FoirSection = ({ bank, location }) => <FoirEditor bank={bank} location={location} onSave={(config) => console.log('FOIR saved:', config)} />;
 
-const MultiplierSection = ({ bank }) => <MultiplierEditor bank={bank} onSave={(config) => console.log('Multiplier saved:', config)} />;
+const MultiplierSection = ({ bank, location }) => <MultiplierEditor bank={bank} location={location} onSave={(config) => console.log('Multiplier saved:', config)} />;
 
-const BTSection = ({ bank }) => <BTEditor bank={bank} onSave={(config) => console.log('BT saved:', config)} />;
+const BTSection = ({ bank, location }) => <BTEditor bank={bank} location={location} onSave={(config) => console.log('BT saved:', config)} />;
 
-const CreditScoreSection = ({ bank }) => <CreditScoreEditor bank={bank} onSave={(config) => console.log('Credit score saved:', config)} />;
+const CreditScoreSection = ({ bank, location }) => <CreditScoreEditor bank={bank} location={location} onSave={(config) => console.log('Credit score saved:', config)} />;
 
-const EmploymentSection = ({ bank }) => <EmploymentEditor bank={bank} onSave={(config) => console.log('Employment saved:', config)} />;
+const EmploymentSection = ({ bank, location }) => <EmploymentEditor bank={bank} location={location} onSave={(config) => console.log('Employment saved:', config)} />;
 
 const GovtPolicySection = ({ bank, location }) => <GovtPolicyEditor bank={bank} location={location} onSave={(config) => console.log('Govt Policy saved:', config)} />;
 
-const DocumentsSection = ({ bank }) => <DocumentsEditor bank={bank} onSave={(config) => console.log('Documents saved:', config)} />;
+const DocumentsSection = ({ bank, location }) => <DocumentsEditor bank={bank} location={location} onSave={(config) => console.log('Documents saved:', config)} />;
 
-const SpecialRulesSection = ({ bank }) => <SpecialRulesEditor bank={bank} onSave={(config) => console.log('Special rules saved:', config)} />;
+const SpecialRulesSection = ({ bank, location }) => <SpecialRulesEditor bank={bank} location={location} onSave={(config) => console.log('Special rules saved:', config)} />;
 
-const FeesSection = ({ bank }) => <FeesEditor bank={bank} onSave={(config) => console.log('Fees saved:', config)} />;
+const FeesSection = ({ bank, location }) => <FeesEditor bank={bank} location={location} onSave={(config) => console.log('Fees saved:', config)} />;
 
 export default BankConfigEditor;
