@@ -158,15 +158,6 @@ export const calculateLoanEligibility = async (userData) => {
 
         if (calculatorInput.companyName) {
           bankCategory = getCompanyCategoryForBank(calculatorInput.companyName, bankDbKey);
-
-          // HDFC Specific Mapping
-          if (name === 'HDFC Bank') {
-            if (bankCategory === 'SCATA') bankCategory = 'Super A';
-            else if (bankCategory === 'CATGA') bankCategory = 'A';
-            else if (bankCategory === 'CATGB') bankCategory = 'B';
-            else if (bankCategory === 'CATGC') bankCategory = 'C';
-            else if (bankCategory === 'GOVT') bankCategory = 'Govt';
-          }
           console.log(`   🏭 ${name}: ${calculatorInput.companyName} → ${bankCategory}`);
         } else {
           bankCategory = calculatorInput.category;
