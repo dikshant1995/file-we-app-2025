@@ -27,11 +27,11 @@ const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
 // Helper function to determine customer segment based on category
 const getCustomerSegment = (category) => {
   const segmentMapping = {
-    'SUPER-A': 'SUP-A',
-    'A': 'SUP-A',
-    'B': 'A',
-    'C': 'B',
-    'D': 'C',
+    'SUPER-A': 'SUPER-A',
+    'A': 'A',
+    'B': 'B',
+    'C': 'C',
+    'D': 'D',
     'GOVT': 'GOVT',
     'UNLISTED': 'E'
   };
