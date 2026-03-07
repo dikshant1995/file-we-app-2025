@@ -62,6 +62,14 @@ export const calculateCholaEligibility = (userData) => {
     employmentType = 'salaried',
     age,
     existingLoanBanks,
+    // Admin Overrides (Logic Bridge)
+    interestRateOverride,
+    isGovtEmployee,
+    govtROI,
+    govtFOIR,
+    govtMultiplier,
+    govtMaxTenure,
+    // Balance Transfer fields
     isBTMode,
     loansForBT,
     btTotalEMI,
@@ -114,7 +122,9 @@ export const calculateCholaEligibility = (userData) => {
   }
 
   // 2. Apply tenure capping based on category (tenure is in months)
-  const maxTenureForCategory = cholaConfig.maxTenureByCategory[category];
+  // Logic Bridge: Support govtMaxTenure override
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : cholaConfig.maxTenureByCategory[category];
+
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
       eligible: false,
@@ -155,7 +165,8 @@ export const calculateCholaEligibility = (userData) => {
 
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
   const foirBand = getSalaryBand(incomeForCalculation, cholaConfig.foirTable);
-  const foirPercentage = cholaConfig.foirTable[foirBand]?.[category];
+  // Logic Bridge: Support govtFOIR override
+  let foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : cholaConfig.foirTable[foirBand]?.[category];
 
   if (!foirPercentage) {
     return { eligible: false, reason: `FOIR not defined for category ${category} at salary band ${foirBand}`, isBTMode: isBT };
@@ -173,7 +184,11 @@ export const calculateCholaEligibility = (userData) => {
   }
 
   // 8. Calculate loan amount from available EMI using capped tenure
-  const calculatedLoanAmount = calculatePrincipalFromEMI(availableEMI, cholaConfig.interestRate, cappedTenureYears);
+  // Logic Bridge: Support ROI overrides
+  let effectiveInterestRate = interestRateOverride || cholaConfig.interestRate;
+  if (isGovtEmployee && govtROI) effectiveInterestRate = govtROI;
+
+  const calculatedLoanAmount = calculatePrincipalFromEMI(availableEMI, effectiveInterestRate, cappedTenureYears);
 
   // 9. Final loan = minimum of calculated and desired
   const finalLoanAmount = Math.min(
