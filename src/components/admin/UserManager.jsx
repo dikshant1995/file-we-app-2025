@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
-import { db } from '../../config/firebase';
+import { db } from '../../config/firebase.js';
 import { collection, query, getDocs, doc, setDoc, deleteDoc, Timestamp } from 'firebase/firestore';
 import { UserPlus, Trash2, Shield, Mail, Lock, User, RefreshCw, AlertCircle, CheckCircle } from 'lucide-react';
 import './UserManager.css';
