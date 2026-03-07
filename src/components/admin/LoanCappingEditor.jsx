@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import './ConfigEditor.css';
-import { saveBankConfig, getBankConfig } from '../../services/bankConfigService';
+import { saveBankConfig, getBankConfig } from '../../services/bankConfigService.js';
 
 const LoanCappingEditor = ({ bank, onSave, location }) => {
   const [config, setConfig] = useState({
@@ -26,7 +26,14 @@ const LoanCappingEditor = ({ bank, onSave, location }) => {
   useEffect(() => {
     const savedConfig = getBankConfig(bank.name, 'loanCapping', location);
     if (savedConfig) {
-      setConfig(savedConfig);
+      // SAFE MERGE: Ensure we don't lose the structure if saved data is incomplete
+      setConfig(prev => ({
+        ...prev,
+        ...savedConfig,
+        categoryBasedMax: { ...prev.categoryBasedMax, ...(savedConfig.categoryBasedMax || {}) },
+        employmentTypeMax: { ...prev.employmentTypeMax, ...(savedConfig.employmentTypeMax || {}) },
+        bachelorCapping: { ...prev.bachelorCapping, ...(savedConfig.bachelorCapping || {}) }
+      }));
     }
   }, [bank.name, location]);
 
@@ -75,11 +82,10 @@ const LoanCappingEditor = ({ bank, onSave, location }) => {
         </div>
       </div>
 
-      {/* Category-Based Max */}
       <div className="config-section">
         <h3>📊 Category-Based Maximum</h3>
         <div className="category-grid">
-          {Object.keys(config.categoryBasedMax).map(cat => (
+          {Object.keys(config.categoryBasedMax || {}).map(cat => (
             <div key={cat} className="input-group">
               <label>Category {cat} Max (₹)</label>
               <input
@@ -108,7 +114,7 @@ const LoanCappingEditor = ({ bank, onSave, location }) => {
             <label>Salaried Max (₹)</label>
             <input
               type="number"
-              value={config.employmentTypeMax.salaried || ''}
+              value={(config.employmentTypeMax && config.employmentTypeMax.salaried) || ''}
               onChange={(e) => setConfig({
                 ...config,
                 employmentTypeMax: {
@@ -125,7 +131,7 @@ const LoanCappingEditor = ({ bank, onSave, location }) => {
             <label>Self-Employed Max (₹)</label>
             <input
               type="number"
-              value={config.employmentTypeMax.selfEmployed || ''}
+              value={(config.employmentTypeMax && config.employmentTypeMax.selfEmployed) || ''}
               onChange={(e) => setConfig({
                 ...config,
                 employmentTypeMax: {
@@ -147,7 +153,7 @@ const LoanCappingEditor = ({ bank, onSave, location }) => {
           <div className="input-group">
             <label>Enable Bachelor Capping</label>
             <select
-              value={config.bachelorCapping.enabled}
+              value={(config.bachelorCapping && config.bachelorCapping.enabled) || false}
               onChange={(e) => setConfig({
                 ...config,
                 bachelorCapping: {
@@ -166,16 +172,16 @@ const LoanCappingEditor = ({ bank, onSave, location }) => {
             <label>Bachelor Capping %</label>
             <input
               type="number"
-              value={config.bachelorCapping.percentage}
+              value={(config.bachelorCapping && config.bachelorCapping.percentage) || 0}
               onChange={(e) => setConfig({
                 ...config,
                 bachelorCapping: {
                   ...config.bachelorCapping,
-                  percentage: parseInt(e.target.value)
+                  percentage: parseInt(e.target.value) || 0
                 }
               })}
               className="config-input"
-              disabled={!config.bachelorCapping.enabled}
+              disabled={!(config.bachelorCapping && config.bachelorCapping.enabled)}
             />
             <span className="input-hint">% of regular loan amount</span>
           </div>
@@ -196,7 +202,7 @@ const LoanCappingEditor = ({ bank, onSave, location }) => {
           </div>
           <div className="preview-card">
             <div className="preview-label">Bachelor Capping</div>
-            <div className="preview-value">{config.bachelorCapping.enabled ? config.bachelorCapping.percentage + '%' : 'OFF'}</div>
+            <div className="preview-value">{(config.bachelorCapping && config.bachelorCapping.enabled) ? config.bachelorCapping.percentage + '%' : 'OFF'}</div>
           </div>
         </div>
       </div>
