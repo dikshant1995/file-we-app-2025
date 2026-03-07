@@ -150,6 +150,13 @@ export const calculateKotakEligibility = (userData) => {
     age,
     category,
     existingLoanBanks,
+    // Admin Overrides (Logic Bridge)
+    interestRateOverride,
+    isGovtEmployee,
+    govtROI,
+    govtFOIR,
+    govtMultiplier,
+    govtMaxTenure,
     // Balance Transfer fields
     isBTMode,
     loansForBT,
@@ -211,7 +218,9 @@ export const calculateKotakEligibility = (userData) => {
   }
 
   // Use user-provided interest rate or calculate based on category and loan amount
-  const effectiveInterestRate = interestRate || getInterestRateForLoan(category || 'B', desiredLoanAmount || monthlyIncome * 20);
+  // Logic Bridge: Support logic bridge overrides
+  let effectiveInterestRate = interestRateOverride || interestRate || getInterestRateForLoan(category || 'B', desiredLoanAmount || monthlyIncome * 20);
+  if (isGovtEmployee && govtROI) effectiveInterestRate = govtROI;
 
   // Check employment type
   if (!kotakConfig.employmentTypes.includes(employmentType)) {
@@ -225,7 +234,9 @@ export const calculateKotakEligibility = (userData) => {
   const companyCategory = category || 'B'; // Default to B if not provided
 
   // Apply tenure capping based on category (tenure is in months)
-  const maxTenureForCategory = kotakConfig.maxTenureByCategory[companyCategory];
+  // Logic Bridge: Support govtMaxTenure override
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : kotakConfig.maxTenureByCategory[companyCategory];
+
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
       eligible: false,
@@ -261,7 +272,10 @@ export const calculateKotakEligibility = (userData) => {
 
   // Calculate using Multiplier method
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
-  const multiplier = getMultiplier(incomeForCalculation, companyCategory);
+
+  // Logic Bridge: Support govtMultiplier override
+  let multiplier = isGovtEmployee && govtMultiplier ? govtMultiplier : getMultiplier(incomeForCalculation, companyCategory);
+
   if (!multiplier) {
     return {
       eligible: false,
@@ -276,7 +290,9 @@ export const calculateKotakEligibility = (userData) => {
   const multiplierLoanAmount = availableSalary * multiplier;
 
   // Calculate using FOIR method with base rate
-  const foirPercentage = getFoirPercentage(incomeForCalculation, companyCategory);
+  // Logic Bridge: Support govtFOIR override
+  let foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : getFoirPercentage(incomeForCalculation, companyCategory);
+
   if (!foirPercentage) {
     return {
       eligible: false,
@@ -302,7 +318,10 @@ export const calculateKotakEligibility = (userData) => {
   const preliminaryLoanAmount = Math.min(preliminaryMaxLoanAmount, kotakConfig.maxLoanAmount);
 
   // ========== PASS 2: Get correct interest rate based on preliminary loan amount ==========
-  const finalInterestRate = interestRate || getInterestRateForLoan(companyCategory, preliminaryLoanAmount);
+  // Logic Bridge: Use overrides if present, otherwise re-calculate
+  let finalInterestRate = interestRateOverride || interestRate;
+  if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(companyCategory, preliminaryLoanAmount);
 
   console.log(`🔄 Two-Pass Calculation: Preliminary=₹${preliminaryLoanAmount}, Rate=${finalInterestRate}%`);
 
