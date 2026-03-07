@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './App.css';
-import EnhancedUserInputForm from './components/EnhancedUserInputForm.js';
-import EnhancedResultsDisplay from './components/EnhancedResultsDisplay.js';
+import EnhancedUserInputForm from './components/EnhancedUserInputForm.jsx';
+import EnhancedResultsDisplay from './components/EnhancedResultsDisplay.jsx';
 import { calculateAllScenarios } from './services/enhancedLoanService.js';
 
 function EnhancedApp() {
@@ -12,7 +12,7 @@ function EnhancedApp() {
   const handleFormSubmit = async (formData) => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const calculationResults = await calculateAllScenarios(formData);
       setResults(calculationResults);
@@ -36,18 +36,18 @@ function EnhancedApp() {
         <h1>🏦 Comprehensive Loan Eligibility Tool</h1>
         <p>Compare Fresh Loans, Full BT, and Partial BT scenarios in one place</p>
       </header>
-      
+
       <main>
         {!results ? (
           <>
             <EnhancedUserInputForm onSubmit={handleFormSubmit} onReset={handleReset} />
-            
+
             {loading && (
               <div className="loading">
                 ⏳ Calculating all loan scenarios from 12 banks...
               </div>
             )}
-            
+
             {error && (
               <div className="error">
                 {error}
