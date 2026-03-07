@@ -143,11 +143,11 @@ Click OK to permanently delete.`)) {
               <div className="bank-quick-info">
                 <div className="info-item">
                   <span className="info-label">Categories:</span>
-                  <span className="info-value">A, B, C, D</span>
+                  <span className="info-value">SUPER-A, A, B, C, D</span>
                 </div>
                 <div className="info-item">
                   <span className="info-label">Interest Rate:</span>
-                  <span className="info-value">11%</span>
+                  <span className="info-value">Logic Bridge Active</span>
                 </div>
                 <div className="info-item">
                   <span className="info-label">BT Support:</span>
