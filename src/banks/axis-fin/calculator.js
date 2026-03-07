@@ -1,5 +1,5 @@
 import { axisFinConfig } from './config.js';
-import { getBankConfig } from '../../services/bankConfigService';
+import { getBankConfig } from '../../services/bankConfigService.js';
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -111,7 +111,8 @@ export const calculateAxisFinEligibility = (userData) => {
 
   // 2. Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
-  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : axisFinConfig.maxTenureByCategory[category];
+  let lookupCategory = category === 'Govt' ? 'A' : category;
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : axisFinConfig.maxTenureByCategory[lookupCategory];
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
@@ -213,7 +214,7 @@ export const calculateAxisFinEligibility = (userData) => {
     maxLoanCap: axisFinConfig.maxLoanAmount,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
-    interestRate: axisFinConfig.interestRate,
+    interestRate: effectiveInterestRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,
     tenureCapped: tenureCapped,
