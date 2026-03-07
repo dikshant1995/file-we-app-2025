@@ -122,6 +122,13 @@ export const calculateHdfcEligibility = (userData) => {
     age, // Applicant's current age
     category, // User-provided category (B, C, GOVT)
     existingLoanBanks, // NEW: List of banks where customer has existing personal loans
+    // Admin Overrides (Logic Bridge)
+    interestRateOverride,
+    isGovtEmployee,
+    govtROI,
+    govtFOIR,
+    govtMultiplier,
+    govtMaxTenure,
     // Balance Transfer fields
     isBTMode,
     loansForBT,
@@ -196,7 +203,9 @@ export const calculateHdfcEligibility = (userData) => {
   }
 
   // Use user-provided interest rate or default to bank config
-  const effectiveInterestRate = interestRate || hdfcConfig.interestRate;
+  // Logic Bridge: Support interestRateOverride and govtROI
+  let effectiveInterestRate = interestRateOverride || interestRate || hdfcConfig.interestRate;
+  if (isGovtEmployee && govtROI) effectiveInterestRate = govtROI;
 
   // Check employment type
   if (!hdfcConfig.employmentTypes.includes(employmentType)) {
@@ -210,7 +219,9 @@ export const calculateHdfcEligibility = (userData) => {
   const companyCategory = category || 'B'; // Default to B if not provided
 
   // Apply tenure capping based on category (tenure is in months)
-  const maxTenureForCategory = hdfcConfig.maxTenureByCategory[companyCategory];
+  // Logic Bridge: Use govtMaxTenure if available
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : hdfcConfig.maxTenureByCategory[companyCategory];
+
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
       eligible: false,
@@ -242,7 +253,10 @@ export const calculateHdfcEligibility = (userData) => {
   // Calculate using Multiplier method
   // For BT mode, use adjusted income
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
-  const multiplier = getMultiplier(incomeForCalculation, companyCategory);
+
+  // Logic Bridge: Use govtMultiplier if available
+  let multiplier = isGovtEmployee && govtMultiplier ? govtMultiplier : getMultiplier(incomeForCalculation, companyCategory);
+
   if (!multiplier) {
     return {
       eligible: false,
@@ -257,7 +271,9 @@ export const calculateHdfcEligibility = (userData) => {
   const multiplierLoanAmount = availableSalary * multiplier;
 
   // Calculate using FOIR method
-  const foirPercentage = getFoirPercentage(incomeForCalculation, companyCategory);
+  // Logic Bridge: Use govtFOIR if available
+  let foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : getFoirPercentage(incomeForCalculation, companyCategory);
+
   if (!foirPercentage) {
     return {
       eligible: false,
