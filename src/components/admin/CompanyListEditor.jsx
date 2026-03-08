@@ -7,6 +7,7 @@ const CompanyListEditor = ({ bank }) => {
     const [headers, setHeaders] = useState([]);
     const [previewData, setPreviewData] = useState([]);
     const [mapping, setMapping] = useState({ name: '', category: '' });
+    const [validationErrors, setValidationErrors] = useState([]);
     const [processing, setProcessing] = useState(false);
     const [progress, setProgress] = useState(0);
     const [stats, setStats] = useState({ totalRows: 0, previewRows: 0 });
@@ -30,7 +31,24 @@ const CompanyListEditor = ({ bank }) => {
         parsePreview(selectedFile);
     };
 
-    const parsePreview = (file) => {
+    // Standard categories recognized by all bank calculators
+    const VALID_CATEGORIES = ['SUPER-A', 'A', 'B', 'C', 'D', 'GOVT', 'UNLISTED'];
+
+    // Validate categories whenever mapping or preview data changes
+    useEffect(() => {
+        if (mapping.category && previewData.length > 0) {
+            const catIdx = headers.indexOf(mapping.category);
+            if (catIdx !== -1) {
+                const uniqueCatsInPreview = [...new Set(previewData.map(row => row[catIdx]?.toString().trim().toUpperCase()))];
+                const illegal = uniqueCatsInPreview.filter(cat => cat && !VALID_CATEGORIES.includes(cat));
+                setValidationErrors(illegal);
+            }
+        } else {
+            setValidationErrors([]);
+        }
+    }, [mapping.category, previewData, headers]);
+
+    const handleFileSelect = (e) => {
         const reader = new FileReader();
         reader.onload = (e) => {
             const data = new Uint8Array(e.target.result);
@@ -186,48 +204,63 @@ const CompanyListEditor = ({ bank }) => {
                             </select>
                         </div>
                     </div>
+                </div>
 
-                    <div className="preview-table-container">
-                        <h4>Preview (First 10 Rows)</h4>
-                        <table className="preview-table">
-                            <thead>
-                                <tr>
-                                    {headers.map(h => <th key={h}>{h}</th>)}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {previewData.map((row, i) => (
-                                    <tr key={i}>
-                                        {row.map((cell, j) => <td key={j}>{cell}</td>)}
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div style={{ marginTop: '32px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)' }}>
-                            <span>Total rows to process: {stats.totalRows}</span>
-                            <span>Mode: Atomic Replacement</span>
-                        </div>
-
-                        {processing && (
-                            <div className="progress-bar-container">
-                                <div className="progress-fill" style={{ width: `${progress}%` }}></div>
-                            </div>
-                        )}
-
-                        <button
-                            className="btn-process"
-                            onClick={handleProcess}
-                            disabled={processing || !mapping.name || !mapping.category}
-                        >
-                            {processing ? 'Processing & Saving...' : '🚀 Start Extraction & Replace Database'}
-                        </button>
+                    {validationErrors.length > 0 && (
+                <div className="validation-error-banner">
+                    <div className="error-icon">⚠️</div>
+                    <div className="error-content">
+                        <strong>Category Mismatch Detected!</strong>
+                        <p>The following categories in your Excel are <u>not</u> recognized by the system:
+                            <span className="illegal-list"> {validationErrors.join(', ')}</span>
+                        </p>
+                        <small>Please choose the correct "Category" column or update your Excel file to use: {VALID_CATEGORIES.join(', ')}</small>
                     </div>
                 </div>
             )}
+
+            <div className="preview-table-container">
+                <h4>Preview (First 10 Rows)</h4>
+                <table className="preview-table">
+                    <thead>
+                        <tr>
+                            {headers.map(h => <th key={h}>{h}</th>)}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {previewData.map((row, i) => (
+                            <tr key={i}>
+                                {row.map((cell, j) => <td key={j}>{cell}</td>)}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            <div style={{ marginTop: '32px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)' }}>
+                    <span>Total rows to process: {stats.totalRows}</span>
+                    <span>Mode: Atomic Replacement</span>
+                </div>
+
+                {processing && (
+                    <div className="progress-bar-container">
+                        <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+                    </div>
+                )}
+
+                <button
+                    className={`btn-process ${validationErrors.length > 0 ? 'btn-disabled' : ''}`}
+                    onClick={handleProcess}
+                    disabled={processing || !mapping.name || !mapping.category || validationErrors.length > 0}
+                >
+                    {validationErrors.length > 0 ? '❌ Cannot Save: Fix Category Errors' : processing ? 'Processing & Saving...' : '🚀 Start Extraction & Replace Database'}
+                </button>
+            </div>
         </div>
+    )
+}
+        </div >
     );
 };
 
