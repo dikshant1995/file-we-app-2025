@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import './CompanyListEditor.css';
 import { saveBankDatabaseToCloud, syncToUniversalDatabase } from '../../services/companyDatabaseService.js';
+import { getBankConfig } from '../../services/bankConfigService.js';
 
 const CompanyListEditor = ({ bank }) => {
     const [file, setFile] = useState(null);
@@ -12,6 +13,24 @@ const CompanyListEditor = ({ bank }) => {
     const [progress, setProgress] = useState(0);
     const [stats, setStats] = useState({ totalRows: 0, previewRows: 0 });
     const fileInputRef = useRef(null);
+
+    // Dynamic Category Mapping Logic
+    const config = getBankConfig(bank.name, 'categories') || {};
+    const VALID_INTERNAL_KEYS = ['SUPER-A', 'A', 'B', 'C', 'D', 'GOVT', 'UNLISTED'];
+
+    // Create a map from Display Label -> Internal Key
+    const labelToKeyMap = {};
+    const ALL_VALID_TERMS = [...VALID_INTERNAL_KEYS];
+
+    Object.keys(config).forEach(key => {
+        if (config[key].displayLabel) {
+            const label = config[key].displayLabel.trim().toUpperCase();
+            labelToKeyMap[label] = key;
+            if (!ALL_VALID_TERMS.includes(label)) {
+                ALL_VALID_TERMS.push(label);
+            }
+        }
+    });
 
     // Dynamically load XLSX library if not present
     useEffect(() => {
@@ -40,13 +59,14 @@ const CompanyListEditor = ({ bank }) => {
             const catIdx = headers.indexOf(mapping.category);
             if (catIdx !== -1) {
                 const uniqueCatsInPreview = [...new Set(previewData.map(row => row[catIdx]?.toString().trim().toUpperCase()))];
-                const illegal = uniqueCatsInPreview.filter(cat => cat && !VALID_CATEGORIES.includes(cat));
+                // Check against BOTH internal keys and custom labels
+                const illegal = uniqueCatsInPreview.filter(cat => cat && !ALL_VALID_TERMS.includes(cat));
                 setValidationErrors(illegal);
             }
         } else {
             setValidationErrors([]);
         }
-    }, [mapping.category, previewData, headers]);
+    }, [mapping.category, previewData, headers, ALL_VALID_TERMS]);
 
     const handleFileSelect = (e) => {
         const reader = new FileReader();
@@ -98,11 +118,17 @@ const CompanyListEditor = ({ bank }) => {
 
                 setProgress(40);
 
-                // Transform data
-                const transformedData = fullData.map(row => ({
-                    companyName: row[mapping.name]?.toString().trim().toUpperCase(),
-                    category: row[mapping.category]?.toString().trim().toUpperCase()
-                })).filter(row => row.companyName && row.category);
+                // Transform data and Normalize categories
+                const transformedData = fullData.map(row => {
+                    const rawCat = row[mapping.category]?.toString().trim().toUpperCase();
+                    // Translate custom label (e.g., "DIAMOND") back to internal key (e.g., "A")
+                    const normalizedCat = labelToKeyMap[rawCat] || rawCat;
+
+                    return {
+                        companyName: row[mapping.name]?.toString().trim().toUpperCase(),
+                        category: normalizedCat
+                    };
+                }).filter(row => row.companyName && row.category);
 
                 setProgress(70);
 
@@ -214,7 +240,7 @@ const CompanyListEditor = ({ bank }) => {
                         <p>The following categories in your Excel are <u>not</u> recognized by the system:
                             <span className="illegal-list"> {validationErrors.join(', ')}</span>
                         </p>
-                        <small>Please choose the correct "Category" column or update your Excel file to use: {VALID_CATEGORIES.join(', ')}</small>
+                        <small>Please choose the correct "Category" column or update your Excel file to use: {ALL_VALID_TERMS.join(', ')}</small>
                     </div>
                 </div>
             )}
