@@ -384,7 +384,24 @@ const CategoriesEditor = ({ bank, onSave }) => {
 
       {Object.keys(categories).map(cat => (
         <div key={cat} className="config-section">
-          <h3>Category {cat}</h3>
+          <div className="category-header-row">
+            <div className="cat-title-group">
+              <h3>Category {cat}</h3>
+              {categories[cat].displayLabel && (
+                <span className="alias-badge">ALIAS: {categories[cat].displayLabel}</span>
+              )}
+            </div>
+            <div className="rename-field">
+              <span className="rename-icon">✏️</span>
+              <input
+                type="text"
+                value={categories[cat].displayLabel || ''}
+                onChange={(e) => updateCategory(cat, 'displayLabel', e.target.value)}
+                className="rename-input-top"
+                placeholder="Rename category (e.g. Elite)..."
+              />
+            </div>
+          </div>
 
           <div className="category-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
             {/* Salary Range */}
@@ -459,18 +476,6 @@ const CategoriesEditor = ({ bank, onSave }) => {
               <span className="input-hint">Leave empty for no limit</span>
             </div>
 
-            {/* Display Label (The "Alias") */}
-            <div className="input-group">
-              <label>Custom Display Label (Rename)</label>
-              <input
-                type="text"
-                value={categories[cat].displayLabel || cat}
-                onChange={(e) => updateCategory(cat, 'displayLabel', e.target.value)}
-                className="config-input"
-                placeholder={`e.g., Elite, Diamond, ${cat}`}
-              />
-              <span className="input-hint">Change how this category appears in the Calculator & Excel Upload</span>
-            </div>
           </div>
 
           {/* Description */}
