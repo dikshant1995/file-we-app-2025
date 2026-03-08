@@ -1,11 +1,12 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './UserInputForm.css'
+import { getBankConfig } from '../services/bankConfigService.js'
 
 const UserInputForm = ({ onSubmit, onReset }) => {
   const [calculationType, setCalculationType] = useState('regular'); // 'regular' or 'bt'
   const [existingLoans, setExistingLoans] = useState([]);
   const [creditCards, setCreditCards] = useState([]);
-  
+
   const [formData, setFormData] = useState({
     desiredLoanAmount: '',
     loanTenure: '',
@@ -22,9 +23,22 @@ const UserInputForm = ({ onSubmit, onReset }) => {
     creditCards: []
   })
 
+  const [categoryLabels, setCategoryLabels] = useState({});
+
+  useEffect(() => {
+    const hdfcConfig = getBankConfig('HDFC Bank', 'categories') || {};
+    const labels = {};
+    Object.keys(hdfcConfig).forEach(key => {
+      if (hdfcConfig[key].displayLabel) {
+        labels[key] = hdfcConfig[key].displayLabel;
+      }
+    });
+    setCategoryLabels(labels);
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target
-    
+
     // Auto-select GOVT category when government employment type is selected
     if (name === 'employmentType' && value === 'government') {
       setFormData(prev => ({
@@ -139,7 +153,7 @@ const UserInputForm = ({ onSubmit, onReset }) => {
   return (
     <div className="user-input-form">
       <h2>Loan Eligibility Calculator</h2>
-      
+
       {/* Calculation Type Selector */}
       <div className="calculation-type-selector">
         <button
@@ -250,14 +264,13 @@ const UserInputForm = ({ onSubmit, onReset }) => {
             onChange={handleChange}
             required
           >
-            <option value="SUPER-A">Super A - Premium Companies</option>
-            <option value="A+">A+ - Premium Tier</option>
-            <option value="A">Category A - Top Tier Companies</option>
-            <option value="B">Category B - Good Companies</option>
-            <option value="C">Category C - Standard Companies</option>
-            <option value="D">Category D - Lower Tier Companies</option>
-            <option value="GOVT">Government Employee</option>
-            <option value="UNLISTED">Unlisted Company</option>
+            <option value="SUPER-A">{categoryLabels['SUPER-A'] || 'Super A'} - Premium Companies</option>
+            <option value="A">{categoryLabels['A'] || 'Category A'} - Top Tier Companies</option>
+            <option value="B">{categoryLabels['B'] || 'Category B'} - Good Companies</option>
+            <option value="C">{categoryLabels['C'] || 'Category C'} - Standard Companies</option>
+            <option value="D">{categoryLabels['D'] || 'Category D'} - Lower Tier Companies</option>
+            <option value="GOVT">{categoryLabels['GOVT'] || 'Government Employee'}</option>
+            <option value="UNLISTED">{categoryLabels['UNLISTED'] || 'Unlisted Company'}</option>
           </select>
           <small className="form-hint">
             Select your company category. Premium categories (SUPER-A, A+, A) get better rates.
@@ -283,7 +296,7 @@ const UserInputForm = ({ onSubmit, onReset }) => {
             <div className="bt-section">
               <h3>📋 Existing Personal Loans (to transfer)</h3>
               <p className="section-hint">Add loans you want to consolidate into the new BT loan</p>
-              
+
               {existingLoans.map((loan, index) => (
                 <div key={index} className="loan-card">
                   <div className="loan-card-header">
@@ -321,7 +334,7 @@ const UserInputForm = ({ onSubmit, onReset }) => {
                   </div>
                 </div>
               ))}
-              
+
               <button type="button" className="add-btn" onClick={addExistingLoan}>
                 + Add Existing Loan
               </button>
@@ -330,7 +343,7 @@ const UserInputForm = ({ onSubmit, onReset }) => {
             <div className="bt-section">
               <h3>💳 Credit Cards (optional - for BT)</h3>
               <p className="section-hint">Add credit cards with outstanding balance to consolidate</p>
-              
+
               {creditCards.map((card, index) => (
                 <div key={index} className="loan-card">
                   <div className="loan-card-header">
@@ -361,7 +374,7 @@ const UserInputForm = ({ onSubmit, onReset }) => {
                   </div>
                 </div>
               ))}
-              
+
               <button type="button" className="add-btn" onClick={addCreditCard}>
                 + Add Credit Card
               </button>
