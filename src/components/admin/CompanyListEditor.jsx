@@ -42,17 +42,6 @@ const CompanyListEditor = ({ bank }) => {
         }
     }, []);
 
-    const handleFileSelect = (e) => {
-        const selectedFile = e.target.files[0];
-        if (!selectedFile) return;
-
-        setFile(selectedFile);
-        parsePreview(selectedFile);
-    };
-
-    // Standard categories recognized by all bank calculators
-    const VALID_CATEGORIES = ['SUPER-A', 'A', 'B', 'C', 'D', 'GOVT', 'UNLISTED'];
-
     // Validate categories whenever mapping or preview data changes
     useEffect(() => {
         if (mapping.category && previewData.length > 0) {
@@ -69,6 +58,11 @@ const CompanyListEditor = ({ bank }) => {
     }, [mapping.category, previewData, headers, ALL_VALID_TERMS]);
 
     const handleFileSelect = (e) => {
+        const selectedFile = e.target.files[0];
+        if (!selectedFile) return;
+
+        setFile(selectedFile);
+
         const reader = new FileReader();
         reader.onload = (e) => {
             const data = new Uint8Array(e.target.result);
@@ -96,7 +90,7 @@ const CompanyListEditor = ({ bank }) => {
                 });
             }
         };
-        reader.readAsArrayBuffer(file);
+        reader.readAsArrayBuffer(selectedFile);
     };
 
     const handleProcess = async () => {
@@ -132,35 +126,33 @@ const CompanyListEditor = ({ bank }) => {
 
                 setProgress(70);
 
-                // 1. Save to Cloud (Firebase) - This ensures production is always updated
-                console.log('☁️ Syncing to Cloud...');
+                // 1. Save to Cloud (Firebase)
                 await saveBankDatabaseToCloud(bank.id, transformedData);
 
-                // 2. AUTO-SYNC: Add new companies to Universal Database
-                console.log('🌐 Cross-referencing with Universal Database...');
+                // 2. AUTO-SYNC
                 await syncToUniversalDatabase(transformedData);
 
-                // 3. Save to Local Server (For development backups)
-                console.log('💻 Saving to Local Backup...');
-                const response = await fetch('/api/admin/save-database', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        filename: `${bank.id}_companies.json`,
-                        data: transformedData
-                    })
-                });
+                // 3. Save to Local Server (Optional backup)
+                try {
+                    await fetch('/api/admin/save-database', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            filename: `${bank.id}_companies.json`,
+                            data: transformedData
+                        })
+                    });
+                } catch (e) { console.warn("Local sync failed, but cloud is updated."); }
 
-                if (response.ok || true) { // Allow success even if local server is down
-                    setProgress(100);
-                    alert(`✅ SUCCESS!\n\n1. Cloud Database Updated\n2. Local Backup Saved\n\nTotal Records: ${transformedData.length} for ${bank.name}.`);
-                    setFile(null);
-                    setHeaders([]);
-                    setPreviewData([]);
-                }
+                setProgress(100);
+                alert(`✅ SUCCESS!\n\nDatabase Updated for ${bank.name}.\nTotal Records: ${transformedData.length}`);
+                setFile(null);
+                setHeaders([]);
+                setPreviewData([]);
+
             } catch (error) {
                 console.error('Processing error:', error);
-                alert('❌ Error processing file. Check console for details.');
+                alert('❌ Error processing file.');
             } finally {
                 setProcessing(false);
             }
@@ -201,7 +193,7 @@ const CompanyListEditor = ({ bank }) => {
                 </div>
             ) : (
                 <div className="mapper-container">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                         <h3>📋 Configure Extraction</h3>
                         <button onClick={() => setFile(null)} className="btn-text">Cancel & Choose Different File</button>
                     </div>
@@ -230,63 +222,61 @@ const CompanyListEditor = ({ bank }) => {
                             </select>
                         </div>
                     </div>
-                </div>
 
                     {validationErrors.length > 0 && (
-                <div className="validation-error-banner">
-                    <div className="error-icon">⚠️</div>
-                    <div className="error-content">
-                        <strong>Category Mismatch Detected!</strong>
-                        <p>The following categories in your Excel are <u>not</u> recognized by the system:
-                            <span className="illegal-list"> {validationErrors.join(', ')}</span>
-                        </p>
-                        <small>Please choose the correct "Category" column or update your Excel file to use: {ALL_VALID_TERMS.join(', ')}</small>
+                        <div className="validation-error-banner">
+                            <div className="error-icon">⚠️</div>
+                            <div className="error-content">
+                                <strong>Category Mismatch Detected!</strong>
+                                <p>The following categories in your Excel are <u>not</u> recognized:
+                                    <span className="illegal-list"> {validationErrors.join(', ')}</span>
+                                </p>
+                                <small>Expected terms: {ALL_VALID_TERMS.join(', ')}</small>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="preview-table-container">
+                        <h4>Preview (First 10 Rows)</h4>
+                        <table className="preview-table">
+                            <thead>
+                                <tr>
+                                    {headers.map(h => <th key={h}>{h}</th>)}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {previewData.map((row, i) => (
+                                    <tr key={i}>
+                                        {row.map((cell, j) => <td key={j}>{cell}</td>)}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style={{ marginTop: '32px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', marginBottom: '10px' }}>
+                            <span>Total rows to process: {stats.totalRows}</span>
+                            <span>Mode: Atomic Replacement</span>
+                        </div>
+
+                        {processing && (
+                            <div className="progress-bar-container" style={{ marginBottom: '20px' }}>
+                                <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+                            </div>
+                        )}
+
+                        <button
+                            className={`btn-process ${validationErrors.length > 0 ? 'btn-disabled' : ''}`}
+                            onClick={handleProcess}
+                            disabled={processing || !mapping.name || !mapping.category || validationErrors.length > 0}
+                        >
+                            {validationErrors.length > 0 ? '❌ Fix Category Errors' : processing ? 'Processing...' : '🚀 Start Extraction & Replace'}
+                        </button>
                     </div>
                 </div>
             )}
-
-            <div className="preview-table-container">
-                <h4>Preview (First 10 Rows)</h4>
-                <table className="preview-table">
-                    <thead>
-                        <tr>
-                            {headers.map(h => <th key={h}>{h}</th>)}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {previewData.map((row, i) => (
-                            <tr key={i}>
-                                {row.map((cell, j) => <td key={j}>{cell}</td>)}
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-
-            <div style={{ marginTop: '32px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)' }}>
-                    <span>Total rows to process: {stats.totalRows}</span>
-                    <span>Mode: Atomic Replacement</span>
-                </div>
-
-                {processing && (
-                    <div className="progress-bar-container">
-                        <div className="progress-fill" style={{ width: `${progress}%` }}></div>
-                    </div>
-                )}
-
-                <button
-                    className={`btn-process ${validationErrors.length > 0 ? 'btn-disabled' : ''}`}
-                    onClick={handleProcess}
-                    disabled={processing || !mapping.name || !mapping.category || validationErrors.length > 0}
-                >
-                    {validationErrors.length > 0 ? '❌ Cannot Save: Fix Category Errors' : processing ? 'Processing & Saving...' : '🚀 Start Extraction & Replace Database'}
-                </button>
-            </div>
         </div>
-    )
-}
-        </div >
     );
 };
 
