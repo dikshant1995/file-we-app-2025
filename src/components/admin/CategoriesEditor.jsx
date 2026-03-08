@@ -458,6 +458,19 @@ const CategoriesEditor = ({ bank, onSave }) => {
               />
               <span className="input-hint">Leave empty for no limit</span>
             </div>
+
+            {/* Display Label (The "Alias") */}
+            <div className="input-group">
+              <label>Custom Display Label (Rename)</label>
+              <input
+                type="text"
+                value={categories[cat].displayLabel || cat}
+                onChange={(e) => updateCategory(cat, 'displayLabel', e.target.value)}
+                className="config-input"
+                placeholder={`e.g., Elite, Diamond, ${cat}`}
+              />
+              <span className="input-hint">Change how this category appears in the Calculator & Excel Upload</span>
+            </div>
           </div>
 
           {/* Description */}
@@ -479,7 +492,10 @@ const CategoriesEditor = ({ bank, onSave }) => {
         <div className="preview-grid">
           {Object.keys(categories).map(cat => (
             <div key={cat} className="preview-card">
-              <div className="preview-label">Category {cat}</div>
+              <div className="preview-label">
+                {categories[cat].displayLabel || cat}
+                <span style={{ fontSize: '0.7em', color: 'var(--text-muted)', marginLeft: '8px' }}>({cat})</span>
+              </div>
               <div className="preview-value" style={{ fontSize: '1.5em' }}>
                 ₹{categories[cat].salaryRange.min?.toLocaleString('en-IN')}+
               </div>
