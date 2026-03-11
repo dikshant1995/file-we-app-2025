@@ -8,7 +8,9 @@ import { calculatePiramalEligibility } from './backend/calculators/piramal/calcu
 import { calculateHdfcEligibility } from './backend/calculators/hdfc/calculator.js';
 import { calculateIciciEligibility } from './backend/calculators/icici/calculator.js';
 import { calculateKotakEligibility } from './backend/calculators/kotak/calculator.js';
+import { calculateSbiEligibility } from './backend/calculators/sbi/calculator.js';
 import { calculateTataEligibility } from './backend/calculators/tata/calculator.js';
+import { calculateGodrejEligibility } from './backend/calculators/godrej/calculator.js';
 
 const mockGovtUser = {
     desiredLoanAmount: 500000,
@@ -36,7 +38,9 @@ const banks = [
     { name: 'HDFC', calc: calculateHdfcEligibility },
     { name: 'ICICI', calc: calculateIciciEligibility },
     { name: 'Kotak', calc: calculateKotakEligibility },
-    { name: 'Tata Capital', calc: calculateTataEligibility }
+    { name: 'SBI', calc: calculateSbiEligibility },
+    { name: 'Tata Capital', calc: calculateTataEligibility },
+    { name: 'Godrej', calc: calculateGodrejEligibility }
 ];
 
 console.log('--- GOVERNMENT EMPLOYEE LOGIC VERIFICATION ---');
