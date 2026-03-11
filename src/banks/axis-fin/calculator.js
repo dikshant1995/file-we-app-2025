@@ -162,7 +162,7 @@ export const calculateAxisFinEligibility = (userData) => {
   }
 
   // Logic Bridge: Support govtMultiplier override
-  let multiplier = isGovtEmployee && govtMultiplier ? govtMultiplier : axisFinConfig.multiplierTable[salaryBand]?.[category];
+  let multiplier = isGovtEmployee && govtMultiplier ? govtMultiplier : axisFinConfig.multiplierTable[salaryBand]?.[lookupCategory];
 
   if (!multiplier) {
     return { eligible: false, reason: `No multiplier available for category ${category} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
