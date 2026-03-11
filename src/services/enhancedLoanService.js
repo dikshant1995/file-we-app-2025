@@ -244,13 +244,19 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
       return {
         bankName: result.bankName || name,
         eligible: true,
+        loanAmount: maxLoanAmount, // Map to standard name for ResultsDisplay
+        monthlyEMI: result.monthlyEMI, // Map to standard name
+        loanTenure: result.loanTenure || btInput.loanTenure, // Standard tenure info
+        interestRate: result.interestRate || 11,
+        isBTMode: true, // Crucial for UI rendering logic
+        btType: 'FULL_CONSOLIDATION',
         maxLoanAmount: maxLoanAmount,
         freshAmountDisbursed: freshAmount,
+        totalDebtCleared: totalPOS, // Standard name for UI
         totalPOS: totalPOS,
         totalExistingEMI: totalExistingEMI,
         newBTLoanEMI: result.monthlyEMI,
         newSingleEMI: result.monthlyEMI,
-        interestRate: result.interestRate || 11, // Default to 11% if not provided
         tenure: btInput.loanTenure,
         calculationMethod: result.calculationMethod || 'BT Calculation'
       };
@@ -401,15 +407,21 @@ export const calculatePartialBT = async (customerInfo, existingLiabilities, sele
       return {
         bankName: result.bankName || name,
         eligible: true,
+        loanAmount: maxLoanAmount, // Standard prop
+        monthlyEMI: result.monthlyEMI, // Standard prop
+        loanTenure: result.loanTenure || btInput.loanTenure,
+        interestRate: result.interestRate || 11,
+        isBTMode: true,
+        btType: 'PARTIAL_CONSOLIDATION',
         maxLoanAmount: maxLoanAmount,
         freshAmountDisbursed: freshAmount,
+        totalDebtCleared: selectedPOS, // Standard prop
         selectedPOS: selectedPOS,
         selectedExistingEMI: selectedExistingEMI,
         nonSelectedEMI: nonSelectedEMI,
         newBTLoanEMI: result.monthlyEMI,
         newSingleEMI: result.monthlyEMI,
         totalMonthlyOutflow: result.monthlyEMI + nonSelectedEMI,
-        interestRate: result.interestRate || 11, // Default to 11% if not provided
         tenure: btInput.loanTenure,
         calculationMethod: result.calculationMethod || 'Partial BT Calculation',
         selectedLiabilities: validSelectedLiabilities,
