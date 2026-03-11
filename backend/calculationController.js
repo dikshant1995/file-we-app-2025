@@ -57,7 +57,14 @@ const handleRegularCalculation = (userData) => {
         age: parseInt(userData.age) || null,
         existingLoanBanks: userData.existingLoanBanks || [],
         state: userData.state || '',
-        city: userData.city || ''
+        city: userData.city || '',
+        // Logic Bridge / Government Overrides
+        isGovtEmployee: userData.isGovtEmployee || false,
+        interestRateOverride: userData.interestRateOverride || null,
+        govtROI: userData.govtROI || null,
+        govtFOIR: userData.govtFOIR || null,
+        govtMultiplier: userData.govtMultiplier || null,
+        govtMaxTenure: userData.govtMaxTenure || null
     };
 
     const bankCalculators = [
@@ -124,7 +131,14 @@ const handleBTCalculation = (userData) => {
         btTotalEMI: totalLoanEMI,
         btTotalOutstanding: totalLoanPOS,
         state: userData.state || '',
-        city: userData.city || ''
+        city: userData.city || '',
+        // Logic Bridge / Government Overrides
+        isGovtEmployee: userData.isGovtEmployee || false,
+        interestRateOverride: userData.interestRateOverride || null,
+        govtROI: userData.govtROI || null,
+        govtFOIR: userData.govtFOIR || null,
+        govtMultiplier: userData.govtMultiplier || null,
+        govtMaxTenure: userData.govtMaxTenure || null
     };
 
     const bankCalculators = [
