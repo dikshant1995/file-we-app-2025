@@ -250,7 +250,12 @@ export const calculateKotakEligibility = (userData) => {
   // Interest Rate Matrix lookup
   let finalInterestRate = interestRateOverride || interestRate;
   if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
-  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(finalCategory, multiplierLoanAmount, userData.city || userData.state);
+
+  if (!finalInterestRate) {
+    // Standardize location key to "City, State" to match Admin lookup
+    const locationKey = userData.city && userData.state ? `${userData.city}, ${userData.state}` : (userData.state || null);
+    finalInterestRate = getInterestRateForLoan(finalCategory, multiplierLoanAmount, locationKey);
+  }
 
   const foirLoanAmount = calculateLoanAmountFromEMI(availableEMI, finalInterestRate, cappedTenureYears);
 
