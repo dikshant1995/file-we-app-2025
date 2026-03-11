@@ -30,23 +30,21 @@ export const saveLead = async (formData, submissionData) => {
             .map(l => `${l.lender || 'Unknown'} (Used: ₹${l.creditLimitUsed || 0})`)
             .join(' | ');
 
-        // ── Build the lead payload ────────────────────────────────────────────────
+        // ── Build the lead payload (REORDERED TO MATCH GOOGLE SHEETS) ──────────
         const lead = {
             timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
             name: formData.customerName || '',
             mobile: formData.mobileNumber || '',
+            company: formData.employmentType === 'government' ? 'Government' : (formData.companyName || 'Private'),
+            category: formData.employmentType === 'government' ? 'GOVT' : (formData.category || ''),
             basicSalary: formData.basicSalary || 0,
-            incentive1: formData.incentiveMonth1 || 0,
-            incentive2: formData.incentiveMonth2 || 0,
-            incentive3: formData.incentiveMonth3 || 0,
             totalIncome: submissionData.monthlyIncome || 0,
-            company: formData.companyName || '',
-            category: formData.category || '',
-            employment: formData.employmentType || '',
-            existingEMI: submissionData.existingEMI || 0,
             wantsBT: submissionData.wantsBT ? 'Yes' : 'No',
+            existingEMI: submissionData.existingEMI || 0,
             personalLoans: personalLoans || 'None',
+            employment: formData.employmentType || '',
             creditCards: creditCards || 'None',
+            gap1: '', // Placeholder for Column M
             state: formData.state || submissionData.state || '',
             city: formData.city || submissionData.city || '',
         };
