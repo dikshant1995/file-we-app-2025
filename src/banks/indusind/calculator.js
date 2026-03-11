@@ -220,7 +220,9 @@ export const calculateIndusindEligibility = (userData) => {
     effectiveInterestRate = govtROI;
   } else if (!effectiveInterestRate) {
     // Check dynamic slabs in Admin Matrix
-    effectiveInterestRate = getSlabRate('IndusInd Bank', lookupCategory, cappedFinalLoan, userData.city || userData.state, indusindConfig.interestRate);
+    // Standardize location key to "City, State" to match Admin lookup
+    const locationKey = userData.city && userData.state ? `${userData.city}, ${userData.state}` : (userData.state || null);
+    effectiveInterestRate = getInterestRateForLoan(lookupCategory, cappedFinalLoan, locationKey);
   }
 
   const monthlyEMI = calculateEMI(cappedFinalLoan, effectiveInterestRate, cappedTenureYears);
