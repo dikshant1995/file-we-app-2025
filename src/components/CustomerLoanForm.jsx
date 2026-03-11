@@ -227,6 +227,10 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
       existingLoanBanks: existingLoanBanks, // NEW: List of banks where customer has existing personal loans
       // NEW: Balance Transfer data
       wantsBT: formData.wantsBT,
+      // Map actual loan objects for the engine
+      loansForBT: formData.wantsBT
+        ? formData.existingLoans.filter(l => formData.selectedLoansForBT.includes(l.id))
+        : [],
       selectedLoansForBT: formData.wantsBT ? formData.selectedLoansForBT : [],
       creditScore: formData.creditScore ? parseInt(formData.creditScore) : 700,
       state: formData.state,
@@ -839,30 +843,60 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
                         key={loan.id}
                         style={{
                           padding: '15px',
-                          background: isTransferable ? 'white' : '#f9fafb',
-                          borderRadius: '8px',
-                          border: isSelected ? '2px solid #2196f3' : '2px solid #e0e0e0',
-                          cursor: isTransferable ? 'pointer' : 'not-allowed',
-                          opacity: isTransferable ? 1 : 0.7,
+                          background: isTransferable ? 'white' : '#f8fafc',
+                          borderRadius: '10px',
+                          border: isSelected ? '2px solid #2196f3' : '2px solid #e2e8f0',
+                          cursor: isTransferable ? 'pointer' : 'default',
+                          opacity: isTransferable ? 1 : 0.85,
                           transition: 'all 0.2s ease',
-                          position: 'relative'
+                          boxShadow: isSelected ? '0 4px 6px -1px rgb(0 0 0 / 0.1)' : 'none'
                         }}
                         onClick={() => isTransferable && handleBTToggle(loan.id)}
                       >
-                        <label style={{ cursor: isTransferable ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                          <input
-                            type="checkbox"
-                            checked={isSelected}
-                            disabled={!isTransferable}
-                            onChange={() => isTransferable && handleBTToggle(loan.id)}
-                            style={{ marginTop: '4px', width: '18px', height: '18px', cursor: isTransferable ? 'pointer' : 'not-allowed' }}
-                          />
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '15px' }}>
+                          {isTransferable ? (
+                            <div
+                              className={`custom-checkbox ${isSelected ? 'checked' : ''}`}
+                              style={{
+                                minWidth: '22px',
+                                height: '22px',
+                                border: '2px solid #cbd5e1',
+                                borderRadius: '6px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                backgroundColor: isSelected ? '#2196f3' : 'transparent',
+                                borderColor: isSelected ? '#2196f3' : '#cbd5e1',
+                                color: 'white',
+                                fontSize: '14px',
+                                transition: 'all 0.2s'
+                              }}
+                            >
+                              {isSelected && '✓'}
+                            </div>
+                          ) : (
+                            <div style={{ minWidth: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              🔒
+                            </div>
+                          )}
+
                           <div style={{ flex: 1 }}>
-                            <div style={{ fontWeight: '600', fontSize: '1.05em', marginBottom: '8px', color: isTransferable ? '#333' : '#999' }}>
-                              Loan {index + 1}: {loan.type}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                              <div style={{ fontWeight: '700', fontSize: '1.05em', color: isTransferable ? '#1e293b' : '#64748b' }}>
+                                Loan {index + 1}: {loan.type}
+                              </div>
                               {!isTransferable && (
-                                <span style={{ marginLeft: '10px', fontSize: '0.75em', background: '#fee2e2', color: '#ef4444', padding: '2px 8px', borderRadius: '4px', verticalAlign: 'middle' }}>
-                                  NON-TRANSFERABLE (OBLIGATION)
+                                <span style={{
+                                  fontSize: '0.7em',
+                                  fontWeight: '800',
+                                  background: '#f1f5f9',
+                                  color: '#475569',
+                                  padding: '4px 10px',
+                                  borderRadius: '20px',
+                                  textTransform: 'uppercase',
+                                  letterSpacing: '0.05em'
+                                }}>
+                                  Fixed Obligation
                                 </span>
                               )}
                             </div>
@@ -881,7 +915,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
                               )}
                             </div>
                           </div>
-                        </label>
+                        </div>
                       </div>
                     );
                   })}
