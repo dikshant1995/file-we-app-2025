@@ -212,19 +212,22 @@ export const calculateHdfcEligibility = (userData) => {
   // Pass 1: Preliminary ROI for initial calculation
   const baseRate = hdfcConfig.interestRate;
 
-  // Use user-provided category (from frontend: B, C, or GOVT)
-  const companyCategory = category || 'B'; // Default to B if not provided
-  if (!hdfcConfig.employmentTypes.includes(employmentType)) {
-    return {
-      eligible: false,
-      reason: `Employment type ${employmentType} not supported by this bank`
-    };
+  // Determine company category - handle both standard and GOVT cases
+  // Logic Bridge: Support 'government' employment type and 'GOVT' category
+  let companyCategory = category || 'B';
+  if (employmentType === 'government') {
+    companyCategory = 'GOVT';
+  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
+    companyCategory = 'GOVT';
   }
 
-
   // Apply tenure capping based on category (tenure is in months)
-  // Logic Bridge: Use govtMaxTenure if available
-  let lookupCategory = companyCategory === 'Govt' ? 'A' : companyCategory;
+  // Maps standard GOVT to config key (A is usually used for govt in internal logic if not present)
+  let lookupCategory = companyCategory === 'GOVT' ? 'GOVT' : companyCategory;
+  if (!hdfcConfig.maxTenureByCategory[lookupCategory]) {
+    lookupCategory = 'A'; // Fallback to A for government if config key is missing
+  }
+
   let maxTenureForCategory = (isGovtEmployee && govtMaxTenure) ? govtMaxTenure : hdfcConfig.maxTenureByCategory[lookupCategory];
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
@@ -245,8 +248,7 @@ export const calculateHdfcEligibility = (userData) => {
 
   // Check minimum salary requirement based on category
   // For BT mode, use adjusted income for salary checks
-  let lookupCategoryMinSalary = companyCategory === 'Govt' ? 'A' : companyCategory;
-  const categoryMinSalary = hdfcConfig.minSalary[lookupCategoryMinSalary] || hdfcConfig.minSalary['A'];
+  const categoryMinSalary = hdfcConfig.minSalary[lookupCategory] || hdfcConfig.minSalary['A'];
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < categoryMinSalary) {
     return {
@@ -261,8 +263,7 @@ export const calculateHdfcEligibility = (userData) => {
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
 
   // Logic Bridge: Use govtMultiplier if available
-  let lookupCategoryMultiplier = companyCategory === 'Govt' ? 'A' : companyCategory;
-  let multiplier = (isGovtEmployee && govtMultiplier) ? govtMultiplier : getMultiplier(incomeForCalculation, lookupCategoryMultiplier);
+  let multiplier = (isGovtEmployee && govtMultiplier) ? govtMultiplier : getMultiplier(incomeForCalculation, lookupCategory);
 
   if (!multiplier) {
     return {
@@ -279,8 +280,7 @@ export const calculateHdfcEligibility = (userData) => {
 
   // Calculate using FOIR method
   // Logic Bridge: Use govtFOIR if available
-  let lookupCategoryFOIR = companyCategory === 'Govt' ? 'A' : companyCategory;
-  let foirPercentage = (isGovtEmployee && govtFOIR) ? (govtFOIR / 100) : getFoirPercentage(incomeForCalculation, lookupCategoryFOIR);
+  let foirPercentage = (isGovtEmployee && govtFOIR) ? (govtFOIR / 100) : getFoirPercentage(incomeForCalculation, lookupCategory);
 
   if (!foirPercentage) {
     return {
