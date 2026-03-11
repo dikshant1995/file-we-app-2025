@@ -193,11 +193,16 @@ export const calculateCholaEligibility = (userData) => {
 
   // Calculate using FOIR method
   // Logic Bridge: Use govtFOIR if available
-  let foirPercentage = (isGovtEmployee && govtFOIR) ? (govtFOIR / 100) : getFoirPercentage(incomeForCalculation, lookupCategory);
+  let foirPercentage = (isGovtEmployee && govtFOIR) ? (govtFOIR / 100) : null;
+  let foirBand = null;
 
   if (!foirPercentage) {
-    const foirBand = getSalaryBand(incomeForCalculation, cholaConfig.foirTable); // Recalculate for error message
-    return { eligible: false, reason: `FOIR not defined for category ${lookupCategory} at salary band ${foirBand}`, isBTMode: isBT };
+    foirBand = getSalaryBand(incomeForCalculation, cholaConfig.foirTable);
+    foirPercentage = cholaConfig.foirTable[foirBand]?.[lookupCategory];
+  }
+
+  if (!foirPercentage) {
+    return { eligible: false, reason: `FOIR not defined for category ${lookupCategory} at salary band ${foirBand || 'unknown'}`, isBTMode: isBT };
   }
 
   const foirCap = incomeForCalculation * foirPercentage;
