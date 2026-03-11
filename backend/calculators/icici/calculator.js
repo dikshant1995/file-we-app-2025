@@ -91,7 +91,14 @@ export const calculateIciciEligibility = (userData) => {
     companyName,
     creditScore,
     employmentType,
-    interestRate,
+    // Admin Overrides (Logic Bridge)
+    interestRateOverride,
+    isGovtEmployee,
+    govtROI,
+    govtFOIR,
+    govtMultiplier,
+    govtMaxTenure,
+    // User fields
     age,
     category,
     existingLoanBanks,
@@ -102,6 +109,19 @@ export const calculateIciciEligibility = (userData) => {
     btTotalOutstanding
   } = userData;
 
+  // ========== CATEGORY STANDARDIZATION ==========
+  // Determine lookup category - handle both standard and GOVT cases
+  let companyCategory = category || 'B';
+  if (employmentType === 'government') {
+    companyCategory = 'GOVT';
+  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
+    companyCategory = 'GOVT';
+  }
+
+  // Use standardized GOVT for table lookups
+  const lookupCategory = companyCategory;
+  // ========== END CATEGORY STANDARDIZATION ==========
+
   // ========== BALANCE TRANSFER MODE DETECTION ==========
   const isBT = isBTMode && loansForBT && loansForBT.length > 0;
   let adjustedIncome = monthlyIncome;
@@ -109,7 +129,6 @@ export const calculateIciciEligibility = (userData) => {
 
   if (isBT) {
     nonBTLoansEMI = (existingEMI || 0) - btTotalEMI;
-    // NEW: Also deduct credit card obligations from adjusted income
     const creditCardDeduction = creditCardObligation || 0;
     adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
     if (adjustedIncome <= 0) {
@@ -149,12 +168,6 @@ export const calculateIciciEligibility = (userData) => {
     };
   }
 
-  // Use dynamic interest rate from Admin settings
-  const dynamicRate = getDynamicInterestRate('ICICI Bank', companyCategory, desiredLoanAmount || monthlyIncome * 20, { state: userData.state, city: userData.city }, iciciConfig.interestRate);
-
-  // Use user-provided interest rate or dynamic rate from Admin settings
-  const effectiveInterestRate = interestRate || dynamicRate;
-
   // Check employment type
   if (!iciciConfig.employmentTypes.includes(employmentType)) {
     return {
@@ -163,20 +176,14 @@ export const calculateIciciEligibility = (userData) => {
     };
   }
 
-  // Use user-provided category (from frontend: B, C, or GOVT)
-  const companyCategory = category || 'B'; // Default to B if not provided
-
   // Apply tenure capping based on category (tenure is in months)
-  const maxTenureForCategory = iciciConfig.maxTenureByCategory[companyCategory];
+  // Logic Bridge: Support govtMaxTenure override
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : iciciConfig.maxTenureByCategory[lookupCategory];
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
-    return {
-      isEligible: false,
-      reason: `No loans available for Category ${companyCategory}`
-    };
+    maxTenureForCategory = 60; // Fallback
   }
 
   // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
-  // This shows the maximum loan amount the bank can offer for this category
   const cappedTenureMonths = maxTenureForCategory;
   const cappedTenureYears = cappedTenureMonths / 12;
 
@@ -186,14 +193,14 @@ export const calculateIciciEligibility = (userData) => {
 
   // Check minimum salary requirement based on category
   const salConfig = getBankConfig('ICICI Bank', 'employmentRules');
-  const catMinSalary = iciciConfig.minSalary[companyCategory];
+  const catMinSalary = iciciConfig.minSalary[lookupCategory] || iciciConfig.minSalary['A'];
   const effectiveMinSalary = salConfig?.salariedMinSalary ?? catMinSalary;
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < effectiveMinSalary) {
     return {
       isEligible: false,
-      reason: `Minimum monthly income required is ₹${catMinSalary?.toLocaleString() || '0'} for Category ${companyCategory}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`,
+      reason: `Minimum monthly income required is ₹${catMinSalary?.toLocaleString() || '0'} for Category ${lookupCategory}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`,
       isBTMode: isBT
     };
   }
@@ -214,7 +221,8 @@ export const calculateIciciEligibility = (userData) => {
 
   // Calculate using FOIR method
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
-  const foirPercentage = getFoirPercentage(incomeForCalculation);
+  // Logic Bridge: FOIR override
+  const foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : getFoirPercentage(incomeForCalculation);
   if (!foirPercentage) {
     return {
       isEligible: false,
@@ -227,17 +235,21 @@ export const calculateIciciEligibility = (userData) => {
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
   const availableEMI = isBT ? foirCap : (foirCap - totalObligations);
 
+  // ROI Logic Bridge Overrides
+  let finalInterestRate = interestRateOverride;
+  if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
+  if (!finalInterestRate) {
+    finalInterestRate = getDynamicInterestRate('ICICI Bank', lookupCategory, desiredLoanAmount || monthlyIncome * 20, { state: userData.state, city: userData.city }, iciciConfig.interestRate);
+  }
+
   // Calculate loan amount based on available EMI using the capped tenure (in years)
-  const foirLoanAmount = calculateLoanAmountFromEMI(availableEMI, effectiveInterestRate, cappedTenureYears);
+  const foirLoanAmount = calculateLoanAmountFromEMI(availableEMI, finalInterestRate, cappedTenureYears);
 
   // Take the minimum of desired loan amount and FOIR-based loan amount
-  const maxLoanAmount = Math.min(
-    desiredLoanAmount || Infinity,
-    foirLoanAmount
-  );
+  const maxLoanAmount = foirLoanAmount;
 
   // Apply bank's maximum loan cap
-  const finalLoanAmount = Math.min(maxLoanAmount, absoluteMaxLoan);
+  const finalLoanAmount = Math.min(maxLoanAmount, desiredLoanAmount || Infinity, absoluteMaxLoan);
   const loanCapped = maxLoanAmount > absoluteMaxLoan;
 
   // ========== BALANCE TRANSFER CALCULATION ==========
@@ -268,7 +280,7 @@ export const calculateIciciEligibility = (userData) => {
   // ========== END BT CALCULATION ==========
 
   // Calculate final EMI for the loan amount using capped tenure
-  const monthlyEMI = calculateEMI(finalLoanAmount, effectiveInterestRate, cappedTenureYears);
+  const monthlyEMI = calculateEMI(finalLoanAmount, finalInterestRate, cappedTenureYears);
 
   return {
     isEligible: true,
@@ -279,7 +291,7 @@ export const calculateIciciEligibility = (userData) => {
     maxLoanCap: absoluteMaxLoan,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(maxLoanAmount) : null,
-    interestRate: effectiveInterestRate,
+    interestRate: finalInterestRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,
     tenureCapped: tenureCapped,
@@ -287,7 +299,7 @@ export const calculateIciciEligibility = (userData) => {
     requestedTenureMonths: requestedTenureMonths,
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
-    companyCategory: companyCategory,
+    companyCategory: lookupCategory,
     calculationMethod: 'FOIR-based',
     foirPercentage: foirPercentage,
     details: {
@@ -296,7 +308,6 @@ export const calculateIciciEligibility = (userData) => {
       availableEMI: Math.round(availableEMI),
       existingEMI: Math.round(existingEMI || 0),
       creditCardObligation: Math.round(creditCardObligation || 0),
-      creditCardObligationNote: creditCardObligation > 0 ? '5% of credit card outstanding balance' : 'No credit card obligations',
       totalObligations: Math.round(totalObligations)
     },
     ...btDetails
