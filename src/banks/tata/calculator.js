@@ -81,7 +81,16 @@ export const calculateTataEligibility = (userData) => {
   }
 
   // Standardize Category
-  const lookupCategory = category === 'SUP-A' ? 'SUPER-A' : category;
+  // Determine lookup category - handle both standard and GOVT cases
+  let companyCategory = category || 'A';
+  if (employmentType === 'government') {
+    companyCategory = 'GOVT';
+  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
+    companyCategory = 'GOVT';
+  }
+
+  // Use standardized GOVT for table lookups
+  const lookupCategory = companyCategory;
 
   // Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
