@@ -10,7 +10,13 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
   const [submitStatus, setSubmitStatus] = useState(null); // null | 'success' | 'error'
 
   if (!results || results.length === 0) {
-    return null;
+    return (
+      <div className="no-results" style={{ padding: '40px', textAlign: 'center', color: 'white' }}>
+        <h3>No analysis data available.</h3>
+        <p>The calculation engine did not return any results. Please try again.</p>
+        <button onClick={onNewCalculation} className="btn-retry">Back to Form</button>
+      </div>
+    );
   }
 
   // Handle bank selection
