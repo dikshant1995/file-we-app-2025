@@ -209,7 +209,9 @@ export const calculateAxisFinEligibility = (userData) => {
     effectiveInterestRate = govtROI;
   } else if (!effectiveInterestRate) {
     // Check dynamic slabs in Admin Matrix
-    effectiveInterestRate = getSlabRate('Axis Finance', lookupCategory, cappedFinalLoan, userData.city || userData.state, axisFinConfig.interestRate);
+    // Standardize location key to "City, State" to match Admin lookup
+    const locationKey = userData.city && userData.state ? `${userData.city}, ${userData.state}` : (userData.state || null);
+    effectiveInterestRate = getSlabRate('Axis Finance', lookupCategory, cappedFinalLoan, locationKey, axisFinConfig.interestRate);
   }
 
   const monthlyEMI = calculateEMI(cappedFinalLoan, effectiveInterestRate, cappedTenureYears);
