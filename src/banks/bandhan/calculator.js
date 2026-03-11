@@ -157,33 +157,37 @@ export const calculateBandhanEligibility = (userData) => {
     };
   }
 
-  // Use user-provided category (from frontend: B, C, or GOVT)
-  const companyCategory = category || 'B'; // Default to B if not provided
+  // Determine company category - handle both standard and GOVT cases
+  // Logic Bridge: Support 'government' employment type and 'GOVT' category
+  let companyCategory = category || 'B';
+  if (employmentType === 'government') {
+    companyCategory = 'GOVT';
+  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
+    companyCategory = 'GOVT';
+  }
+
+  // Use standardized GOVT for tenure lookup
+  const lookupCategory = companyCategory;
 
   // Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
-  let lookupCategory = companyCategory === 'Govt' ? 'A' : companyCategory;
   let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : bandhanConfig.maxTenureByCategory[lookupCategory];
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
-    return {
-      eligible: false,
-      reason: `Bandhan Bank does not provide loans to ${companyCategory} companies`
-    };
+    // Fallback to A for government if config key is missing
+    maxTenureForCategory = bandhanConfig.maxTenureByCategory['GOVT'] || bandhanConfig.maxTenureByCategory['A'] || 60;
   }
 
   // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
   // This shows the maximum loan amount the bank can offer for this category
   const cappedTenureMonths = maxTenureForCategory;
-  const cappedTenureYears = cappedTenureMonths / 12;
 
   // Store user's request for display purposes
   const requestedTenureMonths = loanTenure * 12;
   const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
 
   // Check minimum salary requirement based on category
-  let lookupCategorySalary = companyCategory === 'Govt' ? 'A' : companyCategory;
-  const categoryMinSalary = bandhanConfig.minSalary[lookupCategorySalary];
+  const categoryMinSalary = bandhanConfig.minSalary[lookupCategory] || bandhanConfig.minSalary['A'];
 
   if (categoryMinSalary === null) {
     return { eligible: false, reason: `Bandhan Bank does not provide loans to UNLISTED companies` };
