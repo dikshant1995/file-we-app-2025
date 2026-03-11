@@ -83,15 +83,26 @@ export const calculateTataEligibility = (userData) => {
   // Standardize Category
   let finalCategory = category;
   if (category === 'SUP-A') finalCategory = 'SUPER-A';
-  if (isGovtEmployee || employmentType === 'government') finalCategory = 'GOVT';
+  // Determine company category - handle both standard and GOVT cases
+  // Logic Bridge: Support 'government' employment type and 'GOVT' category
+  let companyCategory = category || 'B';
+  if (employmentType === 'government') {
+    companyCategory = 'GOVT';
+  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
+    companyCategory = 'GOVT';
+  }
 
-  // Apply tenure capping
-  let lookupCategoryTenure = finalCategory === 'GOVT' ? 'A' : finalCategory;
-  if (lookupCategoryTenure === 'SUPER-A') lookupCategoryTenure = 'SUP-A'; // Map to internal config
+  // Use standardized GOVT for multiplier and tenure lookups
+  const lookupCategory = companyCategory;
 
-  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : tataConfig.maxTenureByCategory[lookupCategoryTenure];
+  // Apply tenure capping based on category (tenure is in months)
+  // Logic Bridge: Support govtMaxTenure override
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : tataConfig.maxTenureByCategory[lookupCategory];
 
-  if (!maxTenureForCategory) return { eligible: false, reason: `Category ${finalCategory} not served by this institution` };
+  if (!maxTenureForCategory || maxTenureForCategory === 0) {
+    // Fallback if specific category tenure is missing
+    maxTenureForCategory = 72;
+  }
 
   const cappedTenureYears = maxTenureForCategory / 12;
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
@@ -106,9 +117,8 @@ export const calculateTataEligibility = (userData) => {
   if (availableEMI <= 0) return { eligible: false, reason: `Existing obligations (₹${totalObligations.toLocaleString()}) exceed FOIR limit` };
 
   // Multiplier Logic
-  const multiplierBand = getSalaryBand(incomeForCalculation, tataConfig.multiplierTable);
-  const lookupCategoryMultiplier = lookupCategoryTenure; // Reuse mapping
-  let multiplier = isGovtEmployee && govtMultiplier ? govtMultiplier : tataConfig.multiplierTable[multiplierBand][lookupCategoryMultiplier];
+  const multiplierBand = getSalaryBand(incomeForCalculation, tataConfig.multiplierTable); // Logic Bridge: Support govtMultiplier override
+  let multiplier = isGovtEmployee && govtMultiplier ? govtMultiplier : tataConfig.multiplierTable[multiplierBand][lookupCategory];
 
   if (!multiplier) return { eligible: false, reason: `Multiplier data missing for category ${finalCategory}` };
 
