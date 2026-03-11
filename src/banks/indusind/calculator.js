@@ -117,16 +117,25 @@ export const calculateIndusindEligibility = (userData) => {
     };
   }
 
+  // Determine company category - handle both standard and GOVT cases
+  // Logic Bridge: Support 'government' employment type and 'GOVT' category
+  let companyCategory = category || 'B';
+  if (employmentType === 'government') {
+    companyCategory = 'GOVT';
+  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
+    companyCategory = 'GOVT';
+  }
+
+  // Use standardized GOVT for multiplier and tenure lookups
+  const lookupCategory = companyCategory;
+
   // Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
-  let lookupCategory = category === 'Govt' ? 'A' : category;
   let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : indusindConfig.maxTenureByCategory[lookupCategory];
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
-    return {
-      eligible: false,
-      reason: `No loans available for Category ${category}`
-    };
+    // If specific category tenure is missing, try fallback logic
+    maxTenureForCategory = (lookupCategory === 'GOVT' || lookupCategory === 'A+') ? 72 : 48;
   }
 
   // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
@@ -164,7 +173,7 @@ export const calculateIndusindEligibility = (userData) => {
   }
 
   // Logic Bridge: Support govtMultiplier override
-  let multiplier = (isGovtEmployee && govtMultiplier) ? govtMultiplier : (indusindConfig.multiplierTable[category === 'Govt' ? 'A' : category]?.[salaryBand]);
+  let multiplier = (isGovtEmployee && govtMultiplier) ? govtMultiplier : (indusindConfig.multiplierTable[lookupCategory]?.[salaryBand]);
 
   if (!multiplier) {
     return { eligible: false, reason: `No multiplier available for category ${category} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
