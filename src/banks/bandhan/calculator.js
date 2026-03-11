@@ -218,7 +218,11 @@ export const calculateBandhanEligibility = (userData) => {
   // Pass 2: Get final ROI based on preliminary loan amount
   let finalInterestRate = interestRateOverride || interestRate;
   if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
-  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(companyCategory, preliminaryLoanAmount, userData.city || userData.state);
+  if (!finalInterestRate) {
+    // Standardize location key to "City, State" to match Admin lookup
+    const locationKey = userData.city && userData.state ? `${userData.city}, ${userData.state}` : (userData.state || null);
+    finalInterestRate = getInterestRateForLoan(companyCategory, preliminaryLoanAmount, locationKey);
+  }
 
   const effectiveInterestRate = finalInterestRate;
 
