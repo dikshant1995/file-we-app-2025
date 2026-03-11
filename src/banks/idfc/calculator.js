@@ -192,7 +192,11 @@ export const calculateIdfcEligibility = (userData) => {
   // Logic Bridge: Support ROI overrides
   let finalInterestRate = interestRateOverride;
   if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
-  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(mappedCategory, preliminaryCappedLoan, userData.city || userData.state);
+  if (!finalInterestRate) {
+    // Standardize location key to "City, State" to match Admin lookup
+    const locationKey = userData.city && userData.state ? `${userData.city}, ${userData.state}` : (userData.state || null);
+    finalInterestRate = getInterestRateForLoan(companyCategory, preliminaryLoanAmount, locationKey);
+  }
 
   // Final loan amount is minimum of calculated and desired
   const finalLoanAmount = Math.min(
