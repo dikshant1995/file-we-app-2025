@@ -87,21 +87,19 @@ export const saveBankConfig = (bankName, sectionName, config, location = null) =
     }
 
     if (location) {
-      // Ensure cityOverrides exists
       if (!allConfigs[bankName].cityOverrides) {
         allConfigs[bankName].cityOverrides = {};
       }
-      // Ensure specific location entry exists
       if (!allConfigs[bankName].cityOverrides[location]) {
         allConfigs[bankName].cityOverrides[location] = {};
       }
-      // Save to location-specific section
+      // Save to location-specific section (City, State or just State)
       allConfigs[bankName].cityOverrides[location][sectionName] = config;
-      console.log(`📍 Saved ${sectionName} override for ${bankName} in ${location}:`, config);
+      console.log(`📍 commit_local: ${sectionName} override for ${bankName} @ ${location}`);
     } else {
       // Save to global section
       allConfigs[bankName][sectionName] = config;
-      console.log(`🌐 Saved Global ${sectionName} for ${bankName}:`, config);
+      console.log(`🌐 commit_global: ${sectionName} for ${bankName}`);
     }
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(allConfigs));
@@ -112,24 +110,33 @@ export const saveBankConfig = (bankName, sectionName, config, location = null) =
   }
 };
 
-// Get configuration for a specific bank, section, and optional location (State/City)
+// Get configuration for a specific bank, section, with hierarchical fallback
 export const getBankConfig = (bankName, sectionName, location = null) => {
   try {
     const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    const bankData = allConfigs[bankName] || defaultConfigs[bankName] || {};
 
-    // 1. Try to get City-Specific Override first
-    if (location && allConfigs[bankName]?.cityOverrides?.[location]?.[sectionName]) {
-      return allConfigs[bankName].cityOverrides[location][sectionName];
+    // 1. Try Specific City Override (e.g., "Jodhpur, Rajasthan")
+    if (location && bankData.cityOverrides?.[location]?.[sectionName]) {
+      return JSON.parse(JSON.stringify(bankData.cityOverrides[location][sectionName]));
     }
 
-    // 2. Fallback to Global Saved Config
-    if (allConfigs[bankName]?.[sectionName]) {
-      return allConfigs[bankName][sectionName];
+    // 2. Try State Level Fallback (e.g., "Rajasthan" if location was "Jodhpur, Rajasthan")
+    if (location && location.includes(',')) {
+      const statePart = location.split(',')[1].trim();
+      if (bankData.cityOverrides?.[statePart]?.[sectionName]) {
+        return JSON.parse(JSON.stringify(bankData.cityOverrides[statePart][sectionName]));
+      }
     }
 
-    // 3. Fallback to Default Template
+    // 3. Fallback to Global Saved Config
+    if (bankData[sectionName]) {
+      return JSON.parse(JSON.stringify(bankData[sectionName]));
+    }
+
+    // 4. Fallback to System Default
     if (defaultConfigs[bankName]?.[sectionName]) {
-      return defaultConfigs[bankName][sectionName];
+      return JSON.parse(JSON.stringify(defaultConfigs[bankName][sectionName]));
     }
 
     return null;
@@ -139,24 +146,43 @@ export const getBankConfig = (bankName, sectionName, location = null) => {
   }
 };
 
-// Get all configuration for a bank at a specific location
+// Get all configuration for a bank at a specific location with source tracking
 export const getAllBankConfig = (bankName, location = null) => {
   try {
     const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    const baseConfig = allConfigs[bankName] || defaultConfigs[bankName] || {};
+    const template = allConfigs[bankName] || defaultConfigs[bankName] || {};
 
-    if (location && allConfigs[bankName]?.cityOverrides?.[location]) {
-      // Merge location specific overrides onto base config
-      return {
-        ...baseConfig,
-        ...allConfigs[bankName].cityOverrides[location]
-      };
+    // Start with a clean deep copy of global/default config
+    let finalConfig = JSON.parse(JSON.stringify(template));
+    let sourceTrace = location ? 'Global (No match found)' : 'Global Default';
+
+    // Hierarchy Check
+    if (location) {
+      // Check City Level (High Priority)
+      if (template.cityOverrides?.[location]) {
+        finalConfig = { ...finalConfig, ...template.cityOverrides[location] };
+        sourceTrace = `City Override (${location})`;
+      }
+      // Check State Level (Medium Priority)
+      else if (location.includes(',')) {
+        const statePart = location.split(',')[1].trim();
+        if (template.cityOverrides?.[statePart]) {
+          finalConfig = { ...finalConfig, ...template.cityOverrides[statePart] };
+          sourceTrace = `State Override (${statePart})`;
+        }
+      }
     }
 
-    return baseConfig;
+    // Remove cityOverrides from the final object to prevent recursion/leakage
+    delete finalConfig.cityOverrides;
+
+    // Attach source metadata
+    finalConfig._ruleSource = sourceTrace;
+
+    return finalConfig;
   } catch (error) {
     console.error('Error loading all bank config:', error);
-    return defaultConfigs[bankName] || {};
+    return { ...defaultConfigs[bankName], _ruleSource: 'Error Fallback (Defaults)' };
   }
 };
 
