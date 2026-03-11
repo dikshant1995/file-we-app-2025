@@ -194,18 +194,26 @@ export const calculateKotakEligibility = (userData) => {
   }
 
   // Standardize Category to SUPER-A / A / B / C / D / GOVT
-  let finalCategory = category || getCompanyCategory(companyName || '', employmentType);
-  if (isGovtEmployee || employmentType === 'government') finalCategory = 'GOVT';
+  // Determine company category - handle both standard and GOVT cases
+  // Logic Bridge: Support 'government' employment type and 'GOVT' category
+  let companyCategory = category || getCompanyCategory(companyName || '', employmentType);
+  if (employmentType === 'government') {
+    companyCategory = 'GOVT';
+  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
+    companyCategory = 'GOVT';
+  }
+  let finalCategory = companyCategory; // Ensure finalCategory is set for subsequent use
 
-  // Apply tenure capping based on category
-  let lookupCategoryTenure = finalCategory === 'SUPER-A' ? 'AA' : (finalCategory === 'GOVT' ? 'A' : finalCategory);
-  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : kotakConfig.maxTenureByCategory[lookupCategoryTenure];
+  // Use standardized GOVT for tenure lookup
+  const lookupCategory = companyCategory === 'SUPER-A' ? 'AA' : (companyCategory === 'GOVT' ? 'A' : companyCategory);
 
-  if (!maxTenureForCategory) {
-    return {
-      eligible: false,
-      reason: `Institutional lending suspended for Category ${finalCategory}`
-    };
+  // Apply tenure capping based on category (tenure is in months)
+  // Logic Bridge: Support govtMaxTenure override
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : kotakConfig.maxTenureByCategory[lookupCategory];
+
+  if (!maxTenureForCategory || maxTenureForCategory === 0) {
+    // Fallback to A for government if config key is missing
+    maxTenureForCategory = kotakConfig.maxTenureByCategory['GOVT'] || kotakConfig.maxTenureByCategory['A'] || 72;
   }
 
   const cappedTenureMonths = maxTenureForCategory;
