@@ -102,24 +102,26 @@ export const calculateAxisFinEligibility = (userData) => {
     };
   }
 
-  // Check employment type
-  if (!axisFinConfig.employmentTypes.includes(employmentType)) {
-    return {
-      eligible: false,
-      reason: `Employment type ${employmentType} not supported by Axis Finance`
-    };
+  // Determine company category - handle both standard and GOVT cases
+  // Logic Bridge: Support 'government' employment type and 'GOVT' category
+  let companyCategory = category || 'B';
+  if (employmentType === 'government') {
+    companyCategory = 'GOVT';
+  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
+    companyCategory = 'GOVT';
   }
 
-  // 2. Apply tenure capping based on category (tenure is in months)
+  // Use standardized GOVT for multiplier and tenure lookups
+  // Axis maps A, B, and GOVT to the same high multipliers
+  const lookupCategory = companyCategory;
+
+  // Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
-  let lookupCategory = category === 'Govt' ? 'A' : category;
   let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : axisFinConfig.maxTenureByCategory[lookupCategory];
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
-    return {
-      eligible: false,
-      reason: `No loans available for Category ${category}`
-    };
+    // If specific category tenure is missing, try fallback logic
+    maxTenureForCategory = (lookupCategory === 'GOVT' || lookupCategory === 'A' || lookupCategory === 'B') ? 84 : 60;
   }
 
   // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
