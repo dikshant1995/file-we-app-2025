@@ -127,7 +127,11 @@ export const calculateTataEligibility = (userData) => {
 
   // Interest Matrix lookup
   let finalInterestRate = interestRateOverride || (isGovtEmployee ? govtROI : null);
-  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(finalCategory, multiplierLoanAmount, userData.city || userData.state);
+  if (!finalInterestRate) {
+    // Standardize location key to "City, State" to match Admin lookup
+    const locationKey = userData.city && userData.state ? `${userData.city}, ${userData.state}` : (userData.state || null);
+    finalInterestRate = getInterestRateForLoan(companyCategory, multiplierLoanAmount, locationKey);
+  }
 
   const foirLoanAmount = calculatePrincipalFromEMI(availableEMI, finalInterestRate, cappedTenureYears);
 
