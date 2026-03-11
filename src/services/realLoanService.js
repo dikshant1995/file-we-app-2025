@@ -119,8 +119,15 @@ export const calculateLoanEligibility = async (userData) => {
 
     try {
       // 🧊 LOGIC BRIDGE: Retrieve real-time Admin Panel settings
-      const location = calculatorInput.city || calculatorInput.state;
-      const adminAllConfig = getAllBankConfig(name, location);
+      // Standardize location key to match Admin Panel format: "City, State"
+      let locationKey = null;
+      if (calculatorInput.city && calculatorInput.state) {
+        locationKey = `${calculatorInput.city}, ${calculatorInput.state}`;
+      } else if (calculatorInput.state) {
+        locationKey = calculatorInput.state;
+      }
+
+      const adminAllConfig = getAllBankConfig(name, locationKey);
 
       // 1. STRING 8: SALARY MODE GATE
       if (calculatorInput.salaryMode === 'cash' && adminAllConfig.employmentRules?.allowCashSalary === false) {
@@ -200,15 +207,16 @@ export const calculateLoanEligibility = async (userData) => {
         category: bankCategory,
         salaryMode: calculatorInput.salaryMode,
         adminApplied: true, // Marker for Logic Bridge
+        ruleSource: adminAllConfig._ruleSource, // 📍 TRACEABILITY: Show where the rule came from
         // Pass through Admin config for UI display
         btConfig: adminAllConfig.btConfig || config.btConfig,
         processingFee: adminAllConfig.feesAndCharges?.processingFeePercentage,
       };
 
       if (result.eligible) {
-        console.log(`   ✅ APPROVED - Loan: ₹${(result.loanAmount / 100000).toFixed(2)}L, EMI: ₹${result.monthlyEMI.toLocaleString()} (${bankTime}ms)`);
+        console.log(`   ✅ APPROVED [Source: ${adminAllConfig._ruleSource}] - Loan: ₹${(result.loanAmount / 100000).toFixed(2)}L, EMI: ₹${result.monthlyEMI.toLocaleString()} (${bankTime}ms)`);
       } else {
-        console.log(`   ❌ REJECTED - Reason: ${result.reason} (${bankTime}ms)`);
+        console.log(`   ❌ REJECTED [Source: ${adminAllConfig._ruleSource}] - Reason: ${result.reason} (${bankTime}ms)`);
       }
 
       return enhancedResult;
