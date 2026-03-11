@@ -128,15 +128,25 @@ export const calculateCholaEligibility = (userData) => {
     };
   }
 
-  // 2. Apply tenure capping based on category (tenure is in months)
+  // Determine company category - handle both standard and GOVT cases
+  // Logic Bridge: Support 'government' employment type and 'GOVT' category
+  let companyCategory = category || 'B';
+  if (employmentType === 'government') {
+    companyCategory = 'GOVT';
+  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
+    companyCategory = 'GOVT';
+  }
+
+  // Use standardized GOVT for tenure and FOIR lookups
+  const lookupCategory = companyCategory;
+
+  // Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
-  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : cholaConfig.maxTenureByCategory[category];
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : cholaConfig.maxTenureByCategory[lookupCategory];
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
-    return {
-      eligible: false,
-      reason: `No loans available for Category ${category}`
-    };
+    // Fallback to A for government if config key is missing
+    maxTenureForCategory = cholaConfig.maxTenureByCategory['GOVT'] || cholaConfig.maxTenureByCategory['A'] || 84;
   }
 
   // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
@@ -164,20 +174,30 @@ export const calculateCholaEligibility = (userData) => {
     };
   }
 
-  const minSalary = cholaConfig.minSalary[category];
-  const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
-  if (!minSalary || incomeToCheck < minSalary) {
-    return { eligible: false, reason: `Minimum salary for ${category} is ₹${minSalary?.toLocaleString() || 'N/A'}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+  // Check minimum salary requirement based on category
+  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
+  const categoryMinSalary = cholaConfig.minSalary[lookupCategory] || cholaConfig.minSalary['A'];
+  if (incomeForCalculation < categoryMinSalary) {
+    return {
+      eligible: false,
+      reason: `Minimum monthly income required for ${companyCategory} category is ₹${categoryMinSalary.toLocaleString()}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`,
+      isBTMode: isBT
+    };
   }
 
-  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
-  const foirBand = getSalaryBand(incomeForCalculation, cholaConfig.foirTable);
-  // Logic Bridge: Support govtFOIR override
-  let lookupCategoryFOIR = category === 'Govt' ? 'A' : category;
-  let foirPercentage = (isGovtEmployee && govtFOIR) ? (govtFOIR / 100) : cholaConfig.foirTable[foirBand]?.[lookupCategoryFOIR];
+  // Helper to get FOIR percentage
+  const getFoirPercentage = (income, cat) => {
+    const foirBand = getSalaryBand(income, cholaConfig.foirTable);
+    return cholaConfig.foirTable[foirBand]?.[cat];
+  };
+
+  // Calculate using FOIR method
+  // Logic Bridge: Use govtFOIR if available
+  let foirPercentage = (isGovtEmployee && govtFOIR) ? (govtFOIR / 100) : getFoirPercentage(incomeForCalculation, lookupCategory);
 
   if (!foirPercentage) {
-    return { eligible: false, reason: `FOIR not defined for category ${category} at salary band ${foirBand}`, isBTMode: isBT };
+    const foirBand = getSalaryBand(incomeForCalculation, cholaConfig.foirTable); // Recalculate for error message
+    return { eligible: false, reason: `FOIR not defined for category ${lookupCategory} at salary band ${foirBand}`, isBTMode: isBT };
   }
 
   const foirCap = incomeForCalculation * foirPercentage;
