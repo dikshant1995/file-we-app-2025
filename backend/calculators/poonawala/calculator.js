@@ -78,38 +78,80 @@ const calculatePrincipalFromEMI = (emi, annualInterestRate, tenureInYears) => {
   return Math.round(principal);
 };
 
+// New helper function for calculating loan amount from EMI (standard formula)
+const calculateLoanAmountFromEMI = (emi, annualInterestRate, tenureInYears) => {
+  const monthlyInterestRate = annualInterestRate / 12 / 100;
+  const numberOfMonths = tenureInYears * 12;
+
+  if (monthlyInterestRate === 0) {
+    return emi * numberOfMonths;
+  }
+
+  const r = monthlyInterestRate;
+  const n = numberOfMonths;
+  const principal = emi * (Math.pow(1 + r, n) - 1) / (r * Math.pow(1 + r, n));
+  return Math.round(principal);
+};
+
 // Poonawala Finance specific eligibility calculation
 export const calculatePoonawalaEligibility = (userData) => {
   const {
     desiredLoanAmount,
     loanTenure,
     monthlyIncome,
-    existingEMI = 0,
-    creditCardObligation, // NEW: 5% of non-BT credit card balances
-    category = 'C',
-    creditScore,
+    existingEMI,
+    creditCardObligation,
+    companyName,
     employmentType,
+    // Admin Overrides (Logic Bridge)
+    interestRateOverride,
+    isGovtEmployee,
+    govtROI,
+    govtFOIR,
+    govtMultiplier,
+    govtMaxTenure,
+    // User fields
     age,
+    category,
     existingLoanBanks,
+    // Balance Transfer fields
     isBTMode,
     loansForBT,
     btTotalEMI,
     btTotalOutstanding
   } = userData;
 
+  // ========== CATEGORY STANDARDIZATION ==========
+  // Determine lookup category - handle both standard and GOVT cases
+  let companyCategory = category || 'B';
+  if (employmentType === 'government') {
+    companyCategory = 'GOVT';
+  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
+    companyCategory = 'GOVT';
+  }
+
+  // Use standardized GOVT for table lookups
+  const lookupCategory = companyCategory;
+  // ========== END CATEGORY STANDARDIZATION ==========
+
+  // ========== BALANCE TRANSFER MODE DETECTION ==========
   const isBT = isBTMode && loansForBT && loansForBT.length > 0;
   let adjustedIncome = monthlyIncome;
   let nonBTLoansEMI = 0;
 
   if (isBT) {
-    nonBTLoansEMI = existingEMI - btTotalEMI;
-    // NEW: Also deduct credit card obligations from adjusted income
+    nonBTLoansEMI = (existingEMI || 0) - btTotalEMI;
     const creditCardDeduction = creditCardObligation || 0;
     adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
     if (adjustedIncome <= 0) {
-      return { eligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction)?.toLocaleString() || '0'}), no income remains`, isBTMode: true };
+      return {
+        isEligible: false,
+        reason: `After deducting non-BT obligations (₹${((existingEMI || 0) + (creditCardObligation || 0))?.toLocaleString() || '0'}), no income remains for Balance Transfer`,
+        isBTMode: true
+      };
     }
   }
+  // ========== END BT MODE DETECTION ==========
 
   // CHECK: If customer already has a personal loan from Poonawala Finance
   if (existingLoanBanks && existingLoanBanks.length > 0) {
@@ -120,7 +162,7 @@ export const calculatePoonawalaEligibility = (userData) => {
 
     if (hasExistingPoonawalaLoan) {
       return {
-        eligible: false,
+        isEligible: false,
         reason: 'As an existing customer of Poonawala Finance with an active personal loan, you are not eligible for a new loan from this bank'
       };
     }
@@ -133,7 +175,7 @@ export const calculatePoonawalaEligibility = (userData) => {
 
   if (age && (age < minAge || age > maxAge)) {
     return {
-      eligible: false,
+      isEligible: false,
       reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
     };
   }
@@ -141,25 +183,19 @@ export const calculatePoonawalaEligibility = (userData) => {
   // Check employment type
   if (!poonawalaConfig.employmentTypes.includes(employmentType)) {
     return {
-      eligible: false,
-      reason: `Employment type ${employmentType} not supported by Poonawala Finance`
+      isEligible: false,
+      reason: `Employment type ${employmentType} not supported by this bank`
     };
   }
 
-  // Determine customer segment
-  const customerSegment = getCustomerSegment(category);
-
   // Apply tenure capping based on category (tenure is in months)
-  const maxTenureForCategory = poonawalaConfig.maxTenureByCategory[customerSegment];
+  // Logic Bridge: Support govtMaxTenure override
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : poonawalaConfig.maxTenureByCategory[lookupCategory];
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
-    return {
-      isEligible: false,
-      reason: `No loans available for Category ${customerSegment}`
-    };
+    maxTenureForCategory = 60; // Fallback
   }
 
   // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
-  // This shows the maximum loan amount the bank can offer for this category
   const cappedTenureMonths = maxTenureForCategory;
   const cappedTenureYears = cappedTenureMonths / 12;
 
@@ -177,11 +213,16 @@ export const calculatePoonawalaEligibility = (userData) => {
 
   // Check minimum salary requirement based on category
   const salConfig = getBankConfig('Poonawala Finance', 'employmentRules', { state: userData.state, city: userData.city });
-  const catMinSalary = poonawalaConfig.minNTHBySegment[customerSegment];
+  const catMinSalary = poonawalaConfig.minSalary[lookupCategory] || poonawalaConfig.minSalary['A'];
   const effectiveMinSalary = salConfig?.salariedMinSalary ?? catMinSalary;
 
+  const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < effectiveMinSalary) {
-    return { isEligible: false, reason: `Minimum NTH salary of ₹${effectiveMinSalary?.toLocaleString() || '0'} required for ${customerSegment} segment${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+    return {
+      isEligible: false,
+      reason: `Minimum monthly income required is ₹${catMinSalary?.toLocaleString() || '0'} for Category ${lookupCategory}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`,
+      isBTMode: isBT
+    };
   }
 
   // Get loan capping config
@@ -189,7 +230,6 @@ export const calculatePoonawalaEligibility = (userData) => {
   const absoluteMaxLoan = cappingConfig?.absoluteMaxLoan ?? poonawalaConfig.maxLoanAmount;
   const minLoanAmount = cappingConfig?.minLoanAmount ?? 100000;
 
-  // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
     return {
       isEligible: false,
@@ -198,63 +238,55 @@ export const calculatePoonawalaEligibility = (userData) => {
     };
   }
 
+  // Calculate using FOIR method
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
-  const foirPercentage = getNTHBandFOIR(customerSegment, incomeForCalculation);
-
-  if (foirPercentage === null) {
-    return { isEligible: false, reason: `No FOIR available for ${customerSegment} segment at NTH ₹${incomeForCalculation?.toLocaleString() || '0'}`, isBTMode: isBT };
+  // Logic Bridge: FOIR override
+  const foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : getFoirPercentage(incomeForCalculation);
+  if (!foirPercentage) {
+    return {
+      isEligible: false,
+      reason: 'Unable to determine FOIR percentage for the provided salary',
+      isBTMode: isBT
+    };
   }
 
   const foirCap = incomeForCalculation * foirPercentage;
-  const totalObligations = existingEMI + (creditCardObligation || 0);
+  const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
   const availableEMI = isBT ? foirCap : (foirCap - totalObligations);
 
   if (availableEMI <= 0) {
     return {
       isEligible: false,
-      reason: `Existing EMI (₹${existingEMI.toLocaleString()}) exceeds FOIR limit of ₹${Math.round(foirCap).toLocaleString()}`
+      reason: `Existing EMI (₹${(existingEMI || 0).toLocaleString()}) exceeds FOIR limit of ₹${Math.round(foirCap).toLocaleString()}`
     };
   }
 
-  // Pass 1: Calculate preliminary loan with base rate
-  const baseRate = poonawalaConfig.interestRate;
-  const calculatedLoanAmountPass1 = calculatePrincipalFromEMI(
-    availableEMI,
-    baseRate,
-    cappedTenureYears
-  );
+  // ROI Logic Bridge Overrides
+  let finalInterestRate = interestRateOverride;
+  if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
+  if (!finalInterestRate) {
+    finalInterestRate = getDynamicInterestRate('Poonawala Finance', lookupCategory, desiredLoanAmount || monthlyIncome * 20, { state: userData.state, city: userData.city }, poonawalaConfig.interestRate);
+  }
 
-  const preliminaryLoanAmount = Math.min(
-    calculatedLoanAmountPass1,
-    desiredLoanAmount || Infinity
-  );
+  const foirLoanAmount = calculateLoanAmountFromEMI(availableEMI, finalInterestRate, cappedTenureYears);
 
-  const preliminaryCappedLoan = Math.min(preliminaryLoanAmount, absoluteMaxLoan);
+  // Take minimum of FOIR calculation and desired amount
+  const maxLoanAmount = foirLoanAmount;
 
-  // Pass 2: Get correct rate based on preliminary loan amount
-  const finalInterestRate = getInterestRateForLoan(category, preliminaryCappedLoan, userData);
+  // Apply bank's maximum loan cap
+  const finalLoanAmount = Math.min(maxLoanAmount, desiredLoanAmount || Infinity, absoluteMaxLoan);
+  const loanCapped = maxLoanAmount > absoluteMaxLoan;
 
-  // Recalculate loan with final rate
-  const calculatedLoanAmount = calculatePrincipalFromEMI(
-    availableEMI,
-    finalInterestRate,
-    cappedTenureYears
-  );
-
-  // Final loan amount is minimum of calculated and desired
-  const finalLoanAmount = Math.min(
-    calculatedLoanAmount,
-    desiredLoanAmount || Infinity
-  );
-
-  const cappedFinalLoan = Math.min(finalLoanAmount, absoluteMaxLoan);
-  const loanCapped = finalLoanAmount > absoluteMaxLoan;
-
+  // ========== BALANCE TRANSFER CALCULATION ==========
   let btDetails = null;
   if (isBT) {
-    const btFreshAmount = cappedFinalLoan - btTotalOutstanding;
+    const btFreshAmount = finalLoanAmount - btTotalOutstanding;
     if (btFreshAmount < 0) {
-      return { isEligible: false, reason: `BT Outstanding (₹${btTotalOutstanding?.toLocaleString() || '0'}) exceeds max loan (₹${Math.round(cappedFinalLoan)?.toLocaleString() || '0'})`, isBTMode: true };
+      return {
+        isEligible: false,
+        reason: `BT Outstanding (₹${btTotalOutstanding?.toLocaleString() || '0'}) exceeds maximum eligible loan (₹${Math.round(finalLoanAmount)?.toLocaleString() || '0'})`,
+        isBTMode: true
+      };
     }
     btDetails = {
       isBTMode: true,
@@ -270,18 +302,20 @@ export const calculatePoonawalaEligibility = (userData) => {
       adjustedIncome: Math.round(adjustedIncome)
     };
   }
+  // ========== END BT CALCULATION ==========
 
-  const monthlyEMI = calculateEMI(cappedFinalLoan, finalInterestRate, cappedTenureYears);
+  // Calculate final EMI for the loan amount using capped tenure
+  const monthlyEMI = calculateEMI(finalLoanAmount, finalInterestRate, cappedTenureYears);
 
   return {
     isEligible: true,
     bankId: poonawalaConfig.id,
     bankName: poonawalaConfig.name,
-    loanAmount: Math.round(cappedFinalLoan),
-    maxLoanAmount: Math.round(cappedFinalLoan),
+    loanAmount: Math.round(finalLoanAmount),
+    maxLoanAmount: Math.round(finalLoanAmount),
     maxLoanCap: absoluteMaxLoan,
     loanCappedByBank: loanCapped,
-    calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
+    calculatedLoanBeforeCap: loanCapped ? Math.round(maxLoanAmount) : null,
     interestRate: finalInterestRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,
@@ -290,20 +324,13 @@ export const calculatePoonawalaEligibility = (userData) => {
     requestedTenureMonths: requestedTenureMonths,
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
-    companyCategory: category,
-    customerSegment: customerSegment,
+    companyCategory: lookupCategory,
     foirPercentage: foirPercentage,
-    availableEMI: Math.round(availableEMI),
-    calculationMethod: 'FOIR (2D Matrix: Segment × NTH)',
     details: {
-      foirPercentage: (foirPercentage * 100).toFixed(0) + '%',
-      customerSegment: customerSegment,
+      foirLoanAmount: Math.round(foirLoanAmount),
       foirCap: Math.round(foirCap),
       availableEMI: Math.round(availableEMI),
-      maxLoanFromFOIR: Math.round(calculatedLoanAmount),
       existingEMI: Math.round(existingEMI || 0),
-      creditCardObligation: Math.round(creditCardObligation || 0),
-      creditCardObligationNote: creditCardObligation > 0 ? '5% of credit card outstanding balance' : 'No credit card obligations',
       totalObligations: Math.round(totalObligations)
     },
     ...btDetails
