@@ -64,18 +64,27 @@ export const calculatePoonawalaEligibility = (userData) => {
     if (adjustedIncome <= 0) return { eligible: false, reason: `Insufficient NTH for Balance Transfer`, isBTMode: true };
   }
 
-  // Standardize Category to SUPER-A / A / B / C / D / GOVT
-  let finalCategory = category;
-  if (category === 'SUP-A' || category === 'SUPER A') finalCategory = 'SUPER-A';
-  if (isGovtEmployee || employmentType === 'government') finalCategory = 'GOVT';
+  // Determine company category and segment
+  // Logic Bridge: Support 'government' employment type and standardized 'GOVT' key
+  let companyCategory = category || 'B';
+  if (employmentType === 'government') {
+    companyCategory = 'GOVT';
+  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
+    companyCategory = 'GOVT';
+  }
 
-  // Apply tenure capping
-  let lookupSegment = finalCategory === 'SUPER-A' ? 'SUP-A' : (finalCategory === 'GOVT' ? 'SUP-A' : finalCategory);
-  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : poonawalaConfig.maxTenureByCategory[lookupSegment];
+  // Determine segment based on category/employment
+  const segment = (companyCategory === 'SUPER-A' || companyCategory === 'GOVT')
+    ? 'A'
+    : (companyCategory === 'B' ? 'B' : 'C');
 
-  if (!maxTenureForCategory) return { eligible: false, reason: `Category ${finalCategory} is currently non-serviced` };
+  // Apply tenure capping based on segment
+  // Logic Bridge: Support govtMaxTenure override
+  const maxTenureForSegment = isGovtEmployee && govtMaxTenure ? govtMaxTenure : (segment === 'A' ? 72 : 60);
 
-  const cappedTenureYears = maxTenureForCategory / 12;
+  if (!maxTenureForSegment) return { eligible: false, reason: `Category ${companyCategory} is currently non-serviced` };
+
+  const cappedTenureYears = maxTenureForSegment / 12;
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
 
   // Matrix FOIR logic (Segment x NTH)
