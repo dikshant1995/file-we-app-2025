@@ -135,6 +135,7 @@ export const calculateIdfcEligibility = (userData) => {
   // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
   // This shows the maximum loan amount the bank can offer for this category
   const cappedTenureMonths = maxTenureForCategory;
+  const cappedTenureYears = cappedTenureMonths / 12;
 
   // Store user's request for display purposes
   const requestedTenureMonths = loanTenure * 12;
