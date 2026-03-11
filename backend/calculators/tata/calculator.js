@@ -74,6 +74,9 @@ export const calculateTataEligibility = (userData) => {
     btTotalOutstanding
   } = userData;
 
+  // Standardize Category
+  const lookupCategory = category === 'SUP-A' ? 'SUPER-A' : category;
+
   const isBT = isBTMode && loansForBT && loansForBT.length > 0;
   let adjustedIncome = monthlyIncome;
   let nonBTLoansEMI = 0;
@@ -123,11 +126,11 @@ export const calculateTataEligibility = (userData) => {
   }
 
   // 2. Apply tenure capping based on category (tenure is in months)
-  const maxTenureForCategory = tataConfig.maxTenureByCategory[category];
+  const maxTenureForCategory = tataConfig.maxTenureByCategory[lookupCategory];
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
       eligible: false,
-      reason: `No loans available for Category ${category}`
+      reason: `No loans available for Category ${lookupCategory}`
     };
   }
 
@@ -152,12 +155,12 @@ export const calculateTataEligibility = (userData) => {
 
   // Check minimum salary requirement based on category
   const salConfig = getBankConfig('Tata Capital', 'employmentRules', { state: userData.state, city: userData.city });
-  const catMinSalary = tataConfig.minSalaryByCategory[category];
+  const catMinSalary = tataConfig.minSalaryByCategory[lookupCategory];
   const effectiveMinSalary = salConfig?.salariedMinSalary ?? catMinSalary;
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (!effectiveMinSalary || incomeToCheck < effectiveMinSalary) {
-    return { isEligible: false, reason: `Minimum monthly income required is ₹${catMinSalary?.toLocaleString() || '0'} for Category ${category}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+    return { isEligible: false, reason: `Minimum monthly income required is ₹${catMinSalary?.toLocaleString() || '0'} for Category ${lookupCategory}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
   // Get loan capping config
@@ -179,10 +182,10 @@ export const calculateTataEligibility = (userData) => {
   const foirPercentage = tataConfig.foirTable[foirBand];
 
   const multiplierBand = getSalaryBand(incomeForCalculation, tataConfig.multiplierTable);
-  const multiplier = tataConfig.multiplierTable[multiplierBand][category];
+  const multiplier = tataConfig.multiplierTable[multiplierBand][lookupCategory];
 
   if (!multiplier) {
-    return { isEligible: false, reason: `Category ${category} not found in multiplier table`, isBTMode: isBT };
+    return { isEligible: false, reason: `Category ${lookupCategory} not found in multiplier table`, isBTMode: isBT };
   }
 
   const foirCap = incomeForCalculation * foirPercentage;
@@ -215,7 +218,7 @@ export const calculateTataEligibility = (userData) => {
   const preliminaryCappedLoan = Math.min(preliminaryLoanAmount, absoluteMaxLoan);
 
   // Pass 2: Get correct rate based on preliminary loan amount
-  const finalInterestRate = getInterestRateForLoan(category, preliminaryCappedLoan, userData);
+  const finalInterestRate = getInterestRateForLoan(lookupCategory, preliminaryCappedLoan, userData);
 
   // Recalculate FOIR loan with final rate
   const foirLoanAmount = calculatePrincipalFromEMI(availableEMI, finalInterestRate, cappedTenureYears);
