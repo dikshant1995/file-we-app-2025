@@ -111,25 +111,30 @@ export const calculateIdfcEligibility = (userData) => {
     };
   }
 
-  // Map A+ to SUPER-A for consistency. Handle Govt fallback.
-  let mappedCategory = category === 'A+' ? 'SUPER-A' : category;
-  if (mappedCategory === 'Govt') mappedCategory = 'A';
+  // Determine company category - handle both standard and GOVT cases
+  // Logic Bridge: Support 'government' employment type and 'GOVT' category
+  let companyCategory = category || 'B';
+  if (employmentType === 'government') {
+    companyCategory = 'GOVT';
+  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
+    companyCategory = 'GOVT';
+  }
+
+  // Use standardized GOVT for multiplier and tenure lookups
+  const lookupCategory = companyCategory;
 
   // Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
-  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : idfcConfig.maxTenureByCategory[mappedCategory];
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : idfcConfig.maxTenureByCategory[lookupCategory];
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
-    return {
-      eligible: false,
-      reason: `No loans available for Category ${mappedCategory}`
-    };
+    // Fallback to A for government if config key is missing
+    maxTenureForCategory = idfcConfig.maxTenureByCategory['GOVT'] || idfcConfig.maxTenureByCategory['A'] || 84;
   }
 
   // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
   // This shows the maximum loan amount the bank can offer for this category
   const cappedTenureMonths = maxTenureForCategory;
-  const cappedTenureYears = cappedTenureMonths / 12;
 
   // Store user's request for display purposes
   const requestedTenureMonths = loanTenure * 12;
@@ -163,8 +168,8 @@ export const calculateIdfcEligibility = (userData) => {
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
   const salaryBand = getSalaryBand(incomeForCalculation);
 
-  // Logic Bridge: Support govtMultiplier override
-  let multiplier = isGovtEmployee && govtMultiplier ? govtMultiplier : idfcConfig.multiplierTable[mappedCategory][salaryBand];
+  // Logic Bridge: Use govtMultiplier if available
+  let multiplier = isGovtEmployee && govtMultiplier ? govtMultiplier : idfcConfig.multiplierTable[lookupCategory][salaryBand]; // Changed mappedCategory to lookupCategory
 
   if (!multiplier) {
     return { eligible: false, reason: `No multiplier available for category ${category} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
