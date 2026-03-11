@@ -54,7 +54,7 @@ export const piramalConfig = {
     'ALL': { description: 'All applicants (no category distinction)' }
   },
 
-  employmentTypes: ['salaried', 'self-employed', 'all'],
+  employmentTypes: ['salaried', 'government', 'self-employed', 'all'],
   specialPrograms: ['accessible-lending', 'income-focused', 'simplified-approval'],
 
   // Calculation method
