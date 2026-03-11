@@ -110,7 +110,11 @@ export const calculatePoonawalaEligibility = (userData) => {
 
   // Interest Matrix lookup
   let finalInterestRate = interestRateOverride || (isGovtEmployee ? govtROI : null);
-  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(finalCategory, (incomeForCalculation * 20), userData.city || userData.state);
+  if (!finalInterestRate) {
+    // Standardize location key to "City, State" to match Admin lookup
+    const locationKey = userData.city && userData.state ? `${userData.city}, ${userData.state}` : (userData.state || null);
+    finalInterestRate = getInterestRateForLoan(companyCategory, (incomeForCalculation * 20), locationKey);
+  }
 
   const calculatedLoanAmount = calculatePrincipalFromEMI(availableEMI, finalInterestRate, cappedTenureYears);
   const finalLoanAmount = Math.min(calculatedLoanAmount, desiredLoanAmount || Infinity, poonawalaConfig.maxLoanAmount);
