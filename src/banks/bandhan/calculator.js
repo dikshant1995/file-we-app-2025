@@ -181,6 +181,7 @@ export const calculateBandhanEligibility = (userData) => {
   // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
   // This shows the maximum loan amount the bank can offer for this category
   const cappedTenureMonths = maxTenureForCategory;
+  const cappedTenureYears = cappedTenureMonths / 12;
 
   // Store user's request for display purposes
   const requestedTenureMonths = loanTenure * 12;
@@ -277,7 +278,7 @@ export const calculateBandhanEligibility = (userData) => {
     requestedTenureMonths: requestedTenureMonths,
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
-    companyCategory: companyCategory,
+    category: lookupCategory,
     calculationMethod: 'FOIR-based',
     foirPercentage: foirPercentage,
     details: {
