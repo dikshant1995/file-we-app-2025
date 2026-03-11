@@ -74,6 +74,30 @@ const defaultConfigs = {
     employmentRules: { salariedMinSalary: 25000, selfEmployedMinIncome: 300000, itrYearsRequired: 2 },
     btConfiguration: { enabled: true, maxLoansForBT: 3, creditCardBTSupported: true, processingFeePercentage: 1.5 },
     feesAndCharges: { processingFeePercentage: 3.5, btChargesPercentage: 1.5, prepaymentChargesPercentage: 4 }
+  },
+  'Tata Capital': {
+    ageRules: { minAge: 21, maxAge: 60, retirementAge: { salaried: 60, selfEmployed: 65 }, maxAgeAtLoanEnd: 60 },
+    tenureRules: { minTenureMonths: 12, maxTenureMonths: 72, categoryBasedMaxTenure: { 'SUPER-A': 72, A: 72, B: 60, C: 60, D: 48 } },
+    foirSettings: { categoryBasedFOIR: { 'SUPER-A': 75, A: 65, B: 60, C: 55, D: 50 }, creditCardObligationPercentage: 5 },
+    multiplierRules: { categoryBasedMultiplier: { 'SUPER-A': 27, A: 27, B: 25, C: 18, D: 18 } },
+    creditScoreRules: { minCreditScore: 720, recommendedScore: 720, premiumScore: 750, autoRejectionThreshold: 650 },
+    interestRates: { defaultRate: 11.0, categoryRates: { 'SUPER-A': 11.0, A: 11.0, B: 11.0, C: 11.0, D: 11.0 } },
+    loanCapping: { absoluteMaxLoan: 3500000, minLoanAmount: 100000, bachelorCapping: { enabled: true, percentage: 50 } },
+    employmentRules: { salariedMinSalary: 25000, selfEmployedMinIncome: 300000, itrYearsRequired: 2 },
+    btConfiguration: { enabled: true, maxLoansForBT: 6, creditCardBTSupported: false, processingFeePercentage: 0.6 },
+    feesAndCharges: { processingFeePercentage: 0.6, btChargesPercentage: 0.6, prepaymentChargesPercentage: 4 }
+  },
+  'Poonawala Finance': {
+    ageRules: { minAge: 21, maxAge: 60, retirementAge: { salaried: 60, selfEmployed: 65 }, maxAgeAtLoanEnd: 60 },
+    tenureRules: { minTenureMonths: 12, maxTenureMonths: 84, categoryBasedMaxTenure: { 'SUPER-A': 84, A: 84, B: 72, C: 72, D: 60 } },
+    foirSettings: { categoryBasedFOIR: { 'SUPER-A': 75, A: 70, B: 65, C: 60, D: 55 }, creditCardObligationPercentage: 5 },
+    multiplierRules: { categoryBasedMultiplier: { 'SUPER-A': 35, A: 32, B: 28, C: 24, D: 20 } },
+    creditScoreRules: { minCreditScore: 650, recommendedScore: 700, premiumScore: 750, autoRejectionThreshold: 600 },
+    interestRates: { defaultRate: 11.0, categoryRates: { 'SUPER-A': 11.0, A: 11.0, B: 11.0, C: 11.0, D: 11.0 } },
+    loanCapping: { absoluteMaxLoan: 5000000, minLoanAmount: 100000, bachelorCapping: { enabled: true, percentage: 50 } },
+    employmentRules: { salariedMinSalary: 30000, selfEmployedMinIncome: 400000, itrYearsRequired: 2 },
+    btConfiguration: { enabled: true, maxLoansForBT: 3, creditCardBTSupported: true, processingFeePercentage: 1.0 },
+    feesAndCharges: { processingFeePercentage: 1.0, btChargesPercentage: 1.0, prepaymentChargesPercentage: 4 }
   }
 };
 
