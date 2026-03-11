@@ -156,7 +156,7 @@ export const calculateIdfcEligibility = (userData) => {
     };
   }
 
-  if (!idfcConfig.multiplierTable[mappedCategory]) {
+  if (!idfcConfig.multiplierTable[lookupCategory]) {
     return { eligible: false, reason: `Category ${category} not supported by IDFC Bank`, isBTMode: isBT };
   }
 
@@ -248,7 +248,7 @@ export const calculateIdfcEligibility = (userData) => {
     monthlyEMI: Math.round(monthlyEMI),
     multiplier: multiplier,
     salaryBand: salaryBand,
-    category: mappedCategory,
+    category: lookupCategory,
     maxLoanByMultiplier: Math.round(calculatedLoanAmount),
     calculationMethod: 'Multiplier Only (No FOIR)',
     details: {
