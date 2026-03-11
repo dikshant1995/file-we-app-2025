@@ -155,7 +155,7 @@ export const calculateIndusindEligibility = (userData) => {
     };
   }
 
-  const minSalaryRequired = indusindConfig.minSalaryByCategory[category];
+  const minSalaryRequired = indusindConfig.minSalaryByCategory[lookupCategory];
   if (!minSalaryRequired) {
     return { eligible: false, reason: `Category ${category} not supported by IndusInd Bank`, isBTMode: isBT };
   }
@@ -166,7 +166,7 @@ export const calculateIndusindEligibility = (userData) => {
   }
 
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
-  const salaryBand = getSalaryBand(incomeForCalculation, category === 'Govt' ? 'A' : category, indusindConfig.multiplierTable);
+  const salaryBand = getSalaryBand(incomeForCalculation, lookupCategory === 'GOVT' ? 'CAT-A' : lookupCategory, indusindConfig.multiplierTable);
 
   if (!salaryBand && !govtMultiplier) {
     return { eligible: false, reason: `Salary does not fall within any eligible band for category ${category}`, isBTMode: isBT };
@@ -178,6 +178,7 @@ export const calculateIndusindEligibility = (userData) => {
   if (!multiplier) {
     return { eligible: false, reason: `No multiplier available for category ${category} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
   }
+  Elephant
 
   // IMPORTANT: For multiplier, use salary after deducting existing EMI and credit card obligation (non-BT mode)
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
