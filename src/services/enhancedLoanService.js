@@ -78,10 +78,11 @@ const calculateLoanAmountFromEMI = (emi, annualInterestRate, tenureInYears) => {
 export const calculateFreshLoan = async (customerInfo) => {
   // Transform form data to match calculator expectations
   const calculatorInput = {
+    ...customerInfo, // Pass all fields including Logic Bridge overrides
     desiredLoanAmount: customerInfo.desiredLoanAmount ? parseFloat(customerInfo.desiredLoanAmount) : null,
     loanTenure: customerInfo.loanTenure ? parseInt(customerInfo.loanTenure) : 5,
     monthlyIncome: customerInfo.monthlyIncome ? parseFloat(customerInfo.monthlyIncome) : 0,
-    existingEMI: 0, // For fresh loan, we start with 0 existing EMI
+    existingEMI: customerInfo.existingEMI || 0,
     companyName: customerInfo.companyName || '',
     category: customerInfo.category || 'A',
     creditScore: customerInfo.creditScore ? parseInt(customerInfo.creditScore) : 700,
@@ -152,6 +153,7 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
 
   // For BT, we ignore existing EMI and use full salary to calculate capacity
   const btInput = {
+    ...customerInfo, // Pass all fields including Logic Bridge overrides
     desiredLoanAmount: null, // We'll calculate max amount
     loanTenure: customerInfo.loanTenure ? parseInt(customerInfo.loanTenure) : 5,
     monthlyIncome: customerInfo.monthlyIncome ? parseFloat(customerInfo.monthlyIncome) : 0,
@@ -308,6 +310,7 @@ export const calculatePartialBT = async (customerInfo, existingLiabilities, sele
   // For partial BT, we use adjusted salary (full salary minus non-selected EMI)
   // But for the BT calculation itself, we still ignore existing EMIs
   const btInput = {
+    ...customerInfo, // Pass all fields including Logic Bridge overrides
     desiredLoanAmount: null, // We'll calculate max amount
     loanTenure: customerInfo.loanTenure ? parseInt(customerInfo.loanTenure) : 5,
     monthlyIncome: customerInfo.monthlyIncome ? parseFloat(customerInfo.monthlyIncome) : 0,
