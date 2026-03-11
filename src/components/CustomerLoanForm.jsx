@@ -888,7 +888,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
                 </div>
 
                 {formData.selectedLoansForBT.length > 0 && (
-                  <div style={{ marginTop: '15px', padding: '15px', background: '#e8f5e9', borderRadius: '8px', borderLeft: '4px solid #4caf50' }}>
+                  <div style={{ marginTop: '15px', padding: '15px', background: '#e8f5e9', borderRadius: '8px', borderLeft: '4px solid #4caf50', color: '#1b5e20' }}>
                     <strong>✅ Selected for BT:</strong> {formData.selectedLoansForBT.length} loan(s)
                     <div style={{ marginTop: '8px', fontSize: '0.9em' }}>
                       <strong>Total EMI to Transfer:</strong> ₹{formData.existingLoans
