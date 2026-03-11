@@ -105,17 +105,21 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
               creditLimitUsed: loan.creditLimitUsed || ''
             };
           }
-          // If changing FROM Credit Card to another type, clear credit card fields
-          if (field === 'type' && loan.type === 'Credit Card' && value !== 'Credit Card') {
-            return {
-              ...loan,
-              [field]: value,
-              creditLimit: '',
-              creditLimitUsed: '',
-              outstandingAmount: loan.outstandingAmount || ''
-            };
+          const updatedLoan = field === 'type' && loan.type === 'Credit Card' && value !== 'Credit Card'
+            ? { ...loan, [field]: value, creditLimit: '', creditLimitUsed: '', outstandingAmount: loan.outstandingAmount || '' }
+            : { ...loan, [field]: value };
+
+          // AUTO-GUARD: If type changed to non-transferable, remove from BT selection
+          if (field === 'type') {
+            const isTransferable = value === 'Personal Loan' || value === 'Credit Card';
+            if (!isTransferable) {
+              setFormData(prev => ({
+                ...prev,
+                selectedLoansForBT: prev.selectedLoansForBT.filter(id => id !== loan.id)
+              }));
+            }
           }
-          return { ...loan, [field]: value };
+          return updatedLoan;
         }
         return loan;
       })
@@ -143,7 +147,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
 
   const [validationError, setValidationError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setValidationError('');
 
@@ -159,107 +163,119 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
       document.getElementById('mobileNumber')?.focus();
       return;
     }
+    // ── Guard: BT Selection required if mode active ────────────────────────
+    if (formData.wantsBT && formData.selectedLoansForBT.length === 0) {
+      setValidationError('Please select at least one loan for Balance Transfer.');
+      return;
+    }
     // ───────────────────────────────────────────────────────────────────────
 
-    // Parse data EXACTLY as backend expects
-    const basicSalary = parseFloat(formData.basicSalary) || 0;
+    try {
+      console.log('📝 Submitting Loan Form', { wantsBT: formData.wantsBT, loans: formData.existingLoans.length });
 
-    // Calculate average incentive from last 3 months
-    const incentiveMonth1 = parseFloat(formData.incentiveMonth1) || 0;
-    const incentiveMonth2 = parseFloat(formData.incentiveMonth2) || 0;
-    const incentiveMonth3 = parseFloat(formData.incentiveMonth3) || 0;
-    const averageIncentive = (incentiveMonth1 + incentiveMonth2 + incentiveMonth3) / 3;
+      // Parse data EXACTLY as backend expects
+      const basicSalary = parseFloat(formData.basicSalary) || 0;
 
-    // Total monthly income = basic + incentive (frontend provides total, banks apply their %)
-    const totalMonthlyIncome = basicSalary + averageIncentive;
+      // Calculate average incentive from last 3 months
+      const incentiveMonth1 = parseFloat(formData.incentiveMonth1) || 0;
+      const incentiveMonth2 = parseFloat(formData.incentiveMonth2) || 0;
+      const incentiveMonth3 = parseFloat(formData.incentiveMonth3) || 0;
+      const averageIncentive = (incentiveMonth1 + incentiveMonth2 + incentiveMonth3) / 3;
 
-    // Calculate total existing EMI (excluding credit cards and selected BT loans)
-    const totalExistingEMI = formData.existingLoans.reduce((sum, loan) => {
-      // Credit cards don't have fixed EMI, skip them (handled separately as 5% obligation)
-      if (loan.type === 'Credit Card') return sum;
+      // Total monthly income = basic + incentive (frontend provides total, banks apply their %)
+      const totalMonthlyIncome = basicSalary + averageIncentive;
 
-      // If it's a Personal Loan selected for BT, it's no longer an obligation
-      if (formData.wantsBT && formData.selectedLoansForBT.includes(loan.id)) {
-        return sum;
-      }
+      // Calculate total existing EMI (excluding credit cards and selected BT loans)
+      const totalExistingEMI = formData.existingLoans.reduce((sum, loan) => {
+        // Credit cards don't have fixed EMI, skip them (handled separately as 5% obligation)
+        if (loan.type === 'Credit Card') return sum;
 
-      // Home Loans, Car Loans, and unselected Personal Loans are ALWAYS obligations
-      return sum + (parseFloat(loan.monthlyEMI) || 0);
-    }, 0);
+        // If it's a Personal Loan selected for BT, it's no longer an obligation
+        if (formData.wantsBT && formData.selectedLoansForBT.includes(loan.id)) {
+          return sum;
+        }
 
-    // Calculate total credit card obligation (5% of used amount for non-BT credit cards)
-    const totalCreditCardObligation = formData.existingLoans.reduce((sum, loan) => {
-      if (loan.type !== 'Credit Card') return sum;
-      // If credit card is selected for BT, don't count it as obligation
-      if (formData.wantsBT && formData.selectedLoansForBT.includes(loan.id)) return sum;
-      // Otherwise, add 5% of credit limit used as monthly obligation
-      const creditLimitUsed = parseFloat(loan.creditLimitUsed) || 0;
-      return sum + (creditLimitUsed * 0.05);
-    }, 0);
+        // Home Loans, Car Loans, and unselected Personal Loans are ALWAYS obligations
+        return sum + (parseFloat(loan.monthlyEMI) || 0);
+      }, 0);
 
-    // Extract existing loan bank names (for checking if customer already has loan from same bank)
-    const existingLoanBanks = formData.existingLoans
-      .filter(loan =>
-        loan.type === 'Personal Loan' &&
-        loan.lender &&
-        loan.lender.trim() !== '' &&
-        loan.lender !== 'other' // Exclude "Other Bank (Not Listed)"
-      )
-      .map(loan => loan.lender.trim().toLowerCase());
+      // Calculate total credit card obligation (5% of used amount for non-BT credit cards)
+      const totalCreditCardObligation = formData.existingLoans.reduce((sum, loan) => {
+        if (loan.type !== 'Credit Card') return sum;
+        // If credit card is selected for BT, don't count it as obligation
+        if (formData.wantsBT && formData.selectedLoansForBT.includes(loan.id)) return sum;
+        // Otherwise, add 5% of credit limit used as monthly obligation
+        const creditLimitUsed = parseFloat(loan.creditLimitUsed) || 0;
+        return sum + (creditLimitUsed * 0.05);
+      }, 0);
 
-    // DEBUG: Log extracted bank names
-    console.log('='.repeat(80));
-    console.log('🔍 EXISTING LOAN BANKS CHECK:');
-    console.log('Total existing loans:', formData.existingLoans.length);
-    console.log('Existing loans data:', formData.existingLoans);
-    console.log('Filtered Personal Loan banks:', existingLoanBanks);
-    console.log('='.repeat(80));
+      // Extract existing loan bank names (for checking if customer already has loan from same bank)
+      const existingLoanBanks = formData.existingLoans
+        .filter(loan =>
+          loan.type === 'Personal Loan' &&
+          loan.lender &&
+          loan.lender.trim() !== '' &&
+          loan.lender !== 'other' // Exclude "Other Bank (Not Listed)"
+        )
+        .map(loan => loan.lender.trim().toLowerCase());
 
-    // Prepare data EXACTLY as realLoanService expects
-    const submissionData = {
-      monthlyIncome: totalMonthlyIncome, // Total income (banks will apply their incentive % internally)
-      age: parseInt(formData.age), // AGE required for tenure capping
-      category: formData.employmentType === 'government' ? 'GOVT' : formData.category, // Auto-select GOVT for govt employees
-      employmentType: formData.employmentType,
-      companyName: formData.companyName,
-      existingEMI: totalExistingEMI,
-      creditCardObligation: totalCreditCardObligation, // NEW: 5% of non-BT credit card balances
-      existingLoanBanks: existingLoanBanks, // NEW: List of banks where customer has existing personal loans
-      // NEW: Balance Transfer data
-      wantsBT: formData.wantsBT,
-      // Map actual loan objects for the engine
-      loansForBT: formData.wantsBT
-        ? formData.existingLoans.filter(l => formData.selectedLoansForBT.includes(l.id))
-        : [],
-      selectedLoansForBT: formData.wantsBT ? formData.selectedLoansForBT : [],
-      creditScore: formData.creditScore ? parseInt(formData.creditScore) : 700,
-      state: formData.state,
-      city: formData.city,
-      salaryMode: formData.salaryMode || 'bank',
-      // loanTenure will default to 5 years in backend, banks will cap based on age
-      // desiredLoanAmount not provided - banks calculate maximum
-      // creditScore will default to 700 in backend (used by some banks internally)
+      // DEBUG: Log extracted bank names
+      console.log('='.repeat(80));
+      console.log('🔍 EXISTING LOAN BANKS CHECK:');
+      console.log('Total existing loans:', formData.existingLoans.length);
+      console.log('Existing loans data:', formData.existingLoans);
+      console.log('Filtered Personal Loan banks:', existingLoanBanks);
+      console.log('='.repeat(80));
 
-      // Additional data for display purposes (not used in calculation)
-      _metadata: {
-        customerName: formData.customerName,
-        mobileNumber: formData.mobileNumber,
-        basicSalary: basicSalary,
-        averageIncentive: averageIncentive,
-        incentiveMonth1: incentiveMonth1,
-        incentiveMonth2: incentiveMonth2,
-        incentiveMonth3: incentiveMonth3,
-        existingLoans: formData.existingLoans,
+      // Prepare data EXACTLY as realLoanService expects
+      const submissionData = {
+        monthlyIncome: totalMonthlyIncome, // Total income (banks will apply their incentive % internally)
+        age: parseInt(formData.age), // AGE required for tenure capping
+        category: formData.employmentType === 'government' ? 'GOVT' : formData.category, // Auto-select GOVT for govt employees
+        employmentType: formData.employmentType,
+        companyName: formData.companyName,
+        existingEMI: totalExistingEMI,
+        creditCardObligation: totalCreditCardObligation, // NEW: 5% of non-BT credit card balances
+        existingLoanBanks: existingLoanBanks, // NEW: List of banks where customer has existing personal loans
+        // NEW: Balance Transfer data
         wantsBT: formData.wantsBT,
-        selectedLoansForBT: formData.selectedLoansForBT,
+        // Map actual loan objects for the engine
+        loansForBT: formData.wantsBT
+          ? formData.existingLoans.filter(l => formData.selectedLoansForBT.includes(l.id))
+          : [],
+        selectedLoansForBT: formData.wantsBT ? formData.selectedLoansForBT : [],
+        creditScore: formData.creditScore ? parseInt(formData.creditScore) : 700,
         state: formData.state,
         city: formData.city,
-        salaryMode: formData.salaryMode, // Add salaryMode to metadata
-      }
-    };
+        salaryMode: formData.salaryMode || 'bank',
+        // loanTenure will default to 5 years in backend, banks will cap based on age
+        // desiredLoanAmount not provided - banks calculate maximum
+        // creditScore will default to 700 in backend (used by some banks internally)
 
-    // Pass submissionData to loan engine AND raw formData to lead service
-    onSubmit(submissionData, formData);
+        // Additional data for display purposes (not used in calculation)
+        _metadata: {
+          customerName: formData.customerName,
+          mobileNumber: formData.mobileNumber,
+          basicSalary: basicSalary,
+          averageIncentive: averageIncentive,
+          incentiveMonth1: incentiveMonth1,
+          incentiveMonth2: incentiveMonth2,
+          incentiveMonth3: incentiveMonth3,
+          existingLoans: formData.existingLoans,
+          wantsBT: formData.wantsBT,
+          selectedLoansForBT: formData.selectedLoansForBT,
+          state: formData.state,
+          city: formData.city,
+          salaryMode: formData.salaryMode, // Add salaryMode to metadata
+        }
+      };
+
+      setValidationError('');
+      await onSubmit(submissionData, formData);
+    } catch (error) {
+      console.error('❌ Crash in handleSubmit:', error);
+      setValidationError('An internal error occurred. Please refresh and try again.');
+    }
   };
 
   return (
@@ -874,11 +890,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
                             >
                               {isSelected && '✓'}
                             </div>
-                          ) : (
-                            <div style={{ minWidth: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              🔒
-                            </div>
-                          )}
+                          ) : null}
 
                           <div style={{ flex: 1 }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
