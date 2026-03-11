@@ -273,7 +273,7 @@ export const calculateTataEligibility = (userData) => {
     requestedTenureMonths: requestedTenureMonths,
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: finalEMI,
-    companyCategory: category,
+    companyCategory: lookupCategory,
     calculationMethod: 'Combined (FOIR + Multiplier)',
     details: {
       foirPercentage: (foirPercentage * 100).toFixed(0) + '%',
