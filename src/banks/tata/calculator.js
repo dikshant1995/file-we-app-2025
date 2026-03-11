@@ -81,16 +81,7 @@ export const calculateTataEligibility = (userData) => {
   }
 
   // Standardize Category
-  let lookupCategory = category === 'SUP-A' ? 'SUPER-A' : category;
-  let finalCategory = lookupCategory;
-
-  // Determine company category - handle both standard and GOVT cases
-  // Logic Bridge: Support 'government' employment type and 'GOVT' category
-  if (employmentType === 'government') {
-    lookupCategory = 'GOVT';
-  } else if (lookupCategory === 'Govt' || lookupCategory === 'government') {
-    lookupCategory = 'GOVT';
-  }
+  const lookupCategory = category === 'SUP-A' ? 'SUPER-A' : category;
 
   // Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
@@ -117,7 +108,7 @@ export const calculateTataEligibility = (userData) => {
   const multiplierBand = getSalaryBand(incomeForCalculation, tataConfig.multiplierTable); // Logic Bridge: Support govtMultiplier override
   let multiplier = isGovtEmployee && govtMultiplier ? govtMultiplier : tataConfig.multiplierTable[multiplierBand][lookupCategory];
 
-  if (!multiplier) return { eligible: false, reason: `Multiplier data missing for category ${finalCategory}` };
+  if (!multiplier) return { eligible: false, reason: `Multiplier data missing for category ${lookupCategory}` };
 
   const availableSalary = isBT ? incomeForCalculation : (monthlyIncome - totalObligations);
   const multiplierLoanAmount = availableSalary * multiplier;
@@ -127,7 +118,7 @@ export const calculateTataEligibility = (userData) => {
   if (!finalInterestRate) {
     // Standardize location key to "City, State" to match Admin lookup
     const locationKey = userData.city && userData.state ? `${userData.city}, ${userData.state}` : (userData.state || null);
-    finalInterestRate = getInterestRateForLoan(companyCategory, multiplierLoanAmount, locationKey);
+    finalInterestRate = getInterestRateForLoan(lookupCategory, multiplierLoanAmount, locationKey);
   }
 
   const foirLoanAmount = calculatePrincipalFromEMI(availableEMI, finalInterestRate, cappedTenureYears);
@@ -144,7 +135,7 @@ export const calculateTataEligibility = (userData) => {
     interestRate: finalInterestRate,
     loanTenure: cappedTenureYears,
     monthlyEMI: calculateEMI(cappedFinalLoan, finalInterestRate, cappedTenureYears),
-    category: finalCategory,
+    category: lookupCategory,
     isBTMode: isBT
   };
 };
