@@ -73,6 +73,14 @@ export const calculatePiramalEligibility = (userData) => {
     employmentType,
     age,
     existingLoanBanks,
+    // Admin Overrides (Logic Bridge)
+    interestRateOverride,
+    isGovtEmployee,
+    govtROI,
+    govtFOIR,
+    govtMultiplier,
+    govtMaxTenure,
+    // Balance Transfer fields
     isBTMode,
     loansForBT,
     btTotalEMI,
@@ -128,17 +136,28 @@ export const calculatePiramalEligibility = (userData) => {
     };
   }
 
+  // Determine company category - handle both standard and GOVT cases
+  // Logic Bridge: Support 'government' employment type and 'GOVT' category
+  let companyCategory = category || 'B';
+  if (employmentType === 'government') {
+    companyCategory = 'GOVT';
+  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
+    companyCategory = 'GOVT';
+  }
+
+  // Use standardized GOVT for tenure lookup
+  const lookupCategory = companyCategory;
+
   // Apply tenure capping based on category (tenure is in months)
-  const maxTenureForCategory = piramalConfig.maxTenureByCategory[category];
+  // Logic Bridge: Support govtMaxTenure override
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : piramalConfig.maxTenureByCategory[lookupCategory];
+
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
-    return {
-      eligible: false,
-      reason: `No loans available for Category ${category}`
-    };
+    // Fallback if specific category tenure is missing
+    maxTenureForCategory = 60;
   }
 
   // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
-  // This shows the maximum loan amount the bank can offer for this category
   const cappedTenureMonths = maxTenureForCategory;
   const cappedTenureYears = cappedTenureMonths / 12;
 
@@ -149,7 +168,7 @@ export const calculatePiramalEligibility = (userData) => {
   // Check loan tenure
   if (loanTenure > piramalConfig.maxLoanTenure) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `Maximum loan tenure is ${piramalConfig.maxLoanTenure} years`
     };
   }
@@ -160,7 +179,7 @@ export const calculatePiramalEligibility = (userData) => {
 
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < effectiveMinSalary) {
-    return { isEligible: false, reason: `Minimum NTH salary of ₹${effectiveMinSalary?.toLocaleString() || '0'} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+    return { eligible: false, reason: `Minimum NTH salary of ₹${effectiveMinSalary?.toLocaleString() || '0'} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
   // Get loan capping config
@@ -171,17 +190,19 @@ export const calculatePiramalEligibility = (userData) => {
   // Check minimum loan amount
   if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `Minimum loan amount required by this bank is ₹${minLoanAmount?.toLocaleString() || '0'}. Requested: ₹${desiredLoanAmount?.toLocaleString() || '0'}`,
       isBTMode: isBT
     };
   }
 
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
-  const foirPercentage = getNTHBand(incomeForCalculation, piramalConfig.nthFoirTable);
+
+  // Logic Bridge: Support govtFOIR override
+  let foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : getNTHBand(incomeForCalculation, piramalConfig.nthFoirTable);
 
   if (foirPercentage === null) {
-    return { isEligible: false, reason: `No FOIR available for NTH ₹${incomeForCalculation?.toLocaleString() || '0'}`, isBTMode: isBT };
+    return { eligible: false, reason: `No FOIR available for NTH ₹${incomeForCalculation?.toLocaleString() || '0'}`, isBTMode: isBT };
   }
 
   const foirCap = incomeForCalculation * foirPercentage;
@@ -190,7 +211,7 @@ export const calculatePiramalEligibility = (userData) => {
 
   if (availableEMI <= 0) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `Existing EMI (₹${existingEMI?.toLocaleString() || '0'}) exceeds FOIR limit of ₹${Math.round(foirCap)?.toLocaleString() || '0'}`
     };
   }
@@ -215,7 +236,7 @@ export const calculatePiramalEligibility = (userData) => {
   if (isBT) {
     const btFreshAmount = cappedFinalLoan - btTotalOutstanding;
     if (btFreshAmount < 0) {
-      return { isEligible: false, reason: `BT Outstanding (₹${btTotalOutstanding?.toLocaleString() || '0'}) exceeds max loan (₹${Math.round(cappedFinalLoan)?.toLocaleString() || '0'})`, isBTMode: true };
+      return { eligible: false, reason: `BT Outstanding (₹${btTotalOutstanding?.toLocaleString() || '0'}) exceeds max loan (₹${Math.round(cappedFinalLoan)?.toLocaleString() || '0'})`, isBTMode: true };
     }
     btDetails = {
       isBTMode: true,
@@ -233,12 +254,17 @@ export const calculatePiramalEligibility = (userData) => {
   }
 
   // Use dynamic interest rate from Admin settings
-  const dynamicRate = getDynamicInterestRate('Piramal Finance', category, desiredLoanAmount || monthlyIncome * 20, { state: userData.state, city: userData.city }, piramalConfig.interestRate);
+  // Logic Bridge: ROI overrides
+  let finalInterestRate = interestRateOverride;
+  if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
+  if (!finalInterestRate) {
+    finalInterestRate = getDynamicInterestRate('Piramal Finance', lookupCategory, cappedFinalLoan, { state: userData.state, city: userData.city }, piramalConfig.interestRate);
+  }
 
-  const monthlyEMI = calculateEMI(cappedFinalLoan, dynamicRate, cappedTenureYears);
+  const monthlyEMI = calculateEMI(cappedFinalLoan, finalInterestRate, cappedTenureYears);
 
   return {
-    isEligible: true,
+    eligible: true,
     bankId: piramalConfig.id,
     bankName: piramalConfig.name,
     loanAmount: Math.round(cappedFinalLoan),
@@ -246,7 +272,7 @@ export const calculatePiramalEligibility = (userData) => {
     maxLoanCap: absoluteMaxLoan,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
-    interestRate: dynamicRate,
+    interestRate: finalInterestRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,
     tenureCapped: tenureCapped,
@@ -254,7 +280,7 @@ export const calculatePiramalEligibility = (userData) => {
     requestedTenureMonths: requestedTenureMonths,
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
-    companyCategory: category,
+    category: lookupCategory,
     foirPercentage: foirPercentage,
     availableEMI: Math.round(availableEMI),
     calculationMethod: 'FOIR Only (Ultra-Simple 2-Band NTH, No Category)',
