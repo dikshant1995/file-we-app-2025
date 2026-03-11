@@ -20,63 +20,56 @@ function CustomerFacingApp() {
   const lastFormDataRef = useRef(null);
 
   const handleFormSubmit = async (formData, rawFormData) => {
+    // TRACE 1: ENTER
+    console.log('🏁 ENTRY: handleFormSubmit');
     setLoading(true);
     setError(null);
     setResults(null);
-    // Store raw form data for lead capture
     if (rawFormData) lastFormDataRef.current = rawFormData;
 
     try {
-      console.log('='.repeat(80));
-      console.log('🚀 STARTING LOAN CALCULATION');
-      console.log('='.repeat(80));
-      console.log('📋 Input Data:', formData);
-      console.log('⏱️  Start Time:', new Date().toLocaleTimeString());
-      const startTime = performance.now();
+      console.log('📋 Submission Payload:', formData);
+      const hasLoansForBT = formData.wantsBT && formData.loansForBT && formData.loansForBT.length > 0;
 
       let calculationResults;
 
-      const hasLoansForBT = formData.wantsBT && formData.loansForBT && formData.loansForBT.length > 0;
-      const creditCardsInBT = hasLoansForBT ? formData.loansForBT.filter(loan => loan.type === 'Credit Card') : [];
-      const personalLoansInBT = hasLoansForBT ? formData.loansForBT.filter(loan => loan.type !== 'Credit Card') : [];
-
       if (hasLoansForBT) {
-        console.log('🔄 BT MODE DETECTED!');
-        const existingLoans = personalLoansInBT.map(loan => ({
-          loanName: loan.lender || 'Loan',
-          emi: parseFloat(loan.monthlyEMI || 0),
-          pos: parseFloat(loan.outstandingAmount || 0)
-        }));
-        const creditCards = creditCardsInBT.map(card => ({
-          cardName: card.lender || 'Credit Card',
-          outstandingAmount: parseFloat(card.creditLimitUsed || 0)
-        }));
+        console.log('🔄 BT PATH START');
+        const personalLoansInBT = formData.loansForBT.filter(loan => loan.type !== 'Credit Card');
+        const creditCardsInBT = formData.loansForBT.filter(loan => loan.type === 'Credit Card');
+
         const btData = {
+          ...formData, // Spread to preserve all fields
           monthlyIncome: parseFloat(formData.monthlyIncome || 0),
           loanTenure: parseInt(formData.loanTenure || 5),
-          category: formData.category || 'A',
-          companyName: formData.companyName || '',
-          creditScore: parseInt(formData.creditScore || 700),
-          employmentType: formData.employmentType || 'salaried',
-          existingLoans: existingLoans,
-          creditCards: creditCards
+          existingLoans: personalLoansInBT.map(loan => ({
+            loanName: loan.lender || 'Loan',
+            emi: parseFloat(loan.monthlyEMI || 0),
+            pos: parseFloat(loan.outstandingAmount || 0)
+          })),
+          creditCards: creditCardsInBT.map(card => ({
+            cardName: card.lender || 'Credit Card',
+            outstandingAmount: parseFloat(card.creditLimitUsed || 0)
+          }))
         };
+
+        console.log('⚙️ Calling calculateBTWithCreditCards...');
         calculationResults = await calculateBTWithCreditCards(btData);
+        console.log('✅ BT PATH SUCCESS:', calculationResults.length, 'results');
       } else {
-        console.log('💰 REGULAR LOAN CALCULATION');
+        console.log('💰 REGULAR PATH START');
         calculationResults = await calculateLoanEligibility(formData);
+        console.log('✅ REGULAR PATH SUCCESS:', calculationResults.length, 'results');
       }
 
-      const endTime = performance.now();
-      const timeTaken = ((endTime - startTime) / 1000).toFixed(2);
-      console.log(`⏱️  TOTAL TIME TAKEN: ${timeTaken} seconds`);
-      console.log('📊 Results from', calculationResults.length, 'banks');
-      console.log('='.repeat(80));
+      if (!calculationResults || calculationResults.length === 0) {
+        throw new Error('No results were returned from the analysis engine.');
+      }
 
       setResults(calculationResults);
       setMetadata(formData._metadata);
 
-      // 🔴 Save lead to Google Sheets (silent, non-blocking)
+      // Silent Lead Save
       saveLead(lastFormDataRef.current || {}, formData);
 
       setTimeout(() => {
@@ -84,12 +77,16 @@ function CustomerFacingApp() {
           behavior: 'smooth',
           block: 'start'
         });
-      }, 100);
+      }, 300);
+
     } catch (err) {
-      console.error('❌ ERROR:', err);
-      setError('Failed to calculate loan eligibility. Please try again. Error: ' + err.message);
+      console.error('❌ SUBMISSION CRASH:', err);
+      setError(err.message || 'An unexpected error occurred during analysis.');
+      // SHOW ALERT FOR FROZEN FIX
+      window.alert('Analysis Failed: ' + (err.message || 'Unknown error'));
     } finally {
       setLoading(false);
+      console.log('🏁 EXIT: handleFormSubmit');
     }
   };
 
