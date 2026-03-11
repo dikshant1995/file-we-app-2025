@@ -242,17 +242,18 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
 
       // Return BT result with additional information
       return {
+        ...result, // PRESERVE ALL DETAILS (FOIR, Multiplier, etc.)
         bankName: result.bankName || name,
         eligible: true,
-        loanAmount: maxLoanAmount, // Map to standard name for ResultsDisplay
-        monthlyEMI: result.monthlyEMI, // Map to standard name
-        loanTenure: result.loanTenure || btInput.loanTenure, // Standard tenure info
+        loanAmount: maxLoanAmount, // Unified name
+        monthlyEMI: result.monthlyEMI, // Unified name
+        loanTenure: result.loanTenure || btInput.loanTenure,
         interestRate: result.interestRate || 11,
-        isBTMode: true, // Crucial for UI rendering logic
+        isBTMode: true,
         btType: 'FULL_CONSOLIDATION',
         maxLoanAmount: maxLoanAmount,
         freshAmountDisbursed: freshAmount,
-        totalDebtCleared: totalPOS, // Standard name for UI
+        totalDebtCleared: totalPOS,
         totalPOS: totalPOS,
         totalExistingEMI: totalExistingEMI,
         newBTLoanEMI: result.monthlyEMI,
@@ -405,6 +406,7 @@ export const calculatePartialBT = async (customerInfo, existingLiabilities, sele
 
       // Return BT result with additional information
       return {
+        ...result, // PRESERVE ALL DETAILS
         bankName: result.bankName || name,
         eligible: true,
         loanAmount: maxLoanAmount, // Standard prop
