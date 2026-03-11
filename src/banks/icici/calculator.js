@@ -174,19 +174,25 @@ export const calculateIciciEligibility = (userData) => {
     };
   }
 
-  // Use user-provided category (from frontend: B, C, or GOVT)
-  const companyCategory = category || 'B'; // Default to B if not provided
+  // Determine company category - handle both standard and GOVT cases
+  // Logic Bridge: Support 'government' employment type and 'GOVT' category
+  let companyCategory = category || 'B';
+  if (employmentType === 'government') {
+    companyCategory = 'GOVT';
+  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
+    companyCategory = 'GOVT';
+  }
+
+  // Use standardized GOVT for multiplier and tenure lookups
+  const lookupCategory = companyCategory;
 
   // Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
-  let lookupCategory = companyCategory === 'Govt' ? 'A' : companyCategory;
   let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : iciciConfig.maxTenureByCategory[lookupCategory];
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
-    return {
-      eligible: false,
-      reason: `No loans available for Category ${companyCategory}`
-    };
+    // Fallback to A for government if config key is missing
+    maxTenureForCategory = iciciConfig.maxTenureByCategory['GOVT'] || iciciConfig.maxTenureByCategory['A'] || 84;
   }
 
   // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
@@ -199,8 +205,7 @@ export const calculateIciciEligibility = (userData) => {
   const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
 
   // Check minimum salary requirement based on category
-  let lookupCategorySalary = companyCategory === 'Govt' ? 'A' : companyCategory;
-  const categoryMinSalary = iciciConfig.minSalary[lookupCategorySalary];
+  const categoryMinSalary = iciciConfig.minSalary[lookupCategory] || iciciConfig.minSalary['A'];
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
   if (incomeToCheck < categoryMinSalary) {
     return {
@@ -214,7 +219,7 @@ export const calculateIciciEligibility = (userData) => {
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
 
   // Logic Bridge: Support govtFOIR override
-  let foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : getFoirPercentage(incomeForCalculation);
+  let foirPercentage = (isGovtEmployee && govtFOIR) ? (govtFOIR / 100) : getFoirPercentage(incomeForCalculation);
 
   if (!foirPercentage) {
     return {
