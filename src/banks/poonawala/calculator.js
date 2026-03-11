@@ -88,7 +88,7 @@ export const calculatePoonawalaEligibility = (userData) => {
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
 
   // Matrix FOIR logic (Segment x NTH)
-  const segmentData = poonawalaConfig.foirMatrix[lookupSegment] || poonawalaConfig.foirMatrix['C'];
+  const segmentData = poonawalaConfig.foirMatrix[segment] || poonawalaConfig.foirMatrix['C'];
   let foirPercentage = null;
 
   for (const [bandName, bandData] of Object.entries(segmentData)) {
@@ -128,7 +128,7 @@ export const calculatePoonawalaEligibility = (userData) => {
     interestRate: finalInterestRate,
     loanTenure: cappedTenureYears,
     monthlyEMI: calculateEMI(finalLoanAmount, finalInterestRate, cappedTenureYears),
-    category: finalCategory,
+    category: companyCategory,
     isBTMode: isBT
   };
 };
