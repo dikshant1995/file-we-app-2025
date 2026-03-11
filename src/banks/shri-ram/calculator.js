@@ -129,17 +129,28 @@ export const calculateShriRamEligibility = (userData) => {
     };
   }
 
-  // Check employment type
+  // Determine company category - handle both standard and GOVT cases
+  // Logic Bridge: Support 'government' employment type and map to 'C'
+  let companyCategory = category || 'UNLISTED';
+  if (employmentType === 'government') {
+    companyCategory = 'GOVT';
+  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
+    companyCategory = 'GOVT';
+  }
+
+  // Shri Ram maps GOVT to category 'C' for tenure and interest rate lookups
+  const lookupCategory = companyCategory === 'GOVT' ? 'C' : companyCategory;
+
+  // Final check for supported employment types (now includes government)
   if (!shriRamConfig.employmentTypes.includes(employmentType)) {
     return {
       eligible: false,
-      reason: `Employment type ${employmentType} not supported by Shri Ram Finance`
+      reason: `Employment type ${employmentType} not supported by this bank`
     };
   }
 
   // Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
-  let lookupCategory = category === 'Govt' ? 'C' : category; // Fallback Govt to C for Shri Ram
   let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : shriRamConfig.maxTenureByCategory[lookupCategory];
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
