@@ -72,6 +72,8 @@ export const calculatePiramalEligibility = (userData) => {
   const {
     desiredLoanAmount,
     loanTenure,
+    basicSalary,
+    averageIncentive,
     monthlyIncome,
     existingEMI = 0,
     creditCardObligation, // NEW: 5% of non-BT credit card balances
@@ -94,15 +96,22 @@ export const calculatePiramalEligibility = (userData) => {
     btTotalOutstanding
   } = userData;
 
+  // ========== INCENTIVE CALCULATION LOGIC ==========
+  const bankIncentiveConsidered = (averageIncentive || 0) * (piramalConfig.incentivePercentage || 0);
+  const actualMonthlyIncome = (basicSalary || 0) + bankIncentiveConsidered;
+  
+  // Use actualMonthlyIncome for all subsequent calculations
+  const monthlyIncomeForCalc = actualMonthlyIncome;
+
   const isBT = isBTMode && loansForBT && loansForBT.length > 0;
-  let adjustedIncome = monthlyIncome;
+  let adjustedIncome = monthlyIncomeForCalc;
   let nonBTLoansEMI = 0;
 
   if (isBT) {
     nonBTLoansEMI = existingEMI - btTotalEMI;
     // NEW: Also deduct credit card obligations from adjusted income
     const creditCardDeduction = creditCardObligation || 0;
-    adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
+    adjustedIncome = monthlyIncomeForCalc - nonBTLoansEMI - creditCardDeduction;
     if (adjustedIncome <= 0) {
       return { eligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains`, isBTMode: true };
     }
@@ -138,25 +147,17 @@ export const calculatePiramalEligibility = (userData) => {
       reason: `Employment type ${employmentType} not supported by Piramal Finance`
     };
   }
-  // Determine company category - handle both standard and GOVT cases
-  // Logic Bridge: Support 'government' employment type and 'GOVT' category
-  let companyCategory = category || 'B';
-  if (employmentType === 'government') {
-    companyCategory = 'GOVT';
-  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
-    companyCategory = 'GOVT';
-  }
-
-  // Use standardized GOVT for tenure lookup
-  const lookupCategory = companyCategory;
 
   // Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
+  let lookupCategory = category === 'Govt' ? 'A' : category;
   let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : piramalConfig.maxTenureByCategory[lookupCategory];
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
-    // Fallback if specific category tenure is missing
-    maxTenureForCategory = 60;
+    return {
+      eligible: false,
+      reason: `No loans available for Category ${category}`
+    };
   }
 
   // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
@@ -176,12 +177,12 @@ export const calculatePiramalEligibility = (userData) => {
     };
   }
 
-  const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
+  const incomeToCheck = isBT ? adjustedIncome : monthlyIncomeForCalc;
   if (incomeToCheck < piramalConfig.minNTH) {
     return { eligible: false, reason: `Minimum NTH salary of ₹${piramalConfig.minNTH.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
-  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
+  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncomeForCalc;
 
   // Logic Bridge: Support govtFOIR override
   let foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : getNTHBand(incomeForCalculation, piramalConfig.nthFoirTable);
@@ -210,11 +211,7 @@ export const calculatePiramalEligibility = (userData) => {
   // Pass 2: Get final ROI based on preliminary loan amount
   let finalInterestRate = interestRateOverride;
   if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
-  if (!finalInterestRate) {
-    // Standardize location key to "City, State" to match Admin lookup
-    const locationKey = userData.city && userData.state ? `${userData.city}, ${userData.state}` : (userData.state || null);
-    finalInterestRate = getInterestRateForLoan(companyCategory, preliminaryLoanAmount, locationKey);
-  }
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(category, preliminaryLoanAmount, userData.city || userData.state);
 
   const effectiveInterestRate = finalInterestRate;
 
@@ -249,7 +246,7 @@ export const calculatePiramalEligibility = (userData) => {
       creditCardObligation: Math.round(creditCardObligation || 0),
       creditCardObligationNote: creditCardObligation > 0 ? '5% of non-BT credit card outstanding' : 'No credit card obligation (either no CC or CC in BT)',
       totalNonBTObligations: Math.round(nonBTLoansEMI + (creditCardObligation || 0)),
-      originalIncome: monthlyIncome,
+      originalIncome: monthlyIncomeForCalc,
       adjustedIncome: Math.round(adjustedIncome)
     };
   }
@@ -273,6 +270,8 @@ export const calculatePiramalEligibility = (userData) => {
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
     foirPercentage: foirPercentage,
+    incentivePercentage: piramalConfig.incentivePercentage,
+    incentiveConsidered: bankIncentiveConsidered,
     availableEMI: Math.round(availableEMI),
     calculationMethod: 'FOIR Only (Ultra-Simple 2-Band NTH, No Category)',
     details: {
