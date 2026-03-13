@@ -10,13 +10,7 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
   const [submitStatus, setSubmitStatus] = useState(null); // null | 'success' | 'error'
 
   if (!results || results.length === 0) {
-    return (
-      <div className="no-results" style={{ padding: '40px', textAlign: 'center', color: 'white' }}>
-        <h3>No analysis data available.</h3>
-        <p>The calculation engine did not return any results. Please try again.</p>
-        <button onClick={onNewCalculation} className="btn-retry">Back to Form</button>
-      </div>
-    );
+    return null;
   }
 
   // Handle bank selection
@@ -110,8 +104,14 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
             <h2>Institutional Eligibility Analysis</h2>
             <div className="logic-bridge-active-badge">
               <span className="dot pulse"></span>
-              Neural Logic Bridge Active: Real-time Admin Sync
+              SYSTEM READY: NEURAL LOGIC ENGINE OPTIMIZED
             </div>
+            {metadata && (
+              <div className="company-info-header">
+                <span className="company-pill">🏢 {metadata.companyName || 'Corporate Entity'}</span>
+                <span className="category-pill">Category: <strong>{results[0]?.category || results.find(r => r.category)?.category || metadata.category || 'Standard'}</strong></span>
+              </div>
+            )}
             <p>Verified assessment results across 12 banking institutions</p>
           </div>
         </div>
@@ -374,11 +374,11 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
 
                       {/* INCENTIVE BREAKDOWN - ALWAYS SHOW IF METADATA HAS INCENTIVE */}
                       {metadata && (metadata.averageIncentive > 0 || metadata.incentiveMonth1 || metadata.incentiveMonth2 || metadata.incentiveMonth3) && (
-                        <div className="calc-section incentive-section" style={{ background: 'linear-gradient(135deg, #fff9e6 0%, #ffe6b3 100%)', border: '2px solid #ffa500' }}>
-                          <h6>💰 Incentive Consideration:</h6>
+                        <div className="calc-section incentive-section" style={{ background: 'linear-gradient(135deg, #fff9e6 0%, #ffe6b3 100%)', border: '2px solid #ffa500', color: '#2c3e50' }}>
+                          <h6 style={{ color: '#856404' }}>💰 Incentive Consideration:</h6>
                           <div className="calc-steps">
                             <div className="calc-step">
-                              <span className="step-label">Your Last 3 Months Incentive:</span>
+                              <span className="step-label" style={{ color: '#5d4037' }}>Your Last 3 Months Incentive:</span>
                               <span className="step-value">
                                 <strong>
                                   {metadata.incentiveMonth1 ? `₹${parseFloat(metadata.incentiveMonth1).toLocaleString('en-IN')}` : '₹0'} +
@@ -388,32 +388,32 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
                               </span>
                             </div>
                             <div className="calc-step">
-                              <span className="step-label">Average Monthly Incentive:</span>
+                              <span className="step-label" style={{ color: '#5d4037' }}>Average Monthly Incentive:</span>
                               <span className="step-value"><strong>₹{metadata.averageIncentive ? parseFloat(metadata.averageIncentive).toLocaleString('en-IN', { maximumFractionDigits: 0 }) : '0'}</strong></span>
                             </div>
-                            <div className="calc-step result" style={{ background: bank.incentivePercentage > 0 ? '#e8f5e9' : '#ffebee' }}>
-                              <span className="step-label">Bank's Incentive Policy:</span>
+                            <div className="calc-step result" style={{ background: bank.incentivePercentage > 0 ? '#e8f5e9' : '#ffebee', border: '1px solid rgba(0,0,0,0.1)' }}>
+                              <span className="step-label" style={{ color: '#333' }}>Bank's Incentive Policy:</span>
                               <span className="step-value"><strong style={{ color: bank.incentivePercentage > 0 ? '#2e7d32' : '#c62828' }}>{((bank.incentivePercentage || 0) * 100).toFixed(0)}%</strong></span>
                             </div>
-                            <div className="calc-step result">
-                              <span className="step-label">Incentive Amount Considered:</span>
-                              <span className="step-value"><strong>₹{metadata.averageIncentive ? (parseFloat(metadata.averageIncentive) * (bank.incentivePercentage || 0)).toLocaleString('en-IN', { maximumFractionDigits: 0 }) : '0'}</strong></span>
+                            <div className="calc-step result" style={{ background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(0,0,0,0.1)' }}>
+                              <span className="step-label" style={{ color: '#333' }}>Incentive Amount Considered:</span>
+                              <span className="step-value"><strong style={{ color: '#2c3e50' }}>₹{metadata.averageIncentive ? (parseFloat(metadata.averageIncentive) * (bank.incentivePercentage || 0)).toLocaleString('en-IN', { maximumFractionDigits: 0 }) : '0'}</strong></span>
                             </div>
 
                             {/* SALARY BREAKDOWN */}
-                            <div style={{ marginTop: '12px', padding: '12px', background: '#f8f9fa', borderRadius: '6px', border: '1px solid #dee2e6' }}>
-                              <div style={{ fontSize: '0.9em', fontWeight: '600', marginBottom: '8px', color: '#495057' }}>📊 Salary Breakdown:</div>
+                            <div style={{ marginTop: '12px', padding: '12px', background: '#fff', borderRadius: '6px', border: '1px solid #dee2e6', color: '#2c3e50', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                              <div style={{ fontSize: '0.9em', fontWeight: '800', marginBottom: '8px', color: '#1a1a1a', borderBottom: '1px solid #eee', paddingBottom: '4px' }}>📊 Salary Breakdown (Internal Analysis):</div>
                               <div className="calc-step" style={{ marginBottom: '4px' }}>
-                                <span className="step-label">Basic Salary (Old):</span>
+                                <span className="step-label" style={{ color: '#495057' }}>Basic Salary (Old):</span>
                                 <span className="step-value"><strong>₹{metadata.basicSalary ? parseFloat(metadata.basicSalary).toLocaleString('en-IN', { maximumFractionDigits: 0 }) : '0'}</strong></span>
                               </div>
-                              <div className="calc-step" style={{ marginBottom: '4px', color: '#28a745' }}>
-                                <span className="step-label">+ Incentive Added ({((bank.incentivePercentage || 0) * 100).toFixed(0)}% of ₹{metadata.averageIncentive ? parseFloat(metadata.averageIncentive).toLocaleString('en-IN', { maximumFractionDigits: 0 }) : '0'}):</span>
+                              <div className="calc-step" style={{ marginBottom: '4px' }}>
+                                <span className="step-label" style={{ color: '#28a745' }}>+ Incentive Added ({((bank.incentivePercentage || 0) * 100).toFixed(0)}%):</span>
                                 <span className="step-value"><strong style={{ color: '#28a745' }}>+₹{metadata.averageIncentive ? (parseFloat(metadata.averageIncentive) * (bank.incentivePercentage || 0)).toLocaleString('en-IN', { maximumFractionDigits: 0 }) : '0'}</strong></span>
                               </div>
                               <div className="calc-step highlight" style={{ borderTop: '2px solid #28a745', paddingTop: '8px', marginTop: '8px' }}>
-                                <span className="step-label">Effective Salary (New):</span>
-                                <span className="step-value"><strong style={{ fontSize: '1.1em', color: '#155724' }}>₹{metadata.basicSalary ? (parseFloat(metadata.basicSalary) + (parseFloat(metadata.averageIncentive || 0) * (bank.incentivePercentage || 0))).toLocaleString('en-IN', { maximumFractionDigits: 0 }) : '0'}</strong></span>
+                                <span className="step-label" style={{ color: '#1a1a1a', fontWeight: '800' }}>Effective Salary (New):</span>
+                                <span className="step-value"><strong style={{ fontSize: '1.2em', color: '#155724' }}>₹{metadata.basicSalary ? (parseFloat(metadata.basicSalary) + (parseFloat(metadata.averageIncentive || 0) * (bank.incentivePercentage || 0))).toLocaleString('en-IN', { maximumFractionDigits: 0 }) : '0'}</strong></span>
                               </div>
                             </div>
                             {bank.incentivePercentage === 0 && (
@@ -460,30 +460,30 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
                             )}
                             {/* EXISTING OBLIGATIONS BREAKDOWN */}
                             {(bank.details?.existingEMI > 0 || bank.details?.creditCardObligation > 0) && (
-                              <div style={{ marginTop: '12px', padding: '10px', background: '#fff3cd', borderRadius: '6px' }}>
-                                <div style={{ fontSize: '0.9em', fontWeight: '600', marginBottom: '6px', color: '#856404' }}>
-                                  📋 Existing Obligations:
+                              <div style={{ marginTop: '12px', padding: '10px', background: '#fff', borderRadius: '6px', border: '1px solid #ffeeba', color: '#856404' }}>
+                                <div style={{ fontSize: '0.9em', fontWeight: '800', marginBottom: '6px', color: '#795548', borderBottom: '1px solid #ffeeba', paddingBottom: '4px' }}>
+                                  📋 Active Obligations (Deducted):
                                 </div>
                                 {bank.details.existingEMI > 0 && (
                                   <div className="calc-step" style={{ marginBottom: '4px' }}>
-                                    <span className="step-label">Loan EMIs:</span>
-                                    <span className="step-value"><strong className="danger">{formatNumber(bank.details.existingEMI)}</strong></span>
+                                    <span className="step-label" style={{ color: '#444' }}>Current EMIs:</span>
+                                    <span className="step-value"><strong style={{ color: '#dc3545' }}>{formatNumber(bank.details.existingEMI)}</strong></span>
                                   </div>
                                 )}
                                 {bank.details?.creditCardObligation > 0 && (
                                   <div className="calc-step" style={{ marginBottom: '4px' }}>
-                                    <span className="step-label">💳 Credit Card (5%):</span>
-                                    <span className="step-value"><strong className="danger">{formatNumber(bank.details.creditCardObligation)}</strong></span>
+                                    <span className="step-label" style={{ color: '#444' }}>💳 CC Obligation (5%):</span>
+                                    <span className="step-value"><strong style={{ color: '#dc3545' }}>{formatNumber(bank.details.creditCardObligation)}</strong></span>
                                   </div>
                                 )}
                                 {bank.details?.totalObligations > 0 && (
                                   <div className="calc-step" style={{ borderTop: '1px solid #ffc107', paddingTop: '6px', marginTop: '6px' }}>
-                                    <span className="step-label">Total Obligations:</span>
-                                    <span className="step-value"><strong className="danger">{formatNumber(bank.details.totalObligations)}</strong></span>
+                                    <span className="step-label" style={{ fontWeight: '700', color: '#1a1a1a' }}>Total Burden:</span>
+                                    <span className="step-value"><strong style={{ color: '#dc3545' }}>{formatNumber(bank.details.totalObligations)}</strong></span>
                                   </div>
                                 )}
                                 {bank.details?.creditCardObligationNote && (
-                                  <div style={{ fontSize: '0.8em', color: '#856404', marginTop: '6px', fontStyle: 'italic' }}>
+                                  <div style={{ fontSize: '0.75em', color: '#666', marginTop: '6px', fontStyle: 'italic' }}>
                                     ℹ️ {bank.details.creditCardObligationNote}
                                   </div>
                                 )}
@@ -530,35 +530,30 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
                             )}
                             {/* AVAILABLE SALARY CALCULATION */}
                             {(bank.details?.existingEMI > 0 || bank.details?.creditCardObligation > 0 || bank.details?.availableSalaryAfterObligations) && (
-                              <div style={{ marginTop: '12px', padding: '10px', background: '#e3f2fd', borderRadius: '6px' }}>
-                                <div style={{ fontSize: '0.9em', fontWeight: '600', marginBottom: '6px', color: '#1976d2' }}>
-                                  📊 Available Salary for Multiplier:
+                              <div style={{ marginTop: '12px', padding: '10px', background: '#fff', borderRadius: '6px', border: '1px solid #bbdefb', color: '#01579b' }}>
+                                <div style={{ fontSize: '0.9em', fontWeight: '800', marginBottom: '6px', color: '#0d47a1', borderBottom: '1px solid #bbdefb', paddingBottom: '4px' }}>
+                                  📊 Net Income for Calculation:
                                 </div>
                                 <div className="calc-step" style={{ marginBottom: '4px' }}>
-                                  <span className="step-label">Monthly Income:</span>
+                                  <span className="step-label" style={{ color: '#444' }}>Gross Income:</span>
                                   <span className="step-value"><strong>{formatNumber(bank.details?.monthlyIncome || metadata?.basicSalary || 0)}</strong></span>
                                 </div>
                                 {bank.details?.existingEMI > 0 && (
                                   <div className="calc-step" style={{ marginBottom: '4px' }}>
-                                    <span className="step-label">- Loan EMIs:</span>
-                                    <span className="step-value"><strong className="danger">-{formatNumber(bank.details.existingEMI)}</strong></span>
+                                    <span className="step-label" style={{ color: '#c62828' }}>- EMIs:</span>
+                                    <span className="step-value"><strong style={{ color: '#dc3545' }}>-{formatNumber(bank.details.existingEMI)}</strong></span>
                                   </div>
                                 )}
                                 {bank.details?.creditCardObligation > 0 && (
                                   <div className="calc-step" style={{ marginBottom: '4px' }}>
-                                    <span className="step-label">- 💳 Credit Card (5%):</span>
-                                    <span className="step-value"><strong className="danger">-{formatNumber(bank.details.creditCardObligation)}</strong></span>
+                                    <span className="step-label" style={{ color: '#c62828' }}>- 💳 CC/OD:</span>
+                                    <span className="step-value"><strong style={{ color: '#dc3545' }}>-{formatNumber(bank.details.creditCardObligation)}</strong></span>
                                   </div>
                                 )}
                                 {bank.details?.availableSalaryAfterObligations && (
-                                  <div className="calc-step" style={{ borderTop: '1px solid #2196f3', paddingTop: '6px', marginTop: '6px' }}>
-                                    <span className="step-label">= Available Salary:</span>
-                                    <span className="step-value"><strong className="success">{formatNumber(bank.details.availableSalaryAfterObligations)}</strong></span>
-                                  </div>
-                                )}
-                                {bank.details?.creditCardObligationNote && (
-                                  <div style={{ fontSize: '0.8em', color: '#1976d2', marginTop: '6px', fontStyle: 'italic' }}>
-                                    ℹ️ {bank.details.creditCardObligationNote}
+                                  <div className="calc-step" style={{ borderTop: '2px solid #2196f3', paddingTop: '6px', marginTop: '6px' }}>
+                                    <span className="step-label" style={{ fontWeight: '800', color: '#1a1a1a' }}>= Net Base:</span>
+                                    <span className="step-value"><strong style={{ color: '#155724', fontSize: '1.1em' }}>{formatNumber(bank.details.availableSalaryAfterObligations)}</strong></span>
                                   </div>
                                 )}
                               </div>
