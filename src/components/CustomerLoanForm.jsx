@@ -193,10 +193,16 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
       )
       .map(loan => loan.lender.trim().toLowerCase());
 
+    // Extract actual loan objects for Balance Transfer
+    const loansForBT = formData.wantsBT 
+      ? formData.existingLoans.filter(loan => formData.selectedLoansForBT.includes(loan.id))
+      : [];
+
     // DEBUG: Log extracted bank names
     console.log('='.repeat(80));
     console.log('🔍 EXISTING LOAN BANKS CHECK:');
     console.log('Total existing loans:', formData.existingLoans.length);
+    console.log('Loans selected for BT:', loansForBT.length);
     console.log('Existing loans data:', formData.existingLoans);
     console.log('Filtered Personal Loan banks:', existingLoanBanks);
     console.log('='.repeat(80));
@@ -216,6 +222,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
       // NEW: Balance Transfer data
       wantsBT: formData.wantsBT,
       selectedLoansForBT: formData.wantsBT ? formData.selectedLoansForBT : [],
+      loansForBT: loansForBT, // NEW: Full loan objects for calculation
       creditScore: formData.creditScore ? parseInt(formData.creditScore) : 700,
       state: formData.state,
       city: formData.city,
