@@ -191,6 +191,16 @@ export const calculateLoanEligibility = async (userData) => {
         if (catRate) bankInput.interestRateOverride = catRate;
       }
 
+      // 🌉 INJECT INCENTIVE OVERRIDES (Master Stroke Logic)
+      if (adminAllConfig.incentivePolicy) {
+        if (adminAllConfig.incentivePolicy.percentage !== undefined) {
+          bankInput.incentivePercentageOverride = adminAllConfig.incentivePolicy.percentage / 100;
+        }
+        if (adminAllConfig.incentivePolicy.months !== undefined) {
+          bankInput.incentiveMonthsOverride = adminAllConfig.incentivePolicy.months;
+        }
+      }
+
       const result = calculator(bankInput);
       const bankEndTime = performance.now();
       const bankTime = (bankEndTime - bankStartTime).toFixed(2);
