@@ -120,7 +120,7 @@ const AdminDashboard = ({ onBackToCustomer }) => {
     }
 
     // 🛡️ HIERARCHY GATE 2: Bank Selection (For granular editors)
-    const isGranularEditor = ['config', 'categories', 'interest', 'loan-capping', 'age-rules', 'tenure', 'foir', 'multiplier', 'bt', 'credit-score', 'employment', 'govt-policy', 'documents', 'special', 'fees'].includes(activeMenu);
+    const isGranularEditor = ['config', 'categories', 'interest', 'loan-capping', 'age-rules', 'tenure', 'foir', 'multiplier', 'bt', 'credit-score', 'employment', 'govt-policy', 'documents', 'special', 'fees', 'company-db'].includes(activeMenu);
 
     if (isGranularEditor && !selectedBank) {
       return (
