@@ -55,65 +55,9 @@
   font-family: 'Space Grotesk', sans-serif;
   font-size: 1.1rem;
   color: var(--accent-cyan);
-  margin: 0;
+  margin: 0 0 24px 0;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-}
-
-.category-header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.cat-title-group {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.alias-badge {
-  background: rgba(0, 212, 255, 0.1);
-  color: var(--accent-cyan);
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 0.7rem;
-  font-weight: 800;
-  border: 1px solid rgba(0, 212, 255, 0.2);
-  text-transform: uppercase;
-}
-
-.rename-field {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: 1px solid var(--border-glow);
-  transition: all 0.2s ease;
-}
-
-.rename-field:focus-within {
-  border-color: var(--accent-cyan);
-  box-shadow: 0 0 15px rgba(0, 212, 255, 0.1);
-}
-
-.rename-input-top {
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-size: 0.9rem;
-  outline: none;
-  width: 200px;
-}
-
-.rename-icon {
-  font-size: 0.9rem;
-  opacity: 0.7;
 }
 
 /* Input Groups */
@@ -269,67 +213,4 @@
 .btn-cancel:hover {
   background: rgba(255, 255, 255, 0.05);
   color: #fff;
-}
-
-.location-indicator {
-  margin-top: 8px;
-  font-size: 0.85rem;
-  color: var(--accent-cyan);
-  background: rgba(0, 212, 255, 0.05);
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 20px;
-  border: 1px solid rgba(0, 212, 255, 0.2);
-}
-
-/* Validation Banner */
-.validation-error-banner {
-  background: rgba(255, 60, 60, 0.1);
-  border: 1px solid #ff4d4d;
-  border-radius: 12px;
-  padding: 20px;
-  margin: 20px 0;
-  display: flex;
-  gap: 15px;
-  animation: slideIn 0.3s ease-out;
-}
-
-.validation-error-banner .error-icon {
-  font-size: 2rem;
-}
-
-.validation-error-banner strong {
-  color: #ff4d4d;
-  display: block;
-  margin-bottom: 5px;
-}
-
-.validation-error-banner .illegal-list {
-  background: rgba(255, 77, 77, 0.2);
-  padding: 2px 8px;
-  border-radius: 4px;
-  margin-left: 10px;
-  font-family: monospace;
-  font-weight: 700;
-  color: #fff;
-}
-
-.btn-disabled {
-  background: #333 !important;
-  border-color: #444 !important;
-  color: #666 !important;
-  cursor: not-allowed !important;
-  opacity: 0.7;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
