@@ -78,11 +78,10 @@ const calculateLoanAmountFromEMI = (emi, annualInterestRate, tenureInYears) => {
 export const calculateFreshLoan = async (customerInfo) => {
   // Transform form data to match calculator expectations
   const calculatorInput = {
-    ...customerInfo, // Pass all fields including Logic Bridge overrides
     desiredLoanAmount: customerInfo.desiredLoanAmount ? parseFloat(customerInfo.desiredLoanAmount) : null,
     loanTenure: customerInfo.loanTenure ? parseInt(customerInfo.loanTenure) : 5,
     monthlyIncome: customerInfo.monthlyIncome ? parseFloat(customerInfo.monthlyIncome) : 0,
-    existingEMI: customerInfo.existingEMI || 0,
+    existingEMI: 0, // For fresh loan, we start with 0 existing EMI
     companyName: customerInfo.companyName || '',
     category: customerInfo.category || 'A',
     creditScore: customerInfo.creditScore ? parseInt(customerInfo.creditScore) : 700,
@@ -153,7 +152,6 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
 
   // For BT, we ignore existing EMI and use full salary to calculate capacity
   const btInput = {
-    ...customerInfo, // Pass all fields including Logic Bridge overrides
     desiredLoanAmount: null, // We'll calculate max amount
     loanTenure: customerInfo.loanTenure ? parseInt(customerInfo.loanTenure) : 5,
     monthlyIncome: customerInfo.monthlyIncome ? parseFloat(customerInfo.monthlyIncome) : 0,
@@ -242,22 +240,15 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
 
       // Return BT result with additional information
       return {
-        ...result, // PRESERVE ALL DETAILS (FOIR, Multiplier, etc.)
         bankName: result.bankName || name,
         eligible: true,
-        loanAmount: maxLoanAmount, // Unified name
-        monthlyEMI: result.monthlyEMI, // Unified name
-        loanTenure: result.loanTenure || btInput.loanTenure,
-        interestRate: result.interestRate || 11,
-        isBTMode: true,
-        btType: 'FULL_CONSOLIDATION',
         maxLoanAmount: maxLoanAmount,
         freshAmountDisbursed: freshAmount,
-        totalDebtCleared: totalPOS,
         totalPOS: totalPOS,
         totalExistingEMI: totalExistingEMI,
         newBTLoanEMI: result.monthlyEMI,
         newSingleEMI: result.monthlyEMI,
+        interestRate: result.interestRate || 11, // Default to 11% if not provided
         tenure: btInput.loanTenure,
         calculationMethod: result.calculationMethod || 'BT Calculation'
       };
@@ -317,7 +308,6 @@ export const calculatePartialBT = async (customerInfo, existingLiabilities, sele
   // For partial BT, we use adjusted salary (full salary minus non-selected EMI)
   // But for the BT calculation itself, we still ignore existing EMIs
   const btInput = {
-    ...customerInfo, // Pass all fields including Logic Bridge overrides
     desiredLoanAmount: null, // We'll calculate max amount
     loanTenure: customerInfo.loanTenure ? parseInt(customerInfo.loanTenure) : 5,
     monthlyIncome: customerInfo.monthlyIncome ? parseFloat(customerInfo.monthlyIncome) : 0,
@@ -406,24 +396,17 @@ export const calculatePartialBT = async (customerInfo, existingLiabilities, sele
 
       // Return BT result with additional information
       return {
-        ...result, // PRESERVE ALL DETAILS
         bankName: result.bankName || name,
         eligible: true,
-        loanAmount: maxLoanAmount, // Standard prop
-        monthlyEMI: result.monthlyEMI, // Standard prop
-        loanTenure: result.loanTenure || btInput.loanTenure,
-        interestRate: result.interestRate || 11,
-        isBTMode: true,
-        btType: 'PARTIAL_CONSOLIDATION',
         maxLoanAmount: maxLoanAmount,
         freshAmountDisbursed: freshAmount,
-        totalDebtCleared: selectedPOS, // Standard prop
         selectedPOS: selectedPOS,
         selectedExistingEMI: selectedExistingEMI,
         nonSelectedEMI: nonSelectedEMI,
         newBTLoanEMI: result.monthlyEMI,
         newSingleEMI: result.monthlyEMI,
         totalMonthlyOutflow: result.monthlyEMI + nonSelectedEMI,
+        interestRate: result.interestRate || 11, // Default to 11% if not provided
         tenure: btInput.loanTenure,
         calculationMethod: result.calculationMethod || 'Partial BT Calculation',
         selectedLiabilities: validSelectedLiabilities,
