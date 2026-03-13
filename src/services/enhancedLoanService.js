@@ -12,19 +12,8 @@ import { calculateIdfcEligibility } from '../banks/idfc/calculator.js';
 import { calculateShriRamEligibility } from '../banks/shri-ram/calculator.js';
 import { calculatePiramalEligibility } from '../banks/piramal/calculator.js';
 
-// Import bank configurations for BT capping
-import { kotakConfig } from '../banks/kotak/config.js';
-import { hdfcConfig } from '../banks/hdfc/config.js';
-import { iciciConfig } from '../banks/icici/config.js';
-import { bandhanConfig } from '../banks/bandhan/config.js';
-import { cholaConfig } from '../banks/chola/config.js';
-import { tataConfig } from '../banks/tata/config.js';
-import { poonawalaConfig } from '../banks/poonawala/config.js';
-import { axisFinConfig } from '../banks/axis-fin/config.js';
-import { indusindConfig } from '../banks/indusind/config.js';
-import { idfcConfig } from '../banks/idfc/config.js';
-import { shriRamConfig } from '../banks/shri-ram/config.js';
-import { piramalConfig } from '../banks/piramal/config.js';
+// Import bank configuration service for logic bridge
+import { getBankConfig, getAllBankConfig } from './bankConfigService.js';
 
 /**
  * Calculate EMI for a given loan amount, interest rate, and tenure
@@ -85,39 +74,57 @@ export const calculateFreshLoan = async (customerInfo) => {
     companyName: customerInfo.companyName || '',
     category: customerInfo.category || 'A',
     creditScore: customerInfo.creditScore ? parseInt(customerInfo.creditScore) : 700,
-    employmentType: customerInfo.employmentType || 'salaried'
+    employmentType: customerInfo.employmentType || 'salaried',
+    state: customerInfo.state || '',
+    city: customerInfo.city || ''
   };
+
+  const location = (calculatorInput.city && calculatorInput.state)
+    ? `${calculatorInput.city}, ${calculatorInput.state}`
+    : (calculatorInput.city || calculatorInput.state);
 
   // Array of bank calculators with their names
   const bankCalculators = [
-    { name: 'Kotak Mahindra Bank', calculator: calculateKotakEligibility },
-    { name: 'HDFC Bank', calculator: calculateHdfcEligibility },
-    { name: 'ICICI Bank', calculator: calculateIciciEligibility },
-    { name: 'Bandhan Bank', calculator: calculateBandhanEligibility },
-    { name: 'Cholamandalam Finance', calculator: calculateCholaEligibility },
-    { name: 'Tata Capital', calculator: calculateTataEligibility },
-    { name: 'Poonawala Finance', calculator: calculatePoonawalaEligibility },
-    { name: 'Axis Finance', calculator: calculateAxisFinEligibility },
-    { name: 'IndusInd Bank', calculator: calculateIndusindEligibility },
-    { name: 'IDFC Bank', calculator: calculateIdfcEligibility },
-    { name: 'Shri Ram Finance', calculator: calculateShriRamEligibility },
-    { name: 'Piramal Finance', calculator: calculatePiramalEligibility }
+    { id: 'kotak', name: 'Kotak Mahindra Bank', calculator: calculateKotakEligibility },
+    { id: 'hdfc', name: 'HDFC Bank', calculator: calculateHdfcEligibility },
+    { id: 'icici', name: 'ICICI Bank', calculator: calculateIciciEligibility },
+    { id: 'bandhan', name: 'Bandhan Bank', calculator: calculateBandhanEligibility },
+    { id: 'chola', name: 'Cholamandalam Finance', calculator: calculateCholaEligibility },
+    { id: 'tata', name: 'Tata Capital', calculator: calculateTataEligibility },
+    { id: 'poonawala', name: 'Poonawala Finance', calculator: calculatePoonawalaEligibility },
+    { id: 'axis', name: 'Axis Finance', calculator: calculateAxisFinEligibility },
+    { id: 'indusind', name: 'IndusInd Bank', calculator: calculateIndusindEligibility },
+    { id: 'idfc', name: 'IDFC Bank', calculator: calculateIdfcEligibility },
+    { id: 'shriram', name: 'Shri Ram Finance', calculator: calculateShriRamEligibility },
+    { id: 'piramal', name: 'Piramal Finance', calculator: calculatePiramalEligibility }
   ];
 
-  // Calculate eligibility for each bank
-  const results = bankCalculators.map(({ name, calculator }) => {
+  const results = bankCalculators.map(({ id, name, calculator }, index) => {
     try {
-      const result = calculator(calculatorInput);
+      const adminAllConfig = getAllBankConfig(name, location);
+
+      const bankInput = {
+        ...calculatorInput,
+        // Inject Overrides
+        incentivePercentageOverride: adminAllConfig.incentivePolicy?.percentage !== undefined ? adminAllConfig.incentivePolicy.percentage / 100 : undefined,
+        incentiveMonthsOverride: adminAllConfig.incentivePolicy?.months
+      };
+
+      const result = calculator(bankInput);
       return {
         bankName: result.bankName || name,
-        ...result
+        ...result,
+        state: customerInfo.state || '',
+        city: customerInfo.city || ''
       };
     } catch (error) {
       console.error(`Error calculating fresh loan for ${name}:`, error);
       return {
         bankName: name,
         eligible: false,
-        reason: 'Calculation error occurred: ' + error.message
+        reason: 'Calculation error occurred: ' + error.message,
+        state: customerInfo.state || '',
+        city: customerInfo.city || ''
       };
     }
   });
@@ -161,28 +168,37 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
     companyName: customerInfo.companyName || '',
     category: customerInfo.category || 'A',
     creditScore: customerInfo.creditScore ? parseInt(customerInfo.creditScore) : 700,
-    employmentType: customerInfo.employmentType || 'salaried'
+    employmentType: customerInfo.employmentType || 'salaried',
+    state: customerInfo.state || '',
+    city: customerInfo.city || ''
   };
+
+  const location = (btInput.city && btInput.state)
+    ? `${btInput.city}, ${btInput.state}`
+    : (btInput.city || btInput.state);
 
   // Array of bank calculators with configurations
   const bankCalculators = [
-    { name: 'Kotak Mahindra Bank', calculator: calculateKotakEligibility, config: kotakConfig },
-    { name: 'HDFC Bank', calculator: calculateHdfcEligibility, config: hdfcConfig },
-    { name: 'ICICI Bank', calculator: calculateIciciEligibility, config: iciciConfig },
-    { name: 'Bandhan Bank', calculator: calculateBandhanEligibility, config: bandhanConfig },
-    { name: 'Cholamandalam Finance', calculator: calculateCholaEligibility, config: cholaConfig },
-    { name: 'Tata Capital', calculator: calculateTataEligibility, config: tataConfig },
-    { name: 'Poonawala Finance', calculator: calculatePoonawalaEligibility, config: poonawalaConfig },
-    { name: 'Axis Finance', calculator: calculateAxisFinEligibility, config: axisFinConfig },
-    { name: 'IndusInd Bank', calculator: calculateIndusindEligibility, config: indusindConfig },
-    { name: 'IDFC Bank', calculator: calculateIdfcEligibility, config: idfcConfig },
-    { name: 'Shri Ram Finance', calculator: calculateShriRamEligibility, config: shriRamConfig },
-    { name: 'Piramal Finance', calculator: calculatePiramalEligibility, config: piramalConfig }
+    { id: 'kotak', name: 'Kotak Mahindra Bank', calculator: calculateKotakEligibility },
+    { id: 'hdfc', name: 'HDFC Bank', calculator: calculateHdfcEligibility },
+    { id: 'icici', name: 'ICICI Bank', calculator: calculateIciciEligibility },
+    { id: 'bandhan', name: 'Bandhan Bank', calculator: calculateBandhanEligibility },
+    { id: 'chola', name: 'Cholamandalam Finance', calculator: calculateCholaEligibility },
+    { id: 'tata', name: 'Tata Capital', calculator: calculateTataEligibility },
+    { id: 'poonawala', name: 'Poonawala Finance', calculator: calculatePoonawalaEligibility },
+    { id: 'axis', name: 'Axis Finance', calculator: calculateAxisFinEligibility },
+    { id: 'indusind', name: 'IndusInd Bank', calculator: calculateIndusindEligibility },
+    { id: 'idfc', name: 'IDFC Bank', calculator: calculateIdfcEligibility },
+    { id: 'shriram', name: 'Shri Ram Finance', calculator: calculateShriRamEligibility },
+    { id: 'piramal', name: 'Piramal Finance', calculator: calculatePiramalEligibility }
   ];
 
   // Calculate BT eligibility for each bank
-  const results = bankCalculators.map(({ name, calculator, config }) => {
+  const results = bankCalculators.map(({ id, name, calculator }) => {
     try {
+      const adminAllConfig = getAllBankConfig(name, location);
+      const config = adminAllConfig.bankConfig; // Use the bankConfig from the service
+
       // Check BT loan capping constraint
       const numberOfLoans = validLiabilities.length;
 
@@ -191,7 +207,9 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
         return {
           bankName: config.name || name,
           eligible: false,
-          reason: `${config.name || name} does not offer Balance Transfer facility for personal loans`
+          reason: `${config.name || name} does not offer Balance Transfer facility for personal loans`,
+          state: customerInfo.state || '',
+          city: customerInfo.city || ''
         };
       }
 
@@ -204,7 +222,9 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
         return {
           bankName: config.name || name,
           eligible: false,
-          reason: `Fintech Loan Policy: ${config.name || name} does not accept Balance Transfer for loans from Fintech/digital lending platforms. You have ${fintechLoanCount} Fintech loan(s).`
+          reason: `Fintech Loan Policy: ${config.name || name} does not accept Balance Transfer for loans from Fintech/digital lending platforms. You have ${fintechLoanCount} Fintech loan(s).`,
+          state: customerInfo.state || '',
+          city: customerInfo.city || ''
         };
       }
 
@@ -213,17 +233,28 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
         return {
           bankName: config.name || name,
           eligible: false,
-          reason: `Loan Capping Exceeded: You have ${numberOfLoans} existing loans, but ${config.name || name} allows BT for maximum ${config.btConfig.maxLoansForBT} loans`
+          reason: `Loan Capping Exceeded: You have ${numberOfLoans} existing loans, but ${config.name || name} allows BT for maximum ${config.btConfig.maxLoansForBT} loans`,
+          state: customerInfo.state || '',
+          city: customerInfo.city || ''
         };
       }
 
-      const result = calculator(btInput);
+      const bankInput = {
+        ...btInput,
+        // Inject Overrides
+        incentivePercentageOverride: adminAllConfig.incentivePolicy?.percentage !== undefined ? adminAllConfig.incentivePolicy.percentage / 100 : undefined,
+        incentiveMonthsOverride: adminAllConfig.incentivePolicy?.months
+      };
+
+      const result = calculator(bankInput);
 
       if (!result.eligible) {
         return {
           bankName: result.bankName || name,
           eligible: false,
-          reason: result.reason
+          reason: result.reason,
+          state: customerInfo.state || '',
+          city: customerInfo.city || ''
         };
       }
 
@@ -236,7 +267,9 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
         return {
           bankName: result.bankName || name,
           eligible: false,
-          reason: `Total outstanding amount (₹${totalPOS.toLocaleString()}) exceeds maximum loan eligibility (₹${maxLoanAmount.toLocaleString()}). Not eligible for BT.`
+          reason: `Total outstanding amount (₹${totalPOS.toLocaleString()}) exceeds maximum loan eligibility (₹${maxLoanAmount.toLocaleString()}). Not eligible for BT.`,
+          state: customerInfo.state || '',
+          city: customerInfo.city || ''
         };
       }
 
@@ -247,20 +280,24 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
         eligible: true,
         maxLoanAmount: maxLoanAmount,
         freshAmountDisbursed: freshAmount,
-        totalPOS: totalPOS,
-        totalExistingEMI: totalExistingEMI,
+        btTotalOutstanding: totalPOS,
+        btTotalEMI: totalExistingEMI,
         newBTLoanEMI: result.monthlyEMI,
         newSingleEMI: result.monthlyEMI,
         interestRate: result.interestRate || 11, // Default to 11% if not provided
         tenure: btInput.loanTenure,
-        calculationMethod: result.calculationMethod || 'BT Calculation'
+        calculationMethod: result.calculationMethod || 'BT Calculation',
+        state: customerInfo.state || '',
+        city: customerInfo.city || ''
       };
     } catch (error) {
       console.error(`Error calculating full BT for ${name}:`, error);
       return {
         bankName: name,
         eligible: false,
-        reason: 'Calculation error occurred: ' + error.message
+        reason: 'Calculation error occurred: ' + error.message,
+        state: customerInfo.state || '',
+        city: customerInfo.city || ''
       };
     }
   });
@@ -320,28 +357,37 @@ export const calculatePartialBT = async (customerInfo, existingLiabilities, sele
     companyName: customerInfo.companyName || '',
     category: customerInfo.category || 'A',
     creditScore: customerInfo.creditScore ? parseInt(customerInfo.creditScore) : 700,
-    employmentType: customerInfo.employmentType || 'salaried'
+    employmentType: customerInfo.employmentType || 'salaried',
+    state: customerInfo.state || '',
+    city: customerInfo.city || ''
   };
+
+  const location = (btInput.city && btInput.state)
+    ? `${btInput.city}, ${btInput.state}`
+    : (btInput.city || btInput.state);
 
   // Array of bank calculators with configurations
   const bankCalculators = [
-    { name: 'Kotak Mahindra Bank', calculator: calculateKotakEligibility, config: kotakConfig },
-    { name: 'HDFC Bank', calculator: calculateHdfcEligibility, config: hdfcConfig },
-    { name: 'ICICI Bank', calculator: calculateIciciEligibility, config: iciciConfig },
-    { name: 'Bandhan Bank', calculator: calculateBandhanEligibility, config: bandhanConfig },
-    { name: 'Cholamandalam Finance', calculator: calculateCholaEligibility, config: cholaConfig },
-    { name: 'Tata Capital', calculator: calculateTataEligibility, config: tataConfig },
-    { name: 'Poonawala Finance', calculator: calculatePoonawalaEligibility, config: poonawalaConfig },
-    { name: 'Axis Finance', calculator: calculateAxisFinEligibility, config: axisFinConfig },
-    { name: 'IndusInd Bank', calculator: calculateIndusindEligibility, config: indusindConfig },
-    { name: 'IDFC Bank', calculator: calculateIdfcEligibility, config: idfcConfig },
-    { name: 'Shri Ram Finance', calculator: calculateShriRamEligibility, config: shriRamConfig },
-    { name: 'Piramal Finance', calculator: calculatePiramalEligibility, config: piramalConfig }
+    { id: 'kotak', name: 'Kotak Mahindra Bank', calculator: calculateKotakEligibility },
+    { id: 'hdfc', name: 'HDFC Bank', calculator: calculateHdfcEligibility },
+    { id: 'icici', name: 'ICICI Bank', calculator: calculateIciciEligibility },
+    { id: 'bandhan', name: 'Bandhan Bank', calculator: calculateBandhanEligibility },
+    { id: 'chola', name: 'Cholamandalam Finance', calculator: calculateCholaEligibility },
+    { id: 'tata', name: 'Tata Capital', calculator: calculateTataEligibility },
+    { id: 'poonawala', name: 'Poonawala Finance', calculator: calculatePoonawalaEligibility },
+    { id: 'axis', name: 'Axis Finance', calculator: calculateAxisFinEligibility },
+    { id: 'indusind', name: 'IndusInd Bank', calculator: calculateIndusindEligibility },
+    { id: 'idfc', name: 'IDFC Bank', calculator: calculateIdfcEligibility },
+    { id: 'shriram', name: 'Shri Ram Finance', calculator: calculateShriRamEligibility },
+    { id: 'piramal', name: 'Piramal Finance', calculator: calculatePiramalEligibility }
   ];
 
   // Calculate BT eligibility for each bank
-  const results = bankCalculators.map(({ name, calculator, config }) => {
+  const results = bankCalculators.map(({ id, name, calculator }) => {
     try {
+      const adminAllConfig = getAllBankConfig(name, location);
+      const config = adminAllConfig.bankConfig; // Use the bankConfig from the service
+
       // Check BT loan capping constraint
       const numberOfLoans = validSelectedLiabilities.length;
 
@@ -350,7 +396,9 @@ export const calculatePartialBT = async (customerInfo, existingLiabilities, sele
         return {
           bankName: config.name || name,
           eligible: false,
-          reason: `${config.name || name} does not offer Balance Transfer facility for personal loans`
+          reason: `${config.name || name} does not offer Balance Transfer facility for personal loans`,
+          state: customerInfo.state || '',
+          city: customerInfo.city || ''
         };
       }
 
@@ -363,7 +411,9 @@ export const calculatePartialBT = async (customerInfo, existingLiabilities, sele
         return {
           bankName: config.name || name,
           eligible: false,
-          reason: `Fintech Loan Policy: ${config.name || name} does not accept Balance Transfer for loans from Fintech/digital lending platforms. You have ${fintechLoanCount} Fintech loan(s).`
+          reason: `Fintech Loan Policy: ${config.name || name} does not accept Balance Transfer for loans from Fintech/digital lending platforms. You have ${fintechLoanCount} Fintech loan(s).`,
+          state: customerInfo.state || '',
+          city: customerInfo.city || ''
         };
       }
 
@@ -372,17 +422,28 @@ export const calculatePartialBT = async (customerInfo, existingLiabilities, sele
         return {
           bankName: config.name || name,
           eligible: false,
-          reason: `Loan Capping Exceeded: You have ${numberOfLoans} selected loans, but ${config.name || name} allows BT for maximum ${config.btConfig.maxLoansForBT} loans`
+          reason: `Loan Capping Exceeded: You have ${numberOfLoans} selected loans, but ${config.name || name} allows BT for maximum ${config.btConfig.maxLoansForBT} loans`,
+          state: customerInfo.state || '',
+          city: customerInfo.city || ''
         };
       }
 
-      const result = calculator(btInput);
+      const bankInput = {
+        ...btInput,
+        // Inject Overrides
+        incentivePercentageOverride: adminAllConfig.incentivePolicy?.percentage !== undefined ? adminAllConfig.incentivePolicy.percentage / 100 : undefined,
+        incentiveMonthsOverride: adminAllConfig.incentivePolicy?.months
+      };
+
+      const result = calculator(bankInput);
 
       if (!result.eligible) {
         return {
           bankName: result.bankName || name,
           eligible: false,
-          reason: result.reason
+          reason: result.reason,
+          state: customerInfo.state || '',
+          city: customerInfo.city || ''
         };
       }
 
@@ -395,7 +456,9 @@ export const calculatePartialBT = async (customerInfo, existingLiabilities, sele
         return {
           bankName: result.bankName || name,
           eligible: false,
-          reason: `Selected outstanding amount (₹${selectedPOS.toLocaleString()}) exceeds maximum loan eligibility (₹${maxLoanAmount.toLocaleString()}). Not eligible for partial BT.`
+          reason: `Selected outstanding amount (₹${selectedPOS.toLocaleString()}) exceeds maximum loan eligibility (₹${maxLoanAmount.toLocaleString()}). Not eligible for partial BT.`,
+          state: customerInfo.state || '',
+          city: customerInfo.city || ''
         };
       }
 
@@ -406,8 +469,8 @@ export const calculatePartialBT = async (customerInfo, existingLiabilities, sele
         eligible: true,
         maxLoanAmount: maxLoanAmount,
         freshAmountDisbursed: freshAmount,
-        selectedPOS: selectedPOS,
-        selectedExistingEMI: selectedExistingEMI,
+        btTotalOutstanding: selectedPOS,
+        btTotalEMI: selectedExistingEMI,
         nonSelectedEMI: nonSelectedEMI,
         newBTLoanEMI: result.monthlyEMI,
         newSingleEMI: result.monthlyEMI,
