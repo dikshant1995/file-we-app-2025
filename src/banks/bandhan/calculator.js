@@ -85,6 +85,8 @@ export const calculateBandhanEligibility = (userData) => {
   const {
     desiredLoanAmount,
     loanTenure,
+    basicSalary, // NEW
+    averageIncentive, // NEW
     monthlyIncome,
     existingEMI,
     creditCardObligation, // NEW: 5% of non-BT credit card balances
@@ -109,15 +111,22 @@ export const calculateBandhanEligibility = (userData) => {
     btTotalOutstanding
   } = userData;
 
+  // ========== INCENTIVE CALCULATION LOGIC ==========
+  const bankIncentiveConsidered = (averageIncentive || 0) * (bandhanConfig.incentivePercentage || 0);
+  const actualMonthlyIncome = (basicSalary || 0) + bankIncentiveConsidered;
+  
+  // Use actualMonthlyIncome for all subsequent calculations
+  const monthlyIncomeForCalc = actualMonthlyIncome;
+
   const isBT = isBTMode && loansForBT && loansForBT.length > 0;
-  let adjustedIncome = monthlyIncome;
+  let adjustedIncome = monthlyIncomeForCalc;
   let nonBTLoansEMI = 0;
 
   if (isBT) {
     nonBTLoansEMI = (existingEMI || 0) - btTotalEMI;
     // NEW: Also deduct credit card obligations from adjusted income
     const creditCardDeduction = creditCardObligation || 0;
-    adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
+    adjustedIncome = monthlyIncomeForCalc - nonBTLoansEMI - creditCardDeduction;
     if (adjustedIncome <= 0) {
       return { eligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains`, isBTMode: true };
     }
@@ -157,25 +166,19 @@ export const calculateBandhanEligibility = (userData) => {
     };
   }
 
-  // Determine company category - handle both standard and GOVT cases
-  // Logic Bridge: Support 'government' employment type and 'GOVT' category
-  let companyCategory = category || 'B';
-  if (employmentType === 'government') {
-    companyCategory = 'GOVT';
-  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
-    companyCategory = 'GOVT';
-  }
-
-  // Use standardized GOVT for tenure lookup
-  const lookupCategory = companyCategory;
+  // Use user-provided category (from frontend: B, C, or GOVT)
+  const companyCategory = category || 'B'; // Default to B if not provided
 
   // Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
+  let lookupCategory = companyCategory === 'Govt' ? 'A' : companyCategory;
   let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : bandhanConfig.maxTenureByCategory[lookupCategory];
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
-    // Fallback to A for government if config key is missing
-    maxTenureForCategory = bandhanConfig.maxTenureByCategory['GOVT'] || bandhanConfig.maxTenureByCategory['A'] || 60;
+    return {
+      eligible: false,
+      reason: `Bandhan Bank does not provide loans to ${companyCategory} companies`
+    };
   }
 
   // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
@@ -188,19 +191,20 @@ export const calculateBandhanEligibility = (userData) => {
   const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
 
   // Check minimum salary requirement based on category
-  const categoryMinSalary = bandhanConfig.minSalary[lookupCategory] || bandhanConfig.minSalary['A'];
+  let lookupCategorySalary = companyCategory === 'Govt' ? 'A' : companyCategory;
+  const categoryMinSalary = bandhanConfig.minSalary[lookupCategorySalary];
 
   if (categoryMinSalary === null) {
     return { eligible: false, reason: `Bandhan Bank does not provide loans to UNLISTED companies` };
   }
 
-  const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
+  const incomeToCheck = isBT ? adjustedIncome : monthlyIncomeForCalc;
   if (incomeToCheck < categoryMinSalary) {
     return { eligible: false, reason: `Minimum monthly income required for ${companyCategory} category is ₹${categoryMinSalary.toLocaleString()}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
   // Calculate using FOIR method
-  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
+  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncomeForCalc;
 
   // Logic Bridge: Support govtFOIR override
   let foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : getFoirPercentage(incomeForCalculation);
@@ -219,11 +223,7 @@ export const calculateBandhanEligibility = (userData) => {
   // Pass 2: Get final ROI based on preliminary loan amount
   let finalInterestRate = interestRateOverride || interestRate;
   if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
-  if (!finalInterestRate) {
-    // Standardize location key to "City, State" to match Admin lookup
-    const locationKey = userData.city && userData.state ? `${userData.city}, ${userData.state}` : (userData.state || null);
-    finalInterestRate = getInterestRateForLoan(companyCategory, preliminaryLoanAmount, locationKey);
-  }
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(companyCategory, preliminaryLoanAmount, userData.city || userData.state);
 
   const effectiveInterestRate = finalInterestRate;
 
@@ -255,7 +255,7 @@ export const calculateBandhanEligibility = (userData) => {
       creditCardObligation: Math.round(creditCardObligation || 0),
       creditCardObligationNote: creditCardObligation > 0 ? '5% of non-BT credit card outstanding' : 'No credit card obligation (either no CC or CC in BT)',
       totalNonBTObligations: Math.round(nonBTLoansEMI + (creditCardObligation || 0)),
-      originalIncome: monthlyIncome,
+      originalIncome: monthlyIncomeForCalc,
       adjustedIncome: Math.round(adjustedIncome)
     };
   }
@@ -278,9 +278,11 @@ export const calculateBandhanEligibility = (userData) => {
     requestedTenureMonths: requestedTenureMonths,
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
-    category: lookupCategory,
+    companyCategory: companyCategory,
     calculationMethod: 'FOIR-based',
     foirPercentage: foirPercentage,
+    incentivePercentage: bandhanConfig.incentivePercentage,
+    incentiveConsidered: bankIncentiveConsidered,
     details: {
       foirLoanAmount: Math.round(foirLoanAmount),
       foirCap: Math.round(foirCap),
