@@ -55,8 +55,8 @@ export const calculateLoanEligibility = async (userData) => {
     console.log('  - Loans for BT:', userData.loansForBT);
 
     // Calculate totals for selected BT loans
-    const btTotalEMI = userData.loansForBT.reduce((sum, loan) => sum + (parseFloat(loan.monthlyEMI) || 0), 0);
-    const btTotalOutstanding = userData.loansForBT.reduce((sum, loan) => sum + (parseFloat(loan.outstandingAmount) || 0), 0);
+    const btTotalEMI = (userData.loansForBT || []).reduce((sum, loan) => sum + (parseFloat(loan.monthlyEMI) || 0), 0);
+    const btTotalOutstanding = (userData.loansForBT || []).reduce((sum, loan) => sum + (parseFloat(loan.outstandingAmount) || 0), 0);
 
     console.log(`  - Total BT EMI: ₹${btTotalEMI.toLocaleString()}`);
     console.log(`  - Total BT Outstanding: ₹${btTotalOutstanding.toLocaleString()}`);
@@ -81,9 +81,9 @@ export const calculateLoanEligibility = async (userData) => {
     salaryMode: userData.salaryMode || 'bank',
     // Balance Transfer specific data
     isBTMode: isBTMode,
-    loansForBT: isBTMode ? userData.loansForBT : [],
-    btTotalEMI: isBTMode ? userData.loansForBT.reduce((sum, loan) => sum + (parseFloat(loan.monthlyEMI) || 0), 0) : 0,
-    btTotalOutstanding: isBTMode ? userData.loansForBT.reduce((sum, loan) => sum + (parseFloat(loan.outstandingAmount) || 0), 0) : 0
+    loansForBT: isBTMode ? (userData.loansForBT || []) : [],
+    btTotalEMI: isBTMode ? (userData.loansForBT || []).reduce((sum, loan) => sum + (parseFloat(loan.monthlyEMI) || 0), 0) : 0,
+    btTotalOutstanding: isBTMode ? (userData.loansForBT || []).reduce((sum, loan) => sum + (parseFloat(loan.outstandingAmount) || 0), 0) : 0
     // Note: Interest rate will be pulled dynamically from Admin Config in the loop below
   };
 
