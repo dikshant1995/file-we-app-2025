@@ -507,3 +507,61 @@ export const GovtPolicyEditor = ({ bank, onSave, location }) => {
     </div>
   );
 };
+
+// Incentive Policy Editor
+export const IncentivePolicyEditor = ({ bank, onSave, location }) => {
+  const [config, setConfig] = useState({
+    percentage: 50,
+    months: 3
+  });
+
+  useEffect(() => {
+    const savedConfig = getBankConfig(bank.name, 'incentivePolicy', location);
+    if (savedConfig) setConfig(savedConfig);
+  }, [bank.name, location]);
+
+  const handleSave = () => {
+    if (saveBankConfig(bank.name, 'incentivePolicy', config, location)) {
+      onSave && onSave(config);
+      alert(`"Master Stroke" incentive policy successfully committed for ${bank.name}.`);
+    }
+  };
+
+  return (
+    <div className="config-editor">
+      <div className="editor-header">
+        <h2>"Master Stroke" Incentive Logic - {bank.name}</h2>
+        <p>Configure how variable incentive income is considered for this institution</p>
+      </div>
+      <div className="config-section">
+        <div className="category-grid">
+          <div className="input-group">
+            <label>Incentive Consideration %</label>
+            <input 
+              type="number" 
+              value={config.percentage} 
+              onChange={(e) => setConfig({ ...config, percentage: parseInt(e.target.value) })} 
+              className="config-input"
+              placeholder="e.g. 50"
+            />
+            <small className="help-text">Percentage of average incentive added to basic salary (Logic Bridge Override)</small>
+          </div>
+          <div className="input-group">
+            <label>Assessment Period (Months)</label>
+            <input 
+              type="number" 
+              value={config.months} 
+              onChange={(e) => setConfig({ ...config, months: parseInt(e.target.value) })} 
+              className="config-input" 
+              placeholder="e.g. 3"
+            />
+            <small className="help-text">Number of previous months used to calculate average incentive</small>
+          </div>
+        </div>
+      </div>
+      <div className="editor-actions">
+        <button className="btn-save" onClick={handleSave}>Commit Master Stroke Policy</button>
+      </div>
+    </div>
+  );
+};
