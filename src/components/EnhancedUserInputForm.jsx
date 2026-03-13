@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import './UserInputForm.css';
-import { getBankConfig } from '../services/bankConfigService.js';
 
 const EnhancedUserInputForm = ({ onSubmit, onReset }) => {
   const [customerInfo, setCustomerInfo] = useState({
@@ -15,24 +14,10 @@ const EnhancedUserInputForm = ({ onSubmit, onReset }) => {
 
   const [existingLiabilities, setExistingLiabilities] = useState([]);
   const [selectedLiabilities, setSelectedLiabilities] = useState([]);
-  const [categoryLabels, setCategoryLabels] = useState({});
-
-  // Fetch standard category labels (from a reference bank or system defaults)
-  useEffect(() => {
-    // We try to get labels from a major bank or fallback to defaults
-    const hdfcConfig = getBankConfig('HDFC Bank', 'categories') || {};
-    const labels = {};
-    Object.keys(hdfcConfig).forEach(key => {
-      if (hdfcConfig[key].displayLabel) {
-        labels[key] = hdfcConfig[key].displayLabel;
-      }
-    });
-    setCategoryLabels(labels);
-  }, []);
 
   const handleCustomerInfoChange = (e) => {
     const { name, value } = e.target;
-
+    
     // Auto-select GOVT category when government employment type is selected
     if (name === 'employmentType' && value === 'government') {
       setCustomerInfo(prev => ({
@@ -59,7 +44,7 @@ const EnhancedUserInputForm = ({ onSubmit, onReset }) => {
     };
     const updatedLiabilities = [...existingLiabilities, newLiability];
     setExistingLiabilities(updatedLiabilities);
-
+    
     // Automatically select new liability
     setSelectedLiabilities(prev => [...prev, newLiability.id]);
   };
@@ -67,21 +52,21 @@ const EnhancedUserInputForm = ({ onSubmit, onReset }) => {
   const removeLiability = (id) => {
     const updatedLiabilities = existingLiabilities.filter(liability => liability.id !== id);
     setExistingLiabilities(updatedLiabilities);
-
+    
     // Remove from selected liabilities if it was selected
     setSelectedLiabilities(prev => prev.filter(selectedId => selectedId !== id));
   };
 
   const updateLiability = (id, field, value) => {
-    const updatedLiabilities = existingLiabilities.map(liability =>
+    const updatedLiabilities = existingLiabilities.map(liability => 
       liability.id === id ? { ...liability, [field]: value } : liability
     );
     setExistingLiabilities(updatedLiabilities);
   };
 
   const toggleLiabilitySelection = (id) => {
-    setSelectedLiabilities(prev =>
-      prev.includes(id)
+    setSelectedLiabilities(prev => 
+      prev.includes(id) 
         ? prev.filter(selectedId => selectedId !== id)
         : [...prev, id]
     );
@@ -89,7 +74,7 @@ const EnhancedUserInputForm = ({ onSubmit, onReset }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
+    
     // Prepare data for all three scenarios
     const formData = {
       customerInfo: {
@@ -106,7 +91,7 @@ const EnhancedUserInputForm = ({ onSubmit, onReset }) => {
       })),
       selectedLiabilities: selectedLiabilities
     };
-
+    
     onSubmit(formData);
   };
 
@@ -127,12 +112,12 @@ const EnhancedUserInputForm = ({ onSubmit, onReset }) => {
   };
 
   // Calculate totals for display
-  const totalOutstandingAmount = existingLiabilities.reduce((sum, liability) =>
+  const totalOutstandingAmount = existingLiabilities.reduce((sum, liability) => 
     sum + (parseFloat(liability.outstandingAmount) || 0), 0);
-
-  const totalMonthlyPayment = existingLiabilities.reduce((sum, liability) =>
+    
+  const totalMonthlyPayment = existingLiabilities.reduce((sum, liability) => 
     sum + (parseFloat(liability.monthlyPayment) || 0), 0);
-
+    
   const selectedOutstandingAmount = existingLiabilities
     .filter(liability => selectedLiabilities.includes(liability.id))
     .reduce((sum, liability) => sum + (parseFloat(liability.outstandingAmount) || 0), 0);
@@ -141,12 +126,12 @@ const EnhancedUserInputForm = ({ onSubmit, onReset }) => {
     <div className="user-input-form">
       <h2>🏦 Comprehensive Loan Calculator</h2>
       <p className="subtitle">Calculate all loan scenarios in one place</p>
-
+      
       <form onSubmit={handleSubmit}>
         {/* Component 1: Customer Information & Financials */}
         <div className="form-section">
           <h3>👤 Customer Information & Financials</h3>
-
+          
           <div className="form-group">
             <label htmlFor="desiredLoanAmount">Desired Loan Amount (₹)</label>
             <input
@@ -222,13 +207,14 @@ const EnhancedUserInputForm = ({ onSubmit, onReset }) => {
               onChange={handleCustomerInfoChange}
               required
             >
-              <option value="SUPER-A">{categoryLabels['SUPER-A'] || 'Super A'} - Premium Companies</option>
-              <option value="A">{categoryLabels['A'] || 'Category A'} - Top Tier Companies</option>
-              <option value="B">{categoryLabels['B'] || 'Category B'} - Good Companies</option>
-              <option value="C">{categoryLabels['C'] || 'Category C'} - Standard Companies</option>
-              <option value="D">{categoryLabels['D'] || 'Category D'} - Lower Tier Companies</option>
-              <option value="GOVT">{categoryLabels['GOVT'] || 'Government Employee'}</option>
-              <option value="UNLISTED">{categoryLabels['UNLISTED'] || 'Unlisted Company'}</option>
+              <option value="SUPER-A">Super A - Premium Companies</option>
+              <option value="A+">A+ - Premium Tier</option>
+              <option value="A">Category A - Top Tier Companies</option>
+              <option value="B">Category B - Good Companies</option>
+              <option value="C">Category C - Standard Companies</option>
+              <option value="D">Category D - Lower Tier Companies</option>
+              <option value="GOVT">Government Employee</option>
+              <option value="UNLISTED">Unlisted Company</option>
             </select>
             <small className="form-hint">
               Select your company category. Premium categories (SUPER-A, A+, A) get better rates.
@@ -254,7 +240,7 @@ const EnhancedUserInputForm = ({ onSubmit, onReset }) => {
         <div className="form-section">
           <h3>📋 Existing Loans & Credit Cards (For BT)</h3>
           <p className="section-hint">Add all your existing financial obligations that are eligible for Balance Transfer</p>
-
+          
           <div className="totals-summary">
             <div className="total-item">
               <span>Total Outstanding:</span>
@@ -290,7 +276,7 @@ const EnhancedUserInputForm = ({ onSubmit, onReset }) => {
                   ✕ Remove
                 </button>
               </div>
-
+              
               <div className="liability-inputs">
                 <div className="form-group">
                   <label>Type</label>
@@ -305,7 +291,7 @@ const EnhancedUserInputForm = ({ onSubmit, onReset }) => {
                     <option value="Other">Other</option>
                   </select>
                 </div>
-
+                
                 <div className="form-group">
                   <label>Name/Description</label>
                   <input
@@ -315,7 +301,7 @@ const EnhancedUserInputForm = ({ onSubmit, onReset }) => {
                     placeholder={`e.g., ${liability.type} with Bank Name`}
                   />
                 </div>
-
+                
                 <div className="form-group">
                   <label>Outstanding Amount (₹)</label>
                   <input
@@ -325,7 +311,7 @@ const EnhancedUserInputForm = ({ onSubmit, onReset }) => {
                     placeholder="Current balance"
                   />
                 </div>
-
+                
                 <div className="form-group">
                   <label>Monthly Payment (₹)</label>
                   <input
@@ -338,7 +324,7 @@ const EnhancedUserInputForm = ({ onSubmit, onReset }) => {
               </div>
             </div>
           ))}
-
+          
           <button type="button" className="add-btn" onClick={addLiability}>
             + Add Loan or Credit Card
           </button>
