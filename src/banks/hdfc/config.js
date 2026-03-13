@@ -20,28 +20,28 @@ export const hdfcConfig = {
     '25000-35000': {
       'SUPER-A': 19,
       'A': 19,
-      'GOVT': 19,
+      'Govt': 19,
       'B': 12,
       'C': null  // Not Applicable
     },
     '35001-50000': {
       'SUPER-A': 22,
       'A': 20,
-      'GOVT': 20,
+      'Govt': 20,
       'B': 15,
       'C': 13
     },
     '50001-75000': {
       'SUPER-A': 25,
       'A': 23,
-      'GOVT': 23,
+      'Govt': 23,
       'B': 20,
       'C': 20
     },
     '75001+': {
       'SUPER-A': 27,
       'A': 24,
-      'GOVT': 24,
+      'Govt': 24,
       'B': 22,
       'C': 21
     }
@@ -53,28 +53,28 @@ export const hdfcConfig = {
       'A': 0.55,
       'B': 0.55,
       'C': 0.50,
-      'GOVT': 0.55
+      'Govt': 0.55
     },
     '50001-75000': {
       'SUPER-A': 0.65,
       'A': 0.65,
       'B': 0.65,
       'C': 0.65,
-      'GOVT': 0.65
+      'Govt': 0.65
     },
     '75001-100000': {
       'SUPER-A': 0.70,
       'A': 0.70,
       'B': 0.70,
       'C': 0.70,
-      'GOVT': 0.70
+      'Govt': 0.70
     },
     '100001+': {
       'SUPER-A': 0.70,
       'A': 0.70,
       'B': 0.70,
       'C': 0.70,
-      'GOVT': 0.70
+      'Govt': 0.70
     }
   },
   // Minimum salary requirements by category
@@ -83,13 +83,13 @@ export const hdfcConfig = {
     'A': 25000,
     'B': 25000,
     'C': 35000,
-    'GOVT': 25000
+    'Govt': 25000
   },
   // Maximum tenure by category (in months)
   maxTenureByCategory: {
     'SUPER-A': 72,  // 6 years - CAT SUPER A
     'A': 72,        // 6 years - CAT A
-    'GOVT': 72,     // 6 years - CAT GOVT
+    'Govt': 72,     // 6 years - CAT GOVT
     'B': 72,        // 6 years - CAT B
     'C': 60         // 5 years - CAT C
   },
