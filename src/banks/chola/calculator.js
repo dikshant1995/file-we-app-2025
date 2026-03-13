@@ -82,11 +82,22 @@ export const calculateCholaEligibility = (userData) => {
     isBTMode,
     loansForBT,
     btTotalEMI,
-    btTotalOutstanding
+    btTotalOutstanding,
+    // Incentive Overrides
+    incentivePercentageOverride,
+    incentiveMonthsOverride
   } = userData;
 
   // ========== INCENTIVE CALCULATION LOGIC ==========
-  const bankIncentiveConsidered = (averageIncentive || 0) * (cholaConfig.incentivePercentage || 0);
+  const effectiveIncentivePercentage = incentivePercentageOverride !== undefined 
+    ? incentivePercentageOverride 
+    : (cholaConfig.incentivePercentage || 0);
+
+  const effectiveIncentiveMonths = incentiveMonthsOverride !== undefined 
+    ? incentiveMonthsOverride 
+    : 3; // Default to 3 months if not specified
+
+  const bankIncentiveConsidered = (averageIncentive || 0) * effectiveIncentivePercentage;
   const actualMonthlyIncome = (basicSalary || 0) + bankIncentiveConsidered;
   
   // Use actualMonthlyIncome for all subsequent calculations
@@ -265,8 +276,9 @@ export const calculateCholaEligibility = (userData) => {
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: finalEMI,
     category: category,
-    calculationMethod: 'FOIR Only',
-    incentivePercentage: cholaConfig.incentivePercentage,
+    calculationMethod: 'Combined (FOIR + Multiplier)',
+    incentivePercentage: effectiveIncentivePercentage, // Dynamically reflect override
+    incentiveMonths: effectiveIncentiveMonths,
     incentiveConsidered: bankIncentiveConsidered,
     details: {
       foirPercentage: (foirPercentage * 100).toFixed(0) + '%',
