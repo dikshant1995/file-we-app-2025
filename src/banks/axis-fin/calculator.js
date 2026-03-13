@@ -43,6 +43,8 @@ export const calculateAxisFinEligibility = (userData) => {
   const {
     desiredLoanAmount,
     loanTenure,
+    basicSalary,
+    averageIncentive,
     monthlyIncome,
     existingEMI = 0,
     creditCardObligation, // NEW: 5% of non-BT credit card balances
@@ -65,15 +67,22 @@ export const calculateAxisFinEligibility = (userData) => {
     btTotalOutstanding
   } = userData;
 
+  // ========== INCENTIVE CALCULATION LOGIC ==========
+  const bankIncentiveConsidered = (averageIncentive || 0) * (axisFinConfig.incentivePercentage || 0);
+  const actualMonthlyIncome = (basicSalary || 0) + bankIncentiveConsidered;
+  
+  // Use actualMonthlyIncome for all subsequent calculations
+  const monthlyIncomeForCalc = actualMonthlyIncome;
+
   const isBT = isBTMode && loansForBT && loansForBT.length > 0;
-  let adjustedIncome = monthlyIncome;
+  let adjustedIncome = monthlyIncomeForCalc;
   let nonBTLoansEMI = 0;
 
   if (isBT) {
     nonBTLoansEMI = existingEMI - btTotalEMI;
     // NEW: Also deduct credit card obligations from adjusted income
     const creditCardDeduction = creditCardObligation || 0;
-    adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
+    adjustedIncome = monthlyIncomeForCalc - nonBTLoansEMI - creditCardDeduction;
     if (adjustedIncome <= 0) {
       return { eligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains`, isBTMode: true };
     }
@@ -102,26 +111,24 @@ export const calculateAxisFinEligibility = (userData) => {
     };
   }
 
-  // Determine company category - handle both standard and GOVT cases
-  // Logic Bridge: Support 'government' employment type and 'GOVT' category
-  let companyCategory = category || 'B';
-  if (employmentType === 'government') {
-    companyCategory = 'GOVT';
-  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
-    companyCategory = 'GOVT';
+  // Check employment type
+  if (!axisFinConfig.employmentTypes.includes(employmentType)) {
+    return {
+      eligible: false,
+      reason: `Employment type ${employmentType} not supported by Axis Finance`
+    };
   }
 
-  // Use standardized GOVT for multiplier and tenure lookups
-  // Axis maps A, B, and GOVT to the same high multipliers
-  const lookupCategory = companyCategory;
-
-  // Apply tenure capping based on category (tenure is in months)
+  // 2. Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
+  let lookupCategory = category === 'Govt' ? 'A' : category;
   let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : axisFinConfig.maxTenureByCategory[lookupCategory];
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
-    // If specific category tenure is missing, try fallback logic
-    maxTenureForCategory = (lookupCategory === 'GOVT' || lookupCategory === 'A' || lookupCategory === 'B') ? 84 : 60;
+    return {
+      eligible: false,
+      reason: `No loans available for Category ${category}`
+    };
   }
 
   // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
@@ -149,12 +156,12 @@ export const calculateAxisFinEligibility = (userData) => {
     };
   }
 
-  const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
+  const incomeToCheck = isBT ? adjustedIncome : monthlyIncomeForCalc;
   if (incomeToCheck < axisFinConfig.minSalary) {
     return { eligible: false, reason: `Minimum salary of ₹${axisFinConfig.minSalary.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
-  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
+  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncomeForCalc;
   const salaryBand = getSalaryBand(incomeForCalculation, axisFinConfig.multiplierTable);
 
   if (!salaryBand) {
@@ -162,7 +169,7 @@ export const calculateAxisFinEligibility = (userData) => {
   }
 
   // Logic Bridge: Support govtMultiplier override
-  let multiplier = isGovtEmployee && govtMultiplier ? govtMultiplier : axisFinConfig.multiplierTable[salaryBand]?.[lookupCategory];
+  let multiplier = isGovtEmployee && govtMultiplier ? govtMultiplier : axisFinConfig.multiplierTable[salaryBand]?.[category];
 
   if (!multiplier) {
     return { eligible: false, reason: `No multiplier available for category ${category} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
@@ -170,7 +177,7 @@ export const calculateAxisFinEligibility = (userData) => {
 
   // IMPORTANT: For multiplier, use salary after deducting existing EMI and credit card obligation (non-BT mode)
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
-  const availableSalary = isBT ? incomeForCalculation : (monthlyIncome - totalObligations);
+  const availableSalary = isBT ? incomeForCalculation : (monthlyIncomeForCalc - totalObligations);
   const calculatedLoanAmount = availableSalary * multiplier;
 
   // Final loan amount is minimum of calculated and desired
@@ -198,7 +205,7 @@ export const calculateAxisFinEligibility = (userData) => {
       creditCardObligation: Math.round(creditCardObligation || 0),
       creditCardObligationNote: creditCardObligation > 0 ? '5% of non-BT credit card outstanding' : 'No credit card obligation (either no CC or CC in BT)',
       totalNonBTObligations: Math.round(nonBTLoansEMI + (creditCardObligation || 0)),
-      originalIncome: monthlyIncome,
+      originalIncome: monthlyIncomeForCalc,
       adjustedIncome: Math.round(adjustedIncome)
     };
   }
@@ -209,9 +216,7 @@ export const calculateAxisFinEligibility = (userData) => {
     effectiveInterestRate = govtROI;
   } else if (!effectiveInterestRate) {
     // Check dynamic slabs in Admin Matrix
-    // Standardize location key to "City, State" to match Admin lookup
-    const locationKey = userData.city && userData.state ? `${userData.city}, ${userData.state}` : (userData.state || null);
-    effectiveInterestRate = getSlabRate('Axis Finance', lookupCategory, cappedFinalLoan, locationKey, axisFinConfig.interestRate);
+    effectiveInterestRate = getSlabRate('Axis Finance', lookupCategory, cappedFinalLoan, userData.city || userData.state, axisFinConfig.interestRate);
   }
 
   const monthlyEMI = calculateEMI(cappedFinalLoan, effectiveInterestRate, cappedTenureYears);
@@ -236,6 +241,8 @@ export const calculateAxisFinEligibility = (userData) => {
     salaryBand: salaryBand,
     category: category,
     calculationMethod: 'Multiplier Only (No FOIR)',
+    incentivePercentage: axisFinConfig.incentivePercentage,
+    incentiveConsidered: bankIncentiveConsidered,
     details: {
       multiplier: multiplier + 'x',
       salaryBand: salaryBand,
