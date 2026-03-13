@@ -154,6 +154,8 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
   const btInput = {
     desiredLoanAmount: null, // We'll calculate max amount
     loanTenure: customerInfo.loanTenure ? parseInt(customerInfo.loanTenure) : 5,
+    basicSalary: customerInfo.basicSalary || 0,
+    averageIncentive: customerInfo.averageIncentive || 0,
     monthlyIncome: customerInfo.monthlyIncome ? parseFloat(customerInfo.monthlyIncome) : 0,
     existingEMI: 0, // KEY: Set to 0 for BT calculation
     companyName: customerInfo.companyName || '',
@@ -310,6 +312,8 @@ export const calculatePartialBT = async (customerInfo, existingLiabilities, sele
   const btInput = {
     desiredLoanAmount: null, // We'll calculate max amount
     loanTenure: customerInfo.loanTenure ? parseInt(customerInfo.loanTenure) : 5,
+    basicSalary: customerInfo.basicSalary || 0,
+    averageIncentive: customerInfo.averageIncentive || 0,
     monthlyIncome: customerInfo.monthlyIncome ? parseFloat(customerInfo.monthlyIncome) : 0,
     existingEMI: 0, // Still set to 0 for BT calculation
     companyName: customerInfo.companyName || '',
