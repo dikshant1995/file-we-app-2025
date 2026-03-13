@@ -121,7 +121,9 @@ export const calculateLoanEligibility = async (userData) => {
 
     try {
       // 🧊 LOGIC BRIDGE: Retrieve real-time Admin Panel settings
-      const location = calculatorInput.city || calculatorInput.state;
+      const location = (calculatorInput.city && calculatorInput.state) 
+        ? `${calculatorInput.city}, ${calculatorInput.state}` 
+        : (calculatorInput.city || calculatorInput.state);
       const adminAllConfig = getAllBankConfig(name, location);
 
       // 1. STRING 8: SALARY MODE GATE
