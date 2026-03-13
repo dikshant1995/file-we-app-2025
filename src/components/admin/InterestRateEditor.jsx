@@ -135,17 +135,11 @@ const InterestRateEditor = ({ bank, onSave, location }) => {
 
       {/* Action Buttons */}
       <div className="editor-actions">
-        <button className="btn-save" onClick={handleSave} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '15px 30px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '1.2rem' }}>💾</span>
-            <span>Commit Rates {location ? 'Locally' : 'Globally'}</span>
-          </div>
-          <span style={{ fontSize: '0.65rem', marginTop: '4px', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Target: {location || 'All India Default'}
-          </span>
+        <button className="btn-save" onClick={handleSave}>
+          💾 Save All Rates
         </button>
         <button className="btn-reset" onClick={() => window.location.reload()}>
-          🔄 Reset View
+          🔄 Reset to Default
         </button>
       </div>
     </div>
