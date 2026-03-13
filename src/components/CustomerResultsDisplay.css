@@ -428,6 +428,78 @@
   }
 }
 
+.company-info-header {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 12px;
+  margin-bottom: 8px;
+}
+
+.company-pill {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.category-pill {
+  background: rgba(0, 212, 255, 0.1);
+  color: var(--accent-cyan);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+}
+
+.category-pill strong {
+  color: #fff;
+  font-weight: 800;
+}
+
+.calc-step {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  padding: 4px 0;
+}
+
+.calc-step .step-label {
+  color: var(--text-muted);
+}
+
+.calc-step .step-value {
+  color: #fff;
+}
+
+.calc-step.highlight .step-label {
+  color: #fff;
+  font-weight: 700;
+}
+
+.calc-step.result {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.calc-step.result .step-label {
+  color: var(--accent-cyan);
+  font-weight: 800;
+}
+
+.calc-step.result .step-value {
+  color: var(--accent-cyan);
+  font-size: 1.1rem;
+}
+
 .admin-sync-tag {
   font-size: 0.65rem;
   color: #4facfe;
