@@ -242,6 +242,7 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
 
       // Return BT result with additional information
       return {
+        ...result, // 💎 PRESERVE ALL CALCULATOR METADATA (Incentives, POS, etc.)
         bankName: result.bankName || name,
         eligible: true,
         maxLoanAmount: maxLoanAmount,
@@ -400,6 +401,7 @@ export const calculatePartialBT = async (customerInfo, existingLiabilities, sele
 
       // Return BT result with additional information
       return {
+        ...result, // 💎 PRESERVE ALL CALCULATOR METADATA (Incentives, POS, etc.)
         bankName: result.bankName || name,
         eligible: true,
         maxLoanAmount: maxLoanAmount,
