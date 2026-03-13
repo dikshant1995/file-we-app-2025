@@ -75,6 +75,7 @@ const AdminDashboard = ({ onBackToCustomer }) => {
     { id: 'credit-score', icon: <Shield size={18} stroke="#00d4ff" />, label: 'Risk Assessment', component: 'BankConfigEditor', section: 'creditScore' },
     { id: 'employment', icon: <Zap size={18} stroke="#00d4ff" />, label: 'Employment Credentialing', component: 'BankConfigEditor', section: 'employment' },
     { id: 'govt-policy', icon: <ShieldCheck size={18} stroke="#00d4ff" />, label: 'Government Policies', component: 'BankConfigEditor', section: 'govt-policy' },
+    { id: 'incentive-policy', icon: <TrendingUp size={18} stroke="#00ff88" />, label: 'Incentive Master Stroke', component: 'BankConfigEditor', section: 'incentive-policy' },
     { id: 'documents', icon: <FileText size={18} stroke="#00d4ff" />, label: 'Documentation Protocol', component: 'BankConfigEditor', section: 'documents' },
     { id: 'special', icon: <Zap size={18} stroke="#00d4ff" />, label: 'Exceptional Policies', component: 'BankConfigEditor', section: 'special' },
     { id: 'fees', icon: <Zap size={18} stroke="#00d4ff" />, label: 'Fee Schedules', component: 'BankConfigEditor', section: 'fees' },
@@ -120,7 +121,7 @@ const AdminDashboard = ({ onBackToCustomer }) => {
     }
 
     // 🛡️ HIERARCHY GATE 2: Bank Selection (For granular editors)
-    const isGranularEditor = ['config', 'categories', 'interest', 'loan-capping', 'age-rules', 'tenure', 'foir', 'multiplier', 'bt', 'credit-score', 'employment', 'govt-policy', 'documents', 'special', 'fees', 'company-db'].includes(activeMenu);
+    const isGranularEditor = ['config', 'categories', 'interest', 'loan-capping', 'age-rules', 'tenure', 'foir', 'multiplier', 'bt', 'credit-score', 'employment', 'govt-policy', 'incentive-policy', 'documents', 'special', 'fees', 'company-db'].includes(activeMenu);
 
     if (isGranularEditor && !selectedBank) {
       return (
@@ -234,7 +235,7 @@ const AdminDashboard = ({ onBackToCustomer }) => {
         </aside>
 
         <main className="dashboard-main">
-          {selectedBank && ['config', 'categories', 'interest', 'loan-capping', 'age-rules', 'tenure', 'foir', 'multiplier', 'bt', 'credit-score', 'employment', 'govt-policy', 'documents', 'special', 'fees'].includes(activeMenu) && (
+          {selectedBank && ['config', 'categories', 'interest', 'loan-capping', 'age-rules', 'tenure', 'foir', 'multiplier', 'bt', 'credit-score', 'employment', 'govt-policy', 'incentive-policy', 'documents', 'special', 'fees'].includes(activeMenu) && (
             <div className="active-context-banner glass-panel">
               <div className="context-visual">
                 <span className="ctx-item">🏦 {selectedBank.name}</span>
