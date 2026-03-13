@@ -52,6 +52,8 @@ function CustomerFacingApp() {
           outstandingAmount: parseFloat(card.creditLimitUsed || 0)
         }));
         const btData = {
+          basicSalary: parseFloat(formData.basicSalary || 0),
+          averageIncentive: parseFloat(formData.averageIncentive || 0),
           monthlyIncome: parseFloat(formData.monthlyIncome || 0),
           loanTenure: parseInt(formData.loanTenure || 5),
           category: formData.category || 'A',
