@@ -119,6 +119,8 @@ export const calculateHdfcEligibility = (userData) => {
   const {
     desiredLoanAmount,
     loanTenure,
+    basicSalary,
+    averageIncentive,
     monthlyIncome,
     existingEMI,
     creditCardObligation, // NEW: 5% of non-BT credit card balances
@@ -143,9 +145,16 @@ export const calculateHdfcEligibility = (userData) => {
     btTotalOutstanding
   } = userData;
 
+  // ========== INCENTIVE CALCULATION LOGIC ==========
+  const bankIncentiveConsidered = (averageIncentive || 0) * (hdfcConfig.incentivePercentage || 0);
+  const actualMonthlyIncome = (basicSalary || 0) + bankIncentiveConsidered;
+  
+  // Use actualMonthlyIncome for all subsequent calculations
+  const monthlyIncomeForCalc = actualMonthlyIncome;
+
   // ========== BALANCE TRANSFER MODE DETECTION ==========
   const isBT = isBTMode && loansForBT && loansForBT.length > 0;
-  let adjustedIncome = monthlyIncome;
+  let adjustedIncome = monthlyIncomeForCalc;
   let nonBTLoansEMI = 0;
 
   if (isBT) {
@@ -158,9 +167,9 @@ export const calculateHdfcEligibility = (userData) => {
     // Formula: Adjusted Salary = Gross Salary - Non-BT Loans EMI - Credit Card Obligation
     nonBTLoansEMI = (existingEMI || 0) - btTotalEMI;
     const creditCardDeduction = creditCardObligation || 0;
-    adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
+    adjustedIncome = monthlyIncomeForCalc - nonBTLoansEMI - creditCardDeduction;
 
-    console.log('📊 Original Salary:', monthlyIncome);
+    console.log('📊 Original Salary:', monthlyIncomeForCalc);
     console.log('📊 Non-BT Loans EMI:', nonBTLoansEMI);
     console.log('💳 Credit Card Obligation (5% of non-BT CC):', creditCardDeduction);
     console.log('📊 Adjusted Salary for BT:', adjustedIncome);
@@ -212,22 +221,19 @@ export const calculateHdfcEligibility = (userData) => {
   // Pass 1: Preliminary ROI for initial calculation
   const baseRate = hdfcConfig.interestRate;
 
-  // Determine company category - handle both standard and GOVT cases
-  // Logic Bridge: Support 'government' employment type and 'GOVT' category
-  let companyCategory = category || 'B';
-  if (employmentType === 'government') {
-    companyCategory = 'GOVT';
-  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
-    companyCategory = 'GOVT';
+  // Use user-provided category (from frontend: B, C, or GOVT)
+  const companyCategory = category || 'B'; // Default to B if not provided
+  if (!hdfcConfig.employmentTypes.includes(employmentType)) {
+    return {
+      eligible: false,
+      reason: `Employment type ${employmentType} not supported by this bank`
+    };
   }
+
 
   // Apply tenure capping based on category (tenure is in months)
-  // Maps standard GOVT to config key (A is usually used for govt in internal logic if not present)
-  let lookupCategory = companyCategory === 'GOVT' ? 'GOVT' : companyCategory;
-  if (!hdfcConfig.maxTenureByCategory[lookupCategory]) {
-    lookupCategory = 'A'; // Fallback to A for government if config key is missing
-  }
-
+  // Logic Bridge: Use govtMaxTenure if available
+  let lookupCategory = companyCategory === 'Govt' ? 'A' : companyCategory;
   let maxTenureForCategory = (isGovtEmployee && govtMaxTenure) ? govtMaxTenure : hdfcConfig.maxTenureByCategory[lookupCategory];
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
@@ -248,8 +254,9 @@ export const calculateHdfcEligibility = (userData) => {
 
   // Check minimum salary requirement based on category
   // For BT mode, use adjusted income for salary checks
-  const categoryMinSalary = hdfcConfig.minSalary[lookupCategory] || hdfcConfig.minSalary['A'];
-  const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
+  let lookupCategoryMinSalary = companyCategory === 'Govt' ? 'A' : companyCategory;
+  const categoryMinSalary = hdfcConfig.minSalary[lookupCategoryMinSalary] || hdfcConfig.minSalary['A'];
+  const incomeToCheck = isBT ? adjustedIncome : monthlyIncomeForCalc;
   if (incomeToCheck < categoryMinSalary) {
     return {
       eligible: false,
@@ -260,10 +267,11 @@ export const calculateHdfcEligibility = (userData) => {
 
   // Calculate using Multiplier method
   // For BT mode, use adjusted income
-  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
+  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncomeForCalc;
 
   // Logic Bridge: Use govtMultiplier if available
-  let multiplier = (isGovtEmployee && govtMultiplier) ? govtMultiplier : getMultiplier(incomeForCalculation, lookupCategory);
+  let lookupCategoryMultiplier = companyCategory === 'Govt' ? 'A' : companyCategory;
+  let multiplier = (isGovtEmployee && govtMultiplier) ? govtMultiplier : getMultiplier(incomeForCalculation, lookupCategoryMultiplier);
 
   if (!multiplier) {
     return {
@@ -275,12 +283,13 @@ export const calculateHdfcEligibility = (userData) => {
 
   // IMPORTANT: For multiplier, use salary after deducting existing EMI + credit card obligations (non-BT mode)
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
-  const availableSalary = isBT ? incomeForCalculation : (monthlyIncome - totalObligations);
+  const availableSalary = isBT ? incomeForCalculation : (monthlyIncomeForCalc - totalObligations);
   const multiplierLoanAmount = availableSalary * multiplier;
 
   // Calculate using FOIR method
   // Logic Bridge: Use govtFOIR if available
-  let foirPercentage = (isGovtEmployee && govtFOIR) ? (govtFOIR / 100) : getFoirPercentage(incomeForCalculation, lookupCategory);
+  let lookupCategoryFOIR = companyCategory === 'Govt' ? 'A' : companyCategory;
+  let foirPercentage = (isGovtEmployee && govtFOIR) ? (govtFOIR / 100) : getFoirPercentage(incomeForCalculation, lookupCategoryFOIR);
 
   if (!foirPercentage) {
     return {
@@ -310,12 +319,7 @@ export const calculateHdfcEligibility = (userData) => {
   // Pass 2: Get final ROI based on preliminary loan amount
   let finalInterestRate = interestRateOverride || interestRate;
   if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
-
-  if (!finalInterestRate) {
-    // Standardize location key to "City, State" to match Admin lookup
-    const locationKey = userData.city && userData.state ? `${userData.city}, ${userData.state}` : (userData.state || null);
-    finalInterestRate = getInterestRateForLoan(companyCategory, preliminaryLoanAmount, locationKey);
-  }
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(companyCategory, preliminaryLoanAmount, userData.city || userData.state);
 
   const effectiveInterestRate = finalInterestRate;
 
@@ -365,7 +369,7 @@ export const calculateHdfcEligibility = (userData) => {
       creditCardObligation: Math.round(creditCardObligation || 0),
       creditCardObligationNote: creditCardObligation > 0 ? '5% of non-BT credit card outstanding' : 'No credit card obligation (either no CC or CC in BT)',
       totalNonBTObligations: Math.round(nonBTLoansEMI + (creditCardObligation || 0)),
-      originalIncome: monthlyIncome,
+      originalIncome: monthlyIncomeForCalc,
       adjustedIncome: Math.round(adjustedIncome)
     };
   }
@@ -394,6 +398,8 @@ export const calculateHdfcEligibility = (userData) => {
     calculationMethod: 'Combined (Multiplier and FOIR)',
     multiplier: multiplier,
     foirPercentage: foirPercentage,
+    incentivePercentage: hdfcConfig.incentivePercentage,
+    incentiveConsidered: bankIncentiveConsidered,
     details: {
       multiplierLoanAmount: Math.round(multiplierLoanAmount),
       foirLoanAmount: Math.round(foirLoanAmount),
