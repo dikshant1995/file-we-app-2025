@@ -40,6 +40,8 @@ export const calculateIdfcEligibility = (userData) => {
   const {
     desiredLoanAmount,
     loanTenure,
+    basicSalary,
+    averageIncentive,
     monthlyIncome,
     existingEMI = 0,
     creditCardObligation, // NEW: 5% of non-BT credit card balances
@@ -62,15 +64,22 @@ export const calculateIdfcEligibility = (userData) => {
     btTotalOutstanding
   } = userData;
 
+  // ========== INCENTIVE CALCULATION LOGIC ==========
+  const bankIncentiveConsidered = (averageIncentive || 0) * (idfcConfig.incentivePercentage || 0);
+  const actualMonthlyIncome = (basicSalary || 0) + bankIncentiveConsidered;
+  
+  // Use actualMonthlyIncome for all subsequent calculations
+  const monthlyIncomeForCalc = actualMonthlyIncome;
+
   const isBT = isBTMode && loansForBT && loansForBT.length > 0;
-  let adjustedIncome = monthlyIncome;
+  let adjustedIncome = monthlyIncomeForCalc;
   let nonBTLoansEMI = 0;
 
   if (isBT) {
     nonBTLoansEMI = existingEMI - btTotalEMI;
     // NEW: Also deduct credit card obligations from adjusted income
     const creditCardDeduction = creditCardObligation || 0;
-    adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
+    adjustedIncome = monthlyIncomeForCalc - nonBTLoansEMI - creditCardDeduction;
     if (adjustedIncome <= 0) {
       return { eligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains`, isBTMode: true };
     }
@@ -111,25 +120,19 @@ export const calculateIdfcEligibility = (userData) => {
     };
   }
 
-  // Determine company category - handle both standard and GOVT cases
-  // Logic Bridge: Support 'government' employment type and 'GOVT' category
-  let companyCategory = category || 'B';
-  if (employmentType === 'government') {
-    companyCategory = 'GOVT';
-  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
-    companyCategory = 'GOVT';
-  }
-
-  // Use standardized GOVT for multiplier and tenure lookups
-  const lookupCategory = companyCategory;
+  // Map A+ to SUPER-A for consistency. Handle Govt fallback.
+  let mappedCategory = category === 'A+' ? 'SUPER-A' : category;
+  if (mappedCategory === 'Govt') mappedCategory = 'A';
 
   // Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
-  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : idfcConfig.maxTenureByCategory[lookupCategory];
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : idfcConfig.maxTenureByCategory[mappedCategory];
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
-    // Fallback to A for government if config key is missing
-    maxTenureForCategory = idfcConfig.maxTenureByCategory['GOVT'] || idfcConfig.maxTenureByCategory['A'] || 84;
+    return {
+      eligible: false,
+      reason: `No loans available for Category ${mappedCategory}`
+    };
   }
 
   // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
@@ -157,20 +160,20 @@ export const calculateIdfcEligibility = (userData) => {
     };
   }
 
-  if (!idfcConfig.multiplierTable[lookupCategory]) {
+  if (!idfcConfig.multiplierTable[mappedCategory]) {
     return { eligible: false, reason: `Category ${category} not supported by IDFC Bank`, isBTMode: isBT };
   }
 
-  const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
+  const incomeToCheck = isBT ? adjustedIncome : monthlyIncomeForCalc;
   if (incomeToCheck < idfcConfig.minSalary) {
     return { eligible: false, reason: `Minimum salary of ₹${idfcConfig.minSalary.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
-  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
+  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncomeForCalc;
   const salaryBand = getSalaryBand(incomeForCalculation);
 
-  // Logic Bridge: Use govtMultiplier if available
-  let multiplier = isGovtEmployee && govtMultiplier ? govtMultiplier : idfcConfig.multiplierTable[lookupCategory][salaryBand]; // Changed mappedCategory to lookupCategory
+  // Logic Bridge: Support govtMultiplier override
+  let multiplier = isGovtEmployee && govtMultiplier ? govtMultiplier : idfcConfig.multiplierTable[mappedCategory][salaryBand];
 
   if (!multiplier) {
     return { eligible: false, reason: `No multiplier available for category ${category} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
@@ -178,7 +181,7 @@ export const calculateIdfcEligibility = (userData) => {
 
   // IMPORTANT: For multiplier, use salary after deducting existing EMI and credit card obligation (non-BT mode)
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
-  const availableSalary = isBT ? incomeForCalculation : (monthlyIncome - totalObligations);
+  const availableSalary = isBT ? incomeForCalculation : (monthlyIncomeForCalc - totalObligations);
   const calculatedLoanAmount = availableSalary * multiplier;
 
   // Preliminary loan amount
@@ -193,11 +196,7 @@ export const calculateIdfcEligibility = (userData) => {
   // Logic Bridge: Support ROI overrides
   let finalInterestRate = interestRateOverride;
   if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
-  if (!finalInterestRate) {
-    // Standardize location key to "City, State" to match Admin lookup
-    const locationKey = userData.city && userData.state ? `${userData.city}, ${userData.state}` : (userData.state || null);
-    finalInterestRate = getInterestRateForLoan(companyCategory, preliminaryLoanAmount, locationKey);
-  }
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(mappedCategory, preliminaryCappedLoan, userData.city || userData.state);
 
   // Final loan amount is minimum of calculated and desired
   const finalLoanAmount = Math.min(
@@ -224,7 +223,7 @@ export const calculateIdfcEligibility = (userData) => {
       creditCardObligation: Math.round(creditCardObligation || 0),
       creditCardObligationNote: creditCardObligation > 0 ? '5% of non-BT credit card outstanding' : 'No credit card obligation (either no CC or CC in BT)',
       totalNonBTObligations: Math.round(nonBTLoansEMI + (creditCardObligation || 0)),
-      originalIncome: monthlyIncome,
+      originalIncome: monthlyIncomeForCalc,
       adjustedIncome: Math.round(adjustedIncome)
     };
   }
@@ -249,9 +248,11 @@ export const calculateIdfcEligibility = (userData) => {
     monthlyEMI: Math.round(monthlyEMI),
     multiplier: multiplier,
     salaryBand: salaryBand,
-    category: lookupCategory,
+    category: mappedCategory,
     maxLoanByMultiplier: Math.round(calculatedLoanAmount),
     calculationMethod: 'Multiplier Only (No FOIR)',
+    incentivePercentage: idfcConfig.incentivePercentage,
+    incentiveConsidered: bankIncentiveConsidered,
     details: {
       multiplier: multiplier + 'x',
       salaryBand: salaryBand,
