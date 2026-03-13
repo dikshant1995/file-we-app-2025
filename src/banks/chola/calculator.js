@@ -61,6 +61,8 @@ export const calculateCholaEligibility = (userData) => {
   const {
     desiredLoanAmount,
     loanTenure,
+    basicSalary,
+    averageIncentive,
     monthlyIncome,
     existingEMI = 0,
     creditCardObligation, // NEW: 5% of non-BT credit card balances
@@ -83,15 +85,22 @@ export const calculateCholaEligibility = (userData) => {
     btTotalOutstanding
   } = userData;
 
+  // ========== INCENTIVE CALCULATION LOGIC ==========
+  const bankIncentiveConsidered = (averageIncentive || 0) * (cholaConfig.incentivePercentage || 0);
+  const actualMonthlyIncome = (basicSalary || 0) + bankIncentiveConsidered;
+  
+  // Use actualMonthlyIncome for all subsequent calculations
+  const monthlyIncomeForCalc = actualMonthlyIncome;
+
   const isBT = isBTMode && loansForBT && loansForBT.length > 0;
-  let adjustedIncome = monthlyIncome;
+  let adjustedIncome = monthlyIncomeForCalc;
   let nonBTLoansEMI = 0;
 
   if (isBT) {
     nonBTLoansEMI = existingEMI - btTotalEMI;
     // NEW: Also deduct credit card obligations from adjusted income
     const creditCardDeduction = creditCardObligation || 0;
-    adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
+    adjustedIncome = monthlyIncomeForCalc - nonBTLoansEMI - creditCardDeduction;
     if (adjustedIncome <= 0) {
       return { eligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains`, isBTMode: true };
     }
@@ -128,25 +137,15 @@ export const calculateCholaEligibility = (userData) => {
     };
   }
 
-  // Determine company category - handle both standard and GOVT cases
-  // Logic Bridge: Support 'government' employment type and 'GOVT' category
-  let companyCategory = category || 'B';
-  if (employmentType === 'government') {
-    companyCategory = 'GOVT';
-  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
-    companyCategory = 'GOVT';
-  }
-
-  // Use standardized GOVT for tenure and FOIR lookups
-  const lookupCategory = companyCategory;
-
-  // Apply tenure capping based on category (tenure is in months)
+  // 2. Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
-  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : cholaConfig.maxTenureByCategory[lookupCategory];
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : cholaConfig.maxTenureByCategory[category];
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
-    // Fallback to A for government if config key is missing
-    maxTenureForCategory = cholaConfig.maxTenureByCategory['GOVT'] || cholaConfig.maxTenureByCategory['A'] || 84;
+    return {
+      eligible: false,
+      reason: `No loans available for Category ${category}`
+    };
   }
 
   // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
@@ -174,35 +173,20 @@ export const calculateCholaEligibility = (userData) => {
     };
   }
 
-  // Check minimum salary requirement based on category
-  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
-  const categoryMinSalary = cholaConfig.minSalary[lookupCategory] || cholaConfig.minSalary['A'];
-  if (incomeForCalculation < categoryMinSalary) {
-    return {
-      eligible: false,
-      reason: `Minimum monthly income required for ${companyCategory} category is ₹${categoryMinSalary.toLocaleString()}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`,
-      isBTMode: isBT
-    };
+  const minSalary = cholaConfig.minSalary[category];
+  const incomeToCheck = isBT ? adjustedIncome : monthlyIncomeForCalc;
+  if (!minSalary || incomeToCheck < minSalary) {
+    return { eligible: false, reason: `Minimum salary for ${category} is ₹${minSalary?.toLocaleString() || 'N/A'}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
-  // Helper to get FOIR percentage
-  const getFoirPercentage = (income, cat) => {
-    const foirBand = getSalaryBand(income, cholaConfig.foirTable);
-    return cholaConfig.foirTable[foirBand]?.[cat];
-  };
-
-  // Calculate using FOIR method
-  // Logic Bridge: Use govtFOIR if available
-  let foirPercentage = (isGovtEmployee && govtFOIR) ? (govtFOIR / 100) : null;
-  let foirBand = null;
+  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncomeForCalc;
+  const foirBand = getSalaryBand(incomeForCalculation, cholaConfig.foirTable);
+  // Logic Bridge: Support govtFOIR override
+  let lookupCategoryFOIR = category === 'Govt' ? 'A' : category;
+  let foirPercentage = (isGovtEmployee && govtFOIR) ? (govtFOIR / 100) : cholaConfig.foirTable[foirBand]?.[lookupCategoryFOIR];
 
   if (!foirPercentage) {
-    foirBand = getSalaryBand(incomeForCalculation, cholaConfig.foirTable);
-    foirPercentage = cholaConfig.foirTable[foirBand]?.[lookupCategory];
-  }
-
-  if (!foirPercentage) {
-    return { eligible: false, reason: `FOIR not defined for category ${lookupCategory} at salary band ${foirBand || 'unknown'}`, isBTMode: isBT };
+    return { eligible: false, reason: `FOIR not defined for category ${category} at salary band ${foirBand}`, isBTMode: isBT };
   }
 
   const foirCap = incomeForCalculation * foirPercentage;
@@ -225,11 +209,7 @@ export const calculateCholaEligibility = (userData) => {
   // Pass 2: Get final ROI based on preliminary loan amount
   let finalInterestRate = interestRateOverride;
   if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
-  if (!finalInterestRate) {
-    // Standardize location key to "City, State" to match Admin lookup
-    const locationKey = userData.city && userData.state ? `${userData.city}, ${userData.state}` : (userData.state || null);
-    finalInterestRate = getInterestRateForLoan(companyCategory, preliminaryLoanAmount, locationKey);
-  }
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(category, preliminaryLoanAmount, userData.city || userData.state);
 
   const effectiveInterestRate = finalInterestRate;
 
@@ -261,7 +241,7 @@ export const calculateCholaEligibility = (userData) => {
       creditCardObligation: Math.round(creditCardObligation || 0),
       creditCardObligationNote: creditCardObligation > 0 ? '5% of non-BT credit card outstanding' : 'No credit card obligation (either no CC or CC in BT)',
       totalNonBTObligations: Math.round(nonBTLoansEMI + (creditCardObligation || 0)),
-      originalIncome: monthlyIncome,
+      originalIncome: monthlyIncomeForCalc,
       adjustedIncome: Math.round(adjustedIncome)
     };
   }
@@ -286,6 +266,8 @@ export const calculateCholaEligibility = (userData) => {
     monthlyEMI: finalEMI,
     category: category,
     calculationMethod: 'FOIR Only',
+    incentivePercentage: cholaConfig.incentivePercentage,
+    incentiveConsidered: bankIncentiveConsidered,
     details: {
       foirPercentage: (foirPercentage * 100).toFixed(0) + '%',
       salaryBand: foirBand,
