@@ -151,14 +151,14 @@ export const getCompanySuggestions = (searchTerm) => {
  */
 const mapCategoryToConfigKey = (standardizedCategory) => {
   const mapping = {
-    'SCATA': 'SUPER-A',
+    'SCATA': 'A+',     // Standardize Super-A to A+ for maximum compatibility
     'CATGA': 'A',
     'CATGB': 'B',
     'CATGC': 'C',
     'CATGD': 'D',
     'GOVT': 'GOVT'
   };
-  return mapping[standardizedCategory] || 'B';
+  return mapping[standardizedCategory] || standardizedCategory || 'B';
 };
 
 /**
