@@ -93,11 +93,22 @@ export const calculateShriRamEligibility = (userData) => {
     loansForBT,
     btTotalEMI,
     btTotalOutstanding,
-    creditCardObligation = 0
+    creditCardObligation = 0,
+    // Incentive Overrides
+    incentivePercentageOverride,
+    incentiveMonthsOverride
   } = userData;
 
   // ========== INCENTIVE CALCULATION LOGIC ==========
-  const bankIncentiveConsidered = (averageIncentive || 0) * (shriRamConfig.incentivePercentage || 0);
+  const effectiveIncentivePercentage = incentivePercentageOverride !== undefined 
+    ? incentivePercentageOverride 
+    : (shriRamConfig.incentivePercentage || 0);
+
+  const effectiveIncentiveMonths = incentiveMonthsOverride !== undefined 
+    ? incentiveMonthsOverride 
+    : 3; // Default to 3 months if not specified
+
+  const bankIncentiveConsidered = (averageIncentive || 0) * effectiveIncentivePercentage;
   const actualMonthlyIncome = (basicSalary || 0) + bankIncentiveConsidered;
   
   // Use actualMonthlyIncome for all subsequent calculations
@@ -289,7 +300,8 @@ export const calculateShriRamEligibility = (userData) => {
     multiplier: multiplier,
     foirPercentage: foirPercentage,
     salaryBand: salaryBand,
-    incentivePercentage: shriRamConfig.incentivePercentage,
+    incentivePercentage: effectiveIncentivePercentage, // Dynamically reflect override
+    incentiveMonths: effectiveIncentiveMonths,
     incentiveConsidered: bankIncentiveConsidered,
     availableEMI: Math.round(availableEMI),
     foirLoanAmount: Math.round(foirLoanAmount),
