@@ -93,11 +93,22 @@ export const calculatePiramalEligibility = (userData) => {
     isBTMode,
     loansForBT,
     btTotalEMI,
-    btTotalOutstanding
+    btTotalOutstanding,
+    // Incentive Overrides
+    incentivePercentageOverride,
+    incentiveMonthsOverride
   } = userData;
 
   // ========== INCENTIVE CALCULATION LOGIC ==========
-  const bankIncentiveConsidered = (averageIncentive || 0) * (piramalConfig.incentivePercentage || 0);
+  const effectiveIncentivePercentage = incentivePercentageOverride !== undefined 
+    ? incentivePercentageOverride 
+    : (piramalConfig.incentivePercentage || 0);
+
+  const effectiveIncentiveMonths = incentiveMonthsOverride !== undefined 
+    ? incentiveMonthsOverride 
+    : 3; // Default to 3 months if not specified
+
+  const bankIncentiveConsidered = (averageIncentive || 0) * effectiveIncentivePercentage;
   const actualMonthlyIncome = (basicSalary || 0) + bankIncentiveConsidered;
   
   // Use actualMonthlyIncome for all subsequent calculations
@@ -270,7 +281,8 @@ export const calculatePiramalEligibility = (userData) => {
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
     foirPercentage: foirPercentage,
-    incentivePercentage: piramalConfig.incentivePercentage,
+    incentivePercentage: effectiveIncentivePercentage, // Dynamically reflect override
+    incentiveMonths: effectiveIncentiveMonths,
     incentiveConsidered: bankIncentiveConsidered,
     availableEMI: Math.round(availableEMI),
     calculationMethod: 'FOIR Only (Ultra-Simple 2-Band NTH, No Category)',
