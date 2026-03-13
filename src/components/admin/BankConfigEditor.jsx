@@ -4,7 +4,7 @@ import InterestRateEditor from './InterestRateEditor.jsx';
 import CategoriesEditor from './CategoriesEditor.jsx';
 import LoanCappingEditor from './LoanCappingEditor.jsx';
 import CompanyListEditor from './CompanyListEditor.jsx';
-import { AgeRulesEditor, TenureRulesEditor, FoirEditor, MultiplierEditor, BTEditor, CreditScoreEditor, EmploymentEditor, FeesEditor, DocumentsEditor, SpecialRulesEditor, GovtPolicyEditor } from './AllEditors.jsx';
+import { AgeRulesEditor, TenureRulesEditor, FoirEditor, MultiplierEditor, BTEditor, CreditScoreEditor, EmploymentEditor, FeesEditor, DocumentsEditor, SpecialRulesEditor, GovtPolicyEditor, IncentivePolicyEditor } from './AllEditors.jsx';
 
 const BankConfigEditor = ({ selectedBank, section, activeLocation }) => {
   if (!selectedBank) {
@@ -49,6 +49,8 @@ const BankConfigEditor = ({ selectedBank, section, activeLocation }) => {
         return <EmploymentSection {...props} />;
       case 'govt-policy':
         return <GovtPolicySection {...props} />;
+      case 'incentive-policy':
+        return <IncentivePolicySection {...props} />;
       case 'documents':
         return <DocumentsSection {...props} />;
       case 'special':
@@ -119,6 +121,8 @@ const GovtPolicySection = ({ bank, location }) => <GovtPolicyEditor bank={bank} 
 const DocumentsSection = ({ bank, location }) => <DocumentsEditor bank={bank} location={location} onSave={(config) => console.log('Documents saved:', config)} />;
 
 const SpecialRulesSection = ({ bank, location }) => <SpecialRulesEditor bank={bank} location={location} onSave={(config) => console.log('Special rules saved:', config)} />;
+
+const IncentivePolicySection = ({ bank, location }) => <IncentivePolicyEditor bank={bank} location={location} onSave={(config) => console.log('Incentive policy saved:', config)} />;
 
 const FeesSection = ({ bank, location }) => <FeesEditor bank={bank} location={location} onSave={(config) => console.log('Fees saved:', config)} />;
 
