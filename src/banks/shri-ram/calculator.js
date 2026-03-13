@@ -72,6 +72,8 @@ export const calculateShriRamEligibility = (userData) => {
   const {
     desiredLoanAmount,
     loanTenure,
+    basicSalary,
+    averageIncentive,
     monthlyIncome,
     existingEMI = 0,
     category = 'C',
@@ -94,13 +96,20 @@ export const calculateShriRamEligibility = (userData) => {
     creditCardObligation = 0
   } = userData;
 
+  // ========== INCENTIVE CALCULATION LOGIC ==========
+  const bankIncentiveConsidered = (averageIncentive || 0) * (shriRamConfig.incentivePercentage || 0);
+  const actualMonthlyIncome = (basicSalary || 0) + bankIncentiveConsidered;
+  
+  // Use actualMonthlyIncome for all subsequent calculations
+  const monthlyIncomeForCalc = actualMonthlyIncome;
+
   const isBT = isBTMode && loansForBT && loansForBT.length > 0;
-  let adjustedIncome = monthlyIncome;
+  let adjustedIncome = monthlyIncomeForCalc;
   let nonBTLoansEMI = 0;
 
   if (isBT) {
     nonBTLoansEMI = existingEMI - btTotalEMI;
-    adjustedIncome = monthlyIncome - nonBTLoansEMI;
+    adjustedIncome = monthlyIncomeForCalc - nonBTLoansEMI;
     if (adjustedIncome <= 0) {
       return { eligible: false, reason: `After deducting non-BT loan EMIs (₹${nonBTLoansEMI.toLocaleString()}), no income remains`, isBTMode: true };
     }
@@ -129,28 +138,17 @@ export const calculateShriRamEligibility = (userData) => {
     };
   }
 
-  // Determine company category - handle both standard and GOVT cases
-  // Logic Bridge: Support 'government' employment type and map to 'C'
-  let companyCategory = category || 'UNLISTED';
-  if (employmentType === 'government') {
-    companyCategory = 'GOVT';
-  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
-    companyCategory = 'GOVT';
-  }
-
-  // Shri Ram maps GOVT to category 'C' for tenure and interest rate lookups
-  const lookupCategory = companyCategory === 'GOVT' ? 'C' : companyCategory;
-
-  // Final check for supported employment types (now includes government)
+  // Check employment type
   if (!shriRamConfig.employmentTypes.includes(employmentType)) {
     return {
       eligible: false,
-      reason: `Employment type ${employmentType} not supported by this bank`
+      reason: `Employment type ${employmentType} not supported by Shri Ram Finance`
     };
   }
 
   // Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
+  let lookupCategory = category === 'Govt' ? 'C' : category; // Fallback Govt to C for Shri Ram
   let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : shriRamConfig.maxTenureByCategory[lookupCategory];
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
@@ -178,12 +176,12 @@ export const calculateShriRamEligibility = (userData) => {
   }
 
   const minSalaryRequired = shriRamConfig.minSalaryByCategory[category] || shriRamConfig.minSalaryByCategory['C'];
-  const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
+  const incomeToCheck = isBT ? adjustedIncome : monthlyIncomeForCalc;
   if (incomeToCheck < minSalaryRequired) {
     return { eligible: false, reason: `Minimum salary of ₹${minSalaryRequired.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
-  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
+  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncomeForCalc;
   const salaryBand = getSalaryBand(incomeForCalculation, shriRamConfig.salaryBandTable);
 
   if (!salaryBand) {
@@ -209,7 +207,7 @@ export const calculateShriRamEligibility = (userData) => {
   // Method 2: Multiplier-based calculation
   // IMPORTANT: For multiplier, use salary after deducting existing EMI + credit card obligations (non-BT mode)
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
-  const availableSalary = isBT ? incomeForCalculation : (monthlyIncome - totalObligations);
+  const availableSalary = isBT ? incomeForCalculation : (monthlyIncomeForCalc - totalObligations);
   const multiplierLoanAmount = availableSalary * multiplier;
 
   // Pass 1: Preliminary ROI for initial calculation
@@ -231,11 +229,7 @@ export const calculateShriRamEligibility = (userData) => {
   // Pass 2: Get final ROI based on preliminary loan amount
   let finalInterestRate = interestRateOverride;
   if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
-  if (!finalInterestRate) {
-    // Standardize location key to "City, State" to match Admin lookup
-    const locationKey = userData.city && userData.state ? `${userData.city}, ${userData.state}` : (userData.state || null);
-    finalInterestRate = getInterestRateForLoan(lookupCategory, preliminaryLoanAmount, locationKey);
-  }
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(category, preliminaryLoanAmount, userData.city || userData.state);
 
   const effectiveInterestRate = finalInterestRate;
 
@@ -269,7 +263,7 @@ export const calculateShriRamEligibility = (userData) => {
       creditCardObligation: Math.round(creditCardObligation || 0),
       creditCardObligationNote: creditCardObligation > 0 ? '5% of non-BT credit card outstanding' : 'No credit card obligation (either no CC or CC in BT)',
       totalNonBTObligations: Math.round(nonBTLoansEMI + (creditCardObligation || 0)),
-      originalIncome: monthlyIncome,
+      originalIncome: monthlyIncomeForCalc,
       adjustedIncome: Math.round(adjustedIncome)
     };
   }
@@ -295,6 +289,8 @@ export const calculateShriRamEligibility = (userData) => {
     multiplier: multiplier,
     foirPercentage: foirPercentage,
     salaryBand: salaryBand,
+    incentivePercentage: shriRamConfig.incentivePercentage,
+    incentiveConsidered: bankIncentiveConsidered,
     availableEMI: Math.round(availableEMI),
     foirLoanAmount: Math.round(foirLoanAmount),
     multiplierLoanAmount: Math.round(multiplierLoanAmount),
