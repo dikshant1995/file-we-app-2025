@@ -69,7 +69,7 @@ export const shriRamConfig = {
     'UNLISTED': { description: 'Unlisted Companies - Fully Eligible (unique to Shriram)' }
   },
 
-  employmentTypes: ['salaried', 'self-employed', 'unlisted', 'government'],
+  employmentTypes: ['salaried', 'self-employed', 'unlisted'],
   specialPrograms: ['income-focused-lending', 'inclusive-finance', 'unlisted-friendly'],
 
   // Calculation method
