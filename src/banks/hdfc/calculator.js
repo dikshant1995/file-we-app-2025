@@ -142,11 +142,22 @@ export const calculateHdfcEligibility = (userData) => {
     isBTMode,
     loansForBT,
     btTotalEMI,
-    btTotalOutstanding
+    btTotalOutstanding,
+    // Incentive Overrides
+    incentivePercentageOverride,
+    incentiveMonthsOverride
   } = userData;
 
   // ========== INCENTIVE CALCULATION LOGIC ==========
-  const bankIncentiveConsidered = (averageIncentive || 0) * (hdfcConfig.incentivePercentage || 0);
+  const effectiveIncentivePercentage = incentivePercentageOverride !== undefined 
+    ? incentivePercentageOverride 
+    : (hdfcConfig.incentivePercentage || 0);
+    
+  const effectiveIncentiveMonths = incentiveMonthsOverride !== undefined 
+    ? incentiveMonthsOverride 
+    : 3; // Default to 3 months if not specified
+
+  const bankIncentiveConsidered = (averageIncentive || 0) * effectiveIncentivePercentage;
   const actualMonthlyIncome = (basicSalary || 0) + bankIncentiveConsidered;
   
   // Use actualMonthlyIncome for all subsequent calculations
@@ -398,7 +409,8 @@ export const calculateHdfcEligibility = (userData) => {
     calculationMethod: 'Combined (Multiplier and FOIR)',
     multiplier: multiplier,
     foirPercentage: foirPercentage,
-    incentivePercentage: hdfcConfig.incentivePercentage,
+    incentivePercentage: effectiveIncentivePercentage, // Dynamically reflect override
+    incentiveMonths: effectiveIncentiveMonths,
     incentiveConsidered: bankIncentiveConsidered,
     details: {
       multiplierLoanAmount: Math.round(multiplierLoanAmount),
