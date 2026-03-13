@@ -55,13 +55,7 @@ export const AgeRulesEditor = ({ bank, onSave, location }) => {
         </div>
       </div>
       <div className="editor-actions">
-        <button className="btn-save" onClick={handleSave} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '15px 30px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '1.2rem' }}>💾</span>
-            <span>Commit {location ? 'Local' : 'Global'} Context</span>
-          </div>
-          <span style={{ fontSize: '0.65rem', marginTop: '4px', opacity: 0.8, textTransform: 'uppercase' }}>Target: {location || 'Global Default'}</span>
-        </button>
+        <button className="btn-save" onClick={handleSave}>Commit Changes</button>
       </div>
     </div>
   );
@@ -72,7 +66,7 @@ export const TenureRulesEditor = ({ bank, onSave, location }) => {
   const [config, setConfig] = useState({
     minTenureMonths: 12,
     maxTenureMonths: 84,
-    categoryBasedMaxTenure: { 'SUPER-A': 84, A: 84, B: 84, C: 72, D: 60, GOVT: 84 }
+    categoryBasedMaxTenure: { A: 84, B: 84, C: 72, D: 60 }
   });
 
   useEffect(() => {
@@ -111,13 +105,7 @@ export const TenureRulesEditor = ({ bank, onSave, location }) => {
         </div>
       </div>
       <div className="editor-actions">
-        <button className="btn-save" onClick={handleSave} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '15px 30px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '1.2rem' }}>💾</span>
-            <span>Commit {location ? 'Local' : 'Global'} Context</span>
-          </div>
-          <span style={{ fontSize: '0.65rem', marginTop: '4px', opacity: 0.8, textTransform: 'uppercase' }}>Target: {location || 'Global Default'}</span>
-        </button>
+        <button className="btn-save" onClick={handleSave}>Commit Changes</button>
       </div>
     </div>
   );
@@ -126,7 +114,7 @@ export const TenureRulesEditor = ({ bank, onSave, location }) => {
 // FOIR Editor
 export const FoirEditor = ({ bank, onSave, location }) => {
   const [config, setConfig] = useState({
-    categoryBasedFOIR: { 'SUPER-A': 75, A: 65, B: 60, C: 55, D: 50, GOVT: 70 },
+    categoryBasedFOIR: { A: 65, B: 60, C: 55, D: 50 },
     creditCardObligationPercentage: 5,
     btModeFOIRAdjustment: 0
   });
@@ -163,13 +151,7 @@ export const FoirEditor = ({ bank, onSave, location }) => {
         </div>
       </div>
       <div className="editor-actions">
-        <button className="btn-save" onClick={handleSave} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '15px 30px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '1.2rem' }}>💾</span>
-            <span>Commit {location ? 'Local' : 'Global'} Context</span>
-          </div>
-          <span style={{ fontSize: '0.65rem', marginTop: '4px', opacity: 0.8, textTransform: 'uppercase' }}>Target: {location || 'Global Default'}</span>
-        </button>
+        <button className="btn-save" onClick={handleSave}>Commit Changes</button>
       </div>
     </div>
   );
@@ -178,7 +160,7 @@ export const FoirEditor = ({ bank, onSave, location }) => {
 // Multiplier Editor
 export const MultiplierEditor = ({ bank, onSave, location }) => {
   const [config, setConfig] = useState({
-    categoryBasedMultiplier: { 'SUPER-A': 40, A: 35, B: 30, C: 25, D: 20, GOVT: 35 },
+    categoryBasedMultiplier: { A: 35, B: 30, C: 25, D: 20 },
     employmentTypeMultiplier: { salaried: 1.0, selfEmployed: 0.8 }
   });
 
@@ -210,13 +192,7 @@ export const MultiplierEditor = ({ bank, onSave, location }) => {
         </div>
       </div>
       <div className="editor-actions">
-        <button className="btn-save" onClick={handleSave} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '15px 30px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '1.2rem' }}>💾</span>
-            <span>Commit {location ? 'Local' : 'Global'} Context</span>
-          </div>
-          <span style={{ fontSize: '0.65rem', marginTop: '4px', opacity: 0.8, textTransform: 'uppercase' }}>Target: {location || 'Global Default'}</span>
-        </button>
+        <button className="btn-save" onClick={handleSave}>Commit Changes</button>
       </div>
     </div>
   );
@@ -276,13 +252,7 @@ export const BTEditor = ({ bank, onSave, location }) => {
         </div>
       </div>
       <div className="editor-actions">
-        <button className="btn-save" onClick={handleSave} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '15px 30px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '1.2rem' }}>💾</span>
-            <span>Commit {location ? 'Local' : 'Global'} Context</span>
-          </div>
-          <span style={{ fontSize: '0.65rem', marginTop: '4px', opacity: 0.8, textTransform: 'uppercase' }}>Target: {location || 'Global Default'}</span>
-        </button>
+        <button className="btn-save" onClick={handleSave}>Commit Changes</button>
       </div>
     </div>
   );
@@ -335,13 +305,7 @@ export const CreditScoreEditor = ({ bank, onSave, location }) => {
         </div>
       </div>
       <div className="editor-actions">
-        <button className="btn-save" onClick={handleSave} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '15px 30px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '1.2rem' }}>💾</span>
-            <span>Commit {location ? 'Local' : 'Global'} Context</span>
-          </div>
-          <span style={{ fontSize: '0.65rem', marginTop: '4px', opacity: 0.8, textTransform: 'uppercase' }}>Target: {location || 'Global Default'}</span>
-        </button>
+        <button className="btn-save" onClick={handleSave}>Commit Changes</button>
       </div>
     </div>
   );
@@ -405,13 +369,7 @@ export const EmploymentEditor = ({ bank, onSave, location }) => {
         </div>
       </div>
       <div className="editor-actions">
-        <button className="btn-save" onClick={handleSave} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '15px 30px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '1.2rem' }}>💾</span>
-            <span>Commit {location ? 'Local' : 'Global'} Context</span>
-          </div>
-          <span style={{ fontSize: '0.65rem', marginTop: '4px', opacity: 0.8, textTransform: 'uppercase' }}>Target: {location || 'Global Default'}</span>
-        </button>
+        <button className="btn-save" onClick={handleSave}>Commit Changes</button>
       </div>
     </div>
   );
@@ -458,13 +416,7 @@ export const FeesEditor = ({ bank, onSave, location }) => {
         </div>
       </div>
       <div className="editor-actions">
-        <button className="btn-save" onClick={handleSave} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '15px 30px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '1.2rem' }}>💾</span>
-            <span>Commit {location ? 'Local' : 'Global'} Context</span>
-          </div>
-          <span style={{ fontSize: '0.65rem', marginTop: '4px', opacity: 0.8, textTransform: 'uppercase' }}>Target: {location || 'Global Default'}</span>
-        </button>
+        <button className="btn-save" onClick={handleSave}>Commit Changes</button>
       </div>
     </div>
   );
@@ -550,13 +502,7 @@ export const GovtPolicyEditor = ({ bank, onSave, location }) => {
         </div>
       </div>
       <div className="editor-actions">
-        <button className="btn-save" onClick={handleSave} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '15px 30px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '1.2rem' }}>💾</span>
-            <span>Commit {location ? 'Local' : 'Global'} Context</span>
-          </div>
-          <span style={{ fontSize: '0.65rem', marginTop: '4px', opacity: 0.8, textTransform: 'uppercase' }}>Target: {location || 'Global Default'}</span>
-        </button>
+        <button className="btn-save" onClick={handleSave}>Commit Govt Policies</button>
       </div>
     </div>
   );
