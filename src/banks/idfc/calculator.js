@@ -61,11 +61,22 @@ export const calculateIdfcEligibility = (userData) => {
     isBTMode,
     loansForBT,
     btTotalEMI,
-    btTotalOutstanding
+    btTotalOutstanding,
+    // Incentive Overrides
+    incentivePercentageOverride,
+    incentiveMonthsOverride
   } = userData;
 
   // ========== INCENTIVE CALCULATION LOGIC ==========
-  const bankIncentiveConsidered = (averageIncentive || 0) * (idfcConfig.incentivePercentage || 0);
+  const effectiveIncentivePercentage = incentivePercentageOverride !== undefined 
+    ? incentivePercentageOverride 
+    : (idfcConfig.incentivePercentage || 0);
+
+  const effectiveIncentiveMonths = incentiveMonthsOverride !== undefined 
+    ? incentiveMonthsOverride 
+    : 3; // Default to 3 months if not specified
+
+  const bankIncentiveConsidered = (averageIncentive || 0) * effectiveIncentivePercentage;
   const actualMonthlyIncome = (basicSalary || 0) + bankIncentiveConsidered;
   
   // Use actualMonthlyIncome for all subsequent calculations
@@ -250,8 +261,9 @@ export const calculateIdfcEligibility = (userData) => {
     salaryBand: salaryBand,
     category: mappedCategory,
     maxLoanByMultiplier: Math.round(calculatedLoanAmount),
-    calculationMethod: 'Multiplier Only (No FOIR)',
-    incentivePercentage: idfcConfig.incentivePercentage,
+    calculationMethod: 'Combined (FOIR + Multiplier)',
+    incentivePercentage: effectiveIncentivePercentage, // Dynamically reflect override
+    incentiveMonths: effectiveIncentiveMonths,
     incentiveConsidered: bankIncentiveConsidered,
     details: {
       multiplier: multiplier + 'x',
