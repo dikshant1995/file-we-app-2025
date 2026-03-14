@@ -126,8 +126,11 @@ function CustomerFacingApp() {
 
       {/* PAGE 1: Landing — shown when form not yet opened and no results */}
       {!showForm && !results && (
-        <FuturisticLanding onGetStarted={handleGetStarted} onAdminClick={handleAdminClick} />
-      )}
+          <FuturisticLanding
+            onGetStarted={() => setShowForm(true)}
+            onAdminClick={() => setShowAdminDashboard(true)}
+            onBlogClick={() => window.location.href = '/blog'}
+          />)}
 
       {/* PAGE 2: Application Form — full page replacement */}
       {showForm && !results && (
