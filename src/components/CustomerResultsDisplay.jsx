@@ -615,12 +615,12 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
                   {/* BACHELOR CAPPING */}
                   {bank.bachelorCapped && (
                     <div className="capping-info info">
-                      <h5>👤 Bachelor/Unmarried Limit Applied:</h5>
+                      <h5>👤 Dynamic Bachelor Limit Applied:</h5>
                       <div className="capping-details">
                         <div>✓ Regular max loan: <strong>{formatCurrency(bank.regularMaxLoan)}</strong></div>
-                        <div>✓ Bachelor max loan: <strong>{formatCurrency(bank.bachelorMaxLoanAmount)}</strong></div>
+                        <div>✓ Dynamic capped loan: <strong>{formatCurrency(bank.bachelorMaxLoanAmount)}</strong></div>
                         <div>✓ Applied limit: <strong>{formatCurrency(bank.loanAmount)}</strong></div>
-                        <div className="reason">📋 Reason: Unmarried individuals have lower loan limits</div>
+                        <div className="reason">📋 Reason: {bank.bachelorCapReason || 'Unmarried individuals have lower loan limits'}</div>
                       </div>
                     </div>
                   )}
