@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, ArrowRight, ShieldCheck, Zap, Globe, Lock, Instagram, MessageSquare, Send, ChevronDown, Cpu, BarChart3, Fingerprint, Mail } from 'lucide-react';
+import { Sparkles, ArrowRight, ShieldCheck, Zap, Globe, Lock, Instagram, MessageSquare, Send, ChevronDown, Cpu, BarChart3, Fingerprint, Mail, FileText } from 'lucide-react';
 import './FuturisticLanding.css';
 import NeuralChatBot from './NeuralChatBot.jsx';
 
-const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
+const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
   const [tick, setTick] = useState(0);
   const [feedbackName, setFeedbackName] = useState('');
   const [feedbackText, setFeedbackText] = useState('');
@@ -127,7 +127,18 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick }) => {
               <span className="logo-text">LAXMI AI</span>
             </div>
           </div>
-          <div className="nav-right">
+          <div className="nav-right" style={{ display: 'flex', gap: '15px' }}>
+            <motion.button
+              className="topo-admin-btn"
+              onClick={onBlogClick}
+              whileHover={{ scale: 1.05, background: "rgba(0, 212, 255, 0.15)" }}
+              whileTap={{ scale: 0.95 }}
+              style={{ border: '1px solid rgba(0, 212, 255, 0.4)' }}
+            >
+              <FileText size={14} color="#00d4ff" />
+              <span style={{ color: '#00d4ff' }}>INSIGHTS</span>
+              <div className="btn-scanline" />
+            </motion.button>
             <motion.button
               className="topo-admin-btn"
               onClick={onAdminClick}
