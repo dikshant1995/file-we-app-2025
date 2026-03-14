@@ -7,6 +7,10 @@ import AdminDashboard from './components/AdminDashboard.jsx';
 import { calculateLoanEligibility } from './services/realLoanService.js';
 import { calculateBTWithCreditCards } from './services/btLoanService.js';
 import { saveLead } from './services/leadService.js';
+import { Routes, Route, useNavigate } from 'react-router-dom';
+import Navbar from './components/Navbar.jsx';
+import BlogHome from './components/BlogHome.jsx';
+import BlogArticle from './components/BlogArticle.jsx';
 import './CustomerFacingApp.css';
 
 function CustomerFacingApp() {
@@ -113,9 +117,19 @@ function CustomerFacingApp() {
     setShowAdminDashboard(true);
   };
 
+  const handleHomeClick = () => {
+    setShowForm(false);
+    setResults(null);
+    setMetadata(null);
+    setError(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleBackToCustomer = () => {
     setShowAdminDashboard(false);
   };
+
+  const navigate = useNavigate();
 
   if (showAdminDashboard) {
     return <AdminDashboard onBackToCustomer={handleBackToCustomer} />;
@@ -123,14 +137,18 @@ function CustomerFacingApp() {
 
   return (
     <div className="customer-facing-app">
+      <Navbar onAdminClick={handleAdminClick} onHomeClick={handleHomeClick} />
 
-      {/* PAGE 1: Landing — shown when form not yet opened and no results */}
-      {!showForm && !results && (
-          <FuturisticLanding
-            onGetStarted={() => setShowForm(true)}
-            onAdminClick={() => setShowAdminDashboard(true)}
-            onBlogClick={() => window.location.href = '/blog'}
-          />)}
+      <Routes>
+        <Route path="/" element={
+          <>
+            {/* PAGE 1: Landing — shown when form not yet opened and no results */}
+            {!showForm && !results && (
+                <FuturisticLanding
+                  onGetStarted={() => setShowForm(true)}
+                  onAdminClick={() => setShowAdminDashboard(true)}
+                  onBlogClick={() => navigate('/blog')}
+                />)}
 
       {/* PAGE 2: Application Form — full page replacement */}
       {showForm && !results && (
@@ -186,16 +204,21 @@ function CustomerFacingApp() {
         </div>
       )}
 
-      {/* PAGE 3: Results */}
-      {results && (
-        <div id="results-section">
-          <CustomerResultsDisplay
-            results={results}
-            metadata={metadata}
-            onNewCalculation={handleNewCalculation}
-          />
-        </div>
-      )}
+            {/* PAGE 3: Results */}
+            {results && (
+              <div id="results-section">
+                <CustomerResultsDisplay
+                  results={results}
+                  metadata={metadata}
+                  onNewCalculation={handleNewCalculation}
+                />
+              </div>
+            )}
+          </>
+        } />
+        <Route path="/blog" element={<BlogHome />} />
+        <Route path="/blog/:slug" element={<BlogArticle />} />
+      </Routes>
     </div>
   );
 }
