@@ -247,8 +247,31 @@ export const calculateBandhanEligibility = (userData) => {
     foirLoanAmount
   );
 
-  const finalLoanAmount = Math.min(maxLoanAmount, bandhanConfig.maxLoanAmount);
+  // Apply bank's maximum loan cap
+  const maxLoanCapAmount = Math.min(maxLoanAmount, bandhanConfig.maxLoanAmount);
   const loanCapped = maxLoanAmount > bandhanConfig.maxLoanAmount;
+
+  // Apply Dynamic Bachelor Capping
+  let appliedBachelorCap = false;
+  let bachelorLimitAmount = null;
+  let bachelorCapReasonStr = null;
+  let finalLoanAmount = maxLoanCapAmount;
+
+  if (userData.dynamicBachelorLimitOverride !== undefined) {
+    bachelorLimitAmount = userData.dynamicBachelorLimitOverride;
+    if (finalLoanAmount > bachelorLimitAmount) {
+      finalLoanAmount = bachelorLimitAmount;
+      appliedBachelorCap = true;
+      bachelorCapReasonStr = userData.dynamicBachelorCapReason || 'Dynamic Bachelor Capping limit applied';
+    }
+  } else if (bandhanConfig.bachelorMaxLoanAmount !== undefined && userData.maritalStatus === 'single') {
+    bachelorLimitAmount = bandhanConfig.bachelorMaxLoanAmount;
+    if (finalLoanAmount > bachelorLimitAmount) {
+      finalLoanAmount = bachelorLimitAmount;
+      appliedBachelorCap = true;
+      bachelorCapReasonStr = 'Unmarried Limit Applied (Bank Default)';
+    }
+  }
 
   let btDetails = null;
   if (isBT) {
@@ -281,6 +304,10 @@ export const calculateBandhanEligibility = (userData) => {
     maxLoanCap: bandhanConfig.maxLoanAmount,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(maxLoanAmount) : null,
+    bachelorCapped: appliedBachelorCap,
+    bachelorCapReason: bachelorCapReasonStr,
+    regularMaxLoan: Math.round(maxLoanCapAmount),
+    bachelorMaxLoanAmount: bachelorLimitAmount !== null ? Math.round(bachelorLimitAmount) : null,
     interestRate: effectiveInterestRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,
