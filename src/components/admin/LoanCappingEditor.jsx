@@ -17,7 +17,12 @@ const LoanCappingEditor = ({ bank, onSave, location }) => {
     },
     bachelorCapping: {
       enabled: true,
-      percentage: 50
+      limits: {
+        unmarried_bachelor: null,
+        unmarried_family: null,
+        married_bachelor: null,
+        unmarried_self_owned: null
+      }
     },
     minLoanAmount: 100000
   });
@@ -32,7 +37,14 @@ const LoanCappingEditor = ({ bank, onSave, location }) => {
         ...savedConfig,
         categoryBasedMax: { ...prev.categoryBasedMax, ...(savedConfig.categoryBasedMax || {}) },
         employmentTypeMax: { ...prev.employmentTypeMax, ...(savedConfig.employmentTypeMax || {}) },
-        bachelorCapping: { ...prev.bachelorCapping, ...(savedConfig.bachelorCapping || {}) }
+        bachelorCapping: {
+          ...prev.bachelorCapping,
+          ...(savedConfig.bachelorCapping || {}),
+          limits: {
+            ...prev.bachelorCapping.limits,
+            ...(savedConfig.bachelorCapping?.limits || {})
+          }
+        }
       }));
     }
   }, [bank.name, location]);
@@ -148,10 +160,12 @@ const LoanCappingEditor = ({ bank, onSave, location }) => {
 
       {/* Bachelor Capping */}
       <div className="config-section">
-        <h3>👨 Bachelor/Unmarried Capping</h3>
+        <h3>👨 Dynamic Bachelor Capping</h3>
+        <p className="input-hint" style={{ marginBottom: '15px' }}>Leave fields empty (or delete value) to fallback to bank's global capping rule.</p>
+        
         <div className="category-grid">
-          <div className="input-group">
-            <label>Enable Bachelor Capping</label>
+          <div className="input-group" style={{ gridColumn: '1 / -1' }}>
+            <label>Enable Dynamic Capping</label>
             <select
               value={(config.bachelorCapping && config.bachelorCapping.enabled) || false}
               onChange={(e) => setConfig({
@@ -163,27 +177,81 @@ const LoanCappingEditor = ({ bank, onSave, location }) => {
               })}
               className="config-input"
             >
-              <option value="true">Yes - Apply Capping</option>
-              <option value="false">No - No Capping</option>
+              <option value="true">Yes - Apply Custom Limits</option>
+              <option value="false">No - Standard Capping</option>
             </select>
           </div>
 
           <div className="input-group">
-            <label>Bachelor Capping %</label>
+            <label>Unmarried (Living as Bachelor) (₹)</label>
             <input
               type="number"
-              value={(config.bachelorCapping && config.bachelorCapping.percentage) || 0}
+              value={config.bachelorCapping?.limits?.unmarried_bachelor || ''}
               onChange={(e) => setConfig({
                 ...config,
                 bachelorCapping: {
                   ...config.bachelorCapping,
-                  percentage: parseInt(e.target.value) || 0
+                  limits: { ...config.bachelorCapping.limits, unmarried_bachelor: e.target.value === '' ? null : parseInt(e.target.value) }
                 }
               })}
               className="config-input"
+              placeholder="e.g. 2000000"
               disabled={!(config.bachelorCapping && config.bachelorCapping.enabled)}
             />
-            <span className="input-hint">% of regular loan amount</span>
+          </div>
+
+          <div className="input-group">
+            <label>Unmarried (With Family) (₹)</label>
+            <input
+              type="number"
+              value={config.bachelorCapping?.limits?.unmarried_family || ''}
+              onChange={(e) => setConfig({
+                ...config,
+                bachelorCapping: {
+                  ...config.bachelorCapping,
+                  limits: { ...config.bachelorCapping.limits, unmarried_family: e.target.value === '' ? null : parseInt(e.target.value) }
+                }
+              })}
+              className="config-input"
+              placeholder="e.g. 3000000"
+              disabled={!(config.bachelorCapping && config.bachelorCapping.enabled)}
+            />
+          </div>
+
+          <div className="input-group">
+            <label>Married (Living as Bachelor) (₹)</label>
+            <input
+              type="number"
+              value={config.bachelorCapping?.limits?.married_bachelor || ''}
+              onChange={(e) => setConfig({
+                ...config,
+                bachelorCapping: {
+                  ...config.bachelorCapping,
+                  limits: { ...config.bachelorCapping.limits, married_bachelor: e.target.value === '' ? null : parseInt(e.target.value) }
+                }
+              })}
+              className="config-input"
+              placeholder="e.g. 2000000"
+              disabled={!(config.bachelorCapping && config.bachelorCapping.enabled)}
+            />
+          </div>
+
+          <div className="input-group">
+            <label>Unmarried (Self-Owned Property) (₹)</label>
+            <input
+              type="number"
+              value={config.bachelorCapping?.limits?.unmarried_self_owned || ''}
+              onChange={(e) => setConfig({
+                ...config,
+                bachelorCapping: {
+                  ...config.bachelorCapping,
+                  limits: { ...config.bachelorCapping.limits, unmarried_self_owned: e.target.value === '' ? null : parseInt(e.target.value) }
+                }
+              })}
+              className="config-input"
+              placeholder="e.g. 5000000"
+              disabled={!(config.bachelorCapping && config.bachelorCapping.enabled)}
+            />
           </div>
         </div>
       </div>
@@ -202,7 +270,7 @@ const LoanCappingEditor = ({ bank, onSave, location }) => {
           </div>
           <div className="preview-card">
             <div className="preview-label">Bachelor Capping</div>
-            <div className="preview-value">{(config.bachelorCapping && config.bachelorCapping.enabled) ? config.bachelorCapping.percentage + '%' : 'OFF'}</div>
+            <div className="preview-value">{(config.bachelorCapping && config.bachelorCapping.enabled) ? 'Dynamic Tiered' : 'Global Only'}</div>
           </div>
         </div>
       </div>
