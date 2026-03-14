@@ -170,7 +170,9 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
     creditScore: customerInfo.creditScore ? parseInt(customerInfo.creditScore) : 700,
     employmentType: customerInfo.employmentType || 'salaried',
     state: customerInfo.state || '',
-    city: customerInfo.city || ''
+    city: customerInfo.city || '',
+    maritalStatus: customerInfo.maritalStatus || '', // Added for bachelor capping
+    livingStatus: customerInfo.livingStatus || ''    // Added for bachelor capping
   };
 
   const location = (btInput.city && btInput.state)
@@ -245,6 +247,26 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
         incentivePercentageOverride: adminAllConfig.incentivePolicy?.percentage !== undefined ? adminAllConfig.incentivePolicy.percentage / 100 : undefined,
         incentiveMonthsOverride: adminAllConfig.incentivePolicy?.months
       };
+
+      // 👨 INJECT DYNAMIC BACHELOR CAPPING OVERRIDES
+      if (adminAllConfig.bachelorCapping?.enabled && adminAllConfig.bachelorCapping?.limits) {
+        let livingStatusKey = null;
+        if (btInput.maritalStatus === 'single' && btInput.livingStatus === 'bachelor') livingStatusKey = 'unmarried_bachelor';
+        else if (btInput.maritalStatus === 'single' && btInput.livingStatus === 'family') livingStatusKey = 'unmarried_family';
+        else if (btInput.maritalStatus === 'married' && btInput.livingStatus === 'bachelor') livingStatusKey = 'married_bachelor';
+        else if (btInput.maritalStatus === 'single' && btInput.livingStatus === 'self_owned') livingStatusKey = 'unmarried_self_owned';
+
+        if (livingStatusKey && adminAllConfig.bachelorCapping.limits[livingStatusKey] !== null) {
+          bankInput.dynamicBachelorLimitOverride = adminAllConfig.bachelorCapping.limits[livingStatusKey];
+          
+          let capReason = 'Dynamic Bachelor Capping Applied';
+          if (livingStatusKey === 'unmarried_bachelor') capReason = 'Unmarried (Living as Bachelor) Limit Applied';
+          if (livingStatusKey === 'unmarried_family') capReason = 'Unmarried (With Family) Limit Applied';
+          if (livingStatusKey === 'married_bachelor') capReason = 'Married (Living as Bachelor) Limit Applied';
+          if (livingStatusKey === 'unmarried_self_owned') capReason = 'Unmarried (Self-Owned Property) Limit Applied';
+          bankInput.dynamicBachelorCapReason = capReason;
+        }
+      }
 
       const result = calculator(bankInput);
 
