@@ -344,8 +344,30 @@ export const calculateKotakEligibility = (userData) => {
   );
 
   // Apply bank's maximum loan cap
-  const finalLoanAmount = Math.min(maxLoanAmount, kotakConfig.maxLoanAmount);
+  const maxLoanCapAmount = Math.min(maxLoanAmount, kotakConfig.maxLoanAmount);
   const loanCapped = maxLoanAmount > kotakConfig.maxLoanAmount;
+
+  // Apply Dynamic Bachelor Capping
+  let appliedBachelorCap = false;
+  let bachelorLimitAmount = null;
+  let bachelorCapReasonStr = null;
+  let finalLoanAmount = maxLoanCapAmount;
+
+  if (userData.dynamicBachelorLimitOverride !== undefined) {
+    bachelorLimitAmount = userData.dynamicBachelorLimitOverride;
+    if (finalLoanAmount > bachelorLimitAmount) {
+      finalLoanAmount = bachelorLimitAmount;
+      appliedBachelorCap = true;
+      bachelorCapReasonStr = userData.dynamicBachelorCapReason || 'Dynamic Bachelor Capping limit applied';
+    }
+  } else if (kotakConfig.bachelorMaxLoanAmount !== undefined && userData.maritalStatus === 'single') {
+    bachelorLimitAmount = kotakConfig.bachelorMaxLoanAmount;
+    if (finalLoanAmount > bachelorLimitAmount) {
+      finalLoanAmount = bachelorLimitAmount;
+      appliedBachelorCap = true;
+      bachelorCapReasonStr = 'Unmarried Limit Applied (Bank Default)';
+    }
+  }
 
   // ========== BALANCE TRANSFER CALCULATION ==========
   let btFreshAmount = 0;
@@ -389,6 +411,10 @@ export const calculateKotakEligibility = (userData) => {
     maxLoanCap: kotakConfig.maxLoanAmount,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(maxLoanAmount) : null,
+    bachelorCapped: appliedBachelorCap,
+    bachelorCapReason: bachelorCapReasonStr,
+    regularMaxLoan: Math.round(maxLoanCapAmount),
+    bachelorMaxLoanAmount: bachelorLimitAmount !== null ? Math.round(bachelorLimitAmount) : null,
     interestRate: finalInterestRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,
