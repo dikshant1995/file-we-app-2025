@@ -62,6 +62,7 @@ const AdminDashboard = ({ onBackToCustomer }) => {
 
   const menuItems = [
     { id: 'leads', icon: <Users size={18} stroke="#00d4ff" />, label: 'Lead Management', component: 'LeadManager' },
+    { id: 'blog', icon: <FileText size={18} stroke="#00d4ff" />, label: 'Blogger Section', component: 'BlogManager' },
     { id: 'banks', icon: <Database size={18} stroke="#00d4ff" />, label: 'Institutional Overview', component: 'BankList' },
     { id: 'config', icon: <Settings size={18} stroke="#00d4ff" />, label: 'Generic Configuration', component: 'BankConfigEditor' },
     { id: 'categories', icon: <Layers size={18} stroke="#00d4ff" />, label: 'Categorization Models', component: 'BankConfigEditor', section: 'categories' },
@@ -80,7 +81,7 @@ const AdminDashboard = ({ onBackToCustomer }) => {
     { id: 'special', icon: <Zap size={18} stroke="#00d4ff" />, label: 'Exceptional Policies', component: 'BankConfigEditor', section: 'special' },
     { id: 'fees', icon: <Zap size={18} stroke="#00d4ff" />, label: 'Fee Schedules', component: 'BankConfigEditor', section: 'fees' },
     { id: 'company-db', icon: <Database size={18} stroke="#00ff88" />, label: 'Company Database', component: 'BankConfigEditor', section: 'company-db' },
-    { id: 'blog', icon: <FileText size={18} stroke="#00d4ff" />, label: 'Financial Hub Manager', component: 'BlogManager' },
+
     { id: 'user-management', icon: <UserPlus size={18} stroke="#00d4ff" />, label: 'Nexus Control', component: 'UserManager' },
     { id: 'analytics', icon: <BarChart2 size={18} stroke="#00d4ff" />, label: 'Strategic Analytics', component: 'Analytics' },
     { id: 'import-export', icon: <ShieldCheck size={18} stroke="#00d4ff" />, label: 'Data Migration', component: 'ImportExport' },
