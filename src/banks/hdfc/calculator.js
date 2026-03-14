@@ -345,8 +345,30 @@ export const calculateHdfcEligibility = (userData) => {
   );
 
   // Apply bank's maximum loan cap
-  const finalLoanAmount = Math.min(maxLoanAmount, hdfcConfig.maxLoanAmount);
+  const maxLoanCapAmount = Math.min(maxLoanAmount, hdfcConfig.maxLoanAmount);
   const loanCapped = maxLoanAmount > hdfcConfig.maxLoanAmount;
+
+  // Apply Dynamic Bachelor Capping
+  let appliedBachelorCap = false;
+  let bachelorLimitAmount = null;
+  let bachelorCapReasonStr = null;
+  let finalLoanAmount = maxLoanCapAmount;
+
+  if (userData.dynamicBachelorLimitOverride !== undefined) {
+    bachelorLimitAmount = userData.dynamicBachelorLimitOverride;
+    if (finalLoanAmount > bachelorLimitAmount) {
+      finalLoanAmount = bachelorLimitAmount;
+      appliedBachelorCap = true;
+      bachelorCapReasonStr = userData.dynamicBachelorCapReason || 'Dynamic Bachelor Capping limit applied';
+    }
+  } else if (hdfcConfig.bachelorMaxLoanAmount !== undefined && userData.maritalStatus === 'single') {
+    bachelorLimitAmount = hdfcConfig.bachelorMaxLoanAmount;
+    if (finalLoanAmount > bachelorLimitAmount) {
+      finalLoanAmount = bachelorLimitAmount;
+      appliedBachelorCap = true;
+      bachelorCapReasonStr = 'Unmarried Limit Applied (Bank Default)';
+    }
+  }
 
   // ========== BALANCE TRANSFER CALCULATION ==========
   let btFreshAmount = 0;
@@ -397,6 +419,10 @@ export const calculateHdfcEligibility = (userData) => {
     maxLoanCap: hdfcConfig.maxLoanAmount,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(maxLoanAmount) : null,
+    bachelorCapped: appliedBachelorCap,
+    bachelorCapReason: bachelorCapReasonStr,
+    regularMaxLoan: Math.round(maxLoanCapAmount),
+    bachelorMaxLoanAmount: bachelorLimitAmount !== null ? Math.round(bachelorLimitAmount) : null,
     interestRate: effectiveInterestRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,
