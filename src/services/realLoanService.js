@@ -79,6 +79,8 @@ export const calculateLoanEligibility = async (userData) => {
     state: userData.state || '',
     city: userData.city || '',
     salaryMode: userData.salaryMode || 'bank',
+    maritalStatus: userData.maritalStatus || '', // Added for bachelor capping
+    livingStatus: userData.livingStatus || '',   // Added for bachelor capping
     // Balance Transfer specific data
     isBTMode: isBTMode,
     loansForBT: isBTMode ? (userData.loansForBT || []) : [],
@@ -200,6 +202,28 @@ export const calculateLoanEligibility = async (userData) => {
         }
         if (adminAllConfig.incentivePolicy.months !== undefined) {
           bankInput.incentiveMonthsOverride = adminAllConfig.incentivePolicy.months;
+        }
+      }
+
+      // 👨 INJECT DYNAMIC BACHELOR CAPPING OVERRIDES
+      if (adminAllConfig.bachelorCapping?.enabled && adminAllConfig.bachelorCapping?.limits) {
+        let livingStatusKey = null;
+        if (calculatorInput.maritalStatus === 'single' && calculatorInput.livingStatus === 'bachelor') livingStatusKey = 'unmarried_bachelor';
+        else if (calculatorInput.maritalStatus === 'single' && calculatorInput.livingStatus === 'family') livingStatusKey = 'unmarried_family';
+        else if (calculatorInput.maritalStatus === 'married' && calculatorInput.livingStatus === 'bachelor') livingStatusKey = 'married_bachelor';
+        else if (calculatorInput.maritalStatus === 'single' && calculatorInput.livingStatus === 'self_owned') livingStatusKey = 'unmarried_self_owned';
+
+        if (livingStatusKey && adminAllConfig.bachelorCapping.limits[livingStatusKey] !== null) {
+          bankInput.dynamicBachelorLimitOverride = adminAllConfig.bachelorCapping.limits[livingStatusKey];
+          
+          let capReason = 'Dynamic Bachelor Capping Applied';
+          if (livingStatusKey === 'unmarried_bachelor') capReason = 'Unmarried (Living as Bachelor) Limit Applied';
+          if (livingStatusKey === 'unmarried_family') capReason = 'Unmarried (With Family) Limit Applied';
+          if (livingStatusKey === 'married_bachelor') capReason = 'Married (Living as Bachelor) Limit Applied';
+          if (livingStatusKey === 'unmarried_self_owned') capReason = 'Unmarried (Self-Owned Property) Limit Applied';
+          bankInput.dynamicBachelorCapReason = capReason;
+          
+          console.log(`   👨 ${name}: Applying Dynamic Bachelor Limit (${livingStatusKey}): ₹${bankInput.dynamicBachelorLimitOverride}`);
         }
       }
 
