@@ -23,7 +23,9 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
     wantsBT: false, // Does customer want to do BT?
     selectedLoansForBT: [], // Array of loan IDs selected for BT
     state: '',
-    city: ''
+    city: '',
+    maritalStatus: '',
+    livingStatus: ''
   });
 
   const [companySuggestions, setCompanySuggestions] = useState([]);
@@ -227,6 +229,8 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
       state: formData.state,
       city: formData.city,
       salaryMode: formData.salaryMode || 'bank',
+      maritalStatus: formData.maritalStatus,
+      livingStatus: formData.livingStatus,
       // loanTenure will default to 5 years in backend, banks will cap based on age
       // desiredLoanAmount not provided - banks calculate maximum
       // creditScore will default to 700 in backend (used by some banks internally)
@@ -246,6 +250,8 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
         state: formData.state,
         city: formData.city,
         salaryMode: formData.salaryMode, // Add salaryMode to metadata
+        maritalStatus: formData.maritalStatus,
+        livingStatus: formData.livingStatus
       }
     };
 
@@ -540,6 +546,46 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
             Banks use age to decide maximum loan tenure (retirement age limit)
           </small>
         </div>
+
+        <div className="form-group">
+          <label htmlFor="maritalStatus">
+            Marital Status <span className="required">*</span>
+          </label>
+          <select
+            id="maritalStatus"
+            name="maritalStatus"
+            value={formData.maritalStatus}
+            onChange={(e) => {
+              // Reset living status when marital status changes to force re-selection
+              setFormData(prev => ({ ...prev, maritalStatus: e.target.value, livingStatus: '' }));
+            }}
+            required
+          >
+            <option value="">-- Select Status --</option>
+            <option value="single">Single / Unmarried</option>
+            <option value="married">Married</option>
+          </select>
+        </div>
+
+        {formData.maritalStatus && (
+          <div className="form-group" style={{ animation: 'fadeIn 0.3s ease-out' }}>
+            <label htmlFor="livingStatus">
+              Current Living Arrangement <span className="required">*</span>
+            </label>
+            <select
+              id="livingStatus"
+              name="livingStatus"
+              value={formData.livingStatus}
+              onChange={handleInputChange}
+              required
+            >
+              <option value="">-- Select Living Arrangement --</option>
+              <option value="bachelor">Living Alone / With Flatmates (Bachelor)</option>
+              <option value="family">Living with Family (Parents/Spouse/Children)</option>
+              <option value="self_owned">Living in Self-Owned Property</option>
+            </select>
+          </div>
+        )}
 
         <div className="form-group">
           <label htmlFor="employmentType">
