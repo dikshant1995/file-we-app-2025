@@ -49,6 +49,9 @@ export const saveLead = async (formData, submissionData) => {
             creditCards: creditCards || 'None',
             state: formData.state || submissionData.state || '',
             city: formData.city || submissionData.city || '',
+            salaryMode: formData.salaryMode || submissionData.salaryMode || '',
+            maritalStatus: formData.maritalStatus || submissionData.maritalStatus || '',
+            livingStatus: formData.livingStatus || submissionData.livingStatus || '',
         };
 
         // ── PERSIST LOCALLY FOR ADMIN PANEL (IMMEDIATE) ─────────────────────────
