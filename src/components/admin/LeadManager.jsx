@@ -113,7 +113,7 @@ const LeadManager = ({ userRole }) => {
             return;
         }
 
-        const headers = ['Timestamp', 'Name', 'Mobile', 'Company', 'Monthly Income', 'Existing EMI', 'Selected Banks'];
+        const headers = ['Timestamp', 'Name', 'Mobile', 'Company', 'Monthly Income', 'Existing EMI', 'Salary Mode', 'Marital Status', 'Living Status', 'Selected Banks'];
         const csvContent = [
             headers.join(','),
             ...exportData.map(l => [
@@ -123,6 +123,9 @@ const LeadManager = ({ userRole }) => {
                 `"${l.company || l.employer}"`,
                 l.totalIncome || l.monthlyIncome,
                 l.existingEMI,
+                `"${l.salaryMode || 'N/A'}"`,
+                `"${l.maritalStatus || 'N/A'}"`,
+                `"${l.livingStatus || 'N/A'}"`,
                 `"${l.selectedBanks}"`
             ].join(','))
         ].join('\n');
