@@ -360,12 +360,12 @@ export const calculateKotakEligibility = (userData) => {
       appliedBachelorCap = true;
       bachelorCapReasonStr = userData.dynamicBachelorCapReason || 'Dynamic Bachelor Capping limit applied';
     }
-  } else if (kotakConfig.bachelorMaxLoanAmount !== undefined && userData.maritalStatus === 'single') {
+  } else if (kotakConfig.bachelorMaxLoanAmount !== undefined && userData.maritalStatus === 'single' && userData.livingStatus === 'rented') {
     bachelorLimitAmount = kotakConfig.bachelorMaxLoanAmount;
     if (finalLoanAmount > bachelorLimitAmount) {
       finalLoanAmount = bachelorLimitAmount;
       appliedBachelorCap = true;
-      bachelorCapReasonStr = 'Unmarried Limit Applied (Bank Default)';
+      bachelorCapReasonStr = 'Rented Bachelor Limit Applied (Bank Default)';
     }
   }
 

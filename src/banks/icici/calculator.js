@@ -284,12 +284,12 @@ export const calculateIciciEligibility = (userData) => {
       appliedBachelorCap = true;
       bachelorCapReasonStr = userData.dynamicBachelorCapReason || 'Dynamic Bachelor Capping limit applied';
     }
-  } else if (iciciConfig.bachelorMaxLoanAmount !== undefined && userData.maritalStatus === 'single') {
+  } else if (iciciConfig.bachelorMaxLoanAmount !== undefined && userData.maritalStatus === 'single' && userData.livingStatus === 'rented') {
     bachelorLimitAmount = iciciConfig.bachelorMaxLoanAmount;
     if (finalLoanAmount > bachelorLimitAmount) {
       finalLoanAmount = bachelorLimitAmount;
       appliedBachelorCap = true;
-      bachelorCapReasonStr = 'Unmarried Limit Applied (Bank Default)';
+      bachelorCapReasonStr = 'Rented Bachelor Limit Applied (Bank Default)';
     }
   }
 

@@ -260,12 +260,12 @@ export const calculateTataEligibility = (userData) => {
       appliedBachelorCap = true;
       bachelorCapReasonStr = userData.dynamicBachelorCapReason || 'Dynamic Bachelor Capping limit applied';
     }
-  } else if (tataConfig.bachelorMaxLoanAmount !== undefined && userData.maritalStatus === 'single') {
+  } else if (tataConfig.bachelorMaxLoanAmount !== undefined && userData.maritalStatus === 'single' && userData.livingStatus === 'rented') {
     bachelorLimitAmount = tataConfig.bachelorMaxLoanAmount;
     if (cappedFinalLoan > bachelorLimitAmount) {
       cappedFinalLoan = bachelorLimitAmount;
       appliedBachelorCap = true;
-      bachelorCapReasonStr = 'Unmarried Limit Applied (Bank Default)';
+      bachelorCapReasonStr = 'Rented Bachelor Limit Applied (Bank Default)';
     }
   }
 

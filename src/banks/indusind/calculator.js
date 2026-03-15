@@ -217,12 +217,12 @@ export const calculateIndusindEligibility = (userData) => {
       appliedBachelorCap = true;
       bachelorCapReasonStr = userData.dynamicBachelorCapReason || 'Dynamic Bachelor Capping limit applied';
     }
-  } else if (indusindConfig.bachelorMaxLoanAmount !== undefined && userData.maritalStatus === 'single') {
+  } else if (indusindConfig.bachelorMaxLoanAmount !== undefined && userData.maritalStatus === 'single' && userData.livingStatus === 'rented') {
     bachelorLimitAmount = indusindConfig.bachelorMaxLoanAmount;
     if (cappedFinalLoan > bachelorLimitAmount) {
       cappedFinalLoan = bachelorLimitAmount;
       appliedBachelorCap = true;
-      bachelorCapReasonStr = 'Unmarried Limit Applied (Bank Default)';
+      bachelorCapReasonStr = 'Rented Bachelor Limit Applied (Bank Default)';
     }
   }
 
@@ -299,3 +299,4 @@ export const calculateIndusindEligibility = (userData) => {
     ...btDetails
   };
 };
+

@@ -271,12 +271,12 @@ export const calculateShriRamEligibility = (userData) => {
       appliedBachelorCap = true;
       bachelorCapReasonStr = userData.dynamicBachelorCapReason || 'Dynamic Bachelor Capping limit applied';
     }
-  } else if (shriRamConfig.bachelorMaxLoanAmount !== undefined && userData.maritalStatus === 'single') {
+  } else if (shriRamConfig.bachelorMaxLoanAmount !== undefined && userData.maritalStatus === 'single' && userData.livingStatus === 'rented') {
     bachelorLimitAmount = shriRamConfig.bachelorMaxLoanAmount;
     if (cappedFinalLoan > bachelorLimitAmount) {
       cappedFinalLoan = bachelorLimitAmount;
       appliedBachelorCap = true;
-      bachelorCapReasonStr = 'Unmarried Limit Applied (Bank Default)';
+      bachelorCapReasonStr = 'Rented Bachelor Limit Applied (Bank Default)';
     }
   }
 
@@ -351,3 +351,4 @@ export const calculateShriRamEligibility = (userData) => {
     ...btDetails
   };
 };
+

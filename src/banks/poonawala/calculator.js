@@ -285,12 +285,12 @@ export const calculatePoonawalaEligibility = (userData) => {
       appliedBachelorCap = true;
       bachelorCapReasonStr = userData.dynamicBachelorCapReason || 'Dynamic Bachelor Capping limit applied';
     }
-  } else if (poonawalaConfig.bachelorMaxLoanAmount !== undefined && userData.maritalStatus === 'single') {
+  } else if (poonawalaConfig.bachelorMaxLoanAmount !== undefined && userData.maritalStatus === 'single' && userData.livingStatus === 'rented') {
     bachelorLimitAmount = poonawalaConfig.bachelorMaxLoanAmount;
     if (cappedFinalLoan > bachelorLimitAmount) {
       cappedFinalLoan = bachelorLimitAmount;
       appliedBachelorCap = true;
-      bachelorCapReasonStr = 'Unmarried Limit Applied (Bank Default)';
+      bachelorCapReasonStr = 'Rented Bachelor Limit Applied (Bank Default)';
     }
   }
 
@@ -358,3 +358,4 @@ export const calculatePoonawalaEligibility = (userData) => {
     ...btDetails
   };
 };
+

@@ -206,24 +206,15 @@ export const calculateLoanEligibility = async (userData) => {
       }
 
       // 👨 INJECT DYNAMIC BACHELOR CAPPING OVERRIDES
+      // CRITICAL LOGIC: Capping ONLY applies to Rented/Living Alone Bachelors
       if (adminAllConfig.bachelorCapping?.enabled && adminAllConfig.bachelorCapping?.limits) {
-        let livingStatusKey = null;
-        if (calculatorInput.maritalStatus === 'single' && calculatorInput.livingStatus === 'bachelor') livingStatusKey = 'unmarried_bachelor';
-        else if (calculatorInput.maritalStatus === 'single' && calculatorInput.livingStatus === 'family') livingStatusKey = 'unmarried_family';
-        else if (calculatorInput.maritalStatus === 'married' && calculatorInput.livingStatus === 'bachelor') livingStatusKey = 'married_bachelor';
-        else if (calculatorInput.maritalStatus === 'single' && calculatorInput.livingStatus === 'self_owned') livingStatusKey = 'unmarried_self_owned';
-
-        if (livingStatusKey && adminAllConfig.bachelorCapping.limits[livingStatusKey] !== null) {
-          bankInput.dynamicBachelorLimitOverride = adminAllConfig.bachelorCapping.limits[livingStatusKey];
-          
-          let capReason = 'Dynamic Bachelor Capping Applied';
-          if (livingStatusKey === 'unmarried_bachelor') capReason = 'Unmarried (Living as Bachelor) Limit Applied';
-          if (livingStatusKey === 'unmarried_family') capReason = 'Unmarried (With Family) Limit Applied';
-          if (livingStatusKey === 'married_bachelor') capReason = 'Married (Living as Bachelor) Limit Applied';
-          if (livingStatusKey === 'unmarried_self_owned') capReason = 'Unmarried (Self-Owned Property) Limit Applied';
-          bankInput.dynamicBachelorCapReason = capReason;
-          
-          console.log(`   👨 ${name}: Applying Dynamic Bachelor Limit (${livingStatusKey}): ₹${bankInput.dynamicBachelorLimitOverride}`);
+        if (calculatorInput.maritalStatus === 'single' && calculatorInput.livingStatus === 'rented') {
+          const rentedLimit = adminAllConfig.bachelorCapping.limits['rented_bachelor'];
+          if (rentedLimit !== null && rentedLimit !== undefined && rentedLimit !== '') {
+             bankInput.dynamicBachelorLimitOverride = rentedLimit;
+             bankInput.dynamicBachelorCapReason = 'Rented / Living Alone Bachelor Limit Applied';
+             console.log(`   👨 ${name}: Applying Rented Bachelor Limit: ₹${rentedLimit}`);
+          }
         }
       }
 

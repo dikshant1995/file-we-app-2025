@@ -580,9 +580,8 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
               required
             >
               <option value="">-- Select Living Arrangement --</option>
-              <option value="bachelor">Living Alone / With Flatmates (Bachelor)</option>
-              <option value="family">Living with Family (Parents/Spouse/Children)</option>
-              <option value="self_owned">Living in Self-Owned Property</option>
+              <option value="rented">Rented / Living Alone / Flatmates</option>
+              <option value="family">Living with Family (Parents/Relatives)</option>
             </select>
           </div>
         )}

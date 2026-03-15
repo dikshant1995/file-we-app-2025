@@ -18,10 +18,7 @@ const LoanCappingEditor = ({ bank, onSave, location }) => {
     bachelorCapping: {
       enabled: true,
       limits: {
-        unmarried_bachelor: null,
-        unmarried_family: null,
-        married_bachelor: null,
-        unmarried_self_owned: null
+        rented_bachelor: null
       }
     },
     minLoanAmount: 100000
@@ -183,73 +180,19 @@ const LoanCappingEditor = ({ bank, onSave, location }) => {
           </div>
 
           <div className="input-group">
-            <label>Unmarried (Living as Bachelor) (₹)</label>
+            <label>Rented / Living Alone Bachelor (₹)</label>
             <input
               type="number"
-              value={config.bachelorCapping?.limits?.unmarried_bachelor || ''}
+              value={config.bachelorCapping?.limits?.rented_bachelor || ''}
               onChange={(e) => setConfig({
                 ...config,
                 bachelorCapping: {
                   ...config.bachelorCapping,
-                  limits: { ...config.bachelorCapping.limits, unmarried_bachelor: e.target.value === '' ? null : parseInt(e.target.value) }
+                  limits: { ...config.bachelorCapping.limits, rented_bachelor: e.target.value === '' ? null : parseInt(e.target.value) }
                 }
               })}
               className="config-input"
               placeholder="e.g. 2000000"
-              disabled={!(config.bachelorCapping && config.bachelorCapping.enabled)}
-            />
-          </div>
-
-          <div className="input-group">
-            <label>Unmarried (With Family) (₹)</label>
-            <input
-              type="number"
-              value={config.bachelorCapping?.limits?.unmarried_family || ''}
-              onChange={(e) => setConfig({
-                ...config,
-                bachelorCapping: {
-                  ...config.bachelorCapping,
-                  limits: { ...config.bachelorCapping.limits, unmarried_family: e.target.value === '' ? null : parseInt(e.target.value) }
-                }
-              })}
-              className="config-input"
-              placeholder="e.g. 3000000"
-              disabled={!(config.bachelorCapping && config.bachelorCapping.enabled)}
-            />
-          </div>
-
-          <div className="input-group">
-            <label>Married (Living as Bachelor) (₹)</label>
-            <input
-              type="number"
-              value={config.bachelorCapping?.limits?.married_bachelor || ''}
-              onChange={(e) => setConfig({
-                ...config,
-                bachelorCapping: {
-                  ...config.bachelorCapping,
-                  limits: { ...config.bachelorCapping.limits, married_bachelor: e.target.value === '' ? null : parseInt(e.target.value) }
-                }
-              })}
-              className="config-input"
-              placeholder="e.g. 2000000"
-              disabled={!(config.bachelorCapping && config.bachelorCapping.enabled)}
-            />
-          </div>
-
-          <div className="input-group">
-            <label>Unmarried (Self-Owned Property) (₹)</label>
-            <input
-              type="number"
-              value={config.bachelorCapping?.limits?.unmarried_self_owned || ''}
-              onChange={(e) => setConfig({
-                ...config,
-                bachelorCapping: {
-                  ...config.bachelorCapping,
-                  limits: { ...config.bachelorCapping.limits, unmarried_self_owned: e.target.value === '' ? null : parseInt(e.target.value) }
-                }
-              })}
-              className="config-input"
-              placeholder="e.g. 5000000"
               disabled={!(config.bachelorCapping && config.bachelorCapping.enabled)}
             />
           </div>
