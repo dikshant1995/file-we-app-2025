@@ -154,6 +154,50 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
       document.getElementById('mobileNumber')?.focus();
       return;
     }
+
+    // ── Guard: Edge Case Mathematical Boundaries ───────────────────────────
+    const parsedAge = parseInt(formData.age);
+    if (!parsedAge || parsedAge < 21 || parsedAge > 65) {
+      setValidationError(`Age must be between 21 and 65. You entered ${formData.age || 'nothing'}.`);
+      document.getElementById('age')?.focus();
+      return;
+    }
+    
+    const parsedSalary = parseFloat(formData.basicSalary) || 0;
+    if (parsedSalary < 5000) {
+      setValidationError(`Basic salary must be at least ₹5,000 to process through the institutional banking engine.`);
+      document.getElementById('basicSalary')?.focus();
+      return;
+    }
+    
+    // Security Hook: Prevent any negative numbers from breaking FOIR math
+    const financialFields = [
+      { name: 'Basic Salary', value: parsedSalary },
+      { name: 'Current Month Incentive', value: parseFloat(formData.incentiveMonth1) || 0 },
+      { name: 'Last Month Incentive', value: parseFloat(formData.incentiveMonth2) || 0 },
+      { name: '2 Months Ago Incentive', value: parseFloat(formData.incentiveMonth3) || 0 }
+    ];
+    
+    for (const field of financialFields) {
+      if (field.value < 0) {
+        setValidationError(`Security Error: ${field.name} cannot be a negative mathematical value.`);
+        return;
+      }
+    }
+    
+    // Security Hook: Negative numbers on Liabilities
+    for (let i = 0; i < formData.existingLoans.length; i++) {
+      const loan = formData.existingLoans[i];
+      if (
+        (parseFloat(loan.monthlyEMI) < 0) || 
+        (parseFloat(loan.outstandingAmount) < 0) || 
+        (parseFloat(loan.creditLimit) < 0) || 
+        (parseFloat(loan.creditLimitUsed) < 0)
+      ) {
+        setValidationError(`Security Error: Loan parameters cannot be negative numbers (Review Loan ${i + 1}).`);
+        return;
+      }
+    }
     // ───────────────────────────────────────────────────────────────────────
 
     // Parse data EXACTLY as backend expects
