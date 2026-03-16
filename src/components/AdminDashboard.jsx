@@ -153,6 +153,11 @@ const AdminDashboard = ({ onBackToCustomer }) => {
             setActiveMenu('config');
           }}
           onAddBank={() => setShowAddBankModal(true)}
+          onDeleteCustomBank={(bankId) => {
+            const updated = customBanks.filter(b => b.id !== bankId);
+            setCustomBanks(updated);
+            localStorage.setItem('laxmi_custom_banks', JSON.stringify(updated));
+          }}
         />;
       case 'BankConfigEditor':
         return <BankConfigEditor
@@ -173,7 +178,11 @@ const AdminDashboard = ({ onBackToCustomer }) => {
       {showAddBankModal && (
         <AddBankModal
           onClose={() => setShowAddBankModal(false)}
-          onBankAdded={(newBank) => setCustomBanks([...customBanks, newBank])}
+          onBankAdded={(newBank) => {
+            const updated = [...customBanks, newBank];
+            setCustomBanks(updated);
+            localStorage.setItem('laxmi_custom_banks', JSON.stringify(updated));
+          }}
         />
       )}
 
