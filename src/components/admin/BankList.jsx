@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './BankList.css';
 
-const BankList = ({ onSelectBank, onAddBank, customBanks = [] }) => {
+const BankList = ({ onSelectBank, onAddBank, onDeleteCustomBank, customBanks = [] }) => {
   // Initial bank data - will be loaded from config/localStorage
   const [banks, setBanks] = useState([
     // 4 NEW BANKS: With company database + dynamic rates
@@ -51,7 +51,7 @@ This will:
 Click OK to permanently delete.`)) {
       // Remove from custom banks if it's a custom bank
       if (customBanks.some(b => b.id === bankToDelete.id)) {
-        // This will be handled by parent component
+        if (onDeleteCustomBank) onDeleteCustomBank(bankToDelete.id);
         alert(`${bankToDelete.name} record purged successfully.`);
       } else {
         // Remove from default banks list
