@@ -2,7 +2,7 @@ import { useState } from 'react';
 import './AddBankModal.css';
 import { saveBankConfig } from '../../services/bankConfigService.js';
 
-const AddBankModal = ({ onClose, onBankAdded }) => {
+const AddBankModal = ({ onClose, onBankAdded, activeLocation }) => {
   const [bankName, setBankName] = useState('');
   const [bankLogo, setBankLogo] = useState('🏦');
   const [bankColor, setBankColor] = useState('#667eea');
@@ -241,7 +241,9 @@ const AddBankModal = ({ onClose, onBankAdded }) => {
 
     let allSaved = true;
     sections.forEach(section => {
-      const success = saveBankConfig(bankName, section, defaultBankConfig[section]);
+      // Always save to the specific ACTIVE LOCATION so this bank configuration isn't applied Pan-India
+      const locationString = activeLocation ? `${activeLocation.state}-${activeLocation.city}` : null;
+      const success = saveBankConfig(bankName, section, defaultBankConfig[section], locationString);
       if (!success) allSaved = false;
     });
 
@@ -251,7 +253,8 @@ const AddBankModal = ({ onClose, onBankAdded }) => {
         name: bankName,
         logo: bankLogo,
         color: bankColor,
-        enabled: true
+        enabled: true,
+        location: activeLocation ? `${activeLocation.state}-${activeLocation.city}` : 'Global' // Tag the bank object itself
       };
 
       onBankAdded(newBank);
