@@ -261,7 +261,7 @@ const AddBankModal = ({ onClose, onBankAdded }) => {
     }
   };
 
-  const logoOptions = ['INST-A', 'INST-B', 'INST-C', 'INST-D', 'INST-E', 'INST-F', 'INST-G', 'INST-H'];
+  const logoOptions = ['🏦', '🏛️', '🏢', '🪙', '💰', '💳', '📈', '🤝', '🦅', '🦁'];
 
   return (
     <div className="add-bank-overlay">
