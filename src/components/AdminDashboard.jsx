@@ -144,10 +144,16 @@ const AdminDashboard = ({ onBackToCustomer }) => {
 
     const activeItem = menuItems.find(item => item.id === activeMenu);
 
+    // Filter custom banks based on current location
+    const currentLocationString = selectedLocation.state ? `${selectedLocation.state}-${selectedLocation.city}` : 'Global';
+    const filteredCustomBanks = customBanks.filter(bank => 
+      !bank.location || bank.location === 'Global' || bank.location === currentLocationString
+    );
+
     switch (activeItem?.component) {
       case 'BankList':
         return <BankList
-          customBanks={customBanks}
+          customBanks={filteredCustomBanks}
           onSelectBank={(bank) => {
             setSelectedBank(bank);
             setActiveMenu('config');
@@ -178,6 +184,7 @@ const AdminDashboard = ({ onBackToCustomer }) => {
       {showAddBankModal && (
         <AddBankModal
           onClose={() => setShowAddBankModal(false)}
+          activeLocation={selectedLocation}
           onBankAdded={(newBank) => {
             const updated = [...customBanks, newBank];
             setCustomBanks(updated);
