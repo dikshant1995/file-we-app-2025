@@ -199,6 +199,10 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
   const results = bankCalculators.map(({ id, name, calculator }) => {
     try {
       const adminAllConfig = getAllBankConfig(name, location);
+
+      // Check BT loan capping constraint
+      const numberOfLoans = validLiabilities.length;
+
       // Check if bank offers BT
       if (adminAllConfig.btConfiguration && !adminAllConfig.btConfiguration.enabled) {
         return {
@@ -395,6 +399,10 @@ export const calculatePartialBT = async (customerInfo, existingLiabilities, sele
   const results = bankCalculators.map(({ id, name, calculator }) => {
     try {
       const adminAllConfig = getAllBankConfig(name, location);
+
+      // Check BT loan capping constraint
+      const numberOfLoans = validSelectedLiabilities.length;
+
       // Check if bank offers BT
       if (adminAllConfig.btConfiguration && !adminAllConfig.btConfiguration.enabled) {
         return {
