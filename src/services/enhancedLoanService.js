@@ -78,8 +78,12 @@ export const calculateFreshLoan = async (customerInfo) => {
       const config = adminAllConfig.bankConfig;
       const result = calculator(calculatorInput, config); // Pass merged config to calculator
       return {
-        bankName: name,
         ...result,
+        loanCappedByBank: result.loanCappedByBank,
+        calculatedLoanBeforeCap: result.calculatedLoanBeforeCap,
+        bachelorCapped: result.bachelorCapped,
+        regularMaxLoan: result.regularMaxLoan,
+        bachelorMaxLoanAmount: result.bachelorMaxLoanAmount,
         adminApplied: true
       };
     } catch (error) {
@@ -174,6 +178,11 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
         totalDebtCleared: totalPOS,
         freshAmountDisbursed: freshAmount,
         totalExistingEMI: totalExistingEMI,
+        loanCappedByBank: result.loanCappedByBank,
+        calculatedLoanBeforeCap: result.calculatedLoanBeforeCap,
+        bachelorCapped: result.bachelorCapped,
+        regularMaxLoan: result.regularMaxLoan,
+        bachelorMaxLoanAmount: result.bachelorMaxLoanAmount,
         adminApplied: true
       };
     } catch (err) {
@@ -258,6 +267,11 @@ export const calculatePartialBT = async (customerInfo, existingLiabilities, sele
         selectedPOS: selectedPOS,
         nonSelectedEMI: nonSelectedEMI,
         ccObligation: ccObligation,
+        loanCappedByBank: result.loanCappedByBank,
+        calculatedLoanBeforeCap: result.calculatedLoanBeforeCap,
+        bachelorCapped: result.bachelorCapped,
+        regularMaxLoan: result.regularMaxLoan,
+        bachelorMaxLoanAmount: result.bachelorMaxLoanAmount,
         adminApplied: true
       };
     } catch (err) {
