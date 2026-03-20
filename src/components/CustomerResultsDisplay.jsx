@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import './CustomerResultsDisplay.css';
 import { saveSelectedBanks } from '../services/leadService.js';
 
@@ -8,9 +8,16 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
   const [selectedBanks, setSelectedBanks] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null); // null | 'success' | 'error'
+  const [expandedBank, setExpandedBank] = useState(null);
 
   if (!results || results.length === 0) {
-    return null;
+    return (
+      <div className="no-results-state">
+        <h2>No Results to Display</h2>
+        <p>Please re-run the calculation with valid data.</p>
+        <button onClick={onNewCalculation} className="btn-primary">Try Again</button>
+      </div>
+    );
   }
 
   // Handle bank selection
@@ -107,12 +114,16 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
               SYSTEM READY: NEURAL LOGIC ENGINE OPTIMIZED
             </div>
             {metadata && (
-              <div className="company-info-header">
-                <span className="company-pill">🏢 {metadata.companyName || 'Corporate Entity'}</span>
-                <span className="category-pill">Category: <strong>{results[0]?.category || results.find(r => r.category)?.category || metadata.category || 'Standard'}</strong></span>
+              <div className="company-info-header" style={{ marginTop: '10px' }}>
+                <span className="company-pill" style={{ background: 'rgba(0, 210, 255, 0.1)', padding: '5px 12px', borderRadius: '15px', color: '#00d2ff', fontSize: '0.9rem', marginRight: '10px' }}>
+                  🏢 {metadata.companyName || 'Corporate Entity'}
+                </span>
+                <span className="category-pill" style={{ background: 'rgba(121, 40, 202, 0.1)', padding: '5px 12px', borderRadius: '15px', color: '#ae63e4', fontSize: '0.9rem' }}>
+                  Category: <strong>{results.find(r => r.category)?.category || metadata.category || 'Standard'}</strong>
+                </span>
               </div>
             )}
-            <p>Verified assessment results across 12 banking institutions</p>
+            <p style={{ opacity: 0.7, fontSize: '0.9rem', marginTop: '10px' }}>Verified assessment results across {results.length} banking institutions</p>
           </div>
         </div>
       </div>
@@ -169,7 +180,7 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
               </div>
             </div>
             {bestOffer.calculationMethod && (
-              <div className="calculation-method">
+              <div className="calculation-method" style={{ textAlign: 'right', marginTop: '10px', opacity: 0.6 }}>
                 <small>Method: {bestOffer.calculationMethod}</small>
               </div>
             )}
@@ -177,94 +188,15 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
         </div>
       )}
 
-      {/* ===== COMPARISON TABLE — right below best offer ===== */}
-      {eligibleBanks.length > 0 && (
-        <div className="comparison-section">
-          <h3>Consolidated Institutional Comparison</h3>
-          <div className="table-wrapper">
-            <table className="comparison-table">
-              <thead>
-                <tr>
-                  <th className="select-column">Select</th>
-                  <th>Bank Name</th>
-                  <th>Loan Amount</th>
-                  <th>Monthly EMI</th>
-                  <th>Interest Rate</th>
-                  <th>Tenure</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedEligibleBanks.map((bank, index) => (
-                  <tr key={index} className={`${bank === bestOffer ? 'best-row' : ''} ${selectedBanks.includes(bank.bankName) ? 'selected-row' : ''}`}>
-                    <td className="select-cell">
-                      <input
-                        type="checkbox"
-                        id={`table-bank-select-${index}`}
-                        checked={selectedBanks.includes(bank.bankName)}
-                        onChange={() => handleBankSelect(bank.bankName, true)}
-                        className="table-checkbox"
-                      />
-                      <label htmlFor={`table-bank-select-${index}`} className="checkbox-label"></label>
-                    </td>
-                    <td className="bank-name">
-                      <strong>{bank.bankName}</strong>
-                    </td>
-                    <td className="amount">{formatCurrency(bank.loanAmount)}</td>
-                    <td>{formatNumber(bank.monthlyEMI)}</td>
-                    <td>{bank.interestRate}%</td>
-                    <td>{bank.loanTenure} years</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Submit Button Below Table */}
-          <div className="table-submit-section">
-            <div className="selection-summary-compact">
-              <span className="selected-count">
-                {selectedBanks.length > 0 ? (
-                  <>Analysis Selection: <strong>{selectedBanks.length}</strong> {selectedBanks.length > 1 ? 'Institutions' : 'Institution'} detected for further verification</>
-                ) : (
-                  <>Identify institutions for secondary evaluation</>
-                )}
-              </span>
-            </div>
-            <button
-              className="table-submit-btn"
-              onClick={handleSubmitSelection}
-              disabled={selectedBanks.length === 0 || submitting}
-            >
-              {submitting ? 'Initiating Transmission...' : 'Proceed with Selected Selection'}
-            </button>
-
-            {/* Status feedback */}
-            {submitStatus === 'noselect' && (
-              <div className="status-feedback error">
-                Priority: Please select at least one institution to continue.
-              </div>
-            )}
-            {submitStatus === 'success' && (
-              <div className="status-feedback success">
-                Selection Confirmed. Transmission successful.<br />
-                <span className="subtitle">Batch: {selectedBanks.join(', ')}<br />Our analysis team will initiate contact protocol shortly.</span>
-              </div>
-            )}
-            {submitStatus === 'error' && (
-              <div className="status-feedback error">
-                System error encountered. Please re-initiate or notify your administrative lead.
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-
       {/* Filter and Sort Controls */}
-      <div className="controls-bar">
+      <div className="controls-bar" style={{ display: 'flex', gap: '20px', marginBottom: '20px', background: 'rgba(255,255,255,0.05)', padding: '15px', borderRadius: '12px' }}>
         <div className="filter-group">
-          <label>Show:</label>
-          <select value={filterEligible} onChange={(e) => setFilterEligible(e.target.value)}>
+          <label style={{ marginRight: '10px' }}>Show:</label>
+          <select 
+            value={filterEligible} 
+            onChange={(e) => setFilterEligible(e.target.value)}
+            style={{ padding: '5px 10px', borderRadius: '5px', background: '#1a1a1a', border: '1px solid #333', color: '#fff' }}
+          >
             <option value="all">All Banks ({results.length})</option>
             <option value="eligible">Approved Only ({eligibleBanks.length})</option>
             <option value="rejected">Rejected Only ({rejectedBanks.length})</option>
@@ -273,8 +205,12 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
 
         {filterEligible !== 'rejected' && (
           <div className="sort-group">
-            <label>Sort by:</label>
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+            <label style={{ marginRight: '10px' }}>Sort by:</label>
+            <select 
+              value={sortBy} 
+              onChange={(e) => setSortBy(e.target.value)}
+              style={{ padding: '5px 10px', borderRadius: '5px', background: '#1a1a1a', border: '1px solid #333', color: '#fff' }}
+            >
               <option value="loanAmount">Highest Loan Amount</option>
               <option value="emi">Lowest EMI</option>
               <option value="bank">Bank Name (A-Z)</option>
@@ -285,99 +221,170 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
 
       {/* All Bank Results */}
       <div className="all-banks-results">
-        <h3>Verified Institutional Assessments</h3>
+        <h3 style={{ marginBottom: '20px' }}>Verified Institutional Assessments</h3>
 
-        <div className="banks-grid">
+        <div className="banks-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '20px' }}>
           {(filterEligible === 'eligible' ? sortedEligibleBanks :
             filterEligible === 'rejected' ? rejectedBanks :
               [...sortedEligibleBanks, ...rejectedBanks]).map((bank, index) => (
                 <div
                   key={index}
                   className={`bank-card ${bank.eligible ? 'eligible' : 'rejected'} ${bank === bestOffer ? 'best' : ''}`}
+                  style={{ 
+                    background: 'rgba(255,255,255,0.03)', 
+                    border: bank.eligible ? '1px solid rgba(0, 210, 255, 0.2)' : '1px solid rgba(255, 0, 0, 0.1)',
+                    borderRadius: '16px',
+                    padding: '20px',
+                    position: 'relative',
+                    transition: 'transform 0.2s',
+                    boxShadow: bank === bestOffer ? '0 0 20px rgba(0, 210, 255, 0.2)' : 'none'
+                  }}
                 >
-                  {bank === bestOffer && <div className="best-badge">OPTIMAL</div>}
+                  {bank === bestOffer && (
+                    <div className="best-badge" style={{ position: 'absolute', top: '-10px', right: '10px', background: '#00d2ff', color: '#000', padding: '2px 10px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 'bold' }}>
+                      OPTIMAL
+                    </div>
+                  )}
 
-                  <div className="bank-card-header">
-                    <h4>{bank.bankName}</h4>
-                    <div className={`status-badge ${bank.eligible ? 'approved' : 'rejected'}`}>
-                      {bank.eligible ? 'Approved' : 'Rejected'}
+                  <div className="bank-card-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
+                    <h4 style={{ margin: 0, fontSize: '1.2rem' }}>{bank.bankName}</h4>
+                    <div className={`status-badge ${bank.eligible ? 'approved' : 'rejected'}`} style={{ fontSize: '0.8rem', color: bank.eligible ? '#00ffa3' : '#ff4d4d' }}>
+                      {bank.eligible ? '✓ Approved' : '✕ Rejected'}
                     </div>
                   </div>
 
-                  {bank.adminApplied && bank.eligible && (
-                    <div className="admin-sync-tag">
-                      <span className="icon">✓</span> Institutional Policies Applied
-                    </div>
-                  )}
-
-                  {bank.eligible ? (
-                    <div className="bank-card-body">
-                      {/* LOAN AMOUNT DISPLAY — clean for all modes */}
-                      {(bank.isBTMode || bank.btType === 'BT_WITH_PERSONAL_LOANS' || bank.btType === 'PARTIAL_BT' || bank.calculationMethod?.includes('BT')) ? (
-                        <div className="bt-mode-display">
-                          <div className="bt-badge">Liability Consolidation</div>
-                          <div className="bt-breakdown">
-                            <div className="bt-item highlight">
-                              <span className="bt-label">🏛️ Total Loan Amount</span>
-                              <span className="bt-value">{formatCurrency(bank.loanAmount)}</span>
-                            </div>
-                            <div className="bt-divider">-</div>
-                            <div className="bt-item">
-                              <span className="bt-label">💸 Amount to Clear Exisiting Loans</span>
-                              <span className="bt-value danger">{formatCurrency(bank.totalDebtCleared || bank.btTotalOutstanding)}</span>
-                            </div>
-                            <div className="bt-divider">=</div>
-                            <div className="bt-item highlight-green">
-                              <span className="bt-label">Net Liquidity Disbursal</span>
-                              <span className="bt-value success">{formatCurrency(bank.freshAmountDisbursed)}</span>
-                              <span className="bt-subtitle">Verified net credit to account</span>
+                  <div className="bank-card-body">
+                    {bank.eligible ? (
+                      <>
+                        {/* BT MODE DISPLAY */}
+                        {(bank.isBTMode || bank.btType?.includes('BT') || bank.calculationMethod?.includes('BT')) ? (
+                          <div className="bt-mode-display" style={{ background: 'rgba(0, 255, 163, 0.05)', padding: '15px', borderRadius: '10px', marginBottom: '15px' }}>
+                            <div className="bt-badge" style={{ fontSize: '0.7rem', fontWeight: 'bold', color: '#00ffa3', marginBottom: '10px', textTransform: 'uppercase' }}>Liability Consolidation</div>
+                            <div className="bt-breakdown" style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                              <div className="bt-item" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                                <span className="bt-label">Total Loan Amount</span>
+                                <span className="bt-value" style={{ fontWeight: 'bold' }}>{formatCurrency(bank.loanAmount)}</span>
+                              </div>
+                              <div className="bt-item" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', color: '#ff4d4d' }}>
+                                <span className="bt-label">Existing Liabilities Clear</span>
+                                <span className="bt-value">- {formatCurrency(bank.totalDebtCleared || bank.btTotalOutstanding)}</span>
+                              </div>
+                              <div style={{ height: '1px', background: 'rgba(255,255,255,0.1)', margin: '5px 0' }}></div>
+                              <div className="bt-item" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1rem', color: '#00ffa3', fontWeight: 'bold' }}>
+                                <span className="bt-label">Net Disbursement</span>
+                                <span className="bt-value">{formatCurrency(bank.freshAmountDisbursed)}</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ) : (
-                        <div className="main-amount">
-                          <span className="label">Loan Amount</span>
-                          <span className="amount">{formatCurrency(bank.loanAmount)}</span>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="bank-card-body rejected-body">
-                      <div className="rejection-reason">
-                        <span className="reason-text">Exclusion Parameter: {bank.reason || 'Criteria mismatch'}</span>
-                      </div>
-                    </div>
-                  )}
+                        ) : (
+                          <div className="main-amount" style={{ marginBottom: '15px' }}>
+                            <span className="label" style={{ display: 'block', fontSize: '0.8rem', opacity: 0.6 }}>Approved Loan Amount</span>
+                            <span className="amount" style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#00d2ff' }}>{formatCurrency(bank.loanAmount)}</span>
+                          </div>
+                        )}
 
-                  <div className="details-grid">
+                        {/* DETAILED ANALYSIS SECTION */}
+                        <div className="detailed-analysis-section" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '10px' }}>
+                          <button 
+                            className="toggle-details-btn"
+                            onClick={() => setExpandedBank(expandedBank === bank.bankName ? null : bank.bankName)}
+                            style={{ background: 'none', border: 'none', color: '#00d2ff', fontSize: '0.8rem', cursor: 'pointer', padding: 0, marginBottom: '10px' }}
+                          >
+                            {expandedBank === bank.bankName ? 'Hide Calculation Details ▲' : 'Show Calculation Details ▼'}
+                          </button>
+
+                          {expandedBank === bank.bankName && (
+                            <div className="details-expanded-content" style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: 'rgba(0, 210, 255, 0.05)', padding: '10px', borderRadius: '8px' }}>
+                              <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
+                                <span className="d-label" style={{ opacity: 0.7 }}>Company Tier</span>
+                                <span className="d-value" style={{ fontWeight: '600' }}>Category {bank.category || 'A'}</span>
+                              </div>
+                              
+                              <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
+                                <span className="d-label" style={{ opacity: 0.7 }}>FOIR Cap</span>
+                                <span className="d-value">{bank.details?.foirPercentage || '60%'}</span>
+                              </div>
+
+                              <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
+                                <span className="d-label" style={{ opacity: 0.7 }}>Multiplier</span>
+                                <span className="d-value">{bank.details?.multiplier || '18x'}</span>
+                              </div>
+
+                              {(bank.incentiveConsidered > 0 || bank.details?.incentiveConsidered > 0) && (
+                                <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#00ffa3' }}>
+                                  <span className="d-label">Incentive Credit</span>
+                                  <span className="d-value">+{formatNumber(bank.incentiveConsidered || bank.details.incentiveConsidered)}</span>
+                                </div>
+                              )}
+
+                              {(bank.ccObligation > 0 || bank.details?.creditCardObligation > 0) && (
+                                <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#ff4d4d' }}>
+                                  <span className="d-label">CC Obligation Deduction</span>
+                                  <span className="d-value">-{formatNumber(bank.ccObligation || bank.details.creditCardObligation)}</span>
+                                </div>
+                              )}
+
+                              {bank.nonSelectedEMI > 0 && (
+                                <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#ff4d4d' }}>
+                                  <span className="d-label">External EMI Adjustment</span>
+                                  <span className="d-value">-{formatNumber(bank.nonSelectedEMI)}</span>
+                                </div>
+                              )}
+                              
+                              {bank.details?.limitingFactor && (
+                                <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '5px', marginTop: '5px' }}>
+                                  <span className="d-label" style={{ opacity: 0.7 }}>Limiting Parameter</span>
+                                  <span className="d-value" style={{ color: '#ae63e4' }}>{bank.details.limitingFactor}</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="rejected-body" style={{ background: 'rgba(255, 77, 77, 0.05)', padding: '15px', borderRadius: '10px', marginBottom: '15px' }}>
+                        <div className="rejection-reason" style={{ fontSize: '0.85rem', color: '#ff4d4d' }}>
+                          <span style={{ fontWeight: 'bold' }}>Exclusion:</span> {bank.reason || 'Criteria mismatch'}
+                        </div>
+                        {bank.category && (
+                          <div className="rejected-meta" style={{ marginTop: '10px', opacity: 0.6, fontSize: '0.75rem' }}>
+                            Identified Profile: Category {bank.category}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="details-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginTop: '15px', paddingTop: '15px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
                     <div className="detail">
-                      <span className="detail-label">Monthly EMI</span>
-                      <span className="detail-value">{formatNumber(bank.monthlyEMI)}</span>
+                      <span className="detail-label" style={{ display: 'block', fontSize: '0.65rem', opacity: 0.5, textTransform: 'uppercase' }}>Monthly EMI</span>
+                      <span className="detail-value" style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>{formatNumber(bank.monthlyEMI)}</span>
                     </div>
                     <div className="detail">
-                      <span className="detail-label">Interest Rate</span>
-                      <span className="detail-value">{bank.interestRate}%</span>
+                      <span className="detail-label" style={{ display: 'block', fontSize: '0.65rem', opacity: 0.5, textTransform: 'uppercase' }}>ROI</span>
+                      <span className="detail-value" style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>{bank.interestRate}%</span>
                     </div>
                     <div className="detail">
-                      <span className="detail-label">Tenure</span>
-                      <span className="detail-value">{bank.loanTenure} years</span>
+                      <span className="detail-label" style={{ display: 'block', fontSize: '0.65rem', opacity: 0.5, textTransform: 'uppercase' }}>Tenure</span>
+                      <span className="detail-value" style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>{bank.loanTenure}Y</span>
                     </div>
                   </div>
                 </div>
-              ))}</div>
+              ))}
+        </div>
       </div>
 
       {/* No Results Message */}
       {eligibleBanks.length === 0 && (
-        <div className="no-results">
-          <div className="no-results-icon">😔</div>
-          <h3>No Banks Approved</h3>
-          <p>Unfortunately, none of the banks approved your application based on the provided information.</p>
-          <div className="common-reasons">
-            <h4>Common reasons for rejection:</h4>
-            <ul>
+        <div className="no-results" style={{ textAlign: 'center', padding: '100px 20px', background: 'rgba(255,255,255,0.02)', borderRadius: '20px', marginTop: '40px' }}>
+          <div className="no-results-icon" style={{ fontSize: '4rem', marginBottom: '20px' }}>😔</div>
+          <h3 style={{ fontSize: '2rem', marginBottom: '15px' }}>Assessment Exclusion Detected</h3>
+          <p style={{ opacity: 0.7, maxWidth: '600px', margin: '0 auto 30px' }}>Unfortunately, your current financial profile does not align with institutional lending parameters across evaluated banks.</p>
+          <div className="common-reasons" style={{ background: 'rgba(255, 77, 77, 0.05)', padding: '20px', borderRadius: '15px', display: 'inline-block', textAlign: 'left' }}>
+            <h4 style={{ margin: '0 0 10px 0', fontSize: '1rem', color: '#ff4d4d' }}>Primary Exclusion Parameters:</h4>
+            <ul style={{ margin: 0, paddingLeft: '20px', opacity: 0.8, fontSize: '0.9rem' }}>
               {rejectedBanks.slice(0, 3).map((bank, idx) => (
-                <li key={idx}>{bank.reason}</li>
+                <li key={idx} style={{ marginBottom: '5px' }}>{bank.bankName}: {bank.reason}</li>
               ))}
             </ul>
           </div>
