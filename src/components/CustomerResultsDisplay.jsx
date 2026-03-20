@@ -223,7 +223,7 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
       <div className="all-banks-results">
         <h3 style={{ marginBottom: '20px' }}>Verified Institutional Assessments</h3>
 
-        <div className="banks-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '20px' }}>
+        <div className="banks-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '20px' }}>
           {(filterEligible === 'eligible' ? sortedEligibleBanks :
             filterEligible === 'rejected' ? rejectedBanks :
               [...sortedEligibleBanks, ...rejectedBanks]).map((bank, index) => (
@@ -246,8 +246,30 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
                     </div>
                   )}
 
-                  <div className="bank-card-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
-                    <h4 style={{ margin: 0, fontSize: '1.2rem' }}>{bank.bankName}</h4>
+                  <div className="bank-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      {bank.eligible && (
+                        <div 
+                          className={`selection-checkbox ${selectedBanks.includes(bank.bankName) ? 'selected' : ''}`}
+                          onClick={() => handleBankSelect(bank.bankName, true)}
+                          style={{
+                            width: '22px',
+                            height: '22px',
+                            borderRadius: '6px',
+                            border: `2px solid ${selectedBanks.includes(bank.bankName) ? '#00ffa3' : 'rgba(255,255,255,0.2)'}`,
+                            background: selectedBanks.includes(bank.bankName) ? '#00ffa3' : 'transparent',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          {selectedBanks.includes(bank.bankName) && <span style={{ color: '#000', fontSize: '14px', fontWeight: 'bold' }}>✓</span>}
+                        </div>
+                      )}
+                      <h4 style={{ margin: 0, fontSize: '1.2rem' }}>{bank.bankName}</h4>
+                    </div>
                     <div className={`status-badge ${bank.eligible ? 'approved' : 'rejected'}`} style={{ fontSize: '0.8rem', color: bank.eligible ? '#00ffa3' : '#ff4d4d' }}>
                       {bank.eligible ? '✓ Approved' : '✕ Rejected'}
                     </div>
@@ -398,19 +420,84 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
         </div>
       </div>
 
-      {/* No Results Message */}
-      {eligibleBanks.length === 0 && (
-        <div className="no-results" style={{ textAlign: 'center', padding: '100px 20px', background: 'rgba(255,255,255,0.02)', borderRadius: '20px', marginTop: '40px' }}>
-          <div className="no-results-icon" style={{ fontSize: '4rem', marginBottom: '20px' }}>😔</div>
-          <h3 style={{ fontSize: '2rem', marginBottom: '15px' }}>Assessment Exclusion Detected</h3>
-          <p style={{ opacity: 0.7, maxWidth: '600px', margin: '0 auto 30px' }}>Unfortunately, your current financial profile does not align with institutional lending parameters across evaluated banks.</p>
-          <div className="common-reasons" style={{ background: 'rgba(255, 77, 77, 0.05)', padding: '20px', borderRadius: '15px', display: 'inline-block', textAlign: 'left' }}>
-            <h4 style={{ margin: '0 0 10px 0', fontSize: '1rem', color: '#ff4d4d' }}>Primary Exclusion Parameters:</h4>
-            <ul style={{ margin: 0, paddingLeft: '20px', opacity: 0.8, fontSize: '0.9rem' }}>
-              {rejectedBanks.slice(0, 3).map((bank, idx) => (
-                <li key={idx} style={{ marginBottom: '5px' }}>{bank.bankName}: {bank.reason}</li>
-              ))}
-            </ul>
+      {/* Floating Submit Bar */}
+      {eligibleBanks.length > 0 && (
+        <div className="selection-submit-bar" style={{
+          position: 'fixed',
+          bottom: '30px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: 'min(90%, 800px)',
+          background: 'rgba(13, 22, 38, 0.95)',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid rgba(0, 210, 255, 0.3)',
+          borderRadius: '20px',
+          padding: '20px 30px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
+          zIndex: 1000,
+          animation: 'slideUp 0.5s ease'
+        }}>
+          <div>
+            <div style={{ color: '#fff', fontWeight: 'bold' }}>
+              {selectedBanks.length} Bank{selectedBanks.length !== 1 ? 's' : ''} Selected
+            </div>
+            <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)' }}>
+              Select the banks you prefer to proceed with
+            </div>
+          </div>
+
+          <button 
+            onClick={handleSubmitSelection}
+            disabled={selectedBanks.length === 0 || submitting}
+            className="table-submit-btn"
+            style={{ margin: 0 }}
+          >
+            {submitting ? 'Processing...' : 'Proceed with Selected Banks'}
+          </button>
+        </div>
+      )}
+
+      {/* Submission Status Overlay */}
+      {submitStatus && (
+        <div className="status-overlay" style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 2000,
+          backdropFilter: 'blur(5px)'
+        }}>
+          <div style={{
+            background: '#0d1626',
+            border: `1px solid ${submitStatus === 'success' ? '#00ffa3' : '#ff4d4d'}`,
+            padding: '40px',
+            borderRadius: '20px',
+            textAlign: 'center',
+            maxWidth: '500px'
+          }}>
+            <div style={{ fontSize: '3rem', marginBottom: '20px' }}>
+              {submitStatus === 'success' ? '✅' : '❌'}
+            </div>
+            <h3 style={{ fontSize: '1.5rem', marginBottom: '10px' }}>
+              {submitStatus === 'success' ? 'Application Received!' : 'Submission Failed'}
+            </h3>
+            <p style={{ opacity: 0.8, marginBottom: '30px' }}>
+              {submitStatus === 'success' 
+                ? 'Your preferred banks have been notified. Our customer support team will contact you shortly to process your application.'
+                : 'There was an error communicating with our server. Please try again or contact support.'}
+            </p>
+            <button 
+              onClick={() => setSubmitStatus(null)}
+              className="btn-primary"
+              style={{ padding: '10px 30px' }}
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
