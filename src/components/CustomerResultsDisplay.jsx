@@ -304,10 +304,16 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
                     </div>
                   </div>
 
+                  {bank.adminApplied && bank.eligible && (
+                    <div className="admin-sync-tag">
+                      <span className="icon">✓</span> Institutional Policies Applied
+                    </div>
+                  )}
+
                   {bank.eligible ? (
                     <div className="bank-card-body">
                       {/* LOAN AMOUNT DISPLAY — clean for all modes */}
-                      {(bank.isBTMode || bank.btType === 'BT_WITH_CREDIT_CARDS' || bank.btType === 'BT_WITH_CC_OBLIGATION') ? (
+                      {(bank.isBTMode || bank.btType === 'BT_WITH_PERSONAL_LOANS' || bank.btType === 'PARTIAL_BT' || bank.calculationMethod?.includes('BT')) ? (
                         <div className="bt-mode-display">
                           <div className="bt-badge">Liability Consolidation</div>
                           <div className="bt-breakdown">
@@ -317,7 +323,7 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
                             </div>
                             <div className="bt-divider">-</div>
                             <div className="bt-item">
-                              <span className="bt-label">💸 Amount to Clear Existing Loans</span>
+                              <span className="bt-label">💸 Amount to Clear Exisiting Loans</span>
                               <span className="bt-value danger">{formatCurrency(bank.totalDebtCleared || bank.btTotalOutstanding)}</span>
                             </div>
                             <div className="bt-divider">=</div>
