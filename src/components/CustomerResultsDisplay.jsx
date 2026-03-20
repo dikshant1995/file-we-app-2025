@@ -313,7 +313,7 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
                   {bank.eligible ? (
                     <div className="bank-card-body">
                       {/* LOAN AMOUNT DISPLAY — clean for all modes */}
-                      {(bank.isBTMode || bank.btType === 'BT_WITH_CREDIT_CARDS' || bank.btType === 'BT_WITH_CC_OBLIGATION') ? (
+                      {(bank.isBTMode || bank.btType === 'BT_WITH_CREDIT_CARDS' || bank.btType === 'BT_WITH_CC_OBLIGATION' || bank.calculationMethod?.includes('BT')) ? (
                         <div className="bt-mode-display">
                           <div className="bt-badge">Liability Consolidation</div>
                           <div className="bt-breakdown">
