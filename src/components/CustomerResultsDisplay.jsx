@@ -237,8 +237,11 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
                     padding: '20px',
                     position: 'relative',
                     transition: 'transform 0.2s',
-                    boxShadow: bank === bestOffer ? '0 0 20px rgba(0, 210, 255, 0.2)' : 'none'
+                    boxShadow: bank === bestOffer ? '0 0 20px rgba(0, 210, 255, 0.2)' : 'none',
+                    cursor: bank.eligible ? 'pointer' : 'default',
+                    overflow: 'visible' // Allow badge to pop out
                   }}
+                  onClick={() => bank.eligible && handleBankSelect(bank.bankName, true)}
                 >
                   {bank === bestOffer && (
                     <div className="best-badge" style={{ position: 'absolute', top: '-10px', right: '10px', background: '#00d2ff', color: '#000', padding: '2px 10px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 'bold' }}>
@@ -251,21 +254,21 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
                       {bank.eligible && (
                         <div 
                           className={`selection-checkbox ${selectedBanks.includes(bank.bankName) ? 'selected' : ''}`}
-                          onClick={() => handleBankSelect(bank.bankName, true)}
                           style={{
-                            width: '22px',
-                            height: '22px',
+                            width: '24px',
+                            height: '24px',
+                            minWidth: '24px',
                             borderRadius: '6px',
-                            border: `2px solid ${selectedBanks.includes(bank.bankName) ? '#00ffa3' : 'rgba(255,255,255,0.2)'}`,
+                            border: `2px solid ${selectedBanks.includes(bank.bankName) ? '#00ffa3' : 'rgba(255,255,255,0.4)'}`,
                             background: selectedBanks.includes(bank.bankName) ? '#00ffa3' : 'transparent',
-                            cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            transition: 'all 0.2s'
+                            transition: 'all 0.2s',
+                            boxShadow: selectedBanks.includes(bank.bankName) ? '0 0 10px rgba(0, 255, 163, 0.3)' : 'none'
                           }}
                         >
-                          {selectedBanks.includes(bank.bankName) && <span style={{ color: '#000', fontSize: '14px', fontWeight: 'bold' }}>✓</span>}
+                          {selectedBanks.includes(bank.bankName) && <span style={{ color: '#000', fontSize: '16px', fontWeight: 'bold' }}>✓</span>}
                         </div>
                       )}
                       <h4 style={{ margin: 0, fontSize: '1.2rem' }}>{bank.bankName}</h4>
@@ -333,7 +336,10 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
                         <div className="detailed-analysis-section" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '10px' }}>
                           <button 
                             className="toggle-details-btn"
-                            onClick={() => setExpandedBank(expandedBank === bank.bankName ? null : bank.bankName)}
+                            onClick={(e) => {
+                              e.stopPropagation(); // Don't toggle selection when toggling details
+                              setExpandedBank(expandedBank === bank.bankName ? null : bank.bankName);
+                            }}
                             style={{ background: 'none', border: 'none', color: '#00d2ff', fontSize: '0.8rem', cursor: 'pointer', padding: 0, marginBottom: '10px' }}
                           >
                             {expandedBank === bank.bankName ? 'Hide Calculation Details ▲' : 'Show Calculation Details ▼'}
