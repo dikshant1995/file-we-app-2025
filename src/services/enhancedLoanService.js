@@ -203,8 +203,8 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
       // Check BT loan capping constraint
       const numberOfLoans = validLiabilities.length;
 
-      // Check if bank offers BT
-      if (adminAllConfig.btConfiguration && !adminAllConfig.btConfiguration.enabled) {
+      // Check if bank offers BT (strictly require it to be explicitly enabled)
+      if (!adminAllConfig.btConfiguration || adminAllConfig.btConfiguration.enabled !== true) {
         return {
           bankName: name,
           eligible: false,
@@ -403,8 +403,8 @@ export const calculatePartialBT = async (customerInfo, existingLiabilities, sele
       // Check BT loan capping constraint
       const numberOfLoans = validSelectedLiabilities.length;
 
-      // Check if bank offers BT
-      if (adminAllConfig.btConfiguration && !adminAllConfig.btConfiguration.enabled) {
+      // Check if bank offers BT (strictly require it to be explicitly enabled)
+      if (!adminAllConfig.btConfiguration || adminAllConfig.btConfiguration.enabled !== true) {
         return {
           bankName: name,
           eligible: false,
