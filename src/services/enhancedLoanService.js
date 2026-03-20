@@ -120,10 +120,16 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
     try {
       const adminAllConfig = getAllBankConfig(name, { state, city });
       const btConfig = adminAllConfig.btConfiguration || {};
+      const config = adminAllConfig.bankConfig || {};
 
-      // Check if disabled in Admin
-      if (btConfig.enabled !== true) {
-        return { bankName: name, eligible: false, reason: `${name} policy: BT currently disabled for this profile.` };
+      // Check if EXPLICITLY disabled in Admin
+      if (btConfig.enabled === false) {
+        return { bankName: name, eligible: false, reason: `${name} policy: BT currently disabled via Admin override.` };
+      }
+
+      // Fallback to local config if Admin hasn't specified
+      if (btConfig.enabled === undefined && config.btConfig && !config.btConfig.isAvailable) {
+        return { bankName: name, eligible: false, reason: `${name} does not offer Balance Transfer facility for personal loans` };
       }
 
       // Check Loan Capping
@@ -194,9 +200,14 @@ export const calculatePartialBT = async (customerInfo, existingLiabilities, sele
     try {
       const adminAllConfig = getAllBankConfig(name, { state, city });
       const btConfig = adminAllConfig.btConfiguration || {};
+      const config = adminAllConfig.bankConfig || {};
 
-      if (btConfig.enabled !== true) {
+      if (btConfig.enabled === false) {
         return { bankName: name, eligible: false, reason: `${name} policy: BT currently disabled.` };
+      }
+
+      if (btConfig.enabled === undefined && config.btConfig && !config.btConfig.isAvailable) {
+        return { bankName: name, eligible: false, reason: `${name} does not offer BT facility.` };
       }
 
       const result = calculator(btInput, adminAllConfig.bankConfig);
