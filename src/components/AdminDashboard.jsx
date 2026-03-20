@@ -28,15 +28,7 @@ const AdminDashboard = ({ onBackToCustomer }) => {
   // Persistence of custom banks (if any)
   useEffect(() => {
     const stored = localStorage.getItem('laxmi_custom_banks');
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      // Auto-purge the stuck "Yes Bank" from global memory
-      const cleanedBanks = parsed.filter(b => b.name.toLowerCase() !== 'yes bank');
-      if (cleanedBanks.length !== parsed.length) {
-        localStorage.setItem('laxmi_custom_banks', JSON.stringify(cleanedBanks));
-      }
-      setCustomBanks(cleanedBanks);
-    }
+    if (stored) setCustomBanks(JSON.parse(stored));
   }, []);
 
   useEffect(() => {
