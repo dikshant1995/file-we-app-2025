@@ -96,27 +96,41 @@ export const calculateFreshLoan = async (customerInfo) => {
  */
 export const calculateFullBT = async (customerInfo, existingLiabilities) => {
   const { state, city } = customerInfo;
-  const validLiabilities = existingLiabilities.filter(liability =>
-    liability.outstandingAmount && parseFloat(liability.outstandingAmount) > 0
+  
+  // Separate loans and credit cards
+  const activeLiabilities = existingLiabilities.filter(l => 
+    l.outstandingAmount && parseFloat(l.outstandingAmount) > 0
   );
 
-  if (validLiabilities.length === 0) return await calculateFreshLoan(customerInfo);
+  if (activeLiabilities.length === 0) return await calculateFreshLoan(customerInfo);
 
-  const totalPOS = validLiabilities.reduce((sum, l) => sum + parseFloat(l.outstandingAmount), 0);
-  const totalExistingEMI = validLiabilities.reduce((sum, l) => sum + (parseFloat(l.monthlyPayment) || 0), 0);
+  const totalPOS = activeLiabilities.reduce((sum, l) => sum + parseFloat(l.outstandingAmount), 0);
+  const totalExistingEMI = activeLiabilities.reduce((sum, l) => sum + (parseFloat(l.monthlyPayment) || 0), 0);
 
+  // In Full BT, all provided liabilities are considered for transfer
   const btInput = {
     ...customerInfo,
     desiredLoanAmount: null,
-    existingEMI: 0, // Reset EMI for BT flow
+    existingEMI: 0, 
+    creditCardObligation: 0, // In Full BT, we assume CCs are cleared too
     totalPOS: totalPOS,
-    isBTMode: true
+    isBTMode: true,
+    loansForBT: activeLiabilities,
+    btTotalEMI: totalExistingEMI,
+    btTotalOutstanding: totalPOS
   };
 
-  // 11 Banks - Exclude Bandhan
-  const btBanks = allBanks.filter(b => b.id !== 'bandhan');
+  const results = allBanks.map(({ id, name, calculator }) => {
+    // 1. Bandhan Bank special rejection
+    if (id === 'bandhan') {
+      return { 
+        bankName: name, 
+        eligible: false, 
+        reason: 'We do not support BT in Personal Loans',
+        isBTMode: true 
+      };
+    }
 
-  const results = btBanks.map(({ name, calculator }) => {
     try {
       const adminAllConfig = getAllBankConfig(name, { state, city });
       const btConfig = adminAllConfig.btConfiguration || {};
@@ -134,7 +148,7 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
 
       // Check Loan Capping
       const maxLoans = btConfig.maxHistoryLoans || 5;
-      if (validLiabilities.length > maxLoans) {
+      if (activeLiabilities.length > maxLoans) {
         return { bankName: name, eligible: false, reason: `Policy: Maximum ${maxLoans} existing loans allowed for BT.` };
       }
 
@@ -175,28 +189,39 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
  */
 export const calculatePartialBT = async (customerInfo, existingLiabilities, selectedLiabilityIds) => {
   const { state, city } = customerInfo;
+  
   const selectedLiabilities = existingLiabilities.filter(l => selectedLiabilityIds.includes(l.id));
-  const validSelected = selectedLiabilities.filter(l => parseFloat(l.outstandingAmount) > 0);
-
-  if (validSelected.length === 0) return await calculateFreshLoan(customerInfo);
-
-  const selectedPOS = validSelected.reduce((sum, l) => sum + parseFloat(l.outstandingAmount), 0);
-  const selectedExistingEMI = validSelected.reduce((sum, l) => sum + (parseFloat(l.monthlyPayment) || 0), 0);
-
   const nonSelectedLiabilities = existingLiabilities.filter(l => !selectedLiabilityIds.includes(l.id));
-  const nonSelectedEMI = nonSelectedLiabilities.reduce((sum, l) => sum + (parseFloat(l.monthlyPayment) || 0), 0);
+
+  const selectedPOS = selectedLiabilities.reduce((sum, l) => sum + (parseFloat(l.outstandingAmount) || 0), 0);
+  const selectedEMI = selectedLiabilities.reduce((sum, l) => sum + (parseFloat(l.monthlyPayment) || 0), 0);
+  
+  const nonSelectedEMI = nonSelectedLiabilities.filter(l => l.type !== 'Credit Card').reduce((sum, l) => sum + (parseFloat(l.monthlyPayment) || 0), 0);
+  const nonSelectedCCOutstanding = nonSelectedLiabilities.filter(l => l.type === 'Credit Card').reduce((sum, l) => sum + (parseFloat(l.outstandingAmount) || 0), 0);
+  const ccObligation = Math.round(nonSelectedCCOutstanding * 0.05); // 5% of non-BT credit card balance
 
   const btInput = {
     ...customerInfo,
     desiredLoanAmount: null,
-    existingEMI: nonSelectedEMI, // Retain non-selected EMIs
+    existingEMI: nonSelectedEMI,
+    creditCardObligation: ccObligation,
     totalPOS: selectedPOS,
-    isBTMode: true
+    isBTMode: true,
+    loansForBT: selectedLiabilities,
+    btTotalEMI: selectedEMI,
+    btTotalOutstanding: selectedPOS
   };
 
-  const btBanks = allBanks.filter(b => b.id !== 'bandhan');
+  const results = allBanks.map(({ id, name, calculator }) => {
+    if (id === 'bandhan') {
+      return { 
+        bankName: name, 
+        eligible: false, 
+        reason: 'We do not support BT in Personal Loans',
+        isBTMode: true 
+      };
+    }
 
-  const results = btBanks.map(({ name, calculator }) => {
     try {
       const adminAllConfig = getAllBankConfig(name, { state, city });
       const btConfig = adminAllConfig.btConfiguration || {};
@@ -232,6 +257,7 @@ export const calculatePartialBT = async (customerInfo, existingLiabilities, sele
         freshAmountDisbursed: freshAmount,
         selectedPOS: selectedPOS,
         nonSelectedEMI: nonSelectedEMI,
+        ccObligation: ccObligation,
         adminApplied: true
       };
     } catch (err) {
