@@ -256,6 +256,30 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
                   <div className="bank-card-body">
                     {bank.eligible ? (
                       <>
+                        {/* CAPPING ALERTS */}
+                        {(bank.loanCappedByBank || bank.bachelorCapped) && (
+                          <div className="capping-alert-box" style={{ 
+                            background: 'rgba(174, 99, 228, 0.1)', 
+                            border: '1px solid rgba(174, 99, 228, 0.3)', 
+                            padding: '12px', 
+                            borderRadius: '10px', 
+                            marginBottom: '15px' 
+                          }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#ae63e4', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '4px' }}>
+                              <span style={{ fontSize: '1.1rem' }}>⚠️</span> 
+                              {bank.bachelorCapped ? 'BACHELOR LIMIT APPLIED' : 'BANK MAXIMUM CAP APPLIED'}
+                            </div>
+                            <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>
+                              Total Eligibility: <span style={{ textDecoration: 'line-through' }}>{formatCurrency(bank.calculatedLoanBeforeCap || bank.regularMaxLoan)}</span>
+                            </div>
+                            {bank.bachelorCapped && bank.bachelorCapReason && (
+                              <div style={{ fontSize: '0.7rem', marginTop: '4px', fontStyle: 'italic' }}>
+                                Reason: {bank.bachelorCapReason}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
                         {/* BT MODE DISPLAY */}
                         {(bank.isBTMode || bank.btType?.includes('BT') || bank.calculationMethod?.includes('BT')) ? (
                           <div className="bt-mode-display" style={{ background: 'rgba(0, 255, 163, 0.05)', padding: '15px', borderRadius: '10px', marginBottom: '15px' }}>
