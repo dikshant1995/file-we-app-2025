@@ -199,17 +199,12 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
   const results = bankCalculators.map(({ id, name, calculator }) => {
     try {
       const adminAllConfig = getAllBankConfig(name, location);
-      const config = adminAllConfig.bankConfig; // Use the bankConfig from the service
-
-      // Check BT loan capping constraint
-      const numberOfLoans = validLiabilities.length;
-
       // Check if bank offers BT
-      if (config.btConfig && !config.btConfig.isAvailable) {
+      if (adminAllConfig.btConfiguration && !adminAllConfig.btConfiguration.enabled) {
         return {
-          bankName: config.name || name,
+          bankName: name,
           eligible: false,
-          reason: `${config.name || name} does not offer Balance Transfer facility for personal loans`,
+          reason: `${name} does not offer Balance Transfer facility for personal loans`,
           state: customerInfo.state || '',
           city: customerInfo.city || ''
         };
@@ -218,24 +213,24 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
       // Check for Fintech loans if bank doesn't accept them
       const hasFintechLoans = validLiabilities.some(liability =>
         liability.isFintechLoan === true || liability.loanSource === 'fintech');
-      if (hasFintechLoans && config.btConfig && config.btConfig.acceptsFintechLoans === false) {
+      if (hasFintechLoans && adminAllConfig.btConfiguration && adminAllConfig.btConfiguration.acceptsFintechLoans === false) {
         const fintechLoanCount = validLiabilities.filter(liability =>
           liability.isFintechLoan === true || liability.loanSource === 'fintech').length;
         return {
-          bankName: config.name || name,
+          bankName: name,
           eligible: false,
-          reason: `Fintech Loan Policy: ${config.name || name} does not accept Balance Transfer for loans from Fintech/digital lending platforms. You have ${fintechLoanCount} Fintech loan(s).`,
+          reason: `Fintech Loan Policy: ${name} does not accept Balance Transfer for loans from Fintech/digital lending platforms. You have ${fintechLoanCount} Fintech loan(s).`,
           state: customerInfo.state || '',
           city: customerInfo.city || ''
         };
       }
 
       // Check loan capping limit
-      if (config.btConfig && config.btConfig.maxLoansForBT < numberOfLoans) {
+      if (adminAllConfig.btConfiguration && adminAllConfig.btConfiguration.maxLoansForBT < numberOfLoans) {
         return {
-          bankName: config.name || name,
+          bankName: name,
           eligible: false,
-          reason: `Loan Capping Exceeded: You have ${numberOfLoans} existing loans, but ${config.name || name} allows BT for maximum ${config.btConfig.maxLoansForBT} loans`,
+          reason: `Loan Capping Exceeded: You have ${numberOfLoans} existing loans, but ${name} allows BT for maximum ${adminAllConfig.btConfiguration.maxLoansForBT} loans`,
           state: customerInfo.state || '',
           city: customerInfo.city || ''
         };
@@ -400,17 +395,12 @@ export const calculatePartialBT = async (customerInfo, existingLiabilities, sele
   const results = bankCalculators.map(({ id, name, calculator }) => {
     try {
       const adminAllConfig = getAllBankConfig(name, location);
-      const config = adminAllConfig.bankConfig; // Use the bankConfig from the service
-
-      // Check BT loan capping constraint
-      const numberOfLoans = validSelectedLiabilities.length;
-
       // Check if bank offers BT
-      if (config.btConfig && !config.btConfig.isAvailable) {
+      if (adminAllConfig.btConfiguration && !adminAllConfig.btConfiguration.enabled) {
         return {
-          bankName: config.name || name,
+          bankName: name,
           eligible: false,
-          reason: `${config.name || name} does not offer Balance Transfer facility for personal loans`,
+          reason: `${name} does not offer Balance Transfer facility for personal loans`,
           state: customerInfo.state || '',
           city: customerInfo.city || ''
         };
@@ -419,24 +409,24 @@ export const calculatePartialBT = async (customerInfo, existingLiabilities, sele
       // Check for Fintech loans if bank doesn't accept them
       const hasFintechLoans = validSelectedLiabilities.some(liability =>
         liability.isFintechLoan === true || liability.loanSource === 'fintech');
-      if (hasFintechLoans && config.btConfig && config.btConfig.acceptsFintechLoans === false) {
+      if (hasFintechLoans && adminAllConfig.btConfiguration && adminAllConfig.btConfiguration.acceptsFintechLoans === false) {
         const fintechLoanCount = validSelectedLiabilities.filter(liability =>
           liability.isFintechLoan === true || liability.loanSource === 'fintech').length;
         return {
-          bankName: config.name || name,
+          bankName: name,
           eligible: false,
-          reason: `Fintech Loan Policy: ${config.name || name} does not accept Balance Transfer for loans from Fintech/digital lending platforms. You have ${fintechLoanCount} Fintech loan(s).`,
+          reason: `Fintech Loan Policy: ${name} does not accept Balance Transfer for loans from Fintech/digital lending platforms. You have ${fintechLoanCount} Fintech loan(s).`,
           state: customerInfo.state || '',
           city: customerInfo.city || ''
         };
       }
 
       // Check loan capping limit
-      if (config.btConfig && config.btConfig.maxLoansForBT < numberOfLoans) {
+      if (adminAllConfig.btConfiguration && adminAllConfig.btConfiguration.maxLoansForBT < numberOfLoans) {
         return {
-          bankName: config.name || name,
+          bankName: name,
           eligible: false,
-          reason: `Loan Capping Exceeded: You have ${numberOfLoans} selected loans, but ${config.name || name} allows BT for maximum ${config.btConfig.maxLoansForBT} loans`,
+          reason: `Loan Capping Exceeded: You have ${numberOfLoans} selected loans, but ${name} allows BT for maximum ${adminAllConfig.btConfiguration.maxLoansForBT} loans`,
           state: customerInfo.state || '',
           city: customerInfo.city || ''
         };
