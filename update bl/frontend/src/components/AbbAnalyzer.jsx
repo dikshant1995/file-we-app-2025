@@ -26,6 +26,8 @@ const AbbAnalyzer = ({
                                     value={proprietorName} 
                                     onChange={e => setProprietorName(e.target.value)}
                                     className="input-field"
+                                    autoComplete="new-password"
+                                    data-lpignore="true"
                                 />
                             </div>
                             <div className="form-group mb-0">
@@ -36,6 +38,8 @@ const AbbAnalyzer = ({
                                     value={pdfPassword} 
                                     onChange={e => setPdfPassword(e.target.value)}
                                     className="input-field"
+                                    autoComplete="new-password"
+                                    data-lpignore="true"
                                 />
                             </div>
                         </div>

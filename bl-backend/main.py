@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI, UploadFile, File, Form, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from pdf_extractor import parse_bank_statement
 from policy_engine import PolicyEngine
@@ -7,6 +7,7 @@ import json
 import os
 
 app = FastAPI(title="ABB Calculator PDF Parser")
+api_router = APIRouter()
 
 # Enable CORS for the React frontend
 app.add_middleware(
@@ -17,25 +18,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/")
+@api_router.get("/")
 def read_root():
     return {"status": "Backend is running"}
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 POLICIES_PATH = os.path.join(BASE_DIR, 'policies.json')
 
-@app.get("/api/policies")
+@api_router.get("/api/policies")
 def get_policies():
     with open(POLICIES_PATH, 'r') as f:
         return json.load(f)
 
-@app.post("/api/policies")
+@api_router.post("/api/policies")
 async def update_policies(policies: list):
     with open(POLICIES_PATH, 'w') as f:
         json.dump(policies, f, indent=4)
     return {"status": "success"}
 
-@app.post("/api/upload-statement")
+@api_router.post("/api/upload-statement")
 async def upload_statement(file: UploadFile = File(...), password: Optional[str] = Form(None)):
     """
     Endpoint strictly configured to process the PDF and return ONLY the 3 specified datasets.
@@ -61,7 +62,7 @@ async def upload_statement(file: UploadFile = File(...), password: Optional[str]
             error_msg = "This PDF is password protected! Please securely enter the correct password in the box above to extract it."
         return {"status": "error", "message": error_msg}
 
-@app.post("/api/evaluate-eligibility")
+@api_router.post("/api/evaluate-eligibility")
 async def evaluate_eligibility(
     file: UploadFile = File(...), 
     loan_amount: float = Form(...),
@@ -131,3 +132,8 @@ async def evaluate_eligibility(
         }
     except Exception as e:
         return {"status": "error", "message": str(e)}
+
+# Support local endpoints
+app.include_router(api_router)
+# Support Vercel runtime rewrite prefix mapping
+app.include_router(api_router, prefix="/api-bl")
