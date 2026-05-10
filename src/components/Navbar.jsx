@@ -32,9 +32,6 @@ const Navbar = ({ onAdminClick, onHomeClick }) => {
                     <Link to="/blog" className={`nav-item ${location.pathname.startsWith('/blog') ? 'active' : ''}`}>
                         Insights
                     </Link>
-                    <a href="/business-loan/" className="nav-item">
-                        Business Loan
-                    </a>
                     <button className="nav-admin-btn" onClick={onAdminClick}>
                         <Lock size={13} />
                         <span>ADMIN</span>

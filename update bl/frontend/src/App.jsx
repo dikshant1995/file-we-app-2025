@@ -5,7 +5,7 @@ import { downloadExcel } from './utils/exportToExcel';
 import AbbAnalyzer from './components/AbbAnalyzer';
 import PolicyAdmin from './components/PolicyAdmin';
 import EligibilityChecker from './components/EligibilityChecker';
-import { Building2, ShieldCheck, Activity } from 'lucide-react';
+import { Building2, ShieldCheck, Activity, ArrowLeft } from 'lucide-react';
 import './index.css';
 
 function App() {
@@ -53,11 +53,16 @@ function App() {
   return (
     <div className="app-shell animate-fade-in">
       <nav className="navbar flex justify-between items-center">
-        <div className="nav-brand">
-          <div className="nav-logo-box">
-            <Building2 size={24} />
+        <div className="flex items-center gap-4">
+          <a href="/" className="nav-btn flex items-center gap-1 opacity-80 hover:opacity-100 transition-opacity mr-4 border border-white/10 rounded-md px-3 py-1 text-xs" style={{ textDecoration: 'none' }}>
+            <ArrowLeft size={14} /> Exit
+          </a>
+          <div className="nav-brand flex items-center gap-2">
+            <div className="nav-logo-box">
+              <Building2 size={24} />
+            </div>
+            <span className="text-xl font-extrabold gradient-text">ABB PRO</span>
           </div>
-          <span className="text-xl font-extrabold gradient-text">ABB PRO</span>
         </div>
 
         <div className="nav-tabs flex">

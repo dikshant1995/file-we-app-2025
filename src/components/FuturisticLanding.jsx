@@ -128,17 +128,6 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             </div>
           </div>
           <div className="nav-right" style={{ display: 'flex', gap: '15px' }}>
-            <motion.a
-              href="/business-loan/"
-              className="topo-admin-btn"
-              whileHover={{ scale: 1.05, background: "rgba(0, 255, 136, 0.15)" }}
-              whileTap={{ scale: 0.95 }}
-              style={{ border: '1px solid rgba(0, 255, 136, 0.4)', textDecoration: 'none' }}
-            >
-              <Building2 size={14} color="#00ff88" />
-              <span style={{ color: '#00ff88' }}>BUSINESS LOAN</span>
-              <div className="btn-scanline" />
-            </motion.a>
             <motion.button
               className="topo-admin-btn"
               onClick={onBlogClick}
