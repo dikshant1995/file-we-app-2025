@@ -83,7 +83,7 @@ function App() {
             className="nav-btn"
             style={{ textDecoration: 'none', color: 'inherit', marginLeft: '20px', border: '1px dashed rgba(255,255,255,0.3)' }}
           >
-            ← Personal Loan
+            ← Master Portal
           </a>
         </div>
       </nav>

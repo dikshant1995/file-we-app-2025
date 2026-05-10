@@ -7,8 +7,8 @@ const Navbar = ({ onAdminClick, onHomeClick }) => {
     const location = useLocation();
 
     const handleHomeClick = (e) => {
-        // If we're already on the home page route, trigger the reset logic
-        if (location.pathname === '/' && onHomeClick) {
+        // If we're already on the personal loan route, trigger the reset logic
+        if (location.pathname === '/personal-loan' && onHomeClick) {
             e.preventDefault();
             onHomeClick();
         }
@@ -17,17 +17,17 @@ const Navbar = ({ onAdminClick, onHomeClick }) => {
     return (
         <nav className="main-navbar">
             <div className="nav-container">
-                <Link to="/" className="nav-brand" onClick={handleHomeClick}>
+                <Link to="/" className="nav-brand">
                     <span className="text-glow">Laxmi Omni</span>
                     <span className="ai-badge">CORE v4</span>
                 </Link>
                 <div className="nav-links">
                     <Link
-                        to="/"
-                        className={`nav-item ${location.pathname === '/' ? 'active' : ''}`}
+                        to="/personal-loan"
+                        className={`nav-item ${location.pathname === '/personal-loan' ? 'active' : ''}`}
                         onClick={handleHomeClick}
                     >
-                        Calculator
+                        Personal Loan
                     </Link>
                     <Link to="/blog" className={`nav-item ${location.pathname.startsWith('/blog') ? 'active' : ''}`}>
                         Insights

@@ -14,7 +14,9 @@ import { Routes, Route, useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar.jsx';
 import BlogHome from './components/BlogHome.jsx';
 import BlogArticle from './components/BlogArticle.jsx';
+import MainMasterPortal from './components/MainMasterPortal.jsx';
 import './CustomerFacingApp.css';
+import { useLocation } from 'react-router-dom';
 
 function CustomerFacingApp() {
   const [results, setResults] = useState(null);
@@ -160,7 +162,9 @@ function CustomerFacingApp() {
     setShowAdminDashboard(false);
   };
 
+  const location = useLocation();
   const navigate = useNavigate();
+  const isMasterPortal = location.pathname === '/';
 
   if (showAdminDashboard) {
     return <AdminDashboard onBackToCustomer={handleBackToCustomer} />;
@@ -168,11 +172,12 @@ function CustomerFacingApp() {
 
   return (
     <div className="customer-facing-app">
-      <Navbar onAdminClick={handleAdminClick} onHomeClick={handleHomeClick} />
+      {!isMasterPortal && <Navbar onAdminClick={handleAdminClick} onHomeClick={handleHomeClick} />}
       {/* <NeuralChatBot aiResult={aiResult} aiInsight={aiInsight} userData={lastFormDataRef.current} /> */}
 
       <Routes>
-        <Route path="/" element={
+        <Route path="/" element={<MainMasterPortal />} />
+        <Route path="/personal-loan" element={
           <>
             {/* PAGE 1: Landing — shown when form not yet opened and no results */}
             {!showForm && !results && (

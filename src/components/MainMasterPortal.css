@@ -1,0 +1,265 @@
+:root {
+  --primary-portal: #6366f1;
+  --primary-glow: rgba(99, 102, 241, 0.5);
+  --dark-bg: #0a0f1c;
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+}
+
+.master-portal {
+  min-height: 100vh;
+  background-color: var(--dark-bg);
+  color: #ffffff;
+  font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Cinematic Background */
+.portal-bg-glow {
+  position: fixed;
+  top: -20%;
+  left: -10%;
+  width: 120%;
+  height: 120%;
+  background: radial-gradient(circle at 50% 30%, rgba(99, 102, 241, 0.12), transparent 60%),
+              radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1), transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.portal-grid {
+  position: fixed;
+  inset: 0;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
+  opacity: 0.4;
+  z-index: 0;
+}
+
+/* Layout */
+.portal-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* Header */
+.portal-header {
+  padding: 2rem 4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.portal-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Hero Section */
+.portal-hero {
+  text-align: center;
+  padding: 6rem 2rem 3rem 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.portal-badge {
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+  padding: 0.5rem 1.2rem;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
+}
+
+.hero-title-main {
+  font-size: 4rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  letter-spacing: -1px;
+}
+
+.hero-subtitle-main {
+  font-size: 1.2rem;
+  color: #94a3b8;
+  line-height: 1.6;
+  margin-bottom: 3rem;
+}
+
+/* Choice Section */
+.portal-choices {
+  display: flex;
+  gap: 2.5rem;
+  max-width: 1100px;
+  margin: 2rem auto 6rem;
+  padding: 0 2rem;
+  justify-content: center;
+}
+
+.choice-card {
+  flex: 1;
+  min-height: 420px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 3rem;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-decoration: none;
+}
+
+.choice-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at top right, var(--card-glow), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: -1;
+}
+
+.choice-card:hover {
+  transform: translateY(-10px);
+  border-color: var(--card-accent);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
+              0 0 30px rgba(var(--card-glow-rgb), 0.1);
+}
+
+.choice-card:hover::before {
+  opacity: 0.3;
+}
+
+.card-icon-box {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+  color: var(--card-accent);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.4s;
+}
+
+.choice-card:hover .card-icon-box {
+  background: var(--card-accent);
+  color: #ffffff;
+  box-shadow: 0 0 20px var(--card-accent);
+  transform: scale(1.1) rotate(-5deg);
+}
+
+.card-label {
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 2px;
+  margin-bottom: 0.5rem;
+}
+
+.card-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 1rem;
+}
+
+.card-description {
+  color: #94a3b8;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: auto;
+}
+
+.card-arrow {
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-weight: 600;
+  color: var(--card-accent);
+  transition: gap 0.3s;
+}
+
+.choice-card:hover .card-arrow {
+  gap: 1.2rem;
+}
+
+/* Founder Adaptations */
+.portal-section {
+  padding: 5rem 2rem;
+  border-top: 1px solid var(--glass-border);
+}
+
+.portal-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-header-center {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+.section-subtitle {
+  color: #94a3b8;
+  font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .portal-choices {
+    flex-direction: column;
+    align-items: center;
+  }
+  .choice-card {
+    width: 100%;
+    max-width: 500px;
+    min-height: auto;
+  }
+  .hero-title-main {
+    font-size: 2.8rem;
+  }
+  .portal-header {
+    padding: 1.5rem 2rem;
+  }
+}
