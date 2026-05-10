@@ -38,12 +38,13 @@ function App() {
     if (pdfPassword) formData.append('password', pdfPassword);
     
     try {
-      const apiBase = import.meta.env.VITE_API_URL || '/api-bl';
+      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000';
       const response = await axios.post(`${apiBase}/api/upload-statement`, formData);
       if (response.data.status === 'success') {
         const { dataset_1, dataset_2, dataset_3, metadata } = response.data.data;
-        const calculated = calculateABB(dataset_1, { accountType, sanctionedLimit: parseFloat(sanctionedLimit || 0) });
-        setResults({ dataset_1, dataset_2, dataset_3, metadata });
+        const config = { accountType, sanctionedLimit: parseFloat(sanctionedLimit || 0) };
+        const calculated = calculateABB(dataset_1, config);
+        setResults({ dataset_1, dataset_2, dataset_3, metadata, config });
         setAbbData(calculated);
       } else { setError(response.data.message); }
     } catch (err) { setError(err.message); } finally { setLoading(false); }
@@ -78,13 +79,6 @@ function App() {
           >
             <Building2 size={18} /> Admin
           </button>
-          <a 
-            href="/"
-            className="nav-btn"
-            style={{ textDecoration: 'none', color: 'inherit', marginLeft: '20px', border: '1px dashed rgba(255,255,255,0.3)' }}
-          >
-            ← Master Portal
-          </a>
         </div>
       </nav>
 

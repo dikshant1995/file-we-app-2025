@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const rootDir = __dirname;
-const blFrontendDir = path.join(rootDir, 'update bl', 'bank abb latest bl', 'till uco 1', 'frontend');
+const blFrontendDir = path.join(rootDir, 'update bl', 'frontend');
 
 function run(command, cwd) {
     console.log(`🚀 Running command: ${command} in ${cwd}`);

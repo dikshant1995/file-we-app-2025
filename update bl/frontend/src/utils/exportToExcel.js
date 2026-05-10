@@ -94,7 +94,7 @@ export function downloadExcel(results, abbData) {
   // 1. Institutional ABB Summary (Primary comparative data)
   let institutionalData = buildInstitutionalSummary(abbData.comparisons);
   
-  if (results.config.accountType === 'limit') {
+  if (results.config?.accountType === 'limit') {
     const historyDays = abbData.historySpanInDays || 0;
     const sufficiencyNote = historyDays >= 180 ? "COMPLETE (6+ Months)" : `INCOMPLETE (${historyDays} Days)`;
     
@@ -114,8 +114,8 @@ export function downloadExcel(results, abbData) {
 
   // 2. Dataset 1
   let ds1 = results.dataset_1;
-  if (results.config.accountType === 'limit') {
-    const limit = parseFloat(results.config.sanctionedLimit || 0);
+  if (results.config?.accountType === 'limit') {
+    const limit = parseFloat(results.config?.sanctionedLimit || 0);
     ds1 = ds1.map(row => {
       const bal = parseFloat(row.Balance || 0);
       const headroom = limit + bal;
@@ -137,8 +137,8 @@ export function downloadExcel(results, abbData) {
 
   // 4. Dataset 3
   let ds3 = results.dataset_3;
-  if (results.config.accountType === 'limit') {
-    const limit = parseFloat(results.config.sanctionedLimit || 0);
+  if (results.config?.accountType === 'limit') {
+    const limit = parseFloat(results.config?.sanctionedLimit || 0);
     ds3 = ds3.map(row => {
       const bal = parseFloat(row.Balance || 0);
       const headroom = limit + bal;
@@ -217,8 +217,8 @@ export function downloadExcel(results, abbData) {
     XLSX.utils.book_append_sheet(wb, wsBounce, "EMI_Bouncing");
   }
 
-  const fileName = results.config.targetNbfc 
-    ? `ABB_Report_${results.config.targetNbfc}_${results.metadata.account_name.replace(/\s+/g, '_')}.xlsx`
+  const fileName = results.config?.targetNbfc 
+    ? `ABB_Report_${results.config?.targetNbfc}_${results.metadata.account_name.replace(/\s+/g, '_')}.xlsx`
     : "ABB_Calculator_Results.xlsx";
 
   XLSX.writeFile(wb, fileName);
