@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laxmi AI - Project Evolution Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text: #f8fafc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at top right, #1e1b4b, #0f172a);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 450px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 0.8rem;
+            color: #475569;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Laxmi Evolution DNA</h1>
+        <p class="subtitle">Ollama Independence: Successfully Integrated & Stable</p>
+
+        <div class="chart-wrapper">
+            <canvas id="evolutionChart"></canvas>
+        </div>
+
+            <div class="phase active">
+                <div class="phase-header">
+                    <span class="phase-title">Phase 6: Neural Ignition (IN-PROGRESS)</span>
+                    <span class="phase-status">INDEXING 3.5Cr SCENARIOS</span>
+                </div>
+                <div class="phase-content">
+                    <ul>
+                        <li>Moving 2.08GB Heavy Logic CSV to D: Drive (Completed)</li>
+                        <li>Streaming Batch Indexing into ChromaDB Neural Nexus</li>
+                        <li>Integrating 50KB Neural Math weights for instant probability</li>
+                        <li>Target: 40GB Photographic Memory for Deep Financial RAG</li>
+                    </ul>
+                </div>
+            </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">Phase 5</div>
+                <div class="stat-label">Current Audit Lab</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">Stable</div>
+                <div class="stat-label">Codebase Status</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">8 Months</div>
+                <div class="stat-label">Journey Duration</div>
+            </div>
+        </div>
+
+        <div style="margin-top: 50px;">
+            <h2 style="margin-bottom: 20px; font-size: 1.5rem; color: #818cf8;">Strategic Roadmap: The Agentic Leap</h2>
+            <div style="display: grid; gap: 15px;">
+                <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 16px; border-left: 4px solid #10b981;">
+                    <h4 style="color: #10b981;">Phase 6: Heavyweight Vectorization (3.5Cr Patterns)</h4>
+                    <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 5px;">Transitioning to ChromaDB to index 35 million financial instances for instant neural recall.</p>
+                </div>
+                <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 16px; border-left: 4px solid #6366f1;">
+                    <h4 style="color: #6366f1;">Phase 7: Laxmi Vision (OCR Pipeline)</h4>
+                    <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 5px;">Integrating EasyOCR to automate Salary Slip and Bank Statement reading.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        Property of Laxmi AI Systems | Built for Precision and Resonance
+    </div>
+
+    <script>
+        const ctx = document.getElementById('evolutionChart').getContext('2d');
+        
+        const data = {
+            labels: [
+                'PL Logic (FOIR/Multiplier)', 
+                'Banking Policies & Co. Lists', 
+                'Laxmi AI Brain (Linguistic)', 
+                'Voice DNA & Engine', 
+                'Ollama Independence (In-Progress)'
+            ],
+            datasets: [{
+                data: [20, 20, 15, 15, 30],
+                backgroundColor: [
+                    '#6366f1', // Indigo
+                    '#8b5cf6', // Violet
+                    '#d946ef', // Fuchsia
+                    '#f43f5e', // Rose
+                    '#10b981'  // Emerald (Success)
+                ],
+                borderWidth: 0,
+                hoverOffset: 20
+            }]
+        };
+
+        const config = {
+            type: 'pie',
+            data: data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#cbd5e1',
+                            padding: 20,
+                            font: {
+                                size: 14,
+                                family: "'Outfit', sans-serif"
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        titleFont: { size: 16 },
+                        bodyFont: { size: 14 },
+                        padding: 15,
+                        displayColors: true,
+                        callbacks: {
+                            label: function(context) {
+                                return ` ${context.label}: ${context.raw}% Effort`;
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    animateRotate: true,
+                    animateScale: true,
+                    duration: 2000,
+                    easing: 'easeOutQuart'
+                }
+            }
+        };
+
+        const evolutionChart = new Chart(ctx, config);
+    </script>
+</body>
+</html>

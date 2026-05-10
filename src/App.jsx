@@ -7,6 +7,7 @@ import DebugInfo from './components/DebugInfo.jsx'
 import AdminDashboard from './components/AdminDashboard.jsx'
 import { calculateLoanEligibility } from './services/realLoanService.js'
 import { calculateBTWithCreditCards } from './services/btLoanService.js'
+import { aiPredictionService } from './services/aiPredictionService.js'
 
 function App() {
   const [userData, setUserData] = useState(null)
@@ -14,6 +15,12 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [showAdminDashboard, setShowAdminDashboard] = useState(false)
+  const [aiResult, setAiResult] = useState(null)
+
+  // Initialize AI Brain
+  useEffect(() => {
+    aiPredictionService.initialize();
+  }, []);
 
   const handleFormSubmit = async (data) => {
     setUserData(data);
@@ -62,6 +69,17 @@ function App() {
       }
 
       setResults(loanResults);
+
+      // --- 🧠 AI NEURAL PREDICTION ---
+      if (data.calculationType !== 'bt') {
+        const salary = parseFloat(data.basicSalary) || parseFloat(data.monthlyIncome) || 0;
+        const score = parseInt(data.creditScore) || 700;
+        const tenure = parseInt(data.loanTenure) || 5;
+        
+        const aiPrediction = aiPredictionService.predict(salary, score, tenure);
+        console.log('🔮 AI Neural Prediction:', aiPrediction);
+        setAiResult(aiPrediction);
+      }
     } catch (err) {
       setError('Failed to calculate loan eligibility. Please try again. Error: ' + err.message);
       console.error('Error calculating loan eligibility:', err);
@@ -121,7 +139,7 @@ function App() {
               userData?.calculationType === 'bt' ? (
                 <BTResultsDisplay results={results} onReset={handleReset} />
               ) : (
-                <ResultsDisplay results={results} onReset={handleReset} />
+                <ResultsDisplay results={results} onReset={handleReset} aiResult={aiResult} />
               )
             )}
 

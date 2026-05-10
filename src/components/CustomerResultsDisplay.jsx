@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './CustomerResultsDisplay.css';
 import { saveSelectedBanks } from '../services/leadService.js';
 
-const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
+const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewCalculation }) => {
   const [sortBy, setSortBy] = useState('loanAmount');
   const [filterEligible, setFilterEligible] = useState('all');
   const [selectedBanks, setSelectedBanks] = useState([]);
@@ -127,6 +127,50 @@ const CustomerResultsDisplay = ({ results, metadata, onNewCalculation }) => {
           </div>
         </div>
       </div>
+
+      {/* 🧠 NEURAL PREDICTION BANNER */}
+      {aiResult && (
+        <div className="neural-prediction-banner">
+          <div className="neural-icon">🧠</div>
+          <div className="neural-content">
+            <h3>Neural AI Prediction</h3>
+            <p className="neural-desc">Our brain has analyzed 3 Crore historical patterns for your profile.</p>
+            <div className="neural-stats">
+              <div className="neural-stat">
+                <span className="stat-label">AI Estimated Sanction:</span>
+                <span className="stat-value">₹{aiResult.predictedAmount.toLocaleString()}</span>
+              </div>
+              <div className="neural-stat">
+                <span className="stat-label">Neural Confidence:</span>
+                <div className="confidence-container">
+                  <div className="confidence-bar" style={{ width: `${aiResult.confidence}%` }}></div>
+                  <span className="confidence-text">{aiResult.confidence}%</span>
+                </div>
+              </div>
+            </div>
+            <p className="neural-insight">
+              {aiResult.predictedAmount > (stats?.avgLoanAmount || 0) 
+                ? "✨ Insight: Our AI detects hidden eligibility beyond standard rules."
+                : "🔍 Insight: Your profile matches standard high-approval patterns."}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* 🗣️ LINGUISTIC AI INSIGHT (Human Voice) */}
+      {aiInsight && (
+        <div className={`ai-insight-bubble ${aiInsight.tone}`}>
+          <div className="advisor-header">
+            <span className="advisor-label">Personal Financial Advisor</span>
+            <div className="pulse-indicator"></div>
+          </div>
+          <div className="insight-text">
+            {aiInsight.message.split('**').map((part, i) => 
+              i % 2 === 1 ? <strong key={i}>{part}</strong> : part
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Statistics Cards */}
       <div className="stats-grid">

@@ -14,6 +14,10 @@
       }
     },
     {
+      "src": "bl-backend/main.py",
+      "use": "@vercel/python"
+    },
+    {
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
@@ -23,11 +27,19 @@
   ],
   "routes": [
     {
+      "src": "/api-bl/(.*)",
+      "dest": "bl-backend/main.py"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "/server.js"
     },
     {
       "handle": "filesystem"
+    },
+    {
+      "src": "/business-loan/(.*)",
+      "dest": "/business-loan/index.html"
     },
     {
       "src": "/(.*)",

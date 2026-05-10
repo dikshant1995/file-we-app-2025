@@ -2,15 +2,31 @@
   "name": "loan-eligibility-react-app",
   "private": true,
   "version": "0.0.0",
+  "main": "main.cjs",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "electron": "electron .",
     "build": "vite build",
+    "dist": "electron-builder",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "start": "node server.js",
     "server": "nodemon server.js",
-    "vercel-build": "vite build"
+    "vercel-build": "node build-all.js"
+  },
+  "build": {
+    "appId": "com.laxmi.omni",
+    "productName": "Laxmi Omni Systems",
+    "win": {
+      "target": "nsis",
+      "icon": "public/favicon.ico",
+      "publish": null
+    },
+    "asar": false,
+    "directories": {
+      "output": "dist_installer"
+    }
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -18,16 +34,20 @@
     "firebase": "^11.0.0",
     "framer-motion": "^12.34.1",
     "lucide-react": "^0.574.0",
+    "qrcode-terminal": "^0.12.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-helmet-async": "^2.0.4",
     "react-router-dom": "^7.13.0",
+    "whatsapp-web.js": "^1.34.7",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.0.3",
+    "electron": "^41.5.0",
+    "electron-builder": "^26.8.1",
     "eslint": "^8.45.0",
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, ArrowRight, ShieldCheck, Zap, Globe, Lock, Instagram, MessageSquare, Send, ChevronDown, Cpu, BarChart3, Fingerprint, Mail, FileText } from 'lucide-react';
+import { Sparkles, ArrowRight, ShieldCheck, Zap, Globe, Lock, Instagram, MessageSquare, Send, ChevronDown, Cpu, BarChart3, Fingerprint, Mail, FileText, Building2 } from 'lucide-react';
 import './FuturisticLanding.css';
 import NeuralChatBot from './NeuralChatBot.jsx';
 
@@ -128,6 +128,17 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             </div>
           </div>
           <div className="nav-right" style={{ display: 'flex', gap: '15px' }}>
+            <motion.a
+              href="/business-loan/"
+              className="topo-admin-btn"
+              whileHover={{ scale: 1.05, background: "rgba(0, 255, 136, 0.15)" }}
+              whileTap={{ scale: 0.95 }}
+              style={{ border: '1px solid rgba(0, 255, 136, 0.4)', textDecoration: 'none' }}
+            >
+              <Building2 size={14} color="#00ff88" />
+              <span style={{ color: '#00ff88' }}>BUSINESS LOAN</span>
+              <div className="btn-scanline" />
+            </motion.a>
             <motion.button
               className="topo-admin-btn"
               onClick={onBlogClick}
@@ -402,7 +413,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             <div className="founder-hex-frame">
               <div className="hex-ring hex-ring-1" />
               <div className="hex-ring hex-ring-2" />
-              <img src="/founder.jpg" alt="Dikshant Singh Rathore" className="founder-photo" />
+              <img src="./founder.jpg" alt="Dikshant Singh Rathore" className="founder-photo" />
             </div>
             <div className="founder-badge-holo">
               <Sparkles size={12} /> LAXMI CREDIT VISIONARY
@@ -521,8 +532,8 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
       <footer className="holo-footer">
         <div className="footer-line" />
         <div className="footer-content">
-          <p>© 2025 LoanAI Model — Engineered by <span className="text-glow">Dikshant Singh Rathore</span></p>
-          <p className="footer-sub">Powered by Advanced Neural Intelligence • Secured by 256-bit Encryption</p>
+          <p>© 2026 Laxmi Omni Architect — Engineered by <span className="text-glow">Dikshant Singh Rathore</span></p>
+          <p className="footer-sub">Universal Polymath Core • Synchronized Messaging • 256-bit Encryption</p>
         </div>
       </footer>
 

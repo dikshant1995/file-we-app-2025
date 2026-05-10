@@ -53,34 +53,45 @@ const fetchWithRetry = async (url, options = {}, retries = 3, backoff = 500) => 
  */
 export const loadUniversalCompanies = async () => {
   dbHealth.universal.status = 'loading';
-  console.log('📡 Attempting to load Universal Database (Cloud/Local)...');
+  console.log('📡 Initializing Universal Database (Parallel Race Mode)...');
 
-  try {
-    // 1. Try Firestore first (Production Truth)
-    const docRef = doc(db, 'company_databases', 'universal');
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      universalCompanies = docSnap.data().data;
+  // Helper for Local Fetch
+  const loadLocal = async () => {
+    const data = await fetchWithRetry('/data/universal_companies.json');
+    if (universalCompanies.length === 0) { // Only use if cloud hasn't finished
+      universalCompanies = data;
       dbHealth.universal.status = 'ok';
-      dbHealth.universal.count = universalCompanies.length;
-      console.log('✅ CLOUD SUCCESS: Universal Database loaded from Firestore.');
-      return universalCompanies;
+      dbHealth.universal.count = data.length;
+      console.log(`✅ LOCAL LOADED: ${data.length} companies ready.`);
     }
+    return data;
+  };
 
-    // 2. Fallback to local JSON
-    const data = await fetchWithRetry('./data/universal_companies.json');
-    universalCompanies = data;
-    dbHealth.universal.status = 'ok';
-    dbHealth.universal.count = data.length;
-    console.log('✅ LOCAL SUCCESS: Universal Database loaded from JSON.');
-    return universalCompanies;
-  } catch (error) {
-    dbHealth.universal.status = 'failed';
-    dbHealth.universal.error = error.message;
-    console.error('❌ CRITICAL ERROR: Could not load Universal Database:', error);
-    return [];
-  }
+  // Helper for Cloud Fetch with Timeout
+  const loadCloud = async () => {
+    try {
+      const docRef = doc(db, 'company_databases', 'universal');
+      // Set a 5-second timeout for Cloud
+      const cloudPromise = getDoc(docRef);
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Cloud Timeout')), 5000));
+      
+      const docSnap = await Promise.race([cloudPromise, timeoutPromise]);
+
+      if (docSnap.exists()) {
+        const cloudData = docSnap.data().data;
+        universalCompanies = cloudData;
+        dbHealth.universal.status = 'ok';
+        dbHealth.universal.count = cloudData.length;
+        console.log('✅ CLOUD LOADED: Universal Database synced.');
+        return cloudData;
+      }
+    } catch (err) {
+      console.warn('⚠️ Cloud Race Lost or Unavailable:', err.message);
+    }
+  };
+
+  // Start both, return as soon as one finishes (preferring local for speed in dev)
+  return Promise.race([loadLocal(), loadCloud()]);
 };
 
 /**
@@ -102,7 +113,7 @@ const loadBankDatabase = async (bankName) => {
     }
 
     // 2. Fallback to local JSON
-    const data = await fetchWithRetry(`./data/${bankName}_companies.json`);
+    const data = await fetchWithRetry(`/data/${bankName}_companies.json`);
     bankDatabases[bankName] = data;
     dbHealth.banks[bankName].status = 'ok';
     dbHealth.banks[bankName].count = data.length;
@@ -128,7 +139,7 @@ export const initializeBankDatabases = async () => {
  * Get company suggestions for autocomplete
  */
 export const getCompanySuggestions = (searchTerm) => {
-  if (!searchTerm || searchTerm.length < 2) return [];
+  if (!searchTerm || searchTerm.length < 3) return [];
   const search = searchTerm.toLowerCase();
 
   if (!universalCompanies || universalCompanies.length === 0) {

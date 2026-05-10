@@ -1,6 +1,6 @@
 import './ResultsDisplay.css'
 
-const ResultsDisplay = ({ results, onReset }) => {
+const ResultsDisplay = ({ results, onReset, aiResult }) => {
   // Filter eligible and not eligible results
   const eligibleResults = results.filter(r => r.isEligible);
   const notEligibleResults = results.filter(r => !r.isEligible);
@@ -18,6 +18,35 @@ const ResultsDisplay = ({ results, onReset }) => {
         <h2>Loan Offers from 12 Banks</h2>
         <button className="reset-btn" onClick={onReset}>New Calculation</button>
       </div>
+
+      {/* 🧠 NEURAL PREDICTION BANNER */}
+      {aiResult && (
+        <div className="neural-prediction-banner">
+          <div className="neural-icon">🧠</div>
+          <div className="neural-content">
+            <h3>Neural AI Prediction</h3>
+            <p className="neural-desc">Our brain has analyzed 3 Crore historical patterns for your profile.</p>
+            <div className="neural-stats">
+              <div className="neural-stat">
+                <span className="stat-label">AI Estimated Sanction:</span>
+                <span className="stat-value">₹{aiResult.predictedAmount.toLocaleString()}</span>
+              </div>
+              <div className="neural-stat">
+                <span className="stat-label">Neural Confidence:</span>
+                <div className="confidence-container">
+                  <div className="confidence-bar" style={{ width: `${aiResult.confidence}%` }}></div>
+                  <span className="confidence-text">{aiResult.confidence}%</span>
+                </div>
+              </div>
+            </div>
+            <p className="neural-insight">
+              {aiResult.predictedAmount > (bestOffer?.maxLoanAmount || 0) 
+                ? "✨ Insight: Our AI detects hidden eligibility beyond standard rules."
+                : "🔍 Insight: Your profile matches standard high-approval patterns."}
+            </p>
+          </div>
+        </div>
+      )}
 
       {bestOffer && (
         <div className="best-offer">

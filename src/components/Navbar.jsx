@@ -18,8 +18,8 @@ const Navbar = ({ onAdminClick, onHomeClick }) => {
         <nav className="main-navbar">
             <div className="nav-container">
                 <Link to="/" className="nav-brand" onClick={handleHomeClick}>
-                    <span className="text-glow">LoanAI</span>
-                    <span className="ai-badge">v2.0</span>
+                    <span className="text-glow">Laxmi Omni</span>
+                    <span className="ai-badge">CORE v4</span>
                 </Link>
                 <div className="nav-links">
                     <Link
@@ -32,6 +32,9 @@ const Navbar = ({ onAdminClick, onHomeClick }) => {
                     <Link to="/blog" className={`nav-item ${location.pathname.startsWith('/blog') ? 'active' : ''}`}>
                         Insights
                     </Link>
+                    <a href="/business-loan/" className="nav-item">
+                        Business Loan
+                    </a>
                     <button className="nav-admin-btn" onClick={onAdminClick}>
                         <Lock size={13} />
                         <span>ADMIN</span>

@@ -657,6 +657,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
               name="companyName"
               value={formData.companyName}
               onChange={handleInputChange}
+              onBlur={() => setTimeout(() => setCompanySuggestions([]), 200)} // Delay to allow click on suggestion
               placeholder="Start typing company name..."
               required={formData.employmentType === 'salaried'}
               autoComplete="off"
@@ -667,7 +668,8 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
                   <div
                     key={idx}
                     className="autocomplete-item"
-                    onMouseDown={() => {
+                    onMouseDown={(e) => {
+                      e.preventDefault(); // Prevent blur from firing before click
                       console.log('🏢 Company Selected:', company);
                       setFormData(prev => ({ ...prev, companyName: company }));
                       setCompanySuggestions([]);

@@ -4,9 +4,12 @@ import CustomerLoanForm from './components/CustomerLoanForm.jsx';
 import CustomerResultsDisplay from './components/CustomerResultsDisplay.jsx';
 import FuturisticLanding from './components/FuturisticLanding.jsx';
 import AdminDashboard from './components/AdminDashboard.jsx';
+// import NeuralChatBot from './components/NeuralChatBot.jsx';
 import { calculateLoanEligibility } from './services/realLoanService.js';
 import { calculateBTWithCreditCards } from './services/btLoanService.js';
 import { saveLead } from './services/leadService.js';
+import { aiPredictionService } from './services/aiPredictionService.js';
+import { neuralExplainerService } from './services/neuralExplainerService.js';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar.jsx';
 import BlogHome from './components/BlogHome.jsx';
@@ -20,6 +23,13 @@ function CustomerFacingApp() {
   const [error, setError] = useState(null);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [aiResult, setAiResult] = useState(null);
+  const [aiInsight, setAiInsight] = useState(null);
+
+  // Initialize AI Brain
+  React.useEffect(() => {
+    aiPredictionService.initialize();
+  }, []);
   // Store raw formData so saveLead can access name/mobile/loans
   const lastFormDataRef = useRef(null);
 
@@ -82,6 +92,25 @@ function CustomerFacingApp() {
       setResults(calculationResults);
       setMetadata(formData._metadata);
 
+      // --- 🧠 AI NEURAL PREDICTION (SAFE WRAPPER) ---
+      try {
+        if (!hasLoansForBT) {
+          const salary = parseFloat(formData.basicSalary) || parseFloat(formData.monthlyIncome) || 0;
+          const score = parseInt(formData.creditScore) || 700;
+          const tenure = parseInt(formData.loanTenure) || 5;
+          
+          const aiPrediction = aiPredictionService.predict(salary, score, tenure);
+          if (aiPrediction) {
+            setAiResult(aiPrediction);
+            const insight = neuralExplainerService.generateInsight(aiPrediction, calculationResults, formData);
+            setAiInsight(insight);
+            console.log('🔮 AI Neural Insights generated successfully.');
+          }
+        }
+      } catch (aiErr) {
+        console.warn('⚠️ AI Prediction failed, but calculator is fine:', aiErr);
+      }
+
       // 🔴 Save lead to Google Sheets (silent, non-blocking)
       saveLead(lastFormDataRef.current || {}, formData);
 
@@ -103,6 +132,8 @@ function CustomerFacingApp() {
     setResults(null);
     setMetadata(null);
     setError(null);
+    setAiResult(null);
+    setAiInsight(null);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -138,6 +169,7 @@ function CustomerFacingApp() {
   return (
     <div className="customer-facing-app">
       <Navbar onAdminClick={handleAdminClick} onHomeClick={handleHomeClick} />
+      {/* <NeuralChatBot aiResult={aiResult} aiInsight={aiInsight} userData={lastFormDataRef.current} /> */}
 
       <Routes>
         <Route path="/" element={
@@ -162,8 +194,8 @@ function CustomerFacingApp() {
               ← Back
             </button>
             <div className="form-nav-brand">
-              <span className="text-glow">LoanAI Model</span>
-              <span className="ai-badge">MODEL v2</span>
+              <span className="text-glow">Laxmi Omni Architect</span>
+              <span className="ai-badge">CORE v4</span>
             </div>
             <div className="form-nav-status">
               <span className="dot"></span> AI Engine Active
@@ -210,6 +242,8 @@ function CustomerFacingApp() {
                 <CustomerResultsDisplay
                   results={results}
                   metadata={metadata}
+                  aiResult={aiResult}
+                  aiInsight={aiInsight}
                   onNewCalculation={handleNewCalculation}
                 />
               </div>

@@ -1,0 +1,43 @@
+MASTER AUDIT REPORT - V6.0 IRONCLAD BRAIN
+==================================================
+FAILED:  1697188464984ropHrgl5T924rw7M.pdf - No transactions found.
+SUCCESS: 30-11-2023 TO 5-10-2024.pdf (557 rows, Max Bal: 1338636.58)
+SUCCESS: AccountStatement_5153608359_Aug17_223504 (1).pdf (168 rows, Max Bal: 1499847.75)
+SUCCESS: Acct Statement_XX0226_05022025 (1) (1).pdf (1400 rows, Max Bal: 5985659.23)
+SUCCESS: Acct Statement_XX7958_24082023.pdf (378 rows, Max Bal: 646198.83)
+FAILED:  AU 1.pdf - No transactions found.
+FAILED:  AU 2.pdf - No transactions found.
+SUCCESS: AXIS 1.pdf (635 rows, Max Bal: 45551.95)
+SUCCESS: AXIS 2.pdf (1970 rows, Max Bal: 1339096.7)
+SUCCESS: axis limit acc.pdf (230 rows, Max Bal: 5045908.22)
+SUCCESS: bob limit acc.pdf (291 rows, Max Bal: 996969.27)
+SUCCESS: BOI.pdf (1210 rows, Max Bal: 631972.43)
+SUCCESS: BOM TESTING.pdf (45 rows, Max Bal: 0.0)
+SUCCESS: CANARA.pdf (956 rows, Max Bal: 511087.99)
+SUCCESS: city union bank limit acc.pdf (443 rows, Max Bal: 17392534.64)
+SUCCESS: hdfc.pdf (665 rows, Max Bal: 5059484.09)
+SUCCESS: icic 2.pdf (1110 rows, Max Bal: 752337.12)
+FAILED:  icici 1.pdf - No transactions found.
+SUCCESS: icici limit acc.pdf (262 rows, Max Bal: 6273421.43)
+SUCCESS: idbi limit acc.pdf (56 rows, Max Bal: 588176.06)
+SUCCESS: IDFC TESTNG.pdf (132 rows, Max Bal: 445993.82)
+SUCCESS: IDFCFIRSTBankstatement_10184748701-39 (1).pdf (62 rows, Max Bal: 7342613.0)
+SUCCESS: INDIAN BANK TESTING.pdf (27 rows, Max Bal: 91069.83)
+SUCCESS: INDUSIND 1.pdf (418 rows, Max Bal: 0.0)
+SUCCESS: indusind bank new pdf.pdf (859 rows, Max Bal: 5264419.93)
+SUCCESS: IndusInd.pdf (716 rows, Max Bal: 1687339.29)
+SUCCESS: karnataka bank limit acc.pdf (1264 rows, Max Bal: 7531282.2)
+SUCCESS: KOTAK 1.pdf (1101 rows, Max Bal: 18234452.87)
+SUCCESS: LIMIT AC (1).pdf (25 rows, Max Bal: 2493820.21)
+SUCCESS: limit acc icici (1).pdf (1487 rows, Max Bal: 494585982.0)
+SUCCESS: limit acc uco.pdf (635 rows, Max Bal: 0.0)
+SUCCESS: SBI 2.pdf (693 rows, Max Bal: 1732610.44)
+SUCCESS: sbi limit acc.pdf (88 rows, Max Bal: 413637.79)
+SUCCESS: StatementMon Feb 10 13_30_18 GMT+05_30 2025 (2).pdf (144 rows, Max Bal: 23109570.0)
+SUCCESS: StatementMon Feb 10 13_30_18 GMT+05_30 2025 (3).pdf (144 rows, Max Bal: 23109570.0)
+SUCCESS: uco limit account.pdf (635 rows, Max Bal: 0.0)
+SUCCESS: UNION TESTING (1).pdf (94 rows, Max Bal: 1279775.78)
+==================================================
+TOTAL SUCCESS: 33
+TOTAL FAILED:  4
+SUCCESS RATE:  89.19%
