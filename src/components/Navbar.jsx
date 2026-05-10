@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Lock } from 'lucide-react';
+import { Lock, ArrowLeft } from 'lucide-react';
 import './Navbar.css';
 
 const Navbar = ({ onAdminClick, onHomeClick }) => {
@@ -17,10 +17,15 @@ const Navbar = ({ onAdminClick, onHomeClick }) => {
     return (
         <nav className="main-navbar">
             <div className="nav-container">
-                <Link to="/" className="nav-brand">
-                    <span className="text-glow">Laxmi Omni</span>
-                    <span className="ai-badge">CORE v4</span>
-                </Link>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <Link to="/" style={{ textDecoration: 'none', opacity: 0.8, display: 'flex', alignItems: 'center', gap: '5px', color: 'white', fontSize: '0.75rem', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '4px', padding: '4px 8px' }}>
+                        <ArrowLeft size={12} /> Exit
+                    </Link>
+                    <Link to="/" className="nav-brand">
+                        <span className="text-glow">Laxmi Omni</span>
+                        <span className="ai-badge">CORE v4</span>
+                    </Link>
+                </div>
                 <div className="nav-links">
                     <Link
                         to="/personal-loan"

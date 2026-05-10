@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, ArrowRight, ShieldCheck, Zap, Globe, Lock, Instagram, MessageSquare, Send, ChevronDown, Cpu, BarChart3, Fingerprint, Mail, FileText, Building2 } from 'lucide-react';
+import { Sparkles, ArrowRight, ArrowLeft, ShieldCheck, Zap, Globe, Lock, Instagram, MessageSquare, Send, ChevronDown, Cpu, BarChart3, Fingerprint, Mail, FileText, Building2 } from 'lucide-react';
 import './FuturisticLanding.css';
 import NeuralChatBot from './NeuralChatBot.jsx';
 
@@ -121,7 +121,10 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
       <header className="holo-header">
         <div className="header-glass-blur" />
         <div className="header-inner-nav">
-          <div className="nav-left">
+          <div className="nav-left" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <a href="/" className="topo-admin-btn" style={{ textDecoration: 'none', padding: '4px 8px', fontSize: '0.7rem', opacity: 0.8, border: '1px solid rgba(255,255,255,0.2)' }}>
+              <ArrowLeft size={12} /> EXIT
+            </a>
             <div className="neural-logo-small">
               <Cpu size={20} color="#00d4ff" />
               <span className="logo-text">LAXMI AI</span>
