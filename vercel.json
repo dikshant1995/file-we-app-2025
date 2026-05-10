@@ -15,7 +15,12 @@
     },
     {
       "src": "bl-backend/main.py",
-      "use": "@vercel/python"
+      "use": "@vercel/python",
+      "config": {
+        "includeFiles": [
+          "bl-backend/**"
+        ]
+      }
     },
     {
       "src": "package.json",

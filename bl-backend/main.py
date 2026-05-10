@@ -27,13 +27,13 @@ POLICIES_PATH = os.path.join(BASE_DIR, 'policies.json')
 
 @api_router.get("/api/policies")
 def get_policies():
-    with open(POLICIES_PATH, 'r') as f:
+    with open(POLICIES_PATH, 'r', encoding='utf-8') as f:
         return json.load(f)
 
 @api_router.post("/api/policies")
 async def update_policies(policies: list):
-    with open(POLICIES_PATH, 'w') as f:
-        json.dump(policies, f, indent=4)
+    with open(POLICIES_PATH, 'w', encoding='utf-8') as f:
+        json.dump(policies, f, indent=4, ensure_ascii=False)
     return {"status": "success"}
 
 @api_router.post("/api/upload-statement")
