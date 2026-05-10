@@ -1,10 +1,17 @@
 from typing import Optional
+import sys
+import os
+
+# Robustly inject current directory into sys.path for Vercel serverless environment
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+if CURRENT_DIR not in sys.path:
+    sys.path.insert(0, CURRENT_DIR)
+
 from fastapi import FastAPI, UploadFile, File, Form, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from pdf_extractor import parse_bank_statement
 from policy_engine import PolicyEngine
 import json
-import os
 
 app = FastAPI(title="ABB Calculator PDF Parser")
 api_router = APIRouter()

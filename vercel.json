@@ -14,7 +14,7 @@
       }
     },
     {
-      "src": "bl-backend/main.py",
+      "src": "/bl-backend/main.py",
       "use": "@vercel/python",
       "config": {
         "includeFiles": [
@@ -33,7 +33,7 @@
   "routes": [
     {
       "src": "/api-bl/(.*)",
-      "dest": "bl-backend/main.py"
+      "dest": "/bl-backend/main.py"
     },
     {
       "src": "/api/(.*)",
