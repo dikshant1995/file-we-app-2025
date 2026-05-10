@@ -12,7 +12,7 @@ const MainMasterPortal = () => {
     {
       name: "Rajat Khandelwal",
       role: "SME Owner, Jaipur",
-      text: "Needed working capital to expand my textile manufacturing unit. Laxmi Credit secured a ₹45L Business Loan within 72 hours with zero processing fees. Absolutely fantastic!",
+      text: "Needed working capital to expand my textile manufacturing unit. Laxmi Credit secured a ₹45L Business Loan within 72 hours. Absolutely fantastic!",
       rating: 5
     },
     {
