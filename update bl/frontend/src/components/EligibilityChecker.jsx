@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Activity, ShieldCheck } from 'lucide-react';
 
@@ -36,9 +36,16 @@ const EligibilityChecker = () => {
     const [loading, setLoading] = useState(false);
 
     // Interactive EMI Calculator State
-    const [calcAmount, setCalcAmount] = useState(1500000);
+    const [calcAmount, setCalcAmount] = useState(formData.loan_amount);
     const [calcRoi, setCalcRoi] = useState(17.5);
     const [calcTenure, setCalcTenure] = useState(3);
+
+    // Sync calculator with user request automatically for smart UX
+    useEffect(() => {
+        if (formData.loan_amount) {
+            setCalcAmount(Number(formData.loan_amount));
+        }
+    }, [formData.loan_amount]);
 
     const calculatedEMIValue = calculateEMI(calcAmount, calcRoi, calcTenure);
 
@@ -344,7 +351,7 @@ const EligibilityChecker = () => {
                                 <input 
                                     type="range" 
                                     min="100000" 
-                                    max="5000000" 
+                                    max={Math.max(5000000, calcAmount)} 
                                     step="50000"
                                     value={calcAmount} 
                                     onChange={(e) => setCalcAmount(parseInt(e.target.value))}
