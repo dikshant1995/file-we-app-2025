@@ -92,6 +92,30 @@ const MainMasterPortal = () => {
           </motion.p>
         </section>
 
+        {/* Narrative & Philosophy Section */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="philosophy-banner"
+        >
+          <div className="philosophy-flex">
+            <div className="philosophy-icon-frame">
+              <Cpu size={40} className="text-primary" style={{ color: '#6366f1' }} />
+            </div>
+            <div className="philosophy-content">
+              <h3>Why shop for shoes, but settle for loans?</h3>
+              <p>
+                Think about it. When buying a pair of shoes, we compare <span className="highlight-text">10+ brands</span> and check multiple shops just to save a few hundred rupees. But for a life-altering <span className="highlight-text">5-year financial commitment</span>, millions just accept the very first offer.
+              </p>
+              <p style={{ marginTop: '0.5rem', fontSize: '0.95rem', opacity: 0.8 }}>
+                Laxmi Credit was engineered to disrupt this. We use deep banking data to scan dozens of actual institutional policies in milliseconds, ensuring you save lakhs in interest and compounding repayments. Don't just take credit; command it.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
         {/* MAIN CHOICE BLOCKS */}
         <section className="portal-choices">
           <motion.div
