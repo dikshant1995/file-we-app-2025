@@ -440,7 +440,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
 
             <div className="founder-vision-statement">
               <p>
-                "At Laxmi Credit Root, we're not just digitizing loans; we're architecting a financial revolution.
+                "At Laxmi Credit, we're not just digitizing loans; we're architecting a financial revolution.
                 Our mission is to democratize credit access through neural-grade accuracy. We've built an engine
                 that doesn't just calculate—it understands the soul of banking policies."
               </p>

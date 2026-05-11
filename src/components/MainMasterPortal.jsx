@@ -52,7 +52,7 @@ const MainMasterPortal = () => {
         <header className="portal-header">
           <div className="portal-logo">
             <Cpu size={28} color="#6366f1" />
-            <span className="gradient-text">LAXMI CREDIT ROOT</span>
+            <span className="gradient-text">LAXMI CREDIT</span>
           </div>
           <div className="portal-nav-actions">
              <Link to="/blog" className="nav-item-glass" style={{ textDecoration: 'none', color: '#94a3b8', fontSize: '0.9rem', fontWeight: '600' }}>
@@ -88,7 +88,7 @@ const MainMasterPortal = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="hero-subtitle-main"
           >
-            Welcome to Laxmi Credit Root. We utilize advanced neural processing and deep bank policy integrations to offer the most precise loan eligibility analysis in the country.
+            Welcome to Laxmi Credit. We utilize advanced neural processing and deep bank policy integrations to offer the most precise loan eligibility analysis in the country.
           </motion.p>
         </section>
 
@@ -237,7 +237,7 @@ const MainMasterPortal = () => {
 
               <div className="founder-vision-statement">
                 <p>
-                  "At Laxmi Credit Root, we're not just digitizing loans; we're architecting a financial revolution.
+                  "At Laxmi Credit, we're not just digitizing loans; we're architecting a financial revolution.
                   Our mission is to democratize credit access through neural-grade accuracy. We've built an engine
                   that doesn't just calculate—it understands the soul of banking policies."
                 </p>
@@ -270,7 +270,7 @@ const MainMasterPortal = () => {
         <footer className="holo-footer">
           <div className="footer-line" />
           <div className="footer-content">
-            <p>© 2026 Laxmi Credit Root — Engineered by <span className="text-glow">Dikshant Singh Rathore</span></p>
+            <p>© 2026 Laxmi Credit — Engineered by <span className="text-glow">Dikshant Singh Rathore</span></p>
             <p className="footer-sub">Advanced Hybrid Lending Protocols • Unified Architecture</p>
           </div>
         </footer>
