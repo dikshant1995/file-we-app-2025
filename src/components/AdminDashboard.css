@@ -650,3 +650,53 @@ svg.lucide,
   width: 18px !important;
   height: 18px !important;
 }
+
+/* ============================================================
+   SAFE RESPONSIVE PATCH FOR ADMIN CHILD VIEWS
+   Ensures nested tables and editors do not overflow on mobile
+   ============================================================ */
+@media (max-width: 768px) {
+  .content-area {
+    padding: 15px;
+    border-radius: 12px;
+    min-height: auto;
+  }
+
+  /* Bulletproof Table Scroll Protection */
+  .admin-dashboard table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-collapse: collapse;
+    white-space: nowrap; /* Keep row values on one line, user scrolls sideways */
+  }
+
+  /* Generic form flow fixes */
+  .editor-form, .config-grid, .input-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .form-actions, .modal-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .form-actions button, .modal-actions button {
+    width: 100%;
+  }
+
+  /* Limit overall page width clamping */
+  .admin-dashboard input, 
+  .admin-dashboard select,
+  .admin-dashboard textarea {
+    max-width: 100%;
+  }
+  
+  /* Section header stacking */
+  .view-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 15px;
+  }
+}

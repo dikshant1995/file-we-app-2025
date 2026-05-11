@@ -273,8 +273,8 @@
 /* ── Bank Grid (Standard) ───────────────────────────────── */
 .banks-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
 }
 
 .bank-card {
@@ -688,11 +688,43 @@
     grid-template-columns: 1fr;
   }
 
+  .best-offer-card {
+    padding: 20px;
+  }
+
+  .best-offer-content h3 {
+    font-size: 1.5rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   .main-amount .amount {
-    font-size: 2rem;
+    font-size: 1.8rem;
   }
 
   .stat-value {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
+  }
+  
+  .details-grid {
+    grid-template-columns: 1fr 1fr; /* Two cols instead of 3 on medium screens */
+  }
+  
+  .table-submit-section {
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 400px) {
+  .details-grid {
+    grid-template-columns: 1fr; /* Single col on tiny screens */
+  }
+  
+  .bank-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
 }
