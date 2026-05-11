@@ -763,4 +763,32 @@
   .rejected-grid {
     grid-template-columns: 1fr;
   }
+  
+  .cc-savings-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .savings-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  
+  .cc-banner-header h3 {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .metric-value {
+    font-size: 24px;
+  }
+  
+  .savings-row.mega .savings-value {
+    font-size: 24px;
+  }
+  
+  .results-header h2 {
+    font-size: 20px;
+  }
 }

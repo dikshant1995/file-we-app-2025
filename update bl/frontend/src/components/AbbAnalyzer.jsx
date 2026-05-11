@@ -120,14 +120,14 @@ const AbbAnalyzer = ({
             ) : (
                 <div className="animate-fade-in">
                     <div className="glass-card mb-8">
-                        <div className="flex justify-between items-center mb-8">
+                        <div className="flex flex-wrap gap-4 justify-between items-center mb-8">
                             <h2 className="gradient-text">Institutional ABB Report</h2>
                             <button className="btn btn-primary" onClick={() => downloadExcel(results, abbData)} style={{ background: 'var(--success)', border: 'none' }}>
                                 <Download size={18} /> Excel Report
                             </button>
                         </div>
 
-                        <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '2rem' }}>
+                        <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
                             {abbData.comparisons.map((item, i) => (
                                 <div key={i} className="elevated-card" style={{ animationDelay: `${i * 0.1}s` }}>
                                     <div className="flex items-center gap-3 mb-6">

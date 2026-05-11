@@ -240,6 +240,18 @@
   }
 }
 
+@media (max-width: 480px) {
+  .customer-loan-form {
+    padding: 20px 15px;
+  }
+  .form-section {
+    padding: 15px;
+  }
+  .form-header h2 {
+    font-size: 1.4rem;
+  }
+}
+
 /* ---- Note Section ---- */
 .form-note {
   margin-top: 32px;

@@ -257,7 +257,7 @@ const EligibilityChecker = () => {
                                     </span>
                                 </div>
                                 <div className="flex flex-col gap-2">
-                                    <div className="flex justify-between items-end border-b border-white/5 pb-2">
+                                    <div className="flex flex-responsive justify-between items-end border-b border-white/5 pb-2">
                                         <div>
                                             <p className="text-secondary text-sm">Max Loan Eligibility</p>
                                             <p className="text-3xl font-extrabold text-white">₹{r.max_loan_amount.toLocaleString()}</p>
@@ -272,7 +272,7 @@ const EligibilityChecker = () => {
                                         <span>ROI: {r.roi}% Fixed</span>
                                         <span>Tenure: 3 Years</span>
                                     </div>
-                                    <div className="flex justify-between items-center text-xs text-muted py-1 border-b border-white/5 pb-2">
+                                    <div className="flex flex-responsive justify-between items-center text-xs text-muted py-1 border-b border-white/5 pb-2">
                                         <span>Calculated EMI: ₹{r.calculated_emi?.toLocaleString()}/mo</span>
                                         <span>ATO Ratio: {r.ato_ratio}%</span>
                                     </div>
@@ -281,7 +281,7 @@ const EligibilityChecker = () => {
                                     <p className="text-xl font-bold">₹{r.custom_abb.toLocaleString()}</p>
 
                                     {r.deducted_emi > 0 && (
-                                        <div className="mt-2 p-2 rounded bg-white/5 border border-white/5 flex justify-between text-xs">
+                                        <div className="mt-2 p-2 rounded bg-white/5 border border-white/5 flex flex-responsive justify-between text-xs">
                                             <span className="text-muted">Raw Capacity: ₹{r.raw_emi_capacity.toLocaleString()}</span>
                                             <span className="text-danger font-semibold">Deducted ({r.deducted_type}): -₹{r.deducted_emi.toLocaleString()}</span>
                                         </div>
