@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, ArrowRight, ArrowLeft, ShieldCheck, Zap, Globe, Lock, Instagram, MessageSquare, Send, ChevronDown, Cpu, BarChart3, Fingerprint, Mail, FileText, Building2 } from 'lucide-react';
 import './FuturisticLanding.css';
-import NeuralChatBot from './NeuralChatBot.jsx';
+
 
 const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
   const [tick, setTick] = useState(0);
@@ -530,7 +530,6 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
       </footer>
 
       {/* Neural AI Chatbot */}
-      <NeuralChatBot />
     </div>
   );
 };
