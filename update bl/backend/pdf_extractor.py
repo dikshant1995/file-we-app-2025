@@ -1423,6 +1423,14 @@ class UnifiedBankBrain:
             "IDFC": {
                 "cleaning": [r'UPI/MOB/[\d/]+', r'from PhonePe'],
                 "gates": {"Date": (20, 140), "Narr": (140, 360), "Dr": (360, 430), "Cr": (430, 500), "Bal": (500, 590)}
+            },
+            "KOTAK": {
+                "cleaning": [r'UPI-[\w\-\.\@]+', r'Subscription De'],
+                "gates": {"Date": (35, 120), "Narr": (120, 380), "Dr": (380, 445), "Cr": (445, 510), "Bal": (510, 580)}
+            },
+            "KOTAK_RIGID": {
+                "cleaning": [r'UPI-[\w\-\.\@]+', r'Subscription De'],
+                "gates": {"Date": (35, 120), "Narr": (120, 380), "Dr": (380, 445), "Cr": (445, 510), "Bal": (510, 580)}
             }
         }
 
@@ -1451,6 +1459,12 @@ class UnifiedBankBrain:
         elif "IDBIBANK" in txt_up or "IDB0" in txt_up: self.bank_type = "IDBI"
         elif "ICICIBANK" in txt_up or "DETAILEDSTATEMENT" in txt_up: self.bank_type = "ICICI"
         elif "IDFC" in txt_up or "IDFCFIRST" in txt_up: self.bank_type = "IDFC"
+        
+        # V12.0: Dynamic Sweep for Kotak (IFSC is often below the 250px cut line)
+        if self.bank_type == "GENERIC":
+            extended_text = (p.within_bbox((0, 0, p.width, 350)).extract_text() or "").upper().replace(" ","")
+            if "KKBK" in extended_text or "KOTAK" in extended_text:
+                self.bank_type = "KOTAK_RIGID"
         
         print(f">>> [Unified Brain] Professional Context Identified: {self.bank_type}")
         
