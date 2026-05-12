@@ -12,7 +12,7 @@ const PolicyAdmin = () => {
 
     const fetchPolicies = async () => {
         try {
-            const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const apiBase = import.meta.env.VITE_API_URL || (window.location.origin.includes('localhost') ? 'http://localhost:8000' : '/api-bl');
             const res = await axios.get(`${apiBase}/api/policies`);
             setPolicies(res.data);
             setLoading(false);
@@ -28,7 +28,7 @@ const PolicyAdmin = () => {
     const savePolicies = async () => {
         setSaving(true);
         try {
-            const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const apiBase = import.meta.env.VITE_API_URL || (window.location.origin.includes('localhost') ? 'http://localhost:8000' : '/api-bl');
             await axios.post(`${apiBase}/api/policies`, policies);
             alert("Policies updated successfully!");
         } catch (err) {

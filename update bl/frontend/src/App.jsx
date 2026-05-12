@@ -38,7 +38,7 @@ function App() {
     if (pdfPassword) formData.append('password', pdfPassword);
     
     try {
-      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const apiBase = import.meta.env.VITE_API_URL || (window.location.origin.includes('localhost') ? 'http://localhost:8000' : '/api-bl');
       const response = await axios.post(`${apiBase}/api/upload-statement`, formData);
       if (response.data.status === 'success') {
         const { dataset_1, dataset_2, dataset_3, metadata } = response.data.data;

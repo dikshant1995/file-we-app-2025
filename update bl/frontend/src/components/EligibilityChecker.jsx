@@ -57,7 +57,7 @@ const EligibilityChecker = () => {
         });
 
         try {
-            const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const apiBase = import.meta.env.VITE_API_URL || (window.location.origin.includes('localhost') ? 'http://localhost:8000' : '/api-bl');
             const res = await axios.post(`${apiBase}/api/evaluate-eligibility`, data);
             setResults(res.data.results);
         } catch (err) {
