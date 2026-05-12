@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const PolicyAdmin = () => {
+const PolicyAdmin = ({ onLogout }) => {
     const [policies, setPolicies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -47,6 +47,13 @@ const PolicyAdmin = () => {
                     <p className="text-secondary">Control forensic eligibility parameters and lender-specific risk thresholds.</p>
                 </header>
                 <div className="flex gap-4">
+                    <button 
+                        className="btn btn-ghost" 
+                        style={{ border: '1px solid rgba(239, 68, 68, 0.3)', color: '#f87171' }}
+                        onClick={onLogout}
+                    >
+                        🔒 Lock Access
+                    </button>
                     <button className="btn btn-ghost" onClick={fetchPolicies}>Reload Data</button>
                     <button 
                         onClick={savePolicies}

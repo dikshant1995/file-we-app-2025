@@ -5,11 +5,13 @@ import { downloadExcel } from './utils/exportToExcel';
 import AbbAnalyzer from './components/AbbAnalyzer';
 import PolicyAdmin from './components/PolicyAdmin';
 import EligibilityChecker from './components/EligibilityChecker';
+import AdminLogin from './components/AdminLogin';
 import { Building2, ShieldCheck, Activity, ArrowLeft } from 'lucide-react';
 import './index.css';
 
 function App() {
   const [view, setView] = useState('checker'); // 'checker', 'analyzer', or 'admin'
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   
   // ABB Analyzer States
   const [file, setFile] = useState(null);
@@ -100,7 +102,11 @@ function App() {
             setSanctionedLimit={setSanctionedLimit} fileInputRef={fileInputRef} downloadExcel={downloadExcel}
           />
         )}
-        {view === 'admin' && <PolicyAdmin />}
+        {view === 'admin' && (
+          isAdminAuthenticated 
+            ? <PolicyAdmin onLogout={() => setIsAdminAuthenticated(false)} /> 
+            : <AdminLogin onLoginSuccess={() => setIsAdminAuthenticated(true)} />
+        )}
       </main>
     </div>
   );
