@@ -1,5 +1,7 @@
 import React from 'react';
-import { Loader, UploadCloud, Download, AlertCircle, Building2, Calendar, Target, FileText, X } from 'lucide-react';
+import { Loader, UploadCloud, Download, AlertCircle, Building2, Calendar, Target, FileText, X, TrendingUp, PieChart, Activity } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { generateMonthlySummary } from '../utils/abbCalculator';
 
 const AbbAnalyzer = ({ 
     files, removeFile, dragActive, loading, error, results, abbData, proprietorName, 
@@ -155,10 +157,111 @@ const AbbAnalyzer = ({
                 <div className="animate-fade-in">
                     <div className="glass-card mb-8">
                         <div className="flex flex-wrap gap-4 justify-between items-center mb-8">
-                            <h2 className="gradient-text">Institutional ABB Report</h2>
-                            <button className="btn btn-primary" onClick={() => downloadExcel(results, abbData)} style={{ background: 'var(--success)', border: 'none' }}>
-                                <Download size={18} /> Excel Report
-                            </button>
+                            <h2 className="gradient-text flex items-center gap-2">
+                                <Activity size={24} /> Institutional ABB Report
+                            </h2>
+                            <div className="flex gap-2">
+                                <button className="btn btn-primary" onClick={() => downloadExcel(results, abbData)} style={{ background: 'var(--success)', border: 'none' }}>
+                                    <Download size={18} /> Full Excel Report
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* 📊 ADVANCED GRAPHICAL ANALYTICS WIDGETS */}
+                        {(() => {
+                            const summary = generateMonthlySummary(results.dataset_3, abbData);
+                            const grandTotal = summary.find(r => r.Month === "GRAND TOTAL") || {};
+                            const netBto = parseFloat(grandTotal["Net BTO (Excl. Cash) (₹)"] || 0);
+                            const cashDep = parseFloat(grandTotal["Total Cash Deposit (₹)"] || 0);
+                            const totalCr = parseFloat(grandTotal["Total BTO (₹)"] || 1);
+                            const digitalRatio = totalCr > 0 ? Math.min(100, (netBto / totalCr) * 100) : 0;
+                            const bounceRatio = parseFloat(grandTotal["Inward Outward Chq Bounce Ratio"]?.replace('%', '') || 0);
+
+                            return (
+                                <div className="grid lg-grid-cols-3 md-grid-cols-2 gap-4 mb-8">
+                                    {/* 🟢 DIGITAL PENETRATION GAUGE */}
+                                    <div className="chart-card flex flex-col items-center justify-center text-center p-6 bg-deep/40 border border-glow/30">
+                                        <h4 className="text-xs text-secondary uppercase tracking-widest mb-4">Digital BTO Intensity</h4>
+                                        <div className="gauge-svg-container" style={{ width: '120px', height: '120px' }}>
+                                            <svg viewBox="0 0 100 100" className="w-full h-full">
+                                                <circle className="gauge-bg" cx="50" cy="50" r="40" fill="transparent" stroke="rgba(255,255,255,0.05)" strokeWidth="8" />
+                                                <motion.circle 
+                                                    cx="50" cy="50" r="40" fill="transparent" 
+                                                    stroke="var(--primary)" strokeWidth="8" strokeLinecap="round"
+                                                    strokeDasharray="251.2"
+                                                    initial={{ strokeDashoffset: 251.2 }}
+                                                    animate={{ strokeDashoffset: 251.2 - (251.2 * (digitalRatio / 100)) }}
+                                                    transition={{ duration: 1.5, ease: "easeOut" }}
+                                                    style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}
+                                                />
+                                            </svg>
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ top: '30%' }}>
+                                                <span className="text-2xl font-bold text-white">{Math.round(digitalRatio)}%</span>
+                                                <span className="text-[8px] uppercase text-primary">Digital</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* 🔴 HEALTH / BOUNCE MATRIX */}
+                                    <div className="chart-card p-6 bg-deep/40 border border-glow/30 flex flex-col justify-between">
+                                        <div>
+                                            <h4 className="text-xs text-secondary uppercase tracking-widest mb-2">Health Parameters</h4>
+                                            <p className="text-sm text-white flex justify-between border-b border-white/5 py-2">
+                                                <span>Total Bounce Ratio</span>
+                                                <span className={`font-bold ${bounceRatio > 3 ? 'text-red-400' : 'text-emerald-400'}`}>{bounceRatio.toFixed(2)}%</span>
+                                            </p>
+                                            <p className="text-sm text-white flex justify-between border-b border-white/5 py-2">
+                                                <span>History Span</span>
+                                                <span className="text-primary font-bold">{abbData.historySpanInDays} Days</span>
+                                            </p>
+                                        </div>
+                                        <div className="mt-4">
+                                            <div className={`text-center py-2 rounded-md text-xs font-bold ${bounceRatio < 5 ? 'bg-emerald-500/20 text-emerald-300' : 'bg-red-500/20 text-red-300'}`}>
+                                                {bounceRatio < 5 ? "OPTIMAL LIQUIDITY" : "CRITICAL OVERLEVERAGE"}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* 🔵 BTO COMPOSITION BARS */}
+                                    <div className="chart-card p-6 bg-deep/40 border border-glow/30 col-span-full lg:col-span-1">
+                                        <h4 className="text-xs text-secondary uppercase tracking-widest mb-4">Composition Matrix (BTO)</h4>
+                                        <div className="flex flex-col gap-3">
+                                            <div>
+                                                <div className="flex justify-between text-[10px] text-muted mb-1">
+                                                    <span>NET DIGITAL CR</span>
+                                                    <span>₹{netBto.toLocaleString()}</span>
+                                                </div>
+                                                <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                                                    <motion.div 
+                                                        initial={{ width: 0 }} animate={{ width: `${(netBto/totalCr)*100}%` }}
+                                                        transition={{ duration: 1, delay: 0.2 }}
+                                                        className="h-full bg-gradient-to-r from-indigo-500 to-cyan-400"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div className="flex justify-between text-[10px] text-muted mb-1">
+                                                    <span>PHYSICAL CASH</span>
+                                                    <span>₹{cashDep.toLocaleString()}</span>
+                                                </div>
+                                                <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                                                    <motion.div 
+                                                        initial={{ width: 0 }} animate={{ width: `${(cashDep/totalCr)*100}%` }}
+                                                        transition={{ duration: 1, delay: 0.4 }}
+                                                        className="h-full bg-warning/70"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })()}
+
+                        <div className="w-full border-t border-white/5 my-6 pt-4">
+                            <h4 className="text-sm font-semibold text-primary/80 mb-4 flex items-center gap-2">
+                                <TrendingUp size={16} /> NBFC Institutional Benchmarks
+                            </h4>
                         </div>
 
                         <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>

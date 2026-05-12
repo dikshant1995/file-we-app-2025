@@ -66,6 +66,31 @@ function App() {
         const calculated = calculateABB(dataset_1, config);
         setResults({ dataset_1, dataset_2, dataset_3, metadata, config });
         setAbbData(calculated);
+
+        // 🚀 LOG SCAN ANALYTICS FOR THE ANALYST (Silent Dispatch to Google Sheets)
+        try {
+          const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgAGkw2nw1MdYob_-liwla8M79HQVnqgZKhxFJ_unSsFo0q2aM2cWlwlKTeZpCi2K0og/exec';
+          const leadPayload = {
+            source: 'Business Loan ABB Analyzer (Stand-Alone Scan)',
+            timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+            name: proprietorName || metadata?.account_name || 'Unknown Bank Customer',
+            mobile: 'N/A', 
+            totalIncome: `Account: ${metadata?.account_type || 'N/A'}`,
+            employment: 'Stand-Alone Scan',
+            existingEMI: 0,
+            wantsBT: 'No',
+            personalLoans: `Primary ABB Calculated`,
+            state: 'N/A',
+            city: `Sister Firms: ${sisterFirms || 'None'}`,
+          };
+          fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify(leadPayload)
+          }).catch(() => {});
+          console.log('📊 Analytical data dispatched successfully.');
+        } catch (e) { /* Silent catch */ }
+
       } else { setError(response.data.message); }
     } catch (err) { setError(err.message); } finally { setLoading(false); }
   };
