@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Activity, ShieldCheck } from 'lucide-react';
+import { Activity, ShieldCheck, FileText, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -34,7 +34,7 @@ const EligibilityChecker = () => {
         num_active_business_loans: 0,
         total_business_loan_emi: 0
     });
-    const [file, setFile] = useState(null);
+    const [files, setFiles] = useState([]);
     const [results, setResults] = useState(null);
     const [loading, setLoading] = useState(false);
 
@@ -55,9 +55,14 @@ const EligibilityChecker = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (files.length === 0) {
+            alert("Please upload at least one bank statement PDF.");
+            return;
+        }
         setLoading(true);
         const data = new FormData();
-        data.append('file', file);
+        // Append multiple files using same key recognized by aggregated backend
+        files.forEach(f => data.append('files', f));
         Object.keys(formData).forEach(key => {
             if (key === 'pdf_password') {
                 if (formData[key]) data.append('password', formData[key]);
@@ -283,21 +288,59 @@ const EligibilityChecker = () => {
                             />
                         </div>
                         <div className="form-group">
-                            <label className="label">Upload Bank Statement (PDF)</label>
-                            <div className="file-dropzone" onClick={() => document.getElementById('file-upload').click()}>
-                                <div className="icon-circle">
+                            <label className="label">Upload Bank Statements (PDF) - Select Multiple</label>
+                            <div 
+                                className="file-dropzone" 
+                                style={{ minHeight: 'auto', padding: '2rem 1rem', cursor: 'default' }}
+                            >
+                                <div className="icon-circle" style={{ cursor: 'pointer' }} onClick={() => document.getElementById('file-upload').click()}>
                                     <Activity size={24} />
                                 </div>
-                                <p className="text-secondary">Click to upload or drag statement here</p>
+                                <p className="text-secondary mb-4 text-center">Select multiple statements to merge history.</p>
+                                
+                                {files.length > 0 && (
+                                    <div className="w-full flex flex-col gap-2 mb-4" style={{ maxHeight: '150px', overflowY: 'auto' }}>
+                                        {files.map((f, idx) => (
+                                            <div key={idx} className="flex items-center justify-between bg-deep/50 border border-glow p-2 rounded text-xs">
+                                                <div className="flex items-center gap-2 truncate">
+                                                    <FileText size={14} className="text-primary" />
+                                                    <span className="truncate">{f.name}</span>
+                                                </div>
+                                                <button 
+                                                    type="button"
+                                                    onClick={() => setFiles(files.filter((_, i) => i !== idx))}
+                                                    className="hover:text-red-400"
+                                                    style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                                                >
+                                                    <X size={14} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                <div className="flex justify-center">
+                                    <button 
+                                        type="button" 
+                                        className="btn btn-ghost btn-sm" 
+                                        onClick={() => document.getElementById('file-upload').click()}
+                                    >
+                                        {files.length > 0 ? "+ Add More PDFs" : "Browse PDFs"}
+                                    </button>
+                                </div>
+
                                 <input 
                                     id="file-upload"
                                     type="file" 
-                                    onChange={(e) => setFile(e.target.files[0])}
+                                    multiple
+                                    onChange={(e) => {
+                                        if (e.target.files?.length) {
+                                            setFiles([...files, ...Array.from(e.target.files)]);
+                                        }
+                                    }}
                                     className="hidden"
                                     style={{ display: 'none' }}
-                                    required
                                 />
-                                {file && <p className="mt-4 text-primary font-bold">{file.name}</p>}
                             </div>
                         </div>
                         <button 

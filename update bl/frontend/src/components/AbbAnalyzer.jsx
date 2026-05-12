@@ -1,8 +1,8 @@
 import React from 'react';
-import { Loader, UploadCloud, Download, AlertCircle, Building2, Calendar, Target } from 'lucide-react';
+import { Loader, UploadCloud, Download, AlertCircle, Building2, Calendar, Target, FileText, X } from 'lucide-react';
 
 const AbbAnalyzer = ({ 
-    file, dragActive, loading, error, results, abbData, proprietorName, 
+    files, removeFile, dragActive, loading, error, results, abbData, proprietorName, 
     sisterFirms, pdfPassword, accountType, sanctionedLimit, 
     handleDrag, handleDrop, handleChange, handleProcess, 
     setProprietorName, setPdfPassword, setSisterFirms, setAccountType, 
@@ -93,25 +93,59 @@ const AbbAnalyzer = ({
                         <div className="icon-circle">
                             <UploadCloud size={32} strokeWidth={1.5} />
                         </div>
-                        <h2 className="mb-2">{file ? file.name : "Ready for Analysis"}</h2>
-                        <p className="text-secondary mb-6">Drop your PDF bank statement here or browse files</p>
+                        <h2 className="mb-2">{files?.length > 0 ? `Loaded ${files.length} Document(s)` : "Multi-Statement Vault"}</h2>
+                        <p className="text-secondary mb-6">Drag & drop multiple PDF bank statements</p>
                         
+                        {files?.length > 0 && (
+                            <div className="w-full flex flex-col gap-2 mb-6" style={{ maxHeight: '150px', overflowY: 'auto', padding: '0 10px' }}>
+                                {files.map((f, idx) => (
+                                    <div key={idx} className="flex items-center justify-between bg-deep border border-glow p-3 rounded-lg text-sm">
+                                        <div className="flex items-center gap-3 truncate">
+                                            <FileText size={16} className="text-primary" />
+                                            <span className="truncate text-primary-glow">{f.name}</span>
+                                        </div>
+                                        <button 
+                                            onClick={(e) => { e.stopPropagation(); removeFile(idx); }}
+                                            className="hover:text-red-400 transition-colors"
+                                            style={{ background: 'none', border: 'none', padding: '4px', cursor: 'pointer' }}
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
                         <input 
                             ref={fileInputRef}
                             type="file" 
                             className="hidden" 
                             style={{ display: 'none' }}
                             accept="application/pdf"
+                            multiple
                             onChange={handleChange}
                         />
                         
-                        {file ? (
-                            <button className="btn btn-primary w-full" onClick={handleProcess} disabled={loading}>
-                                {loading ? <Loader className="animate-spin" /> : 'Commence Analysis'}
+                        <div className="flex gap-4 w-full">
+                            <button 
+                                type="button" 
+                                className="btn btn-ghost flex-1" 
+                                onClick={() => fileInputRef.current.click()}
+                            >
+                                {files?.length > 0 ? 'Add More' : 'Browse Files'}
                             </button>
-                        ) : (
-                            <button className="btn btn-ghost" onClick={() => fileInputRef.current.click()}>Browse Files</button>
-                        )}
+                            
+                            {files?.length > 0 && (
+                                <button 
+                                    className="btn btn-primary flex-1" 
+                                    onClick={handleProcess} 
+                                    disabled={loading}
+                                >
+                                    {loading ? <Loader className="animate-spin mx-auto" /> : 'Commence Aggregate Scan'}
+                                </button>
+                            )}
+                        </div>
+
                         {error && <div className="text-danger mt-4 flex items-center justify-center gap-2">
                             <AlertCircle size={16} /> {error}
                         </div>}
