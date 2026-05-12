@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import './CustomerResultsDisplay.css';
 import { saveSelectedBanks } from '../services/leadService.js';
 
@@ -168,6 +169,73 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
             {aiInsight.message.split('**').map((part, i) => 
               i % 2 === 1 ? <strong key={i}>{part}</strong> : part
             )}
+          </div>
+        </div>
+      )}
+
+      {/* 📊 VISUAL ANALYTICS SUITE (Pie/Bars Comparison) */}
+      {eligibleBanks.length > 0 && (
+        <div className="visual-analytics-container">
+          {/* Bar Comparison Chart */}
+          <div className="chart-card">
+            <h4>Top Eligible Offer Comparison</h4>
+            <div className="bar-chart-wrapper">
+              {sortedEligibleBanks.slice(0, 5).map((bank, i) => {
+                const maxPossibleInView = sortedEligibleBanks[0].loanAmount || 1;
+                const percentage = ((bank.loanAmount || 0) / maxPossibleInView) * 100;
+                return (
+                  <div key={i} className="comparison-bar-row">
+                    <div className="bar-info">
+                      <span className="bar-bank-name">{bank.bankName}</span>
+                      <span className="bar-amount">{formatCurrency(bank.loanAmount)}</span>
+                    </div>
+                    <div className="bar-track">
+                      <motion.div 
+                        className="bar-fill"
+                        initial={{ width: 0 }}
+                        whileInView={{ width: `${percentage}%` }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 1, delay: i * 0.1, ease: "easeOut" }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Success Pie Gauge */}
+          <div className="chart-card">
+            <h4>Approval Success Rate</h4>
+            <div className="gauge-flex">
+              <div className="gauge-svg-container">
+                <svg className="gauge-svg" viewBox="0 0 100 100">
+                  <defs>
+                    <linearGradient id="gradientGauge" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#6366f1" />
+                      <stop offset="100%" stopColor="#00d2ff" />
+                    </linearGradient>
+                  </defs>
+                  {/* Background Ring */}
+                  <circle className="gauge-bg" cx="50" cy="50" r="40" />
+                  {/* Filled Ring */}
+                  <motion.circle 
+                    className="gauge-fill" 
+                    cx="50" cy="50" r="40"
+                    initial={{ strokeDasharray: "0, 251.2" }}
+                    whileInView={{ strokeDasharray: `${(Math.round((stats.eligibleCount / stats.totalBanks) * 100) / 100) * 251.2}, 251.2` }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 1.5, ease: "easeOut", delay: 0.3 }}
+                  />
+                </svg>
+                <div className="gauge-content-center">
+                  <div className="gauge-percentage">
+                    {Math.round((stats.eligibleCount / stats.totalBanks) * 100)}%
+                  </div>
+                  <div className="gauge-label">Approved</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}

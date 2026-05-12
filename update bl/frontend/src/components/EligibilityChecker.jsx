@@ -19,6 +19,8 @@ const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
 
 const EligibilityChecker = () => {
     const [formData, setFormData] = useState({
+        customer_name: '',
+        mobile_number: '',
         loan_amount: 1000000,
         gst_vintage: 3,
         itr_vintage: 2,
@@ -67,6 +69,33 @@ const EligibilityChecker = () => {
             const apiBase = import.meta.env.VITE_API_URL || (window.location.origin.includes('localhost') ? 'http://localhost:8000' : '/api-bl');
             const res = await axios.post(`${apiBase}/api/evaluate-eligibility`, data);
             setResults(res.data.results);
+
+            // 🚀 SYNC LEAD CONSISTENCY: Push to Google Sheets just like Personal Loan
+            try {
+                const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgAGkw2nw1MdYob_-liwla8M79HQVnqgZKhxFJ_unSsFo0q2aM2cWlwlKTeZpCi2K0og/exec';
+                const leadPayload = {
+                    source: 'Business Loan Portal',
+                    timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+                    name: formData.customer_name,
+                    mobile: formData.mobile_number,
+                    totalIncome: `Amt: ${formData.loan_amount} | GST: ${formData.gst_vintage}Y`,
+                    employment: 'Business/Self-Employed',
+                    existingEMI: formData.total_active_emi || 0,
+                    wantsBT: 'No',
+                    personalLoans: `Total Active: ${formData.num_active_loans} | Biz Loans: ${formData.num_active_business_loans}`,
+                    state: 'N/A',
+                    city: formData.pincode ? `Pincode: ${formData.pincode}` : 'N/A',
+                };
+                fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify(leadPayload)
+                }).catch(() => {});
+                console.log('📊 Lead analytics dispatched for consistency');
+            } catch (e) {
+                // Silent catch, don't block user experience
+            }
+
         } catch (err) {
             alert("Error evaluating eligibility");
         }
@@ -83,7 +112,38 @@ const EligibilityChecker = () => {
             <div className="grid lg-grid-cols-2 gap-8">
                 {/* Form Side */}
                 <div className="glass-card">
-                    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-6" autoComplete="off">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="form-group">
+                                <label className="label">Customer Name</label>
+                                <input 
+                                    type="text" 
+                                    value={formData.customer_name}
+                                    onChange={(e) => setFormData({...formData, customer_name: e.target.value})}
+                                    className="input-field"
+                                    placeholder="Enter your name"
+                                    required
+                                    autoComplete="new-password"
+                                    data-lpignore="true"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label className="label">Mobile Number</label>
+                                <input 
+                                    type="tel" 
+                                    value={formData.mobile_number}
+                                    onChange={(e) => setFormData({...formData, mobile_number: e.target.value})}
+                                    className="input-field"
+                                    placeholder="10-digit number"
+                                    required
+                                    maxLength={10}
+                                    pattern="[6-9][0-9]{9}"
+                                    autoComplete="new-password"
+                                    data-lpignore="true"
+                                />
+                            </div>
+                        </div>
+
                         <div className="form-group">
                             <label className="label">Loan Amount Required (₹)</label>
                             <input 

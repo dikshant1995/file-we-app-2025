@@ -304,7 +304,7 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="customer-loan-form professional-grid-bg">
+    <form onSubmit={handleSubmit} className="customer-loan-form professional-grid-bg" autoComplete="off">
       <div className="form-header">
         <h2>Financial Analysis Engine</h2>
         <p>Comprehensive eligibility assessment across institutional databases</p>
@@ -326,7 +326,8 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
               onChange={handleInputChange}
               placeholder="Enter your full name"
               required
-              autoComplete="name"
+              autoComplete="new-password"
+              data-lpignore="true"
             />
           </div>
           <div className="form-group">
@@ -342,6 +343,8 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
               placeholder="10-digit mobile number"
               required
               maxLength={10}
+              autoComplete="new-password"
+              data-lpignore="true"
               pattern="[6-9][0-9]{9}"
               title="Enter a valid 10-digit Indian mobile number"
               inputMode="numeric"
