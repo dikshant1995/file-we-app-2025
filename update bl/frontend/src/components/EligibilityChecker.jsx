@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Activity, ShieldCheck } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
     const monthlyInterestRate = annualInterestRate / 12 / 100;
@@ -311,9 +312,90 @@ const EligibilityChecker = () => {
 
                 {/* Results Side */}
                 <div className="flex flex-col gap-4">
-                    <h2 className="mb-4 text-primary flex items-center gap-2">
-                        <ShieldCheck size={24} /> Eligible Lenders
-                    </h2>
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-primary flex items-center gap-2">
+                            <ShieldCheck size={24} /> Eligible Lenders
+                        </h2>
+                        {results && results.length > 0 && (
+                            <button 
+                                onClick={() => window.print()} 
+                                className="btn-ghost text-xs py-1 px-3 rounded border border-white/10 cursor-pointer hover:bg-white/10 transition-all"
+                                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', height: 'fit-content' }}
+                            >
+                                📄 PDF
+                            </button>
+                        )}
+                    </div>
+
+                    {/* 📊 ANALYTICS VISUALIZER */}
+                    {results && results.length > 0 && (
+                        <div className="grid grid-cols-2 gap-4 mb-4">
+                            {/* Bar Comparison */}
+                            <div className="chart-card">
+                                <h4>Offer Magnitude Comparison</h4>
+                                <div className="bar-chart-wrapper">
+                                    {results
+                                        .filter(r => r.status === 'ELIGIBLE')
+                                        .sort((a,b) => b.max_loan_amount - a.max_loan_amount)
+                                        .slice(0, 3)
+                                        .map((r, idx, arr) => {
+                                            const max = arr[0].max_loan_amount || 1;
+                                            const perc = (r.max_loan_amount / max) * 100;
+                                            return (
+                                                <div key={idx} className="comparison-bar-row">
+                                                    <div className="bar-info">
+                                                        <span className="text-xs text-secondary">{r.lender_name}</span>
+                                                        <span className="text-xs font-bold text-white">₹{(r.max_loan_amount/100000).toFixed(1)}L</span>
+                                                    </div>
+                                                    <div className="bar-track">
+                                                        <motion.div 
+                                                            className="bar-fill"
+                                                            initial={{ width: 0 }}
+                                                            whileInView={{ width: `${perc}%` }}
+                                                            viewport={{ once: true }}
+                                                            transition={{ duration: 1, delay: idx * 0.1, ease: "easeOut" }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            );
+                                        })
+                                    }
+                                </div>
+                            </div>
+
+                            {/* Success Pie/Gauge */}
+                            <div className="chart-card">
+                                <h4 className="text-center">Policy Hit Ratio</h4>
+                                <div className="gauge-flex">
+                                    <div className="gauge-svg-container">
+                                        <svg className="gauge-svg" viewBox="0 0 100 100">
+                                            <defs>
+                                                <linearGradient id="gradientGaugeBl" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <stop offset="0%" stopColor="#6366f1" />
+                                                    <stop offset="100%" stopColor="#8b5cf6" />
+                                                </linearGradient>
+                                            </defs>
+                                            <circle className="gauge-bg" cx="50" cy="50" r="40" />
+                                            <motion.circle 
+                                                className="gauge-fill" 
+                                                cx="50" cy="50" r="40"
+                                                initial={{ strokeDasharray: "0, 251.2" }}
+                                                whileInView={{ strokeDasharray: `${(Math.round((results.filter(x => x.status === 'ELIGIBLE').length / results.length) * 100) / 100) * 251.2}, 251.2` }}
+                                                viewport={{ once: true }}
+                                                transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
+                                            />
+                                        </svg>
+                                        <div className="gauge-content-center">
+                                            <div className="gauge-percentage">
+                                                {Math.round((results.filter(x => x.status === 'ELIGIBLE').length / results.length) * 100)}%
+                                            </div>
+                                            <div className="gauge-label">Match</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                     {results ? (
                         results.map((r, i) => (
                             <div key={i} className={`elevated-card animate-fade-in`} style={{ animationDelay: `${i * 0.1}s` }}>

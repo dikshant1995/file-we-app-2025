@@ -865,3 +865,125 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* 📄 Download PDF Styles & Printer Configuration */
+.btn-download-pdf {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border-glow);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: all 0.3s;
+}
+
+.btn-download-pdf:hover {
+  background: var(--accent-cyan);
+  color: #000;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  
+  .customer-results-display,
+  .customer-results-display * {
+    visibility: visible;
+    color: #000 !important;
+    text-shadow: none !important;
+  }
+
+  .customer-results-display {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 10px !important;
+    margin: 0 !important;
+    background: #fff !important;
+  }
+
+  .results-header h2, .results-header p {
+    color: #000 !important;
+  }
+
+  /* Hide navigation, footer, buttons, interactive bars for printable clean copy */
+  .controls-bar,
+  .btn-download-pdf,
+  .table-submit-section,
+  nav, .navbar,
+  .visual-analytics-container {
+    display: none !important;
+    height: 0;
+    overflow: hidden;
+  }
+
+  .best-offer-card {
+    border: 2px solid #000 !important;
+    background: #f9f9f9 !important;
+    box-shadow: none !important;
+    margin-bottom: 20px;
+    page-break-inside: avoid;
+  }
+
+  .best-offer-card * {
+    color: #000 !important;
+  }
+
+  .best-offer-badge {
+    border: 1px solid #000 !important;
+    background: #000 !important;
+    color: #fff !important;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .stats-grid {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 10px !important;
+    margin-bottom: 30px;
+  }
+
+  .stat-card {
+    flex: 1;
+    border: 1px solid #999 !important;
+    padding: 15px !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+  
+  .stat-value { color: #000 !important; }
+
+  .comparison-table th, .comparison-table td {
+    border-color: #333 !important;
+    color: #000 !important;
+  }
+
+  .bank-card {
+    border: 1px solid #ccc !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+    margin-bottom: 15px;
+  }
+
+  .bank-card * {
+    color: #000 !important;
+  }
+
+  .main-amount .amount {
+    color: #000 !important;
+    font-weight: 800 !important;
+  }
+
+  .status-badge {
+    border: 1px solid #000 !important;
+  }
+}

@@ -125,6 +125,13 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
               </div>
             )}
             <p style={{ opacity: 0.7, fontSize: '0.9rem', marginTop: '10px' }}>Verified assessment results across {results.length} banking institutions</p>
+            <button 
+              className="btn-download-pdf" 
+              onClick={() => window.print()}
+              style={{ marginTop: '15px', background: 'rgba(0, 212, 255, 0.1)', color: '#00d4ff', border: '1px solid rgba(0,212,255,0.3)', padding: '8px 20px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}
+            >
+              📄 Download/Print Result Report
+            </button>
           </div>
         </div>
       </div>
