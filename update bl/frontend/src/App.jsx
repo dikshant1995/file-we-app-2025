@@ -63,7 +63,7 @@ function App() {
             <div className="nav-logo-box">
               <Building2 size={24} />
             </div>
-            <span className="text-xl font-extrabold gradient-text">ABB PRO</span>
+            <span className="text-xl font-extrabold gradient-text">LAXMI BUSINESS PRO</span>
           </div>
         </div>
 
