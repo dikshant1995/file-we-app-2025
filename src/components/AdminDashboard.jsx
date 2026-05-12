@@ -33,20 +33,25 @@ const AdminDashboard = ({ onBackToCustomer }) => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          setUser(userData);
-          // If CEO/Manager, they might want to start with institutional overview
-          if (userData.role !== 'employee') {
-            // setActiveMenu('banks');
+      setLoading(true); // Start load cycle
+      try {
+        if (firebaseUser) {
+          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+          if (userDoc.exists()) {
+            setUser(userDoc.data());
+          } else {
+            // User exists in Auth but not in database, treat as logged out to prompt again
+            setUser(null);
           }
+        } else {
+          setUser(null);
         }
-      } else {
+      } catch (err) {
+        console.error("Auth Loading Error:", err);
         setUser(null);
+      } finally {
+        setLoading(false); // Guarantee unlocking logic
       }
-      setLoading(false);
     });
     return () => unsubscribe();
   }, []);
