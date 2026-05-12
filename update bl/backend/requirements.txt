@@ -2,4 +2,3 @@ fastapi
 uvicorn
 pdfplumber
 python-multipart
-pandas

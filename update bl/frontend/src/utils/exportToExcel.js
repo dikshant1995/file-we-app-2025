@@ -154,6 +154,29 @@ export function downloadExcel(results, abbData) {
   const ws3 = XLSX.utils.json_to_sheet(ds3);
   XLSX.utils.book_append_sheet(wb, ws3, "Dataset3_Merged");
 
+  // 5. Audit Matrices
+  if (abbData && abbData.matrices) {
+    const wsM1 = XLSX.utils.json_to_sheet(abbData.matrices.abb1);
+    XLSX.utils.book_append_sheet(wb, wsM1, "Grid_ABB1");
+
+    const wsM2 = XLSX.utils.json_to_sheet(abbData.matrices.abb2);
+    XLSX.utils.book_append_sheet(wb, wsM2, "Grid_ABB2");
+
+    const wsM3 = XLSX.utils.json_to_sheet(abbData.matrices.abb3);
+    XLSX.utils.book_append_sheet(wb, wsM3, "Grid_ABB3");
+
+    const wsM4 = XLSX.utils.json_to_sheet(abbData.matrices.abb4);
+    XLSX.utils.book_append_sheet(wb, wsM4, "Grid_ABB4");
+  }
+
+  // 6. ABB results
+  const abbRows = [
+    formatCalc(abbData.calc180, "180 Days"),
+    formatCalc(abbData.calc365, "365 Days")
+  ];
+  const wsAbb = XLSX.utils.json_to_sheet(abbRows);
+  XLSX.utils.book_append_sheet(wb, wsAbb, "ABB_Results");
+
   // 7. Inject EMI Deductions sheet
   const structuredEmiData = buildEmiSheetData(results);
   const wsEmi = XLSX.utils.json_to_sheet(structuredEmiData);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const PolicyAdmin = ({ onLogout }) => {
+const PolicyAdmin = () => {
     const [policies, setPolicies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -12,7 +12,7 @@ const PolicyAdmin = ({ onLogout }) => {
 
     const fetchPolicies = async () => {
         try {
-            const apiBase = import.meta.env.VITE_API_URL || (window.location.origin.includes('localhost') ? 'http://localhost:8000' : '/api-bl');
+            const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000';
             const res = await axios.get(`${apiBase}/api/policies`);
             setPolicies(res.data);
             setLoading(false);
@@ -28,7 +28,7 @@ const PolicyAdmin = ({ onLogout }) => {
     const savePolicies = async () => {
         setSaving(true);
         try {
-            const apiBase = import.meta.env.VITE_API_URL || (window.location.origin.includes('localhost') ? 'http://localhost:8000' : '/api-bl');
+            const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000';
             await axios.post(`${apiBase}/api/policies`, policies);
             alert("Policies updated successfully!");
         } catch (err) {
@@ -47,13 +47,6 @@ const PolicyAdmin = ({ onLogout }) => {
                     <p className="text-secondary">Control forensic eligibility parameters and lender-specific risk thresholds.</p>
                 </header>
                 <div className="flex gap-4">
-                    <button 
-                        className="btn btn-ghost" 
-                        style={{ border: '1px solid rgba(239, 68, 68, 0.3)', color: '#f87171' }}
-                        onClick={onLogout}
-                    >
-                        🔒 Lock Access
-                    </button>
                     <button className="btn btn-ghost" onClick={fetchPolicies}>Reload Data</button>
                     <button 
                         onClick={savePolicies}

@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
-import { Activity, ShieldCheck, FileText, X } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Activity, ShieldCheck } from 'lucide-react';
 
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
     const monthlyInterestRate = annualInterestRate / 12 / 100;
@@ -20,8 +19,6 @@ const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
 
 const EligibilityChecker = () => {
     const [formData, setFormData] = useState({
-        customer_name: '',
-        mobile_number: '',
         loan_amount: 1000000,
         gst_vintage: 3,
         itr_vintage: 2,
@@ -34,35 +31,23 @@ const EligibilityChecker = () => {
         num_active_business_loans: 0,
         total_business_loan_emi: 0
     });
-    const [files, setFiles] = useState([]);
+    const [file, setFile] = useState(null);
     const [results, setResults] = useState(null);
     const [loading, setLoading] = useState(false);
 
     // Interactive EMI Calculator State
-    const [calcAmount, setCalcAmount] = useState(formData.loan_amount);
+    const [calcAmount, setCalcAmount] = useState(1500000);
     const [calcRoi, setCalcRoi] = useState(17.5);
     const [calcTenure, setCalcTenure] = useState(3);
-
-    // Sync calculator with user request automatically for smart UX
-    useEffect(() => {
-        if (formData.loan_amount) {
-            setCalcAmount(Number(formData.loan_amount));
-        }
-    }, [formData.loan_amount]);
 
     const calculatedEMIValue = calculateEMI(calcAmount, calcRoi, calcTenure);
 
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (files.length === 0) {
-            alert("Please upload at least one bank statement PDF.");
-            return;
-        }
         setLoading(true);
         const data = new FormData();
-        // Append multiple files using same key recognized by aggregated backend
-        files.forEach(f => data.append('files', f));
+        data.append('file', file);
         Object.keys(formData).forEach(key => {
             if (key === 'pdf_password') {
                 if (formData[key]) data.append('password', formData[key]);
@@ -72,36 +57,9 @@ const EligibilityChecker = () => {
         });
 
         try {
-            const apiBase = import.meta.env.VITE_API_URL || (window.location.origin.includes('localhost') ? 'http://localhost:8000' : '/api-bl');
+            const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000';
             const res = await axios.post(`${apiBase}/api/evaluate-eligibility`, data);
             setResults(res.data.results);
-
-            // 🚀 SYNC LEAD CONSISTENCY: Push to Google Sheets just like Personal Loan
-            try {
-                const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgAGkw2nw1MdYob_-liwla8M79HQVnqgZKhxFJ_unSsFo0q2aM2cWlwlKTeZpCi2K0og/exec';
-                const leadPayload = {
-                    source: 'Business Loan Portal',
-                    timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
-                    name: formData.customer_name,
-                    mobile: formData.mobile_number,
-                    totalIncome: `Amt: ${formData.loan_amount} | GST: ${formData.gst_vintage}Y`,
-                    employment: 'Business/Self-Employed',
-                    existingEMI: formData.total_active_emi || 0,
-                    wantsBT: 'No',
-                    personalLoans: `Total Active: ${formData.num_active_loans} | Biz Loans: ${formData.num_active_business_loans}`,
-                    state: 'N/A',
-                    city: formData.pincode ? `Pincode: ${formData.pincode}` : 'N/A',
-                };
-                fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain' },
-                    body: JSON.stringify(leadPayload)
-                }).catch(() => {});
-                console.log('📊 Lead analytics dispatched for consistency');
-            } catch (e) {
-                // Silent catch, don't block user experience
-            }
-
         } catch (err) {
             alert("Error evaluating eligibility");
         }
@@ -118,38 +76,7 @@ const EligibilityChecker = () => {
             <div className="grid lg-grid-cols-2 gap-8">
                 {/* Form Side */}
                 <div className="glass-card">
-                    <form onSubmit={handleSubmit} className="flex flex-col gap-6" autoComplete="off">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="form-group">
-                                <label className="label">Customer Name</label>
-                                <input 
-                                    type="text" 
-                                    value={formData.customer_name}
-                                    onChange={(e) => setFormData({...formData, customer_name: e.target.value})}
-                                    className="input-field"
-                                    placeholder="Enter your name"
-                                    required
-                                    autoComplete="new-password"
-                                    data-lpignore="true"
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label className="label">Mobile Number</label>
-                                <input 
-                                    type="tel" 
-                                    value={formData.mobile_number}
-                                    onChange={(e) => setFormData({...formData, mobile_number: e.target.value})}
-                                    className="input-field"
-                                    placeholder="10-digit number"
-                                    required
-                                    maxLength={10}
-                                    pattern="[6-9][0-9]{9}"
-                                    autoComplete="new-password"
-                                    data-lpignore="true"
-                                />
-                            </div>
-                        </div>
-
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                         <div className="form-group">
                             <label className="label">Loan Amount Required (₹)</label>
                             <input 
@@ -288,59 +215,21 @@ const EligibilityChecker = () => {
                             />
                         </div>
                         <div className="form-group">
-                            <label className="label">Upload Bank Statements (PDF) - Select Multiple</label>
-                            <div 
-                                className="file-dropzone" 
-                                style={{ minHeight: 'auto', padding: '2rem 1rem', cursor: 'default' }}
-                            >
-                                <div className="icon-circle" style={{ cursor: 'pointer' }} onClick={() => document.getElementById('file-upload').click()}>
+                            <label className="label">Upload Bank Statement (PDF)</label>
+                            <div className="file-dropzone" onClick={() => document.getElementById('file-upload').click()}>
+                                <div className="icon-circle">
                                     <Activity size={24} />
                                 </div>
-                                <p className="text-secondary mb-4 text-center">Select multiple statements to merge history.</p>
-                                
-                                {files.length > 0 && (
-                                    <div className="w-full flex flex-col gap-2 mb-4" style={{ maxHeight: '150px', overflowY: 'auto' }}>
-                                        {files.map((f, idx) => (
-                                            <div key={idx} className="flex items-center justify-between bg-deep/50 border border-glow p-2 rounded text-xs">
-                                                <div className="flex items-center gap-2 truncate">
-                                                    <FileText size={14} className="text-primary" />
-                                                    <span className="truncate">{f.name}</span>
-                                                </div>
-                                                <button 
-                                                    type="button"
-                                                    onClick={() => setFiles(files.filter((_, i) => i !== idx))}
-                                                    className="hover:text-red-400"
-                                                    style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                                                >
-                                                    <X size={14} />
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-
-                                <div className="flex justify-center">
-                                    <button 
-                                        type="button" 
-                                        className="btn btn-ghost btn-sm" 
-                                        onClick={() => document.getElementById('file-upload').click()}
-                                    >
-                                        {files.length > 0 ? "+ Add More PDFs" : "Browse PDFs"}
-                                    </button>
-                                </div>
-
+                                <p className="text-secondary">Click to upload or drag statement here</p>
                                 <input 
                                     id="file-upload"
                                     type="file" 
-                                    multiple
-                                    onChange={(e) => {
-                                        if (e.target.files?.length) {
-                                            setFiles([...files, ...Array.from(e.target.files)]);
-                                        }
-                                    }}
+                                    onChange={(e) => setFile(e.target.files[0])}
                                     className="hidden"
                                     style={{ display: 'none' }}
+                                    required
                                 />
+                                {file && <p className="mt-4 text-primary font-bold">{file.name}</p>}
                             </div>
                         </div>
                         <button 
@@ -355,90 +244,9 @@ const EligibilityChecker = () => {
 
                 {/* Results Side */}
                 <div className="flex flex-col gap-4">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-primary flex items-center gap-2">
-                            <ShieldCheck size={24} /> Eligible Lenders
-                        </h2>
-                        {results && results.length > 0 && (
-                            <button 
-                                onClick={() => window.print()} 
-                                className="btn-ghost text-xs py-1 px-3 rounded border border-white/10 cursor-pointer hover:bg-white/10 transition-all"
-                                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', height: 'fit-content' }}
-                            >
-                                📄 PDF
-                            </button>
-                        )}
-                    </div>
-
-                    {/* 📊 ANALYTICS VISUALIZER */}
-                    {results && results.length > 0 && (
-                        <div className="grid grid-cols-2 gap-4 mb-4">
-                            {/* Bar Comparison */}
-                            <div className="chart-card">
-                                <h4>Offer Magnitude Comparison</h4>
-                                <div className="bar-chart-wrapper">
-                                    {results
-                                        .filter(r => r.status === 'ELIGIBLE')
-                                        .sort((a,b) => b.max_loan_amount - a.max_loan_amount)
-                                        .slice(0, 3)
-                                        .map((r, idx, arr) => {
-                                            const max = arr[0].max_loan_amount || 1;
-                                            const perc = (r.max_loan_amount / max) * 100;
-                                            return (
-                                                <div key={idx} className="comparison-bar-row">
-                                                    <div className="bar-info">
-                                                        <span className="text-xs text-secondary">{r.lender_name}</span>
-                                                        <span className="text-xs font-bold text-white">₹{(r.max_loan_amount/100000).toFixed(1)}L</span>
-                                                    </div>
-                                                    <div className="bar-track">
-                                                        <motion.div 
-                                                            className="bar-fill"
-                                                            initial={{ width: 0 }}
-                                                            whileInView={{ width: `${perc}%` }}
-                                                            viewport={{ once: true }}
-                                                            transition={{ duration: 1, delay: idx * 0.1, ease: "easeOut" }}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            );
-                                        })
-                                    }
-                                </div>
-                            </div>
-
-                            {/* Success Pie/Gauge */}
-                            <div className="chart-card">
-                                <h4 className="text-center">Policy Hit Ratio</h4>
-                                <div className="gauge-flex">
-                                    <div className="gauge-svg-container">
-                                        <svg className="gauge-svg" viewBox="0 0 100 100">
-                                            <defs>
-                                                <linearGradient id="gradientGaugeBl" x1="0%" y1="0%" x2="100%" y2="100%">
-                                                    <stop offset="0%" stopColor="#6366f1" />
-                                                    <stop offset="100%" stopColor="#8b5cf6" />
-                                                </linearGradient>
-                                            </defs>
-                                            <circle className="gauge-bg" cx="50" cy="50" r="40" />
-                                            <motion.circle 
-                                                className="gauge-fill" 
-                                                cx="50" cy="50" r="40"
-                                                initial={{ strokeDasharray: "0, 251.2" }}
-                                                whileInView={{ strokeDasharray: `${(Math.round((results.filter(x => x.status === 'ELIGIBLE').length / results.length) * 100) / 100) * 251.2}, 251.2` }}
-                                                viewport={{ once: true }}
-                                                transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
-                                            />
-                                        </svg>
-                                        <div className="gauge-content-center">
-                                            <div className="gauge-percentage">
-                                                {Math.round((results.filter(x => x.status === 'ELIGIBLE').length / results.length) * 100)}%
-                                            </div>
-                                            <div className="gauge-label">Match</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                    <h2 className="mb-4 text-primary flex items-center gap-2">
+                        <ShieldCheck size={24} /> Eligible Lenders
+                    </h2>
                     {results ? (
                         results.map((r, i) => (
                             <div key={i} className={`elevated-card animate-fade-in`} style={{ animationDelay: `${i * 0.1}s` }}>
@@ -449,7 +257,7 @@ const EligibilityChecker = () => {
                                     </span>
                                 </div>
                                 <div className="flex flex-col gap-2">
-                                    <div className="flex flex-responsive justify-between items-end border-b border-white/5 pb-2">
+                                    <div className="flex justify-between items-end border-b border-white/5 pb-2">
                                         <div>
                                             <p className="text-secondary text-sm">Max Loan Eligibility</p>
                                             <p className="text-3xl font-extrabold text-white">₹{r.max_loan_amount.toLocaleString()}</p>
@@ -464,7 +272,7 @@ const EligibilityChecker = () => {
                                         <span>ROI: {r.roi}% Fixed</span>
                                         <span>Tenure: 3 Years</span>
                                     </div>
-                                    <div className="flex flex-responsive justify-between items-center text-xs text-muted py-1 border-b border-white/5 pb-2">
+                                    <div className="flex justify-between items-center text-xs text-muted py-1 border-b border-white/5 pb-2">
                                         <span>Calculated EMI: ₹{r.calculated_emi?.toLocaleString()}/mo</span>
                                         <span>ATO Ratio: {r.ato_ratio}%</span>
                                     </div>
@@ -473,7 +281,7 @@ const EligibilityChecker = () => {
                                     <p className="text-xl font-bold">₹{r.custom_abb.toLocaleString()}</p>
 
                                     {r.deducted_emi > 0 && (
-                                        <div className="mt-2 p-2 rounded bg-white/5 border border-white/5 flex flex-responsive justify-between text-xs">
+                                        <div className="mt-2 p-2 rounded bg-white/5 border border-white/5 flex justify-between text-xs">
                                             <span className="text-muted">Raw Capacity: ₹{r.raw_emi_capacity.toLocaleString()}</span>
                                             <span className="text-danger font-semibold">Deducted ({r.deducted_type}): -₹{r.deducted_emi.toLocaleString()}</span>
                                         </div>
@@ -536,7 +344,7 @@ const EligibilityChecker = () => {
                                 <input 
                                     type="range" 
                                     min="100000" 
-                                    max={Math.max(5000000, calcAmount)} 
+                                    max="5000000" 
                                     step="50000"
                                     value={calcAmount} 
                                     onChange={(e) => setCalcAmount(parseInt(e.target.value))}
