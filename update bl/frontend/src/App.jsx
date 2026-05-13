@@ -12,7 +12,7 @@ function App() {
   const [view, setView] = useState('checker'); // 'checker', 'analyzer', or 'admin'
   
   // ABB Analyzer States
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]);
   const [dragActive, setDragActive] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -27,14 +27,16 @@ function App() {
 
   // Handlers for ABB Analyzer
   const handleDrag = (e) => { e.preventDefault(); e.stopPropagation(); setDragActive(e.type === "dragenter" || e.type === "dragover"); };
-  const handleDrop = (e) => { e.preventDefault(); e.stopPropagation(); setDragActive(false); if (e.dataTransfer.files?.[0]) setFile(e.dataTransfer.files[0]); };
-  const handleChange = (e) => { if (e.target.files?.[0]) setFile(e.target.files[0]); };
+  const handleDrop = (e) => { e.preventDefault(); e.stopPropagation(); setDragActive(false); if (e.dataTransfer.files?.length) setFiles(Array.from(e.dataTransfer.files)); };
+  const handleChange = (e) => { if (e.target.files?.length) setFiles(Array.from(e.target.files)); };
   
   const handleProcess = async () => {
-    if (!file) return;
+    if (!files || files.length === 0) return;
     setLoading(true); setError('');
     const formData = new FormData();
-    formData.append('file', file);
+    files.forEach(f => {
+      formData.append('file', f);
+    });
     if (pdfPassword) formData.append('password', pdfPassword);
     
     try {
@@ -101,7 +103,7 @@ function App() {
         {view === 'checker' && <EligibilityChecker />}
         {view === 'analyzer' && (
           <AbbAnalyzer 
-            file={file} setFile={setFile} dragActive={dragActive} loading={loading} error={error}
+            files={files} setFiles={setFiles} dragActive={dragActive} loading={loading} error={error}
             results={results} abbData={abbData} proprietorName={proprietorName}
             sisterFirms={sisterFirms} pdfPassword={pdfPassword} accountType={accountType}
             sanctionedLimit={sanctionedLimit} handleDrag={handleDrag} handleDrop={handleDrop}

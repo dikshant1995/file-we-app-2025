@@ -1885,9 +1885,59 @@ def parse_bank_statement(pdf_bytes: bytes, password: str = None) -> tuple:
         print(f"!!! [CRITICAL ERROR] {e}")
         return [], [], [], {"account_name": "ERROR", "error": str(e)}
 
-# End of File
-
-# End of File
-
-
-# Reload trigger
+def parse_multiple_statements(pdf_bytes_list: list, password: str = None) -> tuple:
+    """
+    Parses multiple PDF byte streams, combines all transactions, 
+    and performs precise deduplication using Date + Narration + Dr + Cr + Balance signatures.
+    Finally, sorts everything in chronological order.
+    """
+    combined_ds3 = []
+    final_metadata = {"account_name": "Unknown", "account_type": "Unknown"}
+    
+    for i, pdf_bytes in enumerate(pdf_bytes_list):
+        # 1. Parse individual statement
+        ds1, ds2, ds3, metadata = parse_bank_statement(pdf_bytes, password)
+        
+        # Capture metadata from the first valid parse
+        if i == 0 or (final_metadata["account_name"] == "Unknown" and metadata.get("account_name") != "Unknown" and metadata.get("account_name") != "ERROR"):
+            final_metadata = metadata
+            
+        # Check for errors in parsing
+        if "error" in metadata and len(pdf_bytes_list) == 1:
+            # If only one file and it errors, bubble up
+            return ds1, ds2, ds3, metadata
+            
+        combined_ds3.extend(ds3)
+        
+    if not combined_ds3:
+        return [], [], [], final_metadata
+        
+    # 2. Deduplication Fingerprint logic
+    seen_signatures = set()
+    unique_ds3 = []
+    
+    for row in combined_ds3:
+        date_str = row.get("Date") or ""
+        narration = str(row.get("Narration") or "").strip().upper()
+        dr = float(row.get("Dr", 0.0))
+        cr = float(row.get("Cr", 0.0))
+        bal = float(row.get("Balance", 0.0))
+        
+        # Create Fingerprint string signature (using 2 decimal places for safety)
+        sig = f"{date_str}|{narration}|{dr:.2f}|{cr:.2f}|{bal:.2f}"
+        
+        if sig not in seen_signatures:
+            seen_signatures.add(sig)
+            unique_ds3.append(row)
+            
+    # 3. Chronological Sort
+    unique_ds3.sort(key=lambda x: x.get("Date") or "")
+    
+    # 4. Reconstruct ds1 and ds2
+    final_ds1 = []
+    final_ds2 = []
+    for r in unique_ds3:
+        final_ds1.append({"Date": r["Date"], "Dr": r.get("Dr", 0.0), "Cr": r.get("Cr", 0.0), "Balance": r.get("Balance", 0.0)})
+        final_ds2.append({"Date": r["Date"], "Narration": r.get("Narration", "")})
+        
+    return final_ds1, final_ds2, unique_ds3, final_metadata

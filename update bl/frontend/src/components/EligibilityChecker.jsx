@@ -35,7 +35,7 @@ const EligibilityChecker = () => {
         num_recent_6m_loans: 0,
         total_recent_6m_loan_emi: 0
     });
-    const [file, setFile] = useState(null);
+    const [files, setFiles] = useState([]);
     const [results, setResults] = useState(null);
     const [loading, setLoading] = useState(false);
 
@@ -50,9 +50,15 @@ const EligibilityChecker = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (files.length === 0) {
+            alert("Please select at least one statement!");
+            return;
+        }
         setLoading(true);
         const data = new FormData();
-        data.append('file', file);
+        files.forEach(f => {
+            data.append('file', f);
+        });
         Object.keys(formData).forEach(key => {
             if (key === 'pdf_password') {
                 if (formData[key]) data.append('password', formData[key]);
@@ -288,32 +294,55 @@ const EligibilityChecker = () => {
                                 </button>
                             </div>
                         </div>
+
                         <div className="form-group">
                             <label className="label">Upload Bank Statement (PDF)</label>
-                            <div className="file-dropzone" onClick={() => document.getElementById('file-upload').click()}>
+                            <div className="file-dropzone" style={{ cursor: 'pointer' }} onClick={() => document.getElementById('file-upload').click()}>
                                 <div className="icon-circle">
                                     <Activity size={24} />
                                 </div>
-                                <p className="text-secondary">Click to upload or drag statement here</p>
+                                <p className="text-secondary text-center mb-2">Click to upload or drag statements here (supports multiple files)</p>
+                                
                                 <input 
                                     id="file-upload"
                                     type="file" 
-                                    onChange={(e) => setFile(e.target.files[0])}
+                                    multiple
+                                    onChange={(e) => { if(e.target.files?.length) setFiles(Array.from(e.target.files)); }}
                                     className="hidden"
                                     style={{ display: 'none' }}
-                                    required
                                 />
-                                {file && (
-                                    <div className="mt-4 flex items-center justify-center gap-3" onClick={(e) => e.stopPropagation()}>
-                                        <p className="text-primary font-bold">{file.name}</p>
+                                
+                                {files && files.length > 0 && (
+                                    <div className="w-full px-4 mt-3 flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
+                                        <div style={{ maxHeight: '100px', overflowY: 'auto', textAlign: 'left' }} className="w-full custom-scrollbar bg-white/5 p-2.5 rounded-lg border border-white/10">
+                                            {files.map((f, idx) => (
+                                                <div key={idx} className="flex justify-between items-center text-xs mb-1.5 pb-1.5 border-b border-white/5 last:border-0 last:mb-0 last:pb-0">
+                                                    <span className="truncate font-medium text-primary" title={f.name} style={{ maxWidth: '85%' }}>
+                                                        📁 {f.name}
+                                                    </span>
+                                                    <button 
+                                                        type="button" 
+                                                        onClick={(e) => { 
+                                                            e.stopPropagation(); 
+                                                            const updated = files.filter((_, i) => i !== idx);
+                                                            setFiles(updated);
+                                                            if (updated.length === 0) document.getElementById('file-upload').value = '';
+                                                        }}
+                                                        className="text-muted hover:text-danger transition-colors"
+                                                        style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                                                    >
+                                                        <X size={12} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
                                         <button 
-                                            type="button" 
-                                            onClick={() => { setFile(null); document.getElementById('file-upload').value = ''; }}
-                                            className="p-1.5 rounded-full hover:bg-red-500/20 text-danger transition-colors flex items-center justify-center"
-                                            style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
-                                            title="Remove file"
+                                            type="button"
+                                            className="text-xs font-semibold text-danger hover:underline text-right"
+                                            style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                                            onClick={(e) => { e.stopPropagation(); setFiles([]); document.getElementById('file-upload').value = ''; }}
                                         >
-                                            <X size={16} />
+                                            Clear All
                                         </button>
                                     </div>
                                 )}

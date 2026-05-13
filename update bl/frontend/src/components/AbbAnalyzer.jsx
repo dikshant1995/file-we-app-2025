@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Loader, UploadCloud, Download, AlertCircle, Building2, Calendar, Target, X, Eye, EyeOff } from 'lucide-react';
 
 const AbbAnalyzer = ({ 
-    file, setFile, dragActive, loading, error, results, abbData, proprietorName, 
+    files, setFiles, dragActive, loading, error, results, abbData, proprietorName, 
     sisterFirms, pdfPassword, accountType, sanctionedLimit, 
     handleDrag, handleDrop, handleChange, handleProcess, 
     setProprietorName, setPdfPassword, setSisterFirms, setAccountType, 
@@ -114,35 +114,68 @@ const AbbAnalyzer = ({
                         <div className="icon-circle">
                             <UploadCloud size={32} strokeWidth={1.5} />
                         </div>
-                        <div className="flex justify-center items-center gap-3 mb-2">
-                            <h2 className="m-0">{file ? file.name : "Ready for Analysis"}</h2>
-                            {file && (
-                                <button 
-                                    type="button" 
-                                    onClick={(e) => { e.stopPropagation(); setFile(null); fileInputRef.current.value = ''; }}
-                                    className="p-1.5 rounded-full hover:bg-red-500/20 text-danger transition-colors flex items-center justify-center"
-                                    style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
-                                    title="Remove file"
-                                >
-                                    <X size={18} />
-                                </button>
+                        
+                        <div className="flex flex-col items-center w-full mb-4">
+                            {files && files.length > 0 ? (
+                                <div className="w-full px-4">
+                                    <div className="flex justify-between items-center mb-3">
+                                        <h4 className="m-0 text-sm uppercase tracking-wider text-primary">{files.length} Statement(s) Selected</h4>
+                                        <button 
+                                            type="button" 
+                                            onClick={(e) => { e.stopPropagation(); setFiles([]); fileInputRef.current.value = ''; }}
+                                            className="text-xs text-danger hover:underline"
+                                            style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
+                                        >
+                                            Clear All
+                                        </button>
+                                    </div>
+                                    <div style={{ maxHeight: '120px', overflowY: 'auto', textAlign: 'left' }} className="w-full custom-scrollbar mb-4 bg-white/5 p-3 rounded-lg border border-white/10">
+                                        {files.map((f, idx) => (
+                                            <div key={idx} className="flex justify-between items-center text-sm mb-2 pb-2 border-b border-white/5 last:border-0 last:mb-0 last:pb-0">
+                                                <span className="truncate font-medium" title={f.name} style={{ maxWidth: '85%' }}>
+                                                    📁 {f.name} <span style={{ opacity: 0.5, fontSize: '0.75rem' }}>({(f.size / 1024).toFixed(0)} KB)</span>
+                                                </span>
+                                                <button 
+                                                    type="button" 
+                                                    onClick={(e) => { 
+                                                        e.stopPropagation(); 
+                                                        const updated = files.filter((_, i) => i !== idx);
+                                                        setFiles(updated);
+                                                        if (updated.length === 0) fileInputRef.current.value = '';
+                                                    }}
+                                                    className="text-muted hover:text-danger transition-colors"
+                                                    style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                                                >
+                                                    <X size={14} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ) : (
+                                <h2 className="m-0 mb-1">Ready for Analysis</h2>
                             )}
                         </div>
-                        <p className="text-secondary mb-6">Drop your PDF bank statement here or browse files</p>
+                        
+                        <p className="text-secondary mb-6 text-center">Drop your PDF bank statements here (supports multiple files) or browse</p>
                         
                         <input 
                             ref={fileInputRef}
                             type="file" 
+                            multiple
                             className="hidden" 
                             style={{ display: 'none' }}
                             accept="application/pdf"
                             onChange={handleChange}
                         />
                         
-                        {file ? (
-                            <button className="btn btn-primary w-full" onClick={handleProcess} disabled={loading}>
-                                {loading ? <Loader className="animate-spin" /> : 'Commence Analysis'}
-                            </button>
+                        {files && files.length > 0 ? (
+                            <div className="flex gap-4 w-full">
+                                <button className="btn btn-ghost flex-1" onClick={() => fileInputRef.current.click()}>Add More</button>
+                                <button className="btn btn-primary flex-1" onClick={handleProcess} disabled={loading}>
+                                    {loading ? <Loader className="animate-spin" /> : `Analyze ${files.length} Statement(s)`}
+                                </button>
+                            </div>
                         ) : (
                             <button className="btn btn-ghost" onClick={() => fileInputRef.current.click()}>Browse Files</button>
                         )}

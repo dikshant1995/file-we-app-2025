@@ -1,7 +1,7 @@
-from typing import Optional
+from typing import Optional, List
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-from pdf_extractor import parse_bank_statement
+from pdf_extractor import parse_bank_statement, parse_multiple_statements
 from policy_engine import PolicyEngine
 import json
 import os
@@ -123,16 +123,19 @@ async def verify_otp(req: dict):
     return {"status": "success", "valid": False, "message": "Invalid Security OTP Code."}
 
 @app.post("/api/upload-statement")
-async def upload_statement(file: UploadFile = File(...), password: Optional[str] = Form(None)):
+async def upload_statement(file: List[UploadFile] = File(...), password: Optional[str] = Form(None)):
     """
-    Endpoint strictly configured to process the PDF and return ONLY the 3 specified datasets.
+    Endpoint strictly configured to process one or more PDFs and return consolidated, deduplicated datasets.
     """
-    # Read the uploaded PDF bytes
-    pdf_bytes = await file.read()
-    
-    # Process the PDF using our strictly separated strategy
     try:
-        d1, d2, d3, meta = parse_bank_statement(pdf_bytes, password)
+        # Read all uploaded PDF byte streams
+        pdf_bytes_list = []
+        for f in file:
+            pdf_bytes_list.append(await f.read())
+        
+        # Process using our multi-parsing deduplication core
+        d1, d2, d3, meta = parse_multiple_statements(pdf_bytes_list, password)
+        
         return {
             "status": "success", 
             "data": {
@@ -145,12 +148,12 @@ async def upload_statement(file: UploadFile = File(...), password: Optional[str]
     except Exception as e:
         error_msg = str(e)
         if "password" in error_msg.lower() or "decrypt" in error_msg.lower() or "encryption" in error_msg.lower() or "pdfpassword" in error_msg.lower():
-            error_msg = "This PDF is password protected! Please securely enter the correct password in the box above to extract it."
+            error_msg = "One or more PDFs are password protected! Please securely enter the correct password to extract them."
         return {"status": "error", "message": error_msg}
 
 @app.post("/api/evaluate-eligibility")
 async def evaluate_eligibility(
-    file: UploadFile = File(...), 
+    file: List[UploadFile] = File(...), 
     loan_amount: float = Form(...),
     gst_vintage: int = Form(...),
     itr_vintage: int = Form(...),
@@ -177,10 +180,14 @@ async def evaluate_eligibility(
     total_recent_6m_loan_emi: float = Form(0.0),
     password: Optional[str] = Form(None)
 ):
-    pdf_bytes = await file.read()
     try:
-        # 1. Extract Bank Data
-        d1, d2, d3, meta = parse_bank_statement(pdf_bytes, password)
+        # Read all files
+        pdf_bytes_list = []
+        for f in file:
+            pdf_bytes_list.append(await f.read())
+            
+        # 1. Extract Consolidated Bank Data
+        d1, d2, d3, meta = parse_multiple_statements(pdf_bytes_list, password)
         
         # 2. Prep data for engine
         borrower_data = {
