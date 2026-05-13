@@ -1,7 +1,7 @@
 from typing import Optional, List
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI, UploadFile, File, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
-from pdf_extractor import parse_bank_statement, parse_multiple_statements
+from pdf_extractor import parse_bank_statement, parse_multiple_statements, consolidate_multiple_accounts
 from policy_engine import PolicyEngine
 import json
 import os
@@ -122,38 +122,76 @@ async def verify_otp(req: dict):
         return {"status": "success", "valid": True, "password": "laxmi@2025"}
     return {"status": "success", "valid": False, "message": "Invalid Security OTP Code."}
 
-@app.post("/api/upload-statement")
-async def upload_statement(file: List[UploadFile] = File(...), password: Optional[str] = Form(None)):
+async def extract_buckets(form_data):
     """
-    Endpoint strictly configured to process one or more PDFs and return consolidated, deduplicated datasets.
+    Helper to extract file buckets and passwords from dynamic form fields.
+    Supports file_0, file_1... and password_0, password_1...
+    Falls back to legacy 'file' and 'password' if none found.
+    """
+    buckets = {}
+    for key in form_data.keys():
+        if key.startswith("file_"):
+            try:
+                idx = int(key.split("_")[1])
+                files = form_data.getlist(key)
+                if files:
+                    buckets[idx] = {"files": files, "password": form_data.get(f"password_{idx}", "")}
+            except: pass
+            
+    if not buckets:
+        legacy_files = form_data.getlist("file")
+        if legacy_files:
+            buckets[0] = {"files": legacy_files, "password": form_data.get("password", "")}
+    return buckets
+
+@app.post("/api/upload-statement")
+async def upload_statement(request: Request):
+    """
+    Endpoint configured to process one or more account partitions and return consolidated datasets.
     """
     try:
-        # Read all uploaded PDF byte streams
-        pdf_bytes_list = []
-        for f in file:
-            pdf_bytes_list.append(await f.read())
+        form_data = await request.form()
+        buckets = await extract_buckets(form_data)
         
-        # Process using our multi-parsing deduplication core
-        d1, d2, d3, meta = parse_multiple_statements(pdf_bytes_list, password)
+        if not buckets:
+            return {"status": "error", "message": "No files were uploaded."}
+            
+        parsed_accounts = []
+        for idx in sorted(buckets.keys()):
+            b = buckets[idx]
+            pdf_bytes_list = []
+            for f in b["files"]:
+                if hasattr(f, "read"):
+                    pdf_bytes_list.append(await f.read())
+            
+            if pdf_bytes_list:
+                d1, d2, d3, meta = parse_multiple_statements(pdf_bytes_list, b["password"])
+                parsed_accounts.append((d1, d2, d3, meta))
+                
+        if not parsed_accounts:
+            return {"status": "error", "message": "No valid statements were processed."}
+            
+        # Consolidated Master Extraction
+        final_d1, final_d2, final_d3, final_meta = consolidate_multiple_accounts(parsed_accounts)
         
         return {
             "status": "success", 
             "data": {
-                "dataset_1": d1, 
-                "dataset_2": d2, 
-                "dataset_3": d3,
-                "metadata": meta
+                "dataset_1": final_d1, 
+                "dataset_2": final_d2, 
+                "dataset_3": final_d3,
+                "metadata": final_meta
             }
         }
     except Exception as e:
         error_msg = str(e)
-        if "password" in error_msg.lower() or "decrypt" in error_msg.lower() or "encryption" in error_msg.lower() or "pdfpassword" in error_msg.lower():
-            error_msg = "One or more PDFs are password protected! Please securely enter the correct password to extract them."
+        if "password" in error_msg.lower() or "decrypt" in error_msg.lower() or "encryption" in error_msg.lower():
+            error_msg = "One or more PDFs are password protected! Please securely enter the correct passwords."
         return {"status": "error", "message": error_msg}
 
 @app.post("/api/evaluate-eligibility")
 async def evaluate_eligibility(
-    file: List[UploadFile] = File(...), 
+    request: Request,
     loan_amount: float = Form(...),
     gst_vintage: int = Form(...),
     itr_vintage: int = Form(...),
@@ -177,17 +215,32 @@ async def evaluate_eligibility(
     num_recent_3m_loans: int = Form(0),
     total_recent_3m_loan_emi: float = Form(0.0),
     num_recent_6m_loans: int = Form(0),
-    total_recent_6m_loan_emi: float = Form(0.0),
-    password: Optional[str] = Form(None)
+    total_recent_6m_loan_emi: float = Form(0.0)
 ):
     try:
-        # Read all files
-        pdf_bytes_list = []
-        for f in file:
-            pdf_bytes_list.append(await f.read())
+        form_data = await request.form()
+        buckets = await extract_buckets(form_data)
+        
+        if not buckets:
+            return {"status": "error", "message": "No files were uploaded."}
             
-        # 1. Extract Consolidated Bank Data
-        d1, d2, d3, meta = parse_multiple_statements(pdf_bytes_list, password)
+        parsed_accounts = []
+        for idx in sorted(buckets.keys()):
+            b = buckets[idx]
+            pdf_bytes_list = []
+            for f in b["files"]:
+                if hasattr(f, "read"):
+                    pdf_bytes_list.append(await f.read())
+            
+            if pdf_bytes_list:
+                d1, d2, d3, meta = parse_multiple_statements(pdf_bytes_list, b["password"])
+                parsed_accounts.append((d1, d2, d3, meta))
+
+        if not parsed_accounts:
+            return {"status": "error", "message": "No valid statements were processed."}
+
+        # Master Consolidation
+        d1, d2, d3, meta = consolidate_multiple_accounts(parsed_accounts)
         
         # 2. Prep data for engine
         borrower_data = {

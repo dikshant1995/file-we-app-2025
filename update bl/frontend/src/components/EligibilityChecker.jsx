@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
-import { Activity, ShieldCheck, X, Eye, EyeOff } from 'lucide-react';
+import { Activity, ShieldCheck, X, Eye, EyeOff, Landmark, UploadCloud, Plus, Loader, AlertCircle } from 'lucide-react';
 
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
     const monthlyInterestRate = annualInterestRate / 12 / 100;
@@ -17,7 +17,117 @@ const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
     return Math.round(emi);
 };
 
+const CompactAccountBucket = ({ bucket, index, onUpdate, onRemove, isOnly }) => {
+    const [dragActive, setDragActive] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const fileInputRef = useRef(null);
+
+    const handleDrag = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragActive(e.type === "dragenter" || e.type === "dragover");
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragActive(false);
+        if (e.dataTransfer.files?.length) {
+            onUpdate(index, { files: [...bucket.files, ...Array.from(e.dataTransfer.files)] });
+        }
+    };
+
+    return (
+        <div className="p-4 rounded-xl bg-white/5 border border-white/10 mb-4 relative animate-slide-up">
+            {!isOnly && (
+                <button 
+                    type="button"
+                    onClick={() => onRemove(index)}
+                    className="absolute top-3 right-3 text-muted hover:text-danger"
+                >
+                    <X size={16} />
+                </button>
+            )}
+            <div className="flex items-center gap-2 mb-3">
+                <Landmark size={14} className="text-primary" />
+                <span className="text-[11px] uppercase font-bold tracking-wider opacity-80">Partition #{index + 1}</span>
+            </div>
+            
+            <div className="flex flex-col gap-3">
+                <div 
+                    className={`file-dropzone compact ${dragActive ? 'drag-active' : ''}`}
+                    onDragEnter={handleDrag}
+                    onDragLeave={handleDrag}
+                    onDragOver={handleDrag}
+                    onDrop={handleDrop}
+                    onClick={() => fileInputRef.current.click()}
+                    style={{ minHeight: '80px', padding: '0.75rem', cursor: 'pointer' }}
+                >
+                    <input 
+                        ref={fileInputRef}
+                        type="file" 
+                        multiple 
+                        hidden 
+                        onChange={(e) => { if(e.target.files?.length) onUpdate(index, { files: [...bucket.files, ...Array.from(e.target.files)] }); }} 
+                        accept="application/pdf"
+                    />
+                    {bucket.files.length > 0 ? (
+                        <div className="w-full text-left" onClick={e => e.stopPropagation()}>
+                            <div className="flex justify-between text-[10px] mb-1">
+                                <span className="text-primary font-bold">{bucket.files.length} file(s) loaded</span>
+                                <button type="button" className="text-muted hover:text-primary" onClick={() => fileInputRef.current.click()}>Add More</button>
+                            </div>
+                            <div className="flex flex-wrap gap-1 max-h-20 overflow-y-auto custom-scrollbar">
+                                {bucket.files.map((f, idx) => (
+                                    <div key={idx} className="flex items-center gap-1 bg-white/10 px-1.5 py-0.5 rounded text-[9px] truncate max-w-full">
+                                        <span className="truncate" style={{ maxWidth: '120px' }}>{f.name}</span>
+                                        <button 
+                                            type="button"
+                                            onClick={() => onUpdate(index, { files: bucket.files.filter((_, i) => i !== idx) })}
+                                            className="text-muted hover:text-danger"
+                                        >
+                                            <X size={10} />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center gap-1">
+                            <UploadCloud size={18} className="text-muted" />
+                            <span className="text-[10px] text-muted">Click or Drop bank PDFs</span>
+                        </div>
+                    )}
+                </div>
+
+                <div style={{ position: 'relative' }}>
+                    <input 
+                        type={showPassword ? "text" : "password"} 
+                        placeholder="Partition Password" 
+                        value={bucket.password} 
+                        onChange={e => onUpdate(index, { password: e.target.value })}
+                        className="input-field"
+                        style={{ paddingRight: '2rem', paddingBottom: '0.4rem', paddingTop: '0.4rem', fontSize: '12px' }}
+                        autoComplete="new-password"
+                    />
+                    <button 
+                        type="button" 
+                        onClick={() => setShowPassword(!showPassword)}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', display: 'flex' }}
+                        className="text-muted hover:text-white"
+                    >
+                        {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const EligibilityChecker = () => {
+    // Added standard ref from react context
+    const reactRef = React.useRef;
+    
     const [formData, setFormData] = useState({
         loan_amount: 1000000,
         gst_vintage: 3,
@@ -25,7 +135,6 @@ const EligibilityChecker = () => {
         residence_type: 'OWNED',
         office_type: 'OWNED',
         pincode: '342001',
-        pdf_password: '',
         num_active_loans: 0,
         total_active_emi: 0,
         num_active_business_loans: 0,
@@ -35,9 +144,14 @@ const EligibilityChecker = () => {
         num_recent_6m_loans: 0,
         total_recent_6m_loan_emi: 0
     });
-    const [files, setFiles] = useState([]);
+    
+    const [bankAccounts, setBankAccounts] = useState([
+        { id: 1, files: [], password: '' }
+    ]);
+    
     const [results, setResults] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     // Interactive EMI Calculator State
     const [calcAmount, setCalcAmount] = useState(1500000);
@@ -50,31 +164,55 @@ const EligibilityChecker = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (files.length === 0) {
-            alert("Please select at least one statement!");
+        const activeAccounts = bankAccounts.filter(acc => acc.files && acc.files.length > 0);
+        if (activeAccounts.length === 0) {
+            alert("Please select at least one statement to evaluate!");
             return;
         }
-        setLoading(true);
+        setLoading(true); setError('');
         const data = new FormData();
-        files.forEach(f => {
-            data.append('file', f);
-        });
-        Object.keys(formData).forEach(key => {
-            if (key === 'pdf_password') {
-                if (formData[key]) data.append('password', formData[key]);
-            } else {
-                data.append(key, formData[key]);
+        
+        activeAccounts.forEach((acc, idx) => {
+            acc.files.forEach(f => {
+                data.append(`file_${idx}`, f);
+            });
+            if (acc.password) {
+                data.append(`password_${idx}`, acc.password);
             }
+        });
+
+        Object.keys(formData).forEach(key => {
+            data.append(key, formData[key]);
         });
 
         try {
             const apiBase = import.meta.env.VITE_API_URL || (window.location.origin.includes('localhost') ? 'http://localhost:8000' : '/api-bl');
             const res = await axios.post(`${apiBase}/api/evaluate-eligibility`, data);
-            setResults(res.data.results);
+            if (res.data.status === 'success') {
+                setResults(res.data.results);
+            } else {
+                setError(res.data.message);
+                alert("Evaluation Error: " + res.data.message);
+            }
         } catch (err) {
+            setError("Failed to contact API Server");
             alert("Error evaluating eligibility");
         }
         setLoading(false);
+    };
+    
+    const addAccount = () => {
+        setBankAccounts([...bankAccounts, { id: Date.now(), files: [], password: '' }]);
+    };
+    
+    const removeAccount = (index) => {
+        setBankAccounts(bankAccounts.filter((_, i) => i !== index));
+    };
+    
+    const updateAccount = (index, updates) => {
+        const updated = [...bankAccounts];
+        updated[index] = { ...updated[index], ...updates };
+        setBankAccounts(updated);
     };
 
     return (
@@ -261,93 +399,33 @@ const EligibilityChecker = () => {
                             </div>
                         </div>
 
-                        <div className="form-group">
-                            <label className="label">PDF Password (Optional)</label>
-                            <div className="relative" style={{ position: 'relative' }}>
-                                <input 
-                                    type={showPassword ? "text" : "password"} 
-                                    value={formData.pdf_password}
-                                    onChange={(e) => setFormData({...formData, pdf_password: e.target.value})}
-                                    className="input-field"
-                                    placeholder="If statement is encrypted"
-                                    autoComplete="new-password"
-                                    style={{ paddingRight: '3rem' }}
-                                />
+                        {/* Consolidated Dynamic Accounts Buckets Section */}
+                        <div className="border-t border-white/5 pt-4">
+                            <div className="flex justify-between items-center mb-4">
+                                <h4 className="text-sm font-semibold text-primary m-0 flex items-center gap-2">
+                                    <Landmark size={16} /> Statement Buckets
+                                </h4>
                                 <button 
-                                    type="button" 
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    style={{ 
-                                        position: 'absolute', 
-                                        right: '1rem', 
-                                        top: '50%', 
-                                        transform: 'translateY(-50%)',
-                                        border: 'none',
-                                        background: 'transparent',
-                                        color: 'var(--text-muted)',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center'
-                                    }}
-                                    className="hover:text-white transition-colors"
+                                    type="button"
+                                    onClick={addAccount}
+                                    className="text-xs font-bold text-primary flex items-center gap-1 bg-primary/10 border border-primary/20 rounded-lg px-2 py-1 hover:bg-primary/20 transition-all"
                                 >
-                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    <Plus size={12} /> Add Bank
                                 </button>
                             </div>
+                            
+                            {bankAccounts.map((bucket, idx) => (
+                                <CompactAccountBucket 
+                                    key={bucket.id}
+                                    bucket={bucket}
+                                    index={idx}
+                                    isOnly={bankAccounts.length === 1}
+                                    onUpdate={updateAccount}
+                                    onRemove={removeAccount}
+                                />
+                            ))}
                         </div>
 
-                        <div className="form-group">
-                            <label className="label">Upload Bank Statement (PDF)</label>
-                            <div className="file-dropzone" style={{ cursor: 'pointer' }} onClick={() => document.getElementById('file-upload').click()}>
-                                <div className="icon-circle">
-                                    <Activity size={24} />
-                                </div>
-                                <p className="text-secondary text-center mb-2">Click to upload or drag statements here (supports multiple files)</p>
-                                
-                                <input 
-                                    id="file-upload"
-                                    type="file" 
-                                    multiple
-                                    onChange={(e) => { if(e.target.files?.length) setFiles(Array.from(e.target.files)); }}
-                                    className="hidden"
-                                    style={{ display: 'none' }}
-                                />
-                                
-                                {files && files.length > 0 && (
-                                    <div className="w-full px-4 mt-3 flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
-                                        <div style={{ maxHeight: '100px', overflowY: 'auto', textAlign: 'left' }} className="w-full custom-scrollbar bg-white/5 p-2.5 rounded-lg border border-white/10">
-                                            {files.map((f, idx) => (
-                                                <div key={idx} className="flex justify-between items-center text-xs mb-1.5 pb-1.5 border-b border-white/5 last:border-0 last:mb-0 last:pb-0">
-                                                    <span className="truncate font-medium text-primary" title={f.name} style={{ maxWidth: '85%' }}>
-                                                        📁 {f.name}
-                                                    </span>
-                                                    <button 
-                                                        type="button" 
-                                                        onClick={(e) => { 
-                                                            e.stopPropagation(); 
-                                                            const updated = files.filter((_, i) => i !== idx);
-                                                            setFiles(updated);
-                                                            if (updated.length === 0) document.getElementById('file-upload').value = '';
-                                                        }}
-                                                        className="text-muted hover:text-danger transition-colors"
-                                                        style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                                                    >
-                                                        <X size={12} />
-                                                    </button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <button 
-                                            type="button"
-                                            className="text-xs font-semibold text-danger hover:underline text-right"
-                                            style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                                            onClick={(e) => { e.stopPropagation(); setFiles([]); document.getElementById('file-upload').value = ''; }}
-                                        >
-                                            Clear All
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
                         <button 
                             type="submit" 
                             disabled={loading}

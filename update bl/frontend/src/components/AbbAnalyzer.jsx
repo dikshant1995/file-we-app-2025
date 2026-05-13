@@ -1,24 +1,168 @@
-import React, { useState } from 'react';
-import { Loader, UploadCloud, Download, AlertCircle, Building2, Calendar, Target, X, Eye, EyeOff } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Loader, UploadCloud, Download, AlertCircle, Building2, Calendar, Target, X, Eye, EyeOff, Plus, Landmark, Activity } from 'lucide-react';
+
+const AccountBucket = ({ bucket, index, onUpdate, onRemove, isOnly }) => {
+    const [dragActive, setDragActive] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const fileInputRef = useRef(null);
+
+    const handleDrag = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragActive(e.type === "dragenter" || e.type === "dragover");
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragActive(false);
+        if (e.dataTransfer.files?.length) {
+            const newFiles = Array.from(e.dataTransfer.files);
+            onUpdate(index, { files: [...bucket.files, ...newFiles] });
+        }
+    };
+
+    const handleFileChange = (e) => {
+        if (e.target.files?.length) {
+            const newFiles = Array.from(e.target.files);
+            onUpdate(index, { files: [...bucket.files, ...newFiles] });
+        }
+    };
+
+    const removeFile = (fileIdx) => {
+        const updatedFiles = bucket.files.filter((_, i) => i !== fileIdx);
+        onUpdate(index, { files: updatedFiles });
+    };
+
+    return (
+        <div className="glass-card mb-6 border-l-4 border-primary relative animate-slide-up" style={{ animationDelay: `${index * 0.1}s` }}>
+            {!isOnly && (
+                <button 
+                    onClick={() => onRemove(index)}
+                    className="absolute top-4 right-4 text-muted hover:text-danger transition-colors"
+                    title="Remove this account"
+                >
+                    <X size={20} />
+                </button>
+            )}
+
+            <div className="flex items-center gap-3 mb-6">
+                <div className="icon-circle" style={{ margin: 0, width: 32, height: 32, background: 'var(--primary-glow)' }}>
+                    <Landmark size={18} className="text-primary" />
+                </div>
+                <h4 className="m-0 uppercase tracking-tighter font-bold text-sm">Account Partition #{index + 1}</h4>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Password Section */}
+                <div className="form-group mb-0">
+                    <label className="label text-xs uppercase opacity-70">Partition Password</label>
+                    <div className="relative" style={{ position: 'relative' }}>
+                        <input 
+                            type={showPassword ? "text" : "password"} 
+                            placeholder="If statements are encrypted" 
+                            value={bucket.password} 
+                            onChange={e => onUpdate(index, { password: e.target.value })}
+                            className="input-field"
+                            style={{ paddingRight: '2.5rem' }}
+                        />
+                        <button 
+                            type="button" 
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-white"
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}
+                        >
+                            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                    </div>
+                    <p className="text-[10px] mt-1 text-muted">Passwords are specific to this account's files.</p>
+                </div>
+
+                {/* Dropzone Section */}
+                <div className="md:col-span-2">
+                    <div 
+                        className={`file-dropzone compact ${dragActive ? 'drag-active' : ''}`}
+                        onDragEnter={handleDrag}
+                        onDragLeave={handleDrag}
+                        onDragOver={handleDrag}
+                        onDrop={handleDrop}
+                        onClick={() => fileInputRef.current.click()}
+                        style={{ minHeight: '120px', padding: '1rem' }}
+                    >
+                        <input 
+                            ref={fileInputRef}
+                            type="file" 
+                            multiple 
+                            hidden 
+                            onChange={handleFileChange} 
+                            accept="application/pdf"
+                        />
+                        
+                        {bucket.files.length > 0 ? (
+                            <div className="w-full text-left">
+                                <div className="flex justify-between items-center mb-2 px-1">
+                                    <span className="text-xs font-bold text-primary uppercase">{bucket.files.length} File(s) in this Bucket</span>
+                                    <span className="text-[10px] text-muted">Click to add more</span>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    {bucket.files.map((file, fIdx) => (
+                                        <div key={fIdx} className="flex items-center gap-2 bg-white/5 border border-white/10 px-2 py-1 rounded text-[11px] max-w-full">
+                                            <span className="truncate" style={{ maxWidth: '150px' }}>{file.name}</span>
+                                            <button 
+                                                onClick={(e) => { e.stopPropagation(); removeFile(fIdx); }}
+                                                className="text-muted hover:text-danger"
+                                            >
+                                                <X size={12} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col items-center gap-2">
+                                <UploadCloud size={24} className="text-muted" />
+                                <span className="text-xs text-muted text-center font-medium">Drop SBI/HDFC etc. PDFs here<br/>(Multiple parts supported)</span>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const AbbAnalyzer = ({ 
-    files, setFiles, dragActive, loading, error, results, abbData, proprietorName, 
-    sisterFirms, pdfPassword, accountType, sanctionedLimit, 
-    handleDrag, handleDrop, handleChange, handleProcess, 
-    setProprietorName, setPdfPassword, setSisterFirms, setAccountType, 
-    setSanctionedLimit, fileInputRef, downloadExcel 
+    bankAccounts, setBankAccounts, loading, error, results, abbData, proprietorName, 
+    sisterFirms, accountType, sanctionedLimit, handleProcess, 
+    setProprietorName, setSisterFirms, setAccountType, 
+    setSanctionedLimit, downloadExcel 
 }) => {
-    const [showPassword, setShowPassword] = useState(false);
+    
+    const addAccount = () => {
+        setBankAccounts([...bankAccounts, { id: Date.now(), files: [], password: '' }]);
+    };
+
+    const removeAccount = (index) => {
+        const updated = bankAccounts.filter((_, i) => i !== index);
+        setBankAccounts(updated);
+    };
+
+    const updateAccount = (index, updates) => {
+        const updated = [...bankAccounts];
+        updated[index] = { ...updated[index], ...updates };
+        setBankAccounts(updated);
+    };
+
     return (
         <div className="animate-fade-in">
             {!results ? (
-                <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+                <div style={{ maxWidth: '900px', margin: '0 auto' }}>
                     <div className="glass-card mb-8">
                         <h3 className="mb-6 flex items-center gap-3">
-                            <Target size={24} className="text-primary" /> Extraction & Target Config
+                            <Target size={24} className="text-primary" /> Global Configuration
                         </h3>
                         
-                        <div className="grid grid-cols-2 gap-4 mb-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                             <div className="form-group mb-0">
                                 <label className="label">Proprietor Name</label>
                                 <input 
@@ -27,58 +171,23 @@ const AbbAnalyzer = ({
                                     value={proprietorName} 
                                     onChange={e => setProprietorName(e.target.value)}
                                     className="input-field"
-                                    autoComplete="off"
                                 />
                             </div>
                             <div className="form-group mb-0">
-                                <label className="label">PDF Password</label>
-                                <div style={{ position: 'relative' }}>
-                                    <input 
-                                        type={showPassword ? "text" : "password"} 
-                                        placeholder="If encrypted" 
-                                        value={pdfPassword} 
-                                        onChange={e => setPdfPassword(e.target.value)}
-                                        className="input-field"
-                                        autoComplete="new-password"
-                                        style={{ paddingRight: '3rem' }}
-                                    />
-                                    <button 
-                                        type="button" 
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        style={{ 
-                                            position: 'absolute', 
-                                            right: '1rem', 
-                                            top: '50%', 
-                                            transform: 'translateY(-50%)',
-                                            border: 'none',
-                                            background: 'transparent',
-                                            color: 'var(--text-muted)',
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            alignItems: 'center'
-                                        }}
-                                        className="hover:text-white transition-colors"
-                                    >
-                                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                                    </button>
-                                </div>
+                                <label className="label">Sister / Family Firms</label>
+                                <input 
+                                    type="text" 
+                                    placeholder="Comma separated list" 
+                                    value={sisterFirms} 
+                                    onChange={e => setSisterFirms(e.target.value)}
+                                    className="input-field"
+                                />
                             </div>
                         </div>
 
-                        <div className="form-group mb-6">
-                            <label className="label">Sister / Family Firms</label>
-                            <input 
-                                type="text" 
-                                placeholder="Comma separated list" 
-                                value={sisterFirms} 
-                                onChange={e => setSisterFirms(e.target.value)}
-                                className="input-field"
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="form-group mb-0">
-                                <label className="label">Account Type</label>
+                                <label className="label">Primary Account Type</label>
                                 <select 
                                     value={accountType} 
                                     onChange={e => setAccountType(e.target.value)}
@@ -104,88 +213,53 @@ const AbbAnalyzer = ({
                         </div>
                     </div>
 
-                    <div 
-                        className={`file-dropzone ${dragActive ? 'drag-active' : ''}`}
-                        onDragEnter={handleDrag}
-                        onDragLeave={handleDrag}
-                        onDragOver={handleDrag}
-                        onDrop={handleDrop}
-                    >
-                        <div className="icon-circle">
-                            <UploadCloud size={32} strokeWidth={1.5} />
+                    {/* Dynamic Account Buckets */}
+                    <div className="mb-8">
+                        <div className="flex justify-between items-center mb-4 px-1">
+                            <h3 className="m-0 flex items-center gap-3">
+                                <Landmark size={24} className="text-primary" /> Bank Account Partitions
+                            </h3>
+                            <button 
+                                onClick={addAccount}
+                                className="btn btn-ghost compact flex items-center gap-2 text-primary border-primary/20 hover:bg-primary/10"
+                                style={{ borderRadius: '20px', padding: '0.4rem 1.2rem' }}
+                            >
+                                <Plus size={16} /> Add Another Account
+                            </button>
                         </div>
-                        
-                        <div className="flex flex-col items-center w-full mb-4">
-                            {files && files.length > 0 ? (
-                                <div className="w-full px-4">
-                                    <div className="flex justify-between items-center mb-3">
-                                        <h4 className="m-0 text-sm uppercase tracking-wider text-primary">{files.length} Statement(s) Selected</h4>
-                                        <button 
-                                            type="button" 
-                                            onClick={(e) => { e.stopPropagation(); setFiles([]); fileInputRef.current.value = ''; }}
-                                            className="text-xs text-danger hover:underline"
-                                            style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
-                                        >
-                                            Clear All
-                                        </button>
-                                    </div>
-                                    <div style={{ maxHeight: '120px', overflowY: 'auto', textAlign: 'left' }} className="w-full custom-scrollbar mb-4 bg-white/5 p-3 rounded-lg border border-white/10">
-                                        {files.map((f, idx) => (
-                                            <div key={idx} className="flex justify-between items-center text-sm mb-2 pb-2 border-b border-white/5 last:border-0 last:mb-0 last:pb-0">
-                                                <span className="truncate font-medium" title={f.name} style={{ maxWidth: '85%' }}>
-                                                    📁 {f.name} <span style={{ opacity: 0.5, fontSize: '0.75rem' }}>({(f.size / 1024).toFixed(0)} KB)</span>
-                                                </span>
-                                                <button 
-                                                    type="button" 
-                                                    onClick={(e) => { 
-                                                        e.stopPropagation(); 
-                                                        const updated = files.filter((_, i) => i !== idx);
-                                                        setFiles(updated);
-                                                        if (updated.length === 0) fileInputRef.current.value = '';
-                                                    }}
-                                                    className="text-muted hover:text-danger transition-colors"
-                                                    style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                                                >
-                                                    <X size={14} />
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ) : (
-                                <h2 className="m-0 mb-1">Ready for Analysis</h2>
-                            )}
-                        </div>
-                        
-                        <p className="text-secondary mb-6 text-center">Drop your PDF bank statements here (supports multiple files) or browse</p>
-                        
-                        <input 
-                            ref={fileInputRef}
-                            type="file" 
-                            multiple
-                            className="hidden" 
-                            style={{ display: 'none' }}
-                            accept="application/pdf"
-                            onChange={handleChange}
-                        />
-                        
-                        {files && files.length > 0 ? (
-                            <div className="flex gap-4 w-full">
-                                <button className="btn btn-ghost flex-1" onClick={() => fileInputRef.current.click()}>Add More</button>
-                                <button className="btn btn-primary flex-1" onClick={handleProcess} disabled={loading}>
-                                    {loading ? <Loader className="animate-spin" /> : `Analyze ${files.length} Statement(s)`}
-                                </button>
-                            </div>
-                        ) : (
-                            <button className="btn btn-ghost" onClick={() => fileInputRef.current.click()}>Browse Files</button>
-                        )}
-                        {error && <div className="text-danger mt-4 flex items-center justify-center gap-2">
-                            <AlertCircle size={16} /> {error}
-                        </div>}
+
+                        {bankAccounts.map((bucket, idx) => (
+                            <AccountBucket 
+                                key={bucket.id}
+                                bucket={bucket}
+                                index={idx}
+                                isOnly={bankAccounts.length === 1}
+                                onUpdate={updateAccount}
+                                onRemove={removeAccount}
+                            />
+                        ))}
                     </div>
+
+                    <button 
+                        className="btn btn-primary w-full py-6 flex items-center justify-center gap-3 text-lg font-bold shadow-lg shadow-primary/20" 
+                        onClick={handleProcess} 
+                        disabled={loading}
+                        style={{ height: 'auto', borderRadius: '16px' }}
+                    >
+                        {loading ? <Loader className="animate-spin" /> : (
+                            <>
+                                <Activity size={24} /> Commence Consolidated Analysis
+                            </>
+                        )}
+                    </button>
+
+                    {error && <div className="text-danger mt-6 flex items-center justify-center gap-2 p-4 bg-red-500/10 rounded-lg border border-red-500/20">
+                        <AlertCircle size={20} /> <span className="font-medium">{error}</span>
+                    </div>}
                 </div>
             ) : (
                 <div className="animate-fade-in">
+                    {/* Results Section remains identical in logic but can be polished */}
                     <div className="glass-card mb-8">
                         <div className="flex justify-between items-center mb-8">
                             <h2 className="gradient-text">Institutional ABB Report</h2>

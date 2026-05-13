@@ -11,33 +11,39 @@ import './index.css';
 function App() {
   const [view, setView] = useState('checker'); // 'checker', 'analyzer', or 'admin'
   
-  // ABB Analyzer States
-  const [files, setFiles] = useState([]);
-  const [dragActive, setDragActive] = useState(false);
+  // ABB Analyzer States: Refactored to dynamic bank partitions
+  const [bankAccounts, setBankAccounts] = useState([
+    { id: 1, files: [], password: '' }
+  ]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [results, setResults] = useState(null);
   const [abbData, setAbbData] = useState(null);
   const [proprietorName, setProprietorName] = useState('');
   const [sisterFirms, setSisterFirms] = useState('');
-  const [pdfPassword, setPdfPassword] = useState('');
   const [accountType, setAccountType] = useState('savings');
   const [sanctionedLimit, setSanctionedLimit] = useState('');
-  const fileInputRef = useRef(null);
 
   // Handlers for ABB Analyzer
-  const handleDrag = (e) => { e.preventDefault(); e.stopPropagation(); setDragActive(e.type === "dragenter" || e.type === "dragover"); };
-  const handleDrop = (e) => { e.preventDefault(); e.stopPropagation(); setDragActive(false); if (e.dataTransfer.files?.length) setFiles(Array.from(e.dataTransfer.files)); };
-  const handleChange = (e) => { if (e.target.files?.length) setFiles(Array.from(e.target.files)); };
-  
+  // Handlers moved/refactored for multi-account dynamic states
   const handleProcess = async () => {
-    if (!files || files.length === 0) return;
+    const activeAccounts = bankAccounts.filter(acc => acc.files && acc.files.length > 0);
+    if (activeAccounts.length === 0) {
+      setError("Please select at least one statement to begin.");
+      return;
+    }
     setLoading(true); setError('');
     const formData = new FormData();
-    files.forEach(f => {
-      formData.append('file', f);
+    
+    // Partition serialization: Pack each bank's files and specific password
+    activeAccounts.forEach((acc, index) => {
+      acc.files.forEach(f => {
+        formData.append(`file_${index}`, f);
+      });
+      if (acc.password) {
+        formData.append(`password_${index}`, acc.password);
+      }
     });
-    if (pdfPassword) formData.append('password', pdfPassword);
     
     try {
       const apiBase = import.meta.env.VITE_API_URL || (window.location.origin.includes('localhost') ? 'http://localhost:8000' : '/api-bl');
@@ -103,13 +109,12 @@ function App() {
         {view === 'checker' && <EligibilityChecker />}
         {view === 'analyzer' && (
           <AbbAnalyzer 
-            files={files} setFiles={setFiles} dragActive={dragActive} loading={loading} error={error}
+            bankAccounts={bankAccounts} setBankAccounts={setBankAccounts} loading={loading} error={error}
             results={results} abbData={abbData} proprietorName={proprietorName}
-            sisterFirms={sisterFirms} pdfPassword={pdfPassword} accountType={accountType}
-            sanctionedLimit={sanctionedLimit} handleDrag={handleDrag} handleDrop={handleDrop}
-            handleChange={handleChange} handleProcess={handleProcess} setProprietorName={setProprietorName}
-            setPdfPassword={setPdfPassword} setSisterFirms={setSisterFirms} setAccountType={setAccountType}
-            setSanctionedLimit={setSanctionedLimit} fileInputRef={fileInputRef} downloadExcel={downloadExcel}
+            sisterFirms={sisterFirms} accountType={accountType}
+            sanctionedLimit={sanctionedLimit} handleProcess={handleProcess} setProprietorName={setProprietorName}
+            setSisterFirms={setSisterFirms} setAccountType={setAccountType}
+            setSanctionedLimit={setSanctionedLimit} downloadExcel={downloadExcel}
           />
         )}
         {view === 'admin' && <PolicyAdmin />}

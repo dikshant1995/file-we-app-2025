@@ -1941,3 +1941,123 @@ def parse_multiple_statements(pdf_bytes_list: list, password: str = None) -> tup
         final_ds2.append({"Date": r["Date"], "Narration": r.get("Narration", "")})
         
     return final_ds1, final_ds2, unique_ds3, final_metadata
+
+
+def consolidate_multiple_accounts(accounts_data_list):
+    """
+    Combines extracted datasets from DIFFERENT banks.
+    Generates:
+    1. A consolidated dataset_3 (all transactions concatenated chronologically).
+    2. A consolidated dataset_1 (daily balanced interpolated & summed across all accounts).
+    3. Consolidated metadata.
+    """
+    if not accounts_data_list:
+        return [], [], [], {}
+        
+    if len(accounts_data_list) == 1:
+        return accounts_data_list[0] # No consolidation needed
+        
+    # 1. Dataset 3 (Transactions) Concatenation
+    combined_ds3 = []
+    participating_banks = []
+    
+    for idx, (d1, d2, d3, meta) in enumerate(accounts_data_list):
+        bank_name = meta.get("bank_name", "Unknown Bank")
+        account_num = meta.get("account_no", f"Account {idx+1}")
+        full_label = f"{bank_name} ({account_num})"
+        participating_banks.append(full_label)
+        
+        for row in d3:
+            tagged_row = dict(row)
+            tagged_row["Source_Account"] = full_label
+            combined_ds3.append(tagged_row)
+            
+    # Sort chronologically
+    combined_ds3.sort(key=lambda x: x.get("Date") or "")
+    
+    # 2. Construct Daily Balance Interpolator for Dataset 1
+    from datetime import datetime, timedelta
+    
+    daily_lookup_by_acc = []
+    all_dates = set()
+    
+    for idx, (d1, d2, d3, meta) in enumerate(accounts_data_list):
+        lookup = {}
+        for r in d1:
+            dt = r.get("Date")
+            if dt:
+                lookup[dt] = r.get("Balance", 0.0)
+                all_dates.add(dt)
+        daily_lookup_by_acc.append(lookup)
+        
+    if not all_dates:
+        return [], [], combined_ds3, {"bank_name": " | ".join(participating_banks)}
+        
+    sorted_dates = sorted(list(all_dates))
+    start_dt_str = sorted_dates[0]
+    end_dt_str = sorted_dates[-1]
+    
+    try:
+        start_date = datetime.strptime(start_dt_str, "%Y-%m-%d")
+        end_date = datetime.strptime(end_dt_str, "%Y-%m-%d")
+    except Exception:
+        return [], [], combined_ds3, {"bank_name": " | ".join(participating_banks)}
+    
+    combined_ds1 = []
+    current_acc_balances = [0.0] * len(accounts_data_list)
+    
+    # To track daily Dr/Cr totals
+    daily_totals = {}
+    
+    for idx, (d1, d2, d3, meta) in enumerate(accounts_data_list):
+        for r in d1:
+            dt = r.get("Date")
+            if dt:
+                if dt not in daily_totals:
+                    daily_totals[dt] = {"Dr": 0.0, "Cr": 0.0}
+                daily_totals[dt]["Dr"] += float(r.get("Dr", 0.0) or 0.0)
+                daily_totals[dt]["Cr"] += float(r.get("Cr", 0.0) or 0.0)
+                
+    delta = timedelta(days=1)
+    curr = start_date
+    while curr <= end_date:
+        curr_str = curr.strftime("%Y-%m-%d")
+        
+        # Update each account's active balance
+        for idx in range(len(accounts_data_list)):
+            lookup = daily_lookup_by_acc[idx]
+            if curr_str in lookup:
+                current_acc_balances[idx] = lookup[curr_str]
+            
+        total_bal = sum(current_acc_balances)
+        
+        dr = 0.0
+        cr = 0.0
+        if curr_str in daily_totals:
+            dr = daily_totals[curr_str]["Dr"]
+            cr = daily_totals[curr_str]["Cr"]
+            
+        combined_ds1.append({
+            "Date": curr_str,
+            "Dr": dr,
+            "Cr": cr,
+            "Balance": total_bal
+        })
+        
+        curr += delta
+        
+    # 3. Combined Dataset 2 (Narrations)
+    combined_ds2 = []
+    for row in combined_ds3:
+        combined_ds2.append({"Date": row.get("Date"), "Narration": f"[{row.get('Source_Account')}] {row.get('Narration')}"})
+        
+    # 4. Consolidated Meta
+    consolidated_meta = {
+        "bank_name": "CONSOLIDATED: " + " | ".join(participating_banks),
+        "account_name": accounts_data_list[0][3].get("account_name", "Multiple Accounts"),
+        "account_no": " & ".join([meta.get("account_no", f"Acc{idx+1}") for idx, (_, _, _, meta) in enumerate(accounts_data_list)]),
+        "statement_period": f"{start_dt_str} to {end_dt_str}",
+        "participating_accounts": participating_banks
+    }
+    
+    return combined_ds1, combined_ds2, combined_ds3, consolidated_meta
