@@ -11,6 +11,7 @@ import LeadManager from './admin/LeadManager.jsx';
 import UserManager from './admin/UserManager.jsx';
 import AdminLogin from './admin/AdminLogin.jsx';
 import AdminLocationSelector from './admin/AdminLocationSelector.jsx';
+import ProfileSecurity from './admin/ProfileSecurity.jsx';
 import { auth, db } from '../config/firebase.js';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
@@ -88,6 +89,7 @@ const AdminDashboard = ({ onBackToCustomer }) => {
     { id: 'company-db', icon: <Database size={18} stroke="#00ff88" />, label: 'Company Database', component: 'BankConfigEditor', section: 'company-db' },
 
     { id: 'user-management', icon: <UserPlus size={18} stroke="#00d4ff" />, label: 'Nexus Control', component: 'UserManager' },
+    { id: 'profile-security', icon: <Settings size={18} stroke="#00d4ff" />, label: 'Profile & Security', component: 'ProfileSecurity' },
     { id: 'analytics', icon: <BarChart2 size={18} stroke="#00d4ff" />, label: 'Strategic Analytics', component: 'Analytics' },
     { id: 'import-export', icon: <ShieldCheck size={18} stroke="#00d4ff" />, label: 'Data Migration', component: 'ImportExport' },
     { id: 'audit', icon: <ShieldCheck size={18} stroke="#00d4ff" />, label: 'Governance Logs', component: 'AuditLog' }
@@ -98,6 +100,7 @@ const AdminDashboard = ({ onBackToCustomer }) => {
     if (activeMenu === 'leads') return <LeadManager userRole={user.role} />;
     if (activeMenu === 'blog') return <BlogManager />;
     if (activeMenu === 'user-management') return <UserManager />;
+    if (activeMenu === 'profile-security') return <ProfileSecurity />;
     if (activeMenu === 'analytics') return <Analytics />;
     if (activeMenu === 'import-export') return <ImportExport />;
     if (activeMenu === 'audit') return <AuditLog />;
