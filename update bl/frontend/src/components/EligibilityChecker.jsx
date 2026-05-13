@@ -44,7 +44,7 @@ const EligibilityChecker = () => {
     const [calcRoi, setCalcRoi] = useState(17.5);
     const [calcTenure, setCalcTenure] = useState(3);
 
-    const calculatedEMIValue = calculateEMI(calcAmount, calcRoi, calcTenure);
+    const calculatedEMIValue = (calcAmount && calcRoi && calcTenure) ? calculateEMI(calcAmount, calcRoi, calcTenure) : 0;
 
 
     const handleSubmit = async (e) => {
@@ -400,47 +400,70 @@ const EligibilityChecker = () => {
                         </h3>
                         <div className="flex flex-col gap-4">
                             <div className="form-group">
-                                <div className="flex justify-between text-xs mb-1 font-semibold text-white">
-                                    <span>Loan Amount</span>
-                                    <span>₹{calcAmount.toLocaleString()}</span>
-                                </div>
+                                <label className="label text-white/80 mb-2 flex justify-between items-center">
+                                    <span>Loan Amount (₹)</span>
+                                    <span className="text-xs text-primary font-bold">Type or use slider</span>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    value={calcAmount} 
+                                    onChange={(e) => setCalcAmount(parseInt(e.target.value) || 0)}
+                                    className="input-field compact mb-3 text-lg font-bold border-primary/30"
+                                    placeholder="Enter Custom Loan Amount"
+                                    style={{ padding: '0.6rem 1rem', background: 'rgba(255,255,255,0.05)', color: '#fff' }}
+                                />
                                 <input 
                                     type="range" 
                                     min="100000" 
-                                    max="5000000" 
+                                    max="10000000" 
                                     step="50000"
-                                    value={calcAmount} 
+                                    value={calcAmount > 10000000 ? 10000000 : (calcAmount < 100000 ? 100000 : calcAmount)} 
                                     onChange={(e) => setCalcAmount(parseInt(e.target.value))}
                                     className="w-full accent-primary h-1 bg-white/10 rounded-lg appearance-none cursor-pointer"
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="form-group">
-                                    <div className="flex justify-between text-xs mb-1 font-semibold text-white">
-                                        <span>ROI</span>
-                                        <span>{calcRoi}%</span>
-                                    </div>
+                                    <label className="label text-white/80 mb-2">
+                                        <span>ROI (%)</span>
+                                    </label>
+                                    <input 
+                                        type="number" 
+                                        step="0.1"
+                                        value={calcRoi} 
+                                        onChange={(e) => setCalcRoi(parseFloat(e.target.value) || 0)}
+                                        className="input-field compact mb-2 font-bold"
+                                        style={{ padding: '0.5rem 0.75rem', background: 'rgba(255,255,255,0.05)', color: '#fff' }}
+                                    />
                                     <input 
                                         type="range" 
-                                        min="10" 
+                                        min="5" 
                                         max="30" 
                                         step="0.25"
-                                        value={calcRoi} 
+                                        value={calcRoi > 30 ? 30 : (calcRoi < 5 ? 5 : calcRoi)} 
                                         onChange={(e) => setCalcRoi(parseFloat(e.target.value))}
                                         className="w-full accent-primary h-1 bg-white/10 rounded-lg appearance-none cursor-pointer"
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <div className="flex justify-between text-xs mb-1 font-semibold text-white">
-                                        <span>Tenure</span>
-                                        <span>{calcTenure} Years</span>
-                                    </div>
+                                    <label className="label text-white/80 mb-2">
+                                        <span>Tenure (Yrs)</span>
+                                    </label>
+                                    <input 
+                                        type="number" 
+                                        min="1"
+                                        max="30"
+                                        value={calcTenure} 
+                                        onChange={(e) => setCalcTenure(parseInt(e.target.value) || 1)}
+                                        className="input-field compact mb-2 font-bold"
+                                        style={{ padding: '0.5rem 0.75rem', background: 'rgba(255,255,255,0.05)', color: '#fff' }}
+                                    />
                                     <input 
                                         type="range" 
                                         min="1" 
-                                        max="5" 
+                                        max="7" 
                                         step="1"
-                                        value={calcTenure} 
+                                        value={calcTenure > 7 ? 7 : (calcTenure < 1 ? 1 : calcTenure)} 
                                         onChange={(e) => setCalcTenure(parseInt(e.target.value))}
                                         className="w-full accent-primary h-1 bg-white/10 rounded-lg appearance-none cursor-pointer"
                                     />
