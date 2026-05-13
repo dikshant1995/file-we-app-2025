@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Activity, ShieldCheck, X } from 'lucide-react';
+import { Activity, ShieldCheck, X, Eye, EyeOff } from 'lucide-react';
 
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
     const monthlyInterestRate = annualInterestRate / 12 / 100;
@@ -43,6 +43,7 @@ const EligibilityChecker = () => {
     const [calcAmount, setCalcAmount] = useState(1500000);
     const [calcRoi, setCalcRoi] = useState(17.5);
     const [calcTenure, setCalcTenure] = useState(3);
+    const [showPassword, setShowPassword] = useState(false);
 
     const calculatedEMIValue = (calcAmount && calcRoi && calcTenure) ? calculateEMI(calcAmount, calcRoi, calcTenure) : 0;
 
@@ -256,13 +257,36 @@ const EligibilityChecker = () => {
 
                         <div className="form-group">
                             <label className="label">PDF Password (Optional)</label>
-                            <input 
-                                type="password" 
-                                value={formData.pdf_password}
-                                onChange={(e) => setFormData({...formData, pdf_password: e.target.value})}
-                                className="input-field"
-                                placeholder="If statement is encrypted"
-                            />
+                            <div className="relative" style={{ position: 'relative' }}>
+                                <input 
+                                    type={showPassword ? "text" : "password"} 
+                                    value={formData.pdf_password}
+                                    onChange={(e) => setFormData({...formData, pdf_password: e.target.value})}
+                                    className="input-field"
+                                    placeholder="If statement is encrypted"
+                                    autoComplete="new-password"
+                                    style={{ paddingRight: '3rem' }}
+                                />
+                                <button 
+                                    type="button" 
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    style={{ 
+                                        position: 'absolute', 
+                                        right: '1rem', 
+                                        top: '50%', 
+                                        transform: 'translateY(-50%)',
+                                        border: 'none',
+                                        background: 'transparent',
+                                        color: 'var(--text-muted)',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center'
+                                    }}
+                                    className="hover:text-white transition-colors"
+                                >
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                            </div>
                         </div>
                         <div className="form-group">
                             <label className="label">Upload Bank Statement (PDF)</label>

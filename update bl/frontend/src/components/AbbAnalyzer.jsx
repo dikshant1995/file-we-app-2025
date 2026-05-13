@@ -1,5 +1,5 @@
-import React from 'react';
-import { Loader, UploadCloud, Download, AlertCircle, Building2, Calendar, Target, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { Loader, UploadCloud, Download, AlertCircle, Building2, Calendar, Target, X, Eye, EyeOff } from 'lucide-react';
 
 const AbbAnalyzer = ({ 
     file, setFile, dragActive, loading, error, results, abbData, proprietorName, 
@@ -8,6 +8,7 @@ const AbbAnalyzer = ({
     setProprietorName, setPdfPassword, setSisterFirms, setAccountType, 
     setSanctionedLimit, fileInputRef, downloadExcel 
 }) => {
+    const [showPassword, setShowPassword] = useState(false);
     return (
         <div className="animate-fade-in">
             {!results ? (
@@ -26,17 +27,41 @@ const AbbAnalyzer = ({
                                     value={proprietorName} 
                                     onChange={e => setProprietorName(e.target.value)}
                                     className="input-field"
+                                    autoComplete="off"
                                 />
                             </div>
                             <div className="form-group mb-0">
                                 <label className="label">PDF Password</label>
-                                <input 
-                                    type="password" 
-                                    placeholder="If encrypted" 
-                                    value={pdfPassword} 
-                                    onChange={e => setPdfPassword(e.target.value)}
-                                    className="input-field"
-                                />
+                                <div style={{ position: 'relative' }}>
+                                    <input 
+                                        type={showPassword ? "text" : "password"} 
+                                        placeholder="If encrypted" 
+                                        value={pdfPassword} 
+                                        onChange={e => setPdfPassword(e.target.value)}
+                                        className="input-field"
+                                        autoComplete="new-password"
+                                        style={{ paddingRight: '3rem' }}
+                                    />
+                                    <button 
+                                        type="button" 
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        style={{ 
+                                            position: 'absolute', 
+                                            right: '1rem', 
+                                            top: '50%', 
+                                            transform: 'translateY(-50%)',
+                                            border: 'none',
+                                            background: 'transparent',
+                                            color: 'var(--text-muted)',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center'
+                                        }}
+                                        className="hover:text-white transition-colors"
+                                    >
+                                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    </button>
+                                </div>
                             </div>
                         </div>
 

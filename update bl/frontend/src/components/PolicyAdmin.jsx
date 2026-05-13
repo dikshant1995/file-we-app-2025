@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { ShieldAlert, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 const PolicyAdmin = () => {
     const [policies, setPolicies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    
+    // Security Layer States
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [authPin, setAuthPin] = useState('');
+    const [authError, setAuthError] = useState('');
+    const [showAuthPassword, setShowAuthPassword] = useState(false);
 
     useEffect(() => {
         fetchPolicies();
@@ -37,7 +44,81 @@ const PolicyAdmin = () => {
         setSaving(false);
     };
 
+    const handleAuth = () => {
+        if (authPin === "laxmi@2025" || authPin === "KANA05081984") {
+            setIsAuthenticated(true);
+            setAuthError('');
+        } else {
+            setAuthError("Incorrect Access Key. System Locked.");
+        }
+    };
+
     if (loading) return <div className="p-12 text-center text-muted italic">Initializing secure policy link...</div>;
+
+    if (!isAuthenticated) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in">
+                <div className="glass-card border border-primary/30 max-w-md w-full p-8 text-center relative overflow-hidden">
+                    <div className="icon-circle mb-6 bg-primary/10 text-primary flex items-center justify-center" style={{ width: '64px', height: '64px', margin: '0 auto 1.5rem' }}>
+                        <ShieldAlert size={32} />
+                    </div>
+                    <h2 className="text-white font-bold mb-2 text-xl">Admin Access Gate</h2>
+                    <p className="text-secondary text-xs mb-6">Enter secure master credentials to unlock threshold matrix.</p>
+                    
+                    <div className="form-group text-left mb-6" style={{ position: 'relative' }}>
+                        <label className="label">System Access Key</label>
+                        <div style={{ position: 'relative' }}>
+                           <input 
+                               type={showAuthPassword ? "text" : "password"}
+                               placeholder="••••••••" 
+                               value={authPin}
+                               onChange={(e) => { setAuthPin(e.target.value); setAuthError(''); }}
+                               className="input-field"
+                               style={{ 
+                                   paddingRight: '3.5rem',
+                                   letterSpacing: showAuthPassword ? 'normal' : '0.4em',
+                                   textAlign: showAuthPassword ? 'left' : 'center'
+                               }}
+                               onKeyPress={(e) => e.key === 'Enter' && handleAuth()}
+                               autoComplete="new-password"
+                           />
+                           <button 
+                              type="button"
+                              onClick={() => setShowAuthPassword(!showAuthPassword)}
+                              style={{ 
+                                  position: 'absolute', 
+                                  right: '1rem', 
+                                  top: '50%', 
+                                  transform: 'translateY(-50%)',
+                                  border: 'none',
+                                  background: 'transparent',
+                                  color: 'var(--text-muted)',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center'
+                              }}
+                              className="hover:text-white transition-colors"
+                           >
+                              {showAuthPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                           </button>
+                        </div>
+                        {authError && (
+                            <p className="text-danger text-xs mt-3 font-bold flex items-center justify-center gap-1">
+                                <AlertCircle size={14} /> {authError}
+                            </p>
+                        )}
+                    </div>
+                    
+                    <button 
+                        onClick={handleAuth}
+                        className="btn btn-primary w-full flex items-center justify-center gap-2 py-3"
+                    >
+                        <Lock size={16} /> Unlock System
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="animate-fade-in">
