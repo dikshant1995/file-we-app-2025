@@ -303,10 +303,16 @@ class PolicyEngine:
             ob_source = lender.get('obligation_source', 'Current_Active')
             if ob_source == "Business_Active":
                 deduction = float(borrower_data.get('total_business_loan_emi', 0.0))
-                deducted_type = "Business EMI"
-            elif ob_source == "Recent_Active":
-                deduction = float(borrower_data.get('total_recent_loan_emi', 0.0))
-                deducted_type = "Recent Active EMI"
+                deducted_type = "Business EMI Only"
+            elif ob_source in ["Recent_Active", "Last_3_Months_Active"]:
+                # Fallback to legacy total_recent_loan_emi if new 3M field is not provided
+                deduction = float(borrower_data.get('total_recent_3m_loan_emi', 0.0))
+                if deduction == 0:
+                    deduction = float(borrower_data.get('total_recent_loan_emi', 0.0))
+                deducted_type = "Last 3M Loans EMI Only"
+            elif ob_source == "Last_6_Months_Active":
+                deduction = float(borrower_data.get('total_recent_6m_loan_emi', 0.0))
+                deducted_type = "Last 6M Loans EMI Only"
             else:
                 deduction = float(borrower_data.get('total_active_emi', 0.0))
                 deducted_type = "Total Active EMI"

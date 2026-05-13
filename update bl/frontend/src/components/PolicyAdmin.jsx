@@ -74,6 +74,7 @@ const PolicyAdmin = () => {
                                 <th style={headerStyle}>Geo Meter (KM)</th>
                                 <th style={headerStyle}>Utilisation Cap</th>
                                 <th style={headerStyle}>AO/TO Percentage (%)</th>
+                                <th style={headerStyle}>ABB Deduction Strategy</th>
                                 <th style={headerStyle}>Co-App Logic</th>
                                 <th style={headerStyle}>Live Loan Policy</th>
                             </tr>
@@ -165,6 +166,19 @@ const PolicyAdmin = () => {
                                             onChange={(e) => handleUpdate(p.id, 'ao_to_percentage', e.target.value)}
                                             className="input-field compact"
                                         />
+                                    </td>
+                                    <td style={cellStyle}>
+                                        <select 
+                                            value={p.obligation_source || 'Current_Active'} 
+                                            onChange={(e) => handleUpdate(p.id, 'obligation_source', e.target.value)}
+                                            className="select-field compact"
+                                            style={{ minWidth: '200px' }}
+                                        >
+                                            <option value="Current_Active">All Active Loans EMI</option>
+                                            <option value="Business_Active">Business Loans EMI Only</option>
+                                            <option value="Last_3_Months_Active">Last 3M Business Loans EMI Only</option>
+                                            <option value="Last_6_Months_Active">Last 6M Business Loans EMI Only</option>
+                                        </select>
                                     </td>
                                     <td style={cellStyle}>
                                         <select 

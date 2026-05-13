@@ -92,6 +92,10 @@ async def evaluate_eligibility(
     cibil_score: int = Form(750),
     total_recent_loans: int = Form(0),
     total_recent_loan_emi: float = Form(0.0),
+    num_recent_3m_loans: int = Form(0),
+    total_recent_3m_loan_emi: float = Form(0.0),
+    num_recent_6m_loans: int = Form(0),
+    total_recent_6m_loan_emi: float = Form(0.0),
     password: Optional[str] = Form(None)
 ):
     pdf_bytes = await file.read()
@@ -120,7 +124,11 @@ async def evaluate_eligibility(
             "distance_from_center": distance_from_center,
             "cibil_score": cibil_score,
             "total_recent_loans": total_recent_loans,
-            "total_recent_loan_emi": total_recent_loan_emi
+            "total_recent_loan_emi": total_recent_loan_emi,
+            "num_recent_3m_loans": num_recent_3m_loans,
+            "total_recent_3m_loan_emi": total_recent_3m_loan_emi,
+            "num_recent_6m_loans": num_recent_6m_loans,
+            "total_recent_6m_loan_emi": total_recent_6m_loan_emi
         }
         
         bank_data = {

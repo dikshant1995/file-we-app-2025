@@ -29,7 +29,11 @@ const EligibilityChecker = () => {
         num_active_loans: 0,
         total_active_emi: 0,
         num_active_business_loans: 0,
-        total_business_loan_emi: 0
+        total_business_loan_emi: 0,
+        num_recent_3m_loans: 0,
+        total_recent_3m_loan_emi: 0,
+        num_recent_6m_loans: 0,
+        total_recent_6m_loan_emi: 0
     });
     const [file, setFile] = useState(null);
     const [results, setResults] = useState(null);
@@ -199,6 +203,52 @@ const EligibilityChecker = () => {
                                         onChange={(e) => setFormData({...formData, total_business_loan_emi: parseFloat(e.target.value) || 0})}
                                         className="input-field"
                                         placeholder="e.g. 15000"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4 mt-4">
+                                <div className="form-group">
+                                    <label className="label">Business Loans in Last 3M</label>
+                                    <input 
+                                        type="number" 
+                                        value={formData.num_recent_3m_loans}
+                                        onChange={(e) => setFormData({...formData, num_recent_3m_loans: parseInt(e.target.value) || 0})}
+                                        className="input-field"
+                                        placeholder="e.g. 0"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="label">Last 3M Loans EMI (₹ / mo)</label>
+                                    <input 
+                                        type="number" 
+                                        value={formData.total_recent_3m_loan_emi}
+                                        onChange={(e) => setFormData({...formData, total_recent_3m_loan_emi: parseFloat(e.target.value) || 0})}
+                                        className="input-field"
+                                        placeholder="e.g. 0"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4 mt-4">
+                                <div className="form-group">
+                                    <label className="label">Business Loans in Last 6M</label>
+                                    <input 
+                                        type="number" 
+                                        value={formData.num_recent_6m_loans}
+                                        onChange={(e) => setFormData({...formData, num_recent_6m_loans: parseInt(e.target.value) || 0})}
+                                        className="input-field"
+                                        placeholder="e.g. 0"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="label">Last 6M Loans EMI (₹ / mo)</label>
+                                    <input 
+                                        type="number" 
+                                        value={formData.total_recent_6m_loan_emi}
+                                        onChange={(e) => setFormData({...formData, total_recent_6m_loan_emi: parseFloat(e.target.value) || 0})}
+                                        className="input-field"
+                                        placeholder="e.g. 0"
                                     />
                                 </div>
                             </div>
