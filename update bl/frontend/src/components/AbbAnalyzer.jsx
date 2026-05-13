@@ -1,8 +1,8 @@
 import React from 'react';
-import { Loader, UploadCloud, Download, AlertCircle, Building2, Calendar, Target } from 'lucide-react';
+import { Loader, UploadCloud, Download, AlertCircle, Building2, Calendar, Target, X } from 'lucide-react';
 
 const AbbAnalyzer = ({ 
-    file, dragActive, loading, error, results, abbData, proprietorName, 
+    file, setFile, dragActive, loading, error, results, abbData, proprietorName, 
     sisterFirms, pdfPassword, accountType, sanctionedLimit, 
     handleDrag, handleDrop, handleChange, handleProcess, 
     setProprietorName, setPdfPassword, setSisterFirms, setAccountType, 
@@ -89,7 +89,20 @@ const AbbAnalyzer = ({
                         <div className="icon-circle">
                             <UploadCloud size={32} strokeWidth={1.5} />
                         </div>
-                        <h2 className="mb-2">{file ? file.name : "Ready for Analysis"}</h2>
+                        <div className="flex justify-center items-center gap-3 mb-2">
+                            <h2 className="m-0">{file ? file.name : "Ready for Analysis"}</h2>
+                            {file && (
+                                <button 
+                                    type="button" 
+                                    onClick={(e) => { e.stopPropagation(); setFile(null); fileInputRef.current.value = ''; }}
+                                    className="p-1.5 rounded-full hover:bg-red-500/20 text-danger transition-colors flex items-center justify-center"
+                                    style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
+                                    title="Remove file"
+                                >
+                                    <X size={18} />
+                                </button>
+                            )}
+                        </div>
                         <p className="text-secondary mb-6">Drop your PDF bank statement here or browse files</p>
                         
                         <input 

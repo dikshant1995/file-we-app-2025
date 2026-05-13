@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Activity, ShieldCheck } from 'lucide-react';
+import { Activity, ShieldCheck, X } from 'lucide-react';
 
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
     const monthlyInterestRate = annualInterestRate / 12 / 100;
@@ -279,7 +279,20 @@ const EligibilityChecker = () => {
                                     style={{ display: 'none' }}
                                     required
                                 />
-                                {file && <p className="mt-4 text-primary font-bold">{file.name}</p>}
+                                {file && (
+                                    <div className="mt-4 flex items-center justify-center gap-3" onClick={(e) => e.stopPropagation()}>
+                                        <p className="text-primary font-bold">{file.name}</p>
+                                        <button 
+                                            type="button" 
+                                            onClick={() => { setFile(null); document.getElementById('file-upload').value = ''; }}
+                                            className="p-1.5 rounded-full hover:bg-red-500/20 text-danger transition-colors flex items-center justify-center"
+                                            style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
+                                            title="Remove file"
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <button 

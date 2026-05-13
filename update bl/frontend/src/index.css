@@ -235,6 +235,16 @@ h3 { font-size: 1.25rem; font-weight: 600; }
   box-shadow: 0 0 0 4px var(--primary-glow);
 }
 
+/* Explicit Dark Mode Select Option Rendering for Chrome/Windows */
+.select-field option {
+  background-color: #0f172a !important; /* Exact solid var(--bg-surface) */
+  color: #f8fafc !important;           /* Exact solid var(--text-primary) */
+}
+
+.select-field {
+  background-color: #0f172a !important; /* Solid background to avoid transparency rendering artifacts */
+}
+
 /* Buttons */
 .btn {
   padding: 1rem 1.5rem;

@@ -5,7 +5,7 @@ import { downloadExcel } from './utils/exportToExcel';
 import AbbAnalyzer from './components/AbbAnalyzer';
 import PolicyAdmin from './components/PolicyAdmin';
 import EligibilityChecker from './components/EligibilityChecker';
-import { Building2, ShieldCheck, Activity } from 'lucide-react';
+import { Building2, ShieldCheck, Activity, ArrowLeft } from 'lucide-react';
 import './index.css';
 
 function App() {
@@ -53,11 +53,26 @@ function App() {
   return (
     <div className="app-shell animate-fade-in">
       <nav className="navbar flex justify-between items-center">
-        <div className="nav-brand">
-          <div className="nav-logo-box">
-            <Building2 size={24} />
+        <div className="flex items-center gap-6">
+          <div className="nav-brand">
+            <div className="nav-logo-box">
+              <Building2 size={24} />
+            </div>
+            <span className="text-xl font-extrabold gradient-text">ABB PRO</span>
           </div>
-          <span className="text-xl font-extrabold gradient-text">ABB PRO</span>
+          <a 
+            href="/" 
+            className="btn btn-ghost compact flex items-center gap-2"
+            style={{ 
+              padding: '0.5rem 1rem', 
+              fontSize: '0.8rem', 
+              borderRadius: 'var(--radius-md)',
+              background: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.1)'
+            }}
+          >
+            <ArrowLeft size={14} /> Back to Hub
+          </a>
         </div>
 
         <div className="nav-tabs flex">
@@ -86,7 +101,7 @@ function App() {
         {view === 'checker' && <EligibilityChecker />}
         {view === 'analyzer' && (
           <AbbAnalyzer 
-            file={file} dragActive={dragActive} loading={loading} error={error}
+            file={file} setFile={setFile} dragActive={dragActive} loading={loading} error={error}
             results={results} abbData={abbData} proprietorName={proprietorName}
             sisterFirms={sisterFirms} pdfPassword={pdfPassword} accountType={accountType}
             sanctionedLimit={sanctionedLimit} handleDrag={handleDrag} handleDrop={handleDrop}
