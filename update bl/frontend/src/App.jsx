@@ -70,17 +70,18 @@ function App() {
           </div>
           <a 
             href="/" 
-            className="btn btn-ghost flex items-center gap-2 whitespace-nowrap"
+            className="btn btn-ghost flex items-center gap-1 whitespace-nowrap"
             style={{ 
-              padding: '0.4rem 0.8rem', 
-              fontSize: '0.8rem', 
-              borderRadius: 'var(--radius-md)',
+              padding: '0.2rem 0.5rem', 
+              fontSize: '0.7rem', 
+              borderRadius: 'var(--radius-sm)',
               background: 'rgba(255, 255, 255, 0.05)',
               border: '1px solid rgba(255, 255, 255, 0.1)',
-              textDecoration: 'none'
+              textDecoration: 'none',
+              opacity: 0.8
             }}
           >
-            <ArrowLeft size={14} /> Hub
+            <ArrowLeft size={12} /> Exit
           </a>
         </div>
 
