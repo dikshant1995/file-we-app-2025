@@ -1,4 +1,5 @@
 import './ResultsDisplay.css'
+import { getDetailedRejectionReason } from '../utils/rejectionAdvisor.js'
 
 const ResultsDisplay = ({ results, onReset, aiResult }) => {
   // Filter eligible and not eligible results
@@ -140,7 +141,10 @@ const ResultsDisplay = ({ results, onReset, aiResult }) => {
           <div className="rejection-list">
             {notEligibleResults.map((bank, index) => (
               <div key={index} className="rejection-item">
-                <strong>{bank.bankName}:</strong> {bank.reason || 'Not eligible'}
+                <strong>{bank.bankName}:</strong>
+                <div className="detailed-reason mt-2 whitespace-pre-wrap text-sm text-gray-700">
+                  {getDetailedRejectionReason(bank.reason || 'Not eligible')}
+                </div>
               </div>
             ))}
           </div>
