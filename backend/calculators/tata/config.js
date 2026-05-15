@@ -94,6 +94,7 @@ export const tataConfig = {
     isAvailable: true, // BT facility is available
     maxLoansForBT: 6, // Maximum number of existing personal loans that can be consolidated
     acceptsFintechLoans: false, // Does NOT accept BT for Fintech/digital platform loans
-    description: 'Tata Capital allows balance transfer for up to 6 existing personal loans (excluding Fintech loans)'
+    maxCreditCardBTMultiplier: 6, // Cannot BT if Credit Card POS > 6x Monthly Salary
+    description: 'Tata Capital allows balance transfer for up to 6 existing personal loans (excluding Fintech loans). Total Credit Card POS cannot exceed 6x monthly salary.'
   }
 };
