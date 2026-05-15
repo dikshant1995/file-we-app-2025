@@ -86,16 +86,41 @@
 }
 
 @media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+        justify-content: center;
+        gap: 8px;
+        width: 95%;
+    }
+
+    .main-navbar {
+        height: auto;
+        padding: 10px 0;
+    }
+
+    .nav-brand {
+        font-size: 1.1rem;
+    }
+
+    .ai-badge {
+        font-size: 0.5rem;
+        padding: 2px 4px;
+    }
+
     .nav-links {
-        gap: 15px;
+        gap: 10px;
+        width: 100%;
+        justify-content: space-around;
+        flex-wrap: wrap;
     }
 
     .nav-item {
-        font-size: 0.85rem;
+        font-size: 0.9rem;
     }
 
     .nav-admin-btn {
-        padding: 6px 10px;
-        font-size: 0.7rem;
+        padding: 5px 10px;
+        font-size: 0.75rem;
+        margin-left: 0;
     }
-}
+}
