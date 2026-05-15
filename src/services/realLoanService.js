@@ -150,6 +150,25 @@ export const calculateLoanEligibility = async (userData) => {
         return { bankName: name, eligible: false, reason: `Income below bank threshold (Min: ₹${adminAllConfig.employmentRules?.salariedMinSalary || 25000})`, category: 'REJECTED' };
       }
 
+      // 2.5 BT CREDIT CARD MULTIPLIER GATE
+      if (calculatorInput.isBTMode && adminAllConfig.btConfiguration?.maxCreditCardBTMultiplier) {
+        // Find total credit card POS in the BT list
+        const btCreditCardPOS = calculatorInput.loansForBT
+            .filter(loan => loan.type === 'Credit Card')
+            .reduce((sum, loan) => sum + (parseFloat(loan.creditLimitUsed) || parseFloat(loan.outstandingAmount) || 0), 0);
+        
+        const maxAllowedCCPOS = calculatorInput.monthlyIncome * adminAllConfig.btConfiguration.maxCreditCardBTMultiplier;
+        
+        if (btCreditCardPOS > maxAllowedCCPOS) {
+           return { 
+               bankName: name, 
+               eligible: false, 
+               reason: `BT Rejected: Credit Card Outstanding (₹${btCreditCardPOS.toLocaleString()}) exceeds the limit of ${adminAllConfig.btConfiguration.maxCreditCardBTMultiplier}x monthly income (Max Allowed: ₹${maxAllowedCCPOS.toLocaleString()}).`, 
+               category: 'REJECTED' 
+           };
+        }
+      }
+
       let bankCategory;
       let govtPolicy = null;
 
