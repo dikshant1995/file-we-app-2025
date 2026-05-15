@@ -70,16 +70,17 @@ function App() {
           </div>
           <a 
             href="/" 
-            className="btn btn-ghost compact flex items-center gap-2"
+            className="btn btn-ghost flex items-center gap-2"
             style={{ 
-              padding: '0.5rem 1rem', 
-              fontSize: '0.8rem', 
+              padding: '0.4rem 0.8rem', 
+              fontSize: '0.75rem', 
               borderRadius: 'var(--radius-md)',
               background: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(255, 255, 255, 0.1)'
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              textDecoration: 'none'
             }}
           >
-            <ArrowLeft size={14} /> Back to Hub
+            <ArrowLeft size={14} /> <span className="hidden sm:inline">Hub</span>
           </a>
         </div>
 
