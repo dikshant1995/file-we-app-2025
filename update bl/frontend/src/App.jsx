@@ -60,9 +60,9 @@ function App() {
 
   return (
     <div className="app-shell animate-fade-in">
-      <nav className="navbar flex justify-between items-center">
-        <div className="flex items-center gap-6">
-          <div className="nav-brand">
+      <nav className="navbar flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0 p-4">
+        <div className="flex w-full md:w-auto items-center justify-between gap-4">
+          <div className="nav-brand flex items-center gap-2">
             <div className="nav-logo-box">
               <Building2 size={24} />
             </div>
@@ -70,38 +70,38 @@ function App() {
           </div>
           <a 
             href="/" 
-            className="btn btn-ghost flex items-center gap-2"
+            className="btn btn-ghost flex items-center gap-2 whitespace-nowrap"
             style={{ 
               padding: '0.4rem 0.8rem', 
-              fontSize: '0.75rem', 
+              fontSize: '0.8rem', 
               borderRadius: 'var(--radius-md)',
               background: 'rgba(255, 255, 255, 0.05)',
               border: '1px solid rgba(255, 255, 255, 0.1)',
               textDecoration: 'none'
             }}
           >
-            <ArrowLeft size={14} /> <span className="hidden sm:inline">Hub</span>
+            <ArrowLeft size={14} /> Hub
           </a>
         </div>
 
-        <div className="nav-tabs flex">
+        <div className="nav-tabs flex w-full md:w-auto justify-between gap-2 overflow-x-auto">
           <button 
             onClick={() => setView('checker')}
-            className={`nav-btn ${view === 'checker' ? 'active' : ''}`}
+            className={`nav-btn flex-1 md:flex-none justify-center whitespace-nowrap ${view === 'checker' ? 'active' : ''}`}
           >
-            <ShieldCheck size={18} /> Eligibility
+            <ShieldCheck size={16} /> <span className="text-xs sm:text-sm">Eligibility</span>
           </button>
           <button 
             onClick={() => setView('analyzer')}
-            className={`nav-btn ${view === 'analyzer' ? 'active' : ''}`}
+            className={`nav-btn flex-1 md:flex-none justify-center whitespace-nowrap ${view === 'analyzer' ? 'active' : ''}`}
           >
-            <Activity size={18} /> Analyzer
+            <Activity size={16} /> <span className="text-xs sm:text-sm">Analyzer</span>
           </button>
           <button 
             onClick={() => setView('admin')}
-            className={`nav-btn ${view === 'admin' ? 'active' : ''}`}
+            className={`nav-btn flex-1 md:flex-none justify-center whitespace-nowrap ${view === 'admin' ? 'active' : ''}`}
           >
-            <Building2 size={18} /> Admin
+            <Building2 size={16} /> <span className="text-xs sm:text-sm">Admin</span>
           </button>
         </div>
       </nav>
