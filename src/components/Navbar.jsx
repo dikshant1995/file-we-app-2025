@@ -17,8 +17,8 @@ const Navbar = ({ onAdminClick, onHomeClick }) => {
     return (
         <nav className="main-navbar">
             <div className="nav-container">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <Link to="/" style={{ textDecoration: 'none', opacity: 0.8, display: 'flex', alignItems: 'center', gap: '5px', color: 'white', fontSize: '0.75rem', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '4px', padding: '4px 8px' }}>
+                <div className="nav-left">
+                    <Link to="/" className="nav-exit-btn">
                         <ArrowLeft size={12} /> Exit
                     </Link>
                     <Link to="/" className="nav-brand">
