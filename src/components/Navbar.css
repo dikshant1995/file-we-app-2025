@@ -22,6 +22,31 @@
     align-items: center;
 }
 
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.nav-exit-btn {
+    text-decoration: none;
+    opacity: 0.8;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: white;
+    font-size: 0.75rem;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px;
+    padding: 4px 8px;
+    transition: opacity 0.3s;
+}
+
+.nav-exit-btn:hover {
+    opacity: 1;
+}
+
+
 .nav-brand {
     text-decoration: none;
     font-size: 1.5rem;
@@ -90,36 +115,50 @@
         flex-direction: column;
         justify-content: center;
         gap: 8px;
-        width: 95%;
+        width: 100%;
+        padding: 0 10px;
     }
 
     .main-navbar {
         height: auto;
         padding: 10px 0;
     }
+    
+    .nav-left {
+        width: 100%;
+        justify-content: space-between;
+        gap: 0.5rem;
+    }
+
+    .nav-exit-btn {
+        padding: 4px 6px;
+        font-size: 0.7rem;
+    }
 
     .nav-brand {
         font-size: 1.1rem;
+        flex-wrap: wrap;
+        justify-content: flex-end;
     }
 
     .ai-badge {
-        font-size: 0.5rem;
+        font-size: 0.6rem;
         padding: 2px 4px;
     }
 
     .nav-links {
         gap: 10px;
         width: 100%;
-        justify-content: space-around;
+        justify-content: space-between;
         flex-wrap: wrap;
     }
 
     .nav-item {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
     }
 
     .nav-admin-btn {
-        padding: 5px 10px;
+        padding: 6px 10px;
         font-size: 0.75rem;
         margin-left: 0;
     }
