@@ -205,7 +205,8 @@ export const BTEditor = ({ bank, onSave, location }) => {
     maxLoansForBT: 3,
     creditCardBTSupported: true,
     topUpAllowed: true,
-    processingFeePercentage: 1.5
+    processingFeePercentage: 1.5,
+    maxCreditCardBTMultiplier: 6
   });
 
   useEffect(() => {
@@ -244,6 +245,10 @@ export const BTEditor = ({ bank, onSave, location }) => {
               <option value="true">Yes</option>
               <option value="false">No</option>
             </select>
+          </div>
+          <div className="input-group">
+            <label>Max CC BT Multiplier (X Salary)</label>
+            <input type="number" step="0.1" value={config.maxCreditCardBTMultiplier} onChange={(e) => setConfig({ ...config, maxCreditCardBTMultiplier: parseFloat(e.target.value) })} className="config-input" />
           </div>
           <div className="input-group">
             <label>Processing Fee %</label>
