@@ -163,6 +163,19 @@ const handleBTCalculation = (userData) => {
                 return { bankName: name, isEligible: false, reason: 'BT not available at this bank', btType: 'BT' };
             }
 
+            // Credit Card POS Multiplier Check
+            if (config.btConfig && config.btConfig.maxCreditCardBTMultiplier) {
+                const maxAllowedCCPOS = monthlyIncome * config.btConfig.maxCreditCardBTMultiplier;
+                if (totalCreditCardPOS > maxAllowedCCPOS) {
+                    return { 
+                        bankName: name, 
+                        isEligible: false, 
+                        reason: `Credit Card POS (₹${totalCreditCardPOS}) exceeds allowed limit (${config.btConfig.maxCreditCardBTMultiplier}x salary)`, 
+                        btType: 'BT' 
+                    };
+                }
+            }
+
             const result = calc(btInput);
             if (!result.isEligible) return { ...result, bankName: name, btType: 'BT' };
 
