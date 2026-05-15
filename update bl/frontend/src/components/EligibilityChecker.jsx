@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import { Activity, ShieldCheck, X, Eye, EyeOff, Landmark, UploadCloud, Plus, Loader, AlertCircle } from 'lucide-react';
+import { getDetailedRejectionReason } from '../utils/rejectionAdvisor.js';
 
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
     const monthlyInterestRate = annualInterestRate / 12 / 100;
@@ -506,9 +507,10 @@ const EligibilityChecker = () => {
                                     {r.reasons.length > 0 && (
                                         <div className="mt-2 p-3 bg-deep rounded-md border border-subtle">
                                             {r.reasons.map((reason, j) => (
-                                                <p key={j} className="text-danger text-xs flex gap-2">
-                                                    <span>•</span> {reason}
-                                                </p>
+                                                <div key={j} className="text-danger text-xs flex gap-2 mb-2">
+                                                    <span>•</span>
+                                                    <div className="whitespace-pre-wrap">{getDetailedRejectionReason(reason)}</div>
+                                                </div>
                                             ))}
                                         </div>
                                     )}
