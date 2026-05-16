@@ -311,8 +311,8 @@ export const calculateHdfcEligibility = (userData) => {
   }
 
   const foirCap = incomeForCalculation * foirPercentage;
-  // For BT mode: existingEMI already adjusted (set to 0 or minimal), use full FOIR capacity
-  const availableEMI = isBT ? foirCap : (foirCap - totalObligations);
+  // User Logic: (Salary * FOIR%) - Non-BT EMI = Available EMI
+  const availableEMI = isBT ? (foirCap - nonBTLoansEMI) : (foirCap - totalObligations);
 
   // Calculate preliminary loan amount based on available EMI using base rate
   const preliminaryFoirLoanAmount = calculateLoanAmountFromEMI(availableEMI, baseRate, cappedTenureYears);
