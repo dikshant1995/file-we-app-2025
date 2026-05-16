@@ -206,7 +206,8 @@ export const calculateShriRamEligibility = (userData) => {
   let foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : bandData.foir;
 
   const foirCap = incomeForCalculation * foirPercentage;
-  const availableEMI = isBT ? foirCap : (foirCap - existingEMI);
+  // User Logic: (Salary * FOIR%) - Non-BT EMI = Available EMI
+  const availableEMI = isBT ? (foirCap - nonBTLoansEMI) : (foirCap - existingEMI);
 
   if (availableEMI <= 0) {
     return {
