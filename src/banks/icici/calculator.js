@@ -244,7 +244,7 @@ export const calculateIciciEligibility = (userData) => {
     };
   }
 
-  const foirCap = incomeForCalculation * foirPercentage;
+  const foirCap = monthlyIncomeForCalc * foirPercentage;
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
   // User Logic: (Salary * FOIR%) - Non-BT EMI = Available EMI
   const availableEMI = isBT ? (foirCap - nonBTLoansEMI) : (foirCap - totalObligations);
