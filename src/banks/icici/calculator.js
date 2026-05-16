@@ -246,7 +246,8 @@ export const calculateIciciEligibility = (userData) => {
 
   const foirCap = incomeForCalculation * foirPercentage;
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
-  const availableEMI = isBT ? foirCap : (foirCap - totalObligations);
+  // User Logic: (Salary * FOIR%) - Non-BT EMI = Available EMI
+  const availableEMI = isBT ? (foirCap - nonBTLoansEMI) : (foirCap - totalObligations);
 
   // Calculate preliminary loan amount based on available EMI using base rate
   const preliminaryLoanAmount = calculateLoanAmountFromEMI(availableEMI, baseRate, cappedTenureYears);
