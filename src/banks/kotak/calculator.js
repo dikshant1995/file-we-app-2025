@@ -175,9 +175,8 @@ export const calculateKotakEligibility = (userData) => {
   if (isBT) {
     console.log('🔄 KOTAK - BALANCE TRANSFER MODE ACTIVATED');
     nonBTLoansEMI = (existingEMI || 0) - btTotalEMI;
-    // NEW: Also deduct credit card obligations from adjusted income
-    const creditCardDeduction = creditCardObligation || 0;
-    adjustedIncome = monthlyIncomeForCalc - nonBTLoansEMI - creditCardDeduction;
+    // Net Income available for calculation (after non-BT debt)
+    adjustedIncome = monthlyIncomeForCalc - nonBTLoansEMI - (creditCardObligation || 0);
 
     console.log('📊 Non-BT Loans EMI:', nonBTLoansEMI);
     console.log('💳 Credit Card Obligation (5% of non-BT CC):', creditCardDeduction);
@@ -310,7 +309,8 @@ export const calculateKotakEligibility = (userData) => {
   }
 
   const foirCap = incomeForCalculation * foirPercentage;
-  const availableEMI = isBT ? foirCap : (foirCap - totalObligations);
+  // User Logic: (Salary * FOIR%) - Non-BT EMI = Available EMI
+  const availableEMI = isBT ? (foirCap - nonBTLoansEMI) : (foirCap - totalObligations);
 
   // Calculate preliminary loan amount with base rate
   const preliminaryFoirLoanAmount = calculateLoanAmountFromEMI(availableEMI, baseRate, cappedTenureYears);
