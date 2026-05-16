@@ -204,7 +204,8 @@ export const calculatePiramalEligibility = (userData) => {
 
   const foirCap = incomeForCalculation * foirPercentage;
   const totalObligations = existingEMI + (creditCardObligation || 0);
-  const availableEMI = isBT ? foirCap : (foirCap - totalObligations);
+  // User Logic: (Salary * FOIR%) - Non-BT EMI = Available EMI
+  const availableEMI = isBT ? (foirCap - nonBTLoansEMI) : (foirCap - totalObligations);
 
   if (availableEMI <= 0) {
     return {
