@@ -310,7 +310,7 @@ export const calculateHdfcEligibility = (userData) => {
     };
   }
 
-  const foirCap = incomeForCalculation * foirPercentage;
+  const foirCap = monthlyIncomeForCalc * foirPercentage;
   // User Logic: (Salary * FOIR%) - Non-BT EMI = Available EMI
   const availableEMI = isBT ? (foirCap - nonBTLoansEMI) : (foirCap - totalObligations);
 
