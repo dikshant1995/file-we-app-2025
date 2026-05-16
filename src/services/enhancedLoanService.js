@@ -115,7 +115,7 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
   const btInput = {
     ...customerInfo,
     desiredLoanAmount: null,
-    existingEMI: 0, 
+    existingEMI: totalExistingEMI, 
     creditCardObligation: 0, // In Full BT, we assume CCs are cleared too
     totalPOS: totalPOS,
     isBTMode: true,
@@ -212,7 +212,7 @@ export const calculatePartialBT = async (customerInfo, existingLiabilities, sele
   const btInput = {
     ...customerInfo,
     desiredLoanAmount: null,
-    existingEMI: nonSelectedEMI,
+    existingEMI: selectedEMI + nonSelectedEMI,
     creditCardObligation: ccObligation,
     totalPOS: selectedPOS,
     isBTMode: true,
