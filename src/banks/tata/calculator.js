@@ -196,7 +196,7 @@ export const calculateTataEligibility = (userData) => {
     return { eligible: false, reason: `Category ${category} not found in multiplier table`, isBTMode: isBT };
   }
 
-  const foirCap = incomeForCalculation * foirPercentage;
+  const foirCap = monthlyIncomeForCalc * foirPercentage;
   // User Logic: (Salary * FOIR%) - Non-BT EMI = Available EMI
   const availableEMI = isBT ? (foirCap - nonBTLoansEMI) : (foirCap - existingEMI);
 
