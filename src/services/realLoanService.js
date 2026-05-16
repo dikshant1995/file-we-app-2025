@@ -81,6 +81,9 @@ export const calculateLoanEligibility = async (userData) => {
     salaryMode: userData.salaryMode || 'bank',
     maritalStatus: userData.maritalStatus || '', // Added for bachelor capping
     livingStatus: userData.livingStatus || '',   // Added for bachelor capping
+    creditCardObligation: (userData.creditCards || [])
+      .filter(card => !card.isBT) // Only count cards NOT being transferred
+      .reduce((sum, card) => sum + ((parseFloat(card.outstandingAmount) || 0) * 0.05), 0),
     // Balance Transfer specific data
     isBTMode: isBTMode,
     loansForBT: isBTMode ? (userData.loansForBT || []) : [],
