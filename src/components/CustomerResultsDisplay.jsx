@@ -471,17 +471,17 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
                                   <span className="d-value" style={{ fontWeight: '600' }}>Category {bank.category || 'A'}</span>
                                 </div>
                                 
-                                {showFoir && (
+                                {showFoir && bank.details?.foirPercentage && (
                                   <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
                                     <span className="d-label" style={{ opacity: 0.7 }}>FOIR Cap</span>
-                                    <span className="d-value">{bank.details?.foirPercentage || '60%'}</span>
+                                    <span className="d-value">{bank.details.foirPercentage}</span>
                                   </div>
                                 )}
 
-                                {showMultiplier && (
+                                {showMultiplier && bank.details?.multiplier && (
                                   <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
                                     <span className="d-label" style={{ opacity: 0.7 }}>Multiplier</span>
-                                    <span className="d-value">{bank.details?.multiplier || '18x'}</span>
+                                    <span className="d-value">{bank.details.multiplier}</span>
                                   </div>
                                 )}
 
