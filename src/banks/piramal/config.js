@@ -30,6 +30,7 @@ export const piramalConfig = {
     }
   },
 
+
   // Universal minimum NTH salary (lowest among all banks!)
   minNTH: 20000,
 
