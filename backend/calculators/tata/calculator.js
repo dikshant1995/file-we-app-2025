@@ -1,9 +1,11 @@
 import { tataConfig } from './config.js';
-import { getBankConfig, getDynamicInterestRate } from '../../utils/configHelper.js';
+import { getBankConfig } from '../../services/bankConfigService.js';
+import { getSlabRate } from '../../utils/policyUtils.js';
 
 // Helper: Get interest rate based on category and loan amount
-const getInterestRateForLoan = (category, loanAmount, userData = {}) => {
-  return getDynamicInterestRate('Tata Capital', category, loanAmount, { state: userData.state, city: userData.city }, tataConfig.interestRate);
+const getInterestRateForLoan = (category, loanAmount, location = null) => {
+  let lookupCategory = category === 'Govt' ? 'A' : category;
+  return getSlabRate('Tata Capital', lookupCategory, loanAmount, location, tataConfig.interestRate);
 };
 
 // Helper: Calculate EMI
@@ -60,11 +62,16 @@ export const calculateTataEligibility = (userData) => {
   const {
     desiredLoanAmount,
     loanTenure,
+    basicSalary,
+    averageIncentive,
     monthlyIncome,
-    existingEMI,
-    creditCardObligation,
-    companyName,
-    employmentType,
+    existingEMI = 0,
+    creditCardObligation, // NEW: 5% of non-BT credit card balances
+    category = 'A',
+    creditScore,
+    employmentType = 'salaried',
+    age,
+    existingLoanBanks,
     // Admin Overrides (Logic Bridge)
     interestRateOverride,
     isGovtEmployee,
@@ -72,48 +79,43 @@ export const calculateTataEligibility = (userData) => {
     govtFOIR,
     govtMultiplier,
     govtMaxTenure,
-    // User fields
-    age,
-    category,
-    existingLoanBanks,
     // Balance Transfer fields
     isBTMode,
     loansForBT,
     btTotalEMI,
-    btTotalOutstanding
+    btTotalOutstanding,
+    // Incentive Overrides
+    incentivePercentageOverride,
+    incentiveMonthsOverride
   } = userData;
 
-  // ========== CATEGORY STANDARDIZATION ==========
-  // Determine lookup category - handle both standard and GOVT cases
-  let companyCategory = category || 'B';
-  if (employmentType === 'government') {
-    companyCategory = 'GOVT';
-  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
-    companyCategory = 'GOVT';
-  }
+  // ========== INCENTIVE CALCULATION LOGIC ==========
+  const effectiveIncentivePercentage = incentivePercentageOverride !== undefined 
+    ? incentivePercentageOverride 
+    : (tataConfig.incentivePercentage || 0);
 
-  // Use standardized GOVT for table lookups
-  const lookupCategory = companyCategory;
-  // ========== END CATEGORY STANDARDIZATION ==========
+  const effectiveIncentiveMonths = incentiveMonthsOverride !== undefined 
+    ? incentiveMonthsOverride 
+    : 3; // Default to 3 months if not specified
 
-  // ========== BALANCE TRANSFER MODE DETECTION ==========
+  const bankIncentiveConsidered = (averageIncentive || 0) * effectiveIncentivePercentage;
+  const actualMonthlyIncome = (basicSalary || 0) + bankIncentiveConsidered;
+  
+  // Use actualMonthlyIncome for all subsequent calculations
+  const monthlyIncomeForCalc = actualMonthlyIncome;
+
   const isBT = isBTMode && loansForBT && loansForBT.length > 0;
-  let adjustedIncome = monthlyIncome;
+  let adjustedIncome = monthlyIncomeForCalc;
   let nonBTLoansEMI = 0;
 
   if (isBT) {
-    nonBTLoansEMI = (existingEMI || 0) - btTotalEMI;
+    nonBTLoansEMI = existingEMI - btTotalEMI;
     const creditCardDeduction = creditCardObligation || 0;
-    adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
+    adjustedIncome = monthlyIncomeForCalc - nonBTLoansEMI - creditCardDeduction;
     if (adjustedIncome <= 0) {
-      return {
-        isEligible: false,
-        reason: `After deducting non-BT obligations (₹${((existingEMI || 0) + (creditCardDeduction || 0))?.toLocaleString() || '0'}), no income remains for Balance Transfer`,
-        isBTMode: true
-      };
+      return { eligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains`, isBTMode: true };
     }
   }
-  // ========== END BT MODE DETECTION ==========
 
   // CHECK: If customer already has a personal loan from Tata Capital
   if (existingLoanBanks && existingLoanBanks.length > 0) {
@@ -124,40 +126,42 @@ export const calculateTataEligibility = (userData) => {
 
     if (hasExistingTataLoan) {
       return {
-        isEligible: false,
+        eligible: false,
         reason: 'As an existing customer of Tata Capital with an active personal loan, you are not eligible for a new loan from this bank'
       };
     }
   }
 
-  // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('Tata Capital', 'ageRules');
-  const minAge = ageConfig?.minAge ?? tataConfig.minAge;
-  const maxAge = ageConfig?.maxAge ?? tataConfig.maxAge;
-
-  if (age && (age < minAge || age > maxAge)) {
+  // Check age eligibility
+  if (age && (age < tataConfig.minAge || age > tataConfig.maxAge)) {
     return {
-      isEligible: false,
-      reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
+      eligible: false,
+      reason: `Age must be between ${tataConfig.minAge} and ${tataConfig.maxAge} years. Current age: ${age}`
     };
   }
 
-  // Check employment type
+  // 1. Check employment type
   if (!tataConfig.employmentTypes.includes(employmentType)) {
     return {
-      isEligible: false,
-      reason: `Employment type ${employmentType} not supported by this bank`
+      eligible: false,
+      reason: `Employment type ${employmentType} not supported`
     };
   }
 
-  // Apply tenure capping based on category (tenure is in months)
-  // Logic Bridge: Support govtMaxTenure override
+  // 2. Apply tenure capping based on category (tenure is in months)
+  // Logic Bridge: Support govtMaxTenure and category-based tenure capping
+  let lookupCategory = category === 'Govt' ? 'A' : category;
   let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : tataConfig.maxTenureByCategory[lookupCategory];
+
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
-    maxTenureForCategory = 72; // Fallback
+    return {
+      eligible: false,
+      reason: `No loans available for Category ${category}`
+    };
   }
 
   // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
+  // This shows the maximum loan amount the bank can offer for this category
   const cappedTenureMonths = maxTenureForCategory;
   const cappedTenureYears = cappedTenureMonths / 12;
 
@@ -165,72 +169,112 @@ export const calculateTataEligibility = (userData) => {
   const requestedTenureMonths = loanTenure * 12;
   const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
 
-  // Check minimum salary requirement based on category
-  const salConfig = getBankConfig('Tata Capital', 'employmentRules');
-  const catMinSalary = tataConfig.minSalary[lookupCategory] || tataConfig.minSalary['A'];
-  const effectiveMinSalary = salConfig?.salariedMinSalary ?? catMinSalary;
+  // 3. Check credit score - REMOVED as per user requirement
 
-  const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
-  if (incomeToCheck < effectiveMinSalary) {
+  // 4. Check loan tenure
+  if (loanTenure > tataConfig.maxLoanTenure) {
     return {
-      isEligible: false,
-      reason: `Minimum monthly income required is ₹${catMinSalary?.toLocaleString() || '0'} for Category ${lookupCategory}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`,
-      isBTMode: isBT
+      eligible: false,
+      reason: `Maximum loan tenure is ${tataConfig.maxLoanTenure} years`
     };
   }
 
-  // Get loan capping config
-  const cappingConfig = getBankConfig('Tata Capital', 'loanCapping');
-  const absoluteMaxLoan = cappingConfig?.absoluteMaxLoan ?? tataConfig.maxLoanAmount;
-  const minLoanAmount = cappingConfig?.minLoanAmount ?? 100000;
+  const minSalary = tataConfig.minSalaryByCategory[category];
+  const incomeToCheck = isBT ? adjustedIncome : monthlyIncomeForCalc;
+  if (!minSalary || incomeToCheck < minSalary) {
+    return { eligible: false, reason: `Minimum salary for ${category} is ₹${minSalary?.toLocaleString() || 'N/A'}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+  }
 
-  if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
+  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncomeForCalc;
+  const foirBand = getSalaryBand(incomeForCalculation, tataConfig.foirTable);
+  const foirPercentage = tataConfig.foirTable[foirBand];
+
+  const multiplierBand = getSalaryBand(incomeForCalculation, tataConfig.multiplierTable);
+  const multiplier = tataConfig.multiplierTable[multiplierBand][category];
+
+  if (!multiplier) {
+    return { eligible: false, reason: `Category ${category} not found in multiplier table`, isBTMode: isBT };
+  }
+
+  const foirCap = monthlyIncomeForCalc * foirPercentage;
+  // User Logic: (Salary * FOIR%) - Non-BT EMI = Available EMI
+  const availableEMI = isBT ? (foirCap - nonBTLoansEMI) : (foirCap - existingEMI);
+
+  if (availableEMI <= 0) {
     return {
-      isEligible: false,
-      reason: `Minimum loan amount required by this bank is ₹${minLoanAmount?.toLocaleString() || '0'}. Requested: ₹${desiredLoanAmount?.toLocaleString() || '0'}`,
-      isBTMode: isBT
+      eligible: false,
+      reason: `Existing EMI exceeds FOIR limit`
     };
   }
 
-  // Calculate using combined FOIR/Multiplier logic
-  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
+  // Pass 1: Calculate preliminary loan with base rate
+  // Logic Bridge: Use govtROI or interestRateOverride if available
+  let baseRate = interestRateOverride || tataConfig.interestRate;
+  if (isGovtEmployee && govtROI) baseRate = govtROI;
+
+  const foirLoanAmountPass1 = calculatePrincipalFromEMI(availableEMI, baseRate, cappedTenureYears);
+
+  // 9. Calculate Multiplier-based loan
+  // IMPORTANT: For multiplier, use salary after deducting existing EMI + credit card obligations (non-BT mode)
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
+  const availableSalary = isBT ? incomeForCalculation : (monthlyIncomeForCalc - totalObligations);
+  const multiplierLoanAmount = availableSalary * multiplier;
 
-  // ROI Logic Bridge Overrides
+  // 10. Preliminary loan = minimum of FOIR, Multiplier, and Desired
+  const preliminaryLoanAmount = Math.min(
+    foirLoanAmountPass1,
+    multiplierLoanAmount,
+    desiredLoanAmount || Infinity
+  );
+
+  const preliminaryCappedLoan = Math.min(preliminaryLoanAmount, tataConfig.maxLoanAmount);
+
+  // Pass 2: Get correct rate based on preliminary loan amount
+  // Logic Bridge: Support ROI overrides
   let finalInterestRate = interestRateOverride;
   if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
-  if (!finalInterestRate) {
-    finalInterestRate = getDynamicInterestRate('Tata Capital', lookupCategory, desiredLoanAmount || monthlyIncome * 20, { state: userData.state, city: userData.city }, tataConfig.interestRate);
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(category, preliminaryCappedLoan, userData.city || userData.state);
+
+  // Recalculate FOIR loan with final rate
+  const foirLoanAmount = calculatePrincipalFromEMI(availableEMI, finalInterestRate, cappedTenureYears);
+
+  // Final loan with correct rate
+  const finalLoanAmount = Math.min(
+    foirLoanAmount,
+    multiplierLoanAmount,
+    desiredLoanAmount || Infinity
+  );
+
+  const maxLoanCapAmount = Math.min(finalLoanAmount, tataConfig.maxLoanAmount);
+  const loanCapped = finalLoanAmount > tataConfig.maxLoanAmount;
+
+  // Apply Dynamic Bachelor Capping
+  let appliedBachelorCap = false;
+  let bachelorLimitAmount = null;
+  let bachelorCapReasonStr = null;
+  let cappedFinalLoan = maxLoanCapAmount;
+
+  if (userData.dynamicBachelorLimitOverride !== undefined) {
+    bachelorLimitAmount = userData.dynamicBachelorLimitOverride;
+    if (cappedFinalLoan > bachelorLimitAmount) {
+      cappedFinalLoan = bachelorLimitAmount;
+      appliedBachelorCap = true;
+      bachelorCapReasonStr = userData.dynamicBachelorCapReason || 'Dynamic Bachelor Capping limit applied';
+    }
+  } else if (tataConfig.bachelorMaxLoanAmount !== undefined && userData.maritalStatus === 'single' && userData.livingStatus === 'rented') {
+    bachelorLimitAmount = tataConfig.bachelorMaxLoanAmount;
+    if (cappedFinalLoan > bachelorLimitAmount) {
+      cappedFinalLoan = bachelorLimitAmount;
+      appliedBachelorCap = true;
+      bachelorCapReasonStr = 'Rented Bachelor Limit Applied (Bank Default)';
+    }
   }
 
-  // Logic Bridge: FOIR override
-  const foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : getFoirPercentage(incomeForCalculation);
-  const foirCap = incomeForCalculation * foirPercentage;
-  const availableEMI = isBT ? foirCap : (foirCap - totalObligations);
-
-  // Logic Bridge: Multiplier override
-  const multiplier = isGovtEmployee && govtMultiplier ? govtMultiplier : getMultiplier(incomeForCalculation, lookupCategory);
-
-  const foirLoanAmount = calculateLoanAmountFromEMI(availableEMI, finalInterestRate, cappedTenureYears);
-  const multiplierLoanAmount = incomeForCalculation * multiplier;
-
-  // Take minimum of FOIR and Multiplier methods
-  const maxLoanAmount = Math.min(foirLoanAmount, multiplierLoanAmount);
-
-  // Apply bank's maximum loan cap
-  const finalLoanAmount = Math.min(maxLoanAmount, desiredLoanAmount || Infinity, absoluteMaxLoan);
-  const loanCapped = maxLoanAmount > absoluteMaxLoan;
-
-  // ========== BALANCE TRANSFER CALCULATION ==========
   let btDetails = null;
   if (isBT) {
-    const btFreshAmount = finalLoanAmount - btTotalOutstanding;
+    const btFreshAmount = cappedFinalLoan - btTotalOutstanding;
     if (btFreshAmount < 0) {
-      return {
-        isEligible: false,
-        reason: `BT Outstanding (₹${btTotalOutstanding?.toLocaleString() || '0'}) exceeds maximum eligible loan (₹${Math.round(finalLoanAmount)?.toLocaleString() || '0'})`,
-        isBTMode: true
-      };
+      return { eligible: false, reason: `BT Outstanding (₹${btTotalOutstanding.toLocaleString()}) exceeds max loan (₹${Math.round(cappedFinalLoan).toLocaleString()})`, isBTMode: true };
     }
     btDetails = {
       isBTMode: true,
@@ -242,24 +286,25 @@ export const calculateTataEligibility = (userData) => {
       creditCardObligation: Math.round(creditCardObligation || 0),
       creditCardObligationNote: creditCardObligation > 0 ? '5% of non-BT credit card outstanding' : 'No credit card obligation (either no CC or CC in BT)',
       totalNonBTObligations: Math.round(nonBTLoansEMI + (creditCardObligation || 0)),
-      originalIncome: monthlyIncome,
+      originalIncome: monthlyIncomeForCalc,
       adjustedIncome: Math.round(adjustedIncome)
     };
   }
-  // ========== END BT CALCULATION ==========
 
-  // Calculate final EMI for the loan amount using capped tenure
-  const monthlyEMI = calculateEMI(finalLoanAmount, finalInterestRate, cappedTenureYears);
+  const finalEMI = calculateEMI(cappedFinalLoan, finalInterestRate, cappedTenureYears);
 
   return {
-    isEligible: true,
+    eligible: true,
     bankId: tataConfig.id,
     bankName: tataConfig.name,
-    loanAmount: Math.round(finalLoanAmount),
-    maxLoanAmount: Math.round(finalLoanAmount),
-    maxLoanCap: absoluteMaxLoan,
+    loanAmount: Math.round(cappedFinalLoan),
+    maxLoanCap: tataConfig.maxLoanAmount,
     loanCappedByBank: loanCapped,
-    calculatedLoanBeforeCap: loanCapped ? Math.round(maxLoanAmount) : null,
+    calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
+    bachelorCapped: appliedBachelorCap,
+    bachelorCapReason: bachelorCapReasonStr,
+    regularMaxLoan: Math.round(maxLoanCapAmount),
+    bachelorMaxLoanAmount: bachelorLimitAmount !== null ? Math.round(bachelorLimitAmount) : null,
     interestRate: finalInterestRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,
@@ -267,19 +312,24 @@ export const calculateTataEligibility = (userData) => {
     requestedTenure: loanTenure,
     requestedTenureMonths: requestedTenureMonths,
     maxTenureForCategory: maxTenureForCategory,
-    monthlyEMI: Math.round(monthlyEMI),
-    companyCategory: lookupCategory,
-    foirPercentage: foirPercentage,
-    multiplier: multiplier,
+    monthlyEMI: finalEMI,
+    category: category,
+    calculationMethod: 'Combined (FOIR + Multiplier)',
+    incentivePercentage: effectiveIncentivePercentage, // Dynamically reflect override
+    incentiveMonths: effectiveIncentiveMonths,
+    incentiveConsidered: bankIncentiveConsidered,
     details: {
+      foirPercentage: (foirPercentage * 100).toFixed(0) + '%',
+      multiplier: multiplier + 'x',
       foirLoanAmount: Math.round(foirLoanAmount),
       multiplierLoanAmount: Math.round(multiplierLoanAmount),
-      foirCap: Math.round(foirCap),
+      limitingFactor: finalLoanAmount === foirLoanAmount ? 'FOIR' : 'Multiplier',
       availableEMI: Math.round(availableEMI),
       existingEMI: Math.round(existingEMI || 0),
       creditCardObligation: Math.round(creditCardObligation || 0),
       creditCardObligationNote: creditCardObligation > 0 ? '5% of credit card outstanding balance' : 'No credit card obligations',
-      totalObligations: Math.round(totalObligations)
+      totalObligations: Math.round(totalObligations),
+      availableSalaryAfterObligations: Math.round(availableSalary)
     },
     ...btDetails
   };
