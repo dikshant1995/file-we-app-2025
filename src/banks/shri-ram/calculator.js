@@ -204,10 +204,9 @@ export const calculateShriRamEligibility = (userData) => {
   // Logic Bridge: Support govtFOIR override
   let foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : bandData.foir;
 
-  const foirCap = monthlyIncomeForCalc * foirPercentage;
+  const foirCap = isBT ? (adjustedIncome * foirPercentage) : (monthlyIncomeForCalc * foirPercentage);
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
-  // User Logic: (Salary * FOIR%) - Non-BT EMI = Available EMI
-  const availableEMI = isBT ? (foirCap - nonBTLoansEMI) : (foirCap - totalObligations);
+  const availableEMI = isBT ? foirCap : (foirCap - totalObligations);
 
   if (availableEMI <= 0) {
     return {
