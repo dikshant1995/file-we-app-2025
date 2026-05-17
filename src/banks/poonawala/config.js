@@ -79,6 +79,7 @@ export const poonawalaConfig = {
     }
   },
 
+
   // Minimum NTH (Net Take-Home) salary by segment
   minNTHBySegment: {
     'SUPER-A': 30000,
