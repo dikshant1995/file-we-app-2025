@@ -20,6 +20,7 @@ export const iciciConfig = {
     '<50000': 0.55,
     '>=50000': 0.65
   },
+
   // Minimum salary requirements by category
   minSalary: {
     'A': 30000,
