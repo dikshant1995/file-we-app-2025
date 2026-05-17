@@ -255,7 +255,7 @@ export const calculatePoonawalaEligibility = (userData) => {
   // Logic Bridge: Support ROI overrides
   let finalInterestRate = interestRateOverride;
   if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
-  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(category, preliminaryCappedLoan, userData.city || userData.state);
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(customerSegment, preliminaryCappedLoan, userData.city || userData.state);
 
   // Recalculate loan with final rate
   const calculatedLoanAmount = calculatePrincipalFromEMI(
@@ -341,7 +341,7 @@ export const calculatePoonawalaEligibility = (userData) => {
     customerSegment: customerSegment,
     foirPercentage: foirPercentage,
     availableEMI: Math.round(availableEMI),
-    calculationMethod: 'Combined (FOIR + Multiplier)',
+    calculationMethod: 'FOIR Only',
     incentivePercentage: effectiveIncentivePercentage, // Dynamically reflect override
     incentiveMonths: effectiveIncentiveMonths,
     incentiveConsidered: bankIncentiveConsidered,
