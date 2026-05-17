@@ -1,5 +1,11 @@
 import { bandhanConfig } from './config.js';
-import { getBankConfig, getDynamicInterestRate } from '../../utils/configHelper.js';
+import { getSlabRate } from '../../utils/policyUtils.js';
+
+// Helper function to get interest rate based on category and loan amount
+const getInterestRateForLoan = (category, loanAmount, location = null) => {
+  let lookupCategory = category === 'Govt' ? 'A' : category;
+  return getSlabRate('Bandhan Bank', lookupCategory, loanAmount, location, bandhanConfig.interestRate);
+};
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -79,12 +85,18 @@ export const calculateBandhanEligibility = (userData) => {
   const {
     desiredLoanAmount,
     loanTenure,
+    basicSalary, // NEW
+    averageIncentive, // NEW
     monthlyIncome,
     existingEMI,
     creditCardObligation, // NEW: 5% of non-BT credit card balances
     companyName,
     creditScore,
     employmentType,
+    interestRate,
+    age,
+    category,
+    existingLoanBanks,
     // Admin Overrides (Logic Bridge)
     interestRateOverride,
     isGovtEmployee,
@@ -92,48 +104,44 @@ export const calculateBandhanEligibility = (userData) => {
     govtFOIR,
     govtMultiplier,
     govtMaxTenure,
-    // User fields
-    age,
-    category,
-    existingLoanBanks,
     // Balance Transfer fields
     isBTMode,
     loansForBT,
     btTotalEMI,
-    btTotalOutstanding
+    btTotalOutstanding,
+    // Incentive Overrides
+    incentivePercentageOverride,
+    incentiveMonthsOverride
   } = userData;
 
-  // ========== CATEGORY STANDARDIZATION ==========
-  // Determine lookup category - handle both standard and GOVT cases
-  let companyCategory = category || 'B';
-  if (employmentType === 'government') {
-    companyCategory = 'GOVT';
-  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
-    companyCategory = 'GOVT';
-  }
+  // ========== INCENTIVE CALCULATION LOGIC ==========
+  const effectiveIncentivePercentage = incentivePercentageOverride !== undefined 
+    ? incentivePercentageOverride 
+    : (bandhanConfig.incentivePercentage || 0);
 
-  // Use standardized GOVT for table lookups
-  const lookupCategory = companyCategory;
-  // ========== END CATEGORY STANDARDIZATION ==========
+  const effectiveIncentiveMonths = incentiveMonthsOverride !== undefined 
+    ? incentiveMonthsOverride 
+    : 3; // Default to 3 months if not specified
 
-  // ========== BALANCE TRANSFER MODE DETECTION ==========
+  const bankIncentiveConsidered = (averageIncentive || 0) * effectiveIncentivePercentage;
+  const actualMonthlyIncome = (basicSalary || 0) + bankIncentiveConsidered;
+  
+  // Use actualMonthlyIncome for all subsequent calculations
+  const monthlyIncomeForCalc = actualMonthlyIncome;
+
   const isBT = isBTMode && loansForBT && loansForBT.length > 0;
-  let adjustedIncome = monthlyIncome;
+  let adjustedIncome = monthlyIncomeForCalc;
   let nonBTLoansEMI = 0;
 
   if (isBT) {
     nonBTLoansEMI = (existingEMI || 0) - btTotalEMI;
+    // NEW: Also deduct credit card obligations from adjusted income
     const creditCardDeduction = creditCardObligation || 0;
-    adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
+    adjustedIncome = monthlyIncomeForCalc - nonBTLoansEMI - creditCardDeduction;
     if (adjustedIncome <= 0) {
-      return {
-        isEligible: false,
-        reason: `After deducting non-BT obligations (₹${((existingEMI || 0) + (creditCardObligation || 0))?.toLocaleString() || '0'}), no income remains for Balance Transfer`,
-        isBTMode: true
-      };
+      return { eligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains`, isBTMode: true };
     }
   }
-  // ========== END BT MODE DETECTION ==========
 
   // CHECK: If customer already has a personal loan from Bandhan Bank
   if (existingLoanBanks && existingLoanBanks.length > 0) {
@@ -144,40 +152,48 @@ export const calculateBandhanEligibility = (userData) => {
 
     if (hasExistingBandhanLoan) {
       return {
-        isEligible: false,
+        eligible: false,
         reason: 'As an existing customer of Bandhan Bank with an active personal loan, you are not eligible for a new loan from this bank'
       };
     }
   }
 
   // Check age eligibility
-  const ageConfig = getBankConfig('Bandhan Bank', 'ageRules');
-  const minAge = ageConfig?.minAge ?? bandhanConfig.minAge;
-  const maxAge = ageConfig?.maxAge ?? bandhanConfig.maxAge;
-
-  if (age && (age < minAge || age > maxAge)) {
+  if (age && (age < bandhanConfig.minAge || age > bandhanConfig.maxAge)) {
     return {
-      isEligible: false,
-      reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
+      eligible: false,
+      reason: `Age must be between ${bandhanConfig.minAge} and ${bandhanConfig.maxAge} years. Current age: ${age}`
     };
   }
+
+  // Pass 1: Preliminary ROI for initial calculation
+  const baseRate = bandhanConfig.interestRate;
 
   // Check employment type
   if (!bandhanConfig.employmentTypes.includes(employmentType)) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `Employment type ${employmentType} not supported by this bank`
     };
   }
 
+  // Use user-provided category (from frontend: B, C, or GOVT)
+  const companyCategory = category || 'B'; // Default to B if not provided
+
   // Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
+  let lookupCategory = companyCategory === 'Govt' ? 'A' : companyCategory;
   let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : bandhanConfig.maxTenureByCategory[lookupCategory];
+
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
-    maxTenureForCategory = 60; // Fallback
+    return {
+      eligible: false,
+      reason: `Bandhan Bank does not provide loans to ${companyCategory} companies`
+    };
   }
 
   // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
+  // This shows the maximum loan amount the bank can offer for this category
   const cappedTenureMonths = maxTenureForCategory;
   const cappedTenureYears = cappedTenureMonths / 12;
 
@@ -186,72 +202,92 @@ export const calculateBandhanEligibility = (userData) => {
   const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
 
   // Check minimum salary requirement based on category
-  const salConfig = getBankConfig('Bandhan Bank', 'employmentRules');
-  const catMinSalary = bandhanConfig.minSalary[lookupCategory] || bandhanConfig.minSalary['A'];
-  const effectiveMinSalary = salConfig?.salariedMinSalary ?? catMinSalary;
+  let lookupCategorySalary = companyCategory === 'Govt' ? 'A' : companyCategory;
+  const categoryMinSalary = bandhanConfig.minSalary[lookupCategorySalary];
 
-  if (catMinSalary === null) {
-    return { isEligible: false, reason: `Bandhan Bank does not provide loans to unlisted companies` };
+  if (categoryMinSalary === null) {
+    return { eligible: false, reason: `Bandhan Bank does not provide loans to UNLISTED companies` };
   }
 
-  const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
-  if (incomeToCheck < effectiveMinSalary) {
-    return {
-      isEligible: false,
-      reason: `Minimum monthly income required is ₹${catMinSalary?.toLocaleString() || '0'} for Category ${lookupCategory}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`,
-      isBTMode: isBT
-    };
+  const incomeToCheck = isBT ? adjustedIncome : monthlyIncomeForCalc;
+  if (incomeToCheck < categoryMinSalary) {
+    return { eligible: false, reason: `Minimum monthly income required for ${companyCategory} category is ₹${categoryMinSalary.toLocaleString()}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
   // Calculate using FOIR method
-  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
-  // Logic Bridge: FOIR override
-  const foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : getFoirPercentage(incomeForCalculation);
+  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncomeForCalc;
+
+  // Logic Bridge: Support govtFOIR override
+  let foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : getFoirPercentage(incomeForCalculation);
+
   if (!foirPercentage) {
-    return {
-      isEligible: false,
-      reason: 'Unable to determine FOIR percentage for the provided salary',
-      isBTMode: isBT
-    };
+    return { eligible: false, reason: 'Unable to determine FOIR percentage for the provided salary', isBTMode: isBT };
   }
 
-  const foirCap = incomeForCalculation * foirPercentage;
+  const foirCap = monthlyIncomeForCalc * foirPercentage;
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
-  const availableEMI = isBT ? foirCap : (foirCap - totalObligations);
+  // User Logic: (Salary * FOIR%) - Non-BT EMI = Available EMI
+  const availableEMI = isBT ? (foirCap - nonBTLoansEMI) : (foirCap - totalObligations);
 
-  // Preliminary loan amount with base rate
-  const preliminaryLoanAmount = calculateLoanAmountFromEMI(availableEMI, bandhanConfig.interestRate, cappedTenureYears);
+  // 1. FOIR Path: Calculate preliminary loan based on available EMI
+  const preliminaryFoirLoanAmount = calculateLoanAmountFromEMI(availableEMI, baseRate, cappedTenureYears);
 
-  // ROI Logic Bridge Overrides
-  let finalInterestRate = interestRateOverride;
+  // Preliminary Decision: Take the MINIMUM of FOIR and desired loan
+  const preliminaryMaxLoanAmount = Math.min(
+    desiredLoanAmount || Infinity,
+    preliminaryFoirLoanAmount
+  );
+
+  // Apply bank's maximum loan cap for pass 1
+  const preliminaryLoanAmount = Math.min(preliminaryMaxLoanAmount, bandhanConfig.maxLoanAmount);
+
+  // Pass 2: Get final ROI based on preliminary loan amount
+  let finalInterestRate = interestRateOverride || interestRate;
   if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
-  if (!finalInterestRate) {
-    finalInterestRate = getDynamicInterestRate('Bandhan Bank', lookupCategory, preliminaryLoanAmount, { state: userData.state, city: userData.city }, bandhanConfig.interestRate);
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(companyCategory, preliminaryLoanAmount, userData.city || userData.state);
+
+  const effectiveInterestRate = finalInterestRate;
+
+  // Recalculate FOIR loan amount based on available EMI using the final interest rate
+  const foirLoanAmount = calculateLoanAmountFromEMI(availableEMI, effectiveInterestRate, cappedTenureYears);
+
+  // Final loan amount = minimum of final FOIR loan and desired
+  const maxLoanAmount = Math.min(
+    desiredLoanAmount || Infinity,
+    foirLoanAmount
+  );
+
+  // Apply bank's maximum loan cap
+  const maxLoanCapAmount = Math.min(maxLoanAmount, bandhanConfig.maxLoanAmount);
+  const loanCapped = maxLoanAmount > bandhanConfig.maxLoanAmount;
+
+  // Apply Dynamic Bachelor Capping
+  let appliedBachelorCap = false;
+  let bachelorLimitAmount = null;
+  let bachelorCapReasonStr = null;
+  let finalLoanAmount = maxLoanCapAmount;
+
+  if (userData.dynamicBachelorLimitOverride !== undefined) {
+    bachelorLimitAmount = userData.dynamicBachelorLimitOverride;
+    if (finalLoanAmount > bachelorLimitAmount) {
+      finalLoanAmount = bachelorLimitAmount;
+      appliedBachelorCap = true;
+      bachelorCapReasonStr = userData.dynamicBachelorCapReason || 'Dynamic Bachelor Capping limit applied';
+    }
+  } else if (bandhanConfig.bachelorMaxLoanAmount !== undefined && userData.maritalStatus === 'single' && userData.livingStatus === 'rented') {
+    bachelorLimitAmount = bandhanConfig.bachelorMaxLoanAmount;
+    if (finalLoanAmount > bachelorLimitAmount) {
+      finalLoanAmount = bachelorLimitAmount;
+      appliedBachelorCap = true;
+      bachelorCapReasonStr = 'Rented Bachelor Limit Applied (Bank Default)';
+    }
   }
 
-  // Final loan amount
-  const foirLoanAmount = calculateLoanAmountFromEMI(availableEMI, finalInterestRate, cappedTenureYears);
-
-  // Take the minimum of desired loan amount and FOIR-based loan amount
-  const maxLoanAmount = foirLoanAmount;
-
-  // Get loan capping config
-  const cappingConfig = getBankConfig('Bandhan Bank', 'loanCapping');
-  const absoluteMaxLoan = cappingConfig?.absoluteMaxLoan ?? bandhanConfig.maxLoanAmount;
-
-  const finalLoanAmount = Math.min(maxLoanAmount, desiredLoanAmount || Infinity, absoluteMaxLoan);
-  const loanCapped = maxLoanAmount > absoluteMaxLoan;
-
-  // ========== BALANCE TRANSFER CALCULATION ==========
   let btDetails = null;
   if (isBT) {
     const btFreshAmount = finalLoanAmount - btTotalOutstanding;
     if (btFreshAmount < 0) {
-      return {
-        isEligible: false,
-        reason: `BT Outstanding (₹${btTotalOutstanding?.toLocaleString() || '0'}) exceeds maximum eligible loan (₹${Math.round(finalLoanAmount)?.toLocaleString() || '0'})`,
-        isBTMode: true
-      };
+      return { eligible: false, reason: `BT Outstanding (₹${btTotalOutstanding.toLocaleString()}) exceeds max loan (₹${Math.round(finalLoanAmount).toLocaleString()})`, isBTMode: true };
     }
     btDetails = {
       isBTMode: true,
@@ -263,24 +299,26 @@ export const calculateBandhanEligibility = (userData) => {
       creditCardObligation: Math.round(creditCardObligation || 0),
       creditCardObligationNote: creditCardObligation > 0 ? '5% of non-BT credit card outstanding' : 'No credit card obligation (either no CC or CC in BT)',
       totalNonBTObligations: Math.round(nonBTLoansEMI + (creditCardObligation || 0)),
-      originalIncome: monthlyIncome,
+      originalIncome: monthlyIncomeForCalc,
       adjustedIncome: Math.round(adjustedIncome)
     };
   }
-  // ========== END BT CALCULATION ==========
 
-  const monthlyEMI = calculateEMI(finalLoanAmount, finalInterestRate, cappedTenureYears);
+  const monthlyEMI = calculateEMI(finalLoanAmount, effectiveInterestRate, cappedTenureYears);
 
   return {
-    isEligible: true,
+    eligible: true,
     bankId: bandhanConfig.id,
     bankName: bandhanConfig.name,
     loanAmount: Math.round(finalLoanAmount),
-    maxLoanAmount: Math.round(finalLoanAmount),
-    maxLoanCap: absoluteMaxLoan,
+    maxLoanCap: bandhanConfig.maxLoanAmount,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(maxLoanAmount) : null,
-    interestRate: finalInterestRate,
+    bachelorCapped: appliedBachelorCap,
+    bachelorCapReason: bachelorCapReasonStr,
+    regularMaxLoan: Math.round(maxLoanCapAmount),
+    bachelorMaxLoanAmount: bachelorLimitAmount !== null ? Math.round(bachelorLimitAmount) : null,
+    interestRate: effectiveInterestRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,
     tenureCapped: tenureCapped,
@@ -288,13 +326,18 @@ export const calculateBandhanEligibility = (userData) => {
     requestedTenureMonths: requestedTenureMonths,
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
-    companyCategory: lookupCategory,
-    foirPercentage: foirPercentage,
+    companyCategory: companyCategory,
+    calculationMethod: 'FOIR Only',
+    incentivePercentage: effectiveIncentivePercentage, // Dynamically reflect override
+    incentiveMonths: effectiveIncentiveMonths,
+    incentiveConsidered: bankIncentiveConsidered,
     details: {
       foirLoanAmount: Math.round(foirLoanAmount),
       foirCap: Math.round(foirCap),
       availableEMI: Math.round(availableEMI),
       existingEMI: Math.round(existingEMI || 0),
+      creditCardObligation: Math.round(creditCardObligation || 0),
+      creditCardObligationNote: creditCardObligation > 0 ? '5% of credit card outstanding balance' : 'No credit card obligations',
       totalObligations: Math.round(totalObligations)
     },
     ...btDetails
