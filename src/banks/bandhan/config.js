@@ -20,6 +20,7 @@ export const bandhanConfig = {
     '<75000': 0.60,
     '>=75000': 0.70
   },
+
   // Minimum salary requirements by category
   minSalary: {
     'A': 20000,
