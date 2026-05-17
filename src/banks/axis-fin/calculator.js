@@ -277,7 +277,7 @@ export const calculateAxisFinEligibility = (userData) => {
     multiplier: multiplier,
     salaryBand: salaryBand,
     category: category,
-    calculationMethod: 'Combined (FOIR + Multiplier)',
+    calculationMethod: 'Multiplier Only',
     incentivePercentage: effectiveIncentivePercentage, // Dynamically reflect override
     incentiveMonths: effectiveIncentiveMonths,
     incentiveConsidered: bankIncentiveConsidered,
