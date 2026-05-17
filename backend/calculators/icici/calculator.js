@@ -360,6 +360,7 @@ export const calculateIciciEligibility = (userData) => {
     incentiveMonths: effectiveIncentiveMonths,
     incentiveConsidered: bankIncentiveConsidered,
     details: {
+      foirPercentage: (foirPercentage * 100).toFixed(0) + '%',
       foirLoanAmount: Math.round(foirLoanAmount),
       foirCap: Math.round(foirCap),
       availableEMI: Math.round(availableEMI),
