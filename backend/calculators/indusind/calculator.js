@@ -262,6 +262,28 @@ export const calculateIndusindEligibility = (userData) => {
 
   const preliminaryCappedLoan = Math.min(preliminaryLoanAmount, indusindConfig.maxLoanAmount);
 
+  // ROI Calculation using Logic Bridge and Slabs
+  let effectiveInterestRate = interestRateOverride;
+  if (isGovtEmployee && govtROI) {
+    effectiveInterestRate = govtROI;
+  } else if (!effectiveInterestRate) {
+    // Check dynamic slabs in Admin Matrix
+    effectiveInterestRate = getSlabRate('IndusInd Bank', multiplierLookupCategory, preliminaryCappedLoan, userData.city || userData.state, indusindConfig.interestRate);
+  }
+
+  // Pass 2: Calculate FOIR loan amount with final ROI
+  const foirLoanAmount = calculatePrincipalFromEMI(availableEMI, effectiveInterestRate, cappedTenureYears);
+
+  // Final loan amount is minimum of FOIR, Multiplier, and desired
+  const finalLoanAmount = Math.min(
+    multiplierLoanAmount,
+    foirLoanAmount,
+    desiredLoanAmount || Infinity
+  );
+
+  const maxLoanCapAmount = Math.min(finalLoanAmount, indusindConfig.maxLoanAmount);
+  const loanCapped = finalLoanAmount > indusindConfig.maxLoanAmount;
+
   // Apply Dynamic Bachelor Capping
   let appliedBachelorCap = false;
   let bachelorLimitAmount = null;
@@ -304,28 +326,6 @@ export const calculateIndusindEligibility = (userData) => {
       adjustedIncome: Math.round(adjustedIncome)
     };
   }
-
-  // ROI Calculation using Logic Bridge and Slabs
-  let effectiveInterestRate = interestRateOverride;
-  if (isGovtEmployee && govtROI) {
-    effectiveInterestRate = govtROI;
-  } else if (!effectiveInterestRate) {
-    // Check dynamic slabs in Admin Matrix
-    effectiveInterestRate = getSlabRate('IndusInd Bank', multiplierLookupCategory, preliminaryCappedLoan, userData.city || userData.state, indusindConfig.interestRate);
-  }
-
-  // Pass 2: Calculate FOIR loan amount with final ROI
-  const foirLoanAmount = calculatePrincipalFromEMI(availableEMI, effectiveInterestRate, cappedTenureYears);
-
-  // Final loan amount is minimum of FOIR, Multiplier, and desired
-  const finalLoanAmount = Math.min(
-    multiplierLoanAmount,
-    foirLoanAmount,
-    desiredLoanAmount || Infinity
-  );
-
-  const maxLoanCapAmount = Math.min(finalLoanAmount, indusindConfig.maxLoanAmount);
-  const loanCapped = finalLoanAmount > indusindConfig.maxLoanAmount;
 
   const monthlyEMI = calculateEMI(cappedFinalLoan, effectiveInterestRate, cappedTenureYears);
 
