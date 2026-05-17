@@ -249,8 +249,17 @@ export const calculateIciciEligibility = (userData) => {
   // User Logic: (Salary * FOIR%) - Non-BT EMI = Available EMI
   const availableEMI = isBT ? (foirCap - nonBTLoansEMI) : (foirCap - totalObligations);
 
-  // Calculate preliminary loan amount based on available EMI using base rate
-  const preliminaryLoanAmount = calculateLoanAmountFromEMI(availableEMI, baseRate, cappedTenureYears);
+  // 1. FOIR Path: Calculate preliminary loan based on available EMI
+  const preliminaryFoirLoanAmount = calculateLoanAmountFromEMI(availableEMI, baseRate, cappedTenureYears);
+
+  // Preliminary Decision: Take the MINIMUM of FOIR and desired loan
+  const preliminaryMaxLoanAmount = Math.min(
+    desiredLoanAmount || Infinity,
+    preliminaryFoirLoanAmount
+  );
+
+  // Apply bank's maximum loan cap for pass 1
+  const preliminaryLoanAmount = Math.min(preliminaryMaxLoanAmount, iciciConfig.maxLoanAmount);
 
   // Pass 2: Get final ROI based on preliminary loan amount
   let finalInterestRate = interestRateOverride || interestRate;
@@ -259,10 +268,10 @@ export const calculateIciciEligibility = (userData) => {
 
   const effectiveInterestRate = finalInterestRate;
 
-  // Recalculate loan amount based on available EMI using the final interest rate
+  // Recalculate FOIR loan amount based on available EMI using the final interest rate
   const foirLoanAmount = calculateLoanAmountFromEMI(availableEMI, effectiveInterestRate, cappedTenureYears);
 
-  // Take the minimum of desired loan amount and FOIR-based loan amount
+  // Final loan amount = minimum of final FOIR loan and desired
   const maxLoanAmount = Math.min(
     desiredLoanAmount || Infinity,
     foirLoanAmount
