@@ -115,8 +115,8 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
   const btInput = {
     ...customerInfo,
     desiredLoanAmount: null,
-    existingEMI: totalExistingEMI, 
-    creditCardObligation: 0, // In Full BT, we assume CCs are cleared too
+    existingEMI: customerInfo.existingEMI !== undefined ? customerInfo.existingEMI : totalExistingEMI, 
+    creditCardObligation: customerInfo.creditCardObligation !== undefined ? customerInfo.creditCardObligation : 0, 
     totalPOS: totalPOS,
     isBTMode: true,
     loansForBT: activeLiabilities,
