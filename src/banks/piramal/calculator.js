@@ -203,7 +203,7 @@ export const calculatePiramalEligibility = (userData) => {
   }
 
   const foirCap = monthlyIncomeForCalc * foirPercentage;
-  const totalObligations = existingEMI + (creditCardObligation || 0);
+  const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
   // User Logic: (Salary * FOIR%) - Non-BT EMI = Available EMI
   const availableEMI = isBT ? (foirCap - nonBTLoansEMI) : (foirCap - totalObligations);
 
@@ -221,9 +221,9 @@ export const calculatePiramalEligibility = (userData) => {
   const preliminaryLoanAmount = calculatePrincipalFromEMI(availableEMI, baseRate, cappedTenureYears);
 
   // Pass 2: Get final ROI based on preliminary loan amount
-  let finalInterestRate = interestRateOverride;
+  let finalInterestRate = interestRateOverride || piramalConfig.interestRate;
   if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
-  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(category, preliminaryLoanAmount, userData.city || userData.state);
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan('ALL', preliminaryLoanAmount, userData.city || userData.state);
 
   const effectiveInterestRate = finalInterestRate;
 
