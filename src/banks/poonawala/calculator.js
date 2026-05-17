@@ -221,10 +221,9 @@ export const calculatePoonawalaEligibility = (userData) => {
     return { eligible: false, reason: `No FOIR available for ${customerSegment} segment at NTH ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
   }
 
-  const foirCap = monthlyIncomeForCalc * foirPercentage;
-  const totalObligations = existingEMI + (creditCardObligation || 0);
-  // User Logic: (Salary * FOIR%) - Non-BT EMI = Available EMI
-  const availableEMI = isBT ? (foirCap - nonBTLoansEMI) : (foirCap - totalObligations);
+  const foirCap = isBT ? (adjustedIncome * foirPercentage) : (monthlyIncomeForCalc * foirPercentage);
+  const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
+  const availableEMI = isBT ? foirCap : (foirCap - totalObligations);
 
   if (availableEMI <= 0) {
     return {
