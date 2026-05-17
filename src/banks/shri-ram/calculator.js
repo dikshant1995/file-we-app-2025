@@ -201,13 +201,13 @@ export const calculateShriRamEligibility = (userData) => {
 
   const bandData = shriRamConfig.salaryBandTable[salaryBand];
 
-  // Logic Bridge: Support govtMultiplier and govtFOIR overrides
-  let multiplier = isGovtEmployee && govtMultiplier ? govtMultiplier : bandData.multiplier;
+  // Logic Bridge: Support govtFOIR override
   let foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : bandData.foir;
 
   const foirCap = monthlyIncomeForCalc * foirPercentage;
+  const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
   // User Logic: (Salary * FOIR%) - Non-BT EMI = Available EMI
-  const availableEMI = isBT ? (foirCap - nonBTLoansEMI) : (foirCap - existingEMI);
+  const availableEMI = isBT ? (foirCap - nonBTLoansEMI) : (foirCap - totalObligations);
 
   if (availableEMI <= 0) {
     return {
@@ -215,12 +215,6 @@ export const calculateShriRamEligibility = (userData) => {
       reason: `Existing EMI (₹${existingEMI.toLocaleString()}) exceeds FOIR limit of ₹${Math.round(foirCap).toLocaleString()}`
     };
   }
-
-  // Method 2: Multiplier-based calculation
-  // IMPORTANT: For multiplier, use salary after deducting existing EMI + credit card obligations (non-BT mode)
-  const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
-  const availableSalary = isBT ? incomeForCalculation : (monthlyIncomeForCalc - totalObligations);
-  const multiplierLoanAmount = availableSalary * multiplier;
 
   // Pass 1: Preliminary ROI for initial calculation
   const baseRate = shriRamConfig.interestRate;
@@ -231,7 +225,6 @@ export const calculateShriRamEligibility = (userData) => {
   // Take the minimum for first pass
   const preliminaryMaxLoanAmount = Math.min(
     desiredLoanAmount || Infinity,
-    multiplierLoanAmount,
     preliminaryFoirLoanAmount
   );
 
@@ -249,10 +242,9 @@ export const calculateShriRamEligibility = (userData) => {
   const foirLoanAmount = calculatePrincipalFromEMI(availableEMI, effectiveInterestRate, cappedTenureYears);
 
 
-  // Final loan amount is minimum of both methods and desired amount
+  // Final loan amount is minimum of FOIR and desired amount
   const finalLoanAmount = Math.min(
     foirLoanAmount,
-    multiplierLoanAmount,
     desiredLoanAmount || Infinity
   );
 
@@ -324,7 +316,6 @@ export const calculateShriRamEligibility = (userData) => {
     requestedTenureMonths: requestedTenureMonths,
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
-    multiplier: multiplier,
     foirPercentage: foirPercentage,
     salaryBand: salaryBand,
     incentivePercentage: effectiveIncentivePercentage, // Dynamically reflect override
@@ -332,22 +323,17 @@ export const calculateShriRamEligibility = (userData) => {
     incentiveConsidered: bankIncentiveConsidered,
     availableEMI: Math.round(availableEMI),
     foirLoanAmount: Math.round(foirLoanAmount),
-    multiplierLoanAmount: Math.round(multiplierLoanAmount),
-    calculationMethod: 'Combined (Income-based FOIR + Multiplier, No Category Distinction)',
+    calculationMethod: 'FOIR Only (Income-based, No Category Distinction)',
     details: {
       foirPercentage: (foirPercentage * 100).toFixed(0) + '%',
-      multiplier: multiplier + 'x',
       salaryBand: salaryBand,
       foirCap: Math.round(foirCap),
       availableEMI: Math.round(availableEMI),
-      foirLoanAmount: Math.round(foirLoanAmount),
-      multiplierLoanAmount: Math.round(multiplierLoanAmount),
-      limitingFactor: finalLoanAmount === foirLoanAmount ? 'FOIR' : 'Multiplier',
+      maxLoanFromFOIR: Math.round(foirLoanAmount),
       existingEMI: Math.round(existingEMI || 0),
       creditCardObligation: Math.round(creditCardObligation || 0),
       creditCardObligationNote: creditCardObligation > 0 ? '5% of credit card outstanding balance' : 'No credit card obligations',
-      totalObligations: Math.round(totalObligations),
-      availableSalaryAfterObligations: Math.round(availableSalary)
+      totalObligations: Math.round(totalObligations)
     },
     ...btDetails
   };
