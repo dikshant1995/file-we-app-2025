@@ -12,11 +12,56 @@ export const indusindConfig = {
   bachelorMaxLoanAmount: 2000000, // ₹20 Lakhs maximum for unmarried individuals
   interestRate: 11.0, // Fixed at 11% for all banks as per policy
   processingFee: 0.01,
-  
+
   // Incentive policy
   incentivePercentage: 1.0, // 100% of average incentive
   incentivePeriodMonths: 3, // Last 3 months
-  
+  // FOIR table based on salary
+  foirTable: {
+    'A+': {
+      '20000-35000': 0.50,
+      '35001-50000': 0.60,
+      '50001-80000': 0.70,
+      '>80000': 0.75
+    },
+    'A': {
+      '20000-35000': 0.50,
+      '35001-50000': 0.60,
+      '50001-80000': 0.70,
+      '>80000': 0.75
+    },
+    'GOVT': {
+      '20000-35000': 0.50,
+      '35001-50000': 0.60,
+      '50001-80000': 0.70,
+      '>80000': 0.75
+    },
+    'B': {
+      '20000-35000': 0.50,
+      '35001-50000': 0.60,
+      '50001-80000': 0.70,
+      '>80000': 0.70
+    },
+    'C': {
+      '20000-35000': 0.50,
+      '35001-50000': 0.50,
+      '50001-80000': 0.70,
+      '>80000': 0.70
+    },
+    'D': {
+      '20000-35000': 0.50,
+      '35001-50000': 0.50,
+      '50001-80000': 0.70,
+      '>80000': 0.70
+    },
+    'UNLISTED': {
+      '20000-35000': 0.50,
+      '35001-50000': 0.50,
+      '50001-80000': 0.70,
+      '>80000': 0.70
+    }
+  },
+
   // Multiplier table based on salary bands and categories
   // Formula: Loan Amount = Monthly Salary × Multiplier
   multiplierTable: {
@@ -52,7 +97,7 @@ export const indusindConfig = {
       '25000+': 18  // Same as Category D
     }
   },
-  
+
   // Minimum salary requirements by category
   minSalaryByCategory: {
     'A+': 25000,
@@ -63,7 +108,7 @@ export const indusindConfig = {
     'D': 25000,  // Same as A/B
     'UNLISTED': 25000  // Same as A/B
   },
-  
+
   // Maximum tenure by category (in months)
   maxTenureByCategory: {
     'A+': 72,      // 6 years - CAT A+
@@ -74,7 +119,7 @@ export const indusindConfig = {
     'D': 48,       // 4 years - CAT D
     'UNLISTED': 48 // 4 years - UNLISTED
   },
-  
+
   // Category descriptions
   categories: {
     'A+': { description: 'Category A+ - Premium Companies (Highest Multipliers)' },
@@ -85,12 +130,12 @@ export const indusindConfig = {
     'D': { description: 'Category D - Lower Tier Companies' },
     'UNLISTED': { description: 'Unlisted Companies' }
   },
-  
+
   employmentTypes: ['salaried', 'government'],
   specialPrograms: ['indusind-select', 'government-special', 'premium-banking'],
-  
+
   // Calculation method
-  calculationMethod: 'Multiplier-Only',
+  calculationMethod: 'Both (Dual)',
   approach: 'Category-Based Minimum Salary + Tiered Multipliers',
   keyFeatures: [
     'Multiplier-only system (no FOIR calculation)',
@@ -100,7 +145,7 @@ export const indusindConfig = {
     'Category C flat 21x multiplier regardless of income',
     'Progressive multipliers for premium categories'
   ],
-  
+
   // Balance Transfer (BT) Configuration
   btConfig: {
     isAvailable: true, // BT facility is available
