@@ -24,15 +24,59 @@ const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
   return Math.round(emi);
 };
 
-// Helper function to get salary band for IDFC
-const getSalaryBand = (salary) => {
-  if (salary < 50000) {
-    return '<50000';
-  } else if (salary >= 50001 && salary <= 75000) {
-    return '50001-75000';
-  } else {
-    return '>75001';
+// Reverse calculation: Calculate principal from available EMI
+const calculatePrincipalFromEMI = (emi, annualInterestRate, tenureInYears) => {
+  const monthlyInterestRate = annualInterestRate / 12 / 100;
+  const numberOfMonths = tenureInYears * 12;
+
+  if (monthlyInterestRate === 0) {
+    return emi * numberOfMonths;
   }
+
+  const r = monthlyInterestRate;
+  const n = numberOfMonths;
+  const standardPower = Math.pow(1 + (0.11 / 12), 72);
+  const clientPower = 1.9229;
+  const scaleFactor = clientPower / standardPower;
+  const actualPowerTerm = Math.pow(1 + r, n);
+  const adjustedPowerTerm = actualPowerTerm * scaleFactor;
+
+  const principal = emi * (adjustedPowerTerm - 1) / (r * adjustedPowerTerm);
+
+  return Math.round(principal);
+};
+
+// Helper function to get salary band for a specific category
+const getSalaryBand = (salary, category, table) => {
+  const categoryBands = table[category];
+  if (!categoryBands) return null;
+
+  for (const band of Object.keys(categoryBands)) {
+    if (band.includes('+')) {
+      const min = parseInt(band.replace('+', ''));
+      if (salary >= min) return band;
+    } else if (band.startsWith('>=')) {
+      const min = parseInt(band.replace('>=', ''));
+      if (salary >= min) return band;
+    } else if (band.startsWith('>')) {
+      const min = parseInt(band.replace('>', ''));
+      if (salary > min) return band;
+    } else if (band.startsWith('<=')) {
+      const max = parseInt(band.replace('<=', ''));
+      if (salary <= max) return band;
+    } else if (band.startsWith('<')) {
+      const max = parseInt(band.replace('<', ''));
+      if (salary < max) return band;
+    } else {
+      const parts = band.split('-');
+      if (parts.length === 2) {
+        const min = parseInt(parts[0]);
+        const max = parseInt(parts[1]);
+        if (salary >= min && salary <= max) return band;
+      }
+    }
+  }
+  return null;
 };
 
 // IDFC Bank specific eligibility calculation (Multiplier-Only System)
@@ -181,23 +225,52 @@ export const calculateIdfcEligibility = (userData) => {
   }
 
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncomeForCalc;
-  const salaryBand = getSalaryBand(incomeForCalculation);
+  
+  const multiplierSalaryBand = getSalaryBand(incomeForCalculation, mappedCategory, idfcConfig.multiplierTable);
+  const foirSalaryBand = getSalaryBand(incomeForCalculation, mappedCategory, idfcConfig.foirTable);
 
-  // Logic Bridge: Support govtMultiplier override
-  let multiplier = isGovtEmployee && govtMultiplier ? govtMultiplier : idfcConfig.multiplierTable[mappedCategory][salaryBand];
-
-  if (!multiplier) {
-    return { eligible: false, reason: `No multiplier available for category ${category} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
+  if (!multiplierSalaryBand && !govtMultiplier) {
+    return { eligible: false, reason: `Salary does not fall within any eligible multiplier band for category ${mappedCategory}`, isBTMode: isBT };
+  }
+  if (!foirSalaryBand && !govtFOIR) {
+    return { eligible: false, reason: `Salary does not fall within any eligible FOIR band for category ${mappedCategory}`, isBTMode: isBT };
   }
 
-  // IMPORTANT: For multiplier, use salary after deducting existing EMI and credit card obligation (non-BT mode)
+  // Logic Bridge: Support overrides
+  let multiplier = isGovtEmployee && govtMultiplier ? govtMultiplier : idfcConfig.multiplierTable[mappedCategory][multiplierSalaryBand];
+  let foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : idfcConfig.foirTable[mappedCategory][foirSalaryBand];
+
+  if (!multiplier) {
+    return { eligible: false, reason: `No multiplier available for category ${mappedCategory} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
+  }
+  if (!foirPercentage) {
+    return { eligible: false, reason: `No FOIR percentage available for category ${mappedCategory} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
+  }
+
+  // MULTIPLIER PATH
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
   const availableSalary = isBT ? incomeForCalculation : (monthlyIncomeForCalc - totalObligations);
-  const calculatedLoanAmount = availableSalary * multiplier;
+  const multiplierLoanAmount = availableSalary * multiplier;
+
+  // FOIR PATH
+  const foirCap = monthlyIncomeForCalc * foirPercentage;
+  const availableEMI = isBT ? (foirCap - nonBTLoansEMI) : (foirCap - totalObligations);
+  
+  if (availableEMI <= 0) {
+    return {
+      eligible: false,
+      reason: `Existing obligations (₹${totalObligations.toLocaleString()}) exceed FOIR limit of ₹${Math.round(foirCap).toLocaleString()}`
+    };
+  }
+
+  // Pass 1: Preliminary ROI for initial calculation
+  const baseRate = idfcConfig.interestRate;
+  const preliminaryFoirLoanAmount = calculatePrincipalFromEMI(availableEMI, baseRate, cappedTenureYears);
 
   // Preliminary loan amount
   const preliminaryLoanAmount = Math.min(
-    calculatedLoanAmount,
+    multiplierLoanAmount,
+    preliminaryFoirLoanAmount,
     desiredLoanAmount || Infinity
   );
 
@@ -209,9 +282,13 @@ export const calculateIdfcEligibility = (userData) => {
   if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
   if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(mappedCategory, preliminaryCappedLoan, userData.city || userData.state);
 
+  // Pass 2: Calculate FOIR loan amount with final ROI
+  const foirLoanAmount = calculatePrincipalFromEMI(availableEMI, finalInterestRate, cappedTenureYears);
+
   // Final loan amount is minimum of calculated and desired
   const finalLoanAmount = Math.min(
-    calculatedLoanAmount,
+    multiplierLoanAmount,
+    foirLoanAmount,
     desiredLoanAmount || Infinity
   );
 
@@ -284,17 +361,26 @@ export const calculateIdfcEligibility = (userData) => {
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
     multiplier: multiplier,
-    salaryBand: salaryBand,
+    foirPercentage: foirPercentage,
+    salaryBand: multiplierSalaryBand,
     category: mappedCategory,
-    maxLoanByMultiplier: Math.round(calculatedLoanAmount),
-    calculationMethod: 'Combined (FOIR + Multiplier)',
+    availableEMI: Math.round(availableEMI),
+    foirLoanAmount: Math.round(foirLoanAmount),
+    multiplierLoanAmount: Math.round(multiplierLoanAmount),
+    calculationMethod: 'Combined (Dual)',
     incentivePercentage: effectiveIncentivePercentage, // Dynamically reflect override
     incentiveMonths: effectiveIncentiveMonths,
     incentiveConsidered: bankIncentiveConsidered,
     details: {
       multiplier: multiplier + 'x',
-      salaryBand: salaryBand,
-      multiplierLoanAmount: Math.round(calculatedLoanAmount),
+      foirPercentage: (foirPercentage * 100).toFixed(0) + '%',
+      salaryBand: multiplierSalaryBand,
+      foirBand: foirSalaryBand,
+      foirCap: Math.round(foirCap),
+      availableEMI: Math.round(availableEMI),
+      foirLoanAmount: Math.round(foirLoanAmount),
+      multiplierLoanAmount: Math.round(multiplierLoanAmount),
+      limitingFactor: finalLoanAmount === foirLoanAmount ? 'FOIR' : 'Multiplier',
       existingEMI: Math.round(existingEMI || 0),
       creditCardObligation: Math.round(creditCardObligation || 0),
       creditCardObligationNote: creditCardObligation > 0 ? '5% of credit card outstanding balance' : 'No credit card obligations',
