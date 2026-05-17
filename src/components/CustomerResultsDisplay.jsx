@@ -464,52 +464,68 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
                             {expandedBank === bank.bankName ? 'Hide Calculation Details ▲' : 'Show Calculation Details ▼'}
                           </button>
 
-                          {expandedBank === bank.bankName && (
-                            <div className="details-expanded-content" style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: 'rgba(0, 210, 255, 0.05)', padding: '10px', borderRadius: '8px' }}>
-                              <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
-                                <span className="d-label" style={{ opacity: 0.7 }}>Company Tier</span>
-                                <span className="d-value" style={{ fontWeight: '600' }}>Category {bank.category || 'A'}</span>
+                          {expandedBank === bank.bankName && (() => {
+                            const method = (bank.calculationMethod || '').toLowerCase();
+                            const isCombined = method.includes('combined') || method.includes('dual') || method.includes('both');
+                            const isFoir = method.includes('foir');
+                            const isMultiplier = method.includes('multiplier');
+                            
+                            // If it's specifically FOIR-only, hide multiplier. If it's Multiplier-only, hide foir.
+                            // Otherwise, default to showing what's in the data.
+                            const showFoir = isCombined || isFoir || (!isMultiplier);
+                            const showMultiplier = isCombined || isMultiplier || (!isFoir);
+                            
+                            return (
+                              <div className="details-expanded-content" style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: 'rgba(0, 210, 255, 0.05)', padding: '10px', borderRadius: '8px' }}>
+                                <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
+                                  <span className="d-label" style={{ opacity: 0.7 }}>Company Tier</span>
+                                  <span className="d-value" style={{ fontWeight: '600' }}>Category {bank.category || 'A'}</span>
+                                </div>
+                                
+                                {showFoir && (
+                                  <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
+                                    <span className="d-label" style={{ opacity: 0.7 }}>FOIR Cap</span>
+                                    <span className="d-value">{bank.details?.foirPercentage || '60%'}</span>
+                                  </div>
+                                )}
+
+                                {showMultiplier && (
+                                  <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
+                                    <span className="d-label" style={{ opacity: 0.7 }}>Multiplier</span>
+                                    <span className="d-value">{bank.details?.multiplier || '18x'}</span>
+                                  </div>
+                                )}
+
+                                {(bank.incentiveConsidered > 0 || bank.details?.incentiveConsidered > 0) && (
+                                  <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#00ffa3' }}>
+                                    <span className="d-label">Incentive Credit</span>
+                                    <span className="d-value">+{formatNumber(bank.incentiveConsidered || bank.details.incentiveConsidered)}</span>
+                                  </div>
+                                )}
+
+                                {(bank.ccObligation > 0 || bank.details?.creditCardObligation > 0) && (
+                                  <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#ff4d4d' }}>
+                                    <span className="d-label">CC Obligation Deduction</span>
+                                    <span className="d-value">-{formatNumber(bank.ccObligation || bank.details.creditCardObligation)}</span>
+                                  </div>
+                                )}
+
+                                {bank.nonSelectedEMI > 0 && (
+                                  <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#ff4d4d' }}>
+                                    <span className="d-label">External EMI Adjustment</span>
+                                    <span className="d-value">-{formatNumber(bank.nonSelectedEMI)}</span>
+                                  </div>
+                                )}
+                                
+                                {bank.details?.limitingFactor && (
+                                  <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '5px', marginTop: '5px' }}>
+                                    <span className="d-label" style={{ opacity: 0.7 }}>Limiting Parameter</span>
+                                    <span className="d-value" style={{ color: '#ae63e4' }}>{bank.details.limitingFactor}</span>
+                                  </div>
+                                )}
                               </div>
-                              
-                              <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
-                                <span className="d-label" style={{ opacity: 0.7 }}>FOIR Cap</span>
-                                <span className="d-value">{bank.details?.foirPercentage || '60%'}</span>
-                              </div>
-
-                              <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
-                                <span className="d-label" style={{ opacity: 0.7 }}>Multiplier</span>
-                                <span className="d-value">{bank.details?.multiplier || '18x'}</span>
-                              </div>
-
-                              {(bank.incentiveConsidered > 0 || bank.details?.incentiveConsidered > 0) && (
-                                <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#00ffa3' }}>
-                                  <span className="d-label">Incentive Credit</span>
-                                  <span className="d-value">+{formatNumber(bank.incentiveConsidered || bank.details.incentiveConsidered)}</span>
-                                </div>
-                              )}
-
-                              {(bank.ccObligation > 0 || bank.details?.creditCardObligation > 0) && (
-                                <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#ff4d4d' }}>
-                                  <span className="d-label">CC Obligation Deduction</span>
-                                  <span className="d-value">-{formatNumber(bank.ccObligation || bank.details.creditCardObligation)}</span>
-                                </div>
-                              )}
-
-                              {bank.nonSelectedEMI > 0 && (
-                                <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#ff4d4d' }}>
-                                  <span className="d-label">External EMI Adjustment</span>
-                                  <span className="d-value">-{formatNumber(bank.nonSelectedEMI)}</span>
-                                </div>
-                              )}
-                              
-                              {bank.details?.limitingFactor && (
-                                <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '5px', marginTop: '5px' }}>
-                                  <span className="d-label" style={{ opacity: 0.7 }}>Limiting Parameter</span>
-                                  <span className="d-value" style={{ color: '#ae63e4' }}>{bank.details.limitingFactor}</span>
-                                </div>
-                              )}
-                            </div>
-                          )}
+                            );
+                          })()}
                         </div>
                       </>
                     ) : (
