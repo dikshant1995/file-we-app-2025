@@ -18,23 +18,55 @@ const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
   return Math.round(emi);
 };
 
+// Reverse calculation: Calculate principal from available EMI
+const calculatePrincipalFromEMI = (emi, annualInterestRate, tenureInYears) => {
+  const monthlyInterestRate = annualInterestRate / 12 / 100;
+  const numberOfMonths = tenureInYears * 12;
+
+  if (monthlyInterestRate === 0) {
+    return emi * numberOfMonths;
+  }
+
+  const r = monthlyInterestRate;
+  const n = numberOfMonths;
+  const standardPower = Math.pow(1 + (0.11 / 12), 72);
+  const clientPower = 1.9229;
+  const scaleFactor = clientPower / standardPower;
+  const actualPowerTerm = Math.pow(1 + r, n);
+  const adjustedPowerTerm = actualPowerTerm * scaleFactor;
+
+  const principal = emi * (adjustedPowerTerm - 1) / (r * adjustedPowerTerm);
+
+  return Math.round(principal);
+};
+
 // Helper function to get salary band for a specific category
-const getSalaryBand = (salary, category, multiplierTable) => {
-  const categoryBands = multiplierTable[category];
+const getSalaryBand = (salary, category, table) => {
+  const categoryBands = table[category];
   if (!categoryBands) return null;
 
   for (const band of Object.keys(categoryBands)) {
     if (band.includes('+')) {
-      // Handle "30000+" or "75001+" format
       const min = parseInt(band.replace('+', ''));
-      if (salary >= min) {
-        return band;
-      }
+      if (salary >= min) return band;
+    } else if (band.startsWith('>=')) {
+      const min = parseInt(band.replace('>=', ''));
+      if (salary >= min) return band;
+    } else if (band.startsWith('>')) {
+      const min = parseInt(band.replace('>', ''));
+      if (salary > min) return band;
+    } else if (band.startsWith('<=')) {
+      const max = parseInt(band.replace('<=', ''));
+      if (salary <= max) return band;
+    } else if (band.startsWith('<')) {
+      const max = parseInt(band.replace('<', ''));
+      if (salary < max) return band;
     } else {
-      // Handle "25000-75000" format
-      const [min, max] = band.split('-').map(s => parseInt(s));
-      if (salary >= min && salary <= max) {
-        return band;
+      const parts = band.split('-');
+      if (parts.length === 2) {
+        const min = parseInt(parts[0]);
+        const max = parseInt(parts[1]);
+        if (salary >= min && salary <= max) return band;
       }
     }
   }
@@ -177,32 +209,58 @@ export const calculateIndusindEligibility = (userData) => {
   }
 
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncomeForCalc;
-  const salaryBand = getSalaryBand(incomeForCalculation, category === 'Govt' ? 'A' : category, indusindConfig.multiplierTable);
+  const foirLookupCategory = category === 'Govt' ? 'GOVT' : category;
+  const multiplierLookupCategory = category === 'Govt' ? 'A' : category;
 
-  if (!salaryBand && !govtMultiplier) {
-    return { eligible: false, reason: `Salary does not fall within any eligible band for category ${category}`, isBTMode: isBT };
+  const multiplierSalaryBand = getSalaryBand(incomeForCalculation, multiplierLookupCategory, indusindConfig.multiplierTable);
+  const foirSalaryBand = getSalaryBand(incomeForCalculation, foirLookupCategory, indusindConfig.foirTable);
+
+  if (!multiplierSalaryBand && !govtMultiplier) {
+    return { eligible: false, reason: `Salary does not fall within any eligible multiplier band for category ${category}`, isBTMode: isBT };
+  }
+  if (!foirSalaryBand && !govtFOIR) {
+    return { eligible: false, reason: `Salary does not fall within any eligible FOIR band for category ${category}`, isBTMode: isBT };
   }
 
-  // Logic Bridge: Support govtMultiplier override
-  let multiplier = (isGovtEmployee && govtMultiplier) ? govtMultiplier : (indusindConfig.multiplierTable[category === 'Govt' ? 'A' : category]?.[salaryBand]);
+  // Logic Bridge: Support overrides
+  let multiplier = (isGovtEmployee && govtMultiplier) ? govtMultiplier : (indusindConfig.multiplierTable[multiplierLookupCategory]?.[multiplierSalaryBand]);
+  let foirPercentage = (isGovtEmployee && govtFOIR) ? (govtFOIR / 100) : (indusindConfig.foirTable[foirLookupCategory]?.[foirSalaryBand]);
 
   if (!multiplier) {
     return { eligible: false, reason: `No multiplier available for category ${category} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
   }
+  if (!foirPercentage) {
+    return { eligible: false, reason: `No FOIR percentage available for category ${category} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
+  }
 
-  // IMPORTANT: For multiplier, use salary after deducting existing EMI and credit card obligation (non-BT mode)
+  // MULTIPLIER PATH
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
   const availableSalary = isBT ? incomeForCalculation : (monthlyIncomeForCalc - totalObligations);
-  const calculatedLoanAmount = availableSalary * multiplier;
+  const multiplierLoanAmount = availableSalary * multiplier;
 
-  // Final loan amount is minimum of calculated and desired
-  const finalLoanAmount = Math.min(
-    calculatedLoanAmount,
+  // FOIR PATH
+  const foirCap = monthlyIncomeForCalc * foirPercentage;
+  const availableEMI = isBT ? (foirCap - nonBTLoansEMI) : (foirCap - totalObligations);
+  
+  if (availableEMI <= 0) {
+    return {
+      eligible: false,
+      reason: `Existing obligations (₹${totalObligations.toLocaleString()}) exceed FOIR limit of ₹${Math.round(foirCap).toLocaleString()}`
+    };
+  }
+
+  // Pass 1: Preliminary ROI for initial calculation
+  const baseRate = indusindConfig.interestRate;
+  const preliminaryFoirLoanAmount = calculatePrincipalFromEMI(availableEMI, baseRate, cappedTenureYears);
+
+  // Take the minimum for first pass
+  const preliminaryLoanAmount = Math.min(
+    multiplierLoanAmount,
+    preliminaryFoirLoanAmount,
     desiredLoanAmount || Infinity
   );
 
-  const maxLoanCapAmount = Math.min(finalLoanAmount, indusindConfig.maxLoanAmount);
-  const loanCapped = finalLoanAmount > indusindConfig.maxLoanAmount;
+  const preliminaryCappedLoan = Math.min(preliminaryLoanAmount, indusindConfig.maxLoanAmount);
 
   // Apply Dynamic Bachelor Capping
   let appliedBachelorCap = false;
@@ -253,8 +311,21 @@ export const calculateIndusindEligibility = (userData) => {
     effectiveInterestRate = govtROI;
   } else if (!effectiveInterestRate) {
     // Check dynamic slabs in Admin Matrix
-    effectiveInterestRate = getSlabRate('IndusInd Bank', lookupCategory, cappedFinalLoan, userData.city || userData.state, indusindConfig.interestRate);
+    effectiveInterestRate = getSlabRate('IndusInd Bank', multiplierLookupCategory, preliminaryCappedLoan, userData.city || userData.state, indusindConfig.interestRate);
   }
+
+  // Pass 2: Calculate FOIR loan amount with final ROI
+  const foirLoanAmount = calculatePrincipalFromEMI(availableEMI, effectiveInterestRate, cappedTenureYears);
+
+  // Final loan amount is minimum of FOIR, Multiplier, and desired
+  const finalLoanAmount = Math.min(
+    multiplierLoanAmount,
+    foirLoanAmount,
+    desiredLoanAmount || Infinity
+  );
+
+  const maxLoanCapAmount = Math.min(finalLoanAmount, indusindConfig.maxLoanAmount);
+  const loanCapped = finalLoanAmount > indusindConfig.maxLoanAmount;
 
   const monthlyEMI = calculateEMI(cappedFinalLoan, effectiveInterestRate, cappedTenureYears);
 
@@ -279,17 +350,26 @@ export const calculateIndusindEligibility = (userData) => {
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
     multiplier: multiplier,
+    foirPercentage: foirPercentage,
     incentivePercentage: effectiveIncentivePercentage, // Dynamically reflect override
     incentiveMonths: effectiveIncentiveMonths,
     incentiveConsidered: bankIncentiveConsidered,
-    salaryBand: salaryBand,
+    salaryBand: multiplierSalaryBand,
     category: category,
-    maxLoanByMultiplier: Math.round(calculatedLoanAmount),
-    calculationMethod: 'Multiplier Only (No FOIR)',
+    availableEMI: Math.round(availableEMI),
+    foirLoanAmount: Math.round(foirLoanAmount),
+    multiplierLoanAmount: Math.round(multiplierLoanAmount),
+    calculationMethod: 'Combined (Dual)',
     details: {
       multiplier: multiplier + 'x',
-      salaryBand: salaryBand,
-      multiplierLoanAmount: Math.round(calculatedLoanAmount),
+      foirPercentage: (foirPercentage * 100).toFixed(0) + '%',
+      salaryBand: multiplierSalaryBand,
+      foirBand: foirSalaryBand,
+      foirCap: Math.round(foirCap),
+      availableEMI: Math.round(availableEMI),
+      foirLoanAmount: Math.round(foirLoanAmount),
+      multiplierLoanAmount: Math.round(multiplierLoanAmount),
+      limitingFactor: finalLoanAmount === foirLoanAmount ? 'FOIR' : 'Multiplier',
       existingEMI: Math.round(existingEMI || 0),
       creditCardObligation: Math.round(creditCardObligation || 0),
       creditCardObligationNote: creditCardObligation > 0 ? '5% of credit card outstanding balance' : 'No credit card obligations',
