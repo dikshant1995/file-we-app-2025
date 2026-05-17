@@ -432,6 +432,8 @@ export const calculateKotakEligibility = (userData) => {
     incentiveMonths: effectiveIncentiveMonths, // Dynamically reflect override
     incentiveConsidered: bankIncentiveConsidered,
     details: {
+      foirPercentage: (foirPercentage * 100).toFixed(0) + '%',
+      multiplier: multiplier + 'x',
       multiplierLoanAmount: Math.round(multiplierLoanAmount),
       foirLoanAmount: Math.round(foirLoanAmount),
       foirCap: Math.round(foirCap),
