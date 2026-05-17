@@ -76,6 +76,8 @@ function CustomerFacingApp() {
           companyName: formData.companyName || '',
           creditScore: parseInt(formData.creditScore || 700),
           employmentType: formData.employmentType || 'salaried',
+          existingEMI: parseFloat(formData.existingEMI || 0),
+          creditCardObligation: parseFloat(formData.creditCardObligation || 0),
           existingLoans: existingLoans,
           creditCards: creditCards
         };
