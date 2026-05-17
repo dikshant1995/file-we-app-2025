@@ -253,8 +253,8 @@ export const calculateIdfcEligibility = (userData) => {
   const multiplierLoanAmount = availableSalary * multiplier;
 
   // FOIR PATH
-  const foirCap = monthlyIncomeForCalc * foirPercentage;
-  const availableEMI = isBT ? (foirCap - nonBTLoansEMI) : (foirCap - totalObligations);
+  const foirCap = isBT ? (adjustedIncome * foirPercentage) : (monthlyIncomeForCalc * foirPercentage);
+  const availableEMI = isBT ? foirCap : (foirCap - totalObligations);
   
   if (availableEMI <= 0) {
     return {
