@@ -16,6 +16,45 @@ export const idfcConfig = {
   // Incentive policy
   incentivePercentage: 1.0, // 100% of average incentive
   incentivePeriodMonths: 3, // Last 3 months
+  // FOIR table based on salary
+  foirTable: {
+    'SUPER-A': {
+      '20000-40000': 0.60,
+      '40001-50000': 0.60,
+      '50001-75000': 0.65,
+      '>75000': 0.70
+    },
+    'A': {
+      '20000-40000': 0.60,
+      '40001-50000': 0.60,
+      '50001-75000': 0.65,
+      '>75000': 0.70
+    },
+    'GOVT': {
+      '20000-40000': 0.60,
+      '40001-50000': 0.60,
+      '50001-75000': 0.65,
+      '>75000': 0.70
+    },
+    'B': {
+      '20000-40000': 0.60,
+      '40001-50000': 0.60,
+      '50001-75000': 0.65,
+      '>75000': 0.70
+    },
+    'C': {
+      '20000-40000': 0.50,
+      '40001-50000': 0.60,
+      '50001-75000': 0.65,
+      '>75000': 0.70
+    },
+    'D': {
+      '20000-40000': 0.50,
+      '40001-50000': 0.60,
+      '50001-75000': 0.65,
+      '>75000': 0.70
+    }
+  },
 
   // Multiplier table based on salary bands and categories
   // Formula: Loan Amount = Monthly Salary × Multiplier
@@ -93,7 +132,7 @@ export const idfcConfig = {
   specialPrograms: ['idfc-first', 'government-special', 'premium-banking'],
 
   // Calculation method
-  calculationMethod: 'Multiplier-Only',
+  calculationMethod: 'Both (Dual)',
   approach: 'Universal ₹20K Minimum + Category-Based Tiered Multipliers',
   keyFeatures: [
     'Multiplier-only system (no FOIR calculation)',
