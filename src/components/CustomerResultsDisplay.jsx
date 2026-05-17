@@ -453,18 +453,7 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
 
                         {/* DETAILED ANALYSIS SECTION */}
                         <div className="detailed-analysis-section" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '10px' }}>
-                          <button 
-                            className="toggle-details-btn"
-                            onClick={(e) => {
-                              e.stopPropagation(); // Don't toggle selection when toggling details
-                              setExpandedBank(expandedBank === bank.bankName ? null : bank.bankName);
-                            }}
-                            style={{ background: 'none', border: 'none', color: '#00d2ff', fontSize: '0.8rem', cursor: 'pointer', padding: 0, marginBottom: '10px' }}
-                          >
-                            {expandedBank === bank.bankName ? 'Hide Calculation Details ▲' : 'Show Calculation Details ▼'}
-                          </button>
-
-                          {expandedBank === bank.bankName && (() => {
+                          {(() => {
                             const method = (bank.calculationMethod || '').toLowerCase();
                             const isCombined = method.includes('combined') || method.includes('dual') || method.includes('both');
                             const isFoir = method.includes('foir');
