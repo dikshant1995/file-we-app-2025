@@ -1,5 +1,12 @@
 import { hdfcConfig } from './config.js';
-import { getBankConfig, getDynamicInterestRate } from '../../utils/configHelper.js';
+import { getBankConfig } from '../../services/bankConfigService.js';
+import { getSlabRate } from '../../utils/policyUtils.js';
+
+// Helper function to get interest rate based on category and loan amount
+const getInterestRateForLoan = (category, loanAmount, location = null) => {
+  let lookupCategory = category === 'Govt' ? 'A' : category;
+  return getSlabRate('HDFC Bank', lookupCategory, loanAmount, location, hdfcConfig.interestRate);
+};
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -112,12 +119,18 @@ export const calculateHdfcEligibility = (userData) => {
   const {
     desiredLoanAmount,
     loanTenure,
+    basicSalary,
+    averageIncentive,
     monthlyIncome,
     existingEMI,
     creditCardObligation, // NEW: 5% of non-BT credit card balances
     companyName,
     creditScore,
     employmentType,
+    interestRate, // User-provided interest rate
+    age, // Applicant's current age
+    category, // User-provided category (B, C, GOVT)
+    existingLoanBanks, // NEW: List of banks where customer has existing personal loans
     // Admin Overrides (Logic Bridge)
     interestRateOverride,
     isGovtEmployee,
@@ -125,45 +138,58 @@ export const calculateHdfcEligibility = (userData) => {
     govtFOIR,
     govtMultiplier,
     govtMaxTenure,
-    // User fields
-    age, // Applicant's current age
-    category, // User-provided category (B, C, GOVT)
-    existingLoanBanks, // NEW: List of banks where customer has existing personal loans
     // Balance Transfer fields
     isBTMode,
     loansForBT,
     btTotalEMI,
-    btTotalOutstanding
+    btTotalOutstanding,
+    // Incentive Overrides
+    incentivePercentageOverride,
+    incentiveMonthsOverride
   } = userData;
 
-  // ========== CATEGORY STANDARDIZATION ==========
-  // Determine lookup category - handle both standard and GOVT cases
-  let companyCategory = category || 'B';
-  if (employmentType === 'government') {
-    companyCategory = 'GOVT';
-  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
-    companyCategory = 'GOVT';
-  }
+  // ========== INCENTIVE CALCULATION LOGIC ==========
+  const effectiveIncentivePercentage = incentivePercentageOverride !== undefined 
+    ? incentivePercentageOverride 
+    : (hdfcConfig.incentivePercentage || 0);
+    
+  const effectiveIncentiveMonths = incentiveMonthsOverride !== undefined 
+    ? incentiveMonthsOverride 
+    : 3; // Default to 3 months if not specified
 
-  // Use standardized GOVT for table lookups
-  const lookupCategory = companyCategory;
-  // ========== END CATEGORY STANDARDIZATION ==========
+  const bankIncentiveConsidered = (averageIncentive || 0) * effectiveIncentivePercentage;
+  const actualMonthlyIncome = (basicSalary || 0) + bankIncentiveConsidered;
+  
+  // Use actualMonthlyIncome for all subsequent calculations
+  const monthlyIncomeForCalc = actualMonthlyIncome;
 
   // ========== BALANCE TRANSFER MODE DETECTION ==========
   const isBT = isBTMode && loansForBT && loansForBT.length > 0;
-  let adjustedIncome = monthlyIncome;
+  let adjustedIncome = monthlyIncomeForCalc;
   let nonBTLoansEMI = 0;
 
   if (isBT) {
+    console.log('🔄 HDFC - BALANCE TRANSFER MODE ACTIVATED');
+    console.log('📦 BT Loans:', loansForBT.length);
+    console.log('💰 BT Total Outstanding:', btTotalOutstanding);
+    console.log('💳 BT Total EMI:', btTotalEMI);
+
+    // For Partial BT: Deduct non-BT EMIs from salary
+    // Formula: Adjusted Salary = Gross Salary - Non-BT Loans EMI - Credit Card Obligation
     nonBTLoansEMI = (existingEMI || 0) - btTotalEMI;
     const creditCardDeduction = creditCardObligation || 0;
-    adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
+    adjustedIncome = monthlyIncomeForCalc - nonBTLoansEMI - creditCardDeduction;
+
+    console.log('📊 Original Salary:', monthlyIncomeForCalc);
+    console.log('📊 Non-BT Loans EMI:', nonBTLoansEMI);
+    console.log('💳 Credit Card Obligation (5% of non-BT CC):', creditCardDeduction);
+    console.log('📊 Adjusted Salary for BT:', adjustedIncome);
 
     // Check if adjusted income is positive
     if (adjustedIncome <= 0) {
       return {
-        isEligible: false,
-        reason: `After deducting non-BT obligations (₹${(existingEMI + creditCardObligation)?.toLocaleString() || '0'}), no income remains for Balance Transfer`,
+        eligible: false,
+        reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains for Balance Transfer calculation`,
         isBTMode: true
       };
     }
@@ -171,48 +197,65 @@ export const calculateHdfcEligibility = (userData) => {
   // ========== END BT MODE DETECTION ==========
 
   // CHECK: If customer already has a personal loan from HDFC Bank
+  console.log('🏦 HDFC Bank - Checking existing loans...');
+  console.log('Received existingLoanBanks:', existingLoanBanks);
+
   if (existingLoanBanks && existingLoanBanks.length > 0) {
     const hdfcBankNames = ['hdfc', 'hdfc bank'];
     const hasExistingHdfcLoan = existingLoanBanks.some(bank =>
       hdfcBankNames.some(name => bank.includes(name))
     );
 
+    console.log('HDFC - Has existing loan?', hasExistingHdfcLoan);
+
     if (hasExistingHdfcLoan) {
+      console.log('❌ HDFC - REJECTING due to existing personal loan');
       return {
-        isEligible: false,
+        eligible: false,
         reason: 'As an existing customer of HDFC Bank with an active personal loan, you are not eligible for a new loan from this bank'
       };
     }
   }
 
   // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('HDFC Bank', 'ageRules', { state: userData.state, city: userData.city });
-  const minAge = ageConfig?.minAge ?? hdfcConfig.minAge;
-  const maxAge = ageConfig?.maxAge ?? hdfcConfig.maxAge;
+  const ageConfig = getBankConfig('HDFC Bank', 'ageRules');
+  const minAge = ageConfig ? ageConfig.minAge : hdfcConfig.minAge;
+  const maxAge = ageConfig ? ageConfig.maxAge : hdfcConfig.maxAge;
 
   if (age && (age < minAge || age > maxAge)) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
     };
   }
 
-  // Check employment type
+  // Pass 1: Preliminary ROI for initial calculation
+  const baseRate = hdfcConfig.interestRate;
+
+  // Use user-provided category (from frontend: B, C, or GOVT)
+  const companyCategory = category || 'B'; // Default to B if not provided
   if (!hdfcConfig.employmentTypes.includes(employmentType)) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: `Employment type ${employmentType} not supported by this bank`
     };
   }
 
+
   // Apply tenure capping based on category (tenure is in months)
-  // Logic Bridge: Support govtMaxTenure override
-  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : hdfcConfig.maxTenureByCategory[lookupCategory];
+  // Logic Bridge: Use govtMaxTenure if available
+  let lookupCategory = companyCategory === 'Govt' ? 'A' : companyCategory;
+  let maxTenureForCategory = (isGovtEmployee && govtMaxTenure) ? govtMaxTenure : hdfcConfig.maxTenureByCategory[lookupCategory];
+
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
-    maxTenureForCategory = 60; // Fallback
+    return {
+      eligible: false,
+      reason: `No loans available for Category ${companyCategory}`
+    };
   }
 
   // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
+  // This shows the maximum loan amount the bank can offer for this category
   const cappedTenureMonths = maxTenureForCategory;
   const cappedTenureYears = cappedTenureMonths / 12;
 
@@ -221,91 +264,131 @@ export const calculateHdfcEligibility = (userData) => {
   const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
 
   // Check minimum salary requirement based on category
-  const salConfig = getBankConfig('HDFC Bank', 'employmentRules', { state: userData.state, city: userData.city });
-  const catMinSalary = hdfcConfig.minSalary[lookupCategory] || hdfcConfig.minSalary['A'];
-  const effectiveMinSalary = salConfig?.salariedMinSalary ?? catMinSalary;
-
-  const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
-  if (incomeToCheck < effectiveMinSalary) {
+  // For BT mode, use adjusted income for salary checks
+  let lookupCategoryMinSalary = companyCategory === 'Govt' ? 'A' : companyCategory;
+  const categoryMinSalary = hdfcConfig.minSalary[lookupCategoryMinSalary] || hdfcConfig.minSalary['A'];
+  const incomeToCheck = isBT ? adjustedIncome : monthlyIncomeForCalc;
+  if (incomeToCheck < categoryMinSalary) {
     return {
-      isEligible: false,
-      reason: `Minimum monthly income required is ₹${catMinSalary?.toLocaleString() || '0'} for Category ${lookupCategory}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`,
-      isBTMode: isBT
-    };
-  }
-
-  // Get loan capping config
-  const cappingConfig = getBankConfig('HDFC Bank', 'loanCapping', { state: userData.state, city: userData.city });
-  const absoluteMaxLoan = cappingConfig?.absoluteMaxLoan ?? hdfcConfig.maxLoanAmount;
-  const minLoanAmount = cappingConfig?.minLoanAmount ?? (hdfcConfig.minLoanAmount || 100000);
-
-  // Check minimum loan amount
-  if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
-    return {
-      isEligible: false,
-      reason: `Minimum loan amount required by this bank is ₹${minLoanAmount?.toLocaleString() || '0'}. Requested: ₹${desiredLoanAmount?.toLocaleString() || '0'}`,
+      eligible: false,
+      reason: `Minimum monthly income required for ${companyCategory} category is ₹${categoryMinSalary.toLocaleString()}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`,
       isBTMode: isBT
     };
   }
 
   // Calculate using Multiplier method
-  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
-  // Logic Bridge: Multiple override
-  const multiplier = isGovtEmployee && govtMultiplier ? govtMultiplier : getMultiplier(incomeForCalculation, lookupCategory);
+  // For BT mode, use adjusted income
+  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncomeForCalc;
+
+  // Logic Bridge: Use govtMultiplier if available
+  let lookupCategoryMultiplier = companyCategory === 'Govt' ? 'A' : companyCategory;
+  let multiplier = (isGovtEmployee && govtMultiplier) ? govtMultiplier : getMultiplier(incomeForCalculation, lookupCategoryMultiplier);
+
   if (!multiplier) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: 'Unable to determine multiplier for the provided salary and category',
       isBTMode: isBT
     };
   }
 
+  // IMPORTANT: For multiplier, use salary after deducting existing EMI + credit card obligations (non-BT mode)
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
-  const availableSalary = isBT ? incomeForCalculation : (monthlyIncome - totalObligations);
+  const availableSalary = isBT ? incomeForCalculation : (monthlyIncomeForCalc - totalObligations);
   const multiplierLoanAmount = availableSalary * multiplier;
 
   // Calculate using FOIR method
-  // Logic Bridge: FOIR override
-  const foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : getFoirPercentage(incomeForCalculation, lookupCategory);
+  // Logic Bridge: Use govtFOIR if available
+  let lookupCategoryFOIR = companyCategory === 'Govt' ? 'A' : companyCategory;
+  let foirPercentage = (isGovtEmployee && govtFOIR) ? (govtFOIR / 100) : getFoirPercentage(incomeForCalculation, lookupCategoryFOIR);
+
   if (!foirPercentage) {
     return {
-      isEligible: false,
+      eligible: false,
       reason: 'Unable to determine FOIR percentage for the provided salary and category',
       isBTMode: isBT
     };
   }
 
-  const foirCap = incomeForCalculation * foirPercentage;
-  const availableEMI = isBT ? foirCap : (foirCap - totalObligations);
+  const foirCap = monthlyIncomeForCalc * foirPercentage;
+  // User Logic: (Salary * FOIR%) - Non-BT EMI = Available EMI
+  const availableEMI = isBT ? (foirCap - nonBTLoansEMI) : (foirCap - totalObligations);
 
-  // ROI Logic Bridge Overrides
-  let finalInterestRate = interestRateOverride;
+  // Calculate preliminary loan amount based on available EMI using base rate
+  const preliminaryFoirLoanAmount = calculateLoanAmountFromEMI(availableEMI, baseRate, cappedTenureYears);
+
+  // Take the minimum for first pass
+  const preliminaryMaxLoanAmount = Math.min(
+    desiredLoanAmount || Infinity,
+    multiplierLoanAmount,
+    preliminaryFoirLoanAmount
+  );
+
+  // Apply bank's maximum loan cap for pass 1
+  const preliminaryLoanAmount = Math.min(preliminaryMaxLoanAmount, hdfcConfig.maxLoanAmount);
+
+  // Pass 2: Get final ROI based on preliminary loan amount
+  let finalInterestRate = interestRateOverride || interestRate;
   if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
-  if (!finalInterestRate) {
-    finalInterestRate = getDynamicInterestRate('HDFC Bank', lookupCategory, desiredLoanAmount || monthlyIncome * 20, { state: userData.state, city: userData.city }, hdfcConfig.interestRate);
-  }
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(companyCategory, preliminaryLoanAmount, userData.city || userData.state);
 
-  const foirLoanAmount = calculateLoanAmountFromEMI(availableEMI, finalInterestRate, cappedTenureYears);
+  const effectiveInterestRate = finalInterestRate;
+
+  // Recalculate FOIR loan amount with final effective interest rate
+  const foirLoanAmount = calculateLoanAmountFromEMI(availableEMI, effectiveInterestRate, cappedTenureYears);
 
   // For HDFC, take the minimum of Multiplier and FOIR calculations
   const maxLoanAmount = Math.min(
+    desiredLoanAmount || Infinity,
     multiplierLoanAmount,
     foirLoanAmount
   );
 
-  const finalLoanAmount = Math.min(maxLoanAmount, desiredLoanAmount || Infinity, absoluteMaxLoan);
-  const loanCapped = maxLoanAmount > absoluteMaxLoan;
+  // Apply bank's maximum loan cap
+  const maxLoanCapAmount = Math.min(maxLoanAmount, hdfcConfig.maxLoanAmount);
+  const loanCapped = maxLoanAmount > hdfcConfig.maxLoanAmount;
+
+  // Apply Dynamic Bachelor Capping
+  let appliedBachelorCap = false;
+  let bachelorLimitAmount = null;
+  let bachelorCapReasonStr = null;
+  let finalLoanAmount = maxLoanCapAmount;
+
+  if (userData.dynamicBachelorLimitOverride !== undefined) {
+    bachelorLimitAmount = userData.dynamicBachelorLimitOverride;
+    if (finalLoanAmount > bachelorLimitAmount) {
+      finalLoanAmount = bachelorLimitAmount;
+      appliedBachelorCap = true;
+      bachelorCapReasonStr = userData.dynamicBachelorCapReason || 'Dynamic Bachelor Capping limit applied';
+    }
+  } else if (hdfcConfig.bachelorMaxLoanAmount !== undefined && userData.maritalStatus === 'single' && userData.livingStatus === 'rented') {
+    bachelorLimitAmount = hdfcConfig.bachelorMaxLoanAmount;
+    if (finalLoanAmount > bachelorLimitAmount) {
+      finalLoanAmount = bachelorLimitAmount;
+      appliedBachelorCap = true;
+      bachelorCapReasonStr = 'Rented Bachelor Limit Applied (Bank Default)';
+    }
+  }
 
   // ========== BALANCE TRANSFER CALCULATION ==========
+  let btFreshAmount = 0;
   let btDetails = null;
+
   if (isBT) {
-    const btFreshAmount = finalLoanAmount - btTotalOutstanding;
+    // Calculate fresh amount = Max Loan - BT Outstanding
+    btFreshAmount = finalLoanAmount - btTotalOutstanding;
+
+    console.log('💵 Max Loan Amount:', finalLoanAmount);
+    console.log('💵 BT Outstanding to Clear:', btTotalOutstanding);
+    console.log('💵 Fresh Amount:', btFreshAmount);
+
     if (btFreshAmount < 0) {
       return {
-        isEligible: false,
+        eligible: false,
         reason: `BT Outstanding (₹${btTotalOutstanding.toLocaleString()}) exceeds maximum eligible loan amount (₹${Math.round(finalLoanAmount).toLocaleString()})`,
         isBTMode: true,
-        maxEligibleLoan: Math.round(finalLoanAmount)
+        maxEligibleLoan: Math.round(finalLoanAmount),
+        btOutstanding: btTotalOutstanding
       };
     }
 
@@ -319,24 +402,28 @@ export const calculateHdfcEligibility = (userData) => {
       creditCardObligation: Math.round(creditCardObligation || 0),
       creditCardObligationNote: creditCardObligation > 0 ? '5% of non-BT credit card outstanding' : 'No credit card obligation (either no CC or CC in BT)',
       totalNonBTObligations: Math.round(nonBTLoansEMI + (creditCardObligation || 0)),
-      originalIncome: monthlyIncome,
+      originalIncome: monthlyIncomeForCalc,
       adjustedIncome: Math.round(adjustedIncome)
     };
   }
   // ========== END BT CALCULATION ==========
 
-  const monthlyEMI = calculateEMI(finalLoanAmount, finalInterestRate, cappedTenureYears);
+  // Calculate final EMI for the loan amount using capped tenure
+  const monthlyEMI = calculateEMI(finalLoanAmount, effectiveInterestRate, cappedTenureYears);
 
   return {
-    isEligible: true,
+    eligible: true,
     bankId: hdfcConfig.id,
     bankName: hdfcConfig.name,
     loanAmount: Math.round(finalLoanAmount),
-    maxLoanAmount: Math.round(finalLoanAmount),
-    maxLoanCap: absoluteMaxLoan,
+    maxLoanCap: hdfcConfig.maxLoanAmount,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(maxLoanAmount) : null,
-    interestRate: finalInterestRate,
+    bachelorCapped: appliedBachelorCap,
+    bachelorCapReason: bachelorCapReasonStr,
+    regularMaxLoan: Math.round(maxLoanCapAmount),
+    bachelorMaxLoanAmount: bachelorLimitAmount !== null ? Math.round(bachelorLimitAmount) : null,
+    interestRate: effectiveInterestRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,
     tenureCapped: tenureCapped,
@@ -344,10 +431,13 @@ export const calculateHdfcEligibility = (userData) => {
     requestedTenureMonths: requestedTenureMonths,
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
-    companyCategory: lookupCategory,
+    companyCategory: companyCategory,
+    calculationMethod: 'Combined (Multiplier and FOIR)',
     multiplier: multiplier,
     foirPercentage: foirPercentage,
-    availableEMI: Math.round(availableEMI),
+    incentivePercentage: effectiveIncentivePercentage, // Dynamically reflect override
+    incentiveMonths: effectiveIncentiveMonths,
+    incentiveConsidered: bankIncentiveConsidered,
     details: {
       multiplierLoanAmount: Math.round(multiplierLoanAmount),
       foirLoanAmount: Math.round(foirLoanAmount),
@@ -355,9 +445,11 @@ export const calculateHdfcEligibility = (userData) => {
       availableEMI: Math.round(availableEMI),
       existingEMI: Math.round(existingEMI || 0),
       creditCardObligation: Math.round(creditCardObligation || 0),
+      creditCardObligationNote: creditCardObligation > 0 ? '5% of credit card outstanding balance' : 'No credit card obligations',
       totalObligations: Math.round(totalObligations),
       availableSalaryAfterObligations: Math.round(availableSalary)
     },
+    // BT-specific fields (null if not BT mode)
     ...btDetails
   };
 };
