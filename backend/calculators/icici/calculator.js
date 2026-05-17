@@ -244,10 +244,9 @@ export const calculateIciciEligibility = (userData) => {
     };
   }
 
-  const foirCap = monthlyIncomeForCalc * foirPercentage;
+  const foirCap = isBT ? (adjustedIncome * foirPercentage) : (monthlyIncomeForCalc * foirPercentage);
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
-  // User Logic: (Salary * FOIR%) - Non-BT EMI = Available EMI
-  const availableEMI = isBT ? (foirCap - nonBTLoansEMI) : (foirCap - totalObligations);
+  const availableEMI = isBT ? foirCap : (foirCap - totalObligations);
 
   // 1. FOIR Path: Calculate preliminary loan based on available EMI
   const preliminaryFoirLoanAmount = calculateLoanAmountFromEMI(availableEMI, baseRate, cappedTenureYears);
