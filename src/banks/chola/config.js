@@ -15,6 +15,7 @@ export const cholaConfig = {
   incentivePercentage: 0.60, // 60% of average incentive
   incentivePeriodMonths: 3, // Last 3 months
 
+
   // FOIR table based on salary bands and categories
   foirTable: {
     '20000-30000': {
