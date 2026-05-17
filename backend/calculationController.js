@@ -108,7 +108,9 @@ const handleBTCalculation = (userData) => {
         category,
         companyName,
         creditScore,
-        employmentType
+        employmentType,
+        existingEMI,
+        creditCardObligation
     } = userData;
 
     const totalLoanPOS = existingLoans.reduce((sum, loan) => sum + parseFloat(loan.pos || 0), 0);
@@ -120,8 +122,8 @@ const handleBTCalculation = (userData) => {
         desiredLoanAmount: null,
         loanTenure: parseInt(loanTenure),
         monthlyIncome: parseFloat(monthlyIncome),
-        existingEMI: 0, // Ignored in BT
-        creditCardObligation: 0, // Set by specific BT scenarios if needed
+        existingEMI: existingEMI !== undefined ? parseFloat(existingEMI) : totalLoanEMI,
+        creditCardObligation: creditCardObligation !== undefined ? parseFloat(creditCardObligation) : 0,
         companyName: companyName,
         category: category || 'C',
         creditScore: parseInt(creditScore) || 700,
