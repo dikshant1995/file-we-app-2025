@@ -224,10 +224,9 @@ export const calculateBandhanEligibility = (userData) => {
     return { eligible: false, reason: 'Unable to determine FOIR percentage for the provided salary', isBTMode: isBT };
   }
 
-  const foirCap = monthlyIncomeForCalc * foirPercentage;
+  const foirCap = isBT ? (adjustedIncome * foirPercentage) : (monthlyIncomeForCalc * foirPercentage);
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
-  // User Logic: (Salary * FOIR%) - Non-BT EMI = Available EMI
-  const availableEMI = isBT ? (foirCap - nonBTLoansEMI) : (foirCap - totalObligations);
+  const availableEMI = isBT ? foirCap : (foirCap - totalObligations);
 
   // 1. FOIR Path: Calculate preliminary loan based on available EMI
   const preliminaryFoirLoanAmount = calculateLoanAmountFromEMI(availableEMI, baseRate, cappedTenureYears);
