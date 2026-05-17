@@ -21,19 +21,15 @@ export const shriRamConfig = {
   // No category distinction for multiplier/FOIR calculation
   salaryBandTable: {
     '25000-35000': {
-      multiplier: 14,
       foir: 0.50
     },
     '35001-50000': {
-      multiplier: 18,
       foir: 0.60
     },
     '50001-75000': {
-      multiplier: 20,
       foir: 0.65
     },
     '75001+': {
-      multiplier: 22,
       foir: 0.70
     }
   },
