@@ -212,11 +212,15 @@ export const calculateCholaEligibility = (userData) => {
     };
   }
 
-  // Pass 1: Preliminary ROI for initial calculation
+  // 1. FOIR Path: Calculate loan based on available EMI
   const baseRate = cholaConfig.interestRate;
+  const preliminaryFoirLoanAmount = calculatePrincipalFromEMI(availableEMI, baseRate, cappedTenureYears);
 
-  // Calculate preliminary loan amount based on available EMI using base rate
-  const preliminaryLoanAmount = calculatePrincipalFromEMI(availableEMI, baseRate, cappedTenureYears);
+  // Preliminary Decision: Take the MINIMUM of FOIR and desired loan
+  const preliminaryLoanAmount = Math.min(
+    preliminaryFoirLoanAmount,
+    desiredLoanAmount || Infinity
+  );
 
   // Pass 2: Get final ROI based on preliminary loan amount
   let finalInterestRate = interestRateOverride;
@@ -225,12 +229,12 @@ export const calculateCholaEligibility = (userData) => {
 
   const effectiveInterestRate = finalInterestRate;
 
-  // Recalculate loan amount with final effective interest rate
-  const calculatedLoanAmount = calculatePrincipalFromEMI(availableEMI, effectiveInterestRate, cappedTenureYears);
+  // Recalculate FOIR loan amount with final effective interest rate
+  const foirLoanAmount = calculatePrincipalFromEMI(availableEMI, effectiveInterestRate, cappedTenureYears);
 
-  // 9. Final loan = minimum of calculated and desired
+  // Final loan = minimum of final FOIR loan and desired
   const finalLoanAmount = Math.min(
-    calculatedLoanAmount,
+    foirLoanAmount,
     desiredLoanAmount || Infinity
   );
 
@@ -303,7 +307,7 @@ export const calculateCholaEligibility = (userData) => {
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: finalEMI,
     category: category,
-    calculationMethod: 'Combined (FOIR + Multiplier)',
+    calculationMethod: 'FOIR Only',
     incentivePercentage: effectiveIncentivePercentage, // Dynamically reflect override
     incentiveMonths: effectiveIncentiveMonths,
     incentiveConsidered: bankIncentiveConsidered,
@@ -312,7 +316,7 @@ export const calculateCholaEligibility = (userData) => {
       salaryBand: foirBand,
       foirCap: Math.round(foirCap),
       availableEMI: Math.round(availableEMI),
-      maxLoanFromFOIR: Math.round(calculatedLoanAmount),
+      maxLoanFromFOIR: Math.round(foirLoanAmount),
       existingEMI: Math.round(existingEMI || 0),
       creditCardObligation: Math.round(creditCardObligation || 0),
       creditCardObligationNote: creditCardObligation > 0 ? '5% of credit card outstanding balance' : 'No credit card obligations',
