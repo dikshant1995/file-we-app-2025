@@ -16,6 +16,51 @@ export const indusindConfig = {
   // Incentive policy
   incentivePercentage: 1.0, // 100% of average incentive
   incentivePeriodMonths: 3, // Last 3 months
+  // FOIR table based on salary
+  foirTable: {
+    'A+': {
+      '20000-35000': 0.50,
+      '35001-50000': 0.60,
+      '50001-80000': 0.70,
+      '>80000': 0.75
+    },
+    'A': {
+      '20000-35000': 0.50,
+      '35001-50000': 0.60,
+      '50001-80000': 0.70,
+      '>80000': 0.75
+    },
+    'GOVT': {
+      '20000-35000': 0.50,
+      '35001-50000': 0.60,
+      '50001-80000': 0.70,
+      '>80000': 0.75
+    },
+    'B': {
+      '20000-35000': 0.50,
+      '35001-50000': 0.60,
+      '50001-80000': 0.70,
+      '>80000': 0.70
+    },
+    'C': {
+      '20000-35000': 0.50,
+      '35001-50000': 0.50,
+      '50001-80000': 0.70,
+      '>80000': 0.70
+    },
+    'D': {
+      '20000-35000': 0.50,
+      '35001-50000': 0.50,
+      '50001-80000': 0.70,
+      '>80000': 0.70
+    },
+    'UNLISTED': {
+      '20000-35000': 0.50,
+      '35001-50000': 0.50,
+      '50001-80000': 0.70,
+      '>80000': 0.70
+    }
+  },
 
   // Multiplier table based on salary bands and categories
   // Formula: Loan Amount = Monthly Salary × Multiplier
@@ -90,7 +135,7 @@ export const indusindConfig = {
   specialPrograms: ['indusind-select', 'government-special', 'premium-banking'],
 
   // Calculation method
-  calculationMethod: 'Multiplier-Only',
+  calculationMethod: 'Both (Dual)',
   approach: 'Category-Based Minimum Salary + Tiered Multipliers',
   keyFeatures: [
     'Multiplier-only system (no FOIR calculation)',
