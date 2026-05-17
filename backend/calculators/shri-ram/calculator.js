@@ -1,5 +1,12 @@
 import { shriRamConfig } from './config.js';
-import { getBankConfig, getDynamicInterestRate } from '../../utils/configHelper.js';
+import { getBankConfig } from '../../services/bankConfigService.js';
+import { getSlabRate } from '../../utils/policyUtils.js';
+
+// Helper function to get interest rate based on category and loan amount
+const getInterestRateForLoan = (category, loanAmount, location = null) => {
+  let lookupCategory = category === 'Govt' ? 'C' : category;
+  return getSlabRate('Shri Ram Finance', lookupCategory, loanAmount, location, shriRamConfig.interestRate);
+};
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -65,11 +72,15 @@ export const calculateShriRamEligibility = (userData) => {
   const {
     desiredLoanAmount,
     loanTenure,
+    basicSalary,
+    averageIncentive,
     monthlyIncome,
-    existingEMI,
-    creditCardObligation,
-    companyName,
+    existingEMI = 0,
+    category = 'C',
+    creditScore,
     employmentType,
+    age,
+    existingLoanBanks,
     // Admin Overrides (Logic Bridge)
     interestRateOverride,
     isGovtEmployee,
@@ -77,48 +88,43 @@ export const calculateShriRamEligibility = (userData) => {
     govtFOIR,
     govtMultiplier,
     govtMaxTenure,
-    // User fields
-    age,
-    category,
-    existingLoanBanks,
     // Balance Transfer fields
     isBTMode,
     loansForBT,
     btTotalEMI,
-    btTotalOutstanding
+    btTotalOutstanding,
+    creditCardObligation = 0,
+    // Incentive Overrides
+    incentivePercentageOverride,
+    incentiveMonthsOverride
   } = userData;
 
-  // ========== CATEGORY STANDARDIZATION ==========
-  // Determine lookup category - handle both standard and GOVT cases
-  let companyCategory = category || 'B';
-  if (employmentType === 'government') {
-    companyCategory = 'GOVT';
-  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
-    companyCategory = 'GOVT';
-  }
+  // ========== INCENTIVE CALCULATION LOGIC ==========
+  const effectiveIncentivePercentage = incentivePercentageOverride !== undefined 
+    ? incentivePercentageOverride 
+    : (shriRamConfig.incentivePercentage || 0);
 
-  // Use standardized GOVT for table lookups
-  const lookupCategory = companyCategory;
-  // ========== END CATEGORY STANDARDIZATION ==========
+  const effectiveIncentiveMonths = incentiveMonthsOverride !== undefined 
+    ? incentiveMonthsOverride 
+    : 3; // Default to 3 months if not specified
 
-  // ========== BALANCE TRANSFER MODE DETECTION ==========
+  const bankIncentiveConsidered = (averageIncentive || 0) * effectiveIncentivePercentage;
+  const actualMonthlyIncome = (basicSalary || 0) + bankIncentiveConsidered;
+  
+  // Use actualMonthlyIncome for all subsequent calculations
+  const monthlyIncomeForCalc = actualMonthlyIncome;
+
   const isBT = isBTMode && loansForBT && loansForBT.length > 0;
-  let adjustedIncome = monthlyIncome;
+  let adjustedIncome = monthlyIncomeForCalc;
   let nonBTLoansEMI = 0;
 
   if (isBT) {
-    nonBTLoansEMI = (existingEMI || 0) - btTotalEMI;
-    const creditCardDeduction = creditCardObligation || 0;
-    adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
+    nonBTLoansEMI = existingEMI - btTotalEMI;
+    adjustedIncome = monthlyIncomeForCalc - nonBTLoansEMI;
     if (adjustedIncome <= 0) {
-      return {
-        isEligible: false,
-        reason: `After deducting non-BT obligations (₹${((existingEMI || 0) + (creditCardObligation || 0))?.toLocaleString() || '0'}), no income remains for Balance Transfer`,
-        isBTMode: true
-      };
+      return { eligible: false, reason: `After deducting non-BT loan EMIs (₹${nonBTLoansEMI.toLocaleString()}), no income remains`, isBTMode: true };
     }
   }
-  // ========== END BT MODE DETECTION ==========
 
   // CHECK: If customer already has a personal loan from Shri Ram Finance
   if (existingLoanBanks && existingLoanBanks.length > 0) {
@@ -135,33 +141,36 @@ export const calculateShriRamEligibility = (userData) => {
     }
   }
 
-  // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('Shriram Finance', 'ageRules');
-  const minAge = ageConfig?.minAge ?? shriRamConfig.minAge;
-  const maxAge = ageConfig?.maxAge ?? shriRamConfig.maxAge;
-
-  if (age && (age < minAge || age > maxAge)) {
+  // Check age eligibility
+  if (age && (age < shriRamConfig.minAge || age > shriRamConfig.maxAge)) {
     return {
-      isEligible: false,
-      reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
+      eligible: false,
+      reason: `Age must be between ${shriRamConfig.minAge} and ${shriRamConfig.maxAge} years. Current age: ${age}`
     };
   }
 
   // Check employment type
   if (!shriRamConfig.employmentTypes.includes(employmentType)) {
     return {
-      isEligible: false,
-      reason: `Employment type ${employmentType} not supported by this bank`
+      eligible: false,
+      reason: `Employment type ${employmentType} not supported by Shri Ram Finance`
     };
   }
 
   // Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
+  let lookupCategory = category === 'Govt' ? 'C' : category; // Fallback Govt to C for Shri Ram
   let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : shriRamConfig.maxTenureByCategory[lookupCategory];
+
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
-    maxTenureForCategory = 60; // Fallback
+    return {
+      eligible: false,
+      reason: `No loans available for Category ${category}`
+    };
   }
 
+  // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
+  // This shows the maximum loan amount the bank can offer for this category
   const cappedTenureMonths = maxTenureForCategory;
   const cappedTenureYears = cappedTenureMonths / 12;
 
@@ -169,67 +178,106 @@ export const calculateShriRamEligibility = (userData) => {
   const requestedTenureMonths = loanTenure * 12;
   const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
 
-  // Check minimum salary requirement based on category
-  const salConfig = getBankConfig('Shriram Finance', 'employmentRules');
-  const catMinSalary = shriRamConfig.minSalary[lookupCategory] || shriRamConfig.minSalary['A'];
-  const effectiveMinSalary = salConfig?.salariedMinSalary ?? catMinSalary;
-
-  const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
-  if (incomeToCheck < effectiveMinSalary) {
+  // Check loan tenure
+  if (loanTenure > shriRamConfig.maxLoanTenure) {
     return {
-      isEligible: false,
-      reason: `Minimum monthly income required is ₹${catMinSalary?.toLocaleString() || '0'} for Category ${lookupCategory}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`,
-      isBTMode: isBT
+      eligible: false,
+      reason: `Maximum loan tenure is ${shriRamConfig.maxLoanTenure} years`
     };
   }
 
-  // Get loan capping config
-  const cappingConfig = getBankConfig('Shriram Finance', 'loanCapping');
-  const absoluteMaxLoan = cappingConfig?.absoluteMaxLoan ?? shriRamConfig.maxLoanAmount;
-  const minLoanAmount = cappingConfig?.minLoanAmount ?? 50000;
+  const minSalaryRequired = shriRamConfig.minSalaryByCategory[category] || shriRamConfig.minSalaryByCategory['C'];
+  const incomeToCheck = isBT ? adjustedIncome : monthlyIncomeForCalc;
+  if (incomeToCheck < minSalaryRequired) {
+    return { eligible: false, reason: `Minimum salary of ₹${minSalaryRequired.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+  }
 
-  if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
+  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncomeForCalc;
+  const salaryBand = getSalaryBand(incomeForCalculation, shriRamConfig.salaryBandTable);
+
+  if (!salaryBand) {
+    return { eligible: false, reason: 'Salary does not fall within any eligible band', isBTMode: isBT };
+  }
+
+  const bandData = shriRamConfig.salaryBandTable[salaryBand];
+
+  // Logic Bridge: Support govtFOIR override
+  let foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : bandData.foir;
+
+  const foirCap = monthlyIncomeForCalc * foirPercentage;
+  const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
+  // User Logic: (Salary * FOIR%) - Non-BT EMI = Available EMI
+  const availableEMI = isBT ? (foirCap - nonBTLoansEMI) : (foirCap - totalObligations);
+
+  if (availableEMI <= 0) {
     return {
-      isEligible: false,
-      reason: `Minimum loan amount required by this bank is ₹${minLoanAmount?.toLocaleString() || '0'}. Requested: ₹${desiredLoanAmount?.toLocaleString() || '0'}`,
-      isBTMode: isBT
+      eligible: false,
+      reason: `Existing EMI (₹${existingEMI.toLocaleString()}) exceeds FOIR limit of ₹${Math.round(foirCap).toLocaleString()}`
     };
   }
 
-  // Calculate using salary-driven multiplier system
-  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
+  // Pass 1: Preliminary ROI for initial calculation
+  const baseRate = shriRamConfig.interestRate;
 
-  // ROI Logic Bridge Overrides
+  // Calculate preliminary loan amount based on available EMI using base rate
+  const preliminaryFoirLoanAmount = calculatePrincipalFromEMI(availableEMI, baseRate, cappedTenureYears);
+
+  // Take the minimum for first pass
+  const preliminaryMaxLoanAmount = Math.min(
+    desiredLoanAmount || Infinity,
+    preliminaryFoirLoanAmount
+  );
+
+  // Apply bank's maximum loan cap for pass 1
+  const preliminaryLoanAmount = Math.min(preliminaryMaxLoanAmount, shriRamConfig.maxLoanAmount);
+
+  // Pass 2: Get final ROI based on preliminary loan amount
   let finalInterestRate = interestRateOverride;
   if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
-  if (!finalInterestRate) {
-    finalInterestRate = getDynamicInterestRate('Shriram Finance', lookupCategory, desiredLoanAmount || monthlyIncome * 20, { state: userData.state, city: userData.city }, shriRamConfig.interestRate);
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(category, preliminaryLoanAmount, userData.city || userData.state);
+
+  const effectiveInterestRate = finalInterestRate;
+
+  // Recalculate FOIR-based principal with final effective interest rate
+  const foirLoanAmount = calculatePrincipalFromEMI(availableEMI, effectiveInterestRate, cappedTenureYears);
+
+
+  // Final loan amount is minimum of FOIR and desired amount
+  const finalLoanAmount = Math.min(
+    foirLoanAmount,
+    desiredLoanAmount || Infinity
+  );
+
+  const maxLoanCapAmount = Math.min(finalLoanAmount, shriRamConfig.maxLoanAmount);
+  const loanCapped = finalLoanAmount > shriRamConfig.maxLoanAmount;
+
+  // Apply Dynamic Bachelor Capping
+  let appliedBachelorCap = false;
+  let bachelorLimitAmount = null;
+  let bachelorCapReasonStr = null;
+  let cappedFinalLoan = maxLoanCapAmount;
+
+  if (userData.dynamicBachelorLimitOverride !== undefined) {
+    bachelorLimitAmount = userData.dynamicBachelorLimitOverride;
+    if (cappedFinalLoan > bachelorLimitAmount) {
+      cappedFinalLoan = bachelorLimitAmount;
+      appliedBachelorCap = true;
+      bachelorCapReasonStr = userData.dynamicBachelorCapReason || 'Dynamic Bachelor Capping limit applied';
+    }
+  } else if (shriRamConfig.bachelorMaxLoanAmount !== undefined && userData.maritalStatus === 'single' && userData.livingStatus === 'rented') {
+    bachelorLimitAmount = shriRamConfig.bachelorMaxLoanAmount;
+    if (cappedFinalLoan > bachelorLimitAmount) {
+      cappedFinalLoan = bachelorLimitAmount;
+      appliedBachelorCap = true;
+      bachelorCapReasonStr = 'Rented Bachelor Limit Applied (Bank Default)';
+    }
   }
 
-  // Logic Bridge: Multiplier override
-  const multiplier = isGovtEmployee && govtMultiplier ? govtMultiplier : getMultiplier(incomeForCalculation);
-  const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
-  const availableSalary = isBT ? incomeForCalculation : (monthlyIncome - totalObligations);
-
-  const multiplierLoanAmount = availableSalary * multiplier;
-
-  // Take minimum of multiplier calculation and desired amount
-  const maxLoanAmount = multiplierLoanAmount;
-
-  // Apply bank's maximum loan cap
-  const finalLoanAmount = Math.min(maxLoanAmount, desiredLoanAmount || Infinity, absoluteMaxLoan);
-  const loanCapped = maxLoanAmount > absoluteMaxLoan;
-
-  // ========== BALANCE TRANSFER CALCULATION ==========
   let btDetails = null;
   if (isBT) {
-    const btFreshAmount = finalLoanAmount - btTotalOutstanding;
+    const btFreshAmount = cappedFinalLoan - btTotalOutstanding;
     if (btFreshAmount < 0) {
-      return {
-        isEligible: false,
-        reason: `BT Outstanding (₹${btTotalOutstanding?.toLocaleString() || '0'}) exceeds maximum eligible loan (₹${Math.round(finalLoanAmount)?.toLocaleString() || '0'})`,
-        isBTMode: true
-      };
+      return { eligible: false, reason: `BT Outstanding (₹${btTotalOutstanding.toLocaleString()}) exceeds max loan (₹${Math.round(cappedFinalLoan).toLocaleString()})`, isBTMode: true };
     }
     btDetails = {
       isBTMode: true,
@@ -238,26 +286,29 @@ export const calculateShriRamEligibility = (userData) => {
       btTotalEMI: Math.round(btTotalEMI),
       freshAmountDisbursed: Math.round(btFreshAmount),
       nonBTLoansEMI: Math.round(nonBTLoansEMI),
+      creditCardObligation: Math.round(creditCardObligation || 0),
+      creditCardObligationNote: creditCardObligation > 0 ? '5% of non-BT credit card outstanding' : 'No credit card obligation (either no CC or CC in BT)',
       totalNonBTObligations: Math.round(nonBTLoansEMI + (creditCardObligation || 0)),
-      originalIncome: monthlyIncome,
+      originalIncome: monthlyIncomeForCalc,
       adjustedIncome: Math.round(adjustedIncome)
     };
   }
-  // ========== END BT CALCULATION ==========
 
-  // Calculate final EMI for the loan amount using capped tenure
-  const monthlyEMI = calculateEMI(finalLoanAmount, finalInterestRate, cappedTenureYears);
+  const monthlyEMI = calculateEMI(cappedFinalLoan, effectiveInterestRate, cappedTenureYears);
 
   return {
-    isEligible: true,
+    eligible: true,
     bankId: shriRamConfig.id,
     bankName: shriRamConfig.name,
-    loanAmount: Math.round(finalLoanAmount),
-    maxLoanAmount: Math.round(finalLoanAmount),
-    maxLoanCap: absoluteMaxLoan,
+    loanAmount: Math.round(cappedFinalLoan),
+    maxLoanCap: shriRamConfig.maxLoanAmount,
     loanCappedByBank: loanCapped,
-    calculatedLoanBeforeCap: loanCapped ? Math.round(maxLoanAmount) : null,
-    interestRate: finalInterestRate,
+    calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
+    bachelorCapped: appliedBachelorCap,
+    bachelorCapReason: bachelorCapReasonStr,
+    regularMaxLoan: Math.round(maxLoanCapAmount),
+    bachelorMaxLoanAmount: bachelorLimitAmount !== null ? Math.round(bachelorLimitAmount) : null,
+    interestRate: effectiveInterestRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,
     tenureCapped: tenureCapped,
@@ -265,18 +316,26 @@ export const calculateShriRamEligibility = (userData) => {
     requestedTenureMonths: requestedTenureMonths,
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
-    companyCategory: lookupCategory,
-    multiplier: multiplier,
+    foirPercentage: foirPercentage,
+    salaryBand: salaryBand,
+    incentivePercentage: effectiveIncentivePercentage, // Dynamically reflect override
+    incentiveMonths: effectiveIncentiveMonths,
+    incentiveConsidered: bankIncentiveConsidered,
+    availableEMI: Math.round(availableEMI),
+    foirLoanAmount: Math.round(foirLoanAmount),
+    calculationMethod: 'FOIR Only (Income-based, No Category Distinction)',
     details: {
-      foirLoanAmount: Math.round(foirLoanAmount),
-      multiplierLoanAmount: Math.round(multiplierLoanAmount),
-      limitingFactor: finalLoanAmount === foirLoanAmount ? 'FOIR' : 'Multiplier',
+      foirPercentage: (foirPercentage * 100).toFixed(0) + '%',
+      salaryBand: salaryBand,
+      foirCap: Math.round(foirCap),
+      availableEMI: Math.round(availableEMI),
+      maxLoanFromFOIR: Math.round(foirLoanAmount),
       existingEMI: Math.round(existingEMI || 0),
       creditCardObligation: Math.round(creditCardObligation || 0),
       creditCardObligationNote: creditCardObligation > 0 ? '5% of credit card outstanding balance' : 'No credit card obligations',
-      totalObligations: Math.round(totalObligations),
-      availableSalaryAfterObligations: Math.round(availableSalary)
+      totalObligations: Math.round(totalObligations)
     },
     ...btDetails
   };
 };
+
