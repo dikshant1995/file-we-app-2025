@@ -202,10 +202,9 @@ export const calculatePiramalEligibility = (userData) => {
     return { eligible: false, reason: `No FOIR available for NTH ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
   }
 
-  const foirCap = monthlyIncomeForCalc * foirPercentage;
+  const foirCap = isBT ? (adjustedIncome * foirPercentage) : (monthlyIncomeForCalc * foirPercentage);
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
-  // User Logic: (Salary * FOIR%) - Non-BT EMI = Available EMI
-  const availableEMI = isBT ? (foirCap - nonBTLoansEMI) : (foirCap - totalObligations);
+  const availableEMI = isBT ? foirCap : (foirCap - totalObligations);
 
   if (availableEMI <= 0) {
     return {
