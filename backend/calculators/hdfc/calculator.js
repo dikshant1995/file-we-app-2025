@@ -439,6 +439,8 @@ export const calculateHdfcEligibility = (userData) => {
     incentiveMonths: effectiveIncentiveMonths,
     incentiveConsidered: bankIncentiveConsidered,
     details: {
+      foirPercentage: (foirPercentage * 100).toFixed(0) + '%',
+      multiplier: multiplier + 'x',
       multiplierLoanAmount: Math.round(multiplierLoanAmount),
       foirLoanAmount: Math.round(foirLoanAmount),
       foirCap: Math.round(foirCap),
