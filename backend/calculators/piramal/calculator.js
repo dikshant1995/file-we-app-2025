@@ -1,5 +1,12 @@
 import { piramalConfig } from './config.js';
-import { getBankConfig, getDynamicInterestRate } from '../../utils/configHelper.js';
+import { getBankConfig } from '../../services/bankConfigService.js';
+import { getSlabRate } from '../../utils/policyUtils.js';
+
+// Helper function to get interest rate based on category and loan amount
+const getInterestRateForLoan = (category, loanAmount, location = null) => {
+  let lookupCategory = category === 'Govt' ? 'A' : category;
+  return getSlabRate('Piramal Finance', lookupCategory, loanAmount, location, piramalConfig.interestRate);
+};
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -65,6 +72,8 @@ export const calculatePiramalEligibility = (userData) => {
   const {
     desiredLoanAmount,
     loanTenure,
+    basicSalary,
+    averageIncentive,
     monthlyIncome,
     existingEMI = 0,
     creditCardObligation, // NEW: 5% of non-BT credit card balances
@@ -84,20 +93,38 @@ export const calculatePiramalEligibility = (userData) => {
     isBTMode,
     loansForBT,
     btTotalEMI,
-    btTotalOutstanding
+    btTotalOutstanding,
+    // Incentive Overrides
+    incentivePercentageOverride,
+    incentiveMonthsOverride
   } = userData;
 
+  // ========== INCENTIVE CALCULATION LOGIC ==========
+  const effectiveIncentivePercentage = incentivePercentageOverride !== undefined 
+    ? incentivePercentageOverride 
+    : (piramalConfig.incentivePercentage || 0);
+
+  const effectiveIncentiveMonths = incentiveMonthsOverride !== undefined 
+    ? incentiveMonthsOverride 
+    : 3; // Default to 3 months if not specified
+
+  const bankIncentiveConsidered = (averageIncentive || 0) * effectiveIncentivePercentage;
+  const actualMonthlyIncome = (basicSalary || 0) + bankIncentiveConsidered;
+  
+  // Use actualMonthlyIncome for all subsequent calculations
+  const monthlyIncomeForCalc = actualMonthlyIncome;
+
   const isBT = isBTMode && loansForBT && loansForBT.length > 0;
-  let adjustedIncome = monthlyIncome;
+  let adjustedIncome = monthlyIncomeForCalc;
   let nonBTLoansEMI = 0;
 
   if (isBT) {
     nonBTLoansEMI = existingEMI - btTotalEMI;
     // NEW: Also deduct credit card obligations from adjusted income
     const creditCardDeduction = creditCardObligation || 0;
-    adjustedIncome = monthlyIncome - nonBTLoansEMI - creditCardDeduction;
+    adjustedIncome = monthlyIncomeForCalc - nonBTLoansEMI - creditCardDeduction;
     if (adjustedIncome <= 0) {
-      return { eligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction)?.toLocaleString() || '0'}), no income remains`, isBTMode: true };
+      return { eligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains`, isBTMode: true };
     }
   }
 
@@ -116,15 +143,11 @@ export const calculatePiramalEligibility = (userData) => {
     }
   }
 
-  // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('Piramal Finance', 'ageRules', { state: userData.state, city: userData.city });
-  const minAge = ageConfig?.minAge ?? piramalConfig.minAge;
-  const maxAge = ageConfig?.maxAge ?? piramalConfig.maxAge;
-
-  if (age && (age < minAge || age > maxAge)) {
+  // Check age eligibility
+  if (age && (age < piramalConfig.minAge || age > piramalConfig.maxAge)) {
     return {
       eligible: false,
-      reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
+      reason: `Age must be between ${piramalConfig.minAge} and ${piramalConfig.maxAge} years. Current age: ${age}`
     };
   }
 
@@ -136,28 +159,20 @@ export const calculatePiramalEligibility = (userData) => {
     };
   }
 
-  // Determine company category - handle both standard and GOVT cases
-  // Logic Bridge: Support 'government' employment type and 'GOVT' category
-  let companyCategory = category || 'B';
-  if (employmentType === 'government') {
-    companyCategory = 'GOVT';
-  } else if (companyCategory === 'Govt' || companyCategory === 'government') {
-    companyCategory = 'GOVT';
-  }
-
-  // Use standardized GOVT for tenure lookup
-  const lookupCategory = companyCategory;
-
   // Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
+  let lookupCategory = category === 'Govt' ? 'A' : category;
   let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : piramalConfig.maxTenureByCategory[lookupCategory];
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
-    // Fallback if specific category tenure is missing
-    maxTenureForCategory = 60;
+    return {
+      eligible: false,
+      reason: `No loans available for Category ${category}`
+    };
   }
 
   // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
+  // This shows the maximum loan amount the bank can offer for this category
   const cappedTenureMonths = maxTenureForCategory;
   const cappedTenureYears = cappedTenureMonths / 12;
 
@@ -173,53 +188,48 @@ export const calculatePiramalEligibility = (userData) => {
     };
   }
 
-  // Check minimum salary requirement based on category
-  const salConfig = getBankConfig('Piramal Finance', 'employmentRules', { state: userData.state, city: userData.city });
-  const effectiveMinSalary = salConfig?.salariedMinSalary ?? piramalConfig.minNTH;
-
-  const incomeToCheck = isBT ? adjustedIncome : monthlyIncome;
-  if (incomeToCheck < effectiveMinSalary) {
-    return { eligible: false, reason: `Minimum NTH salary of ₹${effectiveMinSalary?.toLocaleString() || '0'} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+  const incomeToCheck = isBT ? adjustedIncome : monthlyIncomeForCalc;
+  if (incomeToCheck < piramalConfig.minNTH) {
+    return { eligible: false, reason: `Minimum NTH salary of ₹${piramalConfig.minNTH.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
-  // Get loan capping config
-  const cappingConfig = getBankConfig('Piramal Finance', 'loanCapping', { state: userData.state, city: userData.city });
-  const absoluteMaxLoan = cappingConfig?.absoluteMaxLoan ?? piramalConfig.maxLoanAmount;
-  const minLoanAmount = cappingConfig?.minLoanAmount ?? 100000;
-
-  // Check minimum loan amount
-  if (desiredLoanAmount && desiredLoanAmount < minLoanAmount) {
-    return {
-      eligible: false,
-      reason: `Minimum loan amount required by this bank is ₹${minLoanAmount?.toLocaleString() || '0'}. Requested: ₹${desiredLoanAmount?.toLocaleString() || '0'}`,
-      isBTMode: isBT
-    };
-  }
-
-  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncome;
+  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncomeForCalc;
 
   // Logic Bridge: Support govtFOIR override
   let foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : getNTHBand(incomeForCalculation, piramalConfig.nthFoirTable);
 
   if (foirPercentage === null) {
-    return { eligible: false, reason: `No FOIR available for NTH ₹${incomeForCalculation?.toLocaleString() || '0'}`, isBTMode: isBT };
+    return { eligible: false, reason: `No FOIR available for NTH ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
   }
 
-  const foirCap = incomeForCalculation * foirPercentage;
-  const totalObligations = existingEMI + (creditCardObligation || 0);
-  const availableEMI = isBT ? foirCap : (foirCap - totalObligations);
+  const foirCap = monthlyIncomeForCalc * foirPercentage;
+  const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
+  // User Logic: (Salary * FOIR%) - Non-BT EMI = Available EMI
+  const availableEMI = isBT ? (foirCap - nonBTLoansEMI) : (foirCap - totalObligations);
 
   if (availableEMI <= 0) {
     return {
       eligible: false,
-      reason: `Existing EMI (₹${existingEMI?.toLocaleString() || '0'}) exceeds FOIR limit of ₹${Math.round(foirCap)?.toLocaleString() || '0'}`
+      reason: `Existing EMI (₹${existingEMI.toLocaleString()}) exceeds FOIR limit of ₹${Math.round(foirCap).toLocaleString()}`
     };
   }
 
-  // Calculate loan amount from available EMI using capped tenure
+  // Pass 1: Preliminary ROI for initial calculation
+  const baseRate = piramalConfig.interestRate;
+
+  // Calculate preliminary loan amount based on available EMI using base rate
+  const preliminaryLoanAmount = calculatePrincipalFromEMI(availableEMI, baseRate, cappedTenureYears);
+
+  // Pass 2: Get final ROI based on preliminary loan amount
+  let finalInterestRate = interestRateOverride || piramalConfig.interestRate;
+  if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan('ALL', preliminaryLoanAmount, userData.city || userData.state);
+
+  const effectiveInterestRate = finalInterestRate;
+
   const calculatedLoanAmount = calculatePrincipalFromEMI(
     availableEMI,
-    piramalConfig.interestRate,
+    effectiveInterestRate,
     cappedTenureYears
   );
 
@@ -229,14 +239,36 @@ export const calculatePiramalEligibility = (userData) => {
     desiredLoanAmount || Infinity
   );
 
-  const cappedFinalLoan = Math.min(finalLoanAmount, absoluteMaxLoan);
-  const loanCapped = finalLoanAmount > absoluteMaxLoan;
+  const maxLoanCapAmount = Math.min(finalLoanAmount, piramalConfig.maxLoanAmount);
+  const loanCapped = finalLoanAmount > piramalConfig.maxLoanAmount;
+
+  // Apply Dynamic Bachelor Capping
+  let appliedBachelorCap = false;
+  let bachelorLimitAmount = null;
+  let bachelorCapReasonStr = null;
+  let cappedFinalLoan = maxLoanCapAmount;
+
+  if (userData.dynamicBachelorLimitOverride !== undefined) {
+    bachelorLimitAmount = userData.dynamicBachelorLimitOverride;
+    if (cappedFinalLoan > bachelorLimitAmount) {
+      cappedFinalLoan = bachelorLimitAmount;
+      appliedBachelorCap = true;
+      bachelorCapReasonStr = userData.dynamicBachelorCapReason || 'Dynamic Bachelor Capping limit applied';
+    }
+  } else if (piramalConfig.bachelorMaxLoanAmount !== undefined && userData.maritalStatus === 'single' && userData.livingStatus === 'rented') {
+    bachelorLimitAmount = piramalConfig.bachelorMaxLoanAmount;
+    if (cappedFinalLoan > bachelorLimitAmount) {
+      cappedFinalLoan = bachelorLimitAmount;
+      appliedBachelorCap = true;
+      bachelorCapReasonStr = 'Rented Bachelor Limit Applied (Bank Default)';
+    }
+  }
 
   let btDetails = null;
   if (isBT) {
     const btFreshAmount = cappedFinalLoan - btTotalOutstanding;
     if (btFreshAmount < 0) {
-      return { eligible: false, reason: `BT Outstanding (₹${btTotalOutstanding?.toLocaleString() || '0'}) exceeds max loan (₹${Math.round(cappedFinalLoan)?.toLocaleString() || '0'})`, isBTMode: true };
+      return { eligible: false, reason: `BT Outstanding (₹${btTotalOutstanding.toLocaleString()}) exceeds max loan (₹${Math.round(cappedFinalLoan).toLocaleString()})`, isBTMode: true };
     }
     btDetails = {
       isBTMode: true,
@@ -248,31 +280,26 @@ export const calculatePiramalEligibility = (userData) => {
       creditCardObligation: Math.round(creditCardObligation || 0),
       creditCardObligationNote: creditCardObligation > 0 ? '5% of non-BT credit card outstanding' : 'No credit card obligation (either no CC or CC in BT)',
       totalNonBTObligations: Math.round(nonBTLoansEMI + (creditCardObligation || 0)),
-      originalIncome: monthlyIncome,
+      originalIncome: monthlyIncomeForCalc,
       adjustedIncome: Math.round(adjustedIncome)
     };
   }
 
-  // Use dynamic interest rate from Admin settings
-  // Logic Bridge: ROI overrides
-  let finalInterestRate = interestRateOverride;
-  if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
-  if (!finalInterestRate) {
-    finalInterestRate = getDynamicInterestRate('Piramal Finance', lookupCategory, cappedFinalLoan, { state: userData.state, city: userData.city }, piramalConfig.interestRate);
-  }
-
-  const monthlyEMI = calculateEMI(cappedFinalLoan, finalInterestRate, cappedTenureYears);
+  const monthlyEMI = calculateEMI(cappedFinalLoan, effectiveInterestRate, cappedTenureYears);
 
   return {
     eligible: true,
     bankId: piramalConfig.id,
     bankName: piramalConfig.name,
     loanAmount: Math.round(cappedFinalLoan),
-    maxLoanAmount: Math.round(cappedFinalLoan),
-    maxLoanCap: absoluteMaxLoan,
+    maxLoanCap: piramalConfig.maxLoanAmount,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
-    interestRate: finalInterestRate,
+    bachelorCapped: appliedBachelorCap,
+    bachelorCapReason: bachelorCapReasonStr,
+    regularMaxLoan: Math.round(maxLoanCapAmount),
+    bachelorMaxLoanAmount: bachelorLimitAmount !== null ? Math.round(bachelorLimitAmount) : null,
+    interestRate: effectiveInterestRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,
     tenureCapped: tenureCapped,
@@ -280,8 +307,10 @@ export const calculatePiramalEligibility = (userData) => {
     requestedTenureMonths: requestedTenureMonths,
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
-    category: lookupCategory,
     foirPercentage: foirPercentage,
+    incentivePercentage: effectiveIncentivePercentage, // Dynamically reflect override
+    incentiveMonths: effectiveIncentiveMonths,
+    incentiveConsidered: bankIncentiveConsidered,
     availableEMI: Math.round(availableEMI),
     calculationMethod: 'FOIR Only (Ultra-Simple 2-Band NTH, No Category)',
     details: {
@@ -297,3 +326,4 @@ export const calculatePiramalEligibility = (userData) => {
     ...btDetails
   };
 };
+
