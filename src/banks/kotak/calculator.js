@@ -309,9 +309,8 @@ export const calculateKotakEligibility = (userData) => {
     };
   }
 
-  const foirCap = monthlyIncomeForCalc * foirPercentage;
-  // User Logic: (Salary * FOIR%) - Non-BT EMI = Available EMI
-  const availableEMI = isBT ? (foirCap - nonBTLoansEMI) : (foirCap - totalObligations);
+  const foirCap = isBT ? (adjustedIncome * foirPercentage) : (monthlyIncomeForCalc * foirPercentage);
+  const availableEMI = isBT ? foirCap : (foirCap - totalObligations);
 
   // Calculate preliminary loan amount with base rate
   const preliminaryFoirLoanAmount = calculateLoanAmountFromEMI(availableEMI, baseRate, cappedTenureYears);
