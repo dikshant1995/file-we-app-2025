@@ -12,35 +12,31 @@ export const shriRamConfig = {
   bachelorMaxLoanAmount: 2000000, // ₹20 Lakhs maximum for unmarried individuals
   interestRate: 11.0, // Fixed at 11% for all banks as per policy
   processingFee: 0.011,
-  
+
   // Incentive policy
   incentivePercentage: 0.60, // 60% of average incentive
   incentivePeriodMonths: 3, // Last 3 months
-  
+
   // Combined Multiplier + FOIR table based ONLY on salary
   // No category distinction for multiplier/FOIR calculation
   salaryBandTable: {
     '25000-35000': {
-      multiplier: 14,
       foir: 0.50
     },
     '35001-50000': {
-      multiplier: 18,
       foir: 0.60
     },
     '50001-75000': {
-      multiplier: 20,
       foir: 0.65
     },
     '75001+': {
-      multiplier: 22,
       foir: 0.70
     }
   },
-  
+
   // Universal minimum salary requirement (same for all categories)
   minSalary: 25000,
-  
+
   // Minimum salary by category (all same - unique feature)
   minSalaryByCategory: {
     'A': 25000,
@@ -49,7 +45,7 @@ export const shriRamConfig = {
     'D': 25000,
     'UNLISTED': 25000  // Same as others - very inclusive!
   },
-  
+
   // Maximum tenure by category (in months)
   maxTenureByCategory: {
     'A': 60,        // 5 years - CAT A
@@ -59,7 +55,7 @@ export const shriRamConfig = {
     'D': 60,        // 5 years - CAT D
     'UNLISTED': 60  // 5 years - UNLISTED
   },
-  
+
   // Category descriptions (for reference only, doesn't affect multiplier/FOIR)
   categories: {
     'A': { description: 'Category A - Top Tier Companies' },
@@ -68,10 +64,10 @@ export const shriRamConfig = {
     'D': { description: 'Category D - Lower-Tier Companies' },
     'UNLISTED': { description: 'Unlisted Companies - Fully Eligible (unique to Shriram)' }
   },
-  
+
   employmentTypes: ['salaried', 'self-employed', 'unlisted'],
   specialPrograms: ['income-focused-lending', 'inclusive-finance', 'unlisted-friendly'],
-  
+
   // Calculation method
   calculationMethod: 'Combined (Multiplier + FOIR)',
   approach: 'Income-Centric (Salary-Driven)',
@@ -84,7 +80,7 @@ export const shriRamConfig = {
     'Up to 70% FOIR for high earners',
     'Most inclusive for UNLISTED category'
   ],
-  
+
   // Balance Transfer (BT) Configuration
   btConfig: {
     isAvailable: true, // BT facility is available
