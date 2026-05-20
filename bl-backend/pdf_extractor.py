@@ -1626,31 +1626,32 @@ class UnifiedBankBrain:
             if current_line: raw_lines.append(current_line)
 
             combined = []
-            if leftover_line: combined.append(leftover_line); leftover_line = None
-            i = 0
-            while i < len(raw_lines):
-                curr = raw_lines[i]
-                if i+1 < len(raw_lines):
-                    nxt = raw_lines[i+1]
-                    dist = nxt[0]['top'] - curr[0]['top']
-                    curr_txt = " ".join([w.get('text', "") for w in curr])
-                    nxt_txt = " ".join([w.get('text', "") for w in nxt])
-                    # Vertical Date Stitching (IndusInd Pattern)
-                    is_split_date = (re.search(r'^\d{4}-?$', curr[0]['text']) and re.search(r'^-?\d{2}-\d{2}', nxt[0]['text']) and dist < 25)
+            if raw_lines:
+                curr_group = list(raw_lines[0])
+                for nxt in raw_lines[1:]:
+                    dist = nxt[0]['top'] - curr_group[-1]['top']
+                    is_indusind = (self.bank_type == "INDUSIND")
                     
-                    # V11.2: Opening Balance Shield. Never stitch Opening Balance with a transaction row.
-                    is_opening_line = "OPENING BALANCE" in curr_txt.upper()
+                    if is_indusind:
+                        stitch = (dist < 12)
+                    else:
+                        curr_txt = " ".join([w.get('text', "") for w in curr_group])
+                        is_opening_line = "OPENING BALANCE" in curr_txt.upper()
+                        is_split_date = (re.search(r'^\d{4}-?$', curr_group[0]['text']) and re.search(r'^-?\d{2}-\d{2}', nxt[0]['text']) and dist < 25)
+                        stitch = is_split_date or (not self.date_regex.search(curr_txt) and dist < 40 and not is_opening_line)
                     
-                    # V11.4: Increased stitching distance for Axis and robust header skipping
-                    stitch = is_split_date or (not self.date_regex.search(curr_txt) and dist < 40 and not is_opening_line)
                     if stitch:
-                        if is_split_date:
+                        if not is_indusind and is_split_date:
                             year_part = re.search(r'^\d{4}-?', curr_txt).group(0).replace("-", "")
+                            nxt_txt = " ".join([w.get('text', "") for w in nxt])
                             md_part = re.search(r'^-?\d{2}-\d{2}', nxt_txt).group(0).lstrip("-")
-                            curr[0]['text'] = f"{year_part}-{md_part}"
+                            curr_group[0]['text'] = f"{year_part}-{md_part}"
                             nxt[0]['text'] = nxt[0]['text'].replace(re.search(r'^-?\d{2}-\d{2}', nxt_txt).group(0), "", 1).strip()
-                        curr.extend(nxt); i += 1
-                combined.append(curr); i += 1
+                        curr_group.extend(nxt)
+                    else:
+                        combined.append(curr_group)
+                        curr_group = list(nxt)
+                combined.append(curr_group)
 
             for lw in combined:
                 # Serial Number Shield (Ignore far-left numbers)
