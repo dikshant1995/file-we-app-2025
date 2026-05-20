@@ -1406,7 +1406,8 @@ class UnifiedBankBrain:
                 "gates": {"Date": (30, 110), "Narr": (110, 310), "Dr": (310, 395), "Cr": (395, 480), "Bal": (480, 538)}
             },
             "INDUSIND": {
-                "cleaning": [r'UPI-[\w\-\.\@]+', r'IMPS-[\w\-\.\@]+']
+                "cleaning": [r'UPI-[\w\-\.\@]+', r'IMPS-[\w\-\.\@]+'],
+                "gates": {"Date": (30, 100), "Narr": (100, 350), "Dr": (420, 580), "Cr": (580, 700), "Bal": (700, 880)}
             },
             "BOM": {
                 "shields": [r'TOTAL', r'NOTE:', r'THIS IS A LINE']
@@ -1744,7 +1745,7 @@ class UnifiedBankBrain:
                     
                     clean_narr = self.polish_narration(" ".join([w['text'] for w in active_lw if not any(abs(((w['x0']+w['x1'])/2) - px) < 25 for px in self.pillars) and not self.date_regex.search(w['text'])]))
 
-                all_rows.append({"Date": parsed_date, "Narration": clean_narr, "Dr": dr, "Cr": cr, "Balance": curr_bal})
+                all_rows.append({"Date": parsed_date, "Narration": clean_narr, "Dr": abs(dr), "Cr": abs(cr), "Balance": curr_bal})
 
         if all_rows:
             # --- V9.5 MATH-BASED CHRONOLOGY AUDIT ---
