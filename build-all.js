@@ -25,10 +25,8 @@ async function buildAll() {
         // 2. Build Business Loan App
         console.log('\n📦 PHASE 2: Building Business Loan App...');
         // First, verify if node_modules exist or install them
-        if (!fs.existsSync(path.join(blFrontendDir, 'node_modules'))) {
-            console.log('💡 Installing BL Frontend dependencies...');
-            run('npm install', blFrontendDir);
-        }
+        console.log('💡 Installing BL Frontend dependencies...');
+        run('npm install', blFrontendDir);
         
         run('npm run build', blFrontendDir);
 
