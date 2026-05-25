@@ -21,32 +21,48 @@ export const generatePdfFromElement = async (elementId, filename = 'Financial_Re
     element.style.position = 'relative'; // Let it flow so html2canvas can capture it safely
     
     // Slight delay to ensure recharts animations complete if any
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 600));
 
-    const canvas = await html2canvas(element, {
-      scale: 2, // High resolution
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#ffffff'
-    });
+    const pages = element.querySelectorAll('.pdf-page');
 
-    // Revert styles back to hide it
-    element.style.left = originalLeft;
-    element.style.position = 'absolute';
-
-    const imgData = canvas.toDataURL('image/jpeg', 0.95);
-    
-    // A4 dimensions: 210 x 297 mm
     const pdf = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
       format: 'a4'
     });
 
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    if (pages.length > 0) {
+      for (let i = 0; i < pages.length; i++) {
+        if (i > 0) {
+          pdf.addPage();
+        }
+        const canvas = await html2canvas(pages[i], {
+          scale: 2.5, // High resolution for premium look
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff'
+        });
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+      }
+    } else {
+      // Fallback for single page legacy layout
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+    }
 
-    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+    // Revert styles back to hide it
+    element.style.left = originalLeft;
+    element.style.position = 'absolute';
+
     pdf.save(filename);
 
   } catch (error) {
