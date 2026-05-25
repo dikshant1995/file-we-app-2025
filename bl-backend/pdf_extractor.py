@@ -1383,11 +1383,12 @@ class UnifiedBankBrain:
         # --- THE GRAND UNIFIED KNOWLEDGE BANK (V8.2 - Strictly Transactions) ---
         self.knowledge = {
             "HDFC": {
-                "cleaning": [r'CHQ/REF', r'UPI-[\w\-\.\@]+', r'NEFT-[\w\-\.\@]+', r'IMPS-[\w\-\.\@]+'],
-                "shields": [r'CLOSING\s*BALANCE\s*INCLUDES', r'HDFC\s*BANK\s*LIMITED']
+                "cleaning": [r'CHQ/REF'],
+                "shields": [r'CLOSING\s*BALANCE\s*INCLUDES', r'HDFC\s*BANK\s*LIMITED'],
+                "gates": {"Date": (30, 68), "Narr": (68, 280), "Dr": (410, 500), "Cr": (500, 580), "Bal": (580, 650)}
             },
             "SBI": {
-                "cleaning": [r'UPI-[\w\-\.\@]+', r'TRANSFER FROM', r'TRANSFER TO', r'NEFT-[\w\-\.\@]+', r'IMPS-[\w\-\.\@]+'],
+                "cleaning": [r'TRANSFER FROM', r'TRANSFER TO'],
                 "shields": [r'OPENING\s*BALANCE\s*:', r'CLOSING\s*BALANCE\s*:'],
                 "gates": {"Date": (15, 135), "Narr": (135, 380), "Amt": (380, 515), "Bal": (515, 650)} # Refined SBI Grid V8.1
             },
@@ -1396,16 +1397,16 @@ class UnifiedBankBrain:
                 "shields": [r'LEGENDS FOR TRANSACTIONS', r'SINCERELY', r'TEAM ICICI BANK']
             },
             "AU": {
-                "cleaning": [r'\s+DR$', r'\s+CR$', r'UPI/\d+/'], 
+                "cleaning": [r'\s+DR$', r'\s+CR$'], 
                 "shields": [r'END\s*OF\s*STATEMENT']
             },
             "AXIS": {
-                "cleaning": [r'UPI-[\w\-\.\@]+', r'IMPS-[\w\-\.\@]+', r'NEFT-[\w\-\.\@]+', r'\d{6}\s+(?:DR|CR)$', r'INIT\.\s*BR'],
+                "cleaning": [r'\d{6}\s+(?:DR|CR)$', r'INIT\.\s*BR'],
                 "shields": [r'OPENING\s*BALANCE', r'CLOSING\s*BALANCE'],
                 "gates": {"Date": (30, 110), "Narr": (110, 310), "Dr": (310, 395), "Cr": (395, 480), "Bal": (480, 538)}
             },
             "INDUSIND": {
-                "cleaning": [r'UPI-[\w\-\.\@]+', r'IMPS-[\w\-\.\@]+'],
+                "cleaning": [],
                 "gates": {"Date": (30, 100), "Narr": (100, 350), "Dr": (420, 580), "Cr": (580, 700), "Bal": (700, 880)}
             },
             "BOM": {
@@ -1417,8 +1418,13 @@ class UnifiedBankBrain:
                 "header_threshold": 180
             },
             "CANARA": {
-                "cleaning": [r'MB-IMPS', r'UPI-[\w\-\.\@]+'],
-                "gates": {"Date": (35, 135), "Narr": (135, 400), "Dr": (400, 455), "Cr": (455, 515), "Bal": (515, 650)}
+                "cleaning": [r'MB-IMPS'],
+                "gates": {"Date": (35, 135), "Narr": (135, 400), "Dr": (400, 455), "Cr": (455, 515), "Bal": (515, 650)},
+                "shields": [r'SUMMARY\s*OF', r'OPENING\s*BALANCE', r'CLOSING\s*BALANCE']
+            },
+            "BOI": {
+                "cleaning": [],
+                "shields": [r'TOTAL', r'OPENING\s*BALANCE', r'CLOSING\s*BALANCE']
             },
             "IDFC": {
                 "cleaning": [r'UPI/MOB/[\d/]+', r'from PhonePe'],
@@ -1725,14 +1731,14 @@ class UnifiedBankBrain:
                 # Extraction (Template vs Discovery)
                 if gates:
                     # Template-Based (High Precision)
-                    bal_str = " ".join([w['text'] for w in active_lw if gates["Bal"][0] <= (w['x0']+w['x1'])/2 < gates["Bal"][1]])
+                    bal_str = " ".join([w['text'] for w in lw if gates["Bal"][0] <= (w['x0']+w['x1'])/2 < gates["Bal"][1]])
                     curr_bal = clean_amount(bal_str)
                     
                     if "Amt" in gates:
                         # Single-column amount (Dr/Cr distinguished by text indicator)
-                        amt_str = " ".join([w['text'] for w in active_lw if gates["Amt"][0] <= (w['x0']+w['x1'])/2 < gates["Amt"][1]])
+                        amt_str = " ".join([w['text'] for w in lw if gates["Amt"][0] <= (w['x0']+w['x1'])/2 < gates["Amt"][1]])
                         if "Type" in gates:
-                            type_str = " ".join([w['text'] for w in active_lw if gates["Type"][0] <= (w['x0']+w['x1'])/2 < gates["Type"][1]]).upper()
+                            type_str = " ".join([w['text'] for w in lw if gates["Type"][0] <= (w['x0']+w['x1'])/2 < gates["Type"][1]]).upper()
                             dr = clean_amount(amt_str) if "DR" in type_str or "-" in amt_str else 0.0
                             cr = clean_amount(amt_str) if "CR" in type_str or (not dr and amt_str) else 0.0
                         else:
@@ -1740,12 +1746,12 @@ class UnifiedBankBrain:
                             cr = clean_amount(amt_str) if "CR" in line_txt.upper() or (not dr and amt_str) else 0.0
                     else:
                         # Separate Dr and Cr columns
-                        dr_str = " ".join([w['text'] for w in active_lw if gates["Dr"][0] <= (w['x0']+w['x1'])/2 < gates["Dr"][1]])
-                        cr_str = " ".join([w['text'] for w in active_lw if gates["Cr"][0] <= (w['x0']+w['x1'])/2 < gates["Cr"][1]])
+                        dr_str = " ".join([w['text'] for w in lw if gates["Dr"][0] <= (w['x0']+w['x1'])/2 < gates["Dr"][1]])
+                        cr_str = " ".join([w['text'] for w in lw if gates["Cr"][0] <= (w['x0']+w['x1'])/2 < gates["Cr"][1]])
                         dr = clean_amount(dr_str)
                         cr = clean_amount(cr_str)
                         
-                    clean_narr = self.polish_narration(" ".join([w['text'] for w in active_lw if gates["Narr"][0] <= (w['x0']+w['x1'])/2 < gates["Narr"][1]]))
+                    clean_narr = self.polish_narration(" ".join([w['text'] for w in lw if gates["Narr"][0] <= (w['x0']+w['x1'])/2 < gates["Narr"][1]]))
                 else:
                     # Dynamic Discovery Fallback: Use named pillars from headers if available
                     bal_px = self.named_pillars["Bal"] or (self.pillars[-1] if self.pillars else 540)
