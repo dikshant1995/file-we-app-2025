@@ -1,7 +1,9 @@
 import React, { useState, useRef } from 'react';
 import axios from 'axios';
-import { Activity, ShieldCheck, X, Eye, EyeOff, Landmark, UploadCloud, Plus, Loader, AlertCircle } from 'lucide-react';
+import { Activity, ShieldCheck, X, Eye, EyeOff, Landmark, UploadCloud, Plus, Loader, AlertCircle, FileBarChart } from 'lucide-react';
 import { getDetailedRejectionReason } from '../utils/rejectionAdvisor.js';
+import { generatePdfFromElement } from '../utils/pdfGenerator';
+import FinancialReportTemplate from './FinancialReportTemplate';
 
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
     const monthlyInterestRate = annualInterestRate / 12 / 100;
@@ -151,6 +153,7 @@ const EligibilityChecker = () => {
     ]);
     
     const [results, setResults] = useState(null);
+    const [extractionData, setExtractionData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -159,6 +162,7 @@ const EligibilityChecker = () => {
     const [calcRoi, setCalcRoi] = useState(17.5);
     const [calcTenure, setCalcTenure] = useState(3);
     const [showPassword, setShowPassword] = useState(false);
+    const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
     const calculatedEMIValue = (calcAmount && calcRoi && calcTenure) ? calculateEMI(calcAmount, calcRoi, calcTenure) : 0;
 
@@ -191,6 +195,7 @@ const EligibilityChecker = () => {
             const res = await axios.post(`${apiBase}/api/evaluate-eligibility`, data);
             if (res.data.status === 'success') {
                 setResults(res.data.results);
+                setExtractionData(res.data.extraction);
             } else {
                 setError(res.data.message);
                 alert("Evaluation Error: " + res.data.message);
@@ -204,6 +209,17 @@ const EligibilityChecker = () => {
     
     const addAccount = () => {
         setBankAccounts([...bankAccounts, { id: Date.now(), files: [], password: '' }]);
+    };
+    
+    const handlePdfDownload = async () => {
+        setIsGeneratingPdf(true);
+        try {
+            await generatePdfFromElement('pdf-report-container', 'Eligibility_Financial_Report.pdf');
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsGeneratingPdf(false);
+        }
     };
     
     const removeAccount = (index) => {
@@ -439,9 +455,21 @@ const EligibilityChecker = () => {
 
                 {/* Results Side */}
                 <div className="flex flex-col gap-4">
-                    <h2 className="mb-4 text-primary flex items-center gap-2">
-                        <ShieldCheck size={24} /> Eligible Lenders
-                    </h2>
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-primary flex items-center gap-2 m-0">
+                            <ShieldCheck size={24} /> Eligible Lenders
+                        </h2>
+                        {results && extractionData && (
+                            <button 
+                                className="btn btn-primary" 
+                                onClick={handlePdfDownload} 
+                                disabled={isGeneratingPdf}
+                                style={{ background: 'var(--primary)', border: 'none', padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}
+                            >
+                                <FileBarChart size={16} /> {isGeneratingPdf ? 'Generating...' : 'Download PDF Report'}
+                            </button>
+                        )}
+                    </div>
                     {results ? (
                         results.map((r, i) => (
                             <div key={i} className={`elevated-card animate-fade-in`} style={{ animationDelay: `${i * 0.1}s` }}>
@@ -611,6 +639,15 @@ const EligibilityChecker = () => {
                 </div>
 
             </div>
+            
+            {/* Hidden template for PDF generation */}
+            {results && extractionData && extractionData.dataset_3 && (
+                <FinancialReportTemplate 
+                    results={{ dataset_1: extractionData.dataset_3 }} 
+                    proprietorName={"Loan Applicant"} 
+                    accountType={formData.account_type} 
+                />
+            )}
         </div>
     );
 };
