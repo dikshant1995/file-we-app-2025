@@ -664,9 +664,10 @@ const EligibilityChecker = () => {
             {/* Hidden template for PDF generation */}
             {results && extractionData && extractionData.dataset_3 && (
                 <FinancialReportTemplate 
-                    results={{ dataset_1: extractionData.dataset_3 }} 
-                    proprietorName={"Loan Applicant"} 
-                    accountType={formData.account_type} 
+                    results={{ dataset_1: extractionData.dataset_3, dataset_3: extractionData.dataset_3 }} 
+                    proprietorName={formData.firm_name || "Loan Applicant"} 
+                    sisterFirms={formData.sister_firms}
+                    accountType={formData.account_type || 'savings'} 
                 />
             )}
         </div>
