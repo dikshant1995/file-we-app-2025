@@ -1,5 +1,7 @@
 import React, { useState, useRef } from 'react';
-import { Loader, UploadCloud, Download, AlertCircle, Building2, Calendar, Target, X, Eye, EyeOff, Plus, Landmark, Activity } from 'lucide-react';
+import { Building2, Upload, FileText, Lock, Plus, Trash2, Calendar, FileDown, Download, AlertCircle, FileBarChart, Loader, UploadCloud, Eye, EyeOff, Landmark, Activity, X } from 'lucide-react';
+import { generatePdfFromElement } from '../utils/pdfGenerator';
+import FinancialReportTemplate from './FinancialReportTemplate';
 
 const AccountBucket = ({ bucket, index, onUpdate, onRemove, isOnly }) => {
     const [dragActive, setDragActive] = useState(false);
@@ -137,6 +139,18 @@ const AbbAnalyzer = ({
     setProprietorName, setSisterFirms, setAccountType, 
     setSanctionedLimit, downloadExcel 
 }) => {
+    const [isGeneratingPdf, setIsGeneratingPdf] = React.useState(false);
+
+    const handlePdfDownload = async () => {
+        setIsGeneratingPdf(true);
+        try {
+            await generatePdfFromElement('pdf-report-container', `Financial_Report_${proprietorName || 'Applicant'}.pdf`);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsGeneratingPdf(false);
+        }
+    };
     
     const addAccount = () => {
         setBankAccounts([...bankAccounts, { id: Date.now(), files: [], password: '' }]);
@@ -264,9 +278,19 @@ const AbbAnalyzer = ({
                         <div className="flex justify-between items-center mb-8">
                             <h2 className="gradient-text">Institutional ABB Report</h2>
                             {!abbData.error && (
-                                <button className="btn btn-primary" onClick={() => downloadExcel(results, abbData)} style={{ background: 'var(--success)', border: 'none' }}>
-                                    <Download size={18} /> Excel Report
-                                </button>
+                                <div className="flex gap-2">
+                                    <button 
+                                        className="btn btn-primary" 
+                                        onClick={handlePdfDownload} 
+                                        disabled={isGeneratingPdf}
+                                        style={{ background: 'var(--primary)', border: 'none' }}
+                                    >
+                                        <FileBarChart size={18} /> {isGeneratingPdf ? 'Generating...' : 'PDF Report'}
+                                    </button>
+                                    <button className="btn btn-primary" onClick={() => downloadExcel(results, abbData)} style={{ background: 'var(--success)', border: 'none' }}>
+                                        <Download size={18} /> Excel Report
+                                    </button>
+                                </div>
                             )}
                         </div>
 
@@ -308,6 +332,17 @@ const AbbAnalyzer = ({
                         )}
                     </div>
                 </div>
+            )}
+            
+            {/* Hidden template for PDF generation */}
+            {!abbData?.error && results && (
+                <FinancialReportTemplate 
+                    results={results} 
+                    abbData={abbData} 
+                    proprietorName={proprietorName} 
+                    sisterFirms={sisterFirms} 
+                    accountType={accountType} 
+                />
             )}
         </div>
     );
