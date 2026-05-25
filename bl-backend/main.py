@@ -223,7 +223,9 @@ async def evaluate_eligibility(
     num_recent_3m_loans: int = Form(0),
     total_recent_3m_loan_emi: float = Form(0.0),
     num_recent_6m_loans: int = Form(0),
-    total_recent_6m_loan_emi: float = Form(0.0)
+    total_recent_6m_loan_emi: float = Form(0.0),
+    firm_name: str = Form(""),
+    sister_firms: str = Form("")
 ):
     try:
         form_data = await request.form()
@@ -275,7 +277,9 @@ async def evaluate_eligibility(
             "num_recent_3m_loans": num_recent_3m_loans,
             "total_recent_3m_loan_emi": total_recent_3m_loan_emi,
             "num_recent_6m_loans": num_recent_6m_loans,
-            "total_recent_6m_loan_emi": total_recent_6m_loan_emi
+            "total_recent_6m_loan_emi": total_recent_6m_loan_emi,
+            "firm_name": firm_name,
+            "sister_firms": sister_firms
         }
         
         bank_data = {
