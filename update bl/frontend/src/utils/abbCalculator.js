@@ -300,9 +300,8 @@ export function calculateABB(dataset_1, options = {}) {
 export function extractEmiDeductions(dataset_3) {
   if (!dataset_3) return [];
   
-  // Strict Regex: prevents matching "EMI" inside "CHEMICALS" or "ACH" inside "SACHIN"
-  // It ensures the keyword is either at the boundary, or bordered by numbers/symbols (e.g. EMI13245, ACH/HDFC)
-  const emiPattern = /(?:^|[^A-Z])(EMI|ACH|ACHD|NACH|STANDING INSTRUCTION|SI MATCH|AUTO DEBIT|LOAN)(?:[^A-Z]|$)/;
+  // Broad & Precise EMI & Lender detection pattern for debit transactions
+  const emiPattern = /(?:^|[^A-Z])(EMI|ACH|ACHD|NACH|ECS|SI|STANDING INSTRUCTION|SI MATCH|AUTO DEBIT|AUTO DEB|LOAN|DR INW|DRINW|ADITYA BIRLA|HERO FIN|BAJAJ FIN|BAJAJ SERV|L&T FIN|L \& T|LANDT|PIRAMAL|TATA CAP|CHOLA|POONAWALA|UGRO|CLIX|LENDINGKART|FLEXILOAN|INCRED|SMFG|FULLERTON|MUTHOOT|FINCORP|FINSERV|CAPITAL|CREDIT)(?:[^A-Z]|$)/;
 
   return dataset_3.filter(row => {
     if (!row.Dr || row.Dr <= 0) return false;
@@ -311,7 +310,7 @@ export function extractEmiDeductions(dataset_3) {
   });
 }
 
-export function generateMonthlySummary(dataset_3, abbData) {
+export function generateMonthlySummary(dataset_3, abbData, proprietorName = "", sisterFirmName = "") {
   if (!dataset_3 || !abbData) return [];
   
   // Decide lookup timeframe based on successful logic blocks
@@ -345,6 +344,8 @@ export function generateMonthlySummary(dataset_3, abbData) {
         Cash_Count: 0,
         Cr_Count: 0,
         Total_Credit_Amount: 0,
+        Inter_Firm_Credits: 0,
+        Final_BTO: 0,
         Dr_Count: 0,
         Inward_Returns: 0,
         Outward_Returns: 0
@@ -368,6 +369,26 @@ export function generateMonthlySummary(dataset_3, abbData) {
         grouped[monthKey].Cash_Count += 1;
         grouped[monthKey].Total_Cash += parseFloat(row.Cr);
       }
+      
+      // Sister Firm & Inter-Firm Logic
+      let matchedInterFirm = false;
+      
+      if (proprietorName && proprietorName.trim() !== "") {
+        const propRegex = new RegExp(proprietorName.trim(), 'i');
+        if (propRegex.test(narrC)) matchedInterFirm = true;
+      }
+      
+      if (!matchedInterFirm && sisterFirmName && sisterFirmName.trim() !== "") {
+        const sisterRegex = new RegExp(sisterFirmName.trim(), 'i');
+        if (sisterRegex.test(narrC)) matchedInterFirm = true;
+      }
+
+      if (matchedInterFirm) {
+        grouped[monthKey].Inter_Firm_Credits += parseFloat(row.Cr);
+      }
+      
+      // Calculate Final BTO (Total Credit - Inter Firm Credits)
+      grouped[monthKey].Final_BTO = grouped[monthKey].Total_Credit_Amount - grouped[monthKey].Inter_Firm_Credits;
     }
     
     // Process Check Bounces (Returns) independent of Dr/Cr status
