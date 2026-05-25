@@ -287,7 +287,7 @@ const AbbAnalyzer = ({
                                     >
                                         <FileBarChart size={18} /> {isGeneratingPdf ? 'Generating...' : 'PDF Report'}
                                     </button>
-                                    <button className="btn btn-primary" onClick={() => downloadExcel(results, abbData)} style={{ background: 'var(--success)', border: 'none' }}>
+                                    <button className="btn btn-primary" onClick={() => downloadExcel(results, abbData, proprietorName, sisterFirms)} style={{ background: 'var(--success)', border: 'none' }}>
                                         <Download size={18} /> Excel Report
                                     </button>
                                 </div>
