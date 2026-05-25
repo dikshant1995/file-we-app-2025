@@ -111,6 +111,20 @@ const FinancialReportTemplate = ({ results, abbData, proprietorName, sisterFirms
     ];
   }, [rawBalances]);
 
+  const pieAnalysis = useMemo(() => {
+    const totalCredit = pieData[0].value;
+    const totalDebit = pieData[1].value;
+    const total = totalCredit + totalDebit;
+    const creditPercent = total > 0 ? ((totalCredit / total) * 100).toFixed(1) + '%' : '0.0%';
+    const debitPercent = total > 0 ? ((totalDebit / total) * 100).toFixed(1) + '%' : '0.0%';
+    return {
+      totalCredit,
+      totalDebit,
+      creditPercent,
+      debitPercent
+    };
+  }, [pieData]);
+
   const PIE_COLORS = ['#10b981', '#ef4444'];
 
   // EMI Analysis & Obligations Estimation
@@ -327,7 +341,7 @@ const FinancialReportTemplate = ({ results, abbData, proprietorName, sisterFirms
           {/* Section 3: Charts Visualizations */}
           <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1.2fr', gap: '15px', marginBottom: '20px' }}>
             {/* Daily Balance chart */}
-            <div style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '14px', height: '185px' }}>
+            <div style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '14px', height: '215px' }}>
               <h4 style={{ margin: '0 0 10px 0', fontSize: '11px', color: '#334155', fontWeight: 700, textTransform: 'uppercase' }}>
                 Daily Ledger Balance Trend
               </h4>
@@ -348,19 +362,19 @@ const FinancialReportTemplate = ({ results, abbData, proprietorName, sisterFirms
             </div>
 
             {/* Inflow vs Outflow Pie Chart */}
-            <div style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '14px', height: '185px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '14px', height: '215px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between' }}>
               <h4 style={{ margin: '0 0 4px 0', fontSize: '11px', color: '#334155', fontWeight: 700, textTransform: 'uppercase', width: '100%' }}>
                 Cashflow Distribution
               </h4>
-              <div style={{ width: '100%', height: '85%', position: 'relative' }}>
+              <div style={{ width: '100%', height: '60%', position: 'relative' }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={pieData}
                       cx="50%"
                       cy="48%"
-                      innerRadius={40}
-                      outerRadius={55}
+                      innerRadius={28}
+                      outerRadius={42}
                       paddingAngle={4}
                       dataKey="value"
                       stroke="none"
@@ -369,9 +383,23 @@ const FinancialReportTemplate = ({ results, abbData, proprietorName, sisterFirms
                         <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                       ))}
                     </Pie>
-                    <Legend verticalAlign="bottom" height={20} iconType="circle" iconSize={6} wrapperStyle={{ fontSize: '8px', paddingTop: '4px' }}/>
+                    <Legend verticalAlign="bottom" height={15} iconType="circle" iconSize={5} wrapperStyle={{ fontSize: '7.5px', paddingTop: '2px' }}/>
                   </PieChart>
                 </ResponsiveContainer>
+              </div>
+              <div style={{ width: '100%', borderTop: '1px solid #f1f5f9', paddingTop: '6px', marginTop: '2px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px', fontSize: '8px' }}>
+                  <span style={{ color: '#059669', fontWeight: 700 }}>Credits (Inflow):</span>
+                  <span style={{ fontWeight: 700, color: '#1e293b' }}>
+                    ₹{Math.round(pieAnalysis.totalCredit).toLocaleString()} ({pieAnalysis.creditPercent})
+                  </span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '8px' }}>
+                  <span style={{ color: '#dc2626', fontWeight: 700 }}>Debits (Outflow):</span>
+                  <span style={{ fontWeight: 700, color: '#1e293b' }}>
+                    ₹{Math.round(pieAnalysis.totalDebit).toLocaleString()} ({pieAnalysis.debitPercent})
+                  </span>
+                </div>
               </div>
             </div>
           </div>
