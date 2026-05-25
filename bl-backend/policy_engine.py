@@ -71,11 +71,20 @@ class PolicyEngine:
         avg_util = total_used / count if count > 0 else 0
         return avg_util, peak_used
 
-    def calculate_net_bto(self, transactions):
+    def calculate_net_bto(self, transactions, firm_name="", sister_firms=""):
         # Exclude cash deposits to find pure digital revenue
         cash_regex = r'(?:^|[^A-Z])(CASHDEP|BY CASH|CASH DEPOSIT|CASH RECEIPT|CSH DEP|CASH)(?:[^A-Z]|$)'
         total_credit = 0
         cash_credit = 0
+        inter_firm_credit = 0
+        
+        firm_regex = None
+        if firm_name and firm_name.strip():
+            firm_regex = re.compile(re.escape(firm_name.strip()), re.IGNORECASE)
+            
+        sister_regex = None
+        if sister_firms and sister_firms.strip():
+            sister_regex = re.compile(re.escape(sister_firms.strip()), re.IGNORECASE)
         
         for t in transactions:
             cr = t.get('Cr', 0)
@@ -84,8 +93,17 @@ class PolicyEngine:
                 narr = str(t.get('Narration', '')).upper()
                 if re.search(cash_regex, narr):
                     cash_credit += cr
+                else:
+                    matched = False
+                    if firm_regex and firm_regex.search(narr):
+                        matched = True
+                    if not matched and sister_regex and sister_regex.search(narr):
+                        matched = True
+                        
+                    if matched:
+                        inter_firm_credit += cr
                     
-        return total_credit - cash_credit
+        return total_credit - cash_credit - inter_firm_credit
 
     def calculate_custom_abb(self, transactions, dates):
         """
@@ -152,7 +170,10 @@ class PolicyEngine:
         
         # Deep Analytics Calculations
         bounce_ratio = self.calculate_bounce_ratio(transactions)
-        net_bto = self.calculate_net_bto(transactions)
+        
+        firm_name = borrower_data.get('firm_name', '')
+        sister_firms = borrower_data.get('sister_firms', '')
+        net_bto = self.calculate_net_bto(transactions, firm_name, sister_firms)
         
         total_credit = sum([t.get('Cr', 0) for t in transactions])
         digital_ratio = (net_bto / total_credit * 100) if total_credit > 0 else 0
