@@ -1376,9 +1376,8 @@ class UnifiedBankBrain:
         self.is_descending = False
         self.header_y = 50
         self.narrative_shield_x = 100
-        # V10.6 Grand Universal Date Key: 100% coverage for all 37 banks (including IndusInd & Indian Bank)
-        # Improved to handle '02-Sep- 2023' (split) and '02-Sep-2023' (standard)
         self.date_regex = re.compile(r'\b\d{1,2}[-/ ](?:\d{1,2}|[A-Za-z]{3}-?)[-/ ]{1,2}\d{2,4}\b|\b\d{1,2}[-/]\d{1,2}\b')
+        self.is_indusind_compact = False
 
         
         # --- THE GRAND UNIFIED KNOWLEDGE BANK (V8.2 - Strictly Transactions) ---
@@ -1443,11 +1442,25 @@ class UnifiedBankBrain:
         
         # 1. Footprint Detection (Strict Header Search)
         # Priority 1: Axis / Canara / Specific Signatures
-        if "AXISBANK" in txt_up or "UTIB" in txt_up or "STATEMENTOFAXIS" in txt_up: self.bank_type = "AXIS"
+        if "AXISBANK" in txt_up or "UTIB" in txt_up or "STATEMENTOFAXIS" in txt_up: 
+            self.bank_type = "AXIS"
+            is_unified = any(w.get('text', '').upper() in ["DR", "CR"] and 400 < (w['x0']+w['x1'])/2 < 440 for w in words)
+            if is_unified:
+                print(">>> [Unified Brain] Axis Unified Layout Detected.")
+                self.knowledge["AXIS"]["gates"] = {"Date": (30, 110), "Narr": (110, 310), "Amt": (310, 410), "Type": (410, 440), "Bal": (440, 480)}
         elif "CANARABANK" in txt_up or "CNRB" in txt_up: self.bank_type = "CANARA"
         elif "HDFCBANK" in txt_up: self.bank_type = "HDFC"
         elif "STATEBANKOFINDIA" in txt_up: self.bank_type = "SBI" 
-        elif "INDUSIND" in txt_up: self.bank_type = "INDUSIND"
+        elif "INDUSIND" in txt_up:
+            self.bank_type = "INDUSIND"
+            if p.width > 700:
+                print(">>> [Unified Brain] IndusInd OD/Corporate Wide Layout Detected.")
+                self.is_indusind_compact = True
+            else:
+                print(">>> [Unified Brain] IndusInd Standard Portrait Layout Detected.")
+                self.is_indusind_compact = False
+                if "gates" in self.knowledge["INDUSIND"]:
+                    del self.knowledge["INDUSIND"]["gates"]
         elif any(kw in txt_up for kw in ["AUBANK", "AUSMALL", "AUQR", "AUSFB", "AUCURRENT", "AUBL"]): self.bank_type = "AU"
         elif "IDBIBANK" in txt_up or "IDB0" in txt_up: self.bank_type = "IDBI"
         elif "ICICIBANK" in txt_up or "DETAILEDSTATEMENT" in txt_up: self.bank_type = "ICICI"
@@ -1630,9 +1643,9 @@ class UnifiedBankBrain:
                 curr_group = list(raw_lines[0])
                 for nxt in raw_lines[1:]:
                     dist = nxt[0]['top'] - curr_group[-1]['top']
-                    is_indusind = (self.bank_type == "INDUSIND")
+                    is_indusind_compact = (self.bank_type == "INDUSIND" and getattr(self, "is_indusind_compact", False))
                     
-                    if is_indusind:
+                    if is_indusind_compact:
                         stitch = (dist < 12)
                     else:
                         curr_txt = " ".join([w.get('text', "") for w in curr_group])
@@ -1641,7 +1654,7 @@ class UnifiedBankBrain:
                         stitch = is_split_date or (not self.date_regex.search(curr_txt) and dist < 40 and not is_opening_line)
                     
                     if stitch:
-                        if not is_indusind and is_split_date:
+                        if not is_indusind_compact and is_split_date:
                             year_part = re.search(r'^\d{4}-?', curr_txt).group(0).replace("-", "")
                             nxt_txt = " ".join([w.get('text', "") for w in nxt])
                             md_part = re.search(r'^-?\d{2}-\d{2}', nxt_txt).group(0).lstrip("-")
@@ -1718,8 +1731,13 @@ class UnifiedBankBrain:
                     if "Amt" in gates:
                         # Single-column amount (Dr/Cr distinguished by text indicator)
                         amt_str = " ".join([w['text'] for w in active_lw if gates["Amt"][0] <= (w['x0']+w['x1'])/2 < gates["Amt"][1]])
-                        dr = clean_amount(amt_str) if "DR" in line_txt.upper() or "-" in amt_str else 0.0
-                        cr = clean_amount(amt_str) if "CR" in line_txt.upper() or (not dr and amt_str) else 0.0
+                        if "Type" in gates:
+                            type_str = " ".join([w['text'] for w in active_lw if gates["Type"][0] <= (w['x0']+w['x1'])/2 < gates["Type"][1]]).upper()
+                            dr = clean_amount(amt_str) if "DR" in type_str or "-" in amt_str else 0.0
+                            cr = clean_amount(amt_str) if "CR" in type_str or (not dr and amt_str) else 0.0
+                        else:
+                            dr = clean_amount(amt_str) if "DR" in line_txt.upper() or "-" in amt_str else 0.0
+                            cr = clean_amount(amt_str) if "CR" in line_txt.upper() or (not dr and amt_str) else 0.0
                     else:
                         # Separate Dr and Cr columns
                         dr_str = " ".join([w['text'] for w in active_lw if gates["Dr"][0] <= (w['x0']+w['x1'])/2 < gates["Dr"][1]])
