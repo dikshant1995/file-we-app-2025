@@ -88,7 +88,7 @@ function buildInstitutionalSummary(comparisons) {
   return rows;
 }
 
-export function downloadExcel(results, abbData) {
+export function downloadExcel(results, abbData, proprietorName = "", sisterFirms = "") {
   const wb = XLSX.utils.book_new();
 
   // 1. Institutional ABB Summary (Primary comparative data)
@@ -183,7 +183,7 @@ export function downloadExcel(results, abbData) {
   XLSX.utils.book_append_sheet(wb, wsEmi, "EMI_Deductions");
 
   // 8. Inject Monthly Summary
-  const monthlySummary = generateMonthlySummary(results.dataset_3, abbData);
+  const monthlySummary = generateMonthlySummary(results.dataset_3, abbData, proprietorName, sisterFirms);
   if (monthlySummary && monthlySummary.length > 0) {
     const wsSummary = XLSX.utils.json_to_sheet(monthlySummary);
     XLSX.utils.book_append_sheet(wb, wsSummary, "Transaction_Summary");
