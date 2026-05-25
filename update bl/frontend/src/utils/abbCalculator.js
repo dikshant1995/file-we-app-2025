@@ -404,6 +404,7 @@ export function generateMonthlySummary(dataset_3, abbData, proprietorName = "", 
   const finalSummary = [];
   let gCashAmt = 0, gCashCount = 0, gCr = 0, gDr = 0;
   let gCrAmt = 0;
+  let gInterFirm = 0;
   let gIw = 0, gOw = 0;
   
   for (const [month, obj] of Object.entries(grouped)) {
@@ -415,6 +416,8 @@ export function generateMonthlySummary(dataset_3, abbData, proprietorName = "", 
     finalSummary.push({
       "Month": obj.Month,
       "Total BTO (₹)": obj.Total_Credit_Amount.toFixed(2),
+      "Inter Firm Credits (₹)": obj.Inter_Firm_Credits.toFixed(2),
+      "Final BTO (₹)": obj.Final_BTO.toFixed(2),
       "Net BTO (Excl. Cash) (₹)": netBTO.toFixed(2),
       "Total Cash Deposit (₹)": obj.Total_Cash.toFixed(2),
       "Cash Deposit Count": obj.Cash_Count,
@@ -430,6 +433,7 @@ export function generateMonthlySummary(dataset_3, abbData, proprietorName = "", 
     gCashCount += obj.Cash_Count;
     gCr += obj.Cr_Count;
     gCrAmt += obj.Total_Credit_Amount;
+    gInterFirm += obj.Inter_Firm_Credits;
     gDr += obj.Dr_Count;
     gIw += obj.Inward_Returns;
     gOw += obj.Outward_Returns;
@@ -440,11 +444,14 @@ export function generateMonthlySummary(dataset_3, abbData, proprietorName = "", 
     const gTotalTxns = gCr + gDr;
     const gRatioStr = gTotalTxns > 0 ? ((gTotalReturns / gTotalTxns) * 100).toFixed(2) + "%" : "0.00%";
     const gNetBTO = gCrAmt - gCashAmt;
+    const gFinalBTO = gCrAmt - gInterFirm;
     
     finalSummary.push({}); // Visual space
     finalSummary.push({
       "Month": "GRAND TOTAL",
       "Total BTO (₹)": gCrAmt.toFixed(2),
+      "Inter Firm Credits (₹)": gInterFirm.toFixed(2),
+      "Final BTO (₹)": gFinalBTO.toFixed(2),
       "Net BTO (Excl. Cash) (₹)": gNetBTO.toFixed(2),
       "Total Cash Deposit (₹)": gCashAmt.toFixed(2),
       "Cash Deposit Count": gCashCount,
