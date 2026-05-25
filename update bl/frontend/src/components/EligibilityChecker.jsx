@@ -145,7 +145,9 @@ const EligibilityChecker = () => {
         num_recent_3m_loans: 0,
         total_recent_3m_loan_emi: 0,
         num_recent_6m_loans: 0,
-        total_recent_6m_loan_emi: 0
+        total_recent_6m_loan_emi: 0,
+        firm_name: '',
+        sister_firms: ''
     });
     
     const [bankAccounts, setBankAccounts] = useState([
@@ -252,6 +254,28 @@ const EligibilityChecker = () => {
                                 className="input-field"
                                 placeholder="Enter amount"
                             />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="form-group">
+                                <label className="label">Firm Name (Proprietor Name)</label>
+                                <input 
+                                    type="text" 
+                                    value={formData.firm_name}
+                                    onChange={(e) => setFormData({...formData, firm_name: e.target.value})}
+                                    className="input-field"
+                                    placeholder="Exact match from PDF"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label className="label">Sister Firm Name(s)</label>
+                                <input 
+                                    type="text" 
+                                    value={formData.sister_firms}
+                                    onChange={(e) => setFormData({...formData, sister_firms: e.target.value})}
+                                    className="input-field"
+                                    placeholder="Exact match from PDF"
+                                />
+                            </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="form-group">
