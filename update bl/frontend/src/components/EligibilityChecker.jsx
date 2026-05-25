@@ -128,9 +128,6 @@ const CompactAccountBucket = ({ bucket, index, onUpdate, onRemove, isOnly }) => 
 };
 
 const EligibilityChecker = () => {
-    // Added standard ref from react context
-    const reactRef = React.useRef;
-    
     const [formData, setFormData] = useState({
         loan_amount: 1000000,
         gst_vintage: 3,
