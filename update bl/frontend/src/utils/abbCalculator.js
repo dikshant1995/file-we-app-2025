@@ -372,15 +372,18 @@ export function generateMonthlySummary(dataset_3, abbData, proprietorName = "", 
       
       // Sister Firm & Inter-Firm Logic
       let matchedInterFirm = false;
+      const narrNoSpace = narrC.replace(/\s+/g, '');
       
       if (proprietorName && proprietorName.trim() !== "") {
         const propRegex = new RegExp(proprietorName.trim(), 'i');
-        if (propRegex.test(narrC)) matchedInterFirm = true;
+        const propRegexNoSpace = new RegExp(proprietorName.replace(/\s+/g, ''), 'i');
+        if (propRegex.test(narrC) || propRegexNoSpace.test(narrNoSpace)) matchedInterFirm = true;
       }
       
       if (!matchedInterFirm && sisterFirmName && sisterFirmName.trim() !== "") {
         const sisterRegex = new RegExp(sisterFirmName.trim(), 'i');
-        if (sisterRegex.test(narrC)) matchedInterFirm = true;
+        const sisterRegexNoSpace = new RegExp(sisterFirmName.replace(/\s+/g, ''), 'i');
+        if (sisterRegex.test(narrC) || sisterRegexNoSpace.test(narrNoSpace)) matchedInterFirm = true;
       }
 
       if (matchedInterFirm) {
