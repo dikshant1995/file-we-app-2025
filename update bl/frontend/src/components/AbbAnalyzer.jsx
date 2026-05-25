@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Building2, Upload, FileText, Lock, Plus, Trash2, Calendar, FileDown, Download, AlertCircle, FileBarChart, Loader, UploadCloud, Eye, EyeOff, Landmark, Activity, X } from 'lucide-react';
+import { Building2, Upload, FileText, Lock, Plus, Trash2, Calendar, FileDown, Download, AlertCircle, FileBarChart, Loader, UploadCloud, Eye, EyeOff, Landmark, Activity, X, Target } from 'lucide-react';
 import { generatePdfFromElement } from '../utils/pdfGenerator';
 import FinancialReportTemplate from './FinancialReportTemplate';
 
