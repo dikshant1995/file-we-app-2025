@@ -217,6 +217,43 @@ export function downloadExcel(results, abbData, proprietorName = "", sisterFirms
     XLSX.utils.book_append_sheet(wb, wsBounce, "EMI_Bouncing");
   }
 
+  // 11. Inject Risk Assessment
+  if (results.risk_assessment) {
+    const riskSummary = results.risk_assessment.summary;
+    const flaggedTxns = results.risk_assessment.flagged_transactions;
+    
+    const riskData = [
+      { "Date": "--- RISK ASSESSMENT SUMMARY ---", "Narration": "", "Amount": "", "Risk Category": "" },
+      { "Date": "Total Cash Withdrawals", "Narration": `₹${riskSummary.total_cash_withdrawals.toFixed(2)} (${riskSummary.cash_withdrawal_percentage.toFixed(2)}% of total debits)`, "Amount": riskSummary.excessive_cash_withdrawals ? "FLAG: EXCESSIVE" : "NORMAL", "Risk Category": "" },
+      { "Date": "Crypto Exposure", "Narration": riskSummary.crypto_exposure ? "YES" : "NO", "Amount": "", "Risk Category": "" },
+      { "Date": "Gambling/Betting Exposure", "Narration": riskSummary.gambling_exposure ? "YES" : "NO", "Amount": "", "Risk Category": "" },
+      { "Date": "", "Narration": "", "Amount": "", "Risk Category": "" },
+      { "Date": "--- FLAGGED TRANSACTIONS ---", "Narration": "", "Amount": "", "Risk Category": "" },
+      { "Date": "Date", "Narration": "Narration", "Amount": "Amount", "Risk Category": "Risk Category" },
+    ];
+    
+    if (flaggedTxns && flaggedTxns.length > 0) {
+      flaggedTxns.forEach(t => {
+        riskData.push({
+          "Date": t.Date || "",
+          "Narration": t.Narration || "",
+          "Amount": t.Dr ? parseFloat(t.Dr).toFixed(2) : (t.Cr ? parseFloat(t.Cr).toFixed(2) : "0.00"),
+          "Risk Category": t['Risk Category'] || ""
+        });
+      });
+    } else {
+      riskData.push({
+        "Date": "No high-risk transactions detected.",
+        "Narration": "",
+        "Amount": "",
+        "Risk Category": ""
+      });
+    }
+    
+    const wsRisk = XLSX.utils.json_to_sheet(riskData, { skipHeader: true });
+    XLSX.utils.book_append_sheet(wb, wsRisk, "Risk_Assessment");
+  }
+
   const fileName = results.config?.targetNbfc 
     ? `ABB_Report_${results.config?.targetNbfc}_${results.metadata.account_name.replace(/\s+/g, '_')}.xlsx`
     : "ABB_Calculator_Results.xlsx";
