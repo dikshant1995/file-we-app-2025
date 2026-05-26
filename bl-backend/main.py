@@ -182,13 +182,17 @@ async def upload_statement(request: Request):
         # Consolidated Master Extraction
         final_d1, final_d2, final_d3, final_meta = consolidate_multiple_accounts(parsed_accounts)
         
+        from risk_engine import analyze_risk_flags
+        risk_data = analyze_risk_flags(final_d3)
+        
         return {
             "status": "success", 
             "data": {
                 "dataset_1": final_d1, 
                 "dataset_2": final_d2, 
                 "dataset_3": final_d3,
-                "metadata": final_meta
+                "metadata": final_meta,
+                "risk_assessment": risk_data
             }
         }
     except Exception as e:
@@ -291,10 +295,13 @@ async def evaluate_eligibility(
         engine = PolicyEngine()
         results = engine.evaluate(borrower_data, bank_data)
         
+        from risk_engine import analyze_risk_flags
+        risk_data = analyze_risk_flags(d3)
+        
         return {
             "status": "success",
             "results": results,
-            "extraction": {"metadata": meta, "dataset_3": d3}
+            "extraction": {"metadata": meta, "dataset_3": d3, "risk_assessment": risk_data}
         }
     except Exception as e:
         return {"status": "error", "message": str(e)}
