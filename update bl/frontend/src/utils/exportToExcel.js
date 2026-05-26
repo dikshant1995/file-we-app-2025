@@ -254,6 +254,45 @@ export function downloadExcel(results, abbData, proprietorName = "", sisterFirms
     XLSX.utils.book_append_sheet(wb, wsRisk, "Risk_Assessment");
   }
 
+  // 12. Inject High Value Transactions
+  if (results.dataset_3 && results.dataset_3.length > 0) {
+    const credits = [...results.dataset_3]
+      .filter(t => parseFloat(t.Cr || 0) > 0)
+      .sort((a, b) => parseFloat(b.Cr || 0) - parseFloat(a.Cr || 0))
+      .slice(0, 10);
+      
+    const debits = [...results.dataset_3]
+      .filter(t => parseFloat(t.Dr || 0) > 0)
+      .sort((a, b) => parseFloat(b.Dr || 0) - parseFloat(a.Dr || 0))
+      .slice(0, 10);
+
+    const hvData = [];
+    
+    hvData.push({ "Type": "--- TOP 10 HIGHEST CREDITS ---", "Date": "", "Narration": "", "Amount (₹)": "" });
+    credits.forEach(c => {
+      hvData.push({
+        "Type": "Credit",
+        "Date": c.Date || "",
+        "Narration": c.Narration || "",
+        "Amount (₹)": parseFloat(c.Cr || 0).toFixed(2)
+      });
+    });
+
+    hvData.push({});
+    hvData.push({ "Type": "--- TOP 10 HIGHEST DEBITS ---", "Date": "", "Narration": "", "Amount (₹)": "" });
+    debits.forEach(d => {
+      hvData.push({
+        "Type": "Debit",
+        "Date": d.Date || "",
+        "Narration": d.Narration || "",
+        "Amount (₹)": parseFloat(d.Dr || 0).toFixed(2)
+      });
+    });
+
+    const wsHV = XLSX.utils.json_to_sheet(hvData);
+    XLSX.utils.book_append_sheet(wb, wsHV, "High_Value_Transactions");
+  }
+
   const fileName = results.config?.targetNbfc 
     ? `ABB_Report_${results.config?.targetNbfc}_${results.metadata.account_name.replace(/\s+/g, '_')}.xlsx`
     : "ABB_Calculator_Results.xlsx";
