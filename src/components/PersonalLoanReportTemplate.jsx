@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { format } from 'date-fns';
 
 const PersonalLoanReportTemplate = ({ results, metadata }) => {
   // Extract lists
@@ -11,8 +10,9 @@ const PersonalLoanReportTemplate = ({ results, metadata }) => {
     return `₹${amount.toLocaleString('en-IN')}`;
   };
 
-  const todayStr = format(new Date(), 'dd MMM yyyy');
-  const timeStr = format(new Date(), 'HH:mm:ss');
+  const now = new Date();
+  const todayStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   const uniqueReportId = useMemo(() => 'PL-' + Math.floor(100000 + Math.random() * 900000), []);
 
   const netSalary = parseFloat(metadata?.netSalary || 0);
