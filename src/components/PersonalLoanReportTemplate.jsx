@@ -53,7 +53,11 @@ const PersonalLoanReportTemplate = ({ results, metadata }) => {
         {/* Applicant Profile */}
         <div style={{ backgroundColor: '#f8fafc', borderRadius: '8px', padding: '14px 18px', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
           <h3 style={{ margin: '0 0 10px 0', fontSize: '12px', color: '#475569', fontWeight: 700, textTransform: 'uppercase' }}>Financial Profile Summary</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
+            <div>
+              <span style={{ fontSize: '9px', color: '#64748b', display: 'block', fontWeight: 500 }}>Applicant Name</span>
+              <span style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a' }}>{metadata?.customerName || metadata?.name || 'Customer'}</span>
+            </div>
             <div>
               <span style={{ fontSize: '9px', color: '#64748b', display: 'block', fontWeight: 500 }}>Company Name</span>
               <span style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a' }}>{metadata?.companyName || 'N/A'}</span>
@@ -67,7 +71,7 @@ const PersonalLoanReportTemplate = ({ results, metadata }) => {
               <span style={{ fontSize: '12px', fontWeight: 700, color: '#10b981' }}>{formatCurrency(netSalary)}</span>
             </div>
             <div>
-              <span style={{ fontSize: '9px', color: '#64748b', display: 'block', fontWeight: 500 }}>Current EMI Obligations</span>
+              <span style={{ fontSize: '9px', color: '#64748b', display: 'block', fontWeight: 500 }}>Current EMI</span>
               <span style={{ fontSize: '12px', fontWeight: 700, color: '#ef4444' }}>{formatCurrency(existingObligations)}</span>
             </div>
           </div>
