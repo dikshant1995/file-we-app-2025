@@ -92,6 +92,7 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
 
   return (
     <div className="customer-results-display professional-grid-bg">
+      <div className="no-print">
       {/* Results Header */}
       <div className="results-header">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
@@ -632,6 +633,7 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
           </div>
         </div>
       )}
+      </div>
 
       {/* Hidden Printable PDF Template */}
       <PersonalLoanReportTemplate results={results} metadata={metadata} />
