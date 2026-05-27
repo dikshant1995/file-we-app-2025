@@ -107,8 +107,6 @@ const PersonalLoanReportTemplate = ({ results, metadata }) => {
             </div>
           </div>
         </div>
-        
-        </div>
       </div>
 
       {/* PAGE 2: APPROVED BANKS (Dynamic Length) */}
