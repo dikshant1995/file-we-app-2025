@@ -15,8 +15,8 @@ const PersonalLoanReportTemplate = ({ results, metadata }) => {
   const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   const uniqueReportId = useMemo(() => 'PL-' + Math.floor(100000 + Math.random() * 900000), []);
 
-  const netSalary = parseFloat(metadata?.netSalary || 0);
-  const totalIncentives = parseFloat(metadata?.incentives || 0) + parseFloat(metadata?.monthlyBonus || 0);
+  const netSalary = parseFloat(metadata?.basicSalary || metadata?.netSalary || 0);
+  const totalIncentives = parseFloat(metadata?.averageIncentive || metadata?.incentives || metadata?.monthlyBonus || 0);
   const existingObligations = parseFloat(metadata?.totalObligation || 0);
 
   return (
@@ -34,7 +34,7 @@ const PersonalLoanReportTemplate = ({ results, metadata }) => {
       }}
     >
       {/* PAGE 1: EXECUTIVE SUMMARY */}
-      <div className="pdf-page" style={{ width: '210mm', height: '297mm', padding: '16mm', backgroundColor: '#ffffff', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
+      <div className="pdf-page" style={{ width: '210mm', minHeight: '297mm', padding: '16mm', backgroundColor: '#ffffff', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', position: 'relative' }}>
         {/* Header */}
         <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', backgroundColor: '#0f172a', color: '#ffffff', padding: '16px 20px', borderRadius: '10px', marginBottom: '20px', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -108,21 +108,17 @@ const PersonalLoanReportTemplate = ({ results, metadata }) => {
           </div>
         </div>
         
-        {/* Footer */}
-        <div style={{ position: 'absolute', bottom: '16mm', left: '16mm', right: '16mm', borderTop: '1px solid #e2e8f0', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', fontSize: '8px', color: '#64748b' }}>
-          <span>LAXMI CREDIT SYSTEM AUTOMATION | CONFIDENTIAL FINANCIAL EVALUATION REPORT</span>
-          <span style={{ fontWeight: 700 }}>Page 1 of 3</span>
         </div>
       </div>
 
-      {/* PAGE 2: APPROVED BANKS */}
-      <div className="pdf-page" style={{ width: '210mm', height: '297mm', padding: '16mm', backgroundColor: '#ffffff', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
+      {/* PAGE 2: APPROVED BANKS (Dynamic Length) */}
+      <div className="pdf-page" style={{ width: '210mm', minHeight: '297mm', padding: '16mm', backgroundColor: '#ffffff', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', position: 'relative' }}>
         <h2 style={{ margin: '0 0 15px 0', fontSize: '16px', color: '#0f172a', fontWeight: 800, borderBottom: '2px solid #0f172a', paddingBottom: '6px' }}>
           INSTITUTIONAL APPROVALS & CALCULATIONS
         </h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          {eligibleBanks.length > 0 ? eligibleBanks.slice(0, 5).map((bank, i) => (
-            <div key={i} style={{ border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
+          {eligibleBanks.length > 0 ? eligibleBanks.map((bank, i) => (
+            <div key={i} style={{ border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden', pageBreakInside: 'avoid' }}>
               <div style={{ background: 'rgba(16, 185, 129, 0.05)', padding: '10px 15px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <h4 style={{ margin: 0, fontSize: '13px', color: '#065f46', fontWeight: 800 }}>{bank.bankName}</h4>
@@ -214,35 +210,23 @@ const PersonalLoanReportTemplate = ({ results, metadata }) => {
                 </div>
               </div>
             </div>
-          )) : (
+          {eligibleBanks.length === 0 && (
             <div style={{ padding: '20px', textAlign: 'center', color: '#64748b', border: '1px dashed #cbd5e1', borderRadius: '8px', fontSize: '12px' }}>
               No institutional approvals based on the current financial profile.
             </div>
           )}
-          
-          {eligibleBanks.length > 5 && (
-            <div style={{ textAlign: 'center', fontSize: '9px', color: '#64748b', fontStyle: 'italic', marginTop: '5px' }}>
-              * Displaying top 5 approvals. Please see the web dashboard for additional offers.
-            </div>
-          )}
-        </div>
-        
-        {/* Footer */}
-        <div style={{ position: 'absolute', bottom: '16mm', left: '16mm', right: '16mm', borderTop: '1px solid #e2e8f0', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', fontSize: '8px', color: '#64748b' }}>
-          <span>LAXMI CREDIT SYSTEM AUTOMATION | CONFIDENTIAL FINANCIAL EVALUATION REPORT</span>
-          <span style={{ fontWeight: 700 }}>Page 2 of 3</span>
         </div>
       </div>
 
-      {/* PAGE 3: REJECTIONS & SYSTEM AUDIT */}
-      <div className="pdf-page" style={{ width: '210mm', height: '297mm', padding: '16mm', backgroundColor: '#ffffff', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
+      {/* PAGE 3: REJECTIONS & SYSTEM AUDIT (Dynamic Length) */}
+      <div className="pdf-page" style={{ width: '210mm', minHeight: '297mm', padding: '16mm', backgroundColor: '#ffffff', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', position: 'relative' }}>
         <h2 style={{ margin: '0 0 15px 0', fontSize: '16px', color: '#0f172a', fontWeight: 800, borderBottom: '2px solid #0f172a', paddingBottom: '6px' }}>
           INSTITUTIONAL REJECTIONS & SYSTEM AUDIT
         </h2>
         
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '15px' }}>
-          {rejectedBanks.length > 0 ? rejectedBanks.slice(0, 14).map((bank, i) => (
-            <div key={i} style={{ border: '1px solid #fee2e2', borderRadius: '8px', backgroundColor: '#fff', overflow: 'hidden' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '15px', marginBottom: '20px' }}>
+          {rejectedBanks.length > 0 ? rejectedBanks.map((bank, i) => (
+            <div key={i} style={{ border: '1px solid #fee2e2', borderRadius: '8px', backgroundColor: '#fff', overflow: 'hidden', pageBreakInside: 'avoid' }}>
               <div style={{ background: 'rgba(239, 68, 68, 0.05)', padding: '8px 12px', borderBottom: '1px solid #fee2e2' }}>
                 <h4 style={{ margin: 0, fontSize: '12px', color: '#b91c1c', fontWeight: 700 }}>{bank.bankName}</h4>
                 {bank.category && <span style={{ fontSize: '7px', color: '#7f1d1d' }}>Category {bank.category} Policy Applied</span>}
@@ -269,10 +253,6 @@ const PersonalLoanReportTemplate = ({ results, metadata }) => {
           </p>
         </div>
 
-        {/* Footer */}
-        <div style={{ position: 'absolute', bottom: '16mm', left: '16mm', right: '16mm', borderTop: '1px solid #e2e8f0', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', fontSize: '8px', color: '#64748b' }}>
-          <span>LAXMI CREDIT SYSTEM AUTOMATION | CONFIDENTIAL FINANCIAL EVALUATION REPORT</span>
-          <span style={{ fontWeight: 700 }}>Page 3 of 3</span>
         </div>
       </div>
     </div>
