@@ -208,6 +208,7 @@ const PersonalLoanReportTemplate = ({ results, metadata }) => {
                 </div>
               </div>
             </div>
+          ))}
           {eligibleBanks.length === 0 && (
             <div style={{ padding: '20px', textAlign: 'center', color: '#64748b', border: '1px dashed #cbd5e1', borderRadius: '8px', fontSize: '12px' }}>
               No institutional approvals based on the current financial profile.
