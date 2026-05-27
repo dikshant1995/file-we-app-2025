@@ -251,8 +251,6 @@ const PersonalLoanReportTemplate = ({ results, metadata }) => {
             This audit evaluation report is generated automatically by the Laxmi Credit Advanced Policy Engine based on the financial inputs provided (Salary, Company Category, existing Obligations). This document represents a numerical estimate of banking eligibility, multipliers, and FOIR calculations strictly under generic NBFC and Bank criteria. It is confidential, proprietary, and issued solely for initial screening and loan processing guidance. These numbers are non-binding estimates and are subject to detailed human underwriting, verification of original sources (KYC, Bank Statements, CIBIL), and final approval by the lending institutions. Calculations are dynamically compiled in INR.
           </p>
         </div>
-
-        </div>
       </div>
     </div>
   );
