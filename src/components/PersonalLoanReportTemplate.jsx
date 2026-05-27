@@ -135,39 +135,40 @@ const PersonalLoanReportTemplate = ({ results, metadata }) => {
               </div>
               <div style={{ padding: '12px 15px', display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '20px' }}>
                 <div>
-                  <h5 style={{ margin: '0 0 8px 0', fontSize: '10px', color: '#475569', textTransform: 'uppercase' }}>The Math (Calculation Breakdown)</h5>
-                  <table style={{ width: '100%', fontSize: '9px', borderCollapse: 'collapse' }}>
-                    <tbody>
-                      <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
-                        <td style={{ padding: '4px 0', color: '#64748b' }}>Calculation Method Used</td>
-                        <td style={{ padding: '4px 0', textAlign: 'right', fontWeight: 600, color: '#334155', textTransform: 'capitalize' }}>{bank.calculationMethod?.replace(/_/g, ' ') || 'Standard'}</td>
-                      </tr>
-                      {bank.details?.foirPercentage && (
-                        <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
-                          <td style={{ padding: '4px 0', color: '#64748b' }}>FOIR Applied</td>
-                          <td style={{ padding: '4px 0', textAlign: 'right', fontWeight: 600, color: '#3b82f6' }}>{bank.details.foirPercentage}</td>
-                        </tr>
-                      )}
-                      {bank.details?.multiplier && (
-                        <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
-                          <td style={{ padding: '4px 0', color: '#64748b' }}>Multiplier Applied</td>
-                          <td style={{ padding: '4px 0', textAlign: 'right', fontWeight: 600, color: '#8b5cf6' }}>{bank.details.multiplier}x</td>
-                        </tr>
-                      )}
-                      {(bank.incentiveConsidered > 0 || bank.details?.incentiveConsidered > 0) && (
-                        <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
-                          <td style={{ padding: '4px 0', color: '#64748b' }}>Incentive Considered</td>
-                          <td style={{ padding: '4px 0', textAlign: 'right', fontWeight: 600, color: '#10b981' }}>+{formatCurrency(bank.incentiveConsidered || bank.details.incentiveConsidered)}</td>
-                        </tr>
-                      )}
-                      {bank.details?.limitingFactor && (
-                        <tr>
-                          <td style={{ padding: '4px 0', color: '#64748b' }}>Limiting Factor</td>
-                          <td style={{ padding: '4px 0', textAlign: 'right', fontWeight: 600, color: '#ef4444' }}>{bank.details.limitingFactor}</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
+                  <h5 style={{ margin: '0 0 8px 0', fontSize: '10px', color: '#475569', textTransform: 'uppercase' }}>Calculation Journey</h5>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '9px', backgroundColor: '#f8fafc', padding: '10px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: '#64748b' }}>1. Base Salary Considered:</span>
+                      <span style={{ fontWeight: 600, color: '#0f172a' }}>{formatCurrency(netSalary + (bank.details?.incentiveConsidered || bank.incentiveConsidered || 0))}</span>
+                    </div>
+                    {bank.details?.foirPercentage && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span style={{ color: '#64748b' }}>2. FOIR Cap ({bank.details.foirPercentage}%):</span>
+                        <span style={{ fontWeight: 600, color: '#3b82f6' }}>Max EMI Allowed: {formatCurrency((netSalary + (bank.details?.incentiveConsidered || bank.incentiveConsidered || 0)) * (parseFloat(bank.details.foirPercentage)/100))}</span>
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: '#64748b' }}>3. Existing EMI Deducted:</span>
+                      <span style={{ fontWeight: 600, color: '#ef4444' }}>-{formatCurrency(existingObligations)}</span>
+                    </div>
+                    {bank.details?.multiplier && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span style={{ color: '#64748b' }}>4. Category Multiplier:</span>
+                        <span style={{ fontWeight: 600, color: '#8b5cf6' }}>{bank.details.multiplier}x Applied</span>
+                      </div>
+                    )}
+                    {bank.details?.limitingFactor && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span style={{ color: '#64748b' }}>5. Limiting Factor:</span>
+                        <span style={{ fontWeight: 600, color: '#b91c1c' }}>{bank.details.limitingFactor}</span>
+                      </div>
+                    )}
+                    <div style={{ borderTop: '1px solid #e2e8f0', margin: '4px 0' }}></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ color: '#0f172a', fontWeight: 700 }}>Final Approved Loan:</span>
+                      <span style={{ color: '#10b981', fontSize: '12px', fontWeight: 800 }}>{formatCurrency(bank.loanAmount)}</span>
+                    </div>
+                  </div>
                 </div>
                 <div>
                   <h5 style={{ margin: '0 0 8px 0', fontSize: '10px', color: '#475569', textTransform: 'uppercase' }}>Loan Offer Details</h5>
