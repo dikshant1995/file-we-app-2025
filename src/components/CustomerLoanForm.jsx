@@ -293,9 +293,12 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
         selectedLoansForBT: formData.selectedLoansForBT,
         state: formData.state,
         city: formData.city,
-        salaryMode: formData.salaryMode, // Add salaryMode to metadata
+        salaryMode: formData.salaryMode,
         maritalStatus: formData.maritalStatus,
-        livingStatus: formData.livingStatus
+        livingStatus: formData.livingStatus,
+        companyName: formData.companyName,
+        category: formData.employmentType === 'government' ? 'GOVT' : formData.category,
+        totalObligation: totalExistingEMI + totalCreditCardObligation
       }
     };
 
