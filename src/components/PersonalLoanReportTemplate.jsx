@@ -115,7 +115,7 @@ const PersonalLoanReportTemplate = ({ results, metadata }) => {
           INSTITUTIONAL APPROVALS & CALCULATIONS
         </h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          {eligibleBanks.length > 0 ? eligibleBanks.map((bank, i) => (
+          {eligibleBanks.length > 0 && eligibleBanks.map((bank, i) => (
             <div key={i} style={{ border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden', pageBreakInside: 'avoid' }}>
               <div style={{ background: 'rgba(16, 185, 129, 0.05)', padding: '10px 15px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
