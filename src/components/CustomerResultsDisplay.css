@@ -808,16 +808,7 @@
   }
 
   /* Hide the entire standard web UI completely */
-  .results-header,
-  .neural-prediction-banner,
-  .ai-insight-bubble,
-  .visual-analytics-container,
-  .stats-grid,
-  .best-offer-card,
-  .controls-bar,
-  .all-banks-results,
-  .selection-submit-bar,
-  .status-overlay {
+  .no-print {
     display: none !important;
   }
   
