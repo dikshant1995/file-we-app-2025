@@ -813,11 +813,16 @@
   }
   
   /* Reset background and padding for the print environment */
-  body, html, #root, .customer-results-display {
+  body, html, #root, .customer-results-display, .customer-facing-app, .form-page, #results-section {
     background: white !important;
     padding: 0 !important;
     margin: 0 !important;
     width: 100% !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
   }
   
   #pl-pdf-report-container {
