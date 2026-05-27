@@ -36,16 +36,16 @@ const PersonalLoanReportTemplate = ({ results, metadata }) => {
       {/* PAGE 1: EXECUTIVE SUMMARY */}
       <div className="pdf-page" style={{ width: '210mm', height: '297mm', padding: '16mm', backgroundColor: '#ffffff', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
         {/* Header */}
-        <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', color: '#ffffff', padding: '16px 20px', borderRadius: '10px', marginBottom: '20px' }}>
+        <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', backgroundColor: '#0f172a', color: '#ffffff', padding: '16px 20px', borderRadius: '10px', marginBottom: '20px', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <h1 style={{ margin: '0 0 4px 0', fontSize: '22px', fontWeight: 800 }}>PERSONAL LOAN ELIGIBILITY AUDIT</h1>
-              <p style={{ margin: 0, color: '#94a3b8', fontSize: '10px', fontWeight: 600, letterSpacing: '1px' }}>LAXMI CREDIT | Advanced Policy Engine</p>
+              <h1 style={{ margin: '0 0 4px 0', fontSize: '22px', fontWeight: 800, color: 'white', WebkitTextFillColor: 'white' }}>PERSONAL LOAN ELIGIBILITY AUDIT</h1>
+              <p style={{ margin: 0, color: '#94a3b8', fontSize: '10px', fontWeight: 600, letterSpacing: '1px', WebkitTextFillColor: '#94a3b8' }}>LAXMI CREDIT | Advanced Policy Engine</p>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <p style={{ margin: '0 0 2px 0', fontSize: '8px', color: '#94a3b8', textTransform: 'uppercase' }}>Report ID & Timestamp</p>
-              <p style={{ margin: 0, fontSize: '12px', fontWeight: 700, color: '#3b82f6' }}>{uniqueReportId}</p>
-              <p style={{ margin: '2px 0 0 0', fontSize: '9px', color: '#cbd5e1' }}>{todayStr} @ {timeStr}</p>
+              <p style={{ margin: '0 0 2px 0', fontSize: '8px', color: '#94a3b8', textTransform: 'uppercase', WebkitTextFillColor: '#94a3b8' }}>Report ID & Timestamp</p>
+              <p style={{ margin: 0, fontSize: '12px', fontWeight: 700, color: '#3b82f6', WebkitTextFillColor: '#3b82f6' }}>{uniqueReportId}</p>
+              <p style={{ margin: '2px 0 0 0', fontSize: '9px', color: '#cbd5e1', WebkitTextFillColor: '#cbd5e1' }}>{todayStr} @ {timeStr}</p>
             </div>
           </div>
         </div>
