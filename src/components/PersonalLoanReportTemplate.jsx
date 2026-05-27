@@ -138,7 +138,17 @@ const PersonalLoanReportTemplate = ({ results, metadata }) => {
                   <h5 style={{ margin: '0 0 8px 0', fontSize: '10px', color: '#475569', textTransform: 'uppercase' }}>Calculation Journey</h5>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '9px', backgroundColor: '#f8fafc', padding: '10px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ color: '#64748b' }}>1. Base Salary Considered:</span>
+                      <span style={{ color: '#64748b' }}>1. Base Net Salary:</span>
+                      <span style={{ fontWeight: 600, color: '#0f172a' }}>{formatCurrency(netSalary)}</span>
+                    </div>
+                    {(bank.details?.incentiveConsidered > 0 || bank.incentiveConsidered > 0) && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span style={{ color: '#64748b' }}>  + Eligible Incentive Add-on:</span>
+                        <span style={{ fontWeight: 600, color: '#10b981' }}>+{formatCurrency(bank.details?.incentiveConsidered || bank.incentiveConsidered)}</span>
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '4px', borderBottom: '1px dashed #e2e8f0', marginBottom: '4px' }}>
+                      <span style={{ color: '#64748b', fontStyle: 'italic' }}>  = Total Gross Considered:</span>
                       <span style={{ fontWeight: 600, color: '#0f172a' }}>{formatCurrency(netSalary + (bank.details?.incentiveConsidered || bank.incentiveConsidered || 0))}</span>
                     </div>
                     {bank.details?.foirPercentage && (
