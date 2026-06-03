@@ -192,7 +192,8 @@ async def upload_statement(request: Request):
                 "dataset_2": final_d2, 
                 "dataset_3": final_d3,
                 "metadata": final_meta,
-                "risk_assessment": risk_data
+                "risk_assessment": risk_data,
+                "accounts": [{"dataset_1": acc[0]} for acc in parsed_accounts]
             }
         }
     except Exception as e:
@@ -288,7 +289,8 @@ async def evaluate_eligibility(
         
         bank_data = {
             "transactions": d3,
-            "credit_entries_count": len([r for r in d3 if r.get('Cr', 0) > 0])
+            "credit_entries_count": len([r for r in d3 if r.get('Cr', 0) > 0]),
+            "accounts": [{"transactions": acc[2]} for acc in parsed_accounts]
         }
         
         # 3. Evaluate
@@ -310,5 +312,3 @@ async def evaluate_eligibility(
 app.include_router(api_router)
 # Support Vercel runtime rewrite prefix mapping
 app.include_router(api_router, prefix="/api-bl")
-
-# Force Vercel Python rebuild
