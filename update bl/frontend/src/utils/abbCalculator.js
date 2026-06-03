@@ -149,10 +149,7 @@ export function getInstitutionalComparison(dailyBalances, targetEndDate) {
   });
 }
 
-/**
- * Engine to calculate the ABBs based on strict Rules
- */
-export function calculateABB(dataset_1, options = {}) {
+function __calculateABB_Internal(dataset_1, options = {}) {
   let latestDate = null;
   let earliestDate = null;
   
@@ -295,6 +292,41 @@ export function calculateABB(dataset_1, options = {}) {
     averageUtilisation: longestValid.averageUtilisation,
     peakUtilisation: longestValid.peakUtilisation
   };
+}
+
+/**
+ * Engine to calculate the ABBs based on strict Rules
+ * Can compute multi-account aggregated ABBs if accounts array is provided.
+ */
+export function calculateABB(dataset_1, options = {}, accounts = []) {
+  const baseCalc = __calculateABB_Internal(dataset_1, options);
+  
+  if (!accounts || accounts.length === 0) {
+    return baseCalc;
+  }
+
+  // Calculate individual metrics
+  const accCalcs = accounts.map(acc => __calculateABB_Internal(acc.dataset_1, options));
+
+  // Aggregate comparisons
+  baseCalc.comparisons.forEach((comp, i) => {
+    comp.calculations.forEach((calc, j) => {
+      calc.abb = accCalcs.reduce((sum, ac) => sum + (ac.comparisons[i]?.calculations[j]?.abb || 0), 0);
+    });
+  });
+
+  // Aggregate timeframe specific calcs
+  ['calc180', 'calc365'].forEach(key => {
+    if (baseCalc[key] && !baseCalc[key].error) {
+      baseCalc[key].averageBalance = accCalcs.reduce((sum, ac) => sum + (ac[key] && !ac[key].error ? ac[key].averageBalance : 0), 0);
+      baseCalc[key].abb1 = accCalcs.reduce((sum, ac) => sum + (ac[key] && !ac[key].error ? ac[key].abb1 : 0), 0);
+      baseCalc[key].abb2 = accCalcs.reduce((sum, ac) => sum + (ac[key] && !ac[key].error ? ac[key].abb2 : 0), 0);
+      baseCalc[key].abb3 = accCalcs.reduce((sum, ac) => sum + (ac[key] && !ac[key].error ? ac[key].abb3 : 0), 0);
+      baseCalc[key].abb4 = accCalcs.reduce((sum, ac) => sum + (ac[key] && !ac[key].error ? ac[key].abb4 : 0), 0);
+    }
+  });
+
+  return baseCalc;
 }
 
 export function extractEmiDeductions(dataset_3) {
