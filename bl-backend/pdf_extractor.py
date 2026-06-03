@@ -1470,7 +1470,7 @@ class UnifiedBankBrain:
         elif any(kw in txt_up for kw in ["AUBANK", "AUSMALL", "AUQR", "AUSFB", "AUCURRENT", "AUBL"]): self.bank_type = "AU"
         elif "IDBIBANK" in txt_up or "IDB0" in txt_up: self.bank_type = "IDBI"
         elif "ICICIBANK" in txt_up or "DETAILEDSTATEMENT" in txt_up: self.bank_type = "ICICI"
-        elif "IDFC" in txt_up or "IDFCFIRST" in txt_up: self.bank_type = "IDFC"
+        elif "IDFC" in txt_up or "IDFCFIRST" in txt_up or "IDFB" in txt_up: self.bank_type = "IDFC"
         
         print(f">>> [Unified Brain] Professional Context Identified: {self.bank_type}")
         
