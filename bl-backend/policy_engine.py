@@ -167,13 +167,18 @@ class PolicyEngine:
     def evaluate(self, borrower_data, bank_data):
         results = []
         transactions = bank_data.get('transactions', [])
+        accounts = bank_data.get('accounts', [{"transactions": transactions}])
         
         # Deep Analytics Calculations
         bounce_ratio = self.calculate_bounce_ratio(transactions)
         
         firm_name = borrower_data.get('firm_name', '')
         sister_firms = borrower_data.get('sister_firms', '')
-        net_bto = self.calculate_net_bto(transactions, firm_name, sister_firms)
+        
+        # Calculate Net BTO per account and sum them
+        net_bto = 0
+        for acc in accounts:
+            net_bto += self.calculate_net_bto(acc['transactions'], firm_name, sister_firms)
         
         total_credit = sum([t.get('Cr', 0) for t in transactions])
         digital_ratio = (net_bto / total_credit * 100) if total_credit > 0 else 0
@@ -339,7 +344,11 @@ class PolicyEngine:
                 deducted_type = "Total Active EMI"
                 
             # --- STEP F: ABB-BASED EMI CAPACITY ---
-            custom_abb = self.calculate_custom_abb(transactions, lender.get('abb_dates', []))
+            abb_dates = lender.get('abb_dates', [])
+            custom_abb = 0
+            for acc in accounts:
+                custom_abb += self.calculate_custom_abb(acc['transactions'], abb_dates)
+                
             abb_capacity = max(0.0, custom_abb - deduction)
             
             # --- STEP G: AO/TO VALIDATION ---
