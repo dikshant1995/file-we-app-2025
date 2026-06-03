@@ -310,3 +310,5 @@ async def evaluate_eligibility(
 app.include_router(api_router)
 # Support Vercel runtime rewrite prefix mapping
 app.include_router(api_router, prefix="/api-bl")
+
+# Force Vercel Python rebuild
