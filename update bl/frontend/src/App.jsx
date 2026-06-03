@@ -49,10 +49,10 @@ function App() {
       const apiBase = import.meta.env.VITE_API_URL || (window.location.origin.includes('localhost') ? 'http://localhost:8000' : '/api-bl');
       const response = await axios.post(`${apiBase}/api/upload-statement`, formData);
       if (response.data.status === 'success') {
-        const { dataset_1, dataset_2, dataset_3, metadata, risk_assessment } = response.data.data;
+        const { dataset_1, dataset_2, dataset_3, metadata, risk_assessment, accounts } = response.data.data;
         const config = { accountType, sanctionedLimit: parseFloat(sanctionedLimit || 0) };
-        const calculated = calculateABB(dataset_1, config);
-        setResults({ dataset_1, dataset_2, dataset_3, metadata, risk_assessment, config });
+        const calculated = calculateABB(dataset_1, config, accounts);
+        setResults({ dataset_1, dataset_2, dataset_3, metadata, risk_assessment, config, accounts });
         setAbbData(calculated);
       } else { setError(response.data.message); }
     } catch (err) { setError(err.message); } finally { setLoading(false); }
