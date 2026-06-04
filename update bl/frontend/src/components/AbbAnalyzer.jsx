@@ -67,6 +67,8 @@ const AccountBucket = ({ bucket, index, onUpdate, onRemove, isOnly }) => {
                             onChange={e => onUpdate(index, { password: e.target.value })}
                             className="input-field"
                             style={{ paddingRight: '2.5rem' }}
+                            autoComplete="new-password"
+                            name={`partition_pwd_${index}`}
                         />
                         <button 
                             type="button" 
@@ -195,6 +197,8 @@ const AbbAnalyzer = ({
                                     value={sisterFirms} 
                                     onChange={e => setSisterFirms(e.target.value)}
                                     className="input-field"
+                                    autoComplete="off"
+                                    name="sister_firms_input_no_autofill"
                                 />
                             </div>
                         </div>
