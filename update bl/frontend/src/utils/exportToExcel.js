@@ -1,6 +1,37 @@
 import * as XLSX from 'xlsx';
 import { extractEmiDeductions, generateMonthlySummary, generateRecurringTransactions, generateEmiBounceExtraction, generateNeftRtgsSummary } from './abbCalculator';
 
+
+const autoFitColumns = (ws, data) => {
+  if (!data || data.length === 0) return;
+  
+  let maxKeysRow = data[0];
+  for (let row of data) {
+    if (Object.keys(row).length > Object.keys(maxKeysRow).length) {
+      maxKeysRow = row;
+    }
+  }
+  const keys = Object.keys(maxKeysRow);
+  
+  const colWidths = keys.map(key => {
+    const maxContentLength = Math.max(
+      ...data.map(row => {
+        const val = row[key];
+        return val !== null && val !== undefined ? val.toString().length : 0;
+      })
+    );
+    return { wch: Math.min(100, Math.max(key.length, maxContentLength) + 2) };
+  });
+  
+  ws['!cols'] = colWidths;
+};
+
+const createSheet = (wb, data, name, options) => {
+  const ws = XLSX.utils.json_to_sheet(data, options);
+  autoFitColumns(ws, data);
+  XLSX.utils.book_append_sheet(wb, ws, name);
+};
+
 function buildEmiSheetData(results) {
   const emiData = extractEmiDeductions(results.dataset_3);
 
@@ -109,8 +140,7 @@ export function downloadExcel(results, abbData, proprietorName = "", sisterFirms
     institutionalData = [...executiveRows, ...institutionalData];
   }
 
-  const wsInst = XLSX.utils.json_to_sheet(institutionalData);
-  XLSX.utils.book_append_sheet(wb, wsInst, "Institutional_ABB_Summary");
+  createSheet(wb, institutionalData, "Institutional_ABB_Summary");
 
   // 2. Dataset 1
   let ds1 = results.dataset_1;
@@ -128,12 +158,10 @@ export function downloadExcel(results, abbData, proprietorName = "", sisterFirms
       };
     });
   }
-  const ws1 = XLSX.utils.json_to_sheet(ds1);
-  XLSX.utils.book_append_sheet(wb, ws1, "Dataset1_Math");
+  createSheet(wb, ds1, "Dataset1_Math");
 
   // 3. Dataset 2
-  const ws2 = XLSX.utils.json_to_sheet(results.dataset_2);
-  XLSX.utils.book_append_sheet(wb, ws2, "Dataset2_Narrations");
+  createSheet(wb, results.dataset_2, "Dataset2_Narrations");
 
   // 4. Dataset 3
   let ds3 = results.dataset_3;
@@ -151,22 +179,17 @@ export function downloadExcel(results, abbData, proprietorName = "", sisterFirms
       };
     });
   }
-  const ws3 = XLSX.utils.json_to_sheet(ds3);
-  XLSX.utils.book_append_sheet(wb, ws3, "Dataset3_Merged");
+  createSheet(wb, ds3, "Dataset3_Merged");
 
   // 5. Audit Matrices
   if (abbData && abbData.matrices) {
-    const wsM1 = XLSX.utils.json_to_sheet(abbData.matrices.abb1);
-    XLSX.utils.book_append_sheet(wb, wsM1, "Grid_ABB1");
+    createSheet(wb, abbData.matrices.abb1, "Grid_ABB1");
 
-    const wsM2 = XLSX.utils.json_to_sheet(abbData.matrices.abb2);
-    XLSX.utils.book_append_sheet(wb, wsM2, "Grid_ABB2");
+    createSheet(wb, abbData.matrices.abb2, "Grid_ABB2");
 
-    const wsM3 = XLSX.utils.json_to_sheet(abbData.matrices.abb3);
-    XLSX.utils.book_append_sheet(wb, wsM3, "Grid_ABB3");
+    createSheet(wb, abbData.matrices.abb3, "Grid_ABB3");
 
-    const wsM4 = XLSX.utils.json_to_sheet(abbData.matrices.abb4);
-    XLSX.utils.book_append_sheet(wb, wsM4, "Grid_ABB4");
+    createSheet(wb, abbData.matrices.abb4, "Grid_ABB4");
   }
 
   // 6. ABB results
@@ -174,19 +197,16 @@ export function downloadExcel(results, abbData, proprietorName = "", sisterFirms
     formatCalc(abbData.calc180, "180 Days"),
     formatCalc(abbData.calc365, "365 Days")
   ];
-  const wsAbb = XLSX.utils.json_to_sheet(abbRows);
-  XLSX.utils.book_append_sheet(wb, wsAbb, "ABB_Results");
+  createSheet(wb, abbRows, "ABB_Results");
 
   // 7. Inject EMI Deductions sheet
   const structuredEmiData = buildEmiSheetData(results);
-  const wsEmi = XLSX.utils.json_to_sheet(structuredEmiData);
-  XLSX.utils.book_append_sheet(wb, wsEmi, "EMI_Deductions");
+  createSheet(wb, structuredEmiData, "EMI_Deductions");
 
   // 8. Inject Monthly Summary
   const monthlySummary = generateMonthlySummary(results.dataset_3, abbData, proprietorName, sisterFirms);
   if (monthlySummary && monthlySummary.length > 0) {
-    const wsSummary = XLSX.utils.json_to_sheet(monthlySummary);
-    XLSX.utils.book_append_sheet(wb, wsSummary, "Transaction_Summary");
+    createSheet(wb, monthlySummary, "Transaction_Summary");
   }
 
   // 9. Inject Financial Responsibility
@@ -206,15 +226,13 @@ export function downloadExcel(results, abbData, proprietorName = "", sisterFirms
     if (neftRtgsSummary && neftRtgsSummary.length > 0) {
         recurringSummary.push(...neftRtgsSummary);
     }
-    const wsRecurring = XLSX.utils.json_to_sheet(recurringSummary);
-    XLSX.utils.book_append_sheet(wb, wsRecurring, "Financial_Responsibility");
+    createSheet(wb, recurringSummary, "Financial_Responsibility");
   }
 
   // 10. Inject EMI Bouncing
   const emiBounceSummary = generateEmiBounceExtraction(results.dataset_3, abbData);
   if (emiBounceSummary && emiBounceSummary.length > 0) {
-    const wsBounce = XLSX.utils.json_to_sheet(emiBounceSummary);
-    XLSX.utils.book_append_sheet(wb, wsBounce, "EMI_Bouncing");
+    createSheet(wb, emiBounceSummary, "EMI_Bouncing");
   }
 
   // 11. Inject Risk Assessment
@@ -250,8 +268,7 @@ export function downloadExcel(results, abbData, proprietorName = "", sisterFirms
       });
     }
     
-    const wsRisk = XLSX.utils.json_to_sheet(riskData, { skipHeader: true });
-    XLSX.utils.book_append_sheet(wb, wsRisk, "Risk_Assessment");
+    createSheet(wb, riskData, "Risk_Assessment", { skipHeader: true });
   }
 
   // 12. Inject High Value Transactions
@@ -289,8 +306,7 @@ export function downloadExcel(results, abbData, proprietorName = "", sisterFirms
       });
     });
 
-    const wsHV = XLSX.utils.json_to_sheet(hvData);
-    XLSX.utils.book_append_sheet(wb, wsHV, "High_Value_Transactions");
+    createSheet(wb, hvData, "High_Value_Transactions");
   }
 
   const fileName = results.config?.targetNbfc 
@@ -303,7 +319,6 @@ export function downloadExcel(results, abbData, proprietorName = "", sisterFirms
 export function downloadEmiExcel(results) {
   const wb = XLSX.utils.book_new();
   const structuredData = buildEmiSheetData(results);
-  const wsEmi = XLSX.utils.json_to_sheet(structuredData);
-  XLSX.utils.book_append_sheet(wb, wsEmi, "EMI_Deductions");
+  createSheet(wb, structuredData, "EMI_Deductions");
   XLSX.writeFile(wb, "EMI_Deductions_Report.xlsx");
 }
