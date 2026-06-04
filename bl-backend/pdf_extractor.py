@@ -1892,6 +1892,58 @@ class UnifiedBankBrain:
         return all_datasets
 
 
+def extract_sbi_yono(pdf) -> tuple:
+    import re
+    from datetime import datetime
+    dataset_1, dataset_2, dataset_3 = [], [], []
+    metadata = {"account_name": "Unknown", "account_type": "SBI_YONO"}
+    
+    current_tx = None
+    regex = r'^(\d{2}/\d{2}/\d{4})\s+(\d{2}/\d{2}/\d{4})\s+(.*?)\s+(-|[A-Za-z0-9]+)\s+(-|[\d,]+\.\d{2})\s+(-|[\d,]+\.\d{2})\s+([\d,]+\.\d{2}(?:CR|DR)?)$'
+    
+    for page in pdf.pages:
+        text = page.extract_text()
+        if not text: continue
+        
+        lines = text.split('\n')
+        for line in lines:
+            line = line.strip()
+            if not line: continue
+            
+            match = re.match(regex, line)
+            if match:
+                if current_tx:
+                    dataset_3.append(current_tx)
+                
+                txn_date, val_date, narr, ref, dr_str, cr_str, bal_str = match.groups()
+                
+                dr = 0.0 if dr_str == '-' else float(dr_str.replace(',', ''))
+                cr = 0.0 if cr_str == '-' else float(cr_str.replace(',', ''))
+                bal = float(re.sub(r'[A-Za-z]', '', bal_str).replace(',', ''))
+                
+                try:
+                    dt_obj = datetime.strptime(txn_date, "%d/%m/%Y")
+                    date_formatted = dt_obj.strftime("%Y-%m-%d")
+                except ValueError:
+                    date_formatted = txn_date
+                
+                current_tx = {
+                    "Date": date_formatted,
+                    "Narration": narr,
+                    "Dr": dr,
+                    "Cr": cr,
+                    "Balance": bal
+                }
+            else:
+                if current_tx and not re.match(r'^\d{2}/\d{2}/\d{4}', line) and 'Balance' not in line and 'WDL TFR' not in line and 'Page' not in line:
+                    current_tx["Narration"] += " " + line
+                    
+    if current_tx:
+        dataset_3.append(current_tx)
+        
+    return dataset_1, dataset_2, dataset_3, metadata
+
+
 def parse_bank_statement(pdf_bytes: bytes, password: str = None) -> tuple:
     """
     V8.0 Ironclad Dispatcher: Unified Architecture.
@@ -1899,6 +1951,16 @@ def parse_bank_statement(pdf_bytes: bytes, password: str = None) -> tuple:
     try:
         with pdfplumber.open(io.BytesIO(pdf_bytes), password=password or "") as pdf:
             if not pdf.pages: raise ValueError("Empty PDF")
+            
+            # --- ISOLATED INTERCEPTOR: Safe routing for new SBI YONO format ---
+            combined_text = ""
+            for i in range(min(4, len(pdf.pages))):
+                combined_text += (pdf.pages[i].extract_text() or "") + "\n"
+            
+            if "SBI" in combined_text and re.search(r'\d{2}/\d{2}/\d{4}\s+\d{2}/\d{2}/\d{4}', combined_text):
+                print(">>> [Isolated Interceptor] SBI YONO Format Detected. Routing safely.")
+                return extract_sbi_yono(pdf)
+            # ------------------------------------------------------------------
             
             # Engagement of the Unified Engine
             brain = UnifiedBankBrain(pdf)
