@@ -267,7 +267,7 @@ def extract_kotak_statement(pdf, first_page_text) -> dict:
         dataset_2.append({"Date": row["Date"], "Narration": row["Narration"]})
         dataset_3.append(row)
         
-    return {"metadata": metadata, "dataset_1": dataset_1, "dataset_2": dataset_2, "dataset_3": dataset_3}
+    return dataset_1, dataset_2, dataset_3, metadata
 
 
 def extract_sbi_grid(pdf, first_page_text) -> dict:
@@ -387,7 +387,7 @@ def extract_sbi_grid(pdf, first_page_text) -> dict:
             dataset_3.append(row_data)
 
     print(f">>> [Backend] SBI1 Sliding Engine Found {len(dataset_1)} rows.")
-    return {"metadata": metadata, "dataset_1": dataset_1, "dataset_2": dataset_2, "dataset_3": dataset_3}
+    return dataset_1, dataset_2, dataset_3, metadata
 
 def find_opening_balance(text: str) -> float:
     """
@@ -550,7 +550,7 @@ def extract_hdfc_statement(pdf, first_page_text) -> dict:
         dataset_3.append(r)
         prev_bal = r["Balance"]
         
-    return {"metadata": metadata, "dataset_1": dataset_1, "dataset_2": dataset_2, "dataset_3": dataset_3}
+    return dataset_1, dataset_2, dataset_3, metadata
 
 def extract_au_statement(pdf, first_page_text) -> dict:
     dataset_1, dataset_2, dataset_3 = [], [], []
@@ -648,7 +648,7 @@ def extract_au_statement(pdf, first_page_text) -> dict:
         dataset_3.append(r)
         prev_bal = r["Balance"]
         
-    return {"metadata": metadata, "dataset_1": dataset_1, "dataset_2": dataset_2, "dataset_3": dataset_3}
+    return dataset_1, dataset_2, dataset_3, metadata
 
 def extract_bom_statement(pdf, first_page_text) -> dict:
     dataset_1, dataset_2, dataset_3 = [], [], []
@@ -765,7 +765,7 @@ def extract_bom_statement(pdf, first_page_text) -> dict:
         dataset_2.append({"Date": r["Date"], "Narration": r["Narration"]})
         dataset_3.append(r)
         
-    return {"metadata": metadata, "dataset_1": dataset_1, "dataset_2": dataset_2, "dataset_3": dataset_3}
+    return dataset_1, dataset_2, dataset_3, metadata
 
 def extract_icici_detailed_statement(pdf, first_page_text) -> dict:
     dataset_1, dataset_2, dataset_3 = [], [], []
@@ -1161,7 +1161,7 @@ def extract_uco_limit_statement(pdf, first_page_text) -> dict:
         dataset_2.append({"Date": r["Date"], "Narration": r["Narration"]})
         dataset_3.append(r)
         
-    return {"metadata": metadata, "dataset_1": dataset_1, "dataset_2": dataset_2, "dataset_3": dataset_3}
+    return dataset_1, dataset_2, dataset_3, metadata
 def extract_cub_statement(pdf, first_page_text) -> dict:
     dataset_1 = []
     dataset_2 = []
@@ -1269,7 +1269,7 @@ def extract_cub_statement(pdf, first_page_text) -> dict:
         dataset_2.append({"Date": r["Date"], "Narration": r["Narration"]})
         dataset_3.append(r)
         
-    return {"metadata": metadata, "dataset_1": dataset_1, "dataset_2": dataset_2, "dataset_3": dataset_3}
+    return dataset_1, dataset_2, dataset_3, metadata
 
 
 def extract_idfc_testing_statement(pdf, first_page_text):
@@ -1359,7 +1359,7 @@ def extract_idfc_testing_statement(pdf, first_page_text):
         dataset_2.append({"Date": r["Date"], "Narration": r["Narration"]})
         dataset_3.append(r)
         
-    return {"metadata": metadata, "dataset_1": dataset_1, "dataset_2": dataset_2, "dataset_3": dataset_3}
+    return dataset_1, dataset_2, dataset_3, metadata
 
 
 class UnifiedBankBrain:
@@ -1944,6 +1944,161 @@ def extract_sbi_yono(pdf) -> tuple:
     return dataset_1, dataset_2, dataset_3, metadata
 
 
+
+def extract_icici_caa(pdf) -> dict:
+    dataset_1, dataset_2, dataset_3 = [], [], []
+    metadata = {"account_name": "Unknown", "account_type": "Current Account"}
+    
+    import re
+    from datetime import datetime
+    
+    # Try to find Account Name
+    first_page_text = pdf.pages[0].extract_text() or ""
+    name_match = re.search(r'Name:\s*([A-Za-z0-9\s\&\.\,\-]+?)\s+A/C Branch:', first_page_text, re.IGNORECASE)
+    if name_match:
+        metadata["account_name"] = name_match.group(1).strip()
+    
+    all_rows = []
+    
+    for page in pdf.pages:
+        words = sorted(page.extract_words(), key=lambda x: (x['top'], x['x0']))
+        if not words: continue
+        
+        # Determine header and footer
+        header_y = 0
+        footer_y = page.height
+        
+        for w in words:
+            txt_up = w['text'].upper().replace(" ", "")
+            if "REQUEST/DOWNLOAD" in txt_up or "WAL(DR)(CR)" in txt_up:
+                header_y = max(header_y, w['bottom'] + 5)
+            if "PAGE" in txt_up and w['x0'] > 500 and w['top'] > page.height * 0.8:
+                footer_y = min(footer_y, w['top'] - 5)
+        
+        # Group words into logical rows based on Y coordinate
+        lines = []
+        current_line = []
+        last_y = -1
+        
+        for w in words:
+            if w['top'] < header_y or w['bottom'] > footer_y: continue
+            
+            if last_y == -1 or abs(w['top'] - last_y) < 3:
+                current_line.append(w)
+            else:
+                lines.append(current_line)
+                current_line = [w]
+            last_y = w['top']
+            
+        if current_line:
+            lines.append(current_line)
+            
+        # Parse the lines
+        for i, lw in enumerate(lines):
+            # Check if line starts with a serial number and has the three dates
+            if len(lw) < 3: continue
+            
+            # Find if the first few words contain S-ID and the truncated date
+            # e.g., '1', 'S5172', '01/Dec/20'
+            is_new_tx = False
+            date_str = None
+            start_idx = -1
+            
+            for j in range(min(5, len(lw))):
+                if re.match(r'^\d{2}/[A-Za-z]{3}/\d{2,4}$', lw[j]['text']):
+                    # Check next word for the 4-digit date
+                    if j+1 < len(lw) and re.match(r'^\d{2}/[A-Za-z]{3}/\d{4}$', lw[j+1]['text']):
+                        date_str = lw[j+1]['text']
+                        start_idx = j+1
+                        is_new_tx = True
+                        break
+            
+            if is_new_tx and date_str:
+                row_data = {
+                    "Date": parse_date(date_str),
+                    "NarrParts": [],
+                    "Withdrawal": 0.0,
+                    "Deposit": 0.0,
+                    "Balance": 0.0
+                }
+                
+                # Get the integer parts of amounts
+                bal_int = "0.0"
+                dr_int = "0.0"
+                cr_int = "0.0"
+                
+                for w in lw[start_idx+1:]:
+                    mid_x = (w['x0'] + w['x1']) / 2
+                    
+                    if mid_x < 390:
+                        row_data["NarrParts"].append(w['text'])
+                    elif 390 <= w['x1'] < 445:
+                        dr_int = w['text'].replace(',', '')
+                    elif 445 <= w['x1'] < 485:
+                        cr_int = w['text'].replace(',', '')
+                    elif w['x1'] >= 485:
+                        bal_int = w['text'].replace(',', '')
+                
+                # Look at the NEXT line to find the detached decimals
+                bal_dec = ".00"
+                dr_dec = ""
+                cr_dec = ""
+                
+                if i + 1 < len(lines):
+                    next_lw = lines[i+1]
+                    for w in next_lw:
+                        if 390 <= w['x1'] < 445 and (w['text'].startswith('.') or len(w['text'])==2):
+                            dr_dec = w['text'] if w['text'].startswith('.') else '.' + w['text']
+                        elif 445 <= w['x1'] < 485 and (w['text'].startswith('.') or len(w['text'])==2):
+                            cr_dec = w['text'] if w['text'].startswith('.') else '.' + w['text']
+                        elif w['x1'] >= 485 and (w['text'].startswith('.') or len(w['text'])==2):
+                            bal_dec = w['text'] if w['text'].startswith('.') else '.' + w['text']
+                        
+                        # also collect narration from next line if it's in the narr zone
+                        mid_x = (w['x0'] + w['x1']) / 2
+                        if mid_x < 390 and not re.match(r'^\d+$', w['text']):
+                            # avoid adding the time or 'PM'/'AM' if possible
+                            if not re.match(r'^\d{2}:\d{2}:\d{2}$', w['text']) and w['text'] not in ['AM', 'PM']:
+                                row_data["NarrParts"].append(w['text'])
+                
+                # Further narration lines (up to 4 lines down)
+                for k in range(2, 6):
+                    if i + k < len(lines):
+                        future_lw = lines[i+k]
+                        # stop if we hit a new transaction
+                        has_date = any(re.match(r'^\d{2}/[A-Za-z]{3}/\d{2,4}$', fw['text']) for fw in future_lw[:5])
+                        if has_date:
+                            break
+                        for w in future_lw:
+                            mid_x = (w['x0'] + w['x1']) / 2
+                            if mid_x < 390 and not re.match(r'^\d+$', w['text']):
+                                row_data["NarrParts"].append(w['text'])
+
+                # Combine ints and decs
+                if dr_int != "0.0": row_data["Withdrawal"] = clean_amount(dr_int + dr_dec)
+                if cr_int != "0.0": row_data["Deposit"] = clean_amount(cr_int + cr_dec)
+                if bal_int != "0.0": row_data["Balance"] = clean_amount(bal_int + bal_dec)
+                
+                all_rows.append({
+                    "Date": row_data["Date"],
+                    "Narration": " ".join(row_data["NarrParts"]),
+                    "Dr": row_data["Withdrawal"],
+                    "Cr": row_data["Deposit"],
+                    "Balance": row_data["Balance"]
+                })
+
+    # Sort descending just in case
+    if all_rows and all_rows[0]["Date"] and all_rows[-1]["Date"] and all_rows[0]["Date"] > all_rows[-1]["Date"]:
+        all_rows.reverse()
+
+    for r in all_rows:
+        dataset_1.append({"Date": r["Date"], "Dr": r["Dr"], "Cr": r["Cr"], "Balance": r["Balance"]})
+        dataset_2.append({"Date": r["Date"], "Narration": r["Narration"]})
+        dataset_3.append(r)
+        
+    return dataset_1, dataset_2, dataset_3, metadata
+
+
 def parse_bank_statement(pdf_bytes: bytes, password: str = None) -> tuple:
     """
     V8.0 Ironclad Dispatcher: Unified Architecture.
@@ -1960,6 +2115,12 @@ def parse_bank_statement(pdf_bytes: bytes, password: str = None) -> tuple:
             if "SBI" in combined_text and re.search(r'\d{2}/\d{2}/\d{4}\s+\d{2}/\d{2}/\d{4}', combined_text):
                 print(">>> [Isolated Interceptor] SBI YONO Format Detected. Routing safely.")
                 return extract_sbi_yono(pdf)
+                
+            # --- ISOLATED INTERCEPTOR: Safe routing for ICICI CAA with Truncated Years & Detached Decimals ---
+            if "A/C Type: CAA" in combined_text and "Value" in combined_text and "Withdra" in combined_text:
+                print(">>> [Isolated Interceptor] ICICI CAA Format Detected. Routing safely.")
+                return extract_icici_caa(pdf)
+            # ------------------------------------------------------------------
             # ------------------------------------------------------------------
             
             # Engagement of the Unified Engine
