@@ -245,6 +245,7 @@ export function downloadExcel(results, abbData, proprietorName = "", sisterFirms
       { "Date": "Total Cash Withdrawals", "Narration": `₹${riskSummary.total_cash_withdrawals.toFixed(2)} (${riskSummary.cash_withdrawal_percentage.toFixed(2)}% of total debits)`, "Amount": riskSummary.excessive_cash_withdrawals ? "FLAG: EXCESSIVE" : "NORMAL", "Risk Category": "" },
       { "Date": "Crypto Exposure", "Narration": riskSummary.crypto_exposure ? "YES" : "NO", "Amount": "", "Risk Category": "" },
       { "Date": "Gambling/Betting Exposure", "Narration": riskSummary.gambling_exposure ? "YES" : "NO", "Amount": "", "Risk Category": "" },
+      { "Date": "Credit Card Rotation (Kiting)", "Narration": riskSummary.cc_rotation_detected ? "DETECTED" : "NO", "Amount": riskSummary.cc_rotation_detected ? "FLAG: SUSPECTED CC ROTATION" : "NORMAL", "Risk Category": "" },
       { "Date": "", "Narration": "", "Amount": "", "Risk Category": "" },
       { "Date": "--- FLAGGED TRANSACTIONS ---", "Narration": "", "Amount": "", "Risk Category": "" },
       { "Date": "Date", "Narration": "Narration", "Amount": "Amount", "Risk Category": "Risk Category" },
@@ -307,6 +308,27 @@ export function downloadExcel(results, abbData, proprietorName = "", sisterFirms
     });
 
     createSheet(wb, hvData, "High_Value_Transactions");
+  }
+
+  // 13. Inject Credit Card Transactions Sheet
+  if (results.dataset_3 && results.dataset_3.length > 0) {
+    const CC_REGEX = /(ONECARD|CRED\b|CC PAY|CREDIT CARD|PAYU.*CARD|SBI CARD|HDFC CC|AXIS CC|CHEQ|ICICI CC)/i;
+    const ccData = results.dataset_3.filter(t => {
+      const narr = String(t.Narration || "");
+      return CC_REGEX.test(narr);
+    }).map(t => ({
+      "Date": t.Date || "",
+      "Narration": t.Narration || "",
+      "Debit": t.Dr ? parseFloat(t.Dr).toFixed(2) : "",
+      "Credit": t.Cr ? parseFloat(t.Cr).toFixed(2) : "",
+      "Balance": t.Balance || ""
+    }));
+
+    if (ccData.length > 0) {
+      createSheet(wb, ccData, "Credit_Card_Transactions");
+    } else {
+      createSheet(wb, [{ "Message": "No Credit Card transactions detected." }], "Credit_Card_Transactions");
+    }
   }
 
   const fileName = results.config?.targetNbfc 
