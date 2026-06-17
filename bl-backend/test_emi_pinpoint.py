@@ -30,8 +30,8 @@ def pinpoint_emi(narration, is_dr):
     
     narr_upper = str(narration).upper()
     
-    # 1. FIX: Ignore generic UPI transactions to prevent false positives (like Zomato)
-    if narr_upper.startswith('UPI/') or narr_upper.startswith('UPI '):
+    # 1. FIX: Ignore generic UPI and standard transfers to prevent false positives
+    if re.search(r'\b(UPI|IBNEFT|IMPS|NEFT|RTGS)\b', narr_upper):
         if 'EMI' not in narr_upper and 'LOAN' not in narr_upper:
             return None
     
@@ -96,6 +96,14 @@ def test_on_pdf(pdf_name, pass_word=""):
 if __name__ == "__main__":
     print(f"Loaded {len(nbfc_list)} dynamic NBFC signatures from the 10,000 permutations excel!")
     
-    test_on_pdf('mayank sbi.pdf', '27570070993')
-    test_on_pdf('lalita hdfc.pdf', '')
-    test_on_pdf('tarun acc statement hdfc.pdf', '')
+    test_files = [
+        ('mayank sbi.pdf', '27570070993'),
+        ('lalita hdfc.pdf', ''),
+        ('tarun acc statement hdfc.pdf', ''),
+        ('BOI.pdf', ''),
+        ('CANARA.pdf', ''),
+        ('icici 1.pdf', '')
+    ]
+    
+    for fname, pwd in test_files:
+        test_on_pdf(fname, pwd)
