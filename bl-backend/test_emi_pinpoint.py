@@ -12,16 +12,20 @@ df_patterns = pd.read_excel(excel_path)
 
 # Extract unique NBFCs from the Excel to build our dynamic dictionary
 unique_nbfcs = set(df_patterns['Expected NBFC Extracted'].dropna().str.upper().str.strip())
-# Add some generic fallbacks just in case
-nbfc_list = sorted(list(unique_nbfcs), key=len, reverse=True)
+# Build boundary-less variants for NBFCs >= 4 chars to catch concatenated strings like TPACHCLIXCAPITAL
+nbfc_list_extended = set(unique_nbfcs)
+for n in unique_nbfcs:
+    if len(n) >= 4:
+        nbfc_list_extended.add(n.replace(' ', ''))
+nbfc_list = sorted(list(nbfc_list_extended), key=len, reverse=True)
 
-# Build a fast regex for all 10000 variations
-nbfc_pattern = r'\b(?:' + '|'.join([re.escape(n) for n in nbfc_list]) + r')\b'
+# Remove the \b entirely for NBFCs to allow substring matching within concatenated bank strings
+nbfc_pattern = r'(?:' + '|'.join([re.escape(n) for n in nbfc_list if len(n) > 3]) + r')'
 nbfc_regex = re.compile(nbfc_pattern, re.IGNORECASE)
 
-# Known EMI Wrappers from our 10000 permutations
-wrappers = ['ACH', 'NACH', 'CMS', 'ATD', 'AUTO DEBIT', 'SI MATCH', 'EMI', 'LOAN', 'PDC', 'STANDING INSTRUCTION', 'CLG ACH']
-wrapper_pattern = r'\b(?:' + '|'.join(wrappers) + r')\b'
+# Known EMI Wrappers from our 10000 permutations (Added concatenated ones like ACHD, NACHD, TPACH)
+wrappers = ['ACHD', 'NACHD', 'TPACH', 'ACH', 'NACH', 'CMS', 'ATD', 'AUTO DEBIT', 'SI MATCH', 'EMI', 'LOAN', 'PDC', 'STANDING INSTRUCTION', 'CLG ACH']
+wrapper_pattern = r'(?:' + '|'.join(wrappers) + r')'
 wrapper_regex = re.compile(wrapper_pattern, re.IGNORECASE)
 
 # 2. Load the Master Excel file for exact/substring matches
@@ -58,12 +62,13 @@ def pinpoint_emi(narration, is_dr):
 
     # Ignore generic UPI and standard transfers to prevent false positives
     if re.search(r'\b(UPI|IBNEFT|IMPS|NEFT|RTGS)\b', narr_upper):
-        if 'EMI' not in narr_upper and 'LOAN' not in narr_upper:
+        if not re.search(r'(?<![A-Z])(EMI|LOAN)(?![A-Z])', narr_upper):
             return None
     
     wrapper_match = wrapper_regex.search(narr_upper)
     nbfc_match = nbfc_regex.search(narr_upper)
-    is_explicit_emi = bool(re.search(r'\b(EMI|LOAN)\b', narr_upper))
+    # Require explicit EMI/LOAN to NOT be part of another word (like PREMIUM or REMITTANCE)
+    is_explicit_emi = bool(re.search(r'(?<![A-Z])(EMI|LOAN)(?![A-Z])', narr_upper))
     
     # Tier 3 & 4: Explicit Match & NBFC Match
     # Fix the "OR" logic trap: we don't accept JUST a wrapper (like "NACH") without an NBFC or explicit EMI keyword.
@@ -124,7 +129,7 @@ def test_on_pdf(pdf_name, pass_word=""):
                 res = pinpoint_emi(row['Narration'], True)
                 if res:
                     emi_count += 1
-                    print(f"[EMI DETECTED] Date: {row['Date']:<10} | Amt: {row['Dr']:>8.2f} | NBFC: {res['NBFC']:<15} | Wrapper: {res['Wrapper']:<10} | Raw: {row['Narration'][:60]}")
+                    print(f"[EMI DETECTED] Date: {row['Date']:<10} | Amt: {row['Dr']:>8.2f} | NBFC: {res['NBFC']:<15} | Wrapper: {res['Wrapper']:<10} | Raw: {row['Narration']}")
         
         print(f"--> Total EMIs Pinpointed: {emi_count}")
     except Exception as e:
