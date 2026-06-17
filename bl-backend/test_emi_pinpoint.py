@@ -24,35 +24,72 @@ wrappers = ['ACH', 'NACH', 'CMS', 'ATD', 'AUTO DEBIT', 'SI MATCH', 'EMI', 'LOAN'
 wrapper_pattern = r'\b(?:' + '|'.join(wrappers) + r')\b'
 wrapper_regex = re.compile(wrapper_pattern, re.IGNORECASE)
 
+# 2. Load the Master Excel file for exact/substring matches
+master_excel_path = 'D:/proudct dashboard pl final pl/LATEST UPDATE PL BETA/deploy_to_vercel/file-we-app-2025/update bl/narrations for emi 68 pages.xlsx'
+df_master = pd.read_excel(master_excel_path)
+# Clean and prepare master narrations (ignoring very short strings to prevent catastrophic false positives)
+master_narrations = df_master['narration '].dropna().astype(str).str.upper().str.strip().tolist()
+master_narrations = [m for m in master_narrations if len(m) > 4] 
+
 def pinpoint_emi(narration, is_dr):
     if not is_dr:
         return None
     
     narr_upper = str(narration).upper()
     
-    # 1. FIX: Ignore generic UPI and standard transfers to prevent false positives
+    # Tier 1: The "Kill Switch" (Negative Keywords)
+    # Exclude Investments, Insurance, Penalties, Utilities. These are NOT EMIs.
+    # We run this FIRST to protect against generic Master matches like "AUTO DEBIT" flagging an LIC Premium.
+    kill_switch_pattern = r'\b(SIP|MUTUAL FUND|MF|AMC|NIPPON|ZERODHA|GROWW|UPSTOX|LIC|INSURANCE|PREMIUM|LIFE|HDFC LIFE|ICICI PRU|MAX LIFE|BOUNCE|RETURN|RTN|REJECT|PENALTY|CHG|CHARGE|BILL|ELECTRICITY|WATER|BESCOM)\b'
+    if re.search(kill_switch_pattern, narr_upper):
+        return None
+    
+    # Tier 2: The "Master Excel" Pipeline
+    # If the narration contains any string from the Master Excel, it is instantly considered an EMI.
+    for master_str in master_narrations:
+        if master_str in narr_upper:
+            # We found a match in the Master Excel!
+            return {
+                "Wrapper": "MASTER_MATCH",
+                "NBFC": master_str
+            }
+    
+    # Tier 3: The "Manual Transfer" Filter
+
+    # Ignore generic UPI and standard transfers to prevent false positives
     if re.search(r'\b(UPI|IBNEFT|IMPS|NEFT|RTGS)\b', narr_upper):
         if 'EMI' not in narr_upper and 'LOAN' not in narr_upper:
             return None
     
-    # Check if it has an EMI Wrapper OR an NBFC name from our 10000 patterns
     wrapper_match = wrapper_regex.search(narr_upper)
     nbfc_match = nbfc_regex.search(narr_upper)
+    is_explicit_emi = bool(re.search(r'\b(EMI|LOAN)\b', narr_upper))
     
-    if wrapper_match or nbfc_match:
-        wrapper_found = wrapper_match.group(0) if wrapper_match else "DIRECT DEBIT"
-        nbfc_found = nbfc_match.group(0) if nbfc_match else "UNKNOWN NBFC"
+    # Tier 3 & 4: Explicit Match & NBFC Match
+    # Fix the "OR" logic trap: we don't accept JUST a wrapper (like "NACH") without an NBFC or explicit EMI keyword.
+    valid_emi = False
+    if is_explicit_emi:
+        valid_emi = True
+    elif nbfc_match:
+        valid_emi = True
         
-        # Refine NBFC found if it's generic
-        if nbfc_found == "UNKNOWN NBFC":
-            # try to extract whatever word comes after the wrapper if no explicit NBFC matched
-            pass
+    if not valid_emi:
+        return None
+        
+    wrapper_found = wrapper_match.group(0) if wrapper_match else "DIRECT DEBIT"
+    nbfc_found = nbfc_match.group(0) if nbfc_match else "UNKNOWN NBFC"
+    
+    # Tier 5: Generic Bank Safeguard
+    # If the matched NBFC is a generic bank, require a strict EMI/Loan keyword
+    generic_banks = ['HDFC', 'ICICI', 'SBI', 'AXIS', 'KOTAK', 'IDFC', 'YES BANK', 'INDUSIND', 'PNB', 'BOB', 'CANARA', 'UNION']
+    if any(b in nbfc_found.upper() for b in generic_banks):
+        if not is_explicit_emi:
+            return None
             
-        return {
-            "Wrapper": wrapper_found,
-            "NBFC": nbfc_found
-        }
-    return None
+    return {
+        "Wrapper": wrapper_found,
+        "NBFC": nbfc_found
+    }
 
 def test_on_pdf(pdf_name, pass_word=""):
     print(f"\n============================================================")
@@ -102,7 +139,17 @@ if __name__ == "__main__":
         ('tarun acc statement hdfc.pdf', ''),
         ('BOI.pdf', ''),
         ('CANARA.pdf', ''),
-        ('icici 1.pdf', '')
+        ('icici 1.pdf', ''),
+        ('AXIS 1.pdf', ''),
+        ('KOTAK 1.pdf', ''),
+        ('IDFC TESTNG.pdf', ''),
+        ('INDUSIND 1.pdf', ''),
+        ('BOM TESTING.pdf', ''),
+        ('INDIAN BANK TESTING.pdf', ''),
+        ('UNION TESTING (1).pdf', ''),
+        ('marudhar hari om.pdf', ''),
+        ('AU 1.pdf', ''),
+        ('SBI 2.pdf', '')
     ]
     
     for fname, pwd in test_files:
