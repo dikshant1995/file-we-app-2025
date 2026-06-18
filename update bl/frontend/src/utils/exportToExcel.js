@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import { extractEmiDeductions, generateMonthlySummary, generateRecurringTransactions, generateEmiBounceExtraction, generateNeftRtgsSummary } from './abbCalculator';
+import { extractEmiDeductions, extractLoanDisbursals, generateMonthlySummary, generateRecurringTransactions, generateEmiBounceExtraction, generateNeftRtgsSummary } from './abbCalculator';
 
 
 const autoFitColumns = (ws, data) => {
@@ -67,6 +67,50 @@ function buildEmiSheetData(results) {
         "Date": `TOTAL FOR ${month}`,
         "Lender / Narration": "",
         "EMI Amount": monthTotal.toFixed(2),
+        "Resulting Balance": ""
+    });
+
+    finalStructuredData.push({});
+  }
+
+  return finalStructuredData;
+}
+
+function buildDisbursalSheetData(results) {
+  const disbursalData = extractLoanDisbursals(results.dataset_3);
+
+  if (disbursalData.length === 0) {
+    return [{ "Message": "No Loan Disbursals Detected in this Statement" }];
+  }
+
+  const grouped = {};
+  disbursalData.forEach(row => {
+    const dateObj = new Date(row.Date);
+    const monthKey = dateObj.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }).toUpperCase();
+    
+    if (!grouped[monthKey]) grouped[monthKey] = [];
+    grouped[monthKey].push(row);
+  });
+
+  const finalStructuredData = [];
+
+  for (const [month, rows] of Object.entries(grouped)) {
+    let monthTotal = 0;
+    
+    rows.forEach(r => {
+      finalStructuredData.push({
+        "Date": r.Date,
+        "Narration / NBFC Name": r.Narration,
+        "Disbursal Amount (₹)": parseFloat(r.Cr).toFixed(2),
+        "Resulting Balance": parseFloat(r.Balance).toFixed(2)
+      });
+      monthTotal += parseFloat(r.Cr || 0);
+    });
+
+    finalStructuredData.push({
+        "Date": `TOTAL FOR ${month}`,
+        "Narration / NBFC Name": "",
+        "Disbursal Amount (₹)": monthTotal.toFixed(2),
         "Resulting Balance": ""
     });
 
@@ -202,6 +246,10 @@ export function downloadExcel(results, abbData, proprietorName = "", sisterFirms
   // 7. Inject EMI Deductions sheet
   const structuredEmiData = buildEmiSheetData(results);
   createSheet(wb, structuredEmiData, "EMI_Deductions");
+
+  // 7.5 Inject Loan Disbursals sheet
+  const structuredDisbursalData = buildDisbursalSheetData(results);
+  createSheet(wb, structuredDisbursalData, "Loan_Disbursals");
 
   // 8. Inject Monthly Summary
   const monthlySummary = generateMonthlySummary(results.dataset_3, abbData, proprietorName, sisterFirms);
