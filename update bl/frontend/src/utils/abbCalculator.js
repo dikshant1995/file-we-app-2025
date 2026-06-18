@@ -329,18 +329,102 @@ export function calculateABB(dataset_1, options = {}, accounts = []) {
   return baseCalc;
 }
 
+import axios from 'axios';
+
+let dynamicEmiRules = { wrappers: [], nbfcs: [], raw_narrations: [] };
+let rulesLoaded = false;
+
+export async function loadDynamicEmiRules() {
+    if (rulesLoaded) return dynamicEmiRules;
+    try {
+        const apiBase = import.meta.env?.VITE_API_URL || (window.location.origin.includes('localhost') ? 'http://localhost:8000' : '/api-bl');
+        const res = await axios.get(`${apiBase}/api/emi-rules`);
+        if (res.data && res.data.wrappers) {
+            dynamicEmiRules = res.data;
+        }
+        rulesLoaded = true;
+    } catch (e) {
+        console.error("Failed to load EMI rules", e);
+    }
+    return dynamicEmiRules;
+}
+
+// Fire request early
+loadDynamicEmiRules();
+
 export function extractEmiDeductions(dataset_3) {
   if (!dataset_3) return [];
   
-  // Broad & Precise EMI & Lender detection pattern for debit transactions
-  const emiPattern = /(?:^|[^A-Z])(EMI|ACH|ACHD|NACH|ECS|SI|STANDING INSTRUCTION|SI MATCH|AUTO DEBIT|AUTO DEB|LOAN|DR INW|DRINW|ADITYA BIRLA|HERO FIN|BAJAJ FIN|BAJAJ SERV|L&T FIN|L \& T|LANDT|PIRAMAL|TATA CAP|CHOLA|POONAWALA|UGRO|CLIX|LENDINGKART|FLEXILOAN|INCRED|SMFG|FULLERTON|MUTHOOT|FINCORP|FINSERV|CAPITAL|CREDIT)(?:[^A-Z]|$)/;
+  // Legacy broad fallback pattern
+  const fallbackEmiPattern = /(?:^|[^A-Z])(EMI|ACH|ACHD|NACH|ECS|SI|STANDING INSTRUCTION|SI MATCH|AUTO DEBIT|AUTO DEB|LOAN|DR INW|DRINW|ADITYA BIRLA|HERO FIN|BAJAJ FIN|BAJAJ SERV|L&T FIN|L \& T|LANDT|PIRAMAL|TATA CAP|CHOLA|POONAWALA|UGRO|CLIX|LENDINGKART|FLEXILOAN|INCRED|SMFG|FULLERTON|MUTHOOT|FINCORP|FINSERV|CAPITAL|CREDIT)(?:[^A-Z]|$)/;
 
   return dataset_3.filter(row => {
     if (!row.Dr || row.Dr <= 0) return false;
     const narration = String(row.Narration || "").toUpperCase();
-    return emiPattern.test(narration);
+    
+    // Use Dynamic Pattern Templating if admin rules exist
+    if (dynamicEmiRules.wrappers.length > 0 && dynamicEmiRules.nbfcs.length > 0) {
+        
+        // 1. Direct raw pattern matching
+        if (dynamicEmiRules.raw_narrations.some(raw => narration.includes(raw))) {
+            return true;
+        }
+        
+        // 2. Dynamic Wildcard .* Matching (Prefix + Junk + Suffix)
+        let hasWrapper = false;
+        let hasNbfc = false;
+        
+        for (const w of dynamicEmiRules.wrappers) {
+            if (narration.includes(w)) { hasWrapper = true; break; }
+        }
+        for (const nbfc of dynamicEmiRules.nbfcs) {
+            if (narration.includes(nbfc)) { hasNbfc = true; break; }
+        }
+        
+        if (hasWrapper && hasNbfc) return true;
+        
+        // 3. Absolute Fallback for generic EMI words
+        if (/(?:^|[^A-Z])(EMI|LOAN EMI|AUTO DEBIT|LOAN INSTALLMENT)(?:[^A-Z]|$)/.test(narration)) {
+            return true;
+        }
+        return false;
+    } else {
+        return fallbackEmiPattern.test(narration);
+    }
   });
 }
+
+export function extractLoanDisbursals(dataset_3) {
+  if (!dataset_3) return [];
+  
+  return dataset_3.filter(row => {
+    if (!row.Cr || row.Cr <= 0) return false;
+    const narration = String(row.Narration || "").toUpperCase();
+    
+    if (dynamicEmiRules.wrappers.length > 0 && dynamicEmiRules.nbfcs.length > 0) {
+      let hasNbfc = false;
+      for (const nbfc of dynamicEmiRules.nbfcs) {
+          if (narration.includes(nbfc)) { hasNbfc = true; break; }
+      }
+      
+      if (!hasNbfc) return false;
+      
+      // Must contain a disbursal keyword
+      if (/(?:^|[^A-Z])(DISB|DISBURSAL|LOAN|FINANCE|CREDIT)(?:[^A-Z]|$)/.test(narration)) {
+          // Generic bank safeguard
+          const genericBanks = ['HDFC', 'ICICI', 'SBI', 'AXIS', 'KOTAK', 'IDFC', 'YES BANK', 'INDUSIND', 'PNB', 'BOB', 'CANARA', 'UNION'];
+          const isGeneric = genericBanks.some(b => narration.includes(b));
+          if (isGeneric) {
+              if (/(?:^|[^A-Z])(DISB|LOAN)(?:[^A-Z]|$)/.test(narration)) return true;
+              return false;
+          }
+          return true;
+      }
+    }
+    return false;
+  });
+}
+
 
 export function generateMonthlySummary(dataset_3, abbData, proprietorName = "", sisterFirmName = "") {
   if (!dataset_3 || !abbData) return [];
@@ -377,6 +461,7 @@ export function generateMonthlySummary(dataset_3, abbData, proprietorName = "", 
         Cr_Count: 0,
         Total_Credit_Amount: 0,
         Inter_Firm_Credits: 0,
+        Loan_Disbursals: 0,
         Final_BTO: 0,
         Dr_Count: 0,
         Inward_Returns: 0,
@@ -422,8 +507,26 @@ export function generateMonthlySummary(dataset_3, abbData, proprietorName = "", 
         grouped[monthKey].Inter_Firm_Credits += parseFloat(row.Cr);
       }
       
-      // Calculate Final BTO (Total Credit - Inter Firm Credits)
-      grouped[monthKey].Final_BTO = grouped[monthKey].Total_Credit_Amount - grouped[monthKey].Inter_Firm_Credits;
+      // Disbursal Logic
+      let matchedDisbursal = false;
+      if (dynamicEmiRules.wrappers.length > 0 && dynamicEmiRules.nbfcs.length > 0) {
+        if (dynamicEmiRules.nbfcs.some(nbfc => narrC.includes(nbfc))) {
+            if (/(?:^|[^A-Z])(DISB|DISBURSAL|LOAN|FINANCE|CREDIT)(?:[^A-Z]|$)/.test(narrC)) {
+                const genericBanks = ['HDFC', 'ICICI', 'SBI', 'AXIS', 'KOTAK', 'IDFC', 'YES BANK', 'INDUSIND', 'PNB', 'BOB', 'CANARA', 'UNION'];
+                if (genericBanks.some(b => narrC.includes(b))) {
+                    if (/(?:^|[^A-Z])(DISB|LOAN)(?:[^A-Z]|$)/.test(narrC)) matchedDisbursal = true;
+                } else {
+                    matchedDisbursal = true;
+                }
+            }
+        }
+      }
+      if (matchedDisbursal) {
+        grouped[monthKey].Loan_Disbursals += parseFloat(row.Cr);
+      }
+      
+      // Calculate Final BTO (Total Credit - Inter Firm Credits - Loan Disbursals)
+      grouped[monthKey].Final_BTO = grouped[monthKey].Total_Credit_Amount - grouped[monthKey].Inter_Firm_Credits - grouped[monthKey].Loan_Disbursals;
     }
     
     // Process Check Bounces (Returns) independent of Dr/Cr status
@@ -440,6 +543,7 @@ export function generateMonthlySummary(dataset_3, abbData, proprietorName = "", 
   let gCashAmt = 0, gCashCount = 0, gCr = 0, gDr = 0;
   let gCrAmt = 0;
   let gInterFirm = 0;
+  let gDisbursal = 0;
   let gIw = 0, gOw = 0;
   
   for (const [month, obj] of Object.entries(grouped)) {
@@ -452,6 +556,7 @@ export function generateMonthlySummary(dataset_3, abbData, proprietorName = "", 
       "Month": obj.Month,
       "Total BTO (₹)": obj.Total_Credit_Amount.toFixed(2),
       "Inter Firm Credits (₹)": obj.Inter_Firm_Credits.toFixed(2),
+      "Loan Disbursals (₹)": obj.Loan_Disbursals.toFixed(2),
       "Final BTO (₹)": obj.Final_BTO.toFixed(2),
       "Net BTO (Excl. Cash) (₹)": netBTO.toFixed(2),
       "Total Cash Deposit (₹)": obj.Total_Cash.toFixed(2),
@@ -469,6 +574,7 @@ export function generateMonthlySummary(dataset_3, abbData, proprietorName = "", 
     gCr += obj.Cr_Count;
     gCrAmt += obj.Total_Credit_Amount;
     gInterFirm += obj.Inter_Firm_Credits;
+    gDisbursal += obj.Loan_Disbursals;
     gDr += obj.Dr_Count;
     gIw += obj.Inward_Returns;
     gOw += obj.Outward_Returns;
@@ -479,13 +585,14 @@ export function generateMonthlySummary(dataset_3, abbData, proprietorName = "", 
     const gTotalTxns = gCr + gDr;
     const gRatioStr = gTotalTxns > 0 ? ((gTotalReturns / gTotalTxns) * 100).toFixed(2) + "%" : "0.00%";
     const gNetBTO = gCrAmt - gCashAmt;
-    const gFinalBTO = gCrAmt - gInterFirm;
+    const gFinalBTO = gCrAmt - gInterFirm - gDisbursal;
     
     finalSummary.push({}); // Visual space
     finalSummary.push({
       "Month": "GRAND TOTAL",
       "Total BTO (₹)": gCrAmt.toFixed(2),
       "Inter Firm Credits (₹)": gInterFirm.toFixed(2),
+      "Loan Disbursals (₹)": gDisbursal.toFixed(2),
       "Final BTO (₹)": gFinalBTO.toFixed(2),
       "Net BTO (Excl. Cash) (₹)": gNetBTO.toFixed(2),
       "Total Cash Deposit (₹)": gCashAmt.toFixed(2),
