@@ -96,6 +96,36 @@ def pinpoint_emi(narration, is_dr):
         "NBFC": nbfc_found
     }
 
+def pinpoint_disbursal(narration, is_cr):
+    if not is_cr:
+        return None
+    
+    narr_upper = str(narration).upper()
+    
+    # Check for Bank/NBFC name using our dynamic 10,000 permutations regex
+    nbfc_match = nbfc_regex.search(narr_upper)
+    if not nbfc_match:
+        return None
+        
+    # User confirmed: Require Disbursal/Loan keywords alongside the NBFC
+    keyword_match = re.search(r'(?<![A-Z])(DISB|DISBURSAL|LOAN|FINANCE|CREDIT)(?![A-Z])', narr_upper)
+    if not keyword_match:
+        return None
+        
+    nbfc_found = nbfc_match.group(0)
+    
+    # Generic bank safeguard
+    generic_banks = ['HDFC', 'ICICI', 'SBI', 'AXIS', 'KOTAK', 'IDFC', 'YES BANK', 'INDUSIND', 'PNB', 'BOB', 'CANARA', 'UNION']
+    if any(b in nbfc_found.upper() for b in generic_banks):
+        # Even stricter check for generic banks
+        if not re.search(r'(?<![A-Z])(DISB|LOAN)(?![A-Z])', narr_upper):
+            return None
+            
+    return {
+        "Keyword": keyword_match.group(0),
+        "NBFC": nbfc_found
+    }
+
 def test_on_pdf(pdf_name, pass_word=""):
     print(f"\n============================================================")
     print(f" TESTING EMI PINPOINT ON: {pdf_name}")
@@ -113,16 +143,20 @@ def test_on_pdf(pdf_name, pass_word=""):
         if 'Dr' not in df.columns:
             if 'Debit' in df.columns:
                 df['Dr'] = df['Debit']
+                df['Cr'] = df.get('Credit', 0)
             elif 'Withdrawal Amount' in df.columns:
                 df['Dr'] = df['Withdrawal Amount']
+                df['Cr'] = df.get('Deposit Amount', 0)
             else:
                 print(f"Error: Could not find Debit column. Available: {list(df.columns)}")
                 return
                 
         df['Dr'] = pd.to_numeric(df['Dr'], errors='coerce').fillna(0)
+        df['Cr'] = pd.to_numeric(df.get('Cr', 0), errors='coerce').fillna(0)
         
         print(f"Total Transactions Parsed: {len(df)}")
         emi_count = 0
+        disbursal_count = 0
         
         for idx, row in df.iterrows():
             if row['Dr'] > 0:
@@ -130,8 +164,16 @@ def test_on_pdf(pdf_name, pass_word=""):
                 if res:
                     emi_count += 1
                     print(f"[EMI DETECTED] Date: {row['Date']:<10} | Amt: {row['Dr']:>8.2f} | NBFC: {res['NBFC']:<15} | Wrapper: {res['Wrapper']:<10} | Raw: {row['Narration']}")
+            
+            # Extract Loan Disbursals on the Credit side
+            if 'Cr' in df.columns and row['Cr'] > 0:
+                res = pinpoint_disbursal(row['Narration'], True)
+                if res:
+                    disbursal_count += 1
+                    print(f"--> [DISBURSAL DETECTED] Date: {row['Date']:<10} | Amt: {row['Cr']:>8.2f} | NBFC: {res['NBFC']:<15} | Keyword: {res['Keyword']:<10} | Raw: {row['Narration']}")
         
         print(f"--> Total EMIs Pinpointed: {emi_count}")
+        print(f"--> Total Disbursals Caught (Turnover Filter): {disbursal_count}")
     except Exception as e:
         print(f"Error parsing {pdf_name}: {e}")
 
