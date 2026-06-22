@@ -91,10 +91,15 @@ const AccountBucket = ({ bucket, index, onUpdate, onRemove, isOnly }) => {
                         <option value="ICICI">ICICI Bank</option>
                         <option value="HDFC">HDFC Bank</option>
                         <option value="SBI">SBI Bank</option>
-                        <option value="IDBI">IDBI Bank</option>
-                        <option value="IDFC">IDFC Bank</option>
+                        <option value="AXIS">Axis Bank</option>
                         <option value="KOTAK">Kotak Mahindra</option>
+                        <option value="IDFC">IDFC First Bank</option>
+                        <option value="INDUSIND">IndusInd Bank</option>
                         <option value="AU">AU Small Finance</option>
+                        <option value="IDBI">IDBI Bank</option>
+                        <option value="BOB">Bank of Baroda (BOB)</option>
+                        <option value="BOI">Bank of India (BOI)</option>
+                        <option value="CANARA">Canara Bank</option>
                         <option value="BOM">Bank of Maharashtra</option>
                         <option value="UCO">UCO Bank</option>
                         <option value="CUB">City Union Bank</option>

@@ -129,17 +129,22 @@ const CompactAccountBucket = ({ bucket, index, onUpdate, onRemove, isOnly }) => 
                     className="select-field mt-2"
                     style={{ padding: '0.4rem 0.5rem', fontSize: '11px', height: 'auto' }}
                 >
-                    <option value="">Auto-Detect Bank</option>
-                    <option value="ICICI">ICICI Bank</option>
-                    <option value="HDFC">HDFC Bank</option>
-                    <option value="SBI">SBI Bank</option>
-                    <option value="IDBI">IDBI Bank</option>
-                    <option value="IDFC">IDFC Bank</option>
-                    <option value="KOTAK">Kotak Mahindra</option>
-                    <option value="AU">AU Small Finance</option>
-                    <option value="BOM">Bank of Maharashtra</option>
-                    <option value="UCO">UCO Bank</option>
-                    <option value="CUB">City Union Bank</option>
+                        <option value="">Auto-Detect Bank</option>
+                        <option value="ICICI">ICICI Bank</option>
+                        <option value="HDFC">HDFC Bank</option>
+                        <option value="SBI">SBI Bank</option>
+                        <option value="AXIS">Axis Bank</option>
+                        <option value="KOTAK">Kotak Mahindra</option>
+                        <option value="IDFC">IDFC First Bank</option>
+                        <option value="INDUSIND">IndusInd Bank</option>
+                        <option value="AU">AU Small Finance</option>
+                        <option value="IDBI">IDBI Bank</option>
+                        <option value="BOB">Bank of Baroda (BOB)</option>
+                        <option value="BOI">Bank of India (BOI)</option>
+                        <option value="CANARA">Canara Bank</option>
+                        <option value="BOM">Bank of Maharashtra</option>
+                        <option value="UCO">UCO Bank</option>
+                        <option value="CUB">City Union Bank</option>
                 </select>
             </div>
         </div>
