@@ -143,7 +143,11 @@ async def extract_buckets(form_data):
                 idx = int(key.split("_")[1])
                 files = form_data.getlist(key)
                 if files:
-                    buckets[idx] = {"files": files, "password": form_data.get(f"password_{idx}", "")}
+                    buckets[idx] = {
+                        "files": files, 
+                        "password": form_data.get(f"password_{idx}", ""),
+                        "bank_name": form_data.get(f"bank_name_{idx}", "")
+                    }
             except: pass
             
     if not buckets:
@@ -176,7 +180,11 @@ async def upload_statement(
                     pdf_bytes_list.append(await f.read())
             
             if pdf_bytes_list:
-                d1, d2, d3, meta = parse_multiple_statements(pdf_bytes_list, b["password"], bank_name)
+                d1, d2, d3, meta = parse_multiple_statements(
+                    pdf_bytes_list, 
+                    b.get("password"), 
+                    b.get("bank_name") or bank_name
+                )
                 parsed_accounts.append((d1, d2, d3, meta))
                 
         if not parsed_accounts:
@@ -252,7 +260,11 @@ async def evaluate_eligibility(
                     pdf_bytes_list.append(await f.read())
             
             if pdf_bytes_list:
-                d1, d2, d3, meta = parse_multiple_statements(pdf_bytes_list, b["password"], bank_name)
+                d1, d2, d3, meta = parse_multiple_statements(
+                    pdf_bytes_list, 
+                    b.get("password"), 
+                    b.get("bank_name") or bank_name
+                )
                 parsed_accounts.append((d1, d2, d3, meta))
 
         if not parsed_accounts:
