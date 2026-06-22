@@ -779,7 +779,7 @@ def extract_icici_detailed_statement(pdf, first_page_text) -> dict:
     # 2. Sequential Extraction with Coordinate Gates
     # Column X-Gates (Approximate based on analysis - Expanded for Limit Account variants)
     COL_SRNO = (35, 150)
-    COL_TXNDATE = (105, 230)
+    COL_TXNDATE = (105, 155)  # Narrowed from 230 to prevent merging with Value Date
     COL_REMARKS = (230, 365)
     COL_DR = (365, 428)
     COL_CR = (428, 493)
@@ -877,12 +877,7 @@ def extract_icici_detailed_statement(pdf, first_page_text) -> dict:
             "Balance": bal_val
         })
 
-    return {
-        "metadata": metadata,
-        "dataset_1": dataset_1,
-        "dataset_2": dataset_2,
-        "dataset_3": dataset_3
-    }
+    return dataset_1, dataset_2, dataset_3, metadata
 def extract_icici_corporate_statement(pdf, first_page_text) -> dict:
     all_rows = []
     metadata = {"account_name": "Unknown", "account_type": "Current Account"}
@@ -992,12 +987,7 @@ def extract_icici_corporate_statement(pdf, first_page_text) -> dict:
             "Dr": dr_val, "Cr": cr_val, "Balance": bal_val
         })
 
-    return {
-        "metadata": metadata,
-        "dataset_1": dataset_1,
-        "dataset_2": dataset_2,
-        "dataset_3": dataset_3
-    }
+    return dataset_1, dataset_2, dataset_3, metadata
 
 def extract_uco_limit_statement(pdf, first_page_text) -> dict:
     dataset_1, dataset_2, dataset_3 = [], [], []
@@ -2190,7 +2180,7 @@ def extract_icici_caa(pdf) -> dict:
     return dataset_1, dataset_2, dataset_3, metadata
 
 
-def parse_bank_statement(pdf_bytes: bytes, password: str = None) -> tuple:
+def parse_bank_statement(pdf_bytes: bytes, password: str = None, bank_name: str = None) -> tuple:
     """
     STRICT ROUTER ARCHITECTURE: Bypasses the generic UnifiedBankBrain
     and connects directly to the dedicated individual schemas.
@@ -2206,7 +2196,51 @@ def parse_bank_statement(pdf_bytes: bytes, password: str = None) -> tuple:
             combined_text_upper = combined_text.upper()
             first_page_top = (pdf.pages[0].extract_text() or "")[:600].upper() # Strictly top of page 1
 
-            # --- STRICT ROUTING LOGIC ---
+            # --- FORCED ROUTING LOGIC (MANUAL OVERRIDE) ---
+            if bank_name:
+                bn = bank_name.upper()
+                print(f">>> [FORCED ROUTER] Manually routing to {bn} Schemas")
+                if "ICICI" in bn:
+                    exceptions = []
+                    try:
+                        print(">>> [FORCED ROUTER] Trying ICICI Detailed Schema")
+                        return extract_icici_detailed_statement(pdf, combined_text)
+                    except Exception as e: exceptions.append(str(e))
+                    
+                    try:
+                        print(">>> [FORCED ROUTER] Trying ICICI Corporate Schema")
+                        return extract_icici_corporate_statement(pdf, combined_text)
+                    except Exception as e: exceptions.append(str(e))
+                    
+                    try:
+                        print(">>> [FORCED ROUTER] Trying ICICI CAA Schema")
+                        return extract_icici_caa(pdf)
+                    except Exception as e: exceptions.append(str(e))
+                    
+                    print(f">>> [FORCED ROUTER] All ICICI schemas failed: {exceptions}")
+                elif "HDFC" in bn:
+                    return extract_hdfc_statement(pdf, combined_text)
+                elif "SBI" in bn or "STATE BANK" in bn:
+                    if re.search(r'\d{2}/\d{2}/\d{4}\s+\d{2}/\d{2}/\d{4}', combined_text):
+                        return extract_sbi_yono(pdf)
+                    else:
+                        return extract_sbi_grid(pdf, combined_text)
+                elif "AU" in bn:
+                    return extract_au_statement(pdf, combined_text)
+                elif "MAHARASHTRA" in bn or "BOM" in bn:
+                    return extract_bom_statement(pdf, combined_text)
+                elif "KOTAK" in bn:
+                    return extract_kotak_statement(pdf, combined_text)
+                elif "UCO" in bn:
+                    return extract_uco_limit_statement(pdf, combined_text)
+                elif "CITY UNION" in bn or "CUB" in bn:
+                    return extract_cub_statement(pdf, combined_text)
+                elif "IDFC" in bn:
+                    return extract_idfc_testing_statement(pdf, combined_text)
+                elif "IDBI" in bn:
+                    return extract_idbi_statement(pdf, combined_text)
+                    
+            # --- STRICT ROUTING LOGIC (AUTO GUESS) ---
             if "HDFC" in first_page_top:
                 print(">>> [STRICT ROUTER] Routing to HDFC Dedicated Schema")
                 return extract_hdfc_statement(pdf, combined_text)
@@ -2218,7 +2252,7 @@ def parse_bank_statement(pdf_bytes: bytes, password: str = None) -> tuple:
                 else:
                     return extract_sbi_grid(pdf, combined_text)
                     
-            elif "ICICI" in first_page_top:
+            elif "ICICI" in combined_text_upper or "ICIC" in combined_text_upper:
                 print(">>> [STRICT ROUTER] Routing to ICICI Dedicated Schema")
                 if "A/C Type: CAA" in combined_text and "Value" in combined_text and "Withdra" in combined_text:
                     return extract_icici_caa(pdf)
@@ -2267,7 +2301,7 @@ def parse_bank_statement(pdf_bytes: bytes, password: str = None) -> tuple:
         print(f"!!! [CRITICAL ERROR] {e}")
         return [], [], [], {"account_name": "ERROR", "error": str(e)}
 
-def parse_multiple_statements(pdf_bytes_list: list, password: str = None) -> tuple:
+def parse_multiple_statements(pdf_bytes_list: list, password: str = None, bank_name: str = None) -> tuple:
     """
     Parses multiple PDF byte streams, combines all transactions, 
     and performs precise deduplication using Date + Narration + Dr + Cr + Balance signatures.
@@ -2278,7 +2312,7 @@ def parse_multiple_statements(pdf_bytes_list: list, password: str = None) -> tup
     
     for i, pdf_bytes in enumerate(pdf_bytes_list):
         # 1. Parse individual statement
-        ds1, ds2, ds3, metadata = parse_bank_statement(pdf_bytes, password)
+        ds1, ds2, ds3, metadata = parse_bank_statement(pdf_bytes, password, bank_name)
         
         # Capture metadata from the first valid parse
         if i == 0 or (final_metadata["account_name"] == "Unknown" and metadata.get("account_name") != "Unknown" and metadata.get("account_name") != "ERROR"):
