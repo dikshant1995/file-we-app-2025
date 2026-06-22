@@ -578,9 +578,9 @@ def extract_au_statement(pdf, first_page_text) -> dict:
         for w in words:
             if last_y == -1 or abs(w['top'] - last_y) < 3: current_line.append(w)
             else:
-                lines.append(current_line); current_line = [w]
+                lines.append(sorted(current_line, key=lambda x: x['x0'])); current_line = [w]
             last_y = w['top']
-        if current_line: lines.append(current_line)
+        if current_line: lines.append(sorted(current_line, key=lambda x: x['x0']))
         
         for lw in lines:
             # --- DATE ANCHOR CHECK ---
