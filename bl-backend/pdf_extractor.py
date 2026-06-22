@@ -2292,7 +2292,15 @@ def parse_bank_statement(pdf_bytes: bytes, password: str = None, bank_name: str 
             # If no strict schema matched, warn and fall back
             print(">>> [STRICT ROUTER] No dedicated schema found. Falling back to UnifiedBankBrain.")
             brain = UnifiedBankBrain(pdf)
-            brain.detect_layout()
+            
+            # If bank_name is provided and exists in generic knowledge, inject it directly!
+            if bank_name and bank_name.upper() in brain.knowledge:
+                bn = bank_name.upper()
+                print(f">>> [FORCED GENERIC ROUTER] Bypassing layout detection. Injecting {bn} directly!")
+                brain.bank_type = bn
+            else:
+                brain.detect_layout()
+                
             res = brain.extract()
             
             return res["ds1"], res["ds2"], res["ds3"], brain.metadata
