@@ -697,5 +697,3 @@ const EligibilityChecker = () => {
 };
 
 export default EligibilityChecker;
-
-// Bank Dropdown UI Integration Complete
