@@ -153,7 +153,10 @@ async def extract_buckets(form_data):
     return buckets
 
 @api_router.post("/api/upload-statement")
-async def upload_statement(request: Request):
+async def upload_statement(
+    request: Request,
+    bank_name: Optional[str] = Form(None, description="Optional: Force route to a specific bank (e.g. 'ICICI', 'HDFC')")
+):
     """
     Endpoint configured to process one or more account partitions and return consolidated datasets.
     """
@@ -173,7 +176,7 @@ async def upload_statement(request: Request):
                     pdf_bytes_list.append(await f.read())
             
             if pdf_bytes_list:
-                d1, d2, d3, meta = parse_multiple_statements(pdf_bytes_list, b["password"])
+                d1, d2, d3, meta = parse_multiple_statements(pdf_bytes_list, b["password"], bank_name)
                 parsed_accounts.append((d1, d2, d3, meta))
                 
         if not parsed_accounts:
@@ -205,6 +208,7 @@ async def upload_statement(request: Request):
 @api_router.post("/api/evaluate-eligibility")
 async def evaluate_eligibility(
     request: Request,
+    bank_name: Optional[str] = Form(None, description="Optional: Force route to a specific bank"),
     loan_amount: float = Form(...),
     gst_vintage: int = Form(...),
     itr_vintage: int = Form(...),
@@ -248,7 +252,7 @@ async def evaluate_eligibility(
                     pdf_bytes_list.append(await f.read())
             
             if pdf_bytes_list:
-                d1, d2, d3, meta = parse_multiple_statements(pdf_bytes_list, b["password"])
+                d1, d2, d3, meta = parse_multiple_statements(pdf_bytes_list, b["password"], bank_name)
                 parsed_accounts.append((d1, d2, d3, meta))
 
         if not parsed_accounts:
