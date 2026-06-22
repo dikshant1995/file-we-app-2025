@@ -1362,6 +1362,91 @@ def extract_idfc_testing_statement(pdf, first_page_text):
     return dataset_1, dataset_2, dataset_3, metadata
 
 
+def extract_idbi_statement(pdf, first_page_text) -> tuple:
+    dataset_1, dataset_2, dataset_3 = [], [], []
+    metadata = {"account_name": "Unknown", "account_type": "Unknown"}
+    
+    # Simple metadata extraction for IDBI
+    lines = first_page_text.split('\n')
+    for line in lines[:30]:
+        if "Name" in line or "Account Name" in line:
+            parts = line.split(":")
+            if len(parts) > 1:
+                metadata["account_name"] = parts[1].strip()
+                break
+
+    prev_bal = 0.0
+    
+    for page in pdf.pages:
+        words = page.extract_words()
+        # Group words by line (y-tolerance)
+        words = sorted(words, key=lambda w: (w['top'], w['x0']))
+        grouped_lines = []
+        current_line = []
+        last_y = -1
+        
+        for w in words:
+            if last_y == -1 or abs(w['top'] - last_y) < 4:
+                current_line.append(w)
+            else:
+                grouped_lines.append(current_line)
+                current_line = [w]
+            last_y = w['top']
+        if current_line:
+            grouped_lines.append(current_line)
+            
+        current_txn = None
+        
+        for row_words in grouped_lines:
+            row_text = " ".join([w['text'] for w in row_words])
+            if "S.No" in row_text or "Txn Date" in row_text or "Withdrawals" in row_text:
+                continue
+                
+            # Gate Extraction
+            date_str = " ".join([w['text'] for w in row_words if 60 <= w['x0'] <= 140])
+            desc_str = " ".join([w['text'] for w in row_words if 195 <= w['x0'] <= 350])
+            dr_str = " ".join([w['text'] for w in row_words if 385 <= w['x0'] <= 440])
+            cr_str = " ".join([w['text'] for w in row_words if 445 <= w['x0'] <= 490])
+            bal_str = " ".join([w['text'] for w in row_words if 495 <= w['x0'] <= 560])
+            
+            date_match = re.search(r'(\d{2}/\d{2}/\d{4})', date_str)
+            if date_match:
+                # Flush previous transaction
+                if current_txn and current_txn["Date"]:
+                    dataset_1.append({"Date": current_txn["Date"], "Dr": current_txn["Dr"], "Cr": current_txn["Cr"], "Balance": current_txn["Balance"]})
+                    dataset_2.append({"Date": current_txn["Date"], "Narration": current_txn["Narration"].strip()})
+                    dataset_3.append(current_txn)
+                    prev_bal = current_txn["Balance"]
+                
+                iso_date = datetime.strptime(date_match.group(1), "%d/%m/%Y").strftime("%Y-%m-%d")
+                dr = clean_amount(dr_str) if dr_str else 0.0
+                cr = clean_amount(cr_str) if cr_str else 0.0
+                bal = clean_amount(bal_str) if bal_str else prev_bal
+                if "-" in bal_str and bal > 0:
+                    bal = -bal
+                
+                current_txn = {
+                    "Date": iso_date,
+                    "Narration": desc_str + " ",
+                    "Dr": dr,
+                    "Cr": cr,
+                    "Balance": bal
+                }
+            elif current_txn and desc_str.strip():
+                # Append narration
+                current_txn["Narration"] += desc_str + " "
+                
+        # Flush last transaction on page
+        if current_txn and current_txn["Date"]:
+            dataset_1.append({"Date": current_txn["Date"], "Dr": current_txn["Dr"], "Cr": current_txn["Cr"], "Balance": current_txn["Balance"]})
+            dataset_2.append({"Date": current_txn["Date"], "Narration": current_txn["Narration"].strip()})
+            dataset_3.append(current_txn)
+            prev_bal = current_txn["Balance"]
+            
+    print(f">>> [STRICT ROUTER] IDBI Extracted {len(dataset_1)} rows.")
+    return dataset_1, dataset_2, dataset_3, metadata
+
+
 class UnifiedBankBrain:
     """
     V8.0 Unified Ironclad Engine: The Single Source of Truth for all Bank Extractions.
@@ -1429,6 +1514,11 @@ class UnifiedBankBrain:
             "IDFC": {
                 "cleaning": [r'UPI/MOB/[\d/]+', r'from PhonePe'],
                 "gates": {"Date": (20, 140), "Narr": (140, 360), "Dr": (360, 430), "Cr": (430, 500), "Bal": (500, 590)}
+            },
+            "BOB": {
+                "cleaning": [],
+                "gates": {"Date": (30, 100), "Narr": (100, 430), "Dr": (430, 570), "Cr": (570, 680), "Bal": (680, 850)},
+                "shields": [r'TOTAL', r'OPENING\s*BALANCE', r'CLOSING\s*BALANCE', r'Contact-Us', r'Account Statement']
             }
         }
 
@@ -1471,6 +1561,7 @@ class UnifiedBankBrain:
         elif "IDBIBANK" in txt_up or "IDB0" in txt_up: self.bank_type = "IDBI"
         elif "ICICIBANK" in txt_up or "DETAILEDSTATEMENT" in txt_up: self.bank_type = "ICICI"
         elif "IDFC" in txt_up or "IDFCFIRST" in txt_up or "IDFB" in txt_up: self.bank_type = "IDFC"
+        elif "BARODA" in txt_up or "BANKOFBARODA" in txt_up or "BARB" in txt_up or ("BOB" in txt_up and "MILK" not in txt_up): self.bank_type = "BOB"
         
         print(f">>> [Unified Brain] Professional Context Identified: {self.bank_type}")
         
@@ -2101,29 +2192,71 @@ def extract_icici_caa(pdf) -> dict:
 
 def parse_bank_statement(pdf_bytes: bytes, password: str = None) -> tuple:
     """
-    V8.0 Ironclad Dispatcher: Unified Architecture.
+    STRICT ROUTER ARCHITECTURE: Bypasses the generic UnifiedBankBrain
+    and connects directly to the dedicated individual schemas.
     """
     try:
         with pdfplumber.open(io.BytesIO(pdf_bytes), password=password or "") as pdf:
             if not pdf.pages: raise ValueError("Empty PDF")
             
-            # --- ISOLATED INTERCEPTOR: Safe routing for new SBI YONO format ---
             combined_text = ""
             for i in range(min(4, len(pdf.pages))):
                 combined_text += (pdf.pages[i].extract_text() or "") + "\n"
             
-            if "SBI" in combined_text and re.search(r'\d{2}/\d{2}/\d{4}\s+\d{2}/\d{2}/\d{4}', combined_text):
-                print(">>> [Isolated Interceptor] SBI YONO Format Detected. Routing safely.")
-                return extract_sbi_yono(pdf)
-                
-            # --- ISOLATED INTERCEPTOR: Safe routing for ICICI CAA with Truncated Years & Detached Decimals ---
-            if "A/C Type: CAA" in combined_text and "Value" in combined_text and "Withdra" in combined_text:
-                print(">>> [Isolated Interceptor] ICICI CAA Format Detected. Routing safely.")
-                return extract_icici_caa(pdf)
-            # ------------------------------------------------------------------
-            # ------------------------------------------------------------------
+            combined_text_upper = combined_text.upper()
+            first_page_top = (pdf.pages[0].extract_text() or "")[:600].upper() # Strictly top of page 1
+
+            # --- STRICT ROUTING LOGIC ---
+            if "HDFC" in first_page_top:
+                print(">>> [STRICT ROUTER] Routing to HDFC Dedicated Schema")
+                return extract_hdfc_statement(pdf, combined_text)
             
-            # Engagement of the Unified Engine
+            elif "STATE BANK OF INDIA" in first_page_top or "STATEBANKOFINDIA" in first_page_top.replace(" ", "") or "SBIN00" in first_page_top:
+                print(">>> [STRICT ROUTER] Routing to SBI Dedicated Schema")
+                if re.search(r'\d{2}/\d{2}/\d{4}\s+\d{2}/\d{2}/\d{4}', combined_text):
+                    return extract_sbi_yono(pdf)
+                else:
+                    return extract_sbi_grid(pdf, combined_text)
+                    
+            elif "ICICI" in first_page_top:
+                print(">>> [STRICT ROUTER] Routing to ICICI Dedicated Schema")
+                if "A/C Type: CAA" in combined_text and "Value" in combined_text and "Withdra" in combined_text:
+                    return extract_icici_caa(pdf)
+                elif "CORPORATE" in first_page_top:
+                    return extract_icici_corporate_statement(pdf, combined_text)
+                else:
+                    return extract_icici_detailed_statement(pdf, combined_text)
+                    
+            elif "AU SMALL FINANCE" in first_page_top:
+                print(">>> [STRICT ROUTER] Routing to AU Dedicated Schema")
+                return extract_au_statement(pdf, combined_text)
+                
+            elif "MAHARASHTRA" in first_page_top:
+                print(">>> [STRICT ROUTER] Routing to BOM Dedicated Schema")
+                return extract_bom_statement(pdf, combined_text)
+                
+            elif "KOTAK" in first_page_top:
+                print(">>> [STRICT ROUTER] Routing to Kotak Dedicated Schema")
+                return extract_kotak_statement(pdf, combined_text)
+                
+            elif "UCO" in first_page_top:
+                print(">>> [STRICT ROUTER] Routing to UCO Dedicated Schema")
+                return extract_uco_limit_statement(pdf, combined_text)
+                
+            elif "CITY UNION" in first_page_top:
+                print(">>> [STRICT ROUTER] Routing to CUB Dedicated Schema")
+                return extract_cub_statement(pdf, combined_text)
+                
+            elif "IDFC" in combined_text_upper or "IDFB0" in combined_text_upper:
+                print(">>> [STRICT ROUTER] Routing to IDFC Dedicated Schema")
+                return extract_idfc_testing_statement(pdf, combined_text)
+                
+            elif "IDBIBANK" in first_page_top.replace(" ", "") or "IDBI BANK" in first_page_top or "IDBI" in first_page_top:
+                print(">>> [STRICT ROUTER] Routing to IDBI Dedicated Schema")
+                return extract_idbi_statement(pdf, combined_text)
+                
+            # If no strict schema matched, warn and fall back
+            print(">>> [STRICT ROUTER] No dedicated schema found. Falling back to UnifiedBankBrain.")
             brain = UnifiedBankBrain(pdf)
             brain.detect_layout()
             res = brain.extract()
