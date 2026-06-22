@@ -13,8 +13,7 @@ function App() {
   
   // ABB Analyzer States: Refactored to dynamic bank partitions
   const [bankAccounts, setBankAccounts] = useState([
-    { id: 1, files: [], password: '' },
-    { id: 2, files: [], password: '' }
+    { id: 1, files: [], password: '', bank_name: '' }
   ]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -43,6 +42,9 @@ function App() {
       });
       if (acc.password) {
         formData.append(`password_${index}`, acc.password);
+      }
+      if (acc.bank_name) {
+        formData.append(`bank_name_${index}`, acc.bank_name);
       }
     });
     

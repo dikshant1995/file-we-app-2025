@@ -79,7 +79,26 @@ const AccountBucket = ({ bucket, index, onUpdate, onRemove, isOnly }) => {
                             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
                     </div>
-                    <p className="text-[10px] mt-1 text-muted">Passwords are specific to this account's files.</p>
+                    
+                    <label className="label text-xs uppercase opacity-70 mt-4">Bank Override</label>
+                    <select 
+                        value={bucket.bank_name || ''} 
+                        onChange={e => onUpdate(index, { bank_name: e.target.value })}
+                        className="select-field"
+                        style={{ padding: '0.6rem 1rem', fontSize: '13px' }}
+                    >
+                        <option value="">Auto-Detect Bank</option>
+                        <option value="ICICI">ICICI Bank</option>
+                        <option value="HDFC">HDFC Bank</option>
+                        <option value="SBI">SBI Bank</option>
+                        <option value="IDBI">IDBI Bank</option>
+                        <option value="IDFC">IDFC Bank</option>
+                        <option value="KOTAK">Kotak Mahindra</option>
+                        <option value="AU">AU Small Finance</option>
+                        <option value="BOM">Bank of Maharashtra</option>
+                        <option value="UCO">UCO Bank</option>
+                        <option value="CUB">City Union Bank</option>
+                    </select>
                 </div>
 
                 {/* Dropzone Section */}
@@ -155,7 +174,7 @@ const AbbAnalyzer = ({
     };
     
     const addAccount = () => {
-        setBankAccounts([...bankAccounts, { id: Date.now(), files: [], password: '' }]);
+        setBankAccounts([...bankAccounts, { id: Date.now(), files: [], password: '', bank_name: '' }]);
     };
 
     const removeAccount = (index) => {

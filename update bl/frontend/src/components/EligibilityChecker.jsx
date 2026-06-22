@@ -122,6 +122,25 @@ const CompactAccountBucket = ({ bucket, index, onUpdate, onRemove, isOnly }) => 
                         {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                     </button>
                 </div>
+                
+                <select 
+                    value={bucket.bank_name || ''} 
+                    onChange={e => onUpdate(index, { bank_name: e.target.value })}
+                    className="select-field mt-2"
+                    style={{ padding: '0.4rem 0.5rem', fontSize: '11px', height: 'auto' }}
+                >
+                    <option value="">Auto-Detect Bank</option>
+                    <option value="ICICI">ICICI Bank</option>
+                    <option value="HDFC">HDFC Bank</option>
+                    <option value="SBI">SBI Bank</option>
+                    <option value="IDBI">IDBI Bank</option>
+                    <option value="IDFC">IDFC Bank</option>
+                    <option value="KOTAK">Kotak Mahindra</option>
+                    <option value="AU">AU Small Finance</option>
+                    <option value="BOM">Bank of Maharashtra</option>
+                    <option value="UCO">UCO Bank</option>
+                    <option value="CUB">City Union Bank</option>
+                </select>
             </div>
         </div>
     );
@@ -148,7 +167,7 @@ const EligibilityChecker = () => {
     });
     
     const [bankAccounts, setBankAccounts] = useState([
-        { id: 1, files: [], password: '' }
+        { id: 1, files: [], password: '', bank_name: '' }
     ]);
     
     const [results, setResults] = useState(null);
@@ -183,6 +202,9 @@ const EligibilityChecker = () => {
             if (acc.password) {
                 data.append(`password_${idx}`, acc.password);
             }
+            if (acc.bank_name) {
+                data.append(`bank_name_${idx}`, acc.bank_name);
+            }
         });
 
         Object.keys(formData).forEach(key => {
@@ -207,7 +229,7 @@ const EligibilityChecker = () => {
     };
     
     const addAccount = () => {
-        setBankAccounts([...bankAccounts, { id: Date.now(), files: [], password: '' }]);
+        setBankAccounts([...bankAccounts, { id: Date.now(), files: [], password: '', bank_name: '' }]);
     };
     
     const handlePdfDownload = async () => {
