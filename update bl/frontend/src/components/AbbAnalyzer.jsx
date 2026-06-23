@@ -99,6 +99,7 @@ const AccountBucket = ({ bucket, index, onUpdate, onRemove, isOnly }) => {
                         <option value="IDBI">IDBI Bank</option>
                         <option value="BOB">Bank of Baroda (BOB)</option>
                         <option value="BOI">Bank of India (BOI)</option>
+                        <option value="CENTRAL">Central Bank of India</option>
                         <option value="CANARA">Canara Bank</option>
                         <option value="BOM">Bank of Maharashtra</option>
                         <option value="UCO">UCO Bank</option>
