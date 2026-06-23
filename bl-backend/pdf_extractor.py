@@ -1556,7 +1556,7 @@ class UnifiedBankBrain:
             },
             "UCO": {
                 "shields": [r'GRAND TOTAL', r'SYSTEM GENERATED REPORT', r'REQUIRE ANY SIGNATURE', r'OPENING\s*BALANCE', r'CLOSING\s*BALANCE', r'STATEMENTOFACCOUNT'],
-                "gates": {"Date": (40, 115), "Narr": (115, 380), "Amt": (380, 520), "Bal": (520, 630)},
+                "gates": {"Date": (20, 80), "Narr": (80, 250), "Dr": (330, 430), "Cr": (430, 530), "Bal": (530, 630)},
                 "header_threshold": 180
             },
             "CANARA": {
@@ -2300,7 +2300,14 @@ def parse_bank_statement(pdf_bytes: bytes, password: str = None, bank_name: str 
                 elif "KOTAK" in bn:
                     return extract_kotak_statement(pdf, combined_text)
                 elif "UCO" in bn:
-                    return extract_uco_limit_statement(pdf, combined_text)
+                    if re.search(r'\bLIMIT\b', combined_text_upper) or "A/C TYPE : LIMIT" in combined_text_upper:
+                        return extract_uco_limit_statement(pdf, combined_text)
+                    else:
+                        brain = UnifiedBankBrain(pdf)
+                        brain.detect_layout()
+                        brain.bank_type = "UCO"
+                        res = brain.extract()
+                        return res["ds1"], res["ds2"], res["ds3"], brain.metadata
                 elif "CENTRAL" in bn or "CBIN" in bn:
                     return extract_central_statement(pdf, combined_text)
                 elif "CITY UNION" in bn or "CUB" in bn:
@@ -2344,8 +2351,16 @@ def parse_bank_statement(pdf_bytes: bytes, password: str = None, bank_name: str 
                 return extract_kotak_statement(pdf, combined_text)
                 
             elif "UCO" in first_page_top:
-                print(">>> [STRICT ROUTER] Routing to UCO Dedicated Schema")
-                return extract_uco_limit_statement(pdf, combined_text)
+                if re.search(r'\bLIMIT\b', combined_text_upper) or "A/C TYPE : LIMIT" in combined_text_upper:
+                    print(">>> [STRICT ROUTER] Routing to UCO Limit Dedicated Schema")
+                    return extract_uco_limit_statement(pdf, combined_text)
+                else:
+                    print(">>> [STRICT ROUTER] Routing UCO to UnifiedBankBrain")
+                    brain = UnifiedBankBrain(pdf)
+                    brain.detect_layout()
+                    brain.bank_type = "UCO"
+                    res = brain.extract()
+                    return res["ds1"], res["ds2"], res["ds3"], brain.metadata
                 
             elif "CITY UNION" in first_page_top:
                 print(">>> [STRICT ROUTER] Routing to CUB Dedicated Schema")
