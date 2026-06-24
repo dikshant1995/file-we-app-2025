@@ -49,7 +49,7 @@ function App() {
     });
     
     try {
-      const apiBase = import.meta.env.VITE_API_URL || (window.location.origin.includes('localhost') ? 'http://localhost:8000' : '/api-bl');
+      const apiBase = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8000' : '/api-bl');
       const response = await axios.post(`${apiBase}/api/upload-statement`, formData);
       if (response.data.status === 'success') {
         const { dataset_1, dataset_2, dataset_3, metadata, risk_assessment, accounts } = response.data.data;

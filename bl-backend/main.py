@@ -1,20 +1,12 @@
 from typing import Optional, List
-import sys
-import os
-
-# Robustly inject current directory into sys.path for Vercel serverless environment
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-if CURRENT_DIR not in sys.path:
-    sys.path.insert(0, CURRENT_DIR)
-
-from fastapi import FastAPI, UploadFile, File, Form, APIRouter, Request
+from fastapi import FastAPI, UploadFile, File, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pdf_extractor import parse_bank_statement, parse_multiple_statements, consolidate_multiple_accounts
 from policy_engine import PolicyEngine
 import json
+import os
 
 app = FastAPI(title="ABB Calculator PDF Parser")
-api_router = APIRouter()
 
 # Enable CORS for the React frontend
 app.add_middleware(
@@ -25,28 +17,28 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@api_router.get("/")
+@app.get("/")
 def read_root():
     return {"status": "Backend is running"}
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 POLICIES_PATH = os.path.join(BASE_DIR, 'policies.json')
 
-@api_router.get("/api/policies")
+@app.get("/api/policies")
 def get_policies():
-    with open(POLICIES_PATH, 'r', encoding='utf-8') as f:
+    with open(POLICIES_PATH, 'r') as f:
         return json.load(f)
 
-@api_router.post("/api/policies")
+@app.post("/api/policies")
 async def update_policies(policies: list):
-    with open(POLICIES_PATH, 'w', encoding='utf-8') as f:
-        json.dump(policies, f, indent=4, ensure_ascii=False)
+    with open(POLICIES_PATH, 'w') as f:
+        json.dump(policies, f, indent=4)
     return {"status": "success"}
 
 ADMIN_CONFIG_PATH = os.path.join(BASE_DIR, 'admin_config.json')
 active_otps = {}
 
-@api_router.get("/api/admin-config")
+@app.get("/api/admin-config")
 def get_admin_config():
     try:
         if not os.path.exists(ADMIN_CONFIG_PATH):
@@ -60,7 +52,7 @@ def get_admin_config():
     except:
         return {"email": "dikshantsingh@laxmicredit.com", "mobile": "7014439276"}
 
-@api_router.post("/api/admin-config")
+@app.post("/api/admin-config")
 async def update_admin_config(cfg: dict):
     try:
         existing = {}
@@ -77,7 +69,7 @@ async def update_admin_config(cfg: dict):
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
-@api_router.post("/api/verify-admin-password")
+@app.post("/api/verify-admin-password")
 async def verify_admin_password(req: dict):
     password = req.get("password")
     try:
@@ -91,7 +83,7 @@ async def verify_admin_password(req: dict):
         pass
     return {"status": "success", "valid": (password == "laxmi@2025" or password == "KANA05081984")}
 
-@api_router.post("/api/send-otp")
+@app.post("/api/send-otp")
 async def send_otp(req: dict):
     import random
     medium = req.get("medium", "email")
@@ -114,7 +106,7 @@ async def send_otp(req: dict):
         "message": f"OTP Sent successfully to {target[:3]}***{target[-3:]} (DEMO OTP: {otp})"
     }
 
-@api_router.post("/api/verify-otp")
+@app.post("/api/verify-otp")
 async def verify_otp(req: dict):
     otp = req.get("otp")
     stored = active_otps.get("admin_reset")
@@ -143,11 +135,7 @@ async def extract_buckets(form_data):
                 idx = int(key.split("_")[1])
                 files = form_data.getlist(key)
                 if files:
-                    buckets[idx] = {
-                        "files": files, 
-                        "password": form_data.get(f"password_{idx}", ""),
-                        "bank_name": form_data.get(f"bank_name_{idx}", "")
-                    }
+                    buckets[idx] = {"files": files, "password": form_data.get(f"password_{idx}", "")}
             except: pass
             
     if not buckets:
@@ -156,11 +144,8 @@ async def extract_buckets(form_data):
             buckets[0] = {"files": legacy_files, "password": form_data.get("password", "")}
     return buckets
 
-@api_router.post("/api/upload-statement")
-async def upload_statement(
-    request: Request,
-    bank_name: Optional[str] = Form(None, description="Optional: Force route to a specific bank (e.g. 'ICICI', 'HDFC')")
-):
+@app.post("/api/upload-statement")
+async def upload_statement(request: Request):
     """
     Endpoint configured to process one or more account partitions and return consolidated datasets.
     """
@@ -180,11 +165,7 @@ async def upload_statement(
                     pdf_bytes_list.append(await f.read())
             
             if pdf_bytes_list:
-                d1, d2, d3, meta = parse_multiple_statements(
-                    pdf_bytes_list, 
-                    b.get("password"), 
-                    b.get("bank_name") or bank_name
-                )
+                d1, d2, d3, meta = parse_multiple_statements(pdf_bytes_list, b["password"])
                 parsed_accounts.append((d1, d2, d3, meta))
                 
         if not parsed_accounts:
@@ -193,18 +174,13 @@ async def upload_statement(
         # Consolidated Master Extraction
         final_d1, final_d2, final_d3, final_meta = consolidate_multiple_accounts(parsed_accounts)
         
-        from risk_engine import analyze_risk_flags
-        risk_data = analyze_risk_flags(final_d3)
-        
         return {
             "status": "success", 
             "data": {
                 "dataset_1": final_d1, 
                 "dataset_2": final_d2, 
                 "dataset_3": final_d3,
-                "metadata": final_meta,
-                "risk_assessment": risk_data,
-                "accounts": [{"dataset_1": acc[0]} for acc in parsed_accounts]
+                "metadata": final_meta
             }
         }
     except Exception as e:
@@ -213,10 +189,9 @@ async def upload_statement(
             error_msg = "One or more PDFs are password protected! Please securely enter the correct passwords."
         return {"status": "error", "message": error_msg}
 
-@api_router.post("/api/evaluate-eligibility")
+@app.post("/api/evaluate-eligibility")
 async def evaluate_eligibility(
     request: Request,
-    bank_name: Optional[str] = Form(None, description="Optional: Force route to a specific bank"),
     loan_amount: float = Form(...),
     gst_vintage: int = Form(...),
     itr_vintage: int = Form(...),
@@ -240,9 +215,7 @@ async def evaluate_eligibility(
     num_recent_3m_loans: int = Form(0),
     total_recent_3m_loan_emi: float = Form(0.0),
     num_recent_6m_loans: int = Form(0),
-    total_recent_6m_loan_emi: float = Form(0.0),
-    firm_name: str = Form(""),
-    sister_firms: str = Form("")
+    total_recent_6m_loan_emi: float = Form(0.0)
 ):
     try:
         form_data = await request.form()
@@ -260,11 +233,7 @@ async def evaluate_eligibility(
                     pdf_bytes_list.append(await f.read())
             
             if pdf_bytes_list:
-                d1, d2, d3, meta = parse_multiple_statements(
-                    pdf_bytes_list, 
-                    b.get("password"), 
-                    b.get("bank_name") or bank_name
-                )
+                d1, d2, d3, meta = parse_multiple_statements(pdf_bytes_list, b["password"])
                 parsed_accounts.append((d1, d2, d3, meta))
 
         if not parsed_accounts:
@@ -298,33 +267,22 @@ async def evaluate_eligibility(
             "num_recent_3m_loans": num_recent_3m_loans,
             "total_recent_3m_loan_emi": total_recent_3m_loan_emi,
             "num_recent_6m_loans": num_recent_6m_loans,
-            "total_recent_6m_loan_emi": total_recent_6m_loan_emi,
-            "firm_name": firm_name,
-            "sister_firms": sister_firms
+            "total_recent_6m_loan_emi": total_recent_6m_loan_emi
         }
         
         bank_data = {
             "transactions": d3,
-            "credit_entries_count": len([r for r in d3 if r.get('Cr', 0) > 0]),
-            "accounts": [{"transactions": acc[2]} for acc in parsed_accounts]
+            "credit_entries_count": len([r for r in d3 if r.get('Cr', 0) > 0])
         }
         
         # 3. Evaluate
         engine = PolicyEngine()
         results = engine.evaluate(borrower_data, bank_data)
         
-        from risk_engine import analyze_risk_flags
-        risk_data = analyze_risk_flags(d3)
-        
         return {
             "status": "success",
             "results": results,
-            "extraction": {"metadata": meta, "dataset_3": d3, "risk_assessment": risk_data}
+            "extraction": {"metadata": meta, "dataset_3": d3}
         }
     except Exception as e:
         return {"status": "error", "message": str(e)}
-
-# Support local endpoints
-app.include_router(api_router)
-# Support Vercel runtime rewrite prefix mapping
-app.include_router(api_router, prefix="/api-bl")

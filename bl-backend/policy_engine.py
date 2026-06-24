@@ -71,20 +71,11 @@ class PolicyEngine:
         avg_util = total_used / count if count > 0 else 0
         return avg_util, peak_used
 
-    def calculate_net_bto(self, transactions, firm_name="", sister_firms=""):
+    def calculate_net_bto(self, transactions):
         # Exclude cash deposits to find pure digital revenue
         cash_regex = r'(?:^|[^A-Z])(CASHDEP|BY CASH|CASH DEPOSIT|CASH RECEIPT|CSH DEP|CASH)(?:[^A-Z]|$)'
         total_credit = 0
         cash_credit = 0
-        inter_firm_credit = 0
-        
-        firm_regex = None
-        if firm_name and firm_name.strip():
-            firm_regex = re.compile(re.escape(firm_name.strip()), re.IGNORECASE)
-            
-        sister_regex = None
-        if sister_firms and sister_firms.strip():
-            sister_regex = re.compile(re.escape(sister_firms.strip()), re.IGNORECASE)
         
         for t in transactions:
             cr = t.get('Cr', 0)
@@ -93,17 +84,8 @@ class PolicyEngine:
                 narr = str(t.get('Narration', '')).upper()
                 if re.search(cash_regex, narr):
                     cash_credit += cr
-                else:
-                    matched = False
-                    if firm_regex and firm_regex.search(narr):
-                        matched = True
-                    if not matched and sister_regex and sister_regex.search(narr):
-                        matched = True
-                        
-                    if matched:
-                        inter_firm_credit += cr
                     
-        return total_credit - cash_credit - inter_firm_credit
+        return total_credit - cash_credit
 
     def calculate_custom_abb(self, transactions, dates):
         """
@@ -167,18 +149,10 @@ class PolicyEngine:
     def evaluate(self, borrower_data, bank_data):
         results = []
         transactions = bank_data.get('transactions', [])
-        accounts = bank_data.get('accounts', [{"transactions": transactions}])
         
         # Deep Analytics Calculations
         bounce_ratio = self.calculate_bounce_ratio(transactions)
-        
-        firm_name = borrower_data.get('firm_name', '')
-        sister_firms = borrower_data.get('sister_firms', '')
-        
-        # Calculate Net BTO per account and sum them
-        net_bto = 0
-        for acc in accounts:
-            net_bto += self.calculate_net_bto(acc['transactions'], firm_name, sister_firms)
+        net_bto = self.calculate_net_bto(transactions)
         
         total_credit = sum([t.get('Cr', 0) for t in transactions])
         digital_ratio = (net_bto / total_credit * 100) if total_credit > 0 else 0
@@ -344,11 +318,7 @@ class PolicyEngine:
                 deducted_type = "Total Active EMI"
                 
             # --- STEP F: ABB-BASED EMI CAPACITY ---
-            abb_dates = lender.get('abb_dates', [])
-            custom_abb = 0
-            for acc in accounts:
-                custom_abb += self.calculate_custom_abb(acc['transactions'], abb_dates)
-                
+            custom_abb = self.calculate_custom_abb(transactions, lender.get('abb_dates', []))
             abb_capacity = max(0.0, custom_abb - deduction)
             
             # --- STEP G: AO/TO VALIDATION ---

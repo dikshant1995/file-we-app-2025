@@ -34,7 +34,7 @@ const PolicyAdmin = () => {
 
     const fetchAdminConfig = async () => {
         try {
-            const apiBase = import.meta.env.VITE_API_URL || (window.location.origin.includes('localhost') ? 'http://localhost:8000' : '/api-bl');
+            const apiBase = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8000' : '/api-bl');
             const res = await axios.get(`${apiBase}/api/admin-config`);
             setAdminConfig(res.data);
         } catch (err) {
@@ -44,7 +44,7 @@ const PolicyAdmin = () => {
 
     const fetchPolicies = async () => {
         try {
-            const apiBase = import.meta.env.VITE_API_URL || (window.location.origin.includes('localhost') ? 'http://localhost:8000' : '/api-bl');
+            const apiBase = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8000' : '/api-bl');
             const res = await axios.get(`${apiBase}/api/policies`);
             setPolicies(res.data);
             setLoading(false);
@@ -60,7 +60,7 @@ const PolicyAdmin = () => {
     const savePolicies = async () => {
         setSaving(true);
         try {
-            const apiBase = import.meta.env.VITE_API_URL || (window.location.origin.includes('localhost') ? 'http://localhost:8000' : '/api-bl');
+            const apiBase = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8000' : '/api-bl');
             await axios.post(`${apiBase}/api/policies`, policies);
             alert("Policies updated successfully!");
         } catch (err) {
@@ -72,7 +72,7 @@ const PolicyAdmin = () => {
     const saveAdminConfig = async () => {
         setSavingConfig(true);
         try {
-            const apiBase = import.meta.env.VITE_API_URL || (window.location.origin.includes('localhost') ? 'http://localhost:8000' : '/api-bl');
+            const apiBase = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8000' : '/api-bl');
             const payload = { ...adminConfig };
             if (adminPasswordChange) {
                 payload.password = adminPasswordChange;

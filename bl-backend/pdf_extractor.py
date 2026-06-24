@@ -267,7 +267,7 @@ def extract_kotak_statement(pdf, first_page_text) -> dict:
         dataset_2.append({"Date": row["Date"], "Narration": row["Narration"]})
         dataset_3.append(row)
         
-    return dataset_1, dataset_2, dataset_3, metadata
+    return {"metadata": metadata, "dataset_1": dataset_1, "dataset_2": dataset_2, "dataset_3": dataset_3}
 
 
 def extract_sbi_grid(pdf, first_page_text) -> dict:
@@ -387,7 +387,7 @@ def extract_sbi_grid(pdf, first_page_text) -> dict:
             dataset_3.append(row_data)
 
     print(f">>> [Backend] SBI1 Sliding Engine Found {len(dataset_1)} rows.")
-    return dataset_1, dataset_2, dataset_3, metadata
+    return {"metadata": metadata, "dataset_1": dataset_1, "dataset_2": dataset_2, "dataset_3": dataset_3}
 
 def find_opening_balance(text: str) -> float:
     """
@@ -550,7 +550,7 @@ def extract_hdfc_statement(pdf, first_page_text) -> dict:
         dataset_3.append(r)
         prev_bal = r["Balance"]
         
-    return dataset_1, dataset_2, dataset_3, metadata
+    return {"metadata": metadata, "dataset_1": dataset_1, "dataset_2": dataset_2, "dataset_3": dataset_3}
 
 def extract_au_statement(pdf, first_page_text) -> dict:
     dataset_1, dataset_2, dataset_3 = [], [], []
@@ -578,9 +578,9 @@ def extract_au_statement(pdf, first_page_text) -> dict:
         for w in words:
             if last_y == -1 or abs(w['top'] - last_y) < 3: current_line.append(w)
             else:
-                lines.append(sorted(current_line, key=lambda x: x['x0'])); current_line = [w]
+                lines.append(current_line); current_line = [w]
             last_y = w['top']
-        if current_line: lines.append(sorted(current_line, key=lambda x: x['x0']))
+        if current_line: lines.append(current_line)
         
         for lw in lines:
             # --- DATE ANCHOR CHECK ---
@@ -648,7 +648,7 @@ def extract_au_statement(pdf, first_page_text) -> dict:
         dataset_3.append(r)
         prev_bal = r["Balance"]
         
-    return dataset_1, dataset_2, dataset_3, metadata
+    return {"metadata": metadata, "dataset_1": dataset_1, "dataset_2": dataset_2, "dataset_3": dataset_3}
 
 def extract_bom_statement(pdf, first_page_text) -> dict:
     dataset_1, dataset_2, dataset_3 = [], [], []
@@ -765,7 +765,7 @@ def extract_bom_statement(pdf, first_page_text) -> dict:
         dataset_2.append({"Date": r["Date"], "Narration": r["Narration"]})
         dataset_3.append(r)
         
-    return dataset_1, dataset_2, dataset_3, metadata
+    return {"metadata": metadata, "dataset_1": dataset_1, "dataset_2": dataset_2, "dataset_3": dataset_3}
 
 def extract_icici_detailed_statement(pdf, first_page_text) -> dict:
     dataset_1, dataset_2, dataset_3 = [], [], []
@@ -779,7 +779,7 @@ def extract_icici_detailed_statement(pdf, first_page_text) -> dict:
     # 2. Sequential Extraction with Coordinate Gates
     # Column X-Gates (Approximate based on analysis - Expanded for Limit Account variants)
     COL_SRNO = (35, 150)
-    COL_TXNDATE = (105, 155)  # Narrowed from 230 to prevent merging with Value Date
+    COL_TXNDATE = (105, 230)
     COL_REMARKS = (230, 365)
     COL_DR = (365, 428)
     COL_CR = (428, 493)
@@ -877,7 +877,12 @@ def extract_icici_detailed_statement(pdf, first_page_text) -> dict:
             "Balance": bal_val
         })
 
-    return dataset_1, dataset_2, dataset_3, metadata
+    return {
+        "metadata": metadata,
+        "dataset_1": dataset_1,
+        "dataset_2": dataset_2,
+        "dataset_3": dataset_3
+    }
 def extract_icici_corporate_statement(pdf, first_page_text) -> dict:
     all_rows = []
     metadata = {"account_name": "Unknown", "account_type": "Current Account"}
@@ -987,7 +992,12 @@ def extract_icici_corporate_statement(pdf, first_page_text) -> dict:
             "Dr": dr_val, "Cr": cr_val, "Balance": bal_val
         })
 
-    return dataset_1, dataset_2, dataset_3, metadata
+    return {
+        "metadata": metadata,
+        "dataset_1": dataset_1,
+        "dataset_2": dataset_2,
+        "dataset_3": dataset_3
+    }
 
 def extract_uco_limit_statement(pdf, first_page_text) -> dict:
     dataset_1, dataset_2, dataset_3 = [], [], []
@@ -1151,7 +1161,7 @@ def extract_uco_limit_statement(pdf, first_page_text) -> dict:
         dataset_2.append({"Date": r["Date"], "Narration": r["Narration"]})
         dataset_3.append(r)
         
-    return dataset_1, dataset_2, dataset_3, metadata
+    return {"metadata": metadata, "dataset_1": dataset_1, "dataset_2": dataset_2, "dataset_3": dataset_3}
 def extract_cub_statement(pdf, first_page_text) -> dict:
     dataset_1 = []
     dataset_2 = []
@@ -1259,7 +1269,7 @@ def extract_cub_statement(pdf, first_page_text) -> dict:
         dataset_2.append({"Date": r["Date"], "Narration": r["Narration"]})
         dataset_3.append(r)
         
-    return dataset_1, dataset_2, dataset_3, metadata
+    return {"metadata": metadata, "dataset_1": dataset_1, "dataset_2": dataset_2, "dataset_3": dataset_3}
 
 
 def extract_idfc_testing_statement(pdf, first_page_text):
@@ -1349,154 +1359,7 @@ def extract_idfc_testing_statement(pdf, first_page_text):
         dataset_2.append({"Date": r["Date"], "Narration": r["Narration"]})
         dataset_3.append(r)
         
-    return dataset_1, dataset_2, dataset_3, metadata
-
-
-def extract_idbi_statement(pdf, first_page_text) -> tuple:
-    dataset_1, dataset_2, dataset_3 = [], [], []
-    metadata = {"account_name": "Unknown", "account_type": "Unknown"}
-    
-    # Simple metadata extraction for IDBI
-    lines = first_page_text.split('\n')
-    for line in lines[:30]:
-        if "Name" in line or "Account Name" in line:
-            parts = line.split(":")
-            if len(parts) > 1:
-                metadata["account_name"] = parts[1].strip()
-                break
-
-    prev_bal = 0.0
-    
-    for page in pdf.pages:
-        words = page.extract_words()
-        # Group words by line (y-tolerance)
-        words = sorted(words, key=lambda w: (w['top'], w['x0']))
-        grouped_lines = []
-        current_line = []
-        last_y = -1
-        
-        for w in words:
-            if last_y == -1 or abs(w['top'] - last_y) < 4:
-                current_line.append(w)
-            else:
-                grouped_lines.append(current_line)
-                current_line = [w]
-            last_y = w['top']
-        if current_line:
-            grouped_lines.append(current_line)
-            
-        current_txn = None
-        
-        for row_words in grouped_lines:
-            row_text = " ".join([w['text'] for w in row_words])
-            if "S.No" in row_text or "Txn Date" in row_text or "Withdrawals" in row_text:
-                continue
-                
-            # Gate Extraction
-            date_str = " ".join([w['text'] for w in row_words if 60 <= w['x0'] <= 140])
-            desc_str = " ".join([w['text'] for w in row_words if 195 <= w['x0'] <= 350])
-            dr_str = " ".join([w['text'] for w in row_words if 385 <= w['x0'] <= 440])
-            cr_str = " ".join([w['text'] for w in row_words if 445 <= w['x0'] <= 490])
-            bal_str = " ".join([w['text'] for w in row_words if 495 <= w['x0'] <= 560])
-            
-            date_match = re.search(r'(\d{2}/\d{2}/\d{4})', date_str)
-            if date_match:
-                # Flush previous transaction
-                if current_txn and current_txn["Date"]:
-                    dataset_1.append({"Date": current_txn["Date"], "Dr": current_txn["Dr"], "Cr": current_txn["Cr"], "Balance": current_txn["Balance"]})
-                    dataset_2.append({"Date": current_txn["Date"], "Narration": current_txn["Narration"].strip()})
-                    dataset_3.append(current_txn)
-                    prev_bal = current_txn["Balance"]
-                
-                iso_date = datetime.strptime(date_match.group(1), "%d/%m/%Y").strftime("%Y-%m-%d")
-                dr = clean_amount(dr_str) if dr_str else 0.0
-                cr = clean_amount(cr_str) if cr_str else 0.0
-                bal = clean_amount(bal_str) if bal_str else prev_bal
-                if "-" in bal_str and bal > 0:
-                    bal = -bal
-                
-                current_txn = {
-                    "Date": iso_date,
-                    "Narration": desc_str + " ",
-                    "Dr": dr,
-                    "Cr": cr,
-                    "Balance": bal
-                }
-            elif current_txn and desc_str.strip():
-                # Append narration
-                current_txn["Narration"] += desc_str + " "
-                
-        # Flush last transaction on page
-        if current_txn and current_txn["Date"]:
-            dataset_1.append({"Date": current_txn["Date"], "Dr": current_txn["Dr"], "Cr": current_txn["Cr"], "Balance": current_txn["Balance"]})
-            dataset_2.append({"Date": current_txn["Date"], "Narration": current_txn["Narration"].strip()})
-            dataset_3.append(current_txn)
-            prev_bal = current_txn["Balance"]
-            
-    print(f">>> [STRICT ROUTER] IDBI Extracted {len(dataset_1)} rows.")
-    return dataset_1, dataset_2, dataset_3, metadata
-
-def extract_central_statement(pdf, first_page_text) -> tuple:
-    dataset_1, dataset_2, dataset_3 = [], [], []
-    metadata = {"account_name": "Unknown", "account_type": "Central Bank of India"}
-    
-    for line in first_page_text.split('\n'):
-        if "Account Number" in line:
-            parts = line.split(":")
-            if len(parts) > 1: metadata["account_name"] = parts[1].strip()
-            
-    date_regex = re.compile(r'\b\d{1,2}/\d{1,2}/\d{4}\b')
-    
-    for page in pdf.pages:
-        words = sorted(page.extract_words(), key=lambda x: (x['top'], x['x0']))
-        if not words: continue
-        
-        lines_w, current_line, last_y = [], [], -1
-        for w in words:
-            if last_y == -1 or abs(w['top'] - last_y) < 4: current_line.append(w)
-            else:
-                lines_w.append(sorted(current_line, key=lambda x: x['x0'])); current_line = [w]
-            last_y = w['top']
-        if current_line: lines_w.append(sorted(current_line, key=lambda x: x['x0']))
-        
-        header_y = 0
-        for lw in lines_w:
-            text = " ".join([w['text'] for w in lw])
-            if "Post Date" in text and "Value" in text:
-                header_y = lw[0]['top']
-                continue
-                
-            if header_y == 0 or lw[0]['top'] < header_y + 10:
-                continue
-                
-            date_words = [w for w in lw if 40 <= (w['x0']+w['x1'])/2 < 110]
-            date_str = " ".join([w['text'] for w in date_words])
-            m = date_regex.search(date_str)
-            
-            if m:
-                try:
-                    parsed_date = datetime.strptime(m.group(0), "%d/%m/%Y").strftime("%Y-%m-%d")
-                except: continue
-                    
-                narr = " ".join([w['text'] for w in lw if 160 <= (w['x0']+w['x1'])/2 < 500])
-                dr = clean_amount(" ".join([w['text'] for w in lw if 510 <= (w['x0']+w['x1'])/2 < 610]))
-                cr = clean_amount(" ".join([w['text'] for w in lw if 610 <= (w['x0']+w['x1'])/2 < 700]))
-                bal = clean_amount(" ".join([w['text'] for w in lw if 700 <= (w['x0']+w['x1'])/2 < 850]))
-                
-                dataset_3.append({
-                    "Date": parsed_date, "Narration": narr.strip(),
-                    "Dr": abs(dr), "Cr": abs(cr), "Balance": abs(bal)
-                })
-            elif dataset_3 and lw[0]['x0'] < 400 and not text.startswith("Page"):
-                narr_addon = " ".join([w['text'] for w in lw if 10 <= (w['x0']+w['x1'])/2 < 500])
-                dataset_3[-1]["Narration"] += " " + narr_addon.strip()
-
-    for r in dataset_3:
-        dataset_1.append({"Date": r["Date"], "Dr": r["Dr"], "Cr": r["Cr"], "Balance": r["Balance"]})
-        dataset_2.append({"Date": r["Date"], "Narration": r["Narration"]})
-        
-    print(f">>> [STRICT ROUTER] Central Bank Extracted {len(dataset_1)} rows.")
-    return dataset_1, dataset_2, dataset_3, metadata
+    return {"metadata": metadata, "dataset_1": dataset_1, "dataset_2": dataset_2, "dataset_3": dataset_3}
 
 
 class UnifiedBankBrain:
@@ -1513,24 +1376,19 @@ class UnifiedBankBrain:
         self.is_descending = False
         self.header_y = 50
         self.narrative_shield_x = 100
+        # V10.6 Grand Universal Date Key: 100% coverage for all 37 banks (including IndusInd & Indian Bank)
+        # Improved to handle '02-Sep- 2023' (split) and '02-Sep-2023' (standard)
         self.date_regex = re.compile(r'\b\d{1,2}[-/ ](?:\d{1,2}|[A-Za-z]{3}-?)[-/ ]{1,2}\d{2,4}\b|\b\d{1,2}[-/]\d{1,2}\b')
-        self.is_indusind_compact = False
 
         
         # --- THE GRAND UNIFIED KNOWLEDGE BANK (V8.2 - Strictly Transactions) ---
         self.knowledge = {
-            "CENTRAL": {
-                "cleaning": [],
-                "gates": {"Date": (40, 105), "Narr": (160, 500), "Dr": (510, 610), "Cr": (610, 700), "Bal": (700, 850)},
-                "shields": [r'TOTAL', r'OPENING\s*BALANCE', r'CLOSING\s*BALANCE']
-            },
             "HDFC": {
-                "cleaning": [r'CHQ/REF'],
-                "shields": [r'CLOSING\s*BALANCE\s*INCLUDES', r'HDFC\s*BANK\s*LIMITED'],
-                "gates": {"Date": (30, 68), "Narr": (68, 280), "Dr": (410, 500), "Cr": (500, 580), "Bal": (580, 650)}
+                "cleaning": [r'CHQ/REF', r'UPI-[\w\-\.\@]+', r'NEFT-[\w\-\.\@]+', r'IMPS-[\w\-\.\@]+'],
+                "shields": [r'CLOSING\s*BALANCE\s*INCLUDES', r'HDFC\s*BANK\s*LIMITED']
             },
             "SBI": {
-                "cleaning": [r'TRANSFER FROM', r'TRANSFER TO'],
+                "cleaning": [r'UPI-[\w\-\.\@]+', r'TRANSFER FROM', r'TRANSFER TO', r'NEFT-[\w\-\.\@]+', r'IMPS-[\w\-\.\@]+'],
                 "shields": [r'OPENING\s*BALANCE\s*:', r'CLOSING\s*BALANCE\s*:'],
                 "gates": {"Date": (15, 135), "Narr": (135, 380), "Amt": (380, 515), "Bal": (515, 650)} # Refined SBI Grid V8.1
             },
@@ -1539,16 +1397,16 @@ class UnifiedBankBrain:
                 "shields": [r'LEGENDS FOR TRANSACTIONS', r'SINCERELY', r'TEAM ICICI BANK']
             },
             "AU": {
-                "cleaning": [r'\s+DR$', r'\s+CR$'], 
+                "cleaning": [r'\s+DR$', r'\s+CR$', r'UPI/\d+/'], 
                 "shields": [r'END\s*OF\s*STATEMENT']
             },
             "AXIS": {
-                "cleaning": [r'\d{6}\s+(?:DR|CR)$', r'INIT\.\s*BR'],
+                "cleaning": [r'UPI-[\w\-\.\@]+', r'IMPS-[\w\-\.\@]+', r'NEFT-[\w\-\.\@]+', r'\d{6}\s+(?:DR|CR)$', r'INIT\.\s*BR'],
                 "shields": [r'OPENING\s*BALANCE', r'CLOSING\s*BALANCE'],
                 "gates": {"Date": (30, 110), "Narr": (110, 310), "Dr": (310, 395), "Cr": (395, 480), "Bal": (480, 538)}
             },
             "INDUSIND": {
-                "cleaning": [],
+                "cleaning": [r'UPI-[\w\-\.\@]+', r'IMPS-[\w\-\.\@]+'],
                 "gates": {"Date": (30, 100), "Narr": (100, 350), "Dr": (420, 580), "Cr": (580, 700), "Bal": (700, 880)}
             },
             "BOM": {
@@ -1556,26 +1414,16 @@ class UnifiedBankBrain:
             },
             "UCO": {
                 "shields": [r'GRAND TOTAL', r'SYSTEM GENERATED REPORT', r'REQUIRE ANY SIGNATURE', r'OPENING\s*BALANCE', r'CLOSING\s*BALANCE', r'STATEMENTOFACCOUNT'],
-                "gates": {"Date": (20, 80), "Narr": (80, 250), "Dr": (330, 430), "Cr": (430, 530), "Bal": (530, 630)},
+                "gates": {"Date": (40, 115), "Narr": (115, 380), "Amt": (380, 520), "Bal": (520, 630)},
                 "header_threshold": 180
             },
             "CANARA": {
-                "cleaning": [r'MB-IMPS'],
-                "gates": {"Date": (35, 135), "Narr": (135, 400), "Dr": (400, 455), "Cr": (455, 515), "Bal": (515, 650)},
-                "shields": [r'SUMMARY\s*OF', r'OPENING\s*BALANCE', r'CLOSING\s*BALANCE']
-            },
-            "BOI": {
-                "cleaning": [],
-                "shields": [r'TOTAL', r'OPENING\s*BALANCE', r'CLOSING\s*BALANCE']
+                "cleaning": [r'MB-IMPS', r'UPI-[\w\-\.\@]+'],
+                "gates": {"Date": (35, 135), "Narr": (135, 400), "Dr": (400, 455), "Cr": (455, 515), "Bal": (515, 650)}
             },
             "IDFC": {
                 "cleaning": [r'UPI/MOB/[\d/]+', r'from PhonePe'],
                 "gates": {"Date": (20, 140), "Narr": (140, 360), "Dr": (360, 430), "Cr": (430, 500), "Bal": (500, 590)}
-            },
-            "BOB": {
-                "cleaning": [],
-                "gates": {"Date": (30, 100), "Narr": (100, 430), "Dr": (430, 570), "Cr": (570, 680), "Bal": (680, 850)},
-                "shields": [r'TOTAL', r'OPENING\s*BALANCE', r'CLOSING\s*BALANCE', r'Contact-Us', r'Account Statement']
             }
         }
 
@@ -1595,31 +1443,15 @@ class UnifiedBankBrain:
         
         # 1. Footprint Detection (Strict Header Search)
         # Priority 1: Axis / Canara / Specific Signatures
-        if "AXISBANK" in txt_up or "UTIB" in txt_up or "STATEMENTOFAXIS" in txt_up: 
-            self.bank_type = "AXIS"
-            is_unified = any(w.get('text', '').upper() in ["DR", "CR"] and 400 < (w['x0']+w['x1'])/2 < 440 for w in words)
-            if is_unified:
-                print(">>> [Unified Brain] Axis Unified Layout Detected.")
-                self.knowledge["AXIS"]["gates"] = {"Date": (30, 110), "Narr": (110, 310), "Amt": (310, 410), "Type": (410, 440), "Bal": (440, 480)}
+        if "AXISBANK" in txt_up or "UTIB" in txt_up or "STATEMENTOFAXIS" in txt_up: self.bank_type = "AXIS"
         elif "CANARABANK" in txt_up or "CNRB" in txt_up: self.bank_type = "CANARA"
         elif "HDFCBANK" in txt_up: self.bank_type = "HDFC"
         elif "STATEBANKOFINDIA" in txt_up: self.bank_type = "SBI" 
-        elif "INDUSIND" in txt_up:
-            self.bank_type = "INDUSIND"
-            if p.width > 700:
-                print(">>> [Unified Brain] IndusInd OD/Corporate Wide Layout Detected.")
-                self.is_indusind_compact = True
-            else:
-                print(">>> [Unified Brain] IndusInd Standard Portrait Layout Detected.")
-                self.is_indusind_compact = False
-                if "gates" in self.knowledge["INDUSIND"]:
-                    del self.knowledge["INDUSIND"]["gates"]
+        elif "INDUSIND" in txt_up: self.bank_type = "INDUSIND"
         elif any(kw in txt_up for kw in ["AUBANK", "AUSMALL", "AUQR", "AUSFB", "AUCURRENT", "AUBL"]): self.bank_type = "AU"
         elif "IDBIBANK" in txt_up or "IDB0" in txt_up: self.bank_type = "IDBI"
         elif "ICICIBANK" in txt_up or "DETAILEDSTATEMENT" in txt_up: self.bank_type = "ICICI"
-        elif "IDFC" in txt_up or "IDFCFIRST" in txt_up or "IDFB" in txt_up: self.bank_type = "IDFC"
-        elif "BARODA" in txt_up or "BANKOFBARODA" in txt_up or "BARB" in txt_up or ("BOB" in txt_up and "MILK" not in txt_up): self.bank_type = "BOB"
-        elif "CENTRALBANK" in txt_up or "CBIN0" in txt_up: self.bank_type = "CENTRAL"
+        elif "IDFC" in txt_up or "IDFCFIRST" in txt_up: self.bank_type = "IDFC"
         
         print(f">>> [Unified Brain] Professional Context Identified: {self.bank_type}")
         
@@ -1798,9 +1630,9 @@ class UnifiedBankBrain:
                 curr_group = list(raw_lines[0])
                 for nxt in raw_lines[1:]:
                     dist = nxt[0]['top'] - curr_group[-1]['top']
-                    is_indusind_compact = (self.bank_type == "INDUSIND" and getattr(self, "is_indusind_compact", False))
+                    is_indusind = (self.bank_type == "INDUSIND")
                     
-                    if is_indusind_compact:
+                    if is_indusind:
                         stitch = (dist < 12)
                     else:
                         curr_txt = " ".join([w.get('text', "") for w in curr_group])
@@ -1809,7 +1641,7 @@ class UnifiedBankBrain:
                         stitch = is_split_date or (not self.date_regex.search(curr_txt) and dist < 40 and not is_opening_line)
                     
                     if stitch:
-                        if not is_indusind_compact and is_split_date:
+                        if not is_indusind and is_split_date:
                             year_part = re.search(r'^\d{4}-?', curr_txt).group(0).replace("-", "")
                             nxt_txt = " ".join([w.get('text', "") for w in nxt])
                             md_part = re.search(r'^-?\d{2}-\d{2}', nxt_txt).group(0).lstrip("-")
@@ -1880,27 +1712,22 @@ class UnifiedBankBrain:
                 # Extraction (Template vs Discovery)
                 if gates:
                     # Template-Based (High Precision)
-                    bal_str = " ".join([w['text'] for w in lw if gates["Bal"][0] <= (w['x0']+w['x1'])/2 < gates["Bal"][1]])
+                    bal_str = " ".join([w['text'] for w in active_lw if gates["Bal"][0] <= (w['x0']+w['x1'])/2 < gates["Bal"][1]])
                     curr_bal = clean_amount(bal_str)
                     
                     if "Amt" in gates:
                         # Single-column amount (Dr/Cr distinguished by text indicator)
-                        amt_str = " ".join([w['text'] for w in lw if gates["Amt"][0] <= (w['x0']+w['x1'])/2 < gates["Amt"][1]])
-                        if "Type" in gates:
-                            type_str = " ".join([w['text'] for w in lw if gates["Type"][0] <= (w['x0']+w['x1'])/2 < gates["Type"][1]]).upper()
-                            dr = clean_amount(amt_str) if "DR" in type_str or "-" in amt_str else 0.0
-                            cr = clean_amount(amt_str) if "CR" in type_str or (not dr and amt_str) else 0.0
-                        else:
-                            dr = clean_amount(amt_str) if "DR" in line_txt.upper() or "-" in amt_str else 0.0
-                            cr = clean_amount(amt_str) if "CR" in line_txt.upper() or (not dr and amt_str) else 0.0
+                        amt_str = " ".join([w['text'] for w in active_lw if gates["Amt"][0] <= (w['x0']+w['x1'])/2 < gates["Amt"][1]])
+                        dr = clean_amount(amt_str) if "DR" in line_txt.upper() or "-" in amt_str else 0.0
+                        cr = clean_amount(amt_str) if "CR" in line_txt.upper() or (not dr and amt_str) else 0.0
                     else:
                         # Separate Dr and Cr columns
-                        dr_str = " ".join([w['text'] for w in lw if gates["Dr"][0] <= (w['x0']+w['x1'])/2 < gates["Dr"][1]])
-                        cr_str = " ".join([w['text'] for w in lw if gates["Cr"][0] <= (w['x0']+w['x1'])/2 < gates["Cr"][1]])
+                        dr_str = " ".join([w['text'] for w in active_lw if gates["Dr"][0] <= (w['x0']+w['x1'])/2 < gates["Dr"][1]])
+                        cr_str = " ".join([w['text'] for w in active_lw if gates["Cr"][0] <= (w['x0']+w['x1'])/2 < gates["Cr"][1]])
                         dr = clean_amount(dr_str)
                         cr = clean_amount(cr_str)
                         
-                    clean_narr = self.polish_narration(" ".join([w['text'] for w in lw if gates["Narr"][0] <= (w['x0']+w['x1'])/2 < gates["Narr"][1]]))
+                    clean_narr = self.polish_narration(" ".join([w['text'] for w in active_lw if gates["Narr"][0] <= (w['x0']+w['x1'])/2 < gates["Narr"][1]]))
                 else:
                     # Dynamic Discovery Fallback: Use named pillars from headers if available
                     bal_px = self.named_pillars["Bal"] or (self.pillars[-1] if self.pillars else 540)
@@ -2041,351 +1868,17 @@ class UnifiedBankBrain:
         return all_datasets
 
 
-def extract_sbi_yono(pdf) -> tuple:
-    import re
-    from datetime import datetime
-    dataset_1, dataset_2, dataset_3 = [], [], []
-    metadata = {"account_name": "Unknown", "account_type": "SBI_YONO"}
-    
-    current_tx = None
-    regex = r'^(\d{2}/\d{2}/\d{4})\s+(\d{2}/\d{2}/\d{4})\s+(.*?)\s+(-|[A-Za-z0-9]+)\s+(-|[\d,]+\.\d{2})\s+(-|[\d,]+\.\d{2})\s+([\d,]+\.\d{2}(?:CR|DR)?)$'
-    
-    for page in pdf.pages:
-        text = page.extract_text()
-        if not text: continue
-        
-        lines = text.split('\n')
-        for line in lines:
-            line = line.strip()
-            if not line: continue
-            
-            match = re.match(regex, line)
-            if match:
-                if current_tx:
-                    dataset_3.append(current_tx)
-                
-                txn_date, val_date, narr, ref, dr_str, cr_str, bal_str = match.groups()
-                
-                dr = 0.0 if dr_str == '-' else float(dr_str.replace(',', ''))
-                cr = 0.0 if cr_str == '-' else float(cr_str.replace(',', ''))
-                bal = float(re.sub(r'[A-Za-z]', '', bal_str).replace(',', ''))
-                
-                try:
-                    dt_obj = datetime.strptime(txn_date, "%d/%m/%Y")
-                    date_formatted = dt_obj.strftime("%Y-%m-%d")
-                except ValueError:
-                    date_formatted = txn_date
-                
-                current_tx = {
-                    "Date": date_formatted,
-                    "Narration": narr,
-                    "Dr": dr,
-                    "Cr": cr,
-                    "Balance": bal
-                }
-            else:
-                if current_tx and not re.match(r'^\d{2}/\d{2}/\d{4}', line) and 'Balance' not in line and 'WDL TFR' not in line and 'Page' not in line:
-                    current_tx["Narration"] += " " + line
-                    
-    if current_tx:
-        dataset_3.append(current_tx)
-        
-    return dataset_1, dataset_2, dataset_3, metadata
-
-
-
-def extract_icici_caa(pdf) -> dict:
-    dataset_1, dataset_2, dataset_3 = [], [], []
-    metadata = {"account_name": "Unknown", "account_type": "Current Account"}
-    
-    import re
-    from datetime import datetime
-    
-    # Try to find Account Name
-    first_page_text = pdf.pages[0].extract_text() or ""
-    name_match = re.search(r'Name:\s*([A-Za-z0-9\s\&\.\,\-]+?)\s+A/C Branch:', first_page_text, re.IGNORECASE)
-    if name_match:
-        metadata["account_name"] = name_match.group(1).strip()
-    
-    all_rows = []
-    
-    for page in pdf.pages:
-        words = sorted(page.extract_words(), key=lambda x: (x['top'], x['x0']))
-        if not words: continue
-        
-        # Determine header and footer
-        header_y = 0
-        footer_y = page.height
-        
-        for w in words:
-            txt_up = w['text'].upper().replace(" ", "")
-            if "REQUEST/DOWNLOAD" in txt_up or "WAL(DR)(CR)" in txt_up:
-                header_y = max(header_y, w['bottom'] + 5)
-            if "PAGE" in txt_up and w['x0'] > 500 and w['top'] > page.height * 0.8:
-                footer_y = min(footer_y, w['top'] - 5)
-        
-        # Group words into logical rows based on Y coordinate
-        lines = []
-        current_line = []
-        last_y = -1
-        
-        for w in words:
-            if w['top'] < header_y or w['bottom'] > footer_y: continue
-            
-            if last_y == -1 or abs(w['top'] - last_y) < 3:
-                current_line.append(w)
-            else:
-                lines.append(current_line)
-                current_line = [w]
-            last_y = w['top']
-            
-        if current_line:
-            lines.append(current_line)
-            
-        # Parse the lines
-        for i, lw in enumerate(lines):
-            # Check if line starts with a serial number and has the three dates
-            if len(lw) < 3: continue
-            
-            # Find if the first few words contain S-ID and the truncated date
-            # e.g., '1', 'S5172', '01/Dec/20'
-            is_new_tx = False
-            date_str = None
-            start_idx = -1
-            
-            for j in range(min(5, len(lw))):
-                if re.match(r'^\d{2}/[A-Za-z]{3}/\d{2,4}$', lw[j]['text']):
-                    # Check next word for the 4-digit date
-                    if j+1 < len(lw) and re.match(r'^\d{2}/[A-Za-z]{3}/\d{4}$', lw[j+1]['text']):
-                        date_str = lw[j+1]['text']
-                        start_idx = j+1
-                        is_new_tx = True
-                        break
-            
-            if is_new_tx and date_str:
-                row_data = {
-                    "Date": parse_date(date_str),
-                    "NarrParts": [],
-                    "Withdrawal": 0.0,
-                    "Deposit": 0.0,
-                    "Balance": 0.0
-                }
-                
-                # Get the integer parts of amounts
-                bal_int = "0.0"
-                dr_int = "0.0"
-                cr_int = "0.0"
-                
-                for w in lw[start_idx+1:]:
-                    mid_x = (w['x0'] + w['x1']) / 2
-                    
-                    if mid_x < 390:
-                        row_data["NarrParts"].append(w['text'])
-                    elif 390 <= w['x1'] < 445:
-                        dr_int = w['text'].replace(',', '')
-                    elif 445 <= w['x1'] < 485:
-                        cr_int = w['text'].replace(',', '')
-                    elif w['x1'] >= 485:
-                        bal_int = w['text'].replace(',', '')
-                
-                # Look at the NEXT line to find the detached decimals
-                bal_dec = ".00"
-                dr_dec = ""
-                cr_dec = ""
-                
-                if i + 1 < len(lines):
-                    next_lw = lines[i+1]
-                    for w in next_lw:
-                        if 390 <= w['x1'] < 445 and (w['text'].startswith('.') or len(w['text'])==2):
-                            dr_dec = w['text'] if w['text'].startswith('.') else '.' + w['text']
-                        elif 445 <= w['x1'] < 485 and (w['text'].startswith('.') or len(w['text'])==2):
-                            cr_dec = w['text'] if w['text'].startswith('.') else '.' + w['text']
-                        elif w['x1'] >= 485 and (w['text'].startswith('.') or len(w['text'])==2):
-                            bal_dec = w['text'] if w['text'].startswith('.') else '.' + w['text']
-                        
-                        # also collect narration from next line if it's in the narr zone
-                        mid_x = (w['x0'] + w['x1']) / 2
-                        if mid_x < 390 and not re.match(r'^\d+$', w['text']):
-                            # avoid adding the time or 'PM'/'AM' if possible
-                            if not re.match(r'^\d{2}:\d{2}:\d{2}$', w['text']) and w['text'] not in ['AM', 'PM']:
-                                row_data["NarrParts"].append(w['text'])
-                
-                # Further narration lines (up to 4 lines down)
-                for k in range(2, 6):
-                    if i + k < len(lines):
-                        future_lw = lines[i+k]
-                        # stop if we hit a new transaction
-                        has_date = any(re.match(r'^\d{2}/[A-Za-z]{3}/\d{2,4}$', fw['text']) for fw in future_lw[:5])
-                        if has_date:
-                            break
-                        for w in future_lw:
-                            mid_x = (w['x0'] + w['x1']) / 2
-                            if mid_x < 390 and not re.match(r'^\d+$', w['text']):
-                                row_data["NarrParts"].append(w['text'])
-
-                # Combine ints and decs
-                if dr_int != "0.0": row_data["Withdrawal"] = clean_amount(dr_int + dr_dec)
-                if cr_int != "0.0": row_data["Deposit"] = clean_amount(cr_int + cr_dec)
-                if bal_int != "0.0": row_data["Balance"] = clean_amount(bal_int + bal_dec)
-                
-                all_rows.append({
-                    "Date": row_data["Date"],
-                    "Narration": " ".join(row_data["NarrParts"]),
-                    "Dr": row_data["Withdrawal"],
-                    "Cr": row_data["Deposit"],
-                    "Balance": row_data["Balance"]
-                })
-
-    # Sort descending just in case
-    if all_rows and all_rows[0]["Date"] and all_rows[-1]["Date"] and all_rows[0]["Date"] > all_rows[-1]["Date"]:
-        all_rows.reverse()
-
-    for r in all_rows:
-        dataset_1.append({"Date": r["Date"], "Dr": r["Dr"], "Cr": r["Cr"], "Balance": r["Balance"]})
-        dataset_2.append({"Date": r["Date"], "Narration": r["Narration"]})
-        dataset_3.append(r)
-        
-    return dataset_1, dataset_2, dataset_3, metadata
-
-
-def parse_bank_statement(pdf_bytes: bytes, password: str = None, bank_name: str = None) -> tuple:
+def parse_bank_statement(pdf_bytes: bytes, password: str = None) -> tuple:
     """
-    STRICT ROUTER ARCHITECTURE: Bypasses the generic UnifiedBankBrain
-    and connects directly to the dedicated individual schemas.
+    V8.0 Ironclad Dispatcher: Unified Architecture.
     """
     try:
         with pdfplumber.open(io.BytesIO(pdf_bytes), password=password or "") as pdf:
             if not pdf.pages: raise ValueError("Empty PDF")
             
-            combined_text = ""
-            for i in range(min(4, len(pdf.pages))):
-                combined_text += (pdf.pages[i].extract_text() or "") + "\n"
-            
-            combined_text_upper = combined_text.upper()
-            first_page_top = (pdf.pages[0].extract_text() or "")[:600].upper() # Strictly top of page 1
-
-            # --- FORCED ROUTING LOGIC (MANUAL OVERRIDE) ---
-            if bank_name:
-                bn = bank_name.upper()
-                print(f">>> [FORCED ROUTER] Manually routing to {bn} Schemas")
-                if "ICICI" in bn:
-                    exceptions = []
-                    try:
-                        print(">>> [FORCED ROUTER] Trying ICICI Detailed Schema")
-                        return extract_icici_detailed_statement(pdf, combined_text)
-                    except Exception as e: exceptions.append(str(e))
-                    
-                    try:
-                        print(">>> [FORCED ROUTER] Trying ICICI Corporate Schema")
-                        return extract_icici_corporate_statement(pdf, combined_text)
-                    except Exception as e: exceptions.append(str(e))
-                    
-                    try:
-                        print(">>> [FORCED ROUTER] Trying ICICI CAA Schema")
-                        return extract_icici_caa(pdf)
-                    except Exception as e: exceptions.append(str(e))
-                    
-                    print(f">>> [FORCED ROUTER] All ICICI schemas failed: {exceptions}")
-                elif "HDFC" in bn:
-                    return extract_hdfc_statement(pdf, combined_text)
-                elif "SBI" in bn or "STATE BANK" in bn:
-                    if re.search(r'\d{2}/\d{2}/\d{4}\s+\d{2}/\d{2}/\d{4}', combined_text):
-                        return extract_sbi_yono(pdf)
-                    else:
-                        return extract_sbi_grid(pdf, combined_text)
-                elif "AU" in bn:
-                    return extract_au_statement(pdf, combined_text)
-                elif "MAHARASHTRA" in bn or "BOM" in bn:
-                    return extract_bom_statement(pdf, combined_text)
-                elif "KOTAK" in bn:
-                    return extract_kotak_statement(pdf, combined_text)
-                elif "UCO" in bn:
-                    if re.search(r'\bLIMIT\b', combined_text_upper) or "A/C TYPE : LIMIT" in combined_text_upper:
-                        return extract_uco_limit_statement(pdf, combined_text)
-                    else:
-                        brain = UnifiedBankBrain(pdf)
-                        brain.detect_layout()
-                        brain.bank_type = "UCO"
-                        res = brain.extract()
-                        return res["ds1"], res["ds2"], res["ds3"], brain.metadata
-                elif "CENTRAL" in bn or "CBIN" in bn:
-                    return extract_central_statement(pdf, combined_text)
-                elif "CITY UNION" in bn or "CUB" in bn:
-                    return extract_cub_statement(pdf, combined_text)
-                elif "IDFC" in bn:
-                    return extract_idfc_testing_statement(pdf, combined_text)
-                elif "IDBI" in bn:
-                    return extract_idbi_statement(pdf, combined_text)
-                    
-            # --- STRICT ROUTING LOGIC (AUTO GUESS) ---
-            if "HDFC" in first_page_top:
-                print(">>> [STRICT ROUTER] Routing to HDFC Dedicated Schema")
-                return extract_hdfc_statement(pdf, combined_text)
-            
-            elif "STATE BANK OF INDIA" in first_page_top or "STATEBANKOFINDIA" in first_page_top.replace(" ", "") or "SBIN00" in first_page_top:
-                print(">>> [STRICT ROUTER] Routing to SBI Dedicated Schema")
-                if re.search(r'\d{2}/\d{2}/\d{4}\s+\d{2}/\d{2}/\d{4}', combined_text):
-                    return extract_sbi_yono(pdf)
-                else:
-                    return extract_sbi_grid(pdf, combined_text)
-                    
-            elif "ICICI" in combined_text_upper or "ICIC" in combined_text_upper:
-                print(">>> [STRICT ROUTER] Routing to ICICI Dedicated Schema")
-                if "A/C Type: CAA" in combined_text and "Value" in combined_text and "Withdra" in combined_text:
-                    return extract_icici_caa(pdf)
-                elif "CORPORATE" in first_page_top:
-                    return extract_icici_corporate_statement(pdf, combined_text)
-                else:
-                    return extract_icici_detailed_statement(pdf, combined_text)
-                    
-            elif "AU SMALL FINANCE" in first_page_top:
-                print(">>> [STRICT ROUTER] Routing to AU Dedicated Schema")
-                return extract_au_statement(pdf, combined_text)
-                
-            elif "MAHARASHTRA" in first_page_top:
-                print(">>> [STRICT ROUTER] Routing to BOM Dedicated Schema")
-                return extract_bom_statement(pdf, combined_text)
-                
-            elif "KOTAK" in first_page_top:
-                print(">>> [STRICT ROUTER] Routing to Kotak Dedicated Schema")
-                return extract_kotak_statement(pdf, combined_text)
-                
-            elif "UCO" in first_page_top:
-                if re.search(r'\bLIMIT\b', combined_text_upper) or "A/C TYPE : LIMIT" in combined_text_upper:
-                    print(">>> [STRICT ROUTER] Routing to UCO Limit Dedicated Schema")
-                    return extract_uco_limit_statement(pdf, combined_text)
-                else:
-                    print(">>> [STRICT ROUTER] Routing UCO to UnifiedBankBrain")
-                    brain = UnifiedBankBrain(pdf)
-                    brain.detect_layout()
-                    brain.bank_type = "UCO"
-                    res = brain.extract()
-                    return res["ds1"], res["ds2"], res["ds3"], brain.metadata
-                
-            elif "CITY UNION" in first_page_top:
-                print(">>> [STRICT ROUTER] Routing to CUB Dedicated Schema")
-                return extract_cub_statement(pdf, combined_text)
-                
-            elif "IDFC" in combined_text_upper or "IDFB0" in combined_text_upper:
-                print(">>> [STRICT ROUTER] Routing to IDFC Dedicated Schema")
-                return extract_idfc_testing_statement(pdf, combined_text)
-                
-            elif "IDBIBANK" in first_page_top.replace(" ", "") or "IDBI BANK" in first_page_top or "IDBI" in first_page_top:
-                print(">>> [STRICT ROUTER] Routing to IDBI Dedicated Schema")
-                return extract_idbi_statement(pdf, combined_text)
-                
-            # If no strict schema matched, warn and fall back
-            print(">>> [STRICT ROUTER] No dedicated schema found. Falling back to UnifiedBankBrain.")
+            # Engagement of the Unified Engine
             brain = UnifiedBankBrain(pdf)
-            
-            # If bank_name is provided and exists in generic knowledge, inject it directly!
-            if bank_name and bank_name.upper() in brain.knowledge:
-                bn = bank_name.upper()
-                print(f">>> [FORCED GENERIC ROUTER] Bypassing layout detection. Injecting {bn} directly!")
-                brain.bank_type = bn
-            else:
-                brain.detect_layout()
-                
+            brain.detect_layout()
             res = brain.extract()
             
             return res["ds1"], res["ds2"], res["ds3"], brain.metadata
@@ -2394,7 +1887,7 @@ def parse_bank_statement(pdf_bytes: bytes, password: str = None, bank_name: str 
         print(f"!!! [CRITICAL ERROR] {e}")
         return [], [], [], {"account_name": "ERROR", "error": str(e)}
 
-def parse_multiple_statements(pdf_bytes_list: list, password: str = None, bank_name: str = None) -> tuple:
+def parse_multiple_statements(pdf_bytes_list: list, password: str = None) -> tuple:
     """
     Parses multiple PDF byte streams, combines all transactions, 
     and performs precise deduplication using Date + Narration + Dr + Cr + Balance signatures.
@@ -2405,7 +1898,7 @@ def parse_multiple_statements(pdf_bytes_list: list, password: str = None, bank_n
     
     for i, pdf_bytes in enumerate(pdf_bytes_list):
         # 1. Parse individual statement
-        ds1, ds2, ds3, metadata = parse_bank_statement(pdf_bytes, password, bank_name)
+        ds1, ds2, ds3, metadata = parse_bank_statement(pdf_bytes, password)
         
         # Capture metadata from the first valid parse
         if i == 0 or (final_metadata["account_name"] == "Unknown" and metadata.get("account_name") != "Unknown" and metadata.get("account_name") != "ERROR"):
@@ -2510,7 +2003,6 @@ def consolidate_multiple_accounts(accounts_data_list):
         start_date = datetime.strptime(start_dt_str, "%Y-%m-%d")
         end_date = datetime.strptime(end_dt_str, "%Y-%m-%d")
     except Exception:
-        # Fallback if dates are in different format
         return [], [], combined_ds3, {"bank_name": " | ".join(participating_banks)}
     
     combined_ds1 = []
