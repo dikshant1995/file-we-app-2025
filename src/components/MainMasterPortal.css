@@ -56,11 +56,11 @@
 }
 
 .portal-header {
-  padding: 16px 32px;
+  padding: 16px 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1300px;
+  max-width: 1280px;
   margin: 0 auto;
 }
 
@@ -84,8 +84,8 @@
 /* Hero Section */
 .portal-hero {
   text-align: left;
-  padding: 4rem 2rem 2rem 2rem;
-  max-width: 1200px;
+  padding: 2rem 40px 2rem 40px;
+  max-width: 1280px;
   margin: 0 auto;
 }
 

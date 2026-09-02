@@ -94,10 +94,9 @@ const MainMasterPortal = ({ onAdminClick }) => {
             </div>
           </div>
         </header>
-
         {/* Hero Section - Balanced 2-Column Layout */}
-        <section className="portal-hero" style={{ padding: '30px 20px 20px', maxWidth: '1280px', margin: '0 auto' }}>
-          <div className="hero-2col-wrapper" style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '30px', alignItems: 'center' }}>
+        <section className="portal-hero" style={{ padding: '30px 40px 20px', maxWidth: '1280px', margin: '0 auto' }}>
+          <div className="hero-2col-wrapper" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', alignItems: 'center' }}>
             
             {/* Left Column: Headline & CTA Button */}
             <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
@@ -165,7 +164,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
               </div>
             </div>
 
-            {/* Right Column: Model Cutout (Enlarged) */}
+            {/* Right Column: Model Cutout */}
             <motion.div 
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
@@ -174,7 +173,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
               style={{ 
                 display: 'flex', 
                 alignItems: 'center', 
-                justifyContent: 'center',
+                justifyContent: 'flex-end',
                 width: '100%'
               }}
             >
@@ -182,13 +181,10 @@ const MainMasterPortal = ({ onAdminClick }) => {
                 src="/incred-model-cutout.png" 
                 alt="Laxmi Credit Model Cutout" 
                 style={{
-                  maxHeight: '580px',
+                  maxHeight: '480px',
                   maxWidth: '100%',
                   width: 'auto',
-                  objectFit: 'contain',
-                  transform: 'scale(1.1)',
-                  transformOrigin: 'center bottom',
-                  filter: 'drop-shadow(0 20px 35px rgba(0, 0, 0, 0.12))'
+                  objectFit: 'contain'
                 }}
               />
             </motion.div>
@@ -211,8 +207,8 @@ const MainMasterPortal = ({ onAdminClick }) => {
               gridTemplateColumns: 'repeat(3, 1fr)',
               gap: '30px',
               alignItems: 'center',
-              maxWidth: '1100px',
-              margin: '1rem auto 3rem',
+              maxWidth: '1280px',
+              margin: '2rem auto 3rem',
               boxShadow: '0 12px 35px rgba(32, 85, 150, 0.25)'
             }}
           >
