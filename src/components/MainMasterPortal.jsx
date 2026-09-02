@@ -292,20 +292,20 @@ const MainMasterPortal = ({ onAdminClick }) => {
         {/* ===== VALUE PROPOSITION SECTION (InCred Style) ===== */}
         <section className="incred-value-props-section" style={{ padding: '60px 20px 50px', maxWidth: '1280px', margin: '0 auto' }}>
           
-          {/* Main Heading (InCred Screenshot Exact Style & Size) */}
+          {/* Main Heading (InCred Screenshot Exact Style & Color) */}
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
             style={{
-              fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif",
-              fontSize: '2.35rem',
+              fontFamily: "'Inter', 'Mulish', 'Plus Jakarta Sans', sans-serif",
+              fontSize: '2.5rem',
               fontWeight: 800,
-              color: '#1F2937',
+              color: '#333333',
               textAlign: 'center',
-              lineHeight: 1.3,
-              marginBottom: '1rem',
+              lineHeight: 1.25,
+              marginBottom: '0px',
               letterSpacing: '-0.5px'
             }}
           >
@@ -313,21 +313,33 @@ const MainMasterPortal = ({ onAdminClick }) => {
             personal loan comparison for your needs?
           </motion.h2>
 
-          {/* Subheading */}
+          {/* Orange Accent Line Under Heading (as in InCred screenshot) */}
+          <div 
+            style={{ 
+              width: '45px', 
+              height: '3.5px', 
+              background: '#F58220', 
+              margin: '14px auto 24px', 
+              borderRadius: '2px' 
+            }} 
+          />
+
+          {/* Subheading (Ultra Light Grey Font & Weight as in InCred screenshot) */}
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
             style={{
-              fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif",
-              fontSize: '1.15rem',
-              color: '#6B7280',
-              fontWeight: 400,
+              fontFamily: "'Inter', 'Mulish', 'Plus Jakarta Sans', sans-serif",
+              fontSize: '1.25rem',
+              color: '#A0AEC0',
+              fontWeight: 300,
               textAlign: 'center',
               maxWidth: '820px',
               margin: '0 auto 3.5rem',
-              lineHeight: 1.5
+              lineHeight: 1.5,
+              letterSpacing: '0.2px'
             }}
           >
             With Laxmi Credit, instantly discover which bank offers how much loan amount at what exact interest rate across 12+ top banks — with zero credit score impact.
