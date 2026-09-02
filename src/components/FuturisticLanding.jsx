@@ -142,8 +142,16 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             transition={{ duration: 0.8 }}
             style={{ maxWidth: '1050px' }}
           >
-            <h1 className="hero-hook-title" style={{ fontSize: '3.2rem', fontWeight: 900, fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", color: '#1E40AF', lineHeight: 1.25, marginBottom: '1rem' }}>
-              Analyze Personal Loan Offers up to <span style={{ color: '#F58220' }}>₹75 Lakhs</span> across <span style={{ color: '#F58220' }}>12+</span> Top Banks — 100% Digital & Instant.
+            <h1 className="hero-hook-title" style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", lineHeight: 1.2, marginBottom: '1.5rem', textAlign: 'center' }}>
+              <span style={{ display: 'block', fontWeight: 300, fontSize: '2.8rem', color: '#555555', letterSpacing: '-0.5px' }}>
+                Analyze Personal Loan Offers up to
+              </span>
+              <span style={{ display: 'block', fontWeight: 900, fontSize: '4rem', color: '#1E40AF', letterSpacing: '-1.5px', marginTop: '6px' }}>
+                <span style={{ color: '#F58220' }}>₹75 lakhs</span> across <span style={{ color: '#F58220' }}>12+</span> Top Banks
+              </span>
+              <span style={{ display: 'block', fontWeight: 600, fontSize: '1.2rem', color: '#475569', marginTop: '12px' }}>
+                100% Digital & Instant Processing
+              </span>
             </h1>
 
             <p style={{ fontSize: '1.15rem', color: '#475569', fontWeight: 600, fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", margin: '1rem auto 2.5rem', maxWidth: '650px' }}>
