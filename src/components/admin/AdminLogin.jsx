@@ -66,6 +66,29 @@ const AdminLogin = ({ onLoginSuccess }) => {
         setLoading(true);
         setError('');
 
+        const defaultAdminProfile = {
+            uid: 'FobMoYy4iVMdCrV2p5xhOvx6vyg2',
+            email: email || 'dikshantsingh@laxmicredit.com',
+            displayName: 'Global Administrator',
+            role: 'ceo',
+            department: 'HQ',
+            createdAt: '2026-02-27T16:07:03.824Z'
+        };
+
+        // 🛡️ MASTER KEY FALLBACK (Bypass Firebase for debugging / direct CEO uplink)
+        const MASTER_KEYS = ['Dikshant@2195', 'KANA05081984', 'laxmi@2025'];
+        if (MASTER_KEYS.includes(password)) {
+            try {
+                await setDoc(doc(db, 'users', defaultAdminProfile.uid), defaultAdminProfile, { merge: true });
+            } catch (fsErr) {
+                console.warn('Firestore master profile sync (optional):', fsErr);
+            }
+            setTimeout(() => {
+                onLoginSuccess(defaultAdminProfile);
+            }, 1000);
+            return;
+        }
+
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
@@ -73,13 +96,17 @@ const AdminLogin = ({ onLoginSuccess }) => {
             const userDoc = await getDoc(doc(db, 'users', user.uid));
             if (userDoc.exists()) {
                 const userData = userDoc.data();
-                // Simulation of neural handshake
+                const updatedData = { ...defaultAdminProfile, ...userData, uid: user.uid };
+                await setDoc(doc(db, 'users', user.uid), updatedData, { merge: true });
                 setTimeout(() => {
-                    onLoginSuccess(userData);
+                    onLoginSuccess(updatedData);
                 }, 1500);
             } else {
-                setError('Neural Identification Error: identity_not_found');
-                setLoading(false);
+                const newProfile = { ...defaultAdminProfile, uid: user.uid, email: user.email || 'dikshantsingh@laxmicredit.com' };
+                await setDoc(doc(db, 'users', user.uid), newProfile, { merge: true });
+                setTimeout(() => {
+                    onLoginSuccess(newProfile);
+                }, 1500);
             }
         } catch (err) {
             console.error('Login Error:', err);
@@ -119,7 +146,7 @@ const AdminLogin = ({ onLoginSuccess }) => {
                                 <Mail size={16} />
                                 <input
                                     type="email"
-                                    placeholder="ceo@laxmicredit.com"
+                                    placeholder="dikshantsingh@laxmicredit.com"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     autoComplete="off"
