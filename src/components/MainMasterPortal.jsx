@@ -486,7 +486,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                 }}
               >
                 <span style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.2rem', fontWeight: 800, color: '#1F2937', letterSpacing: '-0.2px' }}>
-                  Start your loan application
+                  Compare your eligibility
                 </span>
                 <Link to="/personal-loan" style={{ textDecoration: 'none' }}>
                   <motion.button
@@ -505,7 +505,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                       fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif"
                     }}
                   >
-                    Apply now
+                    Check eligibility
                   </motion.button>
                 </Link>
               </div>

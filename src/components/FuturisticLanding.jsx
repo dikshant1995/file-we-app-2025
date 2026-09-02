@@ -531,7 +531,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                 }}
               >
                 <span style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.2rem', fontWeight: 800, color: '#1F2937', letterSpacing: '-0.2px' }}>
-                  Start your loan application
+                  Compare your eligibility
                 </span>
                 <motion.button
                   onClick={onGetStarted}
@@ -550,7 +550,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                     fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif"
                   }}
                 >
-                  Apply now
+                  Check eligibility
                 </motion.button>
               </div>
             </motion.div>
