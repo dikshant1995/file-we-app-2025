@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, ArrowRight, ArrowLeft, ShieldCheck, Zap, Globe, Lock, Instagram, MessageSquare, Send, ChevronDown, Cpu, BarChart3, Fingerprint, Mail, FileText, Building2 } from 'lucide-react';
+import { Sparkles, ArrowRight, ArrowLeft, ShieldCheck, Zap, Globe, Lock, Instagram, MessageSquare, Send, ChevronDown, Cpu, BarChart3, Fingerprint, Mail, FileText, Building2, FileCheck, Landmark, Scale } from 'lucide-react';
 import './FuturisticLanding.css';
 
 
@@ -265,32 +265,71 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             zIndex: 2
           }}
         >
-          {/* Pro 1 */}
+          {/* Pro 1: Enquiry Less Loan */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '14px' }}>
-            <div style={{ width: '60px', height: '60px', borderRadius: '16px', background: 'rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
-              <ShieldCheck size={30} color="#ffffff" />
+            <div 
+              style={{ 
+                width: '64px', 
+                height: '64px', 
+                borderRadius: '18px', 
+                background: 'rgba(255, 255, 255, 0.18)', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                backdropFilter: 'blur(10px)',
+                boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.4), 0 8px 16px rgba(0, 0, 0, 0.12)',
+                border: '1px solid rgba(255, 255, 255, 0.25)'
+              }}
+            >
+              <FileCheck size={32} color="#ffffff" strokeWidth={2.2} />
             </div>
-            <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#ffffff', lineHeight: 1.3 }}>
+            <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", color: '#ffffff', lineHeight: 1.3 }}>
               Enquiry Less Loan
             </span>
           </div>
 
-          {/* Pro 2 */}
+          {/* Pro 2: No Collateral Required */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '14px' }}>
-            <div style={{ width: '60px', height: '60px', borderRadius: '16px', background: 'rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
-              <Building2 size={30} color="#ffffff" />
+            <div 
+              style={{ 
+                width: '64px', 
+                height: '64px', 
+                borderRadius: '18px', 
+                background: 'rgba(255, 255, 255, 0.18)', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                backdropFilter: 'blur(10px)',
+                boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.4), 0 8px 16px rgba(0, 0, 0, 0.12)',
+                border: '1px solid rgba(255, 255, 255, 0.25)'
+              }}
+            >
+              <Landmark size={32} color="#ffffff" strokeWidth={2.2} />
             </div>
-            <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#ffffff', lineHeight: 1.3 }}>
+            <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", color: '#ffffff', lineHeight: 1.3 }}>
               No Collateral Required
             </span>
           </div>
 
-          {/* Pro 3 */}
+          {/* Pro 3: Comparison of 12 Banks in One Minute */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '14px' }}>
-            <div style={{ width: '60px', height: '60px', borderRadius: '16px', background: 'rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
-              <Zap size={30} color="#ffffff" />
+            <div 
+              style={{ 
+                width: '64px', 
+                height: '64px', 
+                borderRadius: '18px', 
+                background: 'rgba(255, 255, 255, 0.18)', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                backdropFilter: 'blur(10px)',
+                boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.4), 0 8px 16px rgba(0, 0, 0, 0.12)',
+                border: '1px solid rgba(255, 255, 255, 0.25)'
+              }}
+            >
+              <Scale size={32} color="#ffffff" strokeWidth={2.2} />
             </div>
-            <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#ffffff', lineHeight: 1.3 }}>
+            <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", color: '#ffffff', lineHeight: 1.3 }}>
               Comparison of 12 Banks in One Minute
             </span>
           </div>
