@@ -1,14 +1,14 @@
 /* ============================================
-   HOLOGRAPHIC AI LANDING PAGE — FULL STYLES
+   INCRED LIGHT THEME — LANDING PAGE STYLES
    ============================================ */
 
 /* ===== BASE ===== */
 .holo-landing {
   min-height: 100vh;
-  background: #010409;
+  background: #fafafa;
   position: relative;
   overflow-x: hidden;
-  color: #e8f4ff;
+  color: #0f172a;
 }
 
 /* ===== BACKGROUND LAYERS ===== */
@@ -16,9 +16,9 @@
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(0, 80, 160, 0.25) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(0, 40, 120, 0.2) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 40% at 50% 50%, rgba(0, 20, 60, 0.3) 0%, transparent 70%);
+    radial-gradient(ellipse 80% 50% at 20% 10%, #fff4ec 0%, transparent 65%),
+    radial-gradient(ellipse 60% 50% at 80% 80%, #eef3fa 0%, transparent 65%),
+    #fafafa;
   pointer-events: none;
   z-index: 0;
 }
@@ -27,75 +27,216 @@
   position: fixed;
   inset: 0;
   background-image:
-    linear-gradient(rgba(0, 212, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 212, 255, 0.04) 1px, transparent 1px);
+    linear-gradient(rgba(245, 130, 32, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245, 130, 32, 0.04) 1px, transparent 1px);
   background-size: 60px 60px;
   pointer-events: none;
   z-index: 0;
 }
 
 .holo-scanline {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.6), transparent);
-  animation: scanDown 8s linear infinite;
-  pointer-events: none;
-  z-index: 1;
-}
-
-@keyframes scanDown {
-  0% {
-    top: 0;
-    opacity: 1;
-  }
-
-  90% {
-    opacity: 0.3;
-  }
-
-  100% {
-    top: 100vh;
-    opacity: 0;
-  }
+  display: none;
 }
 
 .holo-orb {
-  position: fixed;
+  display: none;
+}
+
+/* ===== HEADER ===== */
+.holo-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 16px 32px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.header-inner-nav {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.neural-logo-small {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 900;
+  font-size: 1.3rem;
+  color: #06064d;
+}
+
+.topo-admin-btn {
+  background: #fff4ec;
+  border: 1px solid #f58220;
+  color: #f58220;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.topo-admin-btn:hover {
+  background: #f58220;
+  color: #ffffff;
+}
+
+/* ===== HERO ===== */
+.holo-hero {
+  padding: 80px 20px 60px;
+  max-width: 1300px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-inner {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 50px;
+  align-items: center;
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff4ec;
+  border: 1px solid #f58220;
+  color: #f58220;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  margin-bottom: 24px;
+  text-transform: uppercase;
+}
+
+.hero-tag .tag-dot {
+  width: 6px;
+  height: 6px;
+  background: #f58220;
   border-radius: 50%;
-  pointer-events: none;
-  z-index: 0;
-  will-change: transform;
-  transform: translateZ(0);
 }
 
-.holo-orb-1 {
-  width: 700px;
-  height: 700px;
-  background: radial-gradient(circle, rgba(0, 100, 200, 0.22) 0%, transparent 70%);
-  top: -200px;
-  left: -150px;
-  animation: orbDrift 18s ease-in-out infinite;
+.hero-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 3.5rem;
+  font-weight: 900;
+  line-height: 1.15;
+  color: #06064d;
+  margin-bottom: 24px;
+  letter-spacing: -1.5px;
 }
 
-.holo-orb-2 {
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(0, 212, 255, 0.12) 0%, transparent 70%);
-  bottom: -150px;
-  right: -150px;
-  animation: orbDrift 14s ease-in-out infinite reverse;
+.gradient-text-ai {
+  color: #f58220;
+  background: none;
+  -webkit-text-fill-color: initial;
 }
 
-.holo-orb-3 {
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 70%);
-  top: 40%;
-  left: 50%;
-  animation: orbDrift 20s ease-in-out infinite;
+.hero-desc {
+  font-size: 1.15rem;
+  color: #475569;
+  line-height: 1.65;
+  margin-bottom: 36px;
+  font-weight: 500;
+}
+
+.holo-cta-btn {
+  background: linear-gradient(135deg, #f58220, #f47a20);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 16px 36px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 6px 20px rgba(245, 130, 32, 0.35);
+  transition: all 0.25s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.holo-cta-btn:hover {
+  background: linear-gradient(135deg, #e57213, #f58220);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(245, 130, 32, 0.5);
+}
+
+.hero-holo-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-top: 4px solid #f58220;
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06);
+}
+
+.panel-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #06064d;
+  letter-spacing: 0.1em;
+}
+
+.panel-live {
+  color: #0caf0c;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.bar-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #334155;
+  width: 100px;
+}
+
+.bar-track {
+  flex: 1;
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: #f58220;
+  border-radius: 4px;
+}
+
+.bar-pct {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #06064d;
+  width: 45px;
+  text-align: right;
 }
 
 @keyframes orbDrift {

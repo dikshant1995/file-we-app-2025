@@ -1,12 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:wght@500;600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap');
 
 :root {
-  /* INCRED FINANCE OFFICIAL BANKING COLOR SYSTEM */
+  /* INCRED FINANCE OFFICIAL LIGHT BANKING COLOR SYSTEM */
   --incred-orange: #F58220;
   --incred-orange-hover: #E57213;
   --incred-orange-bright: #F47A20;
-  --incred-orange-soft: rgba(245, 130, 32, 0.08);
-  --incred-orange-glow: rgba(245, 130, 32, 0.25);
+  --incred-orange-soft: #FFF4EC;
+  --incred-orange-glow: rgba(245, 130, 32, 0.2);
   
   --incred-navy: #06064D;
   --incred-navy-dark: #040430;
@@ -14,10 +14,10 @@
   --incred-blue-bg: #EEF3FA;
   --incred-cream-bg: #FFF4EC;
 
-  /* BANKING LAYOUT BACKGROUNDS */
-  --bg-dark: #0B0F19;
+  /* BANKING LIGHT LAYOUT BACKGROUNDS */
+  --bg-dark: #F8FAFC;
   --bg-surface: #FFFFFF;
-  --bg-body: #F8FAFC;
+  --bg-body: #FAFAFA;
   --bg-card: #FFFFFF;
   --bg-card-muted: #F1F5F9;
 
@@ -26,7 +26,7 @@
   --accent-cyan: #0284C7;
   --accent-purple: #6366F1;
 
-  /* TEXT COLORS */
+  /* TEXT COLORS FOR LIGHT THEME */
   --text-primary: #0F172A;
   --text-header: #06064D;
   --text-body: #334155;
@@ -43,7 +43,7 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
+  color-scheme: light;
   color: var(--text-primary);
   background-color: var(--bg-dark);
 
@@ -53,11 +53,11 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Global InCred Financial Grid Background Texture */
+/* Global InCred Financial Light Grid Texture */
 .professional-grid-bg {
   background-image:
-    linear-gradient(rgba(245, 130, 32, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(245, 130, 32, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(245, 130, 32, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245, 130, 32, 0.04) 1px, transparent 1px);
   background-size: 50px 50px;
 }
 

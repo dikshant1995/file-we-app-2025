@@ -1,19 +1,15 @@
 .customer-facing-app {
   min-height: 100vh;
-  background: var(--bg-void, #030712);
+  background: #f8fafc;
   position: relative;
   overflow-x: hidden;
+  color: #0f172a;
 }
 
 /* ===== FORM PAGE (full page replacement) ===== */
 .form-page {
   min-height: 100vh;
-  /* Static layered background — zero animation = zero scroll repaint */
-  background:
-    radial-gradient(ellipse 80% 50% at 10% 20%, rgba(124, 58, 237, 0.12) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 90% 80%, rgba(6, 182, 212, 0.10) 0%, transparent 55%),
-    radial-gradient(circle, rgba(124, 58, 237, 0.07) 1px, transparent 1px) 0 0 / 40px 40px,
-    #030712;
+  background: linear-gradient(180deg, #fff4ec 0%, #f8fafc 40%, #ffffff 100%);
   position: relative;
   overflow-x: hidden;
   display: flex;
@@ -40,8 +36,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 32px;
-  background: rgba(3, 7, 18, 0.95);
-  border-bottom: 1px solid rgba(124, 58, 237, 0.15);
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -50,31 +47,32 @@
 }
 
 .form-back-btn {
-  background: rgba(124, 58, 237, 0.1);
-  border: 1px solid rgba(124, 58, 237, 0.3);
-  color: #a78bfa;
+  background: #fff4ec;
+  border: 1px solid #f58220;
+  color: #f58220;
   padding: 8px 18px;
   border-radius: 8px;
   font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Montserrat', sans-serif;
 }
 
 .form-back-btn:hover {
-  background: rgba(124, 58, 237, 0.2);
-  border-color: rgba(124, 58, 237, 0.6);
-  color: #c4b5fd;
+  background: #f58220;
+  border-color: #f58220;
+  color: #ffffff;
 }
 
 .form-nav-brand {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-family: 'Space Grotesk', 'Inter', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: #06064d;
 }
 
 .form-nav-status {
@@ -84,24 +82,22 @@
   font-size: 0.8rem;
   color: #64748b;
   letter-spacing: 0.05em;
+  font-weight: 600;
 }
 
 /* ===== AI FORM SECTION ===== */
 .ai-form-section {
   position: relative;
-  padding: 80px 20px 100px;
-  /* No overflow:hidden — keeps GPU layer clean during scroll */
+  padding: 60px 20px 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-
-
 /* Form section header */
 .form-section-header {
   text-align: center;
-  margin-bottom: 48px;
+  margin-bottom: 40px;
   position: relative;
   z-index: 1;
 }
@@ -110,23 +106,25 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(124, 58, 237, 0.1);
-  border: 1px solid rgba(124, 58, 237, 0.3);
-  padding: 6px 16px;
+  background: #fff4ec;
+  border: 1px solid #f58220;
+  padding: 6px 18px;
   border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  color: #a78bfa;
-  margin-bottom: 20px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #f58220;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(245, 130, 32, 0.12);
+  text-transform: uppercase;
 }
 
 .form-section-badge .dot {
-  width: 6px;
-  height: 6px;
-  background: #10b981;
+  width: 7px;
+  height: 7px;
+  background: #0caf0c;
   border-radius: 50%;
-  box-shadow: 0 0 8px #10b981;
+  box-shadow: 0 0 8px #0caf0c;
   animation: pulse 2s ease-in-out infinite;
 }
 
