@@ -227,7 +227,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               src="/incred-model-cutout.png" 
               alt="Laxmi Credit Model Cutout" 
               style={{
-                height: '460px',
+                height: '510px',
                 width: 'auto',
                 objectFit: 'contain'
               }}
