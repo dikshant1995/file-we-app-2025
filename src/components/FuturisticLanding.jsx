@@ -371,12 +371,12 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             color: '#6B7280',
             fontWeight: 400,
             textAlign: 'center',
-            maxWidth: '780px',
+            maxWidth: '820px',
             margin: '0 auto 3.5rem',
             lineHeight: 1.5
           }}
         >
-          With Laxmi Credit personal loan, you can turn your instant needs or long-term dreams into a reality.
+          With Laxmi Credit, instantly discover which bank offers how much loan amount at what exact interest rate across 12+ top banks — with zero credit score impact.
         </motion.p>
 
         {/* 3 Pillars Grid */}
