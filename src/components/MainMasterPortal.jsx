@@ -299,14 +299,14 @@ const MainMasterPortal = ({ onAdminClick }) => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
             style={{
-              fontFamily: "'Inter', 'Mulish', 'Plus Jakarta Sans', sans-serif",
-              fontSize: '3.1rem',
-              fontWeight: 800,
-              color: '#333333',
+              fontFamily: "'Outfit', 'Plus Jakarta Sans', 'Inter', sans-serif",
+              fontSize: '2.7rem',
+              fontWeight: 750,
+              color: '#1E293B',
               textAlign: 'center',
-              lineHeight: 1.2,
+              lineHeight: 1.25,
               marginBottom: '0px',
-              letterSpacing: '-0.8px'
+              letterSpacing: '-0.6px'
             }}
           >
             Why apply blindly when you can compare<br />
