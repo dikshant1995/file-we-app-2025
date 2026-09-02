@@ -476,7 +476,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
           </motion.div>
         </div>
 
-        {/* Description Paragraph 1 */}
+        {/* Description Paragraph */}
         <motion.p 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -489,73 +489,13 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             fontWeight: 400,
             textAlign: 'center',
             maxWidth: '840px',
-            margin: '0 auto 1.5rem',
+            margin: '0 auto 3rem',
             lineHeight: 1.6,
             letterSpacing: '0.3px'
           }}
         >
           Whether it's managing a medical emergency, planning a wedding, or renovating your home, we provide flexible repayment options and competitive personal loan interest rates tailored to your requirements.
         </motion.p>
-
-        {/* Description Paragraph 2 (Matching InCred Screenshot Copy) */}
-        <motion.p 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          style={{
-            fontFamily: "'Mulish', 'Inter', 'Plus Jakarta Sans', sans-serif",
-            fontSize: '1.25rem',
-            color: '#555555',
-            fontWeight: 400,
-            textAlign: 'center',
-            maxWidth: '840px',
-            margin: '0 auto 3rem',
-            lineHeight: 1.6,
-            letterSpacing: '0.3px'
-          }}
-        >
-          Borrowing with Laxmi Credit is convenient and worry-free, with instant personal loan evaluation across 12+ top banks and exceptional customer support. Take the first step today and get one step closer to making your dreams a reality with our wide range of Personal Loans.
-        </motion.p>
-
-        {/* Inline Application Bar (Peach / Orange Pill) */}
-        <div 
-          style={{
-            background: 'linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)',
-            borderRadius: '50px',
-            padding: '10px 28px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            maxWidth: '820px',
-            margin: '0 auto',
-            boxShadow: '0 8px 25px rgba(245, 130, 32, 0.12)',
-            border: '1px solid rgba(245, 130, 32, 0.2)'
-          }}
-        >
-          <span style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.15rem', fontWeight: 800, color: '#1F2937', letterSpacing: '-0.2px' }}>
-            Start your loan application
-          </span>
-          <motion.button
-            onClick={onGetStarted}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            style={{
-              background: 'linear-gradient(135deg, #F58220 0%, #F47A20 100%)',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '50px',
-              padding: '8px 26px',
-              fontSize: '0.98rem',
-              fontWeight: 800,
-              cursor: 'pointer',
-              boxShadow: '0 4px 15px rgba(245, 130, 32, 0.3)',
-              fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif"
-            }}
-          >
-            Apply now
-          </motion.button>
-        </div>
 
         {/* Full-Width InCred-Style Fixed Sliding Sticky Bottom Bar */}
         <AnimatePresence>
