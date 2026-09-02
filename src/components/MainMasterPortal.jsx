@@ -96,11 +96,11 @@ const MainMasterPortal = ({ onAdminClick }) => {
         </header>
 
         {/* Hero Section - 2-Column Layout (Left: Text & Button, Right: Model Image Slot) */}
-        <section className="portal-hero" style={{ padding: '50px 20px 30px', maxWidth: '1280px', margin: '0 auto' }}>
-          <div className="hero-2col-wrapper" style={{ display: 'grid', gridTemplateColumns: '1.25fr 0.75fr', gap: '30px', alignItems: 'center' }}>
+        <section className="portal-hero" style={{ padding: '40px 20px 20px', maxWidth: '1340px', margin: '0 auto' }}>
+          <div className="hero-2col-wrapper" style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '15px', alignItems: 'center' }}>
             
             {/* Left Column: Headline & CTA Button */}
-            <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+            <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', paddingRight: '10px' }}>
               <motion.h1 
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -108,14 +108,14 @@ const MainMasterPortal = ({ onAdminClick }) => {
                 className="hero-title-main"
                 style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", lineHeight: 1.2, marginBottom: '1.8rem', textAlign: 'left' }}
               >
-                <span style={{ display: 'block', fontWeight: 300, fontSize: '2.5rem', color: '#555555', letterSpacing: '-0.5px' }}>
+                <span style={{ display: 'block', fontWeight: 300, fontSize: '2.6rem', color: '#555555', letterSpacing: '-0.5px' }}>
                   Analyze Personal Loan Offers up to
                 </span>
                 <span 
                   style={{ 
                     display: 'block', 
                     fontWeight: 900, 
-                    fontSize: '3.6rem', 
+                    fontSize: '3.8rem', 
                     letterSpacing: '-1.5px', 
                     marginTop: '6px',
                     marginBottom: '6px',
@@ -126,7 +126,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                 >
                   ₹75 lakhs across 12+ Top Banks
                 </span>
-                <span style={{ display: 'block', fontWeight: 300, fontSize: '2.1rem', color: '#555555', letterSpacing: '-0.5px', marginTop: '4px' }}>
+                <span style={{ display: 'block', fontWeight: 300, fontSize: '2.2rem', color: '#555555', letterSpacing: '-0.5px', marginTop: '4px' }}>
                   100% Digital & Instant Processing
                 </span>
               </motion.h1>
@@ -174,7 +174,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
               style={{ 
                 width: '100%', 
                 display: 'flex', 
-                alignItems: 'flex-end', 
+                alignItems: 'center', 
                 justifyContent: 'center',
                 position: 'relative'
               }}
@@ -183,10 +183,11 @@ const MainMasterPortal = ({ onAdminClick }) => {
                 src="/incred-model-cutout.png" 
                 alt="Laxmi Credit Model Cutout" 
                 style={{
-                  maxHeight: '460px',
+                  maxHeight: '540px',
                   width: 'auto',
                   objectFit: 'contain',
-                  filter: 'drop-shadow(0 15px 30px rgba(0, 0, 0, 0.12))'
+                  filter: 'drop-shadow(0 20px 35px rgba(0, 0, 0, 0.12))',
+                  transform: 'scale(1.08)'
                 }}
               />
             </motion.div>
