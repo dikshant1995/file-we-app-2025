@@ -10,6 +10,19 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
   const [feedbackText, setFeedbackText] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const [isStickyCta, setIsStickyCta] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setIsStickyCta(true);
+      } else {
+        setIsStickyCta(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -487,9 +500,21 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
         {/* Floating Application Bar (Peach / Orange Pill) */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          animate={{
+            opacity: 1,
+            scale: 1,
+            position: isStickyCta ? 'fixed' : 'relative',
+            bottom: isStickyCta ? '20px' : 'auto',
+            left: isStickyCta ? '50%' : 'auto',
+            x: isStickyCta ? '-50%' : '0%',
+            width: isStickyCta ? 'calc(100% - 32px)' : '100%',
+            maxWidth: '820px',
+            zIndex: isStickyCta ? 1000 : 1,
+            boxShadow: isStickyCta 
+              ? '0 20px 45px rgba(245, 130, 32, 0.35), 0 0 0 1px rgba(245, 130, 32, 0.3)' 
+              : '0 10px 30px rgba(245, 130, 32, 0.15)'
+          }}
+          transition={{ type: 'spring', stiffness: 300, damping: 26 }}
           style={{
             background: 'linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)',
             borderRadius: '50px',
@@ -497,9 +522,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            maxWidth: '820px',
             margin: '0 auto',
-            boxShadow: '0 10px 30px rgba(245, 130, 32, 0.15)',
             border: '1px solid rgba(245, 130, 32, 0.2)'
           }}
         >
