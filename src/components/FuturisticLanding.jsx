@@ -476,7 +476,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
           </motion.div>
         </div>
 
-        {/* Description Paragraph */}
+        {/* Description Paragraph 1 */}
         <motion.p 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -484,7 +484,28 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
           transition={{ duration: 0.6 }}
           style={{
             fontFamily: "'Mulish', 'Inter', 'Plus Jakarta Sans', sans-serif",
-            fontSize: '1.3rem',
+            fontSize: '1.25rem',
+            color: '#555555',
+            fontWeight: 400,
+            textAlign: 'center',
+            maxWidth: '840px',
+            margin: '0 auto 1.5rem',
+            lineHeight: 1.6,
+            letterSpacing: '0.3px'
+          }}
+        >
+          Whether it's managing a medical emergency, planning a wedding, or renovating your home, we provide flexible repayment options and competitive personal loan interest rates tailored to your requirements.
+        </motion.p>
+
+        {/* Description Paragraph 2 (Matching InCred Screenshot Copy) */}
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          style={{
+            fontFamily: "'Mulish', 'Inter', 'Plus Jakarta Sans', sans-serif",
+            fontSize: '1.25rem',
             color: '#555555',
             fontWeight: 400,
             textAlign: 'center',
@@ -494,27 +515,11 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             letterSpacing: '0.3px'
           }}
         >
-          Whether it's managing a medical emergency, planning a wedding, or renovating your home, we provide flexible repayment options and competitive personal loan interest rates tailored to your requirements.
+          Borrowing with Laxmi Credit is convenient and worry-free, with instant personal loan evaluation across 12+ top banks and exceptional customer support. Take the first step today and get one step closer to making your dreams a reality with our wide range of Personal Loans.
         </motion.p>
 
-        {/* Floating Application Bar (Peach / Orange Pill) */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{
-            opacity: 1,
-            scale: 1,
-            position: isStickyCta ? 'fixed' : 'relative',
-            bottom: isStickyCta ? '20px' : 'auto',
-            left: isStickyCta ? '50%' : 'auto',
-            x: isStickyCta ? '-50%' : '0%',
-            width: isStickyCta ? 'calc(100% - 32px)' : '100%',
-            maxWidth: '820px',
-            zIndex: isStickyCta ? 1000 : 1,
-            boxShadow: isStickyCta 
-              ? '0 20px 45px rgba(245, 130, 32, 0.35), 0 0 0 1px rgba(245, 130, 32, 0.3)' 
-              : '0 10px 30px rgba(245, 130, 32, 0.15)'
-          }}
-          transition={{ type: 'spring', stiffness: 300, damping: 26 }}
+        {/* Inline Application Bar (Peach / Orange Pill) */}
+        <div 
           style={{
             background: 'linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)',
             borderRadius: '50px',
@@ -522,7 +527,9 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
+            maxWidth: '820px',
             margin: '0 auto',
+            boxShadow: '0 10px 30px rgba(245, 130, 32, 0.15)',
             border: '1px solid rgba(245, 130, 32, 0.2)'
           }}
         >
@@ -548,8 +555,67 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
           >
             Apply now
           </motion.button>
-        </motion.div>
+        </div>
 
+        {/* Full-Width InCred-Style Fixed Sliding Sticky Bottom Bar */}
+        <AnimatePresence>
+          {isStickyCta && (
+            <motion.div
+              initial={{ y: '100%', opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: '100%', opacity: 0 }}
+              transition={{ duration: 0.35, ease: 'easeOut' }}
+              style={{
+                position: 'fixed',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                width: '100%',
+                zIndex: 1000,
+                background: 'linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)',
+                padding: '16px 4%',
+                borderTop: '1px solid rgba(245, 130, 32, 0.3)',
+                boxShadow: '0 -10px 35px rgba(245, 130, 32, 0.22)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <div 
+                style={{ 
+                  width: '100%', 
+                  maxWidth: '1100px', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'space-between' 
+                }}
+              >
+                <span style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.4rem', fontWeight: 800, color: '#1F2937', letterSpacing: '-0.3px' }}>
+                  Start your loan application
+                </span>
+                <motion.button
+                  onClick={onGetStarted}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  style={{
+                    background: 'linear-gradient(135deg, #F58220 0%, #F47A20 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '50px',
+                    padding: '12px 38px',
+                    fontSize: '1.1rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    boxShadow: '0 6px 20px rgba(245, 130, 32, 0.35)',
+                    fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif"
+                  }}
+                >
+                  Apply now
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </section>
 
       {/* ===== FEATURES GRID ===== */}
