@@ -167,21 +167,35 @@ const MainMasterPortal = ({ onAdminClick }) => {
               </div>
             </motion.div>
 
-            {/* Right Column: Model Image */}
+            {/* Right Column: Model Image with InCred Soft Backdrop Glow */}
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', position: 'relative' }}
+              style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', position: 'relative', minHeight: '440px' }}
             >
+              {/* InCred Warm Soft Oval Backdrop */}
+              <div 
+                style={{
+                  position: 'absolute',
+                  bottom: '10px',
+                  width: '380px',
+                  height: '380px',
+                  borderRadius: '50%',
+                  background: 'radial-gradient(circle, #FFF4EC 40%, rgba(245, 130, 32, 0.12) 100%)',
+                  zIndex: 0
+                }}
+              />
               <img 
                 src="/incred-model.png" 
                 alt="Laxmi Credit Personal Loan Ambassador" 
                 style={{ 
-                  maxHeight: '460px', 
+                  maxHeight: '480px', 
                   width: 'auto', 
                   objectFit: 'contain',
-                  filter: 'drop-shadow(0 15px 30px rgba(0,0,0,0.1))'
+                  position: 'relative',
+                  zIndex: 1,
+                  filter: 'drop-shadow(0 15px 30px rgba(0,0,0,0.12))'
                 }} 
               />
             </motion.div>
