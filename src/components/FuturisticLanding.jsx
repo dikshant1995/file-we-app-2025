@@ -143,28 +143,29 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
       </header>
 
       {/* ===== HERO ===== */}
-      <section className="holo-hero" style={{ padding: '60px 20px 20px', maxWidth: '1200px', margin: '0 auto' }}>
-        <div className="hero-inner" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', textAlign: 'left' }}>
-          {/* Main Hero Hook */}
-          <motion.div
-            className="hero-text"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            style={{ maxWidth: '1200px' }}
-          >
-            <h1 className="hero-hook-title" style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", lineHeight: 1.2, marginBottom: '2rem', textAlign: 'left' }}>
-              <span style={{ display: 'block', fontWeight: 300, fontSize: '2.8rem', color: '#555555', letterSpacing: '-0.5px' }}>
+      <section className="holo-hero" style={{ padding: '50px 20px 30px', maxWidth: '1280px', margin: '0 auto' }}>
+        <div className="hero-2col-wrapper" style={{ display: 'grid', gridTemplateColumns: '1.25fr 0.75fr', gap: '30px', alignItems: 'center' }}>
+          
+          {/* Left Column: Headline & CTA Button */}
+          <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+            <motion.h1 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="hero-hook-title"
+              style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", lineHeight: 1.2, marginBottom: '1.8rem', textAlign: 'left' }}
+            >
+              <span style={{ display: 'block', fontWeight: 300, fontSize: '2.5rem', color: '#555555', letterSpacing: '-0.5px' }}>
                 Analyze Personal Loan Offers up to
               </span>
               <span 
                 style={{ 
                   display: 'block', 
                   fontWeight: 900, 
-                  fontSize: '4.2rem', 
+                  fontSize: '3.6rem', 
                   letterSpacing: '-1.5px', 
-                  marginTop: '8px',
-                  marginBottom: '8px',
+                  marginTop: '6px',
+                  marginBottom: '6px',
                   background: 'linear-gradient(135deg, #1E40AF 0%, #F58220 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent'
@@ -172,13 +173,13 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               >
                 ₹75 lakhs across 12+ Top Banks
               </span>
-              <span style={{ display: 'block', fontWeight: 300, fontSize: '2.4rem', color: '#555555', letterSpacing: '-0.5px', marginTop: '6px' }}>
+              <span style={{ display: 'block', fontWeight: 300, fontSize: '2.1rem', color: '#555555', letterSpacing: '-0.5px', marginTop: '4px' }}>
                 100% Digital & Instant Processing
               </span>
-            </h1>
+            </motion.h1>
 
             {/* Check loan eligibility button linked to application form page */}
-            <div style={{ marginTop: '1.5rem', marginBottom: '2.5rem', display: 'flex', justifyContent: 'flex-start' }}>
+            <div style={{ marginBottom: '1rem', textAlign: 'left', display: 'flex', justifyContent: 'flex-start' }}>
               <motion.button
                 className="check-eligibility-btn"
                 onClick={onGetStarted}
@@ -197,6 +198,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif"
                 }}
               >
                 <span style={{ fontSize: '1.3rem', fontWeight: 800, letterSpacing: '0.3px' }}>
@@ -207,8 +209,54 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                 </span>
               </motion.button>
             </div>
+          </div>
+
+          {/* Right Column: Model Container Slot */}
+          <motion.div 
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="hero-model-right-slot"
+            style={{ 
+              width: '100%', 
+              minHeight: '360px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              position: 'relative'
+            }}
+          >
+            {/* Ready slot for Model image */}
+            <div 
+              style={{ 
+                width: '100%', 
+                height: '100%', 
+                minHeight: '360px', 
+                borderRadius: '24px', 
+                border: '2px dashed rgba(30, 64, 175, 0.25)', 
+                background: 'linear-gradient(135deg, rgba(255, 244, 236, 0.6) 0%, rgba(238, 243, 250, 0.6) 100%)', 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                padding: '30px',
+                textAlign: 'center'
+              }}
+            >
+              <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px rgba(0,0,0,0.06)', marginBottom: '14px' }}>
+                <UserCircle2 size={38} color="#F58220" />
+              </div>
+              <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: "'Mulish', sans-serif", color: '#1E40AF', marginBottom: '6px' }}>
+                MODEL IMAGE SLOT
+              </span>
+              <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600, maxWidth: '240px', lineHeight: 1.4 }}>
+                Right side container ready for your model photo
+              </span>
+            </div>
           </motion.div>
+
         </div>
+      </section>
 
         {/* ===== MINI PROS FEATURE BANNER (InCred Style) ===== */}
         <motion.div 
@@ -260,7 +308,6 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             </span>
           </div>
         </motion.div>
-      </section>
 
       {/* ===== FEATURES GRID ===== */}
       <section className="holo-features">

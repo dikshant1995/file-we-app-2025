@@ -95,70 +95,122 @@ const MainMasterPortal = ({ onAdminClick }) => {
           </div>
         </header>
 
-        {/* Hero Section */}
-        <section className="portal-hero" style={{ padding: '50px 20px 20px', maxWidth: '1200px', margin: '0 auto', textAlign: 'left' }}>
-          <motion.h1 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="hero-title-main"
-            style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", lineHeight: 1.2, marginBottom: '2rem', textAlign: 'left' }}
-          >
-            <span style={{ display: 'block', fontWeight: 300, fontSize: '2.8rem', color: '#555555', letterSpacing: '-0.5px' }}>
-              Analyze Personal Loan Offers up to
-            </span>
-            <span 
+        {/* Hero Section - 2-Column Layout (Left: Text & Button, Right: Model Image Slot) */}
+        <section className="portal-hero" style={{ padding: '50px 20px 30px', maxWidth: '1280px', margin: '0 auto' }}>
+          <div className="hero-2col-wrapper" style={{ display: 'grid', gridTemplateColumns: '1.25fr 0.75fr', gap: '30px', alignItems: 'center' }}>
+            
+            {/* Left Column: Headline & CTA Button */}
+            <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+              <motion.h1 
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                className="hero-title-main"
+                style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", lineHeight: 1.2, marginBottom: '1.8rem', textAlign: 'left' }}
+              >
+                <span style={{ display: 'block', fontWeight: 300, fontSize: '2.5rem', color: '#555555', letterSpacing: '-0.5px' }}>
+                  Analyze Personal Loan Offers up to
+                </span>
+                <span 
+                  style={{ 
+                    display: 'block', 
+                    fontWeight: 900, 
+                    fontSize: '3.6rem', 
+                    letterSpacing: '-1.5px', 
+                    marginTop: '6px',
+                    marginBottom: '6px',
+                    background: 'linear-gradient(135deg, #1E40AF 0%, #F58220 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
+                  }}
+                >
+                  ₹75 lakhs across 12+ Top Banks
+                </span>
+                <span style={{ display: 'block', fontWeight: 300, fontSize: '2.1rem', color: '#555555', letterSpacing: '-0.5px', marginTop: '4px' }}>
+                  100% Digital & Instant Processing
+                </span>
+              </motion.h1>
+
+              {/* Check Loan Eligibility Button */}
+              <div style={{ marginBottom: '1rem', textAlign: 'left', display: 'flex', justifyContent: 'flex-start' }}>
+                <Link to="/personal-loan" style={{ textDecoration: 'none' }}>
+                  <motion.button
+                    className="check-eligibility-btn"
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    style={{
+                      background: 'linear-gradient(135deg, #F58220 0%, #F47A20 100%)',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '50px',
+                      padding: '16px 48px',
+                      cursor: 'pointer',
+                      boxShadow: '0 10px 28px rgba(245, 130, 32, 0.4)',
+                      textAlign: 'center',
+                      display: 'inline-flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif"
+                    }}
+                  >
+                    <span style={{ fontSize: '1.3rem', fontWeight: 800, letterSpacing: '0.3px' }}>
+                      Check loan eligibility
+                    </span>
+                    <span style={{ fontSize: '0.82rem', fontWeight: 600, opacity: 0.95, marginTop: '2px' }}>
+                      In less than a minute
+                    </span>
+                  </motion.button>
+                </Link>
+              </div>
+            </div>
+
+            {/* Right Column: Model Container Slot */}
+            <motion.div 
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="hero-model-right-slot"
               style={{ 
-                display: 'block', 
-                fontWeight: 900, 
-                fontSize: '4.2rem', 
-                letterSpacing: '-1.5px', 
-                marginTop: '8px',
-                marginBottom: '8px',
-                background: 'linear-gradient(135deg, #1E40AF 0%, #F58220 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent'
+                width: '100%', 
+                minHeight: '360px', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                position: 'relative'
               }}
             >
-              ₹75 lakhs across 12+ Top Banks
-            </span>
-            <span style={{ display: 'block', fontWeight: 300, fontSize: '2.4rem', color: '#555555', letterSpacing: '-0.5px', marginTop: '6px' }}>
-              100% Digital & Instant Processing
-            </span>
-          </motion.h1>
-
-          {/* Check Loan Eligibility Button */}
-          <div style={{ marginBottom: '3rem', textAlign: 'left', display: 'flex', justifyContent: 'flex-start' }}>
-            <Link to="/personal-loan" style={{ textDecoration: 'none' }}>
-              <motion.button
-                className="check-eligibility-btn"
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                style={{
-                  background: 'linear-gradient(135deg, #F58220 0%, #F47A20 100%)',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '50px',
-                  padding: '16px 48px',
-                  cursor: 'pointer',
-                  boxShadow: '0 10px 28px rgba(245, 130, 32, 0.4)',
-                  textAlign: 'center',
-                  display: 'inline-flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
+              {/* Ready slot for Model image */}
+              <div 
+                style={{ 
+                  width: '100%', 
+                  height: '100%', 
+                  minHeight: '360px', 
+                  borderRadius: '24px', 
+                  border: '2px dashed rgba(30, 64, 175, 0.25)', 
+                  background: 'linear-gradient(135deg, rgba(255, 244, 236, 0.6) 0%, rgba(238, 243, 250, 0.6) 100%)', 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'center', 
                   justifyContent: 'center',
-                  fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif"
+                  padding: '30px',
+                  textAlign: 'center'
                 }}
               >
-                <span style={{ fontSize: '1.3rem', fontWeight: 800, letterSpacing: '0.3px' }}>
-                  Check loan eligibility
+                <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px rgba(0,0,0,0.06)', marginBottom: '14px' }}>
+                  <UserCircle2 size={38} color="#F58220" />
+                </div>
+                <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: "'Mulish', sans-serif", color: '#1E40AF', marginBottom: '6px' }}>
+                  MODEL IMAGE SLOT
                 </span>
-                <span style={{ fontSize: '0.82rem', fontWeight: 600, opacity: 0.95, marginTop: '2px' }}>
-                  In less than a minute
+                <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600, maxWidth: '240px', lineHeight: 1.4 }}>
+                  Right side container ready for your model photo
                 </span>
-              </motion.button>
-            </Link>
+              </div>
+            </motion.div>
+
           </div>
+        </section>
 
           {/* ===== MINI PROS FEATURE BANNER (InCred Style) ===== */}
           <motion.div 
@@ -210,7 +262,6 @@ const MainMasterPortal = ({ onAdminClick }) => {
               </span>
             </div>
           </motion.div>
-        </section>
 
         {/* Narrative & Philosophy Section */}
         <motion.div 
