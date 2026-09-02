@@ -388,7 +388,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             letterSpacing: '0.2px'
           }}
         >
-          Discover your max loan amount and lowest interest rate across 12+ top banks in 60 seconds — with zero CIBIL impact.
+          Discover your maximum loan amount and lowest interest rate across 12+ top banks in 60 seconds — with zero CIBIL impact.
         </motion.p>
 
         {/* 3 Pillars Grid */}
