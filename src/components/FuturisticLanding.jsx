@@ -377,15 +377,15 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
           style={{
-            fontFamily: "'Mulish', 'Inter', 'Plus Jakarta Sans', sans-serif",
-            fontSize: '1.25rem',
-            color: '#A0AEC0',
-            fontWeight: 200,
+            fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif",
+            fontSize: '1.2rem',
+            color: '#64748B',
+            fontWeight: 400,
             textAlign: 'center',
-            maxWidth: '840px',
+            maxWidth: '820px',
             margin: '0 auto 3.5rem',
-            lineHeight: 1.5,
-            letterSpacing: '0.3px'
+            lineHeight: 1.6,
+            letterSpacing: '0.1px'
           }}
         >
           Get instant access to pre-approved personal loan offers from 12+ leading banks. Discover your maximum loan amount and lowest interest rate — 100% enquiry-free.
