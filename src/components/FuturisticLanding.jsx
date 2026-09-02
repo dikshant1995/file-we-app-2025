@@ -336,19 +336,40 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
         </motion.div>
 
       {/* ===== VALUE PROPOSITION SECTION (InCred Style) ===== */}
-      <section className="incred-value-props-section" style={{ padding: '50px 20px 60px', maxWidth: '1280px', margin: '0 auto' }}>
+      <section className="incred-value-props-section" style={{ padding: '60px 20px 60px', maxWidth: '1280px', margin: '0 auto' }}>
         
-        {/* Subheading */}
-        <motion.p 
+        {/* Main Heading (InCred Screenshot Style) */}
+        <motion.h2 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
           style={{
             fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif",
+            fontSize: '2.6rem',
+            fontWeight: 800,
+            color: '#1E293B',
+            textAlign: 'center',
+            lineHeight: 1.25,
+            marginBottom: '1.2rem',
+            letterSpacing: '-0.8px'
+          }}
+        >
+          Looking for an enquiry-free<br />
+          personal loan comparison for your needs?
+        </motion.h2>
+
+        {/* Subheading */}
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          style={{
+            fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif",
             fontSize: '1.25rem',
             color: '#64748B',
-            fontWeight: 500,
+            fontWeight: 400,
             textAlign: 'center',
             maxWidth: '820px',
             margin: '0 auto 3.5rem',
