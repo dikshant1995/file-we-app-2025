@@ -331,15 +331,15 @@ const MainMasterPortal = ({ onAdminClick }) => {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
             style={{
-              fontFamily: "'Inter', 'Mulish', 'Plus Jakarta Sans', sans-serif",
+              fontFamily: "'Mulish', 'Inter', 'Plus Jakarta Sans', sans-serif",
               fontSize: '1.25rem',
               color: '#A0AEC0',
-              fontWeight: 300,
+              fontWeight: 200,
               textAlign: 'center',
               maxWidth: '840px',
               margin: '0 auto 3.5rem',
               lineHeight: 1.5,
-              letterSpacing: '0.2px'
+              letterSpacing: '0.3px'
             }}
           >
             Get instant access to pre-approved personal loan offers from 12+ leading banks. Discover your maximum loan amount and lowest interest rate — 100% enquiry-free.
