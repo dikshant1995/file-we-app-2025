@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, ArrowRight, ArrowLeft, ShieldCheck, Zap, Globe, Lock, Instagram, MessageSquare, Send, ChevronDown, Cpu, BarChart3, Fingerprint, Mail, FileText, Building2, FileCheck, Landmark, Scale } from 'lucide-react';
+import { Sparkles, ArrowRight, ArrowLeft, ShieldCheck, Zap, Globe, Lock, Instagram, MessageSquare, Send, ChevronDown, Cpu, BarChart3, Fingerprint, Mail, FileText, Building2, FileCheck, Landmark, Scale, MonitorSmartphone, RefreshCw } from 'lucide-react';
 import './FuturisticLanding.css';
 
 
@@ -334,6 +334,163 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             </span>
           </div>
         </motion.div>
+
+      {/* ===== VALUE PROPOSITION SECTION (InCred Style) ===== */}
+      <section className="incred-value-props-section" style={{ padding: '50px 20px 60px', maxWidth: '1280px', margin: '0 auto' }}>
+        
+        {/* Subheading */}
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          style={{
+            fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif",
+            fontSize: '1.25rem',
+            color: '#64748B',
+            fontWeight: 500,
+            textAlign: 'center',
+            maxWidth: '820px',
+            margin: '0 auto 3.5rem',
+            lineHeight: 1.6
+          }}
+        >
+          With Laxmi Credit personal loan, you can turn your instant needs or long-term dreams into a reality.
+        </motion.p>
+
+        {/* 3 Pillars Grid */}
+        <div 
+          style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(3, 1fr)', 
+            gap: '40px', 
+            maxWidth: '1100px', 
+            margin: '0 auto 3.5rem',
+            textAlign: 'center'
+          }}
+        >
+          {/* Pillar 1 */}
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+          >
+            <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 10px 25px rgba(37, 99, 235, 0.1)' }}>
+              <MonitorSmartphone size={40} color="#2563EB" strokeWidth={1.8} />
+            </div>
+            <h4 style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.35rem', fontWeight: 800, color: '#0F172A', marginBottom: '4px' }}>
+              Seamless Digital
+            </h4>
+            <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.1rem', color: '#94A3B8', fontWeight: 500 }}>
+              Journey
+            </p>
+          </motion.div>
+
+          {/* Pillar 2 */}
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+          >
+            <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 10px 25px rgba(37, 99, 235, 0.1)' }}>
+              <RefreshCw size={40} color="#2563EB" strokeWidth={1.8} />
+            </div>
+            <h4 style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.35rem', fontWeight: 800, color: '#0F172A', marginBottom: '4px' }}>
+              Quick access
+            </h4>
+            <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.1rem', color: '#94A3B8', fontWeight: 500 }}>
+              to funds
+            </p>
+          </motion.div>
+
+          {/* Pillar 3 */}
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+          >
+            <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 10px 25px rgba(37, 99, 235, 0.1)' }}>
+              <FileText size={40} color="#2563EB" strokeWidth={1.8} />
+            </div>
+            <h4 style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.35rem', fontWeight: 800, color: '#0F172A', marginBottom: '4px' }}>
+              Minimal
+            </h4>
+            <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.1rem', color: '#94A3B8', fontWeight: 500 }}>
+              paperwork
+            </p>
+          </motion.div>
+        </div>
+
+        {/* Description Paragraph */}
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          style={{
+            fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif",
+            fontSize: '1.15rem',
+            color: '#475569',
+            fontWeight: 400,
+            textAlign: 'center',
+            maxWidth: '860px',
+            margin: '0 auto 3rem',
+            lineHeight: 1.7
+          }}
+        >
+          Whether it's managing a medical emergency, planning a wedding, or renovating your home, we provide flexible repayment options and competitive personal loan interest rates tailored to your requirements.
+        </motion.p>
+
+        {/* Floating Application Bar (Peach / Orange Pill) */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          style={{
+            background: 'linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)',
+            borderRadius: '50px',
+            padding: '16px 36px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            maxWidth: '820px',
+            margin: '0 auto',
+            boxShadow: '0 10px 30px rgba(245, 130, 32, 0.15)',
+            border: '1px solid rgba(245, 130, 32, 0.2)'
+          }}
+        >
+          <span style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.35rem', fontWeight: 800, color: '#1E293B', letterSpacing: '-0.3px' }}>
+            Start your loan application
+          </span>
+          <motion.button
+            onClick={onGetStarted}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            style={{
+              background: 'linear-gradient(135deg, #F58220 0%, #F47A20 100%)',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '50px',
+              padding: '12px 36px',
+              fontSize: '1.1rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              boxShadow: '0 6px 20px rgba(245, 130, 32, 0.35)',
+              fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif"
+            }}
+          >
+            Apply now
+          </motion.button>
+        </motion.div>
+
+      </section>
 
       {/* ===== FEATURES GRID ===== */}
       <section className="holo-features">
