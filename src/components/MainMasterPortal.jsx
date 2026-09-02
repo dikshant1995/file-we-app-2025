@@ -96,90 +96,68 @@ const MainMasterPortal = ({ onAdminClick }) => {
         </header>
 
         {/* Hero Section */}
-        <section className="portal-hero" style={{ padding: '40px 20px 0px', maxWidth: '1240px', margin: '0 auto', position: 'relative' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: '20px', alignItems: 'flex-end' }}>
-            {/* Left Column: Text & CTA */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-              style={{ textAlign: 'left', paddingBottom: '30px' }}
-            >
-              <h1 className="hero-hook-title" style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", margin: 0 }}>
-                <span style={{ display: 'block', fontWeight: 400, fontSize: '2.8rem', color: '#525252', lineHeight: 1.18, letterSpacing: '-0.5px' }}>
-                  Apply for Instant
-                </span>
-                <span style={{ display: 'block', fontWeight: 400, fontSize: '2.8rem', color: '#525252', lineHeight: 1.18, letterSpacing: '-0.5px' }}>
-                  Personal Loan upto
-                </span>
-                <span style={{ display: 'block', fontWeight: 900, fontSize: '4.2rem', color: '#1D4ED8', lineHeight: 1.1, marginTop: '8px', letterSpacing: '-1.5px' }}>
-                  <span style={{ color: '#1D4ED8' }}>₹75 lakhs</span>
-                </span>
-              </h1>
-
-              <p style={{ fontSize: '1.15rem', color: '#475569', fontWeight: 600, fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", margin: '1.2rem 0 2rem', maxWidth: '540px' }}>
-                Compare exact rates, tenure & FOIR policy approvals across 12+ leading Indian banks in milliseconds. 100% Digital & Instant.
-              </p>
-
-              {/* Check Loan Eligibility Button */}
-              <div>
-                <Link to="/personal-loan" style={{ textDecoration: 'none' }}>
-                  <motion.button
-                    className="check-eligibility-btn"
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    style={{
-                      background: 'linear-gradient(135deg, #F58220 0%, #F47A20 100%)',
-                      color: '#ffffff',
-                      border: 'none',
-                      borderRadius: '50px',
-                      padding: '16px 48px',
-                      cursor: 'pointer',
-                      boxShadow: '0 10px 28px rgba(245, 130, 32, 0.4)',
-                      textAlign: 'center',
-                      display: 'inline-flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif"
-                    }}
-                  >
-                    <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '0.3px' }}>
-                      Check loan eligibility
-                    </span>
-                    <span style={{ fontSize: '0.82rem', fontWeight: 600, opacity: 0.95, marginTop: '2px' }}>
-                      In less than a minute
-                    </span>
-                  </motion.button>
-                </Link>
-              </div>
-            </motion.div>
-
-            {/* Right Column: Model Image Overlapping Blue Banner */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+        <section className="portal-hero" style={{ padding: '50px 20px 20px', maxWidth: '1200px', margin: '0 auto', textAlign: 'left' }}>
+          <motion.h1 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="hero-title-main"
+            style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", lineHeight: 1.2, marginBottom: '2rem', textAlign: 'left' }}
+          >
+            <span style={{ display: 'block', fontWeight: 300, fontSize: '2.8rem', color: '#555555', letterSpacing: '-0.5px' }}>
+              Analyze Personal Loan Offers up to
+            </span>
+            <span 
               style={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                alignItems: 'flex-end', 
-                position: 'relative', 
-                marginBottom: '-40px',
-                zIndex: 10 
+                display: 'block', 
+                fontWeight: 900, 
+                fontSize: '4.2rem', 
+                letterSpacing: '-1.5px', 
+                marginTop: '8px',
+                marginBottom: '8px',
+                background: 'linear-gradient(135deg, #1E40AF 0%, #F58220 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
               }}
             >
-              <img 
-                src="/incred-model.png" 
-                alt="Laxmi Credit Personal Loan Ambassador" 
-                style={{ 
-                  maxHeight: '520px', 
-                  width: 'auto', 
-                  objectFit: 'contain',
-                  filter: 'drop-shadow(0 15px 30px rgba(0,0,0,0.12))'
-                }} 
-              />
-            </motion.div>
+              ₹75 lakhs across 12+ Top Banks
+            </span>
+            <span style={{ display: 'block', fontWeight: 300, fontSize: '2.4rem', color: '#555555', letterSpacing: '-0.5px', marginTop: '6px' }}>
+              100% Digital & Instant Processing
+            </span>
+          </motion.h1>
+
+          {/* Check Loan Eligibility Button */}
+          <div style={{ marginBottom: '3rem', textAlign: 'left', display: 'flex', justifyContent: 'flex-start' }}>
+            <Link to="/personal-loan" style={{ textDecoration: 'none' }}>
+              <motion.button
+                className="check-eligibility-btn"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                style={{
+                  background: 'linear-gradient(135deg, #F58220 0%, #F47A20 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '50px',
+                  padding: '16px 48px',
+                  cursor: 'pointer',
+                  boxShadow: '0 10px 28px rgba(245, 130, 32, 0.4)',
+                  textAlign: 'center',
+                  display: 'inline-flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif"
+                }}
+              >
+                <span style={{ fontSize: '1.3rem', fontWeight: 800, letterSpacing: '0.3px' }}>
+                  Check loan eligibility
+                </span>
+                <span style={{ fontSize: '0.82rem', fontWeight: 600, opacity: 0.95, marginTop: '2px' }}>
+                  In less than a minute
+                </span>
+              </motion.button>
+            </Link>
           </div>
 
           {/* ===== MINI PROS FEATURE BANNER (InCred Style) ===== */}
@@ -197,10 +175,8 @@ const MainMasterPortal = ({ onAdminClick }) => {
               gridTemplateColumns: 'repeat(3, 1fr)',
               gap: '30px',
               alignItems: 'center',
-              maxWidth: '1200px',
-              margin: '0 auto 3rem',
-              position: 'relative',
-              zIndex: 1,
+              maxWidth: '1100px',
+              margin: '1rem auto 3rem',
               boxShadow: '0 12px 35px rgba(32, 85, 150, 0.25)'
             }}
           >
