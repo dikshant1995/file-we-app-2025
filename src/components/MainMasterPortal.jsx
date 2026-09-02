@@ -196,17 +196,16 @@ const MainMasterPortal = ({ onAdminClick }) => {
           </div>
         </section>
 
-          {/* ===== MINI PROS FEATURE BANNER (InCred Style) ===== */}
+          {/* ===== MINI PROS FEATURE BANNER (White-Blue-Orange Gradient) ===== */}
           <motion.div 
             className="incred-mini-pros-banner"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
             style={{
-              background: 'linear-gradient(135deg, #1E40AF 0%, #2563EB 50%, #F58220 100%)',
+              background: 'linear-gradient(135deg, #FFFFFF 0%, #1E40AF 40%, #2563EB 70%, #F58220 100%)',
               borderRadius: '24px',
               padding: '36px 40px',
-              color: '#ffffff',
               display: 'grid',
               gridTemplateColumns: 'repeat(3, 1fr)',
               gap: '30px',
@@ -214,9 +213,10 @@ const MainMasterPortal = ({ onAdminClick }) => {
               maxWidth: '1280px',
               width: '100%',
               margin: '0 auto 3rem',
-              boxShadow: '0 16px 36px rgba(30, 64, 175, 0.28)',
+              boxShadow: '0 16px 36px rgba(30, 64, 175, 0.22)',
               position: 'relative',
-              zIndex: 2
+              zIndex: 2,
+              border: '1px solid rgba(255, 255, 255, 0.8)'
             }}
           >
             {/* Pro 1: Enquiry Less Loan */}
@@ -226,18 +226,16 @@ const MainMasterPortal = ({ onAdminClick }) => {
                   width: '64px', 
                   height: '64px', 
                   borderRadius: '18px', 
-                  background: 'rgba(255, 255, 255, 0.18)', 
+                  background: 'linear-gradient(135deg, #1E40AF 0%, #2563EB 100%)', 
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center', 
-                  backdropFilter: 'blur(10px)',
-                  boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.4), 0 8px 16px rgba(0, 0, 0, 0.12)',
-                  border: '1px solid rgba(255, 255, 255, 0.25)'
+                  boxShadow: '0 8px 18px rgba(30, 64, 175, 0.25)'
                 }}
               >
                 <FileCheck size={32} color="#ffffff" strokeWidth={2.2} />
               </div>
-              <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", color: '#ffffff', lineHeight: 1.3 }}>
+              <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", color: '#1E293B', lineHeight: 1.3 }}>
                 Enquiry Less Loan
               </span>
             </div>
