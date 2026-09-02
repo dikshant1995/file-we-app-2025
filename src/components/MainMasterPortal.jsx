@@ -476,17 +476,17 @@ const MainMasterPortal = ({ onAdminClick }) => {
             style={{
               background: 'linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)',
               borderRadius: '50px',
-              padding: '16px 36px',
+              padding: '10px 28px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               maxWidth: '820px',
               margin: '0 auto',
-              boxShadow: '0 10px 30px rgba(245, 130, 32, 0.15)',
+              boxShadow: '0 8px 25px rgba(245, 130, 32, 0.12)',
               border: '1px solid rgba(245, 130, 32, 0.2)'
             }}
           >
-            <span style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.3rem', fontWeight: 800, color: '#1F2937', letterSpacing: '-0.3px' }}>
+            <span style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.15rem', fontWeight: 800, color: '#1F2937', letterSpacing: '-0.2px' }}>
               Start your loan application
             </span>
             <Link to="/personal-loan" style={{ textDecoration: 'none' }}>
@@ -498,11 +498,11 @@ const MainMasterPortal = ({ onAdminClick }) => {
                   color: '#ffffff',
                   border: 'none',
                   borderRadius: '50px',
-                  padding: '12px 36px',
-                  fontSize: '1.05rem',
+                  padding: '8px 26px',
+                  fontSize: '0.98rem',
                   fontWeight: 800,
                   cursor: 'pointer',
-                  boxShadow: '0 6px 20px rgba(245, 130, 32, 0.35)',
+                  boxShadow: '0 4px 15px rgba(245, 130, 32, 0.3)',
                   fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif"
                 }}
               >
@@ -529,9 +529,9 @@ const MainMasterPortal = ({ onAdminClick }) => {
                 width: '100%',
                 zIndex: 1000,
                 background: 'linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)',
-                padding: '16px 4%',
+                padding: '8px 4%',
                 borderTop: '1px solid rgba(245, 130, 32, 0.3)',
-                boxShadow: '0 -10px 35px rgba(245, 130, 32, 0.22)',
+                boxShadow: '0 -6px 25px rgba(245, 130, 32, 0.18)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
@@ -546,7 +546,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                   justifyContent: 'space-between' 
                 }}
               >
-                <span style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.4rem', fontWeight: 800, color: '#1F2937', letterSpacing: '-0.3px' }}>
+                <span style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.2rem', fontWeight: 800, color: '#1F2937', letterSpacing: '-0.2px' }}>
                   Start your loan application
                 </span>
                 <Link to="/personal-loan" style={{ textDecoration: 'none' }}>
@@ -558,11 +558,11 @@ const MainMasterPortal = ({ onAdminClick }) => {
                       color: '#ffffff',
                       border: 'none',
                       borderRadius: '50px',
-                      padding: '12px 38px',
-                      fontSize: '1.1rem',
+                      padding: '8px 28px',
+                      fontSize: '1.0rem',
                       fontWeight: 800,
                       cursor: 'pointer',
-                      boxShadow: '0 6px 20px rgba(245, 130, 32, 0.35)',
+                      boxShadow: '0 4px 15px rgba(245, 130, 32, 0.3)',
                       fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif"
                     }}
                   >
