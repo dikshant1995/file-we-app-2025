@@ -202,9 +202,10 @@ function CustomerFacingApp() {
             <button className="form-back-btn" onClick={() => { setShowForm(false); setResults(null); navigate('/'); window.scrollTo({ top: 0 }); }}>
               ← Back to Home
             </button>
-            <div className="form-nav-brand">
-              <span style={{ color: '#06064D', fontWeight: 900, fontFamily: 'Montserrat, sans-serif' }}>LAXMI</span>
-              <span style={{ color: '#F58220', fontWeight: 900, fontFamily: 'Montserrat, sans-serif' }}>CREDIT</span>
+            <div className="form-nav-brand" style={{ cursor: 'pointer' }} onClick={() => { navigate('/'); window.scrollTo({ top: 0 }); }}>
+              <span style={{ fontSize: '1.4rem', fontWeight: 900, fontStyle: 'italic', fontFamily: "'Montserrat', sans-serif", color: '#06064D', letterSpacing: '-0.8px' }}>
+                LAXMI <span style={{ color: '#F58220', fontWeight: 900, fontStyle: 'italic' }}>CREDIT</span>
+              </span>
             </div>
             <div className="form-nav-status">
               <span className="dot"></span> 12+ Bank Engine Active

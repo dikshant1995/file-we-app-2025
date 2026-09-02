@@ -52,8 +52,8 @@ const MainMasterPortal = ({ onAdminClick }) => {
         <header className="portal-header-wrapper">
           <div className="portal-header">
             <div className="portal-logo" style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
-              <span style={{ fontSize: '1.6rem', fontWeight: 900, fontFamily: 'Montserrat, sans-serif', color: '#06064D', letterSpacing: '-0.5px' }}>
-                LAXMI <span style={{ color: '#F58220' }}>CREDIT</span>
+              <span style={{ fontSize: '1.75rem', fontWeight: 900, fontStyle: 'italic', fontFamily: "'Montserrat', sans-serif", color: '#06064D', letterSpacing: '-0.8px' }}>
+                LAXMI <span style={{ color: '#F58220', fontWeight: 900, fontStyle: 'italic' }}>CREDIT</span>
               </span>
             </div>
             <div className="portal-nav-actions">
