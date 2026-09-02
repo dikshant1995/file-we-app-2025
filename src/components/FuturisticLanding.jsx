@@ -146,10 +146,22 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               <span style={{ display: 'block', fontWeight: 300, fontSize: '2.8rem', color: '#555555', letterSpacing: '-0.5px' }}>
                 Analyze Personal Loan Offers up to
               </span>
-              <span style={{ display: 'block', fontWeight: 900, fontSize: '4rem', color: '#1E40AF', letterSpacing: '-1.5px', marginTop: '6px' }}>
-                <span style={{ color: '#F58220' }}>₹75 lakhs</span> across <span style={{ color: '#F58220' }}>12+</span> Top Banks
+              <span 
+                style={{ 
+                  display: 'block', 
+                  fontWeight: 900, 
+                  fontSize: '4.2rem', 
+                  letterSpacing: '-1.5px', 
+                  marginTop: '8px',
+                  marginBottom: '8px',
+                  background: 'linear-gradient(135deg, #1E40AF 0%, #F58220 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
+                }}
+              >
+                ₹75 lakhs across 12+ Top Banks
               </span>
-              <span style={{ display: 'block', fontWeight: 600, fontSize: '1.2rem', color: '#475569', marginTop: '12px' }}>
+              <span style={{ display: 'block', fontWeight: 300, fontSize: '2.4rem', color: '#555555', letterSpacing: '-0.5px', marginTop: '6px' }}>
                 100% Digital & Instant Processing
               </span>
             </h1>
