@@ -144,10 +144,10 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
 
       {/* ===== HERO ===== */}
       <section className="holo-hero" style={{ padding: '30px 20px 20px', maxWidth: '1280px', margin: '0 auto' }}>
-        <div className="hero-2col-wrapper" style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '30px', alignItems: 'center' }}>
+        <div className="hero-2col-wrapper" style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '0px', alignItems: 'center' }}>
           
           {/* Left Column: Headline & CTA Button */}
-          <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+          <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', paddingRight: '0px' }}>
             <motion.h1 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -211,7 +211,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             </div>
           </div>
 
-          {/* Right Column: Model Cutout */}
+          {/* Right Column: Model Cutout (Tight Gap & Enlarged Model) */}
           <motion.div 
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
@@ -220,15 +220,16 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             style={{ 
               display: 'flex', 
               alignItems: 'center', 
-              justifyContent: 'center',
-              width: '100%'
+              justifyContent: 'flex-start',
+              width: '100%',
+              marginLeft: '-15px'
             }}
           >
             <img 
               src="/incred-model-cutout.png" 
               alt="Laxmi Credit Model Cutout" 
               style={{
-                maxHeight: '480px',
+                maxHeight: '550px',
                 maxWidth: '100%',
                 width: 'auto',
                 objectFit: 'contain'
