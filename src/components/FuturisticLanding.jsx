@@ -355,8 +355,8 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             letterSpacing: '-0.5px'
           }}
         >
-          Looking for an enquiry-free<br />
-          personal loan comparison for your needs?
+          Why apply blindly when you can compare<br />
+          exact bank offers in 60 seconds?
         </motion.h2>
 
         {/* Orange Accent Line Under Heading (as in InCred screenshot) */}
@@ -382,13 +382,13 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             color: '#A0AEC0',
             fontWeight: 300,
             textAlign: 'center',
-            maxWidth: '820px',
+            maxWidth: '840px',
             margin: '0 auto 3.5rem',
             lineHeight: 1.5,
             letterSpacing: '0.2px'
           }}
         >
-          With Laxmi Credit, instantly discover which bank offers how much loan amount at what exact interest rate across 12+ top banks — with zero credit score impact.
+          Unlock real-time eligibility across 12+ leading lenders. See who approves how much capital at what exact ROI — with zero bureau impact.
         </motion.p>
 
         {/* 3 Pillars Grid */}
