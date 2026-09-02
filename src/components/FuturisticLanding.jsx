@@ -143,28 +143,28 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
       </header>
 
       {/* ===== HERO ===== */}
-      <section className="holo-hero" style={{ padding: '60px 20px 20px', maxWidth: '1200px', margin: '0 auto' }}>
-        <div className="hero-inner" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-          {/* Main Hero Hook */}
+      <section className="holo-hero" style={{ padding: '40px 20px 20px', maxWidth: '1200px', margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '30px', alignItems: 'center' }}>
+          {/* Left Column: Text & CTA */}
           <motion.div
             className="hero-text"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            style={{ maxWidth: '1050px' }}
+            style={{ textAlign: 'left' }}
           >
-            <h1 className="hero-hook-title" style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", lineHeight: 1.2, marginBottom: '1.5rem', textAlign: 'center' }}>
-              <span style={{ display: 'block', fontWeight: 300, fontSize: '2.8rem', color: '#555555', letterSpacing: '-0.5px' }}>
+            <h1 className="hero-hook-title" style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", lineHeight: 1.2, marginBottom: '1.2rem' }}>
+              <span style={{ display: 'block', fontWeight: 300, fontSize: '2.6rem', color: '#555555', letterSpacing: '-0.5px' }}>
                 Analyze Personal Loan Offers up to
               </span>
               <span 
                 style={{ 
                   display: 'block', 
                   fontWeight: 900, 
-                  fontSize: '4.2rem', 
+                  fontSize: '3.6rem', 
                   letterSpacing: '-1.5px', 
-                  marginTop: '8px',
-                  marginBottom: '8px',
+                  marginTop: '6px',
+                  marginBottom: '6px',
                   background: 'linear-gradient(135deg, #1E40AF 0%, #F58220 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent'
@@ -172,17 +172,17 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               >
                 ₹75 lakhs across 12+ Top Banks
               </span>
-              <span style={{ display: 'block', fontWeight: 300, fontSize: '2.4rem', color: '#555555', letterSpacing: '-0.5px', marginTop: '6px' }}>
+              <span style={{ display: 'block', fontWeight: 300, fontSize: '2.2rem', color: '#555555', letterSpacing: '-0.5px', marginTop: '4px' }}>
                 100% Digital & Instant Processing
               </span>
             </h1>
 
-            <p style={{ fontSize: '1.15rem', color: '#475569', fontWeight: 600, fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", margin: '1rem auto 2.5rem', maxWidth: '650px' }}>
+            <p style={{ fontSize: '1.1rem', color: '#475569', fontWeight: 500, margin: '1rem 0 2rem', maxWidth: '580px' }}>
               Compare exact rates, tenure & FOIR policy approvals across 12+ leading Indian banks in milliseconds. Zero credit impact.
             </p>
 
             {/* Check loan eligibility button linked to application form page */}
-            <div style={{ marginTop: '1.5rem', marginBottom: '2.5rem' }}>
+            <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
               <motion.button
                 className="check-eligibility-btn"
                 onClick={onGetStarted}
@@ -201,6 +201,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif"
                 }}
               >
                 <span style={{ fontSize: '1.3rem', fontWeight: 800, letterSpacing: '0.3px' }}>
@@ -211,6 +212,25 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                 </span>
               </motion.button>
             </div>
+          </motion.div>
+
+          {/* Right Column: Model Image */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', position: 'relative' }}
+          >
+            <img 
+              src="/incred-model.png" 
+              alt="Laxmi Credit Personal Loan Ambassador" 
+              style={{ 
+                maxHeight: '460px', 
+                width: 'auto', 
+                objectFit: 'contain',
+                filter: 'drop-shadow(0 15px 30px rgba(0,0,0,0.1))'
+              }} 
+            />
           </motion.div>
         </div>
 
