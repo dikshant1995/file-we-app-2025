@@ -53,8 +53,8 @@ const MainMasterPortal = ({ onAdminClick }) => {
           <div className="portal-header">
             <div className="portal-logo" style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
               <span style={{ fontSize: '1.85rem', fontFamily: "'Montserrat', sans-serif", letterSpacing: '-0.8px', display: 'inline-flex', alignItems: 'center' }}>
-                <span style={{ color: '#F58220', fontWeight: 900, fontStyle: 'italic' }}>Laxmi!</span>
-                <span style={{ color: '#06064D', fontWeight: 700, fontStyle: 'italic', marginLeft: '4px' }}>credit</span>
+                <span style={{ color: '#F58220', fontWeight: 900, fontStyle: 'italic' }}>Laxmi</span>
+                <span style={{ color: '#1E40AF', fontWeight: 800, fontStyle: 'italic', marginLeft: '4px' }}>credit</span>
               </span>
             </div>
             <div className="portal-nav-actions">
@@ -85,17 +85,15 @@ const MainMasterPortal = ({ onAdminClick }) => {
         </header>
 
         {/* Hero Section */}
-        <section className="portal-hero" style={{ padding: '50px 20px 20px', maxWidth: '1000px', margin: '0 auto', textAlign: 'center' }}>
+        <section className="portal-hero" style={{ padding: '50px 20px 20px', maxWidth: '1050px', margin: '0 auto', textAlign: 'center' }}>
           <motion.h1 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             className="hero-title-main"
-            style={{ fontSize: '3.5rem', fontWeight: 900, fontFamily: 'Montserrat, sans-serif', color: '#06064D', lineHeight: 1.15, marginBottom: '1rem' }}
+            style={{ fontSize: '3.2rem', fontWeight: 900, fontFamily: 'Montserrat, sans-serif', color: '#1E40AF', lineHeight: 1.25, marginBottom: '1rem' }}
           >
-            Apply for Instant <br />
-            Personal Loan upto <br />
-            <span style={{ color: '#06064D', fontWeight: 900 }}>₹15 lakhs</span>
+            Analyze Personal Loan Offers up to <span style={{ color: '#F58220' }}>₹75 Lakhs</span> across <span style={{ color: '#F58220' }}>12+</span> Top Banks — 100% Digital & Instant.
           </motion.h1>
 
           <motion.p 

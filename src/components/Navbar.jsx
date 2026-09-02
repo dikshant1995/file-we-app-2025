@@ -10,8 +10,8 @@ const Navbar = ({ onAdminClick }) => {
                 <div className="nav-left">
                     <Link to="/" className="nav-brand" style={{ textDecoration: 'none' }}>
                         <span style={{ fontSize: '1.75rem', fontFamily: "'Montserrat', sans-serif", letterSpacing: '-0.8px', display: 'inline-flex', alignItems: 'center' }}>
-                            <span style={{ color: '#F58220', fontWeight: 900, fontStyle: 'italic' }}>Laxmi!</span>
-                            <span style={{ color: '#06064D', fontWeight: 700, fontStyle: 'italic', marginLeft: '4px' }}>credit</span>
+                            <span style={{ color: '#F58220', fontWeight: 900, fontStyle: 'italic' }}>Laxmi</span>
+                            <span style={{ color: '#1E40AF', fontWeight: 800, fontStyle: 'italic', marginLeft: '4px' }}>credit</span>
                         </span>
                     </Link>
                 </div>
