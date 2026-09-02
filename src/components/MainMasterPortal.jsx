@@ -52,7 +52,6 @@ const MainMasterPortal = ({ onAdminClick }) => {
         <header className="portal-header-wrapper">
           <div className="portal-header">
             <div className="portal-logo" style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
-              <Cpu size={28} color="#F58220" />
               <span style={{ fontSize: '1.6rem', fontWeight: 900, fontFamily: 'Montserrat, sans-serif', color: '#06064D', letterSpacing: '-0.5px' }}>
                 LAXMI <span style={{ color: '#F58220' }}>CREDIT</span>
               </span>
