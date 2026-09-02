@@ -155,15 +155,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               className="hero-hook-title"
               style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", lineHeight: 1.22, marginBottom: '1.2rem', textAlign: 'left' }}
             >
-              <span style={{ 
-                display: 'block', 
-                fontWeight: 800, 
-                fontSize: '2.2rem', 
-                letterSpacing: '-0.4px',
-                background: 'linear-gradient(135deg, #1E40AF 0%, #2563EB 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent'
-              }}>
+              <span style={{ display: 'block', fontWeight: 300, fontSize: '2.2rem', color: '#555555', letterSpacing: '-0.4px' }}>
                 Analyze Personal Loan Offers up to
               </span>
               <span 
@@ -387,13 +379,13 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
           style={{
             fontFamily: "'Inter', 'Mulish', 'Plus Jakarta Sans', sans-serif",
             fontSize: '1.25rem',
-            color: '#A0AEC0',
-            fontWeight: 300,
+            color: '#475569',
+            fontWeight: 500,
             textAlign: 'center',
             maxWidth: '820px',
             margin: '0 auto 3.5rem',
-            lineHeight: 1.5,
-            letterSpacing: '0.2px'
+            lineHeight: 1.6,
+            letterSpacing: '0.1px'
           }}
         >
           Discover your maximum loan amount and lowest interest rate across 12+ top banks in 60 seconds — with zero CIBIL impact.
