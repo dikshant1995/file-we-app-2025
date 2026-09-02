@@ -143,17 +143,17 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
       </header>
 
       {/* ===== HERO ===== */}
-      <section className="holo-hero" style={{ padding: '30px 20px 0px', maxWidth: '1280px', margin: '0 auto' }}>
+      <section className="holo-hero" style={{ padding: '10px 20px 0px', maxWidth: '1280px', margin: '0 auto' }}>
         <div className="hero-2col-wrapper" style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '30px', alignItems: 'flex-end' }}>
           
           {/* Left Column: Headline & CTA Button */}
-          <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', paddingBottom: '20px' }}>
+          <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', paddingBottom: '40px' }}>
             <motion.h1 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               className="hero-hook-title"
-              style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", lineHeight: 1.22, marginBottom: '1.8rem', textAlign: 'left' }}
+              style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", lineHeight: 1.22, marginBottom: '1.2rem', textAlign: 'left' }}
             >
               <span style={{ display: 'block', fontWeight: 300, fontSize: '2.2rem', color: '#555555', letterSpacing: '-0.4px' }}>
                 Analyze Personal Loan Offers up to
