@@ -249,7 +249,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3 }}
           style={{
-            background: 'linear-gradient(135deg, #4A7BB0 0%, #205596 100%)',
+            background: 'linear-gradient(135deg, #1E3A8A 0%, #1E40AF 45%, #2563EB 100%)',
             borderRadius: '24px',
             padding: '36px 40px',
             color: '#ffffff',
@@ -260,7 +260,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             maxWidth: '1280px',
             width: '100%',
             margin: '0 auto 3rem',
-            boxShadow: '0 12px 35px rgba(32, 85, 150, 0.25)',
+            boxShadow: '0 16px 36px rgba(30, 64, 175, 0.28)',
             position: 'relative',
             zIndex: 2
           }}
