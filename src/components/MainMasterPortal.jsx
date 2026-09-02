@@ -48,37 +48,39 @@ const MainMasterPortal = ({ onAdminClick }) => {
       <div className="portal-grid" />
 
       <div className="portal-content">
-        {/* Header */}
-        <header className="portal-header">
-          <div className="portal-logo" style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
-            <Cpu size={28} color="#F58220" />
-            <span style={{ fontSize: '1.6rem', fontWeight: 900, fontFamily: 'Montserrat, sans-serif', color: '#06064D', letterSpacing: '-0.5px' }}>
-              LAXMI <span style={{ color: '#F58220' }}>CREDIT</span>
-            </span>
-          </div>
-          <div className="portal-nav-actions">
-            <button
-              className="nav-admin-btn"
-              onClick={onAdminClick}
-              style={{
-                background: '#F58220',
-                border: 'none',
-                color: '#ffffff',
-                padding: '9px 20px',
-                borderRadius: '8px',
-                fontSize: '0.82rem',
-                fontWeight: 800,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                fontFamily: 'Montserrat, sans-serif',
-                boxShadow: '0 4px 14px rgba(245, 130, 32, 0.35)'
-              }}
-            >
-              <Lock size={14} />
-              <span>ADMIN</span>
-            </button>
+        {/* Header - InCred Elevated Sticky Header */}
+        <header className="portal-header-wrapper">
+          <div className="portal-header">
+            <div className="portal-logo" style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
+              <Cpu size={28} color="#F58220" />
+              <span style={{ fontSize: '1.6rem', fontWeight: 900, fontFamily: 'Montserrat, sans-serif', color: '#06064D', letterSpacing: '-0.5px' }}>
+                LAXMI <span style={{ color: '#F58220' }}>CREDIT</span>
+              </span>
+            </div>
+            <div className="portal-nav-actions">
+              <button
+                className="nav-admin-btn"
+                onClick={onAdminClick}
+                style={{
+                  background: '#F58220',
+                  border: 'none',
+                  color: '#ffffff',
+                  padding: '9px 22px',
+                  borderRadius: '8px',
+                  fontSize: '0.82rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontFamily: 'Montserrat, sans-serif',
+                  boxShadow: '0 4px 14px rgba(245, 130, 32, 0.35)'
+                }}
+              >
+                <Lock size={14} />
+                <span>ADMIN</span>
+              </button>
+            </div>
           </div>
         </header>
 

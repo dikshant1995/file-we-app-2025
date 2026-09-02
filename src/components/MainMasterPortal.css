@@ -45,228 +45,84 @@
   z-index: 1;
 }
 
-/* Header */
+/* Header - InCred Elevated Sticky Shadow Header */
+.portal-header-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
 .portal-header {
-  padding: 1.8rem 4rem;
+  padding: 16px 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1400px;
+  max-width: 1300px;
   margin: 0 auto;
 }
 
-.portal-nav-links {
+.portal-logo {
   display: flex;
-  gap: 32px;
   align-items: center;
-}
-
-.incred-nav-link {
-  text-decoration: none;
-  color: #334155;
-  font-weight: 700;
-  font-size: 0.95rem;
-  font-family: 'Montserrat', 'Inter', sans-serif;
-  transition: color 0.2s ease;
-}
-
-.incred-nav-link:hover {
-  color: #F58220;
-}
-
-.incred-outline-btn {
-  text-decoration: none;
-  color: #F58220;
-  border: 2px solid #F58220;
-  background: transparent;
-  padding: 8px 22px;
-  border-radius: 50px;
-  font-size: 0.88rem;
-  font-weight: 800;
-  font-family: 'Montserrat', sans-serif;
-  transition: all 0.25s ease;
-}
-
-.incred-outline-btn:hover {
-  background: #FFF4EC;
-  transform: translateY(-1px);
-}
-
-.incred-filled-btn {
-  text-decoration: none;
-  color: #ffffff;
-  border: 2px solid #F58220;
-  background: #F58220;
-  padding: 8px 22px;
-  border-radius: 50px;
-  font-size: 0.88rem;
-  font-weight: 800;
-  font-family: 'Montserrat', sans-serif;
-  box-shadow: 0 4px 14px rgba(245, 130, 32, 0.3);
-  transition: all 0.25s ease;
-}
-
-.incred-filled-btn:hover {
-  background: #E57213;
-  border-color: #E57213;
-  transform: translateY(-1px);
-}
-
-/* ===== INCRED HERO SECTION ===== */
-.incred-hero-section {
-  padding: 4rem 2rem 2rem 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.incred-hero-container {
-  max-width: 850px;
-  margin: 0 auto 3.5rem auto;
-}
-
-.incred-hero-hook-title {
-  font-family: 'Montserrat', sans-serif;
-  font-size: 3.2rem;
-  font-weight: 700;
-  color: #475569;
-  line-height: 1.25;
-  margin-bottom: 0.8rem;
-  letter-spacing: -0.5px;
-}
-
-.incred-hero-hook-sub {
-  font-weight: 700;
-  color: #334155;
-}
-
-.incred-hero-amount {
-  font-family: 'Montserrat', sans-serif;
-  font-size: 4.8rem;
+  gap: 0.8rem;
+  font-size: 1.5rem;
   font-weight: 900;
-  color: #06064D;
-  line-height: 1;
-  margin-bottom: 2.2rem;
-  letter-spacing: -2px;
+  letter-spacing: 0.5px;
+  font-family: 'Montserrat', sans-serif;
+  color: #06064d;
 }
 
-.incred-cta-wrapper {
-  display: flex;
-  justify-content: center;
+.gradient-text {
+  color: #06064d;
+  background: none;
+  -webkit-text-fill-color: initial;
 }
 
-.incred-primary-cta-btn {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #F58220, #F47A20);
-  color: #ffffff;
-  text-decoration: none;
-  padding: 16px 44px;
+/* Hero Section */
+.portal-hero {
+  text-align: center;
+  padding: 5rem 2rem 3rem 2rem;
+  max-width: 850px;
+  margin: 0 auto;
+}
+
+.portal-badge {
+  background: #fff4ec;
+  border: 1px solid #f58220;
+  color: #f58220;
+  padding: 0.55rem 1.4rem;
   border-radius: 50px;
-  box-shadow: 0 10px 25px rgba(245, 130, 32, 0.4);
-  transition: all 0.3s ease;
-  border: none;
-}
-
-.incred-primary-cta-btn:hover {
-  background: linear-gradient(135deg, #E57213, #F58220);
-  transform: translateY(-2px);
-  box-shadow: 0 14px 35px rgba(245, 130, 32, 0.55);
-}
-
-.cta-btn-title {
-  font-family: 'Montserrat', sans-serif;
-  font-size: 1.25rem;
-  font-weight: 800;
-  letter-spacing: 0.2px;
-}
-
-.cta-btn-sub {
-  font-size: 0.78rem;
-  opacity: 0.92;
-  font-weight: 600;
-  margin-top: 3px;
-}
-
-/* ===== INCRED BLUE FEATURE RIBBON ===== */
-.incred-feature-ribbon {
-  max-width: 1100px;
-  margin: 0 auto 4rem auto;
-  background: linear-gradient(135deg, #3B72B9 0%, #1D4ED8 100%);
-  border-radius: 24px;
-  padding: 2.2rem 3rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  box-shadow: 0 15px 40px rgba(29, 78, 216, 0.25);
-  color: #ffffff;
-}
-
-.ribbon-item {
-  display: flex;
-  align-items: center;
-  gap: 1.2rem;
-  text-align: left;
-}
-
-.ribbon-icon-box {
-  width: 56px;
-  height: 56px;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(8px);
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.ribbon-title {
-  font-family: 'Montserrat', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: #ffffff;
-  margin-bottom: 2px;
-}
-
-.ribbon-sub {
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.85);
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 15px rgba(245, 130, 32, 0.15);
+  text-transform: uppercase;
+}
+
+.hero-title-main {
+  font-size: 3.8rem;
+  font-weight: 900;
+  line-height: 1.15;
+  margin-bottom: 1.5rem;
+  letter-spacing: -1.5px;
+  font-family: 'Montserrat', sans-serif;
+  color: #06064d;
+}
+
+.hero-subtitle-main {
+  font-size: 1.2rem;
+  color: #475569;
+  line-height: 1.65;
+  margin-bottom: 3rem;
   font-weight: 500;
-}
-
-.ribbon-divider {
-  width: 1px;
-  height: 48px;
-  background: rgba(255, 255, 255, 0.25);
-}
-
-@media (max-width: 900px) {
-  .incred-feature-ribbon {
-    flex-direction: column;
-    gap: 1.8rem;
-    padding: 2rem 1.5rem;
-    text-align: center;
-  }
-  .ribbon-divider {
-    display: none;
-  }
-  .ribbon-item {
-    flex-direction: column;
-    text-align: center;
-  }
-  .incred-hero-hook-title {
-    font-size: 2.4rem;
-  }
-  .incred-hero-amount {
-    font-size: 3.5rem;
-  }
-  .portal-nav-links {
-    display: none;
-  }
 }
 
 /* Choice Section */
