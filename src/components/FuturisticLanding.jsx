@@ -122,8 +122,9 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
         <div className="header-inner-nav">
           <div className="nav-left" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <div className="neural-logo-small" style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
-              <span style={{ fontSize: '1.75rem', fontWeight: 900, fontStyle: 'italic', fontFamily: "'Montserrat', sans-serif", color: '#06064D', letterSpacing: '-0.8px' }}>
-                LAXMI <span style={{ color: '#F58220', fontWeight: 900, fontStyle: 'italic' }}>CREDIT</span>
+              <span style={{ fontSize: '1.85rem', fontFamily: "'Montserrat', sans-serif", letterSpacing: '-0.8px', display: 'inline-flex', alignItems: 'center' }}>
+                <span style={{ color: '#F58220', fontWeight: 900, fontStyle: 'italic' }}>Laxmi!</span>
+                <span style={{ color: '#06064D', fontWeight: 700, fontStyle: 'italic', marginLeft: '4px' }}>credit</span>
               </span>
             </div>
           </div>
