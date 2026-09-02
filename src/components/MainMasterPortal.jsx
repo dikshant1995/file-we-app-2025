@@ -342,7 +342,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
               letterSpacing: '0.2px'
             }}
           >
-            Unlock real-time eligibility across 12+ leading lenders. See who approves how much capital at what exact ROI — with zero bureau impact.
+            Instant enquiry-free bank evaluation across 12+ lenders. Check your pre-approved loan limit and exact interest rates with zero CIBIL score impact.
           </motion.p>
 
           {/* 3 Pillars Grid */}
@@ -368,10 +368,10 @@ const MainMasterPortal = ({ onAdminClick }) => {
                 <MonitorSmartphone size={42} color="#2563EB" strokeWidth={1.8} />
               </div>
               <h4 style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.25rem', fontWeight: 800, color: '#1F2937', marginBottom: '2px' }}>
-                Seamless Digital
+                100% Digital
               </h4>
               <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.05rem', color: '#9CA3AF', fontWeight: 400 }}>
-                Journey
+                Process
               </p>
             </motion.div>
 
