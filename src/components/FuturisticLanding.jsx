@@ -153,17 +153,17 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               className="hero-hook-title"
-              style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", lineHeight: 1.2, marginBottom: '1.8rem', textAlign: 'left' }}
+              style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", lineHeight: 1.25, marginBottom: '1.8rem', textAlign: 'left' }}
             >
-              <span style={{ display: 'block', fontWeight: 300, fontSize: '2.6rem', color: '#555555', letterSpacing: '-0.5px' }}>
+              <span style={{ display: 'block', fontWeight: 300, fontSize: '2.0rem', color: '#555555', letterSpacing: '-0.3px' }}>
                 Analyze Personal Loan Offers up to
               </span>
               <span 
                 style={{ 
                   display: 'block', 
                   fontWeight: 900, 
-                  fontSize: '3.8rem', 
-                  letterSpacing: '-1.5px', 
+                  fontSize: '3.0rem', 
+                  letterSpacing: '-1.2px', 
                   marginTop: '6px',
                   marginBottom: '6px',
                   background: 'linear-gradient(135deg, #1E40AF 0%, #F58220 100%)',
@@ -173,7 +173,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               >
                 ₹75 lakhs across 12+ Top Banks
               </span>
-              <span style={{ display: 'block', fontWeight: 300, fontSize: '2.2rem', color: '#555555', letterSpacing: '-0.5px', marginTop: '4px' }}>
+              <span style={{ display: 'block', fontWeight: 300, fontSize: '1.6rem', color: '#555555', letterSpacing: '-0.3px', marginTop: '4px' }}>
                 100% Digital & Instant Processing
               </span>
             </motion.h1>
@@ -201,10 +201,10 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                   fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif"
                 }}
               >
-                <span style={{ fontSize: '1.3rem', fontWeight: 800, letterSpacing: '0.3px' }}>
+                <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '0.3px' }}>
                   Check loan eligibility
                 </span>
-                <span style={{ fontSize: '0.82rem', fontWeight: 600, opacity: 0.95, marginTop: '2px' }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 600, opacity: 0.95, marginTop: '2px' }}>
                   In less than a minute
                 </span>
               </motion.button>
@@ -227,7 +227,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               src="/incred-model-cutout.png" 
               alt="Laxmi Credit Model Cutout" 
               style={{
-                height: '510px',
+                height: '560px',
                 width: 'auto',
                 objectFit: 'contain'
               }}
