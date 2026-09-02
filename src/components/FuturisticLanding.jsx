@@ -249,7 +249,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3 }}
           style={{
-            background: 'linear-gradient(135deg, #1E3A8A 0%, #1E40AF 45%, #2563EB 100%)',
+            background: 'linear-gradient(135deg, #1E40AF 0%, #2563EB 50%, #F58220 100%)',
             borderRadius: '24px',
             padding: '36px 40px',
             color: '#ffffff',
