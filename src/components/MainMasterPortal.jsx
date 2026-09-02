@@ -342,7 +342,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
               letterSpacing: '0.1px'
             }}
           >
-            Get instant access to pre-approved personal loan offers from 12+ leading banks. Discover your maximum loan amount and lowest interest rate — 100% enquiry-free.
+            Discover your maximum loan amount and lowest interest rate across 12+ top banks — 100% enquiry-free.
           </motion.p>
 
           {/* 3 Pillars Grid */}
