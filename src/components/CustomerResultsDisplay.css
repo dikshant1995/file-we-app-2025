@@ -1,33 +1,33 @@
 /* ============================================================
-   CUSTOMER RESULTS DISPLAY — PROFESSIONAL AI THEME
-   Matches the landing page aesthetic
+   CUSTOMER RESULTS DISPLAY — INCRED BANKING THEME
+   Matches clean, high-trust institutional banking aesthetics
    ============================================================ */
 
 .customer-results-display {
   max-width: 1200px;
   margin: 0 auto;
   padding: 60px 20px;
-  color: var(--text-primary);
-  font-family: 'Inter', system-ui, sans-serif;
+  color: #0f172a;
+  font-family: 'Inter', 'Montserrat', sans-serif;
 }
 
 /* ── Results Header ─────────────────────────────────────── */
 .results-header {
   text-align: center;
-  margin-bottom: 56px;
+  margin-bottom: 48px;
 }
 
 .results-header h2 {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 2.2rem;
   font-weight: 800;
-  color: #fff;
+  color: #06064d;
   margin-bottom: 12px;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
 }
 
 .results-header p {
-  color: var(--text-muted);
+  color: #64748b;
   font-size: 1.1rem;
   max-width: 700px;
   margin: 0 auto;
@@ -43,58 +43,60 @@
 }
 
 .stat-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-glow);
-  padding: 32px 24px;
-  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 28px 24px;
+  border-radius: 14px;
   text-align: center;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
 .stat-card:hover {
   transform: translateY(-4px);
-  border-color: var(--border-active);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  border-color: #f58220;
+  box-shadow: 0 12px 30px rgba(245, 130, 32, 0.15);
 }
 
 .stat-card.highlight {
-  border-color: var(--accent-cyan);
-  background: rgba(0, 212, 255, 0.05);
+  border-color: #f58220;
+  background: #fff4ec;
 }
 
 .stat-value {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 2rem;
   font-weight: 800;
-  color: #fff;
+  color: #06064d;
   margin-bottom: 8px;
   letter-spacing: -0.02em;
 }
 
 .stat-card.highlight .stat-value {
-  color: var(--accent-cyan);
+  color: #f58220;
 }
 
 .stat-label {
   font-size: 0.85rem;
-  color: var(--text-muted);
-  font-weight: 600;
+  color: #64748b;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.05em;
 }
 
 /* ── Best Offer Card ────────────────────────────────────── */
 .best-offer-card {
-  background: linear-gradient(145deg, #0d1626, #010409);
-  border: 1px solid var(--accent-cyan);
+  background: linear-gradient(145deg, #06064d, #0b0f19);
+  border: 2px solid #f58220;
   border-radius: 20px;
   padding: 40px;
   margin-bottom: 56px;
   position: relative;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 20px 50px rgba(6, 6, 77, 0.25);
   overflow: hidden;
+  color: #ffffff;
 }
 
 .best-offer-badge {
@@ -798,63 +800,6 @@
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 210, 255, 0.3);
 }
-
-/* ── Print Styles ─────────────────────────────────────────── */
-@media print {
-  /* Force background colors and gradients to print */
-  * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-
-  /* Hide the entire standard web UI completely */
-  .no-print {
-    display: none !important;
-  }
-  
-  /* Reset background and padding for the print environment */
-  body, html, #root, .customer-results-display, .customer-facing-app, .form-page, #results-section {
-    background: white !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    width: 100% !important;
-    height: auto !important;
-    min-height: auto !important;
-    overflow: visible !important;
-    overflow-x: visible !important;
-    overflow-y: visible !important;
-  }
-  
-  #pl-pdf-report-container {
-    position: relative !important;
-    left: 0 !important;
-    top: 0 !important;
-    width: 210mm !important;
-    display: block !important;
-    z-index: 9999 !important;
-  }
-  
-  .pdf-page {
-    page-break-after: always;
-    page-break-inside: avoid;
-    box-shadow: none !important;
-    border: none !important;
-    margin: 0 !important;
-    width: 210mm !important;
-    height: 297mm !important;
-    position: relative;
-  }
-  
-  .pdf-page:last-child {
-    page-break-after: auto;
-  }
-  
-  @page {
-    margin: 0;
-    size: A4;
-  }
-}
-
 
 /* Radial Pie Gauge */
 .gauge-flex {

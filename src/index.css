@@ -1,36 +1,49 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:wght@500;600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap');
 
 :root {
-  /* INCRED FINANCE INSPIRED ULTRA-PREMIUM FINANCIAL PALETTE */
-  --bg-dark: #0b0f19;
-  --bg-dark-navy: #060814;
-  --bg-card: rgba(15, 23, 42, 0.75);
-  --bg-glass: rgba(245, 130, 32, 0.04);
-
-  /* SIGNATURE ACCENTS */
-  --incred-orange: #f58220;
-  --incred-orange-bright: #f47a20;
-  --incred-orange-glow: rgba(245, 130, 32, 0.35);
-  --incred-navy: #06064d;
+  /* INCRED FINANCE OFFICIAL BANKING COLOR SYSTEM */
+  --incred-orange: #F58220;
+  --incred-orange-hover: #E57213;
+  --incred-orange-bright: #F47A20;
+  --incred-orange-soft: rgba(245, 130, 32, 0.08);
+  --incred-orange-glow: rgba(245, 130, 32, 0.25);
   
-  --accent-cyan: #00d4ff;
-  --accent-purple: #7c3aed;
-  --accent-green: #0caf0c;
+  --incred-navy: #06064D;
+  --incred-navy-dark: #040430;
+  --incred-navy-light: #1E293B;
+  --incred-blue-bg: #EEF3FA;
+  --incred-cream-bg: #FFF4EC;
 
-  --text-primary: #f8fafc;
-  --text-header: #ffffff;
-  --text-muted: #94a3b8;
-  --text-muted-dark: #475569;
+  /* BANKING LAYOUT BACKGROUNDS */
+  --bg-dark: #0B0F19;
+  --bg-surface: #FFFFFF;
+  --bg-body: #F8FAFC;
+  --bg-card: #FFFFFF;
+  --bg-card-muted: #F1F5F9;
 
-  --border-glow: rgba(245, 130, 32, 0.2);
-  --border-active: rgba(245, 130, 32, 0.6);
-  --shadow-neon: 0 0 25px rgba(245, 130, 32, 0.15);
+  /* ACCENTS */
+  --accent-green: #0CAF0C;
+  --accent-cyan: #0284C7;
+  --accent-purple: #6366F1;
+
+  /* TEXT COLORS */
+  --text-primary: #0F172A;
+  --text-header: #06064D;
+  --text-body: #334155;
+  --text-muted: #64748B;
+  --text-light: #94A3B8;
+
+  /* BORDERS & SHADOWS */
+  --border-light: #E2E8F0;
+  --border-orange: rgba(245, 130, 32, 0.4);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
+  --shadow-hover: 0 12px 30px rgba(245, 130, 32, 0.15), 0 4px 10px rgba(0, 0, 0, 0.05);
 
   font-family: 'Inter', 'Montserrat', 'Poppins', system-ui, -apple-system, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: dark;
+  color-scheme: light dark;
   color: var(--text-primary);
   background-color: var(--bg-dark);
 
