@@ -95,12 +95,12 @@ const MainMasterPortal = ({ onAdminClick }) => {
           </div>
         </header>
 
-        {/* Hero Section - 2-Column Layout (Left: Text & Button, Right: Model Image Slot) */}
-        <section className="portal-hero" style={{ padding: '40px 20px 20px', maxWidth: '1340px', margin: '0 auto' }}>
-          <div className="hero-2col-wrapper" style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '15px', alignItems: 'center' }}>
+        {/* Hero Section - 2-Column Layout (Left: Text & Button, Right: Model Cutout) */}
+        <section className="portal-hero" style={{ padding: '40px 20px 20px', maxWidth: '1250px', margin: '0 auto' }}>
+          <div className="hero-2col-wrapper" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '40px', alignItems: 'center' }}>
             
             {/* Left Column: Headline & CTA Button */}
-            <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', paddingRight: '10px' }}>
+            <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
               <motion.h1 
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -165,29 +165,25 @@ const MainMasterPortal = ({ onAdminClick }) => {
               </div>
             </div>
 
-            {/* Right Column: Model Image */}
+            {/* Right Column: Model Cutout */}
             <motion.div 
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
               className="hero-model-right-slot"
               style={{ 
-                width: '100%', 
                 display: 'flex', 
                 alignItems: 'center', 
-                justifyContent: 'center',
-                position: 'relative'
+                justifyContent: 'center'
               }}
             >
               <img 
                 src="/incred-model-cutout.png" 
                 alt="Laxmi Credit Model Cutout" 
                 style={{
-                  maxHeight: '540px',
+                  height: '460px',
                   width: 'auto',
-                  objectFit: 'contain',
-                  filter: 'drop-shadow(0 20px 35px rgba(0, 0, 0, 0.12))',
-                  transform: 'scale(1.08)'
+                  objectFit: 'contain'
                 }}
               />
             </motion.div>
