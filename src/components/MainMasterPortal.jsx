@@ -52,7 +52,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
         <header className="portal-header-wrapper">
           <div className="portal-header">
             <div className="portal-logo" style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
-              <span style={{ fontSize: '1.85rem', fontFamily: "'Montserrat', sans-serif", letterSpacing: '-0.8px', display: 'inline-flex', alignItems: 'center' }}>
+              <span style={{ fontSize: '1.9rem', fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", letterSpacing: '-0.8px', display: 'inline-flex', alignItems: 'center' }}>
                 <span style={{ color: '#F58220', fontWeight: 900, fontStyle: 'italic' }}>Laxmi</span>
                 <span style={{ color: '#1E40AF', fontWeight: 800, fontStyle: 'italic', marginLeft: '4px' }}>credit</span>
               </span>
@@ -73,7 +73,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
-                  fontFamily: 'Montserrat, sans-serif',
+                  fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif",
                   boxShadow: '0 4px 14px rgba(245, 130, 32, 0.35)'
                 }}
               >
@@ -91,7 +91,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             className="hero-title-main"
-            style={{ fontSize: '3.2rem', fontWeight: 900, fontFamily: 'Montserrat, sans-serif', color: '#1E40AF', lineHeight: 1.25, marginBottom: '1rem' }}
+            style={{ fontSize: '3.2rem', fontWeight: 900, fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", color: '#1E40AF', lineHeight: 1.25, marginBottom: '1rem' }}
           >
             Analyze Personal Loan Offers up to <span style={{ color: '#F58220' }}>₹75 Lakhs</span> across <span style={{ color: '#F58220' }}>12+</span> Top Banks — 100% Digital & Instant.
           </motion.h1>
@@ -101,7 +101,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
             className="hero-subtitle-main"
-            style={{ fontSize: '1.15rem', color: '#475569', fontWeight: 500, margin: '1rem auto 2.5rem', maxWidth: '650px' }}
+            style={{ fontSize: '1.15rem', color: '#475569', fontWeight: 600, fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", margin: '1rem auto 2.5rem', maxWidth: '650px' }}
           >
             Welcome to Laxmi Credit. Compare exact interest rates, tenure & FOIR policy approvals across 12+ leading banks in milliseconds. Zero credit impact.
           </motion.p>
@@ -126,7 +126,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontFamily: 'Montserrat, sans-serif'
+                  fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif"
                 }}
               >
                 <span style={{ fontSize: '1.3rem', fontWeight: 800, letterSpacing: '0.3px' }}>

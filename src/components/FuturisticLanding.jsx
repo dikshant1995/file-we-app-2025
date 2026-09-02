@@ -122,7 +122,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
         <div className="header-inner-nav">
           <div className="nav-left" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <div className="neural-logo-small" style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
-              <span style={{ fontSize: '1.85rem', fontFamily: "'Montserrat', sans-serif", letterSpacing: '-0.8px', display: 'inline-flex', alignItems: 'center' }}>
+              <span style={{ fontSize: '1.9rem', fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", letterSpacing: '-0.8px', display: 'inline-flex', alignItems: 'center' }}>
                 <span style={{ color: '#F58220', fontWeight: 900, fontStyle: 'italic' }}>Laxmi</span>
                 <span style={{ color: '#1E40AF', fontWeight: 800, fontStyle: 'italic', marginLeft: '4px' }}>credit</span>
               </span>
@@ -142,11 +142,11 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             transition={{ duration: 0.8 }}
             style={{ maxWidth: '1050px' }}
           >
-            <h1 className="hero-hook-title" style={{ fontSize: '3.2rem', fontWeight: 900, fontFamily: 'Montserrat, sans-serif', color: '#1E40AF', lineHeight: 1.25, marginBottom: '1rem' }}>
+            <h1 className="hero-hook-title" style={{ fontSize: '3.2rem', fontWeight: 900, fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", color: '#1E40AF', lineHeight: 1.25, marginBottom: '1rem' }}>
               Analyze Personal Loan Offers up to <span style={{ color: '#F58220' }}>₹75 Lakhs</span> across <span style={{ color: '#F58220' }}>12+</span> Top Banks — 100% Digital & Instant.
             </h1>
 
-            <p style={{ fontSize: '1.15rem', color: '#475569', fontWeight: 500, margin: '1rem auto 2rem', maxWidth: '650px' }}>
+            <p style={{ fontSize: '1.15rem', color: '#475569', fontWeight: 600, fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", margin: '1rem auto 2.5rem', maxWidth: '650px' }}>
               Compare exact rates, tenure & FOIR policy approvals across 12+ leading Indian banks in milliseconds. Zero credit impact.
             </p>
 
@@ -170,7 +170,6 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontFamily: 'Montserrat, sans-serif'
                 }}
               >
                 <span style={{ fontSize: '1.3rem', fontWeight: 800, letterSpacing: '0.3px' }}>
