@@ -411,13 +411,13 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
           >
             <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 8px 20px rgba(37, 99, 235, 0.08)' }}>
-              <MonitorSmartphone size={42} color="#2563EB" strokeWidth={1.8} />
+              <Landmark size={42} color="#2563EB" strokeWidth={1.8} />
             </div>
             <h4 style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.25rem', fontWeight: 800, color: '#1F2937', marginBottom: '2px' }}>
-              100% Digital
+              12+ Lenders
             </h4>
             <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.05rem', color: '#9CA3AF', fontWeight: 400 }}>
-              Process
+              Comparison
             </p>
           </motion.div>
 
@@ -430,13 +430,13 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
           >
             <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 8px 20px rgba(37, 99, 235, 0.08)' }}>
-              <RefreshCw size={42} color="#2563EB" strokeWidth={1.8} />
+              <ShieldCheck size={42} color="#2563EB" strokeWidth={1.8} />
             </div>
             <h4 style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.25rem', fontWeight: 800, color: '#1F2937', marginBottom: '2px' }}>
-              Quick access
+              Zero CIBIL
             </h4>
             <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.05rem', color: '#9CA3AF', fontWeight: 400 }}>
-              to funds
+              Impact
             </p>
           </motion.div>
 
@@ -449,13 +449,13 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
           >
             <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 8px 20px rgba(37, 99, 235, 0.08)' }}>
-              <FileText size={42} color="#2563EB" strokeWidth={1.8} />
+              <MonitorSmartphone size={42} color="#2563EB" strokeWidth={1.8} />
             </div>
             <h4 style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.25rem', fontWeight: 800, color: '#1F2937', marginBottom: '2px' }}>
-              Minimal
+              100% Digital
             </h4>
             <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.05rem', color: '#9CA3AF', fontWeight: 400 }}>
-              paperwork
+              Process
             </p>
           </motion.div>
         </div>
