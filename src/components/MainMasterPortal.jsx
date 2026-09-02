@@ -11,8 +11,8 @@ const MainMasterPortal = () => {
   const testimonials = [
     {
       name: "Rajat Khandelwal",
-      role: "SME Owner, Jaipur",
-      text: "Needed working capital to expand my textile manufacturing unit. Laxmi Credit secured a ₹45L Business Loan within 72 hours. Absolutely fantastic!",
+      role: "Senior Consultant, Jaipur",
+      text: "Needed quick capital for family obligations. Laxmi Credit calculated my exact eligibility across 12+ banks and secured a ₹15L Personal Loan within 24 hours at the lowest interest rate.",
       rating: 5
     },
     {
@@ -23,13 +23,13 @@ const MainMasterPortal = () => {
     },
     {
       name: "Neha Deshmukh",
-      role: "Retailer",
-      text: "The ABB Analyzer logic helped me present my clear financial standing to the banks instantly. Got a pre-approved business line of credit through this platform seamlessly.",
+      role: "Project Lead, Pune",
+      text: "The Balance Transfer calculator helped me consolidate 3 high-interest personal loans into a single low-interest offer, saving over ₹2.4 Lakhs in total repayment!",
       rating: 5
     },
     {
       name: "Vikram Malhotra",
-      role: "Business Consultant",
+      role: "Financial Analyst",
       text: "The speed at comparing multiple institutional policies simultaneously is beyond state-of-the-art. No better place for precise credit access analytics today.",
       rating: 5
     }
@@ -69,7 +69,7 @@ const MainMasterPortal = () => {
             transition={{ duration: 0.6 }}
             className="portal-badge"
           >
-            <Sparkles size={14} /> Next-Gen Financial Architecture
+            <Sparkles size={14} /> Next-Gen Personal Loan Architecture
           </motion.div>
 
           <motion.h1 
@@ -78,8 +78,8 @@ const MainMasterPortal = () => {
             transition={{ duration: 0.8, delay: 0.1 }}
             className="hero-title-main"
           >
-            Intelligent Lending, <br />
-            <span className="gradient-text-ai" style={{ background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Instantly Redefined.</span>
+            Personal Loan Eligibility, <br />
+            <span className="gradient-text-ai" style={{ background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Instantly Calculated across 12+ Banks.</span>
           </motion.h1>
 
           <motion.p 
@@ -88,7 +88,7 @@ const MainMasterPortal = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="hero-subtitle-main"
           >
-            Welcome to Laxmi Credit. We utilize advanced neural processing and deep bank policy integrations to offer the most precise loan eligibility analysis in the country.
+            Welcome to Laxmi Credit. We utilize advanced neural processing and deep bank policy integrations to offer the most precise Personal Loan eligibility & balance transfer analysis in India.
           </motion.p>
         </section>
 
@@ -105,59 +105,38 @@ const MainMasterPortal = () => {
               <Cpu size={40} className="text-primary" style={{ color: '#6366f1' }} />
             </div>
             <div className="philosophy-content">
-              <h3>Why shop for shoes, but settle for loans?</h3>
+              <h3>Why shop for shoes, but settle for personal loans?</h3>
               <p>
-                Think about it. When buying a pair of shoes, we compare <span className="highlight-text">10+ brands</span> and check multiple shops just to save a few hundred rupees. But for a life-altering <span className="highlight-text">5-year financial commitment</span>, millions just accept the very first offer.
+                Think about it. When buying a pair of shoes, we compare <span className="highlight-text">10+ brands</span> and check multiple shops just to save a few hundred rupees. But for a life-altering <span className="highlight-text">5-year personal loan commitment</span>, millions just accept the very first offer.
               </p>
               <p style={{ marginTop: '0.5rem', fontSize: '0.95rem', opacity: 0.8 }}>
-                Laxmi Credit was engineered to disrupt this. We use deep banking data to scan dozens of actual institutional policies in milliseconds, ensuring you save lakhs in interest and compounding repayments. Don't just take credit; command it.
+                Laxmi Credit was engineered to disrupt this. We use deep banking data to scan dozens of actual personal loan institutional policies in milliseconds, ensuring you save lakhs in interest and compounding repayments. Don't just take credit; command it.
               </p>
             </div>
           </div>
         </motion.div>
 
         {/* MAIN CHOICE BLOCKS */}
-        <section className="portal-choices">
+        <section className="portal-choices" style={{ justifyContent: 'center' }}>
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            style={{ flex: 1 }}
+            style={{ width: '100%', maxWidth: '700px' }}
           >
-            <Link to="/personal-loan" className="choice-card" style={{ '--card-accent': '#00d4ff', '--card-glow': 'rgba(0, 212, 255, 0.2)', '--card-glow-rgb': '0, 212, 255' }}>
+            <Link to="/personal-loan" className="choice-card" style={{ '--card-accent': '#00d4ff', '--card-glow': 'rgba(0, 212, 255, 0.2)', '--card-glow-rgb': '0, 212, 255', padding: '2.5rem' }}>
               <div className="card-icon-box">
-                <UserCircle2 size={32} />
+                <UserCircle2 size={36} />
               </div>
-              <div className="card-label">Consumer Credit</div>
-              <h2 className="card-title">Personal Loan</h2>
-              <p className="card-description">
-                Instantly analyze eligibility across 12+ premium banks. Consolidate debt through balance transfer and unlock dynamic loan calculations in milliseconds.
+              <div className="card-label">Consumer Credit Engine</div>
+              <h2 className="card-title" style={{ fontSize: '2rem' }}>Personal Loan Eligibility Checker</h2>
+              <p className="card-description" style={{ fontSize: '1.05rem', lineHeight: '1.6' }}>
+                Instantly analyze personal loan eligibility across 12+ premium Indian banks (HDFC, ICICI, Axis, Kotak, IDFC, IndusInd, and more). Consolidate high-interest debt through automated Balance Transfer (BT) calculations in milliseconds.
               </p>
-              <div className="card-arrow">
-                Enter Platform <ArrowRight size={18} />
+              <div className="card-arrow" style={{ fontSize: '1.1rem', marginTop: '1.5rem' }}>
+                Launch Personal Loan Engine <ArrowRight size={20} />
               </div>
             </Link>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            style={{ flex: 1 }}
-          >
-            <a href="/business-loan/" className="choice-card" style={{ '--card-accent': '#10b981', '--card-glow': 'rgba(16, 185, 129, 0.2)', '--card-glow-rgb': '16, 185, 129' }}>
-              <div className="card-icon-box">
-                <Briefcase size={32} />
-              </div>
-              <div className="card-label">Enterprise Capital</div>
-              <h2 className="card-title">Business Loan</h2>
-              <p className="card-description">
-                Leverage state-of-the-art ABB Analyzer for automated bank statement processing. Access deep policy alignment tailored specifically for growth capital.
-              </p>
-              <div className="card-arrow">
-                Launch Portal <ArrowRight size={18} />
-              </div>
-            </a>
           </motion.div>
         </section>
 
