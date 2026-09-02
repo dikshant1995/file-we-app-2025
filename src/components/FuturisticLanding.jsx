@@ -155,7 +155,15 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               className="hero-hook-title"
               style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", lineHeight: 1.22, marginBottom: '1.2rem', textAlign: 'left' }}
             >
-              <span style={{ display: 'block', fontWeight: 300, fontSize: '2.2rem', color: '#555555', letterSpacing: '-0.4px' }}>
+              <span style={{ 
+                display: 'block', 
+                fontWeight: 800, 
+                fontSize: '2.2rem', 
+                letterSpacing: '-0.4px',
+                background: 'linear-gradient(135deg, #1E40AF 0%, #2563EB 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}>
                 Analyze Personal Loan Offers up to
               </span>
               <span 
