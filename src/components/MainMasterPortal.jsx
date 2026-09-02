@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Cpu, ShieldCheck, Briefcase, UserCircle2, ArrowRight, Sparkles, Instagram, Mail, MessageSquare, Send, Star } from 'lucide-react';
+import { Cpu, ShieldCheck, Briefcase, UserCircle2, ArrowRight, Sparkles, Instagram, Mail, MessageSquare, Send, Star, Lock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import './MainMasterPortal.css';
 import './FuturisticLanding.css'; // Reuse components styled earlier like founder and testimonials
 
-const MainMasterPortal = () => {
+const MainMasterPortal = ({ onAdminClick }) => {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
 
   const testimonials = [
@@ -55,6 +55,30 @@ const MainMasterPortal = () => {
             <span style={{ fontSize: '1.6rem', fontWeight: 900, fontFamily: 'Montserrat, sans-serif', color: '#06064D', letterSpacing: '-0.5px' }}>
               LAXMI <span style={{ color: '#F58220' }}>CREDIT</span>
             </span>
+          </div>
+          <div className="portal-nav-actions">
+            <button
+              className="nav-admin-btn"
+              onClick={onAdminClick}
+              style={{
+                background: '#F58220',
+                border: 'none',
+                color: '#ffffff',
+                padding: '9px 20px',
+                borderRadius: '8px',
+                fontSize: '0.82rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontFamily: 'Montserrat, sans-serif',
+                boxShadow: '0 4px 14px rgba(245, 130, 32, 0.35)'
+              }}
+            >
+              <Lock size={14} />
+              <span>ADMIN</span>
+            </button>
           </div>
         </header>
 

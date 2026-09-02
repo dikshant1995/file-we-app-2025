@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Cpu } from 'lucide-react';
+import { Cpu, Lock } from 'lucide-react';
 import './Navbar.css';
 
-const Navbar = () => {
+const Navbar = ({ onAdminClick }) => {
     return (
         <nav className="main-navbar">
             <div className="nav-container">
@@ -13,6 +13,12 @@ const Navbar = () => {
                         <span style={{ color: '#06064D', fontWeight: 900, fontFamily: 'Montserrat, sans-serif' }}>LAXMI</span>
                         <span style={{ color: '#F58220', fontWeight: 900, fontFamily: 'Montserrat, sans-serif' }}>CREDIT</span>
                     </Link>
+                </div>
+                <div className="nav-right">
+                    <button className="nav-admin-btn" onClick={onAdminClick}>
+                        <Lock size={14} />
+                        <span>ADMIN</span>
+                    </button>
                 </div>
             </div>
         </nav>

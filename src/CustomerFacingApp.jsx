@@ -188,7 +188,7 @@ function CustomerFacingApp() {
       {/* <NeuralChatBot aiResult={aiResult} aiInsight={aiInsight} userData={lastFormDataRef.current} /> */}
 
       <Routes>
-        <Route path="/" element={<MainMasterPortal />} />
+        <Route path="/" element={<MainMasterPortal onAdminClick={handleAdminClick} />} />
         <Route path="/personal-loan" element={
           <>
       {/* PAGE 1: Application Form — direct page replacement without intermediate landing */}
