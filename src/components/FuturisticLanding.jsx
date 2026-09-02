@@ -346,13 +346,13 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
           transition={{ duration: 0.6 }}
           style={{
             fontFamily: "'Inter', 'Mulish', 'Plus Jakarta Sans', sans-serif",
-            fontSize: '2.5rem',
+            fontSize: '3.1rem',
             fontWeight: 800,
             color: '#333333',
             textAlign: 'center',
-            lineHeight: 1.25,
+            lineHeight: 1.2,
             marginBottom: '0px',
-            letterSpacing: '-0.5px'
+            letterSpacing: '-0.8px'
           }}
         >
           Why apply blindly when you can compare<br />
