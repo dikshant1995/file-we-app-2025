@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Cpu, ShieldCheck, Briefcase, UserCircle2, ArrowRight, Sparkles, Instagram, Mail, MessageSquare, Send, Star, Lock, FileCheck, Landmark, Scale, MonitorSmartphone, RefreshCw, FileText } from 'lucide-react';
+import { Cpu, ShieldCheck, Briefcase, UserCircle2, ArrowRight, Sparkles, Instagram, Mail, MessageSquare, Send, Star, Lock, FileCheck, Landmark, Scale, MonitorSmartphone, RefreshCw, FileText, Building2, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import './MainMasterPortal.css';
 import './FuturisticLanding.css'; // Reuse components styled earlier like founder and testimonials
@@ -354,9 +354,8 @@ const MainMasterPortal = ({ onAdminClick }) => {
               maxWidth: '1000px', 
               margin: '0 auto 3.5rem',
               textAlign: 'center'
-            }}
-          >
-            {/* Pillar 1 */}
+            }}>
+              {/* Pillar 1 */}
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -365,7 +364,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
             >
               <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 8px 20px rgba(37, 99, 235, 0.08)' }}>
-                <Landmark size={42} color="#2563EB" strokeWidth={1.8} />
+                <Building2 size={42} color="#2563EB" strokeWidth={1.8} />
               </div>
               <h4 style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.25rem', fontWeight: 800, color: '#1F2937', marginBottom: '2px' }}>
                 12+ Lenders
@@ -384,7 +383,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
             >
               <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 8px 20px rgba(37, 99, 235, 0.08)' }}>
-                <ShieldCheck size={42} color="#2563EB" strokeWidth={1.8} />
+                <Lock size={42} color="#2563EB" strokeWidth={1.8} />
               </div>
               <h4 style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.25rem', fontWeight: 800, color: '#1F2937', marginBottom: '2px' }}>
                 Zero CIBIL
@@ -403,7 +402,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
             >
               <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 8px 20px rgba(37, 99, 235, 0.08)' }}>
-                <MonitorSmartphone size={42} color="#2563EB" strokeWidth={1.8} />
+                <Zap size={42} color="#2563EB" strokeWidth={1.8} />
               </div>
               <h4 style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.25rem', fontWeight: 800, color: '#1F2937', marginBottom: '2px' }}>
                 100% Digital
