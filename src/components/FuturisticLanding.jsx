@@ -143,8 +143,8 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
       </header>
 
       {/* ===== HERO ===== */}
-      <section className="holo-hero" style={{ padding: '40px 20px 20px', maxWidth: '1250px', margin: '0 auto' }}>
-        <div className="hero-2col-wrapper" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '40px', alignItems: 'center' }}>
+      <section className="holo-hero" style={{ padding: '30px 20px 20px', maxWidth: '1280px', margin: '0 auto' }}>
+        <div className="hero-2col-wrapper" style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '30px', alignItems: 'center' }}>
           
           {/* Left Column: Headline & CTA Button */}
           <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
@@ -153,16 +153,16 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               className="hero-hook-title"
-              style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", lineHeight: 1.25, marginBottom: '1.8rem', textAlign: 'left' }}
+              style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", lineHeight: 1.22, marginBottom: '1.8rem', textAlign: 'left' }}
             >
-              <span style={{ display: 'block', fontWeight: 300, fontSize: '2.0rem', color: '#555555', letterSpacing: '-0.3px' }}>
+              <span style={{ display: 'block', fontWeight: 300, fontSize: '2.2rem', color: '#555555', letterSpacing: '-0.4px' }}>
                 Analyze Personal Loan Offers up to
               </span>
               <span 
                 style={{ 
                   display: 'block', 
                   fontWeight: 900, 
-                  fontSize: '3.0rem', 
+                  fontSize: '3.3rem', 
                   letterSpacing: '-1.2px', 
                   marginTop: '6px',
                   marginBottom: '6px',
@@ -173,7 +173,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               >
                 ₹75 lakhs across 12+ Top Banks
               </span>
-              <span style={{ display: 'block', fontWeight: 300, fontSize: '1.6rem', color: '#555555', letterSpacing: '-0.3px', marginTop: '4px' }}>
+              <span style={{ display: 'block', fontWeight: 300, fontSize: '1.8rem', color: '#555555', letterSpacing: '-0.3px', marginTop: '4px' }}>
                 100% Digital & Instant Processing
               </span>
             </motion.h1>
@@ -220,14 +220,16 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             style={{ 
               display: 'flex', 
               alignItems: 'center', 
-              justifyContent: 'center'
+              justifyContent: 'center',
+              width: '100%'
             }}
           >
             <img 
               src="/incred-model-cutout.png" 
               alt="Laxmi Credit Model Cutout" 
               style={{
-                height: '560px',
+                maxHeight: '480px',
+                maxWidth: '100%',
                 width: 'auto',
                 objectFit: 'contain'
               }}
