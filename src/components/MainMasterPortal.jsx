@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Cpu, ShieldCheck, Clock, FileText, ArrowRight, Sparkles, UserCircle2, Building2, ChevronRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Cpu, ShieldCheck, Briefcase, UserCircle2, ArrowRight, Sparkles, Instagram, Mail, MessageSquare, Send, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import './MainMasterPortal.css';
-import './FuturisticLanding.css';
+import './FuturisticLanding.css'; // Reuse components styled earlier like founder and testimonials
 
 const MainMasterPortal = () => {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
@@ -48,96 +48,121 @@ const MainMasterPortal = () => {
       <div className="portal-grid" />
 
       <div className="portal-content">
-        {/* InCred-style Header Navigation */}
+        {/* Header */}
         <header className="portal-header">
-          <div className="portal-logo">
-            <span style={{ color: '#F58220', fontWeight: '900', fontSize: '1.8rem', fontFamily: 'Montserrat, sans-serif' }}>Laxmi</span>
-            <span style={{ color: '#06064D', fontWeight: '800', fontSize: '1.8rem', fontFamily: 'Montserrat, sans-serif', marginLeft: '2px' }}>credit</span>
-          </div>
-
-          <nav className="portal-nav-links">
-            <a href="#about" className="incred-nav-link">About Us</a>
-            <Link to="/personal-loan" className="incred-nav-link">Personal Loans</Link>
-            <a href="#bt" className="incred-nav-link">Balance Transfer</a>
-            <a href="#contact" className="incred-nav-link">Contact Us</a>
-          </nav>
-
-          <div className="portal-nav-actions" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <Link to="/admin" className="incred-outline-btn">
-              Admin Login
-            </Link>
-            <Link to="/personal-loan" className="incred-filled-btn">
-              Apply Now
-            </Link>
+          <div className="portal-logo" style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
+            <Cpu size={28} color="#F58220" />
+            <span style={{ fontSize: '1.6rem', fontWeight: 900, fontFamily: 'Montserrat, sans-serif', color: '#06064D', letterSpacing: '-0.5px' }}>
+              LAXMI <span style={{ color: '#F58220' }}>CREDIT</span>
+            </span>
           </div>
         </header>
 
-        {/* InCred-Style Hero Section */}
-        <section className="incred-hero-section">
-          <div className="incred-hero-container">
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="incred-hero-content"
-            >
-              <h1 className="incred-hero-hook-title">
-                Apply for Instant <br />
-                <span className="incred-hero-hook-sub">Personal Loan upto</span>
-              </h1>
-
-              <div className="incred-hero-amount">
-                ₹50 lakhs
-              </div>
-
-              <div className="incred-cta-wrapper">
-                <Link to="/personal-loan" className="incred-primary-cta-btn">
-                  <span className="cta-btn-title">Check loan eligibility</span>
-                  <span className="cta-btn-sub">In less than a minute • 0 CIBIL Impact</span>
-                </Link>
-              </div>
-            </motion.div>
-          </div>
-
-          {/* InCred-Style Blue Feature Ribbon */}
-          <motion.div 
+        {/* Hero Section */}
+        <section className="portal-hero" style={{ padding: '50px 20px 20px', maxWidth: '1000px', margin: '0 auto', textAlign: 'center' }}>
+          <motion.h1 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="incred-feature-ribbon"
+            transition={{ duration: 0.8 }}
+            className="hero-title-main"
+            style={{ fontSize: '3.5rem', fontWeight: 900, fontFamily: 'Montserrat, sans-serif', color: '#06064D', lineHeight: 1.15, marginBottom: '1rem' }}
           >
-            <div className="ribbon-item">
-              <div className="ribbon-icon-box">
-                <Clock size={28} color="#ffffff" />
+            Apply for Instant <br />
+            Personal Loan upto <br />
+            <span style={{ color: '#06064D', fontWeight: 900 }}>₹15 lakhs</span>
+          </motion.h1>
+
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="hero-subtitle-main"
+            style={{ fontSize: '1.15rem', color: '#475569', fontWeight: 500, margin: '1rem auto 2.5rem', maxWidth: '650px' }}
+          >
+            Welcome to Laxmi Credit. Compare exact interest rates, tenure & FOIR policy approvals across 12+ leading banks in milliseconds. Zero credit impact.
+          </motion.p>
+
+          {/* Check Loan Eligibility Button */}
+          <div style={{ marginBottom: '3rem' }}>
+            <Link to="/personal-loan" style={{ textDecoration: 'none' }}>
+              <motion.button
+                className="check-eligibility-btn"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                style={{
+                  background: 'linear-gradient(135deg, #F58220 0%, #F47A20 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '50px',
+                  padding: '16px 48px',
+                  cursor: 'pointer',
+                  boxShadow: '0 10px 28px rgba(245, 130, 32, 0.4)',
+                  textAlign: 'center',
+                  display: 'inline-flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontFamily: 'Montserrat, sans-serif'
+                }}
+              >
+                <span style={{ fontSize: '1.3rem', fontWeight: 800, letterSpacing: '0.3px' }}>
+                  Check loan eligibility
+                </span>
+                <span style={{ fontSize: '0.82rem', fontWeight: 600, opacity: 0.95, marginTop: '2px' }}>
+                  In less than a minute
+                </span>
+              </motion.button>
+            </Link>
+          </div>
+
+          {/* ===== MINI PROS FEATURE BANNER (InCred Style) ===== */}
+          <motion.div 
+            className="incred-mini-pros-banner"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            style={{
+              background: 'linear-gradient(135deg, #4A7BB0 0%, #205596 100%)',
+              borderRadius: '24px',
+              padding: '36px 40px',
+              color: '#ffffff',
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: '30px',
+              alignItems: 'center',
+              maxWidth: '1100px',
+              margin: '1rem auto 3rem',
+              boxShadow: '0 12px 35px rgba(32, 85, 150, 0.25)'
+            }}
+          >
+            {/* Pro 1 */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '14px' }}>
+              <div style={{ width: '60px', height: '60px', borderRadius: '16px', background: 'rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+                <ShieldCheck size={30} color="#ffffff" />
               </div>
-              <div className="ribbon-text">
-                <div className="ribbon-title">15 Minute Disbursal</div>
-                <div className="ribbon-sub">Fast Track Bank Processing</div>
-              </div>
+              <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#ffffff', lineHeight: 1.3 }}>
+                Enquiry Less Loan
+              </span>
             </div>
 
-            <div className="ribbon-divider" />
-
-            <div className="ribbon-item">
-              <div className="ribbon-icon-box">
-                <ShieldCheck size={28} color="#ffffff" />
+            {/* Pro 2 */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '14px' }}>
+              <div style={{ width: '60px', height: '60px', borderRadius: '16px', background: 'rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+                <Briefcase size={30} color="#ffffff" />
               </div>
-              <div className="ribbon-text">
-                <div className="ribbon-title">No Collateral Required</div>
-                <div className="ribbon-sub">100% Unsecured Personal Credit</div>
-              </div>
+              <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#ffffff', lineHeight: 1.3 }}>
+                No Collateral Required
+              </span>
             </div>
 
-            <div className="ribbon-divider" />
-
-            <div className="ribbon-item">
-              <div className="ribbon-icon-box">
-                <FileText size={28} color="#ffffff" />
+            {/* Pro 3 */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '14px' }}>
+              <div style={{ width: '60px', height: '60px', borderRadius: '16px', background: 'rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+                <Sparkles size={30} color="#ffffff" />
               </div>
-              <div className="ribbon-text">
-                <div className="ribbon-title">Instant Loan Approval</div>
-                <div className="ribbon-sub">Scans 12+ Top Bank Rules</div>
-              </div>
+              <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#ffffff', lineHeight: 1.3 }}>
+                Comparison of 12 Banks in One Minute
+              </span>
             </div>
           </motion.div>
         </section>
@@ -149,19 +174,18 @@ const MainMasterPortal = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
           className="philosophy-banner"
-          id="about"
         >
           <div className="philosophy-flex">
             <div className="philosophy-icon-frame">
-              <Cpu size={40} style={{ color: '#F58220' }} />
+              <Cpu size={40} className="text-primary" style={{ color: '#6366f1' }} />
             </div>
             <div className="philosophy-content">
               <h3>Why shop for shoes, but settle for personal loans?</h3>
               <p>
                 Think about it. When buying a pair of shoes, we compare <span className="highlight-text">10+ brands</span> and check multiple shops just to save a few hundred rupees. But for a life-altering <span className="highlight-text">5-year personal loan commitment</span>, millions just accept the very first offer.
               </p>
-              <p style={{ marginTop: '0.5rem', fontSize: '0.95rem', opacity: 0.85 }}>
-                Laxmi Credit was engineered to disrupt this. We use deep banking policy data to scan dozens of actual institutional rulebooks in milliseconds, ensuring you save lakhs in interest and compounding repayments. Don't just take credit; command it.
+              <p style={{ marginTop: '0.5rem', fontSize: '0.95rem', opacity: 0.8 }}>
+                Laxmi Credit was engineered to disrupt this. We use deep banking data to scan dozens of actual personal loan institutional policies in milliseconds, ensuring you save lakhs in interest and compounding repayments. Don't just take credit; command it.
               </p>
             </div>
           </div>
@@ -173,19 +197,19 @@ const MainMasterPortal = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            style={{ width: '100%', maxWidth: '750px' }}
+            style={{ width: '100%', maxWidth: '700px' }}
           >
-            <Link to="/personal-loan" className="choice-card">
+            <Link to="/personal-loan" className="choice-card" style={{ '--card-accent': '#00d4ff', '--card-glow': 'rgba(0, 212, 255, 0.2)', '--card-glow-rgb': '0, 212, 255', padding: '2.5rem' }}>
               <div className="card-icon-box">
                 <UserCircle2 size={36} />
               </div>
-              <div className="card-label">INSTANT ELIGIBILITY & BALANCE TRANSFER</div>
-              <h2 className="card-title">Personal Loan Eligibility Checker</h2>
-              <p className="card-description">
+              <div className="card-label">Consumer Credit Engine</div>
+              <h2 className="card-title" style={{ fontSize: '2rem' }}>Personal Loan Eligibility Checker</h2>
+              <p className="card-description" style={{ fontSize: '1.05rem', lineHeight: '1.6' }}>
                 Instantly analyze personal loan eligibility across 12+ premium Indian banks (HDFC, ICICI, Axis, Kotak, IDFC, IndusInd, and more). Consolidate high-interest debt through automated Balance Transfer (BT) calculations in milliseconds.
               </p>
-              <div className="card-arrow">
-                Start Loan Eligibility Check <ArrowRight size={20} />
+              <div className="card-arrow" style={{ fontSize: '1.1rem', marginTop: '1.5rem' }}>
+                Launch Personal Loan Engine <ArrowRight size={20} />
               </div>
             </Link>
           </motion.div>

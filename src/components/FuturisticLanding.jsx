@@ -117,198 +117,124 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
       </div>
 
 
-      {/* ===== NEW HOLOGRAPHIC HEADER ===== */}
+      {/* ===== INCRED STYLE HEADER ===== */}
       <header className="holo-header">
-        <div className="header-glass-blur" />
         <div className="header-inner-nav">
           <div className="nav-left" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <a href="/" className="topo-admin-btn" style={{ textDecoration: 'none', padding: '4px 8px', fontSize: '0.7rem', opacity: 0.8, border: '1px solid rgba(255,255,255,0.2)' }}>
-              <ArrowLeft size={12} /> EXIT
-            </a>
-            <div className="neural-logo-small">
-              <Cpu size={20} color="#00d4ff" />
-              <span className="logo-text">LAXMI AI</span>
+            <div className="neural-logo-small" style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
+              <Cpu size={28} color="#F58220" />
+              <span style={{ fontSize: '1.6rem', fontWeight: 900, fontFamily: 'Montserrat, sans-serif', color: '#06064D', letterSpacing: '-0.5px' }}>
+                LAXMI <span style={{ color: '#F58220' }}>CREDIT</span>
+              </span>
             </div>
-          </div>
-          <div className="nav-right" style={{ display: 'flex', gap: '15px' }}>
-            <motion.button
-              className="topo-admin-btn"
-              onClick={onBlogClick}
-              whileHover={{ scale: 1.05, background: "rgba(0, 212, 255, 0.15)" }}
-              whileTap={{ scale: 0.95 }}
-              style={{ border: '1px solid rgba(0, 212, 255, 0.4)' }}
-            >
-              <FileText size={14} color="#00d4ff" />
-              <span style={{ color: '#00d4ff' }}>INSIGHTS</span>
-              <div className="btn-scanline" />
-            </motion.button>
-            <motion.button
-              className="topo-admin-btn"
-              onClick={onAdminClick}
-              whileHover={{ scale: 1.05, background: "rgba(0, 212, 255, 0.15)" }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Lock size={14} />
-              <span>ADMIN PANEL</span>
-              <div className="btn-scanline" />
-            </motion.button>
           </div>
         </div>
       </header>
 
       {/* ===== HERO ===== */}
-      <section className="holo-hero">
-        <div className="hero-inner">
-          {/* Left: Text content */}
+      <section className="holo-hero" style={{ padding: '60px 20px 20px', maxWidth: '1200px', margin: '0 auto' }}>
+        <div className="hero-inner" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+          {/* Main Hero Hook */}
           <motion.div
             className="hero-text"
-            initial={{ opacity: 0, x: -40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.9, ease: 'easeOut' }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            style={{ maxWidth: '800px' }}
           >
-            <motion.div
-              className="hero-tag"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <span className="tag-dot" />
-              <span>NEXT-GEN FINANCIAL AI</span>
-            </motion.div>
-
-            <h1 className="hero-title">
-              <span className="title-line-1">The Future of</span>
-              <span className="title-line-2 gradient-text-ai">Loan Intelligence</span>
-              <span className="title-line-3">is Here.</span>
+            <h1 className="hero-hook-title" style={{ fontSize: '3.5rem', fontWeight: 900, fontFamily: 'Montserrat, sans-serif', color: '#06064D', lineHeight: 1.15, marginBottom: '1rem' }}>
+              Apply for Instant <br />
+              Personal Loan upto <br />
+              <span style={{ color: '#06064D', fontWeight: 900 }}>₹15 lakhs</span>
             </h1>
 
-            <p className="hero-desc">
-              Our neural AI engine processes 200+ banking parameters in real-time,
-              delivering precision loan eligibility and balance transfer analysis
-              across 12+ leading financial institutions — in milliseconds.
+            <p style={{ fontSize: '1.15rem', color: '#475569', fontWeight: 500, margin: '1rem auto 2rem', maxWidth: '650px' }}>
+              Compare exact rates, tenure & FOIR policy approvals across 12+ leading Indian banks in milliseconds. Zero credit impact.
             </p>
 
-            {/* CTA Row */}
-            <div className="hero-cta-row">
+            {/* Check loan eligibility button linked to application form page */}
+            <div style={{ marginTop: '1.5rem', marginBottom: '2.5rem' }}>
               <motion.button
-                className="holo-cta-btn"
+                className="check-eligibility-btn"
                 onClick={onGetStarted}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
+                style={{
+                  background: 'linear-gradient(135deg, #F58220 0%, #F47A20 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '50px',
+                  padding: '16px 48px',
+                  cursor: 'pointer',
+                  boxShadow: '0 10px 28px rgba(245, 130, 32, 0.4)',
+                  textAlign: 'center',
+                  display: 'inline-flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontFamily: 'Montserrat, sans-serif'
+                }}
               >
-                <div className="cta-btn-glow" />
-                <Zap size={18} fill="currentColor" />
-                <span>Apply Now</span>
-                <ArrowRight size={18} />
+                <span style={{ fontSize: '1.3rem', fontWeight: 800, letterSpacing: '0.3px' }}>
+                  Check loan eligibility
+                </span>
+                <span style={{ fontSize: '0.82rem', fontWeight: 600, opacity: 0.95, marginTop: '2px' }}>
+                  In less than a minute
+                </span>
               </motion.button>
-
-              <motion.div
-                className="cta-signal"
-                animate={{ x: [-4, 0, -4] }}
-                transition={{ duration: 1.0, repeat: Infinity, ease: 'easeInOut' }}
-                initial={{ opacity: 0 }}
-              >
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1.2 }}
-                >
-                  <span className="signal-arrow">◀◀</span>
-                  <span className="signal-text">START HERE</span>
-                </motion.div>
-              </motion.div>
             </div>
-
-            {/* Stats row */}
-            <div className="hero-stats">
-              {stats.map((s, i) => (
-                <motion.div
-                  key={i}
-                  className="stat-item"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 + i * 0.1 }}
-                >
-                  <span className="stat-value">{s.value}</span>
-                  <span className="stat-label">{s.label}</span>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Right: Holographic display panel */}
-          <motion.div
-            className="hero-holo-panel"
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.9, delay: 0.2 }}
-          >
-            <div className="holo-panel-frame">
-              <div className="panel-corner tl" />
-              <div className="panel-corner tr" />
-              <div className="panel-corner bl" />
-              <div className="panel-corner br" />
-              <div className="panel-scan-line" />
-
-              <div className="panel-content">
-                <div className="panel-header-row">
-                  <span className="panel-title">AI ANALYSIS ENGINE</span>
-                  <span className="panel-live">● LIVE</span>
-                </div>
-
-                {/* Fake data bars */}
-                <div className="analysis-bars">
-                  {['HDFC Bank', 'ICICI Bank', 'Axis Bank', 'SBI', 'Kotak', 'IndusInd'].map((bank, i) => (
-                    <div key={bank} className="bar-row">
-                      <span className="bar-label">{bank}</span>
-                      <div className="bar-track">
-                        <motion.div
-                          className="bar-fill"
-                          initial={{ width: 0 }}
-                          animate={{ width: `${55 + i * 7}%` }}
-                          transition={{ delay: 0.8 + i * 0.1, duration: 0.8 }}
-                          style={{ '--bar-color': i % 2 === 0 ? '#00d4ff' : '#7c3aed' }}
-                        />
-                      </div>
-                      <span className="bar-pct">{55 + i * 7}%</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="panel-footer-row">
-                  <div className="pf-item">
-                    <span className="pf-label">PROCESSING</span>
-                    <span className="pf-val text-glow">ACTIVE</span>
-                  </div>
-                  <div className="pf-item">
-                    <span className="pf-label">LATENCY</span>
-                    <span className="pf-val">12ms</span>
-                  </div>
-                  <div className="pf-item">
-                    <span className="pf-label">ACCURACY</span>
-                    <span className="pf-val" style={{ color: '#00ff88' }}>99.8%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Floating data chips */}
-            <motion.div className="float-chip chip-1" animate={{ y: [0, -8, 0] }} transition={{ duration: 3, repeat: Infinity }}>
-              <Zap size={12} color="#f59e0b" /> Instant Processing
-            </motion.div>
-            <motion.div className="float-chip chip-2" animate={{ y: [0, 8, 0] }} transition={{ duration: 3.5, repeat: Infinity }}>
-              <ShieldCheck size={12} color="#00ff88" /> Secure & Encrypted
-            </motion.div>
           </motion.div>
         </div>
 
-        {/* Scroll indicator */}
-        <motion.div
-          className="scroll-indicator"
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
+        {/* ===== MINI PROS FEATURE BANNER (InCred Style) ===== */}
+        <motion.div 
+          className="incred-mini-pros-banner"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          style={{
+            background: 'linear-gradient(135deg, #4A7BB0 0%, #205596 100%)',
+            borderRadius: '24px',
+            padding: '36px 40px',
+            color: '#ffffff',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '30px',
+            alignItems: 'center',
+            maxWidth: '1100px',
+            margin: '2rem auto 3rem',
+            boxShadow: '0 12px 35px rgba(32, 85, 150, 0.25)'
+          }}
         >
-          <ChevronDown size={20} color="#00d4ff" />
+          {/* Pro 1 */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '14px' }}>
+            <div style={{ width: '60px', height: '60px', borderRadius: '16px', background: 'rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+              <ShieldCheck size={30} color="#ffffff" />
+            </div>
+            <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#ffffff', lineHeight: 1.3 }}>
+              Enquiry Less Loan
+            </span>
+          </div>
+
+          {/* Pro 2 */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '14px' }}>
+            <div style={{ width: '60px', height: '60px', borderRadius: '16px', background: 'rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+              <Building2 size={30} color="#ffffff" />
+            </div>
+            <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#ffffff', lineHeight: 1.3 }}>
+              No Collateral Required
+            </span>
+          </div>
+
+          {/* Pro 3 */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '14px' }}>
+            <div style={{ width: '60px', height: '60px', borderRadius: '16px', background: 'rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+              <Zap size={30} color="#ffffff" />
+            </div>
+            <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#ffffff', lineHeight: 1.3 }}>
+              Comparison of 12 Banks in One Minute
+            </span>
+          </div>
         </motion.div>
       </section>
 
