@@ -1,25 +1,32 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:wght@500;600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap');
 
 :root {
-  /* PROFESSIONAL FINANCIAL AI PALETTE */
-  --bg-dark: #010409;
-  --bg-card: rgba(13, 22, 38, 0.7);
-  --bg-glass: rgba(0, 212, 255, 0.03);
+  /* INCRED FINANCE INSPIRED ULTRA-PREMIUM FINANCIAL PALETTE */
+  --bg-dark: #0b0f19;
+  --bg-dark-navy: #060814;
+  --bg-card: rgba(15, 23, 42, 0.75);
+  --bg-glass: rgba(245, 130, 32, 0.04);
 
+  /* SIGNATURE ACCENTS */
+  --incred-orange: #f58220;
+  --incred-orange-bright: #f47a20;
+  --incred-orange-glow: rgba(245, 130, 32, 0.35);
+  --incred-navy: #06064d;
+  
   --accent-cyan: #00d4ff;
   --accent-purple: #7c3aed;
-  --accent-blue: #3b82f6;
+  --accent-green: #0caf0c;
 
-  --text-primary: #f1f5f9;
+  --text-primary: #f8fafc;
   --text-header: #ffffff;
-  --text-muted: #64748b;
-  --text-muted-dark: #334155;
+  --text-muted: #94a3b8;
+  --text-muted-dark: #475569;
 
-  --border-glow: rgba(0, 212, 255, 0.15);
-  --border-active: rgba(0, 212, 255, 0.5);
-  --shadow-neon: 0 0 20px rgba(0, 212, 255, 0.1);
+  --border-glow: rgba(245, 130, 32, 0.2);
+  --border-active: rgba(245, 130, 32, 0.6);
+  --shadow-neon: 0 0 25px rgba(245, 130, 32, 0.15);
 
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', 'Montserrat', 'Poppins', system-ui, -apple-system, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -33,11 +40,11 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Global Grid Background Texture */
+/* Global InCred Financial Grid Background Texture */
 .professional-grid-bg {
   background-image:
-    linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(245, 130, 32, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245, 130, 32, 0.03) 1px, transparent 1px);
   background-size: 50px 50px;
 }
 

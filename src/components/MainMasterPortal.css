@@ -1,29 +1,29 @@
 :root {
-  --primary-portal: #6366f1;
-  --primary-glow: rgba(99, 102, 241, 0.5);
-  --dark-bg: #0a0f1c;
+  --primary-portal: #f58220;
+  --primary-glow: rgba(245, 130, 32, 0.45);
+  --dark-bg: #0b0f19;
   --glass-bg: rgba(255, 255, 255, 0.03);
-  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(245, 130, 32, 0.15);
 }
 
 .master-portal {
   min-height: 100vh;
   background-color: var(--dark-bg);
   color: #ffffff;
-  font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+  font-family: 'Inter', 'Montserrat', system-ui, sans-serif;
   overflow-x: hidden;
   position: relative;
 }
 
-/* Cinematic Background */
+/* Cinematic Background with InCred Orange Glow */
 .portal-bg-glow {
   position: fixed;
   top: -20%;
   left: -10%;
   width: 120%;
   height: 120%;
-  background: radial-gradient(circle at 50% 30%, rgba(99, 102, 241, 0.12), transparent 60%),
-              radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1), transparent 50%);
+  background: radial-gradient(circle at 50% 25%, rgba(245, 130, 32, 0.14), transparent 55%),
+              radial-gradient(circle at 80% 80%, rgba(6, 6, 77, 0.25), transparent 60%);
   pointer-events: none;
   z-index: 0;
 }
@@ -31,11 +31,11 @@
 .portal-grid {
   position: fixed;
   inset: 0;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  background-size: 40px 40px;
-  mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
-  opacity: 0.4;
+  background-image: linear-gradient(rgba(245, 130, 32, 0.03) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(245, 130, 32, 0.03) 1px, transparent 1px);
+  background-size: 45px 45px;
+  mask-image: radial-gradient(ellipse at center, black 45%, transparent 85%);
+  opacity: 0.5;
   z-index: 0;
 }
 
@@ -62,10 +62,11 @@
   font-size: 1.5rem;
   font-weight: 800;
   letter-spacing: 1px;
+  font-family: 'Montserrat', sans-serif;
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #ffc08a 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -79,27 +80,29 @@
 }
 
 .portal-badge {
-  background: rgba(99, 102, 241, 0.1);
-  border: 1px solid rgba(99, 102, 241, 0.2);
-  color: #a5b4fc;
-  padding: 0.5rem 1.2rem;
+  background: rgba(245, 130, 32, 0.12);
+  border: 1px solid rgba(245, 130, 32, 0.3);
+  color: #ffaa5e;
+  padding: 0.55rem 1.3rem;
   border-radius: 50px;
   font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 1px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 0 25px rgba(245, 130, 32, 0.2);
+  text-transform: uppercase;
 }
 
 .hero-title-main {
   font-size: 4rem;
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.1;
   margin-bottom: 1.5rem;
-  letter-spacing: -1px;
+  letter-spacing: -1.5px;
+  font-family: 'Montserrat', 'Inter', sans-serif;
 }
 
 .hero-subtitle-main {
@@ -122,8 +125,8 @@
 .choice-card {
   flex: 1;
   min-height: 420px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--glass-border);
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.8), rgba(6, 6, 77, 0.3));
+  border: 1px solid rgba(245, 130, 32, 0.2);
   border-radius: 24px;
   padding: 3rem;
   position: relative;
@@ -134,6 +137,7 @@
   flex-direction: column;
   align-items: flex-start;
   text-decoration: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .choice-card::before {
@@ -143,7 +147,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at top right, var(--card-glow), transparent 70%);
+  background: radial-gradient(circle at top right, rgba(245, 130, 32, 0.25), transparent 70%);
   opacity: 0;
   transition: opacity 0.4s ease;
   z-index: -1;
@@ -151,41 +155,41 @@
 
 .choice-card:hover {
   transform: translateY(-10px);
-  border-color: var(--card-accent);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
-              0 0 30px rgba(var(--card-glow-rgb), 0.1);
+  border-color: #f58220;
+  box-shadow: 0 20px 45px rgba(245, 130, 32, 0.2),
+              0 0 35px rgba(245, 130, 32, 0.15);
 }
 
 .choice-card:hover::before {
-  opacity: 0.3;
+  opacity: 0.4;
 }
 
 .card-icon-box {
   width: 64px;
   height: 64px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(245, 130, 32, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 2rem;
-  color: var(--card-accent);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f58220;
+  border: 1px solid rgba(245, 130, 32, 0.3);
   transition: all 0.4s;
 }
 
 .choice-card:hover .card-icon-box {
-  background: var(--card-accent);
+  background: #f58220;
   color: #ffffff;
-  box-shadow: 0 0 20px var(--card-accent);
+  box-shadow: 0 0 25px rgba(245, 130, 32, 0.6);
   transform: scale(1.1) rotate(-5deg);
 }
 
 .card-label {
   text-transform: uppercase;
   font-size: 0.75rem;
-  font-weight: 700;
-  color: #94a3b8;
+  font-weight: 800;
+  color: #ffaa5e;
   letter-spacing: 2px;
   margin-bottom: 0.5rem;
 }
@@ -195,10 +199,11 @@
   font-weight: 800;
   color: #ffffff;
   margin-bottom: 1rem;
+  font-family: 'Montserrat', sans-serif;
 }
 
 .card-description {
-  color: #94a3b8;
+  color: #cbd5e1;
   font-size: 1rem;
   line-height: 1.6;
   margin-bottom: auto;
@@ -209,13 +214,14 @@
   display: flex;
   align-items: center;
   gap: 0.8rem;
-  font-weight: 600;
-  color: var(--card-accent);
+  font-weight: 700;
+  color: #f58220;
   transition: gap 0.3s;
 }
 
 .choice-card:hover .card-arrow {
   gap: 1.2rem;
+  color: #ffaa5e;
 }
 
 /* Founder Adaptations */
@@ -238,6 +244,7 @@
   font-size: 2.5rem;
   font-weight: 800;
   margin-bottom: 1rem;
+  font-family: 'Montserrat', sans-serif;
 }
 
 .section-subtitle {
@@ -282,12 +289,12 @@
   }
 }
 
-/* Philosophy Banner */
+/* Philosophy Banner with InCred Warm Accent */
 .philosophy-banner {
   max-width: 850px;
   margin: 0 auto 3rem;
-  background: linear-gradient(145deg, rgba(99, 102, 241, 0.08), rgba(16, 185, 129, 0.03));
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(145deg, rgba(245, 130, 32, 0.08), rgba(6, 6, 77, 0.3));
+  border: 1px solid rgba(245, 130, 32, 0.2);
   border-radius: 24px;
   padding: 2.5rem;
   position: relative;
@@ -302,9 +309,9 @@
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 40%);
+  background: radial-gradient(circle, rgba(245, 130, 32, 0.12) 0%, transparent 40%);
   pointer-events: none;
-  opacity: 0.5;
+  opacity: 0.6;
 }
 
 .philosophy-flex {
@@ -315,8 +322,8 @@
 }
 
 .philosophy-icon-frame {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(245, 130, 32, 0.1);
+  border: 1px solid rgba(245, 130, 32, 0.3);
   width: 80px;
   height: 80px;
   border-radius: 20px;
@@ -324,15 +331,16 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
 .philosophy-content h3 {
   font-size: 1.6rem;
-  font-weight: 700;
+  font-weight: 800;
   margin-bottom: 0.8rem;
   color: #fff;
   letter-spacing: -0.5px;
+  font-family: 'Montserrat', sans-serif;
 }
 
 .philosophy-content p {
@@ -342,8 +350,8 @@
 }
 
 .highlight-text {
-  color: #a5b4fc;
-  font-weight: 600;
+  color: #ffaa5e;
+  font-weight: 700;
 }
 
 @media (max-width: 768px) {
@@ -356,3 +364,4 @@
     padding: 2rem 1.5rem;
   }
 }
+
