@@ -14,12 +14,12 @@
   --incred-blue-bg: #EEF3FA;
   --incred-cream-bg: #FFF4EC;
 
-  /* BANKING LIGHT LAYOUT BACKGROUNDS */
-  --bg-dark: #F8FAFC;
+  /* BANKING UNIFORM PURE WHITE LAYOUT BACKGROUNDS */
+  --bg-dark: #FFFFFF;
   --bg-surface: #FFFFFF;
-  --bg-body: #FAFAFA;
+  --bg-body: #FFFFFF;
   --bg-card: #FFFFFF;
-  --bg-card-muted: #F1F5F9;
+  --bg-card-muted: #F8FAFC;
 
   /* ACCENTS */
   --accent-green: #0CAF0C;
@@ -45,7 +45,7 @@
 
   color-scheme: light;
   color: var(--text-primary);
-  background-color: var(--bg-dark);
+  background-color: #FFFFFF;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;

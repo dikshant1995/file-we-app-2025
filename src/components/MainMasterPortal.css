@@ -1,29 +1,28 @@
 :root {
   --primary-portal: #f58220;
   --primary-glow: rgba(245, 130, 32, 0.25);
-  --dark-bg: #fafafa;
+  --dark-bg: #ffffff;
   --glass-bg: #ffffff;
   --glass-border: #e2e8f0;
 }
 
 .master-portal {
   min-height: 100vh;
-  background-color: #fafafa;
+  background-color: #ffffff;
   color: #0f172a;
   font-family: 'Inter', 'Montserrat', system-ui, sans-serif;
   overflow-x: hidden;
   position: relative;
 }
 
-/* Light Background Gradient with Warm InCred Cream & Soft Blue Tone */
+/* Light Background Gradient with Pure White Base */
 .portal-bg-glow {
   position: fixed;
   top: -20%;
   left: -10%;
   width: 120%;
   height: 120%;
-  background: radial-gradient(circle at 50% 15%, #fff4ec, transparent 60%),
-              radial-gradient(circle at 80% 80%, #eef3fa, transparent 65%);
+  background: radial-gradient(circle at 50% 15%, rgba(255, 244, 236, 0.5), transparent 60%);
   pointer-events: none;
   z-index: 0;
 }

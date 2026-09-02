@@ -1,6 +1,6 @@
 .customer-facing-app {
   min-height: 100vh;
-  background: #f8fafc;
+  background: #ffffff;
   position: relative;
   overflow-x: hidden;
   color: #0f172a;
@@ -9,7 +9,7 @@
 /* ===== FORM PAGE (full page replacement) ===== */
 .form-page {
   min-height: 100vh;
-  background: linear-gradient(180deg, #fff4ec 0%, #f8fafc 40%, #ffffff 100%);
+  background: #ffffff;
   position: relative;
   overflow-x: hidden;
   display: flex;

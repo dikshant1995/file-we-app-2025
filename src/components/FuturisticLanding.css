@@ -5,7 +5,7 @@
 /* ===== BASE ===== */
 .holo-landing {
   min-height: 100vh;
-  background: #fafafa;
+  background: #ffffff;
   position: relative;
   overflow-x: hidden;
   color: #0f172a;
@@ -15,10 +15,7 @@
 .holo-bg-base {
   position: fixed;
   inset: 0;
-  background:
-    radial-gradient(ellipse 80% 50% at 20% 10%, #fff4ec 0%, transparent 65%),
-    radial-gradient(ellipse 60% 50% at 80% 80%, #eef3fa 0%, transparent 65%),
-    #fafafa;
+  background: #ffffff;
   pointer-events: none;
   z-index: 0;
 }
