@@ -226,14 +226,13 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             }}
           >
             <img 
-              src="/incred-model.jpg" 
-              alt="Laxmi Credit Personal Loan Model" 
+              src="/incred-model-cutout.png" 
+              alt="Laxmi Credit Model Cutout" 
               style={{
-                maxHeight: '450px',
+                maxHeight: '460px',
                 width: 'auto',
                 objectFit: 'contain',
-                filter: 'drop-shadow(0 15px 30px rgba(0, 0, 0, 0.08))',
-                mixBlendMode: 'multiply'
+                filter: 'drop-shadow(0 15px 30px rgba(0, 0, 0, 0.12))'
               }}
             />
           </motion.div>
