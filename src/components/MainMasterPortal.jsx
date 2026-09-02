@@ -331,15 +331,15 @@ const MainMasterPortal = ({ onAdminClick }) => {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
             style={{
-              fontFamily: "'Inter', 'Mulish', 'Plus Jakarta Sans', sans-serif",
-              fontSize: '1.25rem',
-              color: '#475569',
-              fontWeight: 500,
+              fontFamily: "'Mulish', 'Inter', 'Plus Jakarta Sans', sans-serif",
+              fontSize: '1.3rem',
+              color: '#555555',
+              fontWeight: 400,
               textAlign: 'center',
-              maxWidth: '820px',
+              maxWidth: '840px',
               margin: '0 auto 3.5rem',
               lineHeight: 1.6,
-              letterSpacing: '0.1px'
+              letterSpacing: '0.3px'
             }}
           >
             Discover your maximum loan amount and lowest interest rate across 12+ top banks in 60 seconds — with zero CIBIL impact.
