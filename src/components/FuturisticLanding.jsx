@@ -211,7 +211,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             </div>
           </div>
 
-          {/* Right Column: Model Container Slot */}
+          {/* Right Column: Model Image */}
           <motion.div 
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
@@ -219,40 +219,23 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             className="hero-model-right-slot"
             style={{ 
               width: '100%', 
-              minHeight: '360px', 
               display: 'flex', 
-              alignItems: 'center', 
+              alignItems: 'flex-end', 
               justifyContent: 'center',
               position: 'relative'
             }}
           >
-            {/* Ready slot for Model image */}
-            <div 
-              style={{ 
-                width: '100%', 
-                height: '100%', 
-                minHeight: '360px', 
-                borderRadius: '24px', 
-                border: '2px dashed rgba(30, 64, 175, 0.25)', 
-                background: 'linear-gradient(135deg, rgba(255, 244, 236, 0.6) 0%, rgba(238, 243, 250, 0.6) 100%)', 
-                display: 'flex', 
-                flexDirection: 'column', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                padding: '30px',
-                textAlign: 'center'
+            <img 
+              src="/incred-model.jpg" 
+              alt="Laxmi Credit Personal Loan Model" 
+              style={{
+                maxHeight: '450px',
+                width: 'auto',
+                objectFit: 'contain',
+                filter: 'drop-shadow(0 15px 30px rgba(0, 0, 0, 0.08))',
+                mixBlendMode: 'multiply'
               }}
-            >
-              <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px rgba(0,0,0,0.06)', marginBottom: '14px' }}>
-                <UserCircle2 size={38} color="#F58220" />
-              </div>
-              <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: "'Mulish', sans-serif", color: '#1E40AF', marginBottom: '6px' }}>
-                MODEL IMAGE SLOT
-              </span>
-              <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600, maxWidth: '240px', lineHeight: 1.4 }}>
-                Right side container ready for your model photo
-              </span>
-            </div>
+            />
           </motion.div>
 
         </div>
