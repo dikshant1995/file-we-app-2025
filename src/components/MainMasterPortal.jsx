@@ -290,9 +290,9 @@ const MainMasterPortal = ({ onAdminClick }) => {
           </motion.div>
 
         {/* ===== VALUE PROPOSITION SECTION (InCred Style) ===== */}
-        <section className="incred-value-props-section" style={{ padding: '60px 20px 60px', maxWidth: '1280px', margin: '0 auto' }}>
+        <section className="incred-value-props-section" style={{ padding: '60px 20px 50px', maxWidth: '1280px', margin: '0 auto' }}>
           
-          {/* Main Heading (InCred Screenshot Style) */}
+          {/* Main Heading (InCred Screenshot Exact Style & Size) */}
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -300,13 +300,13 @@ const MainMasterPortal = ({ onAdminClick }) => {
             transition={{ duration: 0.6 }}
             style={{
               fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif",
-              fontSize: '2.6rem',
+              fontSize: '2.35rem',
               fontWeight: 800,
-              color: '#1E293B',
+              color: '#1F2937',
               textAlign: 'center',
-              lineHeight: 1.25,
-              marginBottom: '1.2rem',
-              letterSpacing: '-0.8px'
+              lineHeight: 1.3,
+              marginBottom: '1rem',
+              letterSpacing: '-0.5px'
             }}
           >
             Looking for an enquiry-free<br />
@@ -321,13 +321,13 @@ const MainMasterPortal = ({ onAdminClick }) => {
             transition={{ duration: 0.6, delay: 0.1 }}
             style={{
               fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif",
-              fontSize: '1.25rem',
-              color: '#64748B',
+              fontSize: '1.15rem',
+              color: '#6B7280',
               fontWeight: 400,
               textAlign: 'center',
-              maxWidth: '820px',
+              maxWidth: '780px',
               margin: '0 auto 3.5rem',
-              lineHeight: 1.6
+              lineHeight: 1.5
             }}
           >
             With Laxmi Credit personal loan, you can turn your instant needs or long-term dreams into a reality.
@@ -339,7 +339,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
               display: 'grid', 
               gridTemplateColumns: 'repeat(3, 1fr)', 
               gap: '40px', 
-              maxWidth: '1100px', 
+              maxWidth: '1000px', 
               margin: '0 auto 3.5rem',
               textAlign: 'center'
             }}
@@ -352,13 +352,13 @@ const MainMasterPortal = ({ onAdminClick }) => {
               transition={{ duration: 0.6, delay: 0.1 }}
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
             >
-              <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 10px 25px rgba(37, 99, 235, 0.1)' }}>
-                <MonitorSmartphone size={40} color="#2563EB" strokeWidth={1.8} />
+              <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 8px 20px rgba(37, 99, 235, 0.08)' }}>
+                <MonitorSmartphone size={42} color="#2563EB" strokeWidth={1.8} />
               </div>
-              <h4 style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.35rem', fontWeight: 800, color: '#0F172A', marginBottom: '4px' }}>
+              <h4 style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.25rem', fontWeight: 800, color: '#1F2937', marginBottom: '2px' }}>
                 Seamless Digital
               </h4>
-              <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.1rem', color: '#94A3B8', fontWeight: 500 }}>
+              <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.05rem', color: '#9CA3AF', fontWeight: 400 }}>
                 Journey
               </p>
             </motion.div>
@@ -371,13 +371,13 @@ const MainMasterPortal = ({ onAdminClick }) => {
               transition={{ duration: 0.6, delay: 0.2 }}
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
             >
-              <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 10px 25px rgba(37, 99, 235, 0.1)' }}>
-                <RefreshCw size={40} color="#2563EB" strokeWidth={1.8} />
+              <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 8px 20px rgba(37, 99, 235, 0.08)' }}>
+                <RefreshCw size={42} color="#2563EB" strokeWidth={1.8} />
               </div>
-              <h4 style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.35rem', fontWeight: 800, color: '#0F172A', marginBottom: '4px' }}>
+              <h4 style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.25rem', fontWeight: 800, color: '#1F2937', marginBottom: '2px' }}>
                 Quick access
               </h4>
-              <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.1rem', color: '#94A3B8', fontWeight: 500 }}>
+              <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.05rem', color: '#9CA3AF', fontWeight: 400 }}>
                 to funds
               </p>
             </motion.div>
@@ -390,13 +390,13 @@ const MainMasterPortal = ({ onAdminClick }) => {
               transition={{ duration: 0.6, delay: 0.3 }}
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
             >
-              <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 10px 25px rgba(37, 99, 235, 0.1)' }}>
-                <FileText size={40} color="#2563EB" strokeWidth={1.8} />
+              <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 8px 20px rgba(37, 99, 235, 0.08)' }}>
+                <FileText size={42} color="#2563EB" strokeWidth={1.8} />
               </div>
-              <h4 style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.35rem', fontWeight: 800, color: '#0F172A', marginBottom: '4px' }}>
+              <h4 style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.25rem', fontWeight: 800, color: '#1F2937', marginBottom: '2px' }}>
                 Minimal
               </h4>
-              <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.1rem', color: '#94A3B8', fontWeight: 500 }}>
+              <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.05rem', color: '#9CA3AF', fontWeight: 400 }}>
                 paperwork
               </p>
             </motion.div>
@@ -410,13 +410,13 @@ const MainMasterPortal = ({ onAdminClick }) => {
             transition={{ duration: 0.6 }}
             style={{
               fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif",
-              fontSize: '1.15rem',
-              color: '#475569',
+              fontSize: '1.05rem',
+              color: '#6B7280',
               fontWeight: 400,
               textAlign: 'center',
-              maxWidth: '860px',
+              maxWidth: '820px',
               margin: '0 auto 3rem',
-              lineHeight: 1.7
+              lineHeight: 1.6
             }}
           >
             Whether it's managing a medical emergency, planning a wedding, or renovating your home, we provide flexible repayment options and competitive personal loan interest rates tailored to your requirements.
@@ -441,7 +441,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
               border: '1px solid rgba(245, 130, 32, 0.2)'
             }}
           >
-            <span style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.35rem', fontWeight: 800, color: '#1E293B', letterSpacing: '-0.3px' }}>
+            <span style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.3rem', fontWeight: 800, color: '#1F2937', letterSpacing: '-0.3px' }}>
               Start your loan application
             </span>
             <Link to="/personal-loan" style={{ textDecoration: 'none' }}>
@@ -454,7 +454,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                   border: 'none',
                   borderRadius: '50px',
                   padding: '12px 36px',
-                  fontSize: '1.1rem',
+                  fontSize: '1.05rem',
                   fontWeight: 800,
                   cursor: 'pointer',
                   boxShadow: '0 6px 20px rgba(245, 130, 32, 0.35)',
