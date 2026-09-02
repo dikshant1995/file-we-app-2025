@@ -421,14 +421,15 @@ const MainMasterPortal = ({ onAdminClick }) => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
             style={{
-              fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif",
-              fontSize: '1.05rem',
-              color: '#6B7280',
+              fontFamily: "'Mulish', 'Inter', 'Plus Jakarta Sans', sans-serif",
+              fontSize: '1.3rem',
+              color: '#555555',
               fontWeight: 400,
               textAlign: 'center',
-              maxWidth: '820px',
+              maxWidth: '840px',
               margin: '0 auto 3rem',
-              lineHeight: 1.6
+              lineHeight: 1.6,
+              letterSpacing: '0.3px'
             }}
           >
             Whether it's managing a medical emergency, planning a wedding, or renovating your home, we provide flexible repayment options and competitive personal loan interest rates tailored to your requirements.
