@@ -95,30 +95,34 @@ const MainMasterPortal = ({ onAdminClick }) => {
           </div>
         </header>
 
-        {/* Hero Section - Exact InCred Layout */}
-        <section className="portal-hero" style={{ padding: '40px 20px 0', maxWidth: '1200px', margin: '0 auto', position: 'relative' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', alignItems: 'flex-start', minHeight: '440px' }}>
-            {/* Left Column: Headline & CTA */}
+        {/* Hero Section */}
+        <section className="portal-hero" style={{ padding: '40px 20px 0px', maxWidth: '1240px', margin: '0 auto', position: 'relative' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: '20px', alignItems: 'flex-end' }}>
+            {/* Left Column: Text & CTA */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
-              style={{ textAlign: 'left', paddingTop: '20px' }}
+              style={{ textAlign: 'left', paddingBottom: '30px' }}
             >
-              <h1 className="hero-hook-title" style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", margin: 0, padding: 0 }}>
-                <span style={{ display: 'block', fontSize: '3rem', fontWeight: 300, color: '#525252', lineHeight: 1.15, letterSpacing: '-0.5px' }}>
+              <h1 className="hero-hook-title" style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", margin: 0 }}>
+                <span style={{ display: 'block', fontWeight: 400, fontSize: '2.8rem', color: '#525252', lineHeight: 1.18, letterSpacing: '-0.5px' }}>
                   Apply for Instant
                 </span>
-                <span style={{ display: 'block', fontSize: '3rem', fontWeight: 300, color: '#525252', lineHeight: 1.15, letterSpacing: '-0.5px' }}>
+                <span style={{ display: 'block', fontWeight: 400, fontSize: '2.8rem', color: '#525252', lineHeight: 1.18, letterSpacing: '-0.5px' }}>
                   Personal Loan upto
                 </span>
-                <span style={{ display: 'block', fontSize: '4.5rem', fontWeight: 900, color: '#1E40AF', lineHeight: 1.1, marginTop: '8px', letterSpacing: '-1.5px' }}>
-                  <span style={{ color: '#F58220' }}>₹75</span> lakhs
+                <span style={{ display: 'block', fontWeight: 900, fontSize: '4.2rem', color: '#1D4ED8', lineHeight: 1.1, marginTop: '8px', letterSpacing: '-1.5px' }}>
+                  <span style={{ color: '#1D4ED8' }}>₹75 lakhs</span>
                 </span>
               </h1>
 
-              {/* Signature InCred Orange Pill CTA Button */}
-              <div style={{ marginTop: '32px' }}>
+              <p style={{ fontSize: '1.15rem', color: '#475569', fontWeight: 600, fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", margin: '1.2rem 0 2rem', maxWidth: '540px' }}>
+                Compare exact rates, tenure & FOIR policy approvals across 12+ leading Indian banks in milliseconds. 100% Digital & Instant.
+              </p>
+
+              {/* Check Loan Eligibility Button */}
+              <div>
                 <Link to="/personal-loan" style={{ textDecoration: 'none' }}>
                   <motion.button
                     className="check-eligibility-btn"
@@ -129,7 +133,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                       color: '#ffffff',
                       border: 'none',
                       borderRadius: '50px',
-                      padding: '16px 46px',
+                      padding: '16px 48px',
                       cursor: 'pointer',
                       boxShadow: '0 10px 28px rgba(245, 130, 32, 0.4)',
                       textAlign: 'center',
@@ -151,22 +155,28 @@ const MainMasterPortal = ({ onAdminClick }) => {
               </div>
             </motion.div>
 
-            {/* Right Column: Model Image (Standing Tall & Gesturing Left) */}
+            {/* Right Column: Model Image Overlapping Blue Banner */}
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.1 }}
-              style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-end', height: '100%', position: 'relative' }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'flex-end', 
+                position: 'relative', 
+                marginBottom: '-40px',
+                zIndex: 10 
+              }}
             >
               <img 
                 src="/incred-model.png" 
                 alt="Laxmi Credit Personal Loan Ambassador" 
                 style={{ 
-                  maxHeight: '490px', 
+                  maxHeight: '520px', 
                   width: 'auto', 
                   objectFit: 'contain',
-                  marginBottom: '-10px',
-                  filter: 'drop-shadow(0 10px 25px rgba(0,0,0,0.08))'
+                  filter: 'drop-shadow(0 15px 30px rgba(0,0,0,0.12))'
                 }} 
               />
             </motion.div>
@@ -177,19 +187,21 @@ const MainMasterPortal = ({ onAdminClick }) => {
             className="incred-mini-pros-banner"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
             style={{
-              background: 'linear-gradient(135deg, #3B72AF 0%, #1D4B82 100%)',
+              background: 'linear-gradient(135deg, #4A7BB0 0%, #205596 100%)',
               borderRadius: '24px',
-              padding: '32px 40px',
+              padding: '36px 40px',
               color: '#ffffff',
               display: 'grid',
               gridTemplateColumns: 'repeat(3, 1fr)',
               gap: '30px',
               alignItems: 'center',
               maxWidth: '1200px',
-              margin: '2rem auto 3rem',
-              boxShadow: '0 12px 35px rgba(29, 75, 130, 0.25)'
+              margin: '0 auto 3rem',
+              position: 'relative',
+              zIndex: 1,
+              boxShadow: '0 12px 35px rgba(32, 85, 150, 0.25)'
             }}
           >
             {/* Pro 1 */}
