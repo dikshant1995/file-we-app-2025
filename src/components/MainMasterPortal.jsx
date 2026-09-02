@@ -52,9 +52,20 @@ const MainMasterPortal = ({ onAdminClick }) => {
         <header className="portal-header-wrapper">
           <div className="portal-header">
             <div className="portal-logo" style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
-              <span style={{ fontSize: '1.9rem', fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", letterSpacing: '-0.8px', display: 'inline-flex', alignItems: 'center' }}>
-                <span style={{ color: '#F58220', fontWeight: 900, fontStyle: 'italic' }}>Laxmi</span>
-                <span style={{ color: '#1E40AF', fontWeight: 800, fontStyle: 'italic', marginLeft: '4px' }}>credit</span>
+              <span 
+                style={{ 
+                  fontSize: '1.9rem', 
+                  fontWeight: 900, 
+                  fontStyle: 'italic', 
+                  fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", 
+                  letterSpacing: '-0.8px',
+                  background: 'linear-gradient(135deg, #F58220 0%, #1E40AF 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  display: 'inline-block'
+                }}
+              >
+                Laxmi credit
               </span>
             </div>
             <div className="portal-nav-actions">

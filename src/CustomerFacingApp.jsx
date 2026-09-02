@@ -203,9 +203,20 @@ function CustomerFacingApp() {
               ← Back to Home
             </button>
             <div className="form-nav-brand" style={{ cursor: 'pointer' }} onClick={() => { navigate('/'); window.scrollTo({ top: 0 }); }}>
-              <span style={{ fontSize: '1.6rem', fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", letterSpacing: '-0.8px', display: 'inline-flex', alignItems: 'center' }}>
-                <span style={{ color: '#F58220', fontWeight: 900, fontStyle: 'italic' }}>Laxmi</span>
-                <span style={{ color: '#1E40AF', fontWeight: 800, fontStyle: 'italic', marginLeft: '4px' }}>credit</span>
+              <span 
+                style={{ 
+                  fontSize: '1.65rem', 
+                  fontWeight: 900, 
+                  fontStyle: 'italic', 
+                  fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", 
+                  letterSpacing: '-0.8px',
+                  background: 'linear-gradient(135deg, #F58220 0%, #1E40AF 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  display: 'inline-block'
+                }}
+              >
+                Laxmi credit
               </span>
             </div>
             <div className="form-nav-status">
