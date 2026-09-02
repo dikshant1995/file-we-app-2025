@@ -406,17 +406,18 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
+            whileHover={{ y: -6, scale: 1.04 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }}
           >
-            <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 8px 20px rgba(37, 99, 235, 0.08)' }}>
-              <Building2 size={42} color="#2563EB" strokeWidth={1.8} />
+            <div style={{ width: '90px', height: '90px', borderRadius: '26px', background: 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)', border: '1.5px solid #BFDBFE', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 10px 25px rgba(37, 99, 235, 0.12)' }}>
+              <Building2 size={46} color="#1D4ED8" strokeWidth={2.2} />
             </div>
-            <h4 style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.25rem', fontWeight: 800, color: '#1F2937', marginBottom: '2px' }}>
+            <h4 style={{ fontFamily: "'Outfit', 'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.35rem', fontWeight: 850, color: '#0F172A', marginBottom: '3px' }}>
               12+ Lenders
             </h4>
-            <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.05rem', color: '#9CA3AF', fontWeight: 400 }}>
+            <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.1rem', color: '#475569', fontWeight: 600 }}>
               Comparison
             </p>
           </motion.div>
@@ -425,17 +426,18 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
+            whileHover={{ y: -6, scale: 1.04 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }}
           >
-            <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 8px 20px rgba(37, 99, 235, 0.08)' }}>
-              <Lock size={42} color="#2563EB" strokeWidth={1.8} />
+            <div style={{ width: '90px', height: '90px', borderRadius: '26px', background: 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)', border: '1.5px solid #BFDBFE', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 10px 25px rgba(37, 99, 235, 0.12)' }}>
+              <Lock size={46} color="#1D4ED8" strokeWidth={2.2} />
             </div>
-            <h4 style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.25rem', fontWeight: 800, color: '#1F2937', marginBottom: '2px' }}>
+            <h4 style={{ fontFamily: "'Outfit', 'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.35rem', fontWeight: 850, color: '#0F172A', marginBottom: '3px' }}>
               Zero CIBIL
             </h4>
-            <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.05rem', color: '#9CA3AF', fontWeight: 400 }}>
+            <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.1rem', color: '#475569', fontWeight: 600 }}>
               Impact
             </p>
           </motion.div>
@@ -444,17 +446,18 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
+            whileHover={{ y: -6, scale: 1.04 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+            transition={{ duration: 0.4, delay: 0.3 }}
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }}
           >
-            <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 8px 20px rgba(37, 99, 235, 0.08)' }}>
-              <Zap size={42} color="#2563EB" strokeWidth={1.8} />
+            <div style={{ width: '90px', height: '90px', borderRadius: '26px', background: 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)', border: '1.5px solid #BFDBFE', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 10px 25px rgba(37, 99, 235, 0.12)' }}>
+              <Zap size={46} color="#1D4ED8" strokeWidth={2.2} />
             </div>
-            <h4 style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.25rem', fontWeight: 800, color: '#1F2937', marginBottom: '2px' }}>
+            <h4 style={{ fontFamily: "'Outfit', 'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.35rem', fontWeight: 850, color: '#0F172A', marginBottom: '3px' }}>
               100% Digital
             </h4>
-            <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.05rem', color: '#9CA3AF', fontWeight: 400 }}>
+            <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.1rem', color: '#475569', fontWeight: 600 }}>
               Process
             </p>
           </motion.div>
