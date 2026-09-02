@@ -168,6 +168,16 @@ function CustomerFacingApp() {
   const navigate = useNavigate();
   const isMasterPortal = location.pathname === '/';
 
+  // Automatically open application form directly when visiting /personal-loan
+  React.useEffect(() => {
+    if (location.pathname === '/personal-loan') {
+      setShowForm(true);
+    } else if (location.pathname === '/') {
+      setShowForm(false);
+      setResults(null);
+    }
+  }, [location.pathname]);
+
   if (showAdminDashboard) {
     return <AdminDashboard onBackToCustomer={handleBackToCustomer} />;
   }
@@ -181,31 +191,23 @@ function CustomerFacingApp() {
         <Route path="/" element={<MainMasterPortal />} />
         <Route path="/personal-loan" element={
           <>
-            {/* PAGE 1: Landing — shown when form not yet opened and no results */}
-            {!showForm && !results && (
-                <FuturisticLanding
-                  onGetStarted={() => setShowForm(true)}
-                  onAdminClick={() => setShowAdminDashboard(true)}
-                  onBlogClick={() => navigate('/blog')}
-                />)}
-
-      {/* PAGE 2: Application Form — full page replacement */}
-      {showForm && !results && (
+      {/* PAGE 1: Application Form — direct page replacement without intermediate landing */}
+      {(showForm || !results) && !results && (
         <div
           className="form-page"
           style={{ animation: 'formFadeIn 0.35s ease-out forwards' }}
         >
           {/* Form Page Navbar */}
           <nav className="form-page-nav">
-            <button className="form-back-btn" onClick={() => { setShowForm(false); window.scrollTo({ top: 0 }); }}>
-              ← Back
+            <button className="form-back-btn" onClick={() => { setShowForm(false); setResults(null); navigate('/'); window.scrollTo({ top: 0 }); }}>
+              ← Back to Home
             </button>
             <div className="form-nav-brand">
-              <span className="text-glow">Laxmi Omni Architect</span>
-              <span className="ai-badge">CORE v4</span>
+              <span style={{ color: '#06064D', fontWeight: 900, fontFamily: 'Montserrat, sans-serif' }}>LAXMI</span>
+              <span style={{ color: '#F58220', fontWeight: 900, fontFamily: 'Montserrat, sans-serif' }}>CREDIT</span>
             </div>
             <div className="form-nav-status">
-              <span className="dot"></span> AI Engine Active
+              <span className="dot"></span> 12+ Bank Engine Active
             </div>
           </nav>
 
