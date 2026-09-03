@@ -93,57 +93,37 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
     <div className="customer-results-display">
       {/* Results Header */}
       <div className="results-header">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <button
-            onClick={onNewCalculation}
-            style={{
-              background: '#fff7ed',
-              border: '1.5px solid #F58220',
-              color: '#F58220',
-              padding: '9px 20px',
-              borderRadius: '50px',
-              cursor: 'pointer',
-              fontSize: '0.9rem',
-              fontWeight: 650,
-              fontFamily: 'Inter, sans-serif',
-              transition: 'all 0.2s ease'
-            }}
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <h2 style={{
+            fontFamily: 'Outfit, "Plus Jakarta Sans", Inter, sans-serif',
+            fontStyle: 'normal',
+            fontWeight: 750,
+            color: 'rgb(66, 66, 66)',
+            fontSize: 'clamp(26px, 3.5vw, 38px)',
+            lineHeight: '48px',
+            margin: '0 0 6px 0'
+          }}>
+            Institutional <span style={{ color: '#F58220' }}>Eligibility Analysis</span>
+          </h2>
+          <div style={{ width: '42px', height: '3.5px', backgroundColor: '#F58220', borderRadius: '2px', margin: '0 auto 12px' }} />
+
+          {metadata && (
+            <div className="company-info-header">
+              <span className="company-pill">
+                🏢 {metadata.companyName || 'Corporate Entity'}
+              </span>
+              <span className="category-pill">
+                Category: <strong>{results.find(r => r.category)?.category || metadata.category || 'Standard'}</strong>
+              </span>
+            </div>
+          )}
+          <p>Verified assessment results across {results.length} banking institutions</p>
+          <button 
+            className="btn-download-pdf" 
+            onClick={() => window.print()}
           >
-            ← Modify Data
+            📄 Download/Print Result Report
           </button>
-          <div style={{ flex: 1, textAlign: 'center', marginRight: '100px' }}>
-            <h2 style={{
-              fontFamily: 'Outfit, "Plus Jakarta Sans", Inter, sans-serif',
-              fontStyle: 'normal',
-              fontWeight: 750,
-              color: 'rgb(66, 66, 66)',
-              fontSize: 'clamp(26px, 3.5vw, 38px)',
-              lineHeight: '48px',
-              margin: '0 0 6px 0'
-            }}>
-              Institutional <span style={{ color: '#F58220' }}>Eligibility Analysis</span>
-            </h2>
-            <div style={{ width: '42px', height: '3.5px', backgroundColor: '#F58220', borderRadius: '2px', margin: '0 auto 12px' }} />
-
-
-            {metadata && (
-              <div className="company-info-header">
-                <span className="company-pill">
-                  🏢 {metadata.companyName || 'Corporate Entity'}
-                </span>
-                <span className="category-pill">
-                  Category: <strong>{results.find(r => r.category)?.category || metadata.category || 'Standard'}</strong>
-                </span>
-              </div>
-            )}
-            <p>Verified assessment results across {results.length} banking institutions</p>
-            <button 
-              className="btn-download-pdf" 
-              onClick={() => window.print()}
-            >
-              📄 Download/Print Result Report
-            </button>
-          </div>
         </div>
       </div>
 
