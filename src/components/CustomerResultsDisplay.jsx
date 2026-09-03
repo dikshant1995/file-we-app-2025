@@ -367,46 +367,23 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
                             height: '22px',
                             minWidth: '22px',
                             borderRadius: '6px',
-                            border: `2px solid ${selectedBanks.includes(bank.bankName) ? '#F58220' : '#cbd5e1'}`,
-                            background: selectedBanks.includes(bank.bankName) ? '#F58220' : '#ffffff',
+                            border: selectedBanks.includes(bank.bankName) ? '2px solid #ffffff' : '2px solid rgba(255, 255, 255, 0.7)',
+                            background: selectedBanks.includes(bank.bankName) ? '#ffffff' : 'rgba(255, 255, 255, 0.2)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             transition: 'all 0.2s',
-                            boxShadow: selectedBanks.includes(bank.bankName) ? '0 2px 8px rgba(245, 130, 32, 0.3)' : 'none'
+                            boxShadow: selectedBanks.includes(bank.bankName) ? '0 2px 8px rgba(0, 0, 0, 0.2)' : 'none'
                           }}
                         >
-                          {selectedBanks.includes(bank.bankName) && <span style={{ color: '#ffffff', fontSize: '14px', fontWeight: 'bold' }}>✓</span>}
+                          {selectedBanks.includes(bank.bankName) && <span style={{ color: '#1E40AF', fontSize: '14px', fontWeight: 'bold' }}>✓</span>}
                         </div>
                       )}
                       <h4>{bank.bankName}</h4>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-                      {bank === bestOffer && (
-                        <span className="best-badge" style={{
-                          background: 'rgb(245, 130, 32)',
-                          color: '#ffffff',
-                          fontSize: '0.72rem',
-                          fontWeight: 750,
-                          padding: '4px 10px',
-                          borderRadius: '20px',
-                          letterSpacing: '0.5px',
-                          textTransform: 'uppercase',
-                          boxShadow: '0 2px 6px rgba(245, 130, 32, 0.3)',
-                          whiteSpace: 'nowrap'
-                        }}>
-                          OPTIMAL
-                        </span>
-                      )}
-                      <div className={`status-badge ${bank.eligible ? 'approved' : 'rejected'}`} style={{
-                        background: bank.eligible ? '#EEF3FA' : '#F8FAFC',
-                        color: bank.eligible ? '#1E40AF' : 'rgb(66, 66, 66)',
-                        border: `1px solid ${bank.eligible ? '#BFDBFE' : '#E2E8F0'}`,
-                        whiteSpace: 'nowrap'
-                      }}>
-                        {bank.eligible ? '✓ Approved' : '✕ Rejected'}
-                      </div>
+                    <div className={`status-badge ${bank.eligible ? 'approved' : 'rejected'}`}>
+                      {bank.eligible ? '✓ Approved' : '✕ Rejected'}
                     </div>
                   </div>
 
