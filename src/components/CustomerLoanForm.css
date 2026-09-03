@@ -104,22 +104,23 @@
   margin-left: 4px;
 }
 
-/* ---- Inputs & Selects ---- */
-.customer-loan-form input,
+/* ---- Inputs & Selects (Default Orange Highlighted) ---- */
+.customer-loan-form input:not([type="checkbox"]):not([type="radio"]),
 .customer-loan-form select,
 .customer-loan-form textarea,
-.form-group input,
+.form-group input:not([type="checkbox"]):not([type="radio"]),
 .form-group select {
   width: 100%;
   padding: 13px 16px;
   background-color: #ffffff !important;
-  border: 1.5px solid #cbd5e1;
+  border: 1.5px solid #f58220 !important;
   border-radius: 10px;
   font-size: 0.98rem;
   font-weight: 600 !important;
   color: #111827 !important;
   -webkit-text-fill-color: #111827 !important;
   caret-color: #f58220 !important;
+  box-shadow: 0 0 0 2px rgba(245, 130, 32, 0.12) !important;
   transition: all 0.2s ease;
   outline: none;
   font-family: 'Inter', sans-serif;
@@ -127,12 +128,20 @@
   opacity: 1 !important;
 }
 
-.customer-loan-form input:focus,
+.customer-loan-form input:not([type="checkbox"]):not([type="radio"]):hover,
+.customer-loan-form select:hover,
+.form-group input:not([type="checkbox"]):not([type="radio"]):hover,
+.form-group select:hover {
+  border-color: #ea580c !important;
+  box-shadow: 0 0 0 3px rgba(245, 130, 32, 0.2) !important;
+}
+
+.customer-loan-form input:not([type="checkbox"]):not([type="radio"]):focus,
 .customer-loan-form select:focus,
-.form-group input:focus,
+.form-group input:not([type="checkbox"]):not([type="radio"]):focus,
 .form-group select:focus {
-  border-color: #f58220 !important;
-  box-shadow: 0 0 0 3.5px rgba(245, 130, 32, 0.18) !important;
+  border-color: #ea580c !important;
+  box-shadow: 0 0 0 4px rgba(245, 130, 32, 0.28) !important;
   background-color: #ffffff !important;
   color: #111827 !important;
   -webkit-text-fill-color: #111827 !important;

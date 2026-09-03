@@ -838,7 +838,6 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome }) => {
                       value={loan.lender}
                       onChange={(e) => handleLoanChange(loan.id, 'lender', e.target.value)}
                       required
-                      style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '2px solid #e0e0e0' }}
                     >
                       <option value="">-- Select Bank --</option>
                       <option value="kotak mahindra bank">Kotak Mahindra Bank</option>
