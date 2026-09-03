@@ -7,31 +7,31 @@ const storiesData = [
     id: 1,
     name: "Ravindra Naik",
     role: "IT Consultant, Bengaluru",
-    loanDetails: "₹4.5 Lakh Sanctioned",
-    bank: "HDFC Bank @ 10.75%",
+    loanDetails: "₹5.0 Lakh • HDFC Bank @ 10.75%",
+    bank: "HDFC Bank",
     avatarBg: "linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%)",
     avatarText: "RN",
-    story: "Took a ₹4.5 lakh personal loan for home renovation. The multi-bank comparison was instant, transparent, and completely worry-free. Best part was that checking eligibility did not affect my CIBIL score at all, and funds were credited within 24 hours!"
+    story: "I needed ₹5 lakh for home renovation and was worried that checking multiple banks would drop my CIBIL score. Through this portal, I compared live eligibility across 12+ partner banks in 60 seconds with zero credit bureau hits. Got approved with HDFC and the funds were in my account the next morning!"
   },
   {
     id: 2,
     name: "Darshini Suresh Ramkisan",
     role: "Sr. Marketing Manager, Mumbai",
-    loanDetails: "₹2.5 Lakh Instant Disbursal",
-    bank: "ICICI Bank @ 11.25%",
+    loanDetails: "₹3.5 Lakh • ICICI Bank @ 11.25%",
+    bank: "ICICI Bank",
     avatarBg: "linear-gradient(135deg, #EA580C 0%, #F58220 100%)",
     avatarText: "DS",
-    story: "The platform's rule engine matched me with pre-approved options across 12 banks in less than a minute. The customer support team was supportive, patient, and clear at every step, making the entire digital documentation seamless."
+    story: "Most bank portals make you wait days with endless paperwork. On this website, I simply entered my net salary and uploaded 3 months' statements. The rule engine showed me pre-approved offers from ICICI and Kotak with crystal-clear EMI calculations. 100% paperless and seamless!"
   },
   {
     id: 3,
     name: "Shubham Suresh Padwal",
     role: "Operations Lead, Pune",
-    loanDetails: "₹3.0 Lakh Emergency Loan",
-    bank: "Kotak Bank @ 10.99%",
+    loanDetails: "₹3.0 Lakh • Kotak Bank @ 10.99%",
+    bank: "Kotak Bank",
     avatarBg: "linear-gradient(135deg, #059669 0%, #10B981 100%)",
     avatarText: "SP",
-    story: "My loan was processed quickly with regular real-time updates. Transparent terms, zero collateral requirement, and competitive interest rates made the entire experience hassle-free. Highly recommended for urgent financial needs!"
+    story: "Needed an urgent ₹3 lakh personal loan without collateral. Comparing 12 banks in one minute helped me pick Kotak with the lowest EMI and zero hidden charges. Digital sanction took under 15 minutes and the money was credited directly to my account within 24 hours."
   }
 ];
 
