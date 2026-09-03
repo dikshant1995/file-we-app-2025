@@ -1308,7 +1308,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                       maxWidth: '320px'
                     }}
                   >
-                    To qualify for a personal loan with us, please ensure you meet the following criteria
+                    To qualify for loan eligibility across partner banks, ensure you meet the following criteria
                   </p>
                 </div>
                 
@@ -1372,7 +1372,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                     transition: 'all 0.2s ease'
                   }}
                 >
-                  Both self-employed and salaried individuals can apply
+                  Salaried individuals can apply
                 </motion.div>
 
                 <motion.div 
@@ -1389,7 +1389,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                     transition: 'all 0.2s ease'
                   }}
                 >
-                  Minimum net monthly income of Rs. 15,000
+                  Minimum net monthly income of Rs. 25,000
                 </motion.div>
               </div>
             </motion.div>
@@ -1502,6 +1502,23 @@ const MainMasterPortal = ({ onAdminClick }) => {
                     transition: 'all 0.2s ease'
                   }}
                 >
+                  Aadhaar Card
+                </motion.div>
+
+                <motion.div 
+                  whileHover={{ scale: 1.01, backgroundColor: '#ffffff' }}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.75)',
+                    border: '1px solid #86EFAC',
+                    borderRadius: '12px',
+                    padding: '14px 20px',
+                    fontSize: '0.96rem',
+                    fontWeight: 500,
+                    color: '#334155',
+                    fontFamily: "'Inter', sans-serif",
+                    transition: 'all 0.2s ease'
+                  }}
+                >
                   Last three month's bank statements
                 </motion.div>
 
@@ -1519,7 +1536,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                     transition: 'all 0.2s ease'
                   }}
                 >
-                  Aadhaar Card
+                  Last three month's pay slips
                 </motion.div>
               </div>
             </motion.div>
