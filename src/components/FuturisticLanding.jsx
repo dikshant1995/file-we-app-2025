@@ -296,7 +296,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             >
               <FileCheck size={32} color="#ffffff" strokeWidth={2.2} />
             </div>
-            <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", color: '#ffffff', lineHeight: 1.3 }}>
+            <span style={{ fontSize: '1.25rem', fontWeight: 100, fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", color: '#ffffff', lineHeight: 1.3, letterSpacing: '0.4px' }}>
               Enquiry Less Loan
             </span>
           </div>
@@ -319,7 +319,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             >
               <Landmark size={32} color="#ffffff" strokeWidth={2.2} />
             </div>
-            <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", color: '#ffffff', lineHeight: 1.3 }}>
+            <span style={{ fontSize: '1.25rem', fontWeight: 100, fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", color: '#ffffff', lineHeight: 1.3, letterSpacing: '0.4px' }}>
               No Collateral Required
             </span>
           </div>
@@ -342,7 +342,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             >
               <Scale size={32} color="#ffffff" strokeWidth={2.2} />
             </div>
-            <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", color: '#ffffff', lineHeight: 1.3 }}>
+            <span style={{ fontSize: '1.25rem', fontWeight: 100, fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", color: '#ffffff', lineHeight: 1.3, letterSpacing: '0.4px' }}>
               Comparison of 12 Banks in One Minute
             </span>
           </div>
@@ -429,10 +429,10 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               <Building2 size={46} color="#1D4ED8" strokeWidth={2.2} />
             </div>
             <h4 style={{ fontFamily: "'Outfit', 'Mulish', 'Plus Jakarta Sans', 'Inter', sans-serif", fontSize: '1.35rem', fontWeight: 850, color: '#0F172A', marginBottom: '3px' }}>
-              Comparison of 12 Banks
+              12+ Lenders
             </h4>
             <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', 'Inter', sans-serif", fontSize: '1.1rem', color: '#475569', fontWeight: 600 }}>
-              in One Minute
+              Comparison
             </p>
           </motion.div>
 
@@ -449,10 +449,10 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               <Lock size={46} color="#1D4ED8" strokeWidth={2.2} />
             </div>
             <h4 style={{ fontFamily: "'Outfit', 'Mulish', 'Plus Jakarta Sans', 'Inter', sans-serif", fontSize: '1.35rem', fontWeight: 850, color: '#0F172A', marginBottom: '3px' }}>
-              Enquiry Less Loan
+              Zero CIBIL
             </h4>
             <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', 'Inter', sans-serif", fontSize: '1.1rem', color: '#475569', fontWeight: 600 }}>
-              No Collateral Required
+              Impact
             </p>
           </motion.div>
 
@@ -472,7 +472,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               100% Digital
             </h4>
             <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', 'Inter', sans-serif", fontSize: '1.1rem', color: '#475569', fontWeight: 600 }}>
-              & Instant Processing
+              Process
             </p>
           </motion.div>
         </div>
