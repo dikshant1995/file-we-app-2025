@@ -103,31 +103,62 @@
 }
 
 /* ---- Inputs & Selects ---- */
+.customer-loan-form input,
+.customer-loan-form select,
+.customer-loan-form textarea,
 .form-group input,
 .form-group select {
   width: 100%;
   padding: 13px 16px;
-  background: #ffffff;
+  background-color: #ffffff !important;
   border: 1.5px solid #cbd5e1;
   border-radius: 10px;
   font-size: 0.98rem;
-  font-weight: 500;
-  color: #1e293b;
+  font-weight: 600 !important;
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+  caret-color: #f58220 !important;
   transition: all 0.2s ease;
   outline: none;
   font-family: 'Inter', sans-serif;
   box-sizing: border-box;
+  opacity: 1 !important;
 }
 
+.customer-loan-form input:focus,
+.customer-loan-form select:focus,
 .form-group input:focus,
 .form-group select:focus {
   border-color: #f58220 !important;
   box-shadow: 0 0 0 3.5px rgba(245, 130, 32, 0.18) !important;
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+}
+
+.customer-loan-form input::placeholder {
+  color: #9ca3af !important;
+  -webkit-text-fill-color: #9ca3af !important;
+  opacity: 1 !important;
+  font-weight: 400 !important;
+}
+
+/* Fix browser autofill / password manager making typed text faint or white */
+.customer-loan-form input:-webkit-autofill,
+.customer-loan-form input:-webkit-autofill:hover, 
+.customer-loan-form input:-webkit-autofill:focus, 
+.customer-loan-form input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #111827 !important;
+  color: #111827 !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 .form-group select option {
   background: #ffffff;
-  color: #0f172a;
+  color: #111827;
+  font-weight: 500;
 }
 
 /* ---- Help Text ---- */

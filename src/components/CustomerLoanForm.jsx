@@ -362,8 +362,8 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome }) => {
               onChange={handleInputChange}
               placeholder="Enter your full name"
               required
-              autoComplete="new-password"
-              data-lpignore="true"
+              autoComplete="off"
+              style={{ color: '#111827', WebkitTextFillColor: '#111827', backgroundColor: '#ffffff', fontWeight: 600 }}
             />
           </div>
           <div className="form-group">
@@ -379,16 +379,19 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome }) => {
               placeholder="10-digit mobile number"
               required
               maxLength={10}
-              autoComplete="new-password"
-              data-lpignore="true"
+              autoComplete="off"
               pattern="[6-9][0-9]{9}"
               title="Enter a valid 10-digit Indian mobile number"
               inputMode="numeric"
-              style={
-                formData.mobileNumber.length > 0 && formData.mobileNumber.length < 10
+              style={{
+                color: '#111827',
+                WebkitTextFillColor: '#111827',
+                backgroundColor: '#ffffff',
+                fontWeight: 600,
+                ...(formData.mobileNumber.length > 0 && formData.mobileNumber.length < 10
                   ? { borderColor: '#ef4444', boxShadow: '0 0 0 2px rgba(239,68,68,0.2)' }
-                  : {}
-              }
+                  : {})
+              }}
             />
             {/* Live validation feedback */}
             {formData.mobileNumber.length > 0 && formData.mobileNumber.length < 10 && (
@@ -418,6 +421,7 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome }) => {
                 setFormData(prev => ({ ...prev, state: newState, city: '' }));
               }}
               required
+              style={{ color: '#111827', WebkitTextFillColor: '#111827', backgroundColor: '#ffffff', fontWeight: 600 }}
             >
               <option value="">-- Select State --</option>
               {indianStates.map(state => (
@@ -437,6 +441,7 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome }) => {
               onChange={handleInputChange}
               required
               disabled={!formData.state}
+              style={{ color: '#111827', WebkitTextFillColor: '#111827', backgroundColor: '#ffffff', fontWeight: 600 }}
             >
               <option value="">-- Select City --</option>
               {formData.state && stateCityData[formData.state]?.map(city => (
@@ -488,6 +493,7 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome }) => {
             step="1"
             inputMode="numeric"
             pattern="[0-9]*"
+            style={{ color: '#111827', WebkitTextFillColor: '#111827', backgroundColor: '#ffffff', fontWeight: 600 }}
           />
           {formData.basicSalary && (
             <small className="help-text" style={{ color: '#27ae60', fontWeight: '600' }}>
@@ -518,7 +524,7 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome }) => {
                 placeholder="₹ 0"
                 min="0"
                 step="1"
-                style={{ marginTop: '5px' }}
+                style={{ marginTop: '5px', color: '#111827', WebkitTextFillColor: '#111827', backgroundColor: '#ffffff', fontWeight: 600 }}
               />
             </div>
 
@@ -535,7 +541,7 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome }) => {
                 placeholder="₹ 0"
                 min="0"
                 step="1"
-                style={{ marginTop: '5px' }}
+                style={{ marginTop: '5px', color: '#111827', WebkitTextFillColor: '#111827', backgroundColor: '#ffffff', fontWeight: 600 }}
               />
             </div>
 
@@ -552,7 +558,7 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome }) => {
                 placeholder="₹ 0"
                 min="0"
                 step="1"
-                style={{ marginTop: '5px' }}
+                style={{ marginTop: '5px', color: '#111827', WebkitTextFillColor: '#111827', backgroundColor: '#ffffff', fontWeight: 600 }}
               />
             </div>
           </div>
@@ -624,6 +630,7 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome }) => {
             min="21"
             max="65"
             step="1"
+            style={{ color: '#111827', WebkitTextFillColor: '#111827', backgroundColor: '#ffffff', fontWeight: 600 }}
           />
           <small className="help-text">
             Banks use age to decide maximum loan tenure (retirement age limit)
@@ -639,10 +646,10 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome }) => {
             name="maritalStatus"
             value={formData.maritalStatus}
             onChange={(e) => {
-              // Reset living status when marital status changes to force re-selection
               setFormData(prev => ({ ...prev, maritalStatus: e.target.value, livingStatus: '' }));
             }}
             required
+            style={{ color: '#111827', WebkitTextFillColor: '#111827', backgroundColor: '#ffffff', fontWeight: 600 }}
           >
             <option value="">-- Select Status --</option>
             <option value="single">Single / Unmarried</option>
@@ -661,6 +668,7 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome }) => {
               value={formData.livingStatus}
               onChange={handleInputChange}
               required
+              style={{ color: '#111827', WebkitTextFillColor: '#111827', backgroundColor: '#ffffff', fontWeight: 600 }}
             >
               <option value="">-- Select Living Arrangement --</option>
               <option value="rented">Rented / Living Alone / Flatmates</option>
@@ -679,6 +687,7 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome }) => {
             value={formData.employmentType}
             onChange={handleInputChange}
             required
+            style={{ color: '#111827', WebkitTextFillColor: '#111827', backgroundColor: '#ffffff', fontWeight: 600 }}
           >
             <option value="salaried">Private</option>
             <option value="government">Government Employee</option>
@@ -696,10 +705,11 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome }) => {
               name="companyName"
               value={formData.companyName}
               onChange={handleInputChange}
-              onBlur={() => setTimeout(() => setCompanySuggestions([]), 200)} // Delay to allow click on suggestion
+              onBlur={() => setTimeout(() => setCompanySuggestions([]), 200)}
               placeholder="Start typing company name..."
               required={formData.employmentType === 'salaried'}
               autoComplete="off"
+              style={{ color: '#111827', WebkitTextFillColor: '#111827', backgroundColor: '#ffffff', fontWeight: 600 }}
             />
             {companySuggestions.length > 0 && (
               <div className="autocomplete-dropdown">
@@ -737,6 +747,7 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome }) => {
             onChange={handleInputChange}
             required
             className="salary-mode-select"
+            style={{ color: '#111827', WebkitTextFillColor: '#111827', backgroundColor: '#ffffff', fontWeight: 600 }}
           >
             <option value="bank">Bank Transfer</option>
             <option value="cash">Cash</option>
