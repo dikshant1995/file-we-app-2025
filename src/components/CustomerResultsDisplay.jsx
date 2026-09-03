@@ -499,30 +499,7 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
           }}>
             Verified assessment results across {results.length} banking institutions with zero impact on CIBIL score.
           </p>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '14px', flexWrap: 'wrap', marginTop: '20px' }}>
-            <button 
-              className="btn-edit-details"
-              onClick={onNewCalculation}
-              style={{
-                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                fontWeight: 700,
-                color: '#1E40AF',
-                fontSize: '16px',
-                background: '#EEF3FA',
-                border: '1.5px solid #BFDBFE',
-                borderRadius: '50px',
-                padding: '13px 28px',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(30, 64, 175, 0.08)'
-              }}
-            >
-              <span>✏️</span> Edit / Change Details
-            </button>
-
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '20px' }}>
             <button 
               className="btn-download-pdf" 
               onClick={handleDownloadReport}

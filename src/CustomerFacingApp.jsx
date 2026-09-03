@@ -129,6 +129,9 @@ function CustomerFacingApp() {
 
       setResults(calculationResults);
       setMetadata(combinedData);
+      try {
+        window.history.pushState({ view: 'results' }, '', window.location.href);
+      } catch (e) {}
 
       // --- 🧠 AI NEURAL PREDICTION (SAFE WRAPPER) ---
       try {
@@ -216,6 +219,19 @@ function CustomerFacingApp() {
       setResults(null);
     }
   }, [location.pathname]);
+
+  // When user clicks the browser BACK button on results page, return smoothly to the application form
+  React.useEffect(() => {
+    const handlePopState = () => {
+      if (results) {
+        setResults(null);
+        setShowForm(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [results]);
 
   if (showAdminDashboard) {
     return <AdminDashboard onBackToCustomer={handleBackToCustomer} />;

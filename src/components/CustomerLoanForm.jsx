@@ -48,6 +48,13 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
     }
   }, [initialData]);
 
+  // Continuously sync all input changes to localStorage so going back always has all form data
+  useEffect(() => {
+    try {
+      localStorage.setItem('laxmi_last_form_data', JSON.stringify(formData));
+    } catch (e) {}
+  }, [formData]);
+
   const [companySuggestions, setCompanySuggestions] = useState([]);
 
   // Load company databases on mount
