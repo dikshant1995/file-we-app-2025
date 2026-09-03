@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, ArrowRight, ArrowLeft, ShieldCheck, Zap, Globe, Lock, Instagram, MessageSquare, Send, ChevronDown, Cpu, BarChart3, Fingerprint, Mail, FileText, Building2, FileCheck, Landmark, Scale, MonitorSmartphone, RefreshCw, Clock, Home, IndianRupee } from 'lucide-react';
+import { Sparkles, ArrowRight, ArrowLeft, ShieldCheck, Zap, Globe, Lock, Instagram, MessageSquare, Send, ChevronDown, Cpu, BarChart3, Fingerprint, Mail, FileText, Building2, FileCheck, Landmark, Scale, MonitorSmartphone, RefreshCw, Clock, Home, IndianRupee, Briefcase } from 'lucide-react';
 import './FuturisticLanding.css';
 
 
@@ -958,9 +958,9 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             margin: '0 auto 24px' 
           }}
         >
-          {/* Card 1: Loan upto 50 lakhs */}
+          {/* Card 1: 12+ Lenders Policy Comparison */}
           <motion.div
-            whileHover={{ y: -4 }}
+            whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.05)' }}
             transition={{ duration: 0.2 }}
             style={{
               background: '#ffffff',
@@ -987,7 +987,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                   flexShrink: 0 
                 }}
               >
-                <IndianRupee size={24} strokeWidth={2.5} />
+                <Landmark size={24} strokeWidth={2.4} />
               </div>
               <h3 
                 style={{ 
@@ -999,7 +999,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                   lineHeight: 1.3
                 }}
               >
-                Loan upto 50 lakhs
+                12+ Lenders Policy Comparison
               </h3>
             </div>
             <p 
@@ -1012,13 +1012,13 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                 margin: 0 
               }}
             >
-              Get a personal loan online for up to Rs. 50 lakh, with options starting from Rs. 50,000 to manage all your expenses
+              Compare maximum eligible loan amounts, real approval probability, and lowest interest rates starting from 10.49% across HDFC, ICICI, Kotak, Tata Capital, Piramal, and 7+ other lenders in 60 seconds.
             </p>
           </motion.div>
 
-          {/* Card 2: Instant approval in seconds */}
+          {/* Card 2: Smart Balance Transfer (BT) */}
           <motion.div
-            whileHover={{ y: -4 }}
+            whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.05)' }}
             transition={{ duration: 0.2 }}
             style={{
               background: '#ffffff',
@@ -1045,7 +1045,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                   flexShrink: 0 
                 }}
               >
-                <Zap size={24} strokeWidth={2.5} />
+                <RefreshCw size={24} strokeWidth={2.4} />
               </div>
               <h3 
                 style={{ 
@@ -1057,7 +1057,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                   lineHeight: 1.3
                 }}
               >
-                Instant approval in seconds
+                Smart Balance Transfer (BT)
               </h3>
             </div>
             <p 
@@ -1070,13 +1070,13 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                 margin: 0 
               }}
             >
-              Complete your online personal loan application in minutes and enjoy instant loan approval
+              Consolidate running personal loans and high-interest credit card dues into a single lower-EMI plan, knocking off existing obligations to boost fresh loan eligibility and save lakhs.
             </p>
           </motion.div>
 
-          {/* Card 3: Quick Disbursements */}
+          {/* Card 3: Zero CIBIL Impact (Enquiry-Less) */}
           <motion.div
-            whileHover={{ y: -4 }}
+            whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.05)' }}
             transition={{ duration: 0.2 }}
             style={{
               background: '#ffffff',
@@ -1103,7 +1103,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                   flexShrink: 0 
                 }}
               >
-                <Clock size={24} strokeWidth={2.5} />
+                <ShieldCheck size={24} strokeWidth={2.4} />
               </div>
               <h3 
                 style={{ 
@@ -1115,7 +1115,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                   lineHeight: 1.3
                 }}
               >
-                Quick Disbursements
+                Zero CIBIL Impact Check
               </h3>
             </div>
             <p 
@@ -1128,7 +1128,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                 margin: 0 
               }}
             >
-              Receive money in your account within 15 minutes of approval with our personal loan online process loan approval
+              Discover pre-approved eligibility across institutional bank policies with 100% soft checks — zero hard credit inquiries logged and zero negative impact on your CIBIL score.
             </p>
           </motion.div>
         </div>
@@ -1143,9 +1143,9 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             margin: '0 auto' 
           }}
         >
-          {/* Card 4: No hidden charges */}
+          {/* Card 4: Company Category & FOIR Maximizer */}
           <motion.div
-            whileHover={{ y: -4 }}
+            whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.05)' }}
             transition={{ duration: 0.2 }}
             style={{
               background: '#ffffff',
@@ -1170,95 +1170,95 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                   justifyContent: 'center', 
                   color: '#2563EB', 
                   flexShrink: 0 
-                }}
-              >
-                <ShieldCheck size={24} strokeWidth={2.5} />
-              </div>
-              <h3 
-                style={{ 
-                  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
-                  fontSize: '1.18rem', 
-                  fontWeight: 700, 
-                  color: '#1E293B', 
-                  margin: 0,
-                  lineHeight: 1.3
-                }}
-              >
-                No hidden charges
-              </h3>
-            </div>
-            <p 
-              style={{ 
-                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
-                fontSize: '0.92rem', 
-                color: '#4B5563', 
-                fontWeight: 400, 
-                lineHeight: 1.55, 
-                margin: 0 
-              }}
-            >
-              Experience transparent personal loans in India, where all fees are clearly outlined with no hidden charges
-            </p>
-          </motion.div>
+                    }}
+                  >
+                    <Briefcase size={24} strokeWidth={2.4} />
+                  </div>
+                  <h3 
+                    style={{ 
+                      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                      fontSize: '1.18rem', 
+                      fontWeight: 700, 
+                      color: '#1E293B', 
+                      margin: 0,
+                      lineHeight: 1.3
+                    }}
+                  >
+                    Company Category & FOIR Maximizer
+                  </h3>
+                </div>
+                <p 
+                  style={{ 
+                    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                    fontSize: '0.92rem', 
+                    color: '#4B5563', 
+                    fontWeight: 400, 
+                    lineHeight: 1.55, 
+                    margin: 0 
+                  }}
+                >
+                  Our intelligent engine matches your employer category (Super A, CAT A/B/C, Govt) and optimizes debt-to-income ratios to unlock maximum loan sanctions up to ₹75 Lakhs.
+                </p>
+              </motion.div>
 
-          {/* Card 5: No Collateral Required */}
-          <motion.div
-            whileHover={{ y: -4 }}
-            transition={{ duration: 0.2 }}
-            style={{
-              background: '#ffffff',
-              border: '1px solid #EAEFF5',
-              borderRadius: '16px',
-              padding: '28px 24px',
-              boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '14px'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div 
-                style={{ 
-                  width: '48px', 
-                  height: '48px', 
-                  borderRadius: '12px', 
-                  background: '#F1F5F9', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center', 
-                  color: '#475569', 
-                  flexShrink: 0 
+              {/* Card 5: 100% Digital & Assisted Disbursal */}
+              <motion.div
+                whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.05)' }}
+                transition={{ duration: 0.2 }}
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid #EAEFF5',
+                  borderRadius: '16px',
+                  padding: '28px 24px',
+                  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '14px'
                 }}
               >
-                <Home size={24} strokeWidth={2.5} />
-              </div>
-              <h3 
-                style={{ 
-                  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
-                  fontSize: '1.18rem', 
-                  fontWeight: 700, 
-                  color: '#1E293B', 
-                  margin: 0,
-                  lineHeight: 1.3
-                }}
-              >
-                No Collateral Required
-              </h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div 
+                    style={{ 
+                      width: '48px', 
+                      height: '48px', 
+                      borderRadius: '12px', 
+                      background: '#F1F5F9', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center', 
+                      color: '#475569', 
+                      flexShrink: 0 
+                    }}
+                  >
+                    <FileCheck size={24} strokeWidth={2.4} />
+                  </div>
+                  <h3 
+                    style={{ 
+                      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                      fontSize: '1.18rem', 
+                      fontWeight: 700, 
+                      color: '#1E293B', 
+                      margin: 0,
+                      lineHeight: 1.3
+                    }}
+                  >
+                    100% Digital & Assisted Disbursal
+                  </h3>
+                </div>
+                <p 
+                  style={{ 
+                    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                    fontSize: '0.92rem', 
+                    color: '#4B5563', 
+                    fontWeight: 400, 
+                    lineHeight: 1.55, 
+                    margin: 0 
+                  }}
+                >
+                  Experience paperless loan applications with transparent fee breakdowns, zero hidden costs, and dedicated loan expert support guiding your sanction straight to bank account disbursal.
+                </p>
+              </motion.div>
             </div>
-            <p 
-              style={{ 
-                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
-                fontSize: '0.92rem', 
-                color: '#4B5563', 
-                fontWeight: 400, 
-                lineHeight: 1.55, 
-                margin: 0 
-              }}
-            >
-              Apply for a personal loan without security no guarantor or collateral needed
-            </p>
-          </motion.div>
-        </div>
       </motion.div>
 
         {/* Full-Width InCred-Style Fixed Sliding Sticky Bottom Bar */}

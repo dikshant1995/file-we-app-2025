@@ -911,9 +911,9 @@ const MainMasterPortal = ({ onAdminClick }) => {
                 margin: '0 auto 24px' 
               }}
             >
-              {/* Card 1: Loan upto 50 lakhs */}
+              {/* Card 1: 12+ Lenders Policy Comparison */}
               <motion.div
-                whileHover={{ y: -4 }}
+                whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.05)' }}
                 transition={{ duration: 0.2 }}
                 style={{
                   background: '#ffffff',
@@ -940,7 +940,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                       flexShrink: 0 
                     }}
                   >
-                    <IndianRupee size={24} strokeWidth={2.5} />
+                    <Landmark size={24} strokeWidth={2.4} />
                   </div>
                   <h3 
                     style={{ 
@@ -952,7 +952,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                       lineHeight: 1.3
                     }}
                   >
-                    Loan upto 50 lakhs
+                    12+ Lenders Policy Comparison
                   </h3>
                 </div>
                 <p 
@@ -965,13 +965,13 @@ const MainMasterPortal = ({ onAdminClick }) => {
                     margin: 0 
                   }}
                 >
-                  Get a personal loan online for up to Rs. 50 lakh, with options starting from Rs. 50,000 to manage all your expenses
+                  Compare maximum eligible loan amounts, real approval probability, and lowest interest rates starting from 10.49% across HDFC, ICICI, Kotak, Tata Capital, Piramal, and 7+ other lenders in 60 seconds.
                 </p>
               </motion.div>
 
-              {/* Card 2: Instant approval in seconds */}
+              {/* Card 2: Smart Balance Transfer (BT) */}
               <motion.div
-                whileHover={{ y: -4 }}
+                whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.05)' }}
                 transition={{ duration: 0.2 }}
                 style={{
                   background: '#ffffff',
@@ -998,7 +998,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                       flexShrink: 0 
                     }}
                   >
-                    <Zap size={24} strokeWidth={2.5} />
+                    <RefreshCw size={24} strokeWidth={2.4} />
                   </div>
                   <h3 
                     style={{ 
@@ -1010,7 +1010,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                       lineHeight: 1.3
                     }}
                   >
-                    Instant approval in seconds
+                    Smart Balance Transfer (BT)
                   </h3>
                 </div>
                 <p 
@@ -1023,13 +1023,13 @@ const MainMasterPortal = ({ onAdminClick }) => {
                     margin: 0 
                   }}
                 >
-                  Complete your online personal loan application in minutes and enjoy instant loan approval
+                  Consolidate running personal loans and high-interest credit card dues into a single lower-EMI plan, knocking off existing obligations to boost fresh loan eligibility and save lakhs.
                 </p>
               </motion.div>
 
-              {/* Card 3: Quick Disbursements */}
+              {/* Card 3: Zero CIBIL Impact (Enquiry-Less) */}
               <motion.div
-                whileHover={{ y: -4 }}
+                whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.05)' }}
                 transition={{ duration: 0.2 }}
                 style={{
                   background: '#ffffff',
@@ -1056,7 +1056,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                       flexShrink: 0 
                     }}
                   >
-                    <Clock size={24} strokeWidth={2.5} />
+                    <ShieldCheck size={24} strokeWidth={2.4} />
                   </div>
                   <h3 
                     style={{ 
@@ -1068,7 +1068,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                       lineHeight: 1.3
                     }}
                   >
-                    Quick Disbursements
+                    Zero CIBIL Impact Check
                   </h3>
                 </div>
                 <p 
@@ -1081,7 +1081,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                     margin: 0 
                   }}
                 >
-                  Receive money in your account within 15 minutes of approval with our personal loan online process loan approval
+                  Discover pre-approved eligibility across institutional bank policies with 100% soft checks — zero hard credit inquiries logged and zero negative impact on your CIBIL score.
                 </p>
               </motion.div>
             </div>
@@ -1096,9 +1096,9 @@ const MainMasterPortal = ({ onAdminClick }) => {
                 margin: '0 auto' 
               }}
             >
-              {/* Card 4: No hidden charges */}
+              {/* Card 4: Company Category & FOIR Maximizer */}
               <motion.div
-                whileHover={{ y: -4 }}
+                whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.05)' }}
                 transition={{ duration: 0.2 }}
                 style={{
                   background: '#ffffff',
@@ -1125,7 +1125,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                       flexShrink: 0 
                     }}
                   >
-                    <ShieldCheck size={24} strokeWidth={2.5} />
+                    <Briefcase size={24} strokeWidth={2.4} />
                   </div>
                   <h3 
                     style={{ 
@@ -1137,7 +1137,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                       lineHeight: 1.3
                     }}
                   >
-                    No hidden charges
+                    Company Category & FOIR Maximizer
                   </h3>
                 </div>
                 <p 
@@ -1150,13 +1150,13 @@ const MainMasterPortal = ({ onAdminClick }) => {
                     margin: 0 
                   }}
                 >
-                  Experience transparent personal loans in India, where all fees are clearly outlined with no hidden charges
+                  Our intelligent engine matches your employer category (Super A, CAT A/B/C, Govt) and optimizes debt-to-income ratios to unlock maximum loan sanctions up to ₹75 Lakhs.
                 </p>
               </motion.div>
 
-              {/* Card 5: No Collateral Required */}
+              {/* Card 5: 100% Digital & Assisted Disbursal */}
               <motion.div
-                whileHover={{ y: -4 }}
+                whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.05)' }}
                 transition={{ duration: 0.2 }}
                 style={{
                   background: '#ffffff',
@@ -1183,7 +1183,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                       flexShrink: 0 
                     }}
                   >
-                    <Home size={24} strokeWidth={2.5} />
+                    <FileCheck size={24} strokeWidth={2.4} />
                   </div>
                   <h3 
                     style={{ 
@@ -1195,7 +1195,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                       lineHeight: 1.3
                     }}
                   >
-                    No Collateral Required
+                    100% Digital & Assisted Disbursal
                   </h3>
                 </div>
                 <p 
@@ -1208,7 +1208,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                     margin: 0 
                   }}
                 >
-                  Apply for a personal loan without security no guarantor or collateral needed
+                  Experience paperless loan applications with transparent fee breakdowns, zero hidden costs, and dedicated loan expert support guiding your sanction straight to bank account disbursal.
                 </p>
               </motion.div>
             </div>
