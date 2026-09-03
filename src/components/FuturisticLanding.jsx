@@ -1309,93 +1309,92 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
         >
           {/* Left Card: Personal Loan eligibility */}
           <motion.div
-            whileHover={{ y: -4, boxShadow: '0 12px 32px rgba(147, 51, 234, 0.08)' }}
+            whileHover={{ y: -4, boxShadow: '0 16px 36px rgba(168, 85, 247, 0.12)' }}
             transition={{ duration: 0.2 }}
             style={{
-              background: '#FAF5FF',
-              border: '1px solid #F3E8FF',
+              background: '#F6F0FD',
               borderRadius: '24px',
-              padding: '36px 32px',
-              boxShadow: '0 4px 16px rgba(147, 51, 234, 0.03)',
+              padding: '38px 32px 34px',
+              position: 'relative',
+              overflow: 'hidden',
               display: 'flex',
-              flexDirection: 'column'
+              flexDirection: 'column',
+              boxShadow: '0 2px 12px rgba(168, 85, 247, 0.04)'
             }}
           >
-            {/* Header with Title + Subtitle + Icon */}
+            {/* Top-Right Circular White Backdrop for Icon (Exact InCred design) */}
             <div 
               style={{ 
+                position: 'absolute', 
+                top: '-15px', 
+                right: '-15px', 
+                width: '125px', 
+                height: '125px', 
+                borderRadius: '50%', 
+                background: '#ffffff', 
                 display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'flex-start', 
-                gap: '18px',
-                marginBottom: '26px' 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                paddingTop: '16px',
+                paddingRight: '16px',
+                boxShadow: '0 4px 16px rgba(168, 85, 247, 0.06)'
               }}
             >
-              <div>
-                <h3 
-                  style={{ 
-                    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
-                    fontSize: '1.35rem', 
-                    fontWeight: 700, 
-                    color: '#1E293B', 
-                    margin: '0 0 8px 0' 
-                  }}
-                >
-                  Personal Loan eligibility
-                </h3>
-                <p 
-                  style={{ 
-                    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
-                    fontSize: '0.94rem', 
-                    color: '#64748B', 
-                    lineHeight: 1.55, 
-                    margin: 0,
-                    maxWidth: '320px'
-                  }}
-                >
-                  To qualify for loan eligibility across partner banks, ensure you meet the following criteria
-                </p>
-              </div>
-              
-              {/* Blue Document Badge Icon */}
-              <div 
-                style={{ 
-                  width: '64px', 
-                  height: '64px', 
-                  borderRadius: '50%', 
-                  background: '#ffffff', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center', 
-                  boxShadow: '0 4px 14px rgba(147, 51, 234, 0.08)',
-                  flexShrink: 0 
-                }}
-              >
-                <svg width="34" height="40" viewBox="0 0 48 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="38" height="50" rx="6" fill="#0EA5E9" />
-                  <rect x="7" y="10" width="24" height="3" rx="1.5" fill="#ffffff" />
-                  <rect x="7" y="17" width="24" height="3" rx="1.5" fill="#ffffff" />
-                  <rect x="7" y="24" width="24" height="3" rx="1.5" fill="#ffffff" />
-                  <rect x="7" y="31" width="16" height="3" rx="1.5" fill="#ffffff" />
-                  <rect x="7" y="38" width="12" height="3" rx="1.5" fill="#ffffff" />
-                  <circle cx="36" cy="40" r="9" fill="#F58220" />
-                  <path d="M33 40L35.2 42.2L39.2 37.8" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
+              {/* 3D-Style Blue Document SVG with Orange Verified Checkmark */}
+              <svg width="44" height="48" viewBox="0 0 44 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="2" y="2" width="34" height="44" rx="7" fill="#00A3FF" />
+                <rect x="8" y="10" width="22" height="3" rx="1.5" fill="#ffffff" />
+                <rect x="8" y="16" width="22" height="3" rx="1.5" fill="#ffffff" />
+                <rect x="8" y="22" width="22" height="3" rx="1.5" fill="#ffffff" />
+                <rect x="8" y="28" width="16" height="3" rx="1.5" fill="#ffffff" />
+                <rect x="8" y="34" width="12" height="3" rx="1.5" fill="#ffffff" />
+                <circle cx="33" cy="36" r="9.5" fill="#FFB020" />
+                <path d="M29.5 36L32 38.5L36.5 33.5" stroke="#ffffff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </div>
 
-            {/* Criteria Item Boxes */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {/* Title & Subtitle */}
+            <h3 
+              style={{ 
+                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                fontSize: '1.5rem', 
+                fontWeight: 700, 
+                color: '#1F2937', 
+                margin: '0 0 10px 0',
+                letterSpacing: '-0.3px',
+                position: 'relative',
+                zIndex: 2
+              }}
+            >
+              Personal Loan eligibility
+            </h3>
+            <p 
+              style={{ 
+                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                fontSize: '0.96rem', 
+                color: '#4B5563', 
+                lineHeight: 1.5, 
+                margin: '0 0 26px 0',
+                maxWidth: '310px',
+                position: 'relative',
+                zIndex: 2
+              }}
+            >
+              To qualify for loan eligibility across partner banks, please ensure you meet the following criteria
+            </p>
+
+            {/* Criteria Item Boxes (Lavender Pills with Crisp Border) */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', position: 'relative', zIndex: 2 }}>
               <motion.div 
                 whileHover={{ scale: 1.01, backgroundColor: '#ffffff' }}
                 style={{
-                  background: 'rgba(255, 255, 255, 0.75)',
-                  border: '1px solid #E9D5FF',
-                  borderRadius: '12px',
-                  padding: '14px 20px',
-                  fontSize: '0.96rem',
+                  background: 'rgba(255, 255, 255, 0.55)',
+                  border: '1.5px solid #E4D5F8',
+                  borderRadius: '16px',
+                  padding: '16px 22px',
+                  fontSize: '0.98rem',
                   fontWeight: 500,
-                  color: '#334155',
+                  color: '#374151',
                   fontFamily: "'Inter', sans-serif",
                   transition: 'all 0.2s ease'
                 }}
@@ -1406,13 +1405,13 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               <motion.div 
                 whileHover={{ scale: 1.01, backgroundColor: '#ffffff' }}
                 style={{
-                  background: 'rgba(255, 255, 255, 0.75)',
-                  border: '1px solid #E9D5FF',
-                  borderRadius: '12px',
-                  padding: '14px 20px',
-                  fontSize: '0.96rem',
+                  background: 'rgba(255, 255, 255, 0.55)',
+                  border: '1.5px solid #E4D5F8',
+                  borderRadius: '16px',
+                  padding: '16px 22px',
+                  fontSize: '0.98rem',
                   fontWeight: 500,
-                  color: '#334155',
+                  color: '#374151',
                   fontFamily: "'Inter', sans-serif",
                   transition: 'all 0.2s ease'
                 }}
@@ -1423,13 +1422,13 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               <motion.div 
                 whileHover={{ scale: 1.01, backgroundColor: '#ffffff' }}
                 style={{
-                  background: 'rgba(255, 255, 255, 0.75)',
-                  border: '1px solid #E9D5FF',
-                  borderRadius: '12px',
-                  padding: '14px 20px',
-                  fontSize: '0.96rem',
+                  background: 'rgba(255, 255, 255, 0.55)',
+                  border: '1.5px solid #E4D5F8',
+                  borderRadius: '16px',
+                  padding: '16px 22px',
+                  fontSize: '0.98rem',
                   fontWeight: 500,
-                  color: '#334155',
+                  color: '#374151',
                   fontFamily: "'Inter', sans-serif",
                   transition: 'all 0.2s ease'
                 }}
@@ -1441,91 +1440,90 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
 
           {/* Right Card: Documents required */}
           <motion.div
-            whileHover={{ y: -4, boxShadow: '0 12px 32px rgba(22, 163, 74, 0.08)' }}
+            whileHover={{ y: -4, boxShadow: '0 16px 36px rgba(34, 197, 94, 0.12)' }}
             transition={{ duration: 0.2 }}
             style={{
-              background: '#F0FDF4',
-              border: '1px solid #DCFCE7',
+              background: '#EDF8F1',
               borderRadius: '24px',
-              padding: '36px 32px',
-              boxShadow: '0 4px 16px rgba(22, 163, 74, 0.03)',
+              padding: '38px 32px 34px',
+              position: 'relative',
+              overflow: 'hidden',
               display: 'flex',
-              flexDirection: 'column'
+              flexDirection: 'column',
+              boxShadow: '0 2px 12px rgba(34, 197, 94, 0.04)'
             }}
           >
-            {/* Header with Title + Subtitle + Icon */}
+            {/* Top-Right Circular White Backdrop for Icon (Exact InCred design) */}
             <div 
               style={{ 
+                position: 'absolute', 
+                top: '-15px', 
+                right: '-15px', 
+                width: '125px', 
+                height: '125px', 
+                borderRadius: '50%', 
+                background: '#ffffff', 
                 display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'flex-start', 
-                gap: '18px',
-                marginBottom: '26px' 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                paddingTop: '16px',
+                paddingRight: '16px',
+                boxShadow: '0 4px 16px rgba(34, 197, 94, 0.06)'
               }}
             >
-              <div>
-                <h3 
-                  style={{ 
-                    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
-                    fontSize: '1.35rem', 
-                    fontWeight: 700, 
-                    color: '#1E293B', 
-                    margin: '0 0 8px 0' 
-                  }}
-                >
-                  Documents required
-                </h3>
-                <p 
-                  style={{ 
-                    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
-                    fontSize: '0.94rem', 
-                    color: '#64748B', 
-                    lineHeight: 1.55, 
-                    margin: 0,
-                    maxWidth: '320px'
-                  }}
-                >
-                  When you apply for a personal loan, you will need to provide the following documents
-                </p>
-              </div>
-              
-              {/* Yellow Folder with Blue Document Badge Icon */}
-              <div 
-                style={{ 
-                  width: '64px', 
-                  height: '64px', 
-                  borderRadius: '50%', 
-                  background: '#ffffff', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center', 
-                  boxShadow: '0 4px 14px rgba(22, 163, 74, 0.08)',
-                  flexShrink: 0 
-                }}
-              >
-                <svg width="40" height="38" viewBox="0 0 54 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect x="14" y="5" width="28" height="32" rx="4" fill="#0284C7" />
-                  <rect x="19" y="11" width="18" height="2.5" rx="1.2" fill="#ffffff" />
-                  <rect x="19" y="16" width="18" height="2.5" rx="1.2" fill="#ffffff" />
-                  <rect x="19" y="21" width="12" height="2.5" rx="1.2" fill="#ffffff" />
-                  <path d="M4 17C4 14.7909 5.79086 13 8 13H18L23 19H46C48.2091 19 50 20.7909 50 23V42C50 44.2091 48.2091 46 46 46H8C5.79086 46 4 44.2091 4 42V17Z" fill="#FBBF24" />
-                  <path d="M4 22C4 20.3431 5.34315 19 7 19H47C48.6569 19 50 20.3431 50 22V42C50 44.2091 48.2091 46 46 46H8C5.79086 46 4 44.2091 4 42V22Z" fill="#FCD34D" />
-                </svg>
-              </div>
+              {/* 3D-Style Yellow Folder with Blue Document Insert SVG */}
+              <svg width="48" height="44" viewBox="0 0 48 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="13" y="2" width="26" height="30" rx="4" fill="#00A3FF" />
+                <rect x="18" y="8" width="16" height="2.5" rx="1.2" fill="#ffffff" />
+                <rect x="18" y="13" width="16" height="2.5" rx="1.2" fill="#ffffff" />
+                <rect x="18" y="18" width="10" height="2.5" rx="1.2" fill="#ffffff" />
+                <path d="M2 14C2 11.7909 3.79086 10 6 10H15L19.5 15H42C44.2091 15 46 16.7909 46 19V38C46 40.2091 44.2091 42 42 42H6C3.79086 42 2 40.2091 2 38V14Z" fill="#FBBF24" />
+                <path d="M2 18C2 16.3431 3.34315 15 5 15H43C44.6569 15 46 16.3431 46 18V38C46 40.2091 44.2091 42 42 42H6C3.79086 42 2 40.2091 2 38V18Z" fill="#FCD34D" />
+              </svg>
             </div>
 
-            {/* Document Item Boxes */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {/* Title & Subtitle */}
+            <h3 
+              style={{ 
+                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                fontSize: '1.5rem', 
+                fontWeight: 700, 
+                color: '#1F2937', 
+                margin: '0 0 10px 0',
+                letterSpacing: '-0.3px',
+                position: 'relative',
+                zIndex: 2
+              }}
+            >
+              Documents required
+            </h3>
+            <p 
+              style={{ 
+                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                fontSize: '0.96rem', 
+                color: '#4B5563', 
+                lineHeight: 1.5, 
+                margin: '0 0 26px 0',
+                maxWidth: '310px',
+                position: 'relative',
+                zIndex: 2
+              }}
+            >
+              When you apply for a personal loan, you will need to provide the following documents
+            </p>
+
+            {/* Document Item Boxes (Mint Green Pills with Crisp Green Border) */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', position: 'relative', zIndex: 2 }}>
               <motion.div 
                 whileHover={{ scale: 1.01, backgroundColor: '#ffffff' }}
                 style={{
-                  background: 'rgba(255, 255, 255, 0.75)',
-                  border: '1px solid #86EFAC',
-                  borderRadius: '12px',
-                  padding: '14px 20px',
-                  fontSize: '0.96rem',
+                  background: 'rgba(255, 255, 255, 0.55)',
+                  border: '1.5px solid #86EFAC',
+                  borderRadius: '16px',
+                  padding: '16px 22px',
+                  fontSize: '0.98rem',
                   fontWeight: 500,
-                  color: '#334155',
+                  color: '#374151',
                   fontFamily: "'Inter', sans-serif",
                   transition: 'all 0.2s ease'
                 }}
@@ -1536,13 +1534,13 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               <motion.div 
                 whileHover={{ scale: 1.01, backgroundColor: '#ffffff' }}
                 style={{
-                  background: 'rgba(255, 255, 255, 0.75)',
-                  border: '1px solid #86EFAC',
-                  borderRadius: '12px',
-                  padding: '14px 20px',
-                  fontSize: '0.96rem',
+                  background: 'rgba(255, 255, 255, 0.55)',
+                  border: '1.5px solid #86EFAC',
+                  borderRadius: '16px',
+                  padding: '16px 22px',
+                  fontSize: '0.98rem',
                   fontWeight: 500,
-                  color: '#334155',
+                  color: '#374151',
                   fontFamily: "'Inter', sans-serif",
                   transition: 'all 0.2s ease'
                 }}
@@ -1553,13 +1551,13 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               <motion.div 
                 whileHover={{ scale: 1.01, backgroundColor: '#ffffff' }}
                 style={{
-                  background: 'rgba(255, 255, 255, 0.75)',
-                  border: '1px solid #86EFAC',
-                  borderRadius: '12px',
-                  padding: '14px 20px',
-                  fontSize: '0.96rem',
+                  background: 'rgba(255, 255, 255, 0.55)',
+                  border: '1.5px solid #86EFAC',
+                  borderRadius: '16px',
+                  padding: '16px 22px',
+                  fontSize: '0.98rem',
                   fontWeight: 500,
-                  color: '#334155',
+                  color: '#374151',
                   fontFamily: "'Inter', sans-serif",
                   transition: 'all 0.2s ease'
                 }}
