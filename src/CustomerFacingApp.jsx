@@ -197,51 +197,7 @@ function CustomerFacingApp() {
           className="form-page"
           style={{ animation: 'formFadeIn 0.35s ease-out forwards' }}
         >
-          {/* Form Page Navbar */}
-          <nav className="form-page-nav">
-            <button className="form-back-btn" onClick={() => { setShowForm(false); setResults(null); navigate('/'); window.scrollTo({ top: 0 }); }}>
-              ← Back to Home
-            </button>
-            <div className="form-nav-brand" style={{ cursor: 'pointer' }} onClick={() => { navigate('/'); window.scrollTo({ top: 0 }); }}>
-              <span 
-                style={{ 
-                  fontSize: '1.65rem', 
-                  fontWeight: 900, 
-                  fontStyle: 'italic', 
-                  fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", 
-                  letterSpacing: '-0.8px',
-                  background: 'linear-gradient(135deg, #F58220 0%, #1E40AF 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  display: 'inline-block'
-                }}
-              >
-                Laxmi credit
-              </span>
-            </div>
-            <div className="form-nav-status">
-              <span className="dot"></span> 12+ Bank Engine Active
-            </div>
-          </nav>
 
-
-
-          {/* Header */}
-          <div className="form-section-header">
-            <div className="form-section-badge">
-              <span className="dot"></span>
-              Analyzing 12+ Banks
-            </div>
-            <h2 className="form-section-title">
-              Personal Loan <span className="gradient-text-ai">Eligibility Check</span>
-            </h2>
-            <h3 className="form-section-subtitle-new" style={{ color: '#00d2ff', marginTop: '10px', fontSize: '1.2rem', fontWeight: '600' }}>
-              Institutional Eligibility Analysis
-            </h3>
-            <p className="form-section-subtitle">
-              Fill in your details — our AI will calculate your best offers instantly
-            </p>
-          </div>
 
           {/* Form wrapped in glass */}
           <div className="form-glass-wrapper">
