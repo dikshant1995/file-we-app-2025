@@ -101,35 +101,53 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
         return;
       }
 
-      const clientName = metadata?.name || metadata?.applicantName || metadata?.companyName || 'Applicant';
-      const cleanFileName = `Eligibility_Report_${String(clientName).replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`;
+      // Add temporary class to cleanly hide floating selection bar, download button & chat widgets
+      element.classList.add('exporting-pdf');
+
+      const rawCustomer = metadata?.customerName || metadata?.name || metadata?.applicantName || 'Customer';
+      const rawCompany = metadata?.companyName || results?.find(r => r.companyName)?.companyName || 'Corporate';
+      const cleanCustomer = String(rawCustomer).trim().replace(/[^a-zA-Z0-9]/g, '_');
+      const cleanCompany = String(rawCompany).trim().replace(/[^a-zA-Z0-9]/g, '_');
+      const cleanFileName = `${cleanCustomer}_${cleanCompany}_Loan_Eligibility_Report.pdf`;
 
       const opt = {
-        margin: [8, 8, 8, 8],
+        margin: [10, 10, 10, 10],
         filename: cleanFileName,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: {
           scale: 2,
           useCORS: true,
           logging: false,
+          scrollY: 0,
+          windowWidth: 1200,
           ignoreElements: (el) => {
             return (
               el.classList &&
               (el.classList.contains('btn-download-pdf') ||
                 el.classList.contains('selection-summary-bar') ||
                 el.classList.contains('controls-bar') ||
-                el.classList.contains('neural-chatbot-container'))
+                el.classList.contains('neural-chatbot-container') ||
+                el.classList.contains('status-overlay') ||
+                el.classList.contains('sort-group'))
             );
           }
         },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { 
+          mode: ['css', 'legacy', 'avoid-all'],
+          avoid: ['.bank-card', '.best-offer-card', '.charts-container', '.stats-grid', '.results-header', '.capping-alert-box', '.stat-card']
+        }
       };
 
+      // Brief delay to let DOM re-render without floating bars
+      await new Promise(res => setTimeout(res, 100));
       await html2pdf().set(opt).from(element).save();
     } catch (err) {
       console.error('PDF download error, fallback to print:', err);
       window.print();
     } finally {
+      const element = document.querySelector('.customer-results-display');
+      if (element) element.classList.remove('exporting-pdf');
       setIsDownloading(false);
     }
   };
@@ -152,24 +170,85 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
           </h2>
           <div style={{ width: '42px', height: '3.5px', backgroundColor: '#F58220', borderRadius: '2px', margin: '0 auto 12px' }} />
 
-          {metadata && (
-            <div className="company-info-header">
-              <span className="company-pill">
-                🏢 {metadata.companyName || 'Corporate Entity'}
+          {/* Executive Applicant & Company Profile Bar */}
+          <div className="report-applicant-strip" style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+            gap: '10px',
+            margin: '16px auto 14px',
+            maxWidth: '850px'
+          }}>
+            {(metadata?.customerName || metadata?.name) && (
+              <span className="applicant-pill" style={{
+                background: '#EEF3FA',
+                color: '#1E40AF',
+                padding: '7px 18px',
+                borderRadius: '20px',
+                fontSize: '0.92rem',
+                fontWeight: 700,
+                border: '1px solid #BFDBFE',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}>
+                👤 Customer: <strong>{metadata.customerName || metadata.name}</strong>
               </span>
-              <span className="category-pill">
-                Category: <strong>{results.find(r => r.category)?.category || metadata.category || 'Standard'}</strong>
-              </span>
-            </div>
-          )}
+            )}
+            <span className="company-pill" style={{
+              background: '#FFF4EC',
+              color: 'rgb(245, 130, 32)',
+              padding: '7px 18px',
+              borderRadius: '20px',
+              fontSize: '0.92rem',
+              fontWeight: 700,
+              border: '1px solid #FED7AA',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}>
+              🏢 Company: <strong>{metadata?.companyName || results.find(r => r.companyName)?.companyName || 'Corporate Entity'}</strong>
+            </span>
+            <span className="category-pill" style={{
+              background: '#F8FAFC',
+              color: 'rgb(66, 66, 66)',
+              padding: '7px 18px',
+              borderRadius: '20px',
+              fontSize: '0.92rem',
+              fontWeight: 700,
+              border: '1px solid #E2E8F0',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}>
+              Category: <strong>{results.find(r => r.category)?.category || metadata?.category || 'Category B'}</strong>
+            </span>
+            <span style={{
+              background: '#EEF3FA',
+              color: '#1E40AF',
+              padding: '7px 18px',
+              borderRadius: '20px',
+              fontSize: '0.92rem',
+              fontWeight: 700,
+              border: '1px solid #BFDBFE',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}>
+              🛡️ Zero CIBIL Impact
+            </span>
+          </div>
+
           <p style={{
             fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
             fontSize: '1.02rem',
             color: 'rgb(66, 66, 66)',
             lineHeight: '1.6',
-            maxWidth: '680px',
+            maxWidth: '750px',
             margin: '12px auto 0',
-            fontWeight: 500
+            fontWeight: 500,
+            textWrap: 'balance'
           }}>
             Verified assessment results across {results.length} banking institutions with zero impact on CIBIL score.
           </p>
@@ -420,6 +499,9 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
           </div>
         )}
       </div>
+
+      {/* Explicit Clean Page Break for PDF Export */}
+      <div className="pdf-page-break" style={{ pageBreakBefore: 'always', breakBefore: 'always' }} />
 
       {/* All Bank Results */}
       <div className="all-banks-results">

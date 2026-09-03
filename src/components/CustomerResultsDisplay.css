@@ -620,33 +620,68 @@
   transform: none;
 }
 
+/* Page Break Rules for PDF & Printing */
+.bank-card,
+.best-offer-card,
+.charts-container,
+.stats-grid,
+.stat-card,
+.results-header,
+.all-banks-results h3 {
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+  -webkit-column-break-inside: avoid !important;
+}
+
+.pdf-page-break {
+  page-break-before: always !important;
+  break-before: always !important;
+  height: 0;
+  margin: 0;
+  padding: 0;
+}
+
+/* Hide interactive controls during PDF Export & Print */
+.customer-results-display.exporting-pdf .selection-summary-bar,
+.customer-results-display.exporting-pdf .btn-download-pdf,
+.customer-results-display.exporting-pdf .controls-bar,
+.customer-results-display.exporting-pdf .sort-group,
+.customer-results-display.exporting-pdf .filter-tabs,
+.customer-results-display.exporting-pdf .neural-chatbot-container,
+.customer-results-display.exporting-pdf .status-overlay {
+  display: none !important;
+  visibility: hidden !important;
+}
+
 /* Print Styles */
 @media print {
-  body * {
-    visibility: hidden;
-  }
-  
-  .customer-results-display,
-  .customer-results-display * {
-    visibility: visible;
-    color: #000 !important;
+  body {
+    background: #ffffff !important;
   }
 
   .customer-results-display {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    padding: 10px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
     margin: 0 !important;
-    background: #fff !important;
+    background: #ffffff !important;
   }
 
   .controls-bar,
   .btn-download-pdf,
+  .selection-summary-bar,
   .selection-submit-bar,
-  nav, .navbar,
-  .visual-analytics-container {
+  .neural-chatbot-container,
+  nav, .navbar {
     display: none !important;
+  }
+
+  .bank-card,
+  .best-offer-card,
+  .charts-container,
+  .stats-grid,
+  .stat-card {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 }

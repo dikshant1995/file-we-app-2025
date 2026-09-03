@@ -94,7 +94,12 @@ function CustomerFacingApp() {
       console.log('='.repeat(80));
 
       setResults(calculationResults);
-      setMetadata(formData._metadata);
+      setMetadata({
+        ...(formData._metadata || {}),
+        companyName: formData.companyName || formData._metadata?.companyName || 'Corporate Entity',
+        category: formData.category || formData._metadata?.category || 'Standard',
+        customerName: formData.customerName || formData._metadata?.customerName || rawFormData?.customerName || 'Customer'
+      });
 
       // --- 🧠 AI NEURAL PREDICTION (SAFE WRAPPER) ---
       try {

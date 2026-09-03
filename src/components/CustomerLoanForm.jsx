@@ -284,6 +284,8 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome }) => {
       _metadata: {
         customerName: formData.customerName,
         mobileNumber: formData.mobileNumber,
+        companyName: formData.companyName,
+        category: formData.employmentType === 'government' ? 'GOVT' : formData.category,
         basicSalary: basicSalary,
         averageIncentive: averageIncentive,
         incentiveMonth1: incentiveMonth1,
