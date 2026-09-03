@@ -459,7 +459,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
               initial={{ y: '100%', opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: '100%', opacity: 0 }}
-              transition={{ duration: 0.35, ease: 'easeOut' }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
               style={{
                 position: 'fixed',
                 bottom: 0,
@@ -467,10 +467,10 @@ const MainMasterPortal = ({ onAdminClick }) => {
                 right: 0,
                 width: '100%',
                 zIndex: 1000,
-                background: 'linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)',
-                padding: '8px 4%',
-                borderTop: '1px solid rgba(245, 130, 32, 0.3)',
-                boxShadow: '0 -6px 25px rgba(245, 130, 32, 0.18)',
+                background: '#FFF0E5',
+                padding: '10px 20px',
+                borderTop: '1px solid #FFE0D1',
+                boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.06)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
@@ -478,34 +478,43 @@ const MainMasterPortal = ({ onAdminClick }) => {
             >
               <div 
                 style={{ 
-                  width: '100%', 
-                  maxWidth: '1100px', 
                   display: 'flex', 
                   alignItems: 'center', 
-                  justifyContent: 'space-between' 
+                  justifyContent: 'center',
+                  gap: '20px',
+                  maxWidth: '1200px',
+                  width: '100%'
                 }}
               >
-                <span style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.2rem', fontWeight: 800, color: '#1F2937', letterSpacing: '-0.2px' }}>
-                  Compare your eligibility
+                <span 
+                  style={{ 
+                    fontFamily: "'Mulish', 'Inter', 'Plus Jakarta Sans', sans-serif", 
+                    fontSize: '1.25rem', 
+                    fontWeight: 700, 
+                    color: '#4A5568', 
+                    letterSpacing: '-0.2px' 
+                  }}
+                >
+                  Start your loan application
                 </span>
                 <Link to="/personal-loan" style={{ textDecoration: 'none' }}>
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.96 }}
                     style={{
-                      background: 'linear-gradient(135deg, #F58220 0%, #F47A20 100%)',
+                      background: '#F58220',
                       color: '#ffffff',
                       border: 'none',
                       borderRadius: '50px',
                       padding: '8px 28px',
-                      fontSize: '1.0rem',
+                      fontSize: '1.05rem',
                       fontWeight: 800,
                       cursor: 'pointer',
-                      boxShadow: '0 4px 15px rgba(245, 130, 32, 0.3)',
+                      boxShadow: '0 4px 14px rgba(245, 130, 32, 0.35)',
                       fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif"
                     }}
                   >
-                    Check eligibility
+                    Apply now
                   </motion.button>
                 </Link>
               </div>
