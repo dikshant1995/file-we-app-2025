@@ -7,7 +7,7 @@
   width: 100%;
   max-width: 920px;
   margin: 0 auto;
-  padding: 32px 40px 44px;
+  padding: 16px 40px 44px;
   background: #ffffff;
   color: #1f2937;
   border-radius: 24px;
@@ -21,8 +21,8 @@
 .form-header {
   text-align: center;
   margin-top: 0;
-  margin-bottom: 28px;
-  padding-bottom: 20px;
+  margin-bottom: 22px;
+  padding-bottom: 16px;
   border-bottom: 1.5px solid #f1f5f9;
 }
 
@@ -32,7 +32,7 @@
   font-weight: 750;
   color: rgb(66, 66, 66);
   margin-top: 0;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   line-height: 1.25;
   letter-spacing: -0.5px;
 }

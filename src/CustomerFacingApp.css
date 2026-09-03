@@ -8,14 +8,14 @@
 
 /* ===== FORM PAGE (full page replacement) ===== */
 .form-page {
-  min-height: 100vh;
-  background: #f8fafc;
+  min-height: calc(100vh - 72px);
+  background: #ffffff;
   position: relative;
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px 20px 60px;
+  padding: 0 20px 60px;
 }
 
 @keyframes formFadeIn {
