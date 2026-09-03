@@ -1,70 +1,29 @@
 import React, { useState } from 'react';
 import { auth, db } from '../../config/firebase.js';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { Shield, Lock, Mail, ChevronRight, Zap, AlertCircle, Fingerprint, Globe, Eye, EyeOff, Smartphone, Key, CheckCircle, RefreshCw, Award, ArrowLeft } from 'lucide-react';
-import axios from 'axios';
-import { sendPasswordResetEmail } from 'firebase/auth';
+import { Lock, Mail, Eye, EyeOff, ArrowLeft, CheckCircle, AlertCircle, Loader2, Shield } from 'lucide-react';
 import './AdminLogin.css';
 
-const AdminLogin = ({ onLoginSuccess }) => {
+const AdminLogin = ({ onLoginSuccess, onBack }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [rememberMe, setRememberMe] = useState(true);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
 
-    // OTP Workflow Integrators
-    const [otpWorkflow, setOtpWorkflow] = useState(false);
-    const [otpStep, setOtpStep] = useState(1); 
-    const [otpMedium, setOtpMedium] = useState('email');
-    const [typedOtp, setTypedOtp] = useState('');
-    const [otpLoading, setOtpLoading] = useState(false);
-    const [otpStatus, setOtpStatus] = useState({ type: '', message: '' });
-
-    const triggerOtpGeneration = async () => {
-        if (!email) {
-            setOtpStatus({ type: 'error', message: "Please specify your administrative email first." });
-            return;
-        }
-        setOtpLoading(true);
-        setOtpStatus({ type: '', message: '' });
-        try {
-            const apiBase = window.location.origin.includes('localhost') ? 'http://localhost:8000' : '/api-bl';
-            const res = await axios.post(`${apiBase}/api/send-otp`, { medium: otpMedium });
-            setOtpStatus({ type: 'success', message: res.data.message });
-            setOtpStep(2);
-        } catch (err) {
-            setOtpStatus({ type: 'error', message: "Security relay unable to deliver verification code." });
-        }
-        setOtpLoading(false);
-    };
-
-    const verifyOtpKey = async () => {
-        if (!typedOtp) return;
-        setOtpLoading(true);
-        try {
-            const apiBase = window.location.origin.includes('localhost') ? 'http://localhost:8000' : '/api-bl';
-            const res = await axios.post(`${apiBase}/api/verify-otp`, { otp: typedOtp });
-            if (res.data.valid) {
-                // Master node verified! Dispatch Firebase Reset Link
-                await sendPasswordResetEmail(auth, email);
-                alert("Master Identity Verified! A secure password reset link has been dispatched to your email address.");
-                setOtpWorkflow(false);
-                setOtpStep(1);
-            } else {
-                setOtpStatus({ type: 'error', message: res.data.message });
-            }
-        } catch (err) {
-            setOtpStatus({ type: 'error', message: "Failed to confirm authorization code." });
-        }
-        setOtpLoading(false);
-    };
+    // Forgot password view state
+    const [isForgotView, setIsForgotView] = useState(false);
+    const [resetEmail, setResetEmail] = useState('');
+    const [resetLoading, setResetLoading] = useState(false);
 
     const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError('');
+        setSuccessMessage('');
 
         const defaultAdminProfile = {
             uid: 'FobMoYy4iVMdCrV2p5xhOvx6vyg2',
@@ -75,7 +34,7 @@ const AdminLogin = ({ onLoginSuccess }) => {
             createdAt: '2026-02-27T16:07:03.824Z'
         };
 
-        // 🛡️ MASTER KEY FALLBACK (Bypass Firebase for debugging / direct CEO uplink)
+        // 🛡️ MASTER KEY FALLBACK (Direct Admin Login)
         const MASTER_KEYS = ['Dikshant@2195', 'KANA05081984', 'laxmi@2025'];
         if (MASTER_KEYS.includes(password)) {
             try {
@@ -85,7 +44,7 @@ const AdminLogin = ({ onLoginSuccess }) => {
             }
             setTimeout(() => {
                 onLoginSuccess(defaultAdminProfile);
-            }, 800);
+            }, 600);
             return;
         }
 
@@ -100,247 +59,226 @@ const AdminLogin = ({ onLoginSuccess }) => {
                 await setDoc(doc(db, 'users', user.uid), updatedData, { merge: true });
                 setTimeout(() => {
                     onLoginSuccess(updatedData);
-                }, 1000);
+                }, 800);
             } else {
-                const newProfile = { ...defaultAdminProfile, uid: user.uid, email: user.email || 'dikshantsingh@laxmicredit.com' };
+                const newProfile = { ...defaultAdminProfile, uid: user.uid, email: user.email || email };
                 await setDoc(doc(db, 'users', user.uid), newProfile, { merge: true });
                 setTimeout(() => {
                     onLoginSuccess(newProfile);
-                }, 1000);
+                }, 800);
             }
         } catch (err) {
             console.error('Login Error:', err);
-            setError('Authentication Failed. Invalid administrative credentials.');
+            setError('Invalid email or password. Please try again.');
             setLoading(false);
         }
     };
 
+    const handlePasswordReset = async (e) => {
+        e.preventDefault();
+        if (!resetEmail) {
+            setError('Please enter your registered email address.');
+            return;
+        }
+        setResetLoading(true);
+        setError('');
+        setSuccessMessage('');
+        try {
+            await sendPasswordResetEmail(auth, resetEmail);
+            setSuccessMessage('Password reset link sent! Check your inbox.');
+            setTimeout(() => {
+                setIsForgotView(false);
+                setSuccessMessage('');
+            }, 3000);
+        } catch (err) {
+            console.error('Reset Error:', err);
+            setError('Failed to send reset link. Ensure the email is registered.');
+        } finally {
+            setResetLoading(false);
+        }
+    };
+
     return (
-        <div className="admin-login-overlay laxmi-admin-theme">
-            {/* Ambient Background Glows */}
-            <div className="ambient-glow orb-orange"></div>
-            <div className="ambient-glow orb-blue"></div>
-            <div className="decor-grid-pattern"></div>
-
-            <div className="login-card premium-glass-card">
-                {/* Brand Header */}
-                <div className="admin-brand-header">
-                    <div className="brand-logo-container">
-                        <div className="shield-badge-glow">
-                            <Shield size={38} className="shield-icon" />
-                            <Lock size={18} className="lock-sub-icon" />
-                        </div>
-                    </div>
-
-                    <h1 className="brand-portal-title">
-                        Laxmi <span className="highlight-orange">Credit</span>
-                    </h1>
-                    <p className="brand-portal-subtitle">
-                        Administrative Console & Master Rule Engine
-                    </p>
-
-                    <div className="auth-access-pill">
-                        <span className="live-dot"></span>
-                        CEO & EXECUTIVE ACCESS ONLY
+        <div className="simple-login-backdrop">
+            <div className="simple-login-card">
+                {/* Header Tab */}
+                <div className="simple-login-tabs">
+                    <div className="simple-tab active">
+                        <Shield size={16} />
+                        <span>Admin Login</span>
                     </div>
                 </div>
 
-                {/* Status Strip */}
-                <div className="admin-status-strip">
-                    <div className="status-item">
-                        <Globe size={13} />
-                        <span>HQ Institutional Node</span>
+                <div className="simple-login-body">
+                    {/* Brand Header */}
+                    <div className="simple-login-brand">
+                        <div className="simple-brand-name">
+                            Laxmi<span>Credit</span>
+                        </div>
+                        <p className="simple-brand-subtitle">
+                            {isForgotView ? 'Reset your administrator password' : 'Enter your credentials to access the admin portal'}
+                        </p>
                     </div>
-                    <div className="status-item highlight">
-                        <Zap size={13} />
-                        <span>SSL 256-Bit Active</span>
-                    </div>
-                </div>
 
-                {!otpWorkflow ? (
-                    <form className="login-form" onSubmit={handleLogin}>
-                        <div className="form-input-group">
-                            <label>ADMINISTRATIVE EMAIL</label>
-                            <div className="input-field-wrapper">
-                                <Mail size={18} className="field-icon" />
-                                <input
-                                    type="email"
-                                    placeholder="admin@laxmicredit.com"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    autoComplete="username"
-                                    required
-                                />
-                            </div>
+                    {/* Alerts */}
+                    {error && (
+                        <div className="simple-login-alert error">
+                            <AlertCircle size={15} />
+                            <span>{error}</span>
                         </div>
-
-                        <div className="form-input-group mt-4">
-                            <label>SECURITY PASSKEY</label>
-                            <div className="input-field-wrapper">
-                                <Lock size={18} className="field-icon" />
-                                <input
-                                    type={showPassword ? "text" : "password"}
-                                    placeholder="••••••••••••"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    autoComplete="current-password"
-                                    required
-                                    style={{ paddingRight: '3.2rem' }}
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="password-toggle-btn"
-                                    aria-label="Toggle password visibility"
-                                >
-                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                                </button>
-                            </div>
+                    )}
+                    {successMessage && (
+                        <div className="simple-login-alert success">
+                            <CheckCircle size={15} />
+                            <span>{successMessage}</span>
                         </div>
+                    )}
 
-                        <div className="forgot-node-row">
-                            <button 
-                                type="button" 
-                                onClick={() => { setOtpWorkflow(true); setOtpStep(1); setOtpStatus({type:'', message:''}); }}
-                                className="recovery-link"
-                            >
-                                Forgot Passkey? Recover via OTP
-                            </button>
-                        </div>
-
-                        {error && (
-                            <div className="auth-error-banner">
-                                <AlertCircle size={16} />
-                                <span>{error}</span>
-                            </div>
-                        )}
-
-                        <button 
-                            type="submit" 
-                            className={`admin-submit-btn ${loading ? 'processing' : ''}`} 
-                            disabled={loading}
-                        >
-                            {loading ? (
-                                <div className="btn-loading-state">
-                                    <RefreshCw className="spin-icon" size={18} />
-                                    <span>AUTHENTICATING IDENTITY...</span>
-                                </div>
-                            ) : (
-                                <>
-                                    <span>SECURE SIGN IN</span>
-                                    <ChevronRight size={20} />
-                                </>
-                            )}
-                        </button>
-                    </form>
-                ) : (
-                    // OTP WORKFLOW
-                    <div className="otp-workflow-container">
-                        <div className="otp-header-pill">
-                            🔐 MULTI-FACTOR IDENTITY VERIFICATION
-                        </div>
-                        
-                        {otpStep === 1 ? (
-                            <div className="otp-step-content">
-                                <div className="form-input-group">
-                                    <label>TARGET AUTHORIZED EMAIL</label>
-                                    <div className="input-field-wrapper">
-                                        <Mail size={18} className="field-icon" />
-                                        <input
-                                            type="email"
-                                            placeholder="Enter registered email"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="otp-medium-grid">
-                                    <button 
-                                        type="button"
-                                        onClick={() => setOtpMedium('email')}
-                                        className={`medium-card ${otpMedium === 'email' ? 'active' : ''}`}
-                                    >
-                                        <Mail size={22} />
-                                        <span>Email Dispatch</span>
-                                    </button>
-                                    <button 
-                                        type="button"
-                                        onClick={() => setOtpMedium('sms')}
-                                        className={`medium-card ${otpMedium === 'sms' ? 'active' : ''}`}
-                                    >
-                                        <Smartphone size={22} />
-                                        <span>SMS Delivery</span>
-                                    </button>
-                                </div>
-                                
-                                {otpStatus.message && (
-                                    <div className={`otp-status-box ${otpStatus.type}`}>
-                                        {otpStatus.type === 'error' ? <AlertCircle size={16} /> : <CheckCircle size={16} />}
-                                        <span>{otpStatus.message}</span>
-                                    </div>
-                                )}
-
-                                <button 
-                                    onClick={triggerOtpGeneration} 
-                                    disabled={otpLoading}
-                                    className="admin-submit-btn"
-                                >
-                                    {otpLoading ? <RefreshCw className="spin-icon" size={18} /> : <Key size={18} />}
-                                    <span>SEND VERIFICATION CODE</span>
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="otp-step-content">
-                                {otpStatus.message && (
-                                    <div className="otp-status-box success">
-                                        <CheckCircle size={16} />
-                                        <span>{otpStatus.message}</span>
-                                    </div>
-                                )}
-
-                                <div className="form-input-group">
-                                    <label>ENTER 6-DIGIT VERIFICATION CODE</label>
-                                    <input 
-                                        type="text" 
-                                        maxLength={6}
-                                        placeholder="• • • • • •"
-                                        value={typedOtp}
-                                        onChange={(e) => setTypedOtp(e.target.value.replace(/\D/g, ''))}
-                                        className="otp-code-input"
-                                        onKeyPress={(e) => e.key === 'Enter' && verifyOtpKey()}
-                                        autoFocus
+                    {!isForgotView ? (
+                        <form onSubmit={handleLogin} className="simple-login-form">
+                            <div className="simple-form-group">
+                                <label htmlFor="admin-email">Email Address</label>
+                                <div className="simple-input-box">
+                                    <Mail size={16} className="simple-input-icon" />
+                                    <input
+                                        id="admin-email"
+                                        type="email"
+                                        placeholder="admin@laxmicredit.com"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        required
+                                        autoComplete="email"
+                                        disabled={loading}
                                     />
                                 </div>
-
-                                <button 
-                                    onClick={verifyOtpKey} 
-                                    disabled={otpLoading || typedOtp.length < 6}
-                                    className="admin-submit-btn"
-                                >
-                                    {otpLoading ? <RefreshCw className="spin-icon" size={18} /> : <Lock size={18} />}
-                                    <span>VERIFY & RESET ACCESS</span>
-                                </button>
                             </div>
-                        )}
 
-                        <button 
-                            onClick={() => { setOtpWorkflow(false); setOtpStatus({type:'', message:''}); }}
-                            className="back-to-login-btn"
-                        >
-                            <ArrowLeft size={14} />
-                            <span>Return to Passkey Login</span>
-                        </button>
-                    </div>
-                )}
+                            <div className="simple-form-group">
+                                <div className="simple-label-row">
+                                    <label htmlFor="admin-password">Password</label>
+                                    <button
+                                        type="button"
+                                        className="simple-forgot-link"
+                                        onClick={() => {
+                                            setIsForgotView(true);
+                                            setResetEmail(email);
+                                            setError('');
+                                            setSuccessMessage('');
+                                        }}
+                                    >
+                                        Forgot password?
+                                    </button>
+                                </div>
+                                <div className="simple-input-box">
+                                    <Lock size={16} className="simple-input-icon" />
+                                    <input
+                                        id="admin-password"
+                                        type={showPassword ? 'text' : 'password'}
+                                        placeholder="Enter your password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        required
+                                        autoComplete="current-password"
+                                        disabled={loading}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="simple-eye-btn"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                    >
+                                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                    </button>
+                                </div>
+                            </div>
 
-                {/* Footer Security Watermark */}
-                <div className="admin-login-footer">
-                    <div className="security-guarantee">
-                        <Shield size={14} />
-                        <span>ZERO-TRUST CLOUD ARCHITECTURE • SOC-2 COMPLIANT</span>
-                    </div>
-                    <div className="version-tag">LaxmiCredit Rule Engine v2.5.0</div>
+                            <div className="simple-remember-row">
+                                <label className="simple-checkbox-label">
+                                    <input
+                                        type="checkbox"
+                                        checked={rememberMe}
+                                        onChange={(e) => setRememberMe(e.target.checked)}
+                                    />
+                                    <span>Remember me</span>
+                                </label>
+                            </div>
+
+                            <button
+                                type="submit"
+                                className="simple-submit-btn"
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <>
+                                        <Loader2 size={16} className="simple-spin" />
+                                        <span>Signing In...</span>
+                                    </>
+                                ) : (
+                                    <span>Sign In</span>
+                                )}
+                            </button>
+                        </form>
+                    ) : (
+                        <form onSubmit={handlePasswordReset} className="simple-login-form">
+                            <div className="simple-form-group">
+                                <label htmlFor="reset-email">Registered Email Address</label>
+                                <div className="simple-input-box">
+                                    <Mail size={16} className="simple-input-icon" />
+                                    <input
+                                        id="reset-email"
+                                        type="email"
+                                        placeholder="admin@laxmicredit.com"
+                                        value={resetEmail}
+                                        onChange={(e) => setResetEmail(e.target.value)}
+                                        required
+                                        autoComplete="email"
+                                        disabled={resetLoading}
+                                    />
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                className="simple-submit-btn"
+                                disabled={resetLoading}
+                            >
+                                {resetLoading ? (
+                                    <>
+                                        <Loader2 size={16} className="simple-spin" />
+                                        <span>Sending Reset Link...</span>
+                                    </>
+                                ) : (
+                                    <span>Send Reset Link</span>
+                                )}
+                            </button>
+
+                            <button
+                                type="button"
+                                className="simple-secondary-btn"
+                                onClick={() => {
+                                    setIsForgotView(false);
+                                    setError('');
+                                    setSuccessMessage('');
+                                }}
+                            >
+                                Back to Login
+                            </button>
+                        </form>
+                    )}
+
+                    {/* Return to website */}
+                    {onBack && (
+                        <div className="simple-login-footer">
+                            <button
+                                type="button"
+                                className="simple-back-link"
+                                onClick={onBack}
+                            >
+                                <ArrowLeft size={14} />
+                                <span>Return to Website</span>
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

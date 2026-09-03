@@ -185,7 +185,7 @@ const AdminDashboard = ({ onBackToCustomer }) => {
   };
 
   if (loading) return <div className="neural-loading">Syncing Neural Networks...</div>;
-  if (!user) return <AdminLogin onLoginSuccess={(u) => setUser(u)} />;
+  if (!user) return <AdminLogin onLoginSuccess={(u) => setUser(u)} onBack={onBackToCustomer} />;
 
   return (
     <div className="admin-dashboard professional-grid-bg">
