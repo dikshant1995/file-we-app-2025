@@ -337,23 +337,23 @@ const MainMasterPortal = ({ onAdminClick }) => {
             }} 
           />
 
-          {/* Subheading */}
+          {/* Subheading (Ultra-thin Hairline Inter font matching InCred screenshot media_1788377725268.png) */}
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
             style={{
-              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-              fontSize: '24px',
-              color: 'rgb(66, 66, 66)',
-              fontWeight: 300, 
+              fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+              fontSize: '23px',
+              color: '#718096',
+              fontWeight: 100, 
               fontStyle: 'normal',
               textAlign: 'center',
               maxWidth: '860px',
               margin: '0 auto 3.5rem',
-              lineHeight: '32px',
-              letterSpacing: '0.2px'
+              lineHeight: '34px',
+              letterSpacing: '0.4px'
             }}
           >
             Discover your pre approved maximum loan amount and lowest interest rate across 12+ top banks — 100% enquiry-free.
