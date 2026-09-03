@@ -504,32 +504,34 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
                   onClick={() => bank.eligible && handleBankSelect(bank.bankName, true)}
                 >
                   <div className="bank-card-header">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      {bank.eligible && (
-                        <div 
-                          className={`selection-checkbox ${selectedBanks.includes(bank.bankName) ? 'selected' : ''}`}
-                          style={{
-                            width: '22px',
-                            height: '22px',
-                            minWidth: '22px',
-                            borderRadius: '6px',
-                            border: selectedBanks.includes(bank.bankName) ? '2px solid #ffffff' : '2px solid rgba(255, 255, 255, 0.7)',
-                            background: selectedBanks.includes(bank.bankName) ? '#ffffff' : 'rgba(255, 255, 255, 0.2)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            transition: 'all 0.2s',
-                            boxShadow: selectedBanks.includes(bank.bankName) ? '0 2px 8px rgba(0, 0, 0, 0.2)' : 'none'
-                          }}
-                        >
-                          {selectedBanks.includes(bank.bankName) && <span style={{ color: '#1E40AF', fontSize: '14px', fontWeight: 'bold' }}>✓</span>}
-                        </div>
-                      )}
-                      <h4>{bank.bankName}</h4>
-                    </div>
+                    {bank.eligible && (
+                      <div 
+                        className={`selection-checkbox ${selectedBanks.includes(bank.bankName) ? 'selected' : ''}`}
+                        style={{
+                          position: 'absolute',
+                          left: '16px',
+                          width: '22px',
+                          height: '22px',
+                          minWidth: '22px',
+                          borderRadius: '6px',
+                          border: selectedBanks.includes(bank.bankName) ? '2px solid #ffffff' : '2px solid rgba(255, 255, 255, 0.7)',
+                          background: selectedBanks.includes(bank.bankName) ? '#ffffff' : 'rgba(255, 255, 255, 0.2)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          transition: 'all 0.2s',
+                          boxShadow: selectedBanks.includes(bank.bankName) ? '0 2px 8px rgba(0, 0, 0, 0.2)' : 'none',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {selectedBanks.includes(bank.bankName) && <span style={{ color: '#1E40AF', fontSize: '14px', fontWeight: 'bold' }}>✓</span>}
+                      </div>
+                    )}
+
+                    <h4>{bank.bankName}</h4>
 
                     {!bank.eligible && (
-                      <div className="status-badge rejected">
+                      <div className="status-badge rejected" style={{ position: 'absolute', right: '16px' }}>
                         ✕ Ineligible
                       </div>
                     )}
