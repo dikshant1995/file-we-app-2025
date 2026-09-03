@@ -95,10 +95,12 @@ function CustomerFacingApp() {
 
       setResults(calculationResults);
       setMetadata({
+        ...(rawFormData || {}),
+        ...(formData || {}),
         ...(formData._metadata || {}),
-        companyName: formData.companyName || formData._metadata?.companyName || 'Corporate Entity',
-        category: formData.category || formData._metadata?.category || 'Standard',
-        customerName: formData.customerName || formData._metadata?.customerName || rawFormData?.customerName || 'Customer'
+        customerName: formData.customerName || formData._metadata?.customerName || rawFormData?.customerName || 'Customer',
+        companyName: formData.companyName || formData._metadata?.companyName || rawFormData?.companyName || 'LaxmiCredit',
+        category: formData.category || formData._metadata?.category || rawFormData?.category || 'Category B'
       });
 
       // --- 🧠 AI NEURAL PREDICTION (SAFE WRAPPER) ---

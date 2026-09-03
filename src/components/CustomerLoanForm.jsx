@@ -298,7 +298,9 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome }) => {
         city: formData.city,
         salaryMode: formData.salaryMode, // Add salaryMode to metadata
         maritalStatus: formData.maritalStatus,
-        livingStatus: formData.livingStatus
+        livingStatus: formData.livingStatus,
+        age: formData.age,
+        employmentType: formData.employmentType
       }
     };
 
