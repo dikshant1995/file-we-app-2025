@@ -5,8 +5,8 @@ import { Link } from 'react-router-dom';
 
 const PersonalLoanEmiCalculator = () => {
   const [loanAmount, setLoanAmount] = useState(300000);
-  const [interestRate, setInterestRate] = useState(16);
-  const [tenureYears, setTenureYears] = useState(3);
+  const [interestRate, setInterestRate] = useState(11);
+  const [tenureYears, setTenureYears] = useState(5);
 
   // EMI Formula: E = P * r * (1 + r)^n / ((1 + r)^n - 1)
   const { emi, totalInterest, totalAmount, principalPercent, interestPercent } = useMemo(() => {
