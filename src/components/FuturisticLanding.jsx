@@ -554,23 +554,25 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               borderRadius: '16px',
               padding: '24px 20px',
               display: 'flex',
-              alignItems: 'flex-start',
-              gap: '16px',
+              alignItems: 'center',
+              gap: '18px',
               boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)'
             }}
           >
             <span 
               style={{ 
                 fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", 
-                fontSize: '4.5rem', 
+                fontSize: '5.2rem', 
                 fontWeight: 700, 
                 background: 'linear-gradient(135deg, #F58220 0%, #2563EB 60%, #1E40AF 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-                lineHeight: 1,
-                minWidth: '40px',
-                display: 'inline-block'
+                lineHeight: 1.05,
+                minWidth: '55px',
+                padding: '2px 4px 6px 0',
+                display: 'inline-block',
+                flexShrink: 0
               }}
             >
               1
@@ -613,23 +615,25 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               borderRadius: '16px',
               padding: '24px 20px',
               display: 'flex',
-              alignItems: 'flex-start',
-              gap: '16px',
+              alignItems: 'center',
+              gap: '18px',
               boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)'
             }}
           >
             <span 
               style={{ 
                 fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", 
-                fontSize: '4.5rem', 
+                fontSize: '5.2rem', 
                 fontWeight: 700, 
                 background: 'linear-gradient(135deg, #F58220 0%, #2563EB 60%, #1E40AF 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-                lineHeight: 1,
-                minWidth: '40px',
-                display: 'inline-block'
+                lineHeight: 1.05,
+                minWidth: '55px',
+                padding: '2px 4px 6px 0',
+                display: 'inline-block',
+                flexShrink: 0
               }}
             >
               2
@@ -672,23 +676,25 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               borderRadius: '16px',
               padding: '24px 20px',
               display: 'flex',
-              alignItems: 'flex-start',
-              gap: '16px',
+              alignItems: 'center',
+              gap: '18px',
               boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)'
             }}
           >
             <span 
               style={{ 
                 fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", 
-                fontSize: '4.5rem', 
+                fontSize: '5.2rem', 
                 fontWeight: 700, 
                 background: 'linear-gradient(135deg, #F58220 0%, #2563EB 60%, #1E40AF 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-                lineHeight: 1,
-                minWidth: '40px',
-                display: 'inline-block'
+                lineHeight: 1.05,
+                minWidth: '55px',
+                padding: '2px 4px 6px 0',
+                display: 'inline-block',
+                flexShrink: 0
               }}
             >
               3
@@ -731,23 +737,25 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               borderRadius: '16px',
               padding: '24px 20px',
               display: 'flex',
-              alignItems: 'flex-start',
-              gap: '16px',
+              alignItems: 'center',
+              gap: '18px',
               boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)'
             }}
           >
             <span 
               style={{ 
                 fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", 
-                fontSize: '4.5rem', 
+                fontSize: '5.2rem', 
                 fontWeight: 700, 
                 background: 'linear-gradient(135deg, #F58220 0%, #2563EB 60%, #1E40AF 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-                lineHeight: 1,
-                minWidth: '40px',
-                display: 'inline-block'
+                lineHeight: 1.05,
+                minWidth: '55px',
+                padding: '2px 4px 6px 0',
+                display: 'inline-block',
+                flexShrink: 0
               }}
             >
               4
@@ -790,23 +798,25 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               borderRadius: '16px',
               padding: '24px 20px',
               display: 'flex',
-              alignItems: 'flex-start',
-              gap: '16px',
+              alignItems: 'center',
+              gap: '18px',
               boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)'
             }}
           >
             <span 
               style={{ 
                 fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", 
-                fontSize: '4.5rem', 
+                fontSize: '5.2rem', 
                 fontWeight: 700, 
                 background: 'linear-gradient(135deg, #F58220 0%, #2563EB 60%, #1E40AF 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-                lineHeight: 1,
-                minWidth: '40px',
-                display: 'inline-block'
+                lineHeight: 1.05,
+                minWidth: '55px',
+                padding: '2px 4px 6px 0',
+                display: 'inline-block',
+                flexShrink: 0
               }}
             >
               5
@@ -849,23 +859,25 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               borderRadius: '16px',
               padding: '24px 20px',
               display: 'flex',
-              alignItems: 'flex-start',
-              gap: '16px',
+              alignItems: 'center',
+              gap: '18px',
               boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)'
             }}
           >
             <span 
               style={{ 
                 fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", 
-                fontSize: '4.5rem', 
+                fontSize: '5.2rem', 
                 fontWeight: 700, 
                 background: 'linear-gradient(135deg, #F58220 0%, #2563EB 60%, #1E40AF 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-                lineHeight: 1,
-                minWidth: '40px',
-                display: 'inline-block'
+                lineHeight: 1.05,
+                minWidth: '55px',
+                padding: '2px 4px 6px 0',
+                display: 'inline-block',
+                flexShrink: 0
               }}
             >
               6
