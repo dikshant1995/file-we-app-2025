@@ -83,13 +83,14 @@ const PersonalLoanEmiCalculator = () => {
       <div style={{ textAlign: 'center', marginBottom: '32px' }}>
         <h2
           style={{
-            fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-            fontSize: '2.4rem',
-            fontWeight: 800,
-            color: '#111827',
-            margin: '0 0 12px 0',
-            letterSpacing: '-0.5px',
-            lineHeight: 1.2
+            fontFamily: 'Outfit, "Plus Jakarta Sans", Inter, sans-serif',
+            fontSize: 'clamp(28px, 4vw, 43px)',
+            fontWeight: 750,
+            fontStyle: 'normal',
+            color: 'rgb(66, 66, 66)',
+            lineHeight: '54px',
+            margin: 0,
+            letterSpacing: '-0.5px'
           }}
         >
           Personal Loan EMI Calculator
@@ -98,11 +99,11 @@ const PersonalLoanEmiCalculator = () => {
         {/* Orange Accent Underline Bar */}
         <div 
           style={{ 
-            width: '52px', 
-            height: '4px', 
-            background: 'linear-gradient(90deg, #F58220 0%, #EA580C 100%)', 
-            borderRadius: '4px', 
-            margin: '0 auto' 
+            width: '42px', 
+            height: '3.5px', 
+            backgroundColor: '#F58220', 
+            borderRadius: '2px', 
+            margin: '14px auto 0' 
           }} 
         />
         <p 
