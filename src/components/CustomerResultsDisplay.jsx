@@ -95,23 +95,24 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
     if (isDownloading) return;
     try {
       setIsDownloading(true);
-      const element = document.querySelector('.customer-results-display');
-      if (!element) {
+
+      const rawFullName = metadata?.customerName || metadata?.name || metadata?.applicantName || 'Customer';
+      // Extract FIRST NAME ONLY
+      const firstName = String(rawFullName).trim().split(/\s+/)[0] || 'Customer';
+      const cleanFirstName = firstName.replace(/[^a-zA-Z0-9]/g, '');
+      const cleanFileName = `${cleanFirstName}_Loan_Eligibility_Report.pdf`;
+
+      // Allow state to set isDownloading = true so template is rendered in DOM
+      await new Promise(res => setTimeout(res, 120));
+
+      const reportElement = document.getElementById('customer-summary-report-template');
+      if (!reportElement) {
         window.print();
         return;
       }
 
-      // Add temporary class to cleanly hide floating selection bar, download button & chat widgets
-      element.classList.add('exporting-pdf');
-
-      const rawCustomer = metadata?.customerName || metadata?.name || metadata?.applicantName || 'Customer';
-      const rawCompany = metadata?.companyName || results?.find(r => r.companyName)?.companyName || 'Corporate';
-      const cleanCustomer = String(rawCustomer).trim().replace(/[^a-zA-Z0-9]/g, '_');
-      const cleanCompany = String(rawCompany).trim().replace(/[^a-zA-Z0-9]/g, '_');
-      const cleanFileName = `${cleanCustomer}_${cleanCompany}_Loan_Eligibility_Report.pdf`;
-
       const opt = {
-        margin: [10, 10, 10, 10],
+        margin: [8, 8, 8, 8],
         filename: cleanFileName,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: {
@@ -119,35 +120,19 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
           useCORS: true,
           logging: false,
           scrollY: 0,
-          windowWidth: 1200,
-          ignoreElements: (el) => {
-            return (
-              el.classList &&
-              (el.classList.contains('btn-download-pdf') ||
-                el.classList.contains('selection-summary-bar') ||
-                el.classList.contains('controls-bar') ||
-                el.classList.contains('neural-chatbot-container') ||
-                el.classList.contains('status-overlay') ||
-                el.classList.contains('sort-group'))
-            );
-          }
+          windowWidth: 800
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak: { 
-          mode: ['css', 'legacy', 'avoid-all'],
-          avoid: ['.bank-card', '.best-offer-card', '.charts-container', '.stats-grid', '.results-header', '.capping-alert-box', '.stat-card']
+          mode: ['css', 'legacy']
         }
       };
 
-      // Brief delay to let DOM re-render without floating bars
-      await new Promise(res => setTimeout(res, 100));
-      await html2pdf().set(opt).from(element).save();
+      await html2pdf().set(opt).from(reportElement).save();
     } catch (err) {
       console.error('PDF download error, fallback to print:', err);
       window.print();
     } finally {
-      const element = document.querySelector('.customer-results-display');
-      if (element) element.classList.remove('exporting-pdf');
       setIsDownloading(false);
     }
   };
@@ -775,6 +760,294 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
           </div>
         </div>
       )}
+
+      {/* ── DEDICATED READABLE CUSTOMER SUMMARY REPORT (FOR PDF DOWNLOAD) ── */}
+      <div 
+        id="customer-summary-report-template"
+        style={{
+          display: isDownloading ? 'block' : 'none',
+          position: 'fixed',
+          top: 0,
+          left: isDownloading ? 0 : '-9999px',
+          width: '794px',
+          background: '#ffffff',
+          color: '#1e293b',
+          fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+          zIndex: 99999,
+          padding: '24px 32px',
+          boxSizing: 'border-box'
+        }}
+      >
+        {/* PAGE 1: EXECUTIVE ASSESSMENT SUMMARY */}
+        <div className="pdf-page" style={{ minHeight: '1080px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', paddingBottom: '20px' }}>
+          <div>
+            {/* Header with Branding */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid #F58220', paddingBottom: '14px', marginBottom: '20px' }}>
+              <div>
+                <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#1E40AF', fontFamily: 'Outfit, sans-serif', letterSpacing: '-0.5px' }}>
+                  InCred <span style={{ color: '#F58220' }}>Financial</span>
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase', marginTop: '2px' }}>
+                  Multi-Bank Rule Engine • Institutional Sanction Assessment
+                </div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <span style={{ 
+                  background: '#EEF3FA', 
+                  color: '#1E40AF', 
+                  fontSize: '0.72rem', 
+                  fontWeight: 700, 
+                  padding: '4px 12px', 
+                  borderRadius: '20px',
+                  border: '1px solid #BFDBFE',
+                  display: 'inline-block',
+                  marginBottom: '4px'
+                }}>
+                  🛡️ Zero CIBIL Score Impact
+                </span>
+                <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                  Date: {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                </div>
+              </div>
+            </div>
+
+            {/* Title */}
+            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+              <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.75rem', fontWeight: 800, color: 'rgb(66, 66, 66)', margin: '0 0 6px 0' }}>
+                Personal Loan <span style={{ color: '#F58220' }}>Eligibility Summary</span>
+              </h1>
+              <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0 }}>
+                Verified institutional evaluation across {results.length} leading partner banking institutions
+              </p>
+            </div>
+
+            {/* Profile Overview Card */}
+            <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px 20px', marginBottom: '22px' }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: 750, color: '#1E40AF', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '10px' }}>
+                Applicant & Employment Profile
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px' }}>
+                <div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase' }}>Applicant Name</div>
+                  <div style={{ fontSize: '0.95rem', fontWeight: 700, color: 'rgb(66, 66, 66)', marginTop: '2px' }}>
+                    {metadata?.customerName || metadata?.name || 'Valued Customer'}
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase' }}>Employer / Organization</div>
+                  <div style={{ fontSize: '0.95rem', fontWeight: 700, color: 'rgb(66, 66, 66)', marginTop: '2px' }}>
+                    {metadata?.companyName || results.find(r => r.companyName)?.companyName || 'Corporate Entity'}
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase' }}>Category / Tier</div>
+                  <div style={{ fontSize: '0.95rem', fontWeight: 700, color: 'rgb(66, 66, 66)', marginTop: '2px' }}>
+                    {results.find(r => r.category)?.category || metadata?.category || 'Category B'}
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase' }}>Bureau Check</div>
+                  <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#15803D', marginTop: '2px' }}>
+                    Soft Bureau Verified
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Key Assessment Highlights Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '22px' }}>
+              <div style={{ background: '#FFF4EC', border: '1.5px solid #F58220', borderRadius: '12px', padding: '14px', textAlign: 'center' }}>
+                <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#F58220', textTransform: 'uppercase' }}>Highest Sanction</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#F58220', fontFamily: 'Outfit, sans-serif', margin: '4px 0 2px' }}>
+                  {bestOffer ? formatCurrency(bestOffer.loanAmount) : 'N/A'}
+                </div>
+                <div style={{ fontSize: '0.7rem', color: '#9a3412', fontWeight: 600 }}>{bestOffer?.bankName || 'Top Offer'}</div>
+              </div>
+
+              <div style={{ background: '#EEF3FA', border: '1.5px solid #BFDBFE', borderRadius: '12px', padding: '14px', textAlign: 'center' }}>
+                <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#1E40AF', textTransform: 'uppercase' }}>Optimal Monthly EMI</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1E40AF', fontFamily: 'Outfit, sans-serif', margin: '4px 0 2px' }}>
+                  {bestOffer ? formatNumber(bestOffer.monthlyEMI) : 'N/A'}
+                </div>
+                <div style={{ fontSize: '0.7rem', color: '#1E40AF', fontWeight: 600 }}>Per Month</div>
+              </div>
+
+              <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '14px', textAlign: 'center' }}>
+                <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'rgb(66, 66, 66)', textTransform: 'uppercase' }}>Starting Interest Rate</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'rgb(66, 66, 66)', fontFamily: 'Outfit, sans-serif', margin: '4px 0 2px' }}>
+                  {bestOffer?.roi || 11}%
+                </div>
+                <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>p.a. onwards</div>
+              </div>
+
+              <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '14px', textAlign: 'center' }}>
+                <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#15803D', textTransform: 'uppercase' }}>Approval Success</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#15803D', fontFamily: 'Outfit, sans-serif', margin: '4px 0 2px' }}>
+                  {Math.round((stats.eligibleCount / stats.totalBanks) * 100)}%
+                </div>
+                <div style={{ fontSize: '0.7rem', color: '#15803D', fontWeight: 600 }}>{stats.eligibleCount} of {stats.totalBanks} Approved</div>
+              </div>
+            </div>
+
+            {/* Spotlight Best Offer Card */}
+            {bestOffer && (
+              <div style={{ background: 'linear-gradient(135deg, #FFF4EC 0%, #FFFFFF 100%)', border: '2px solid #F58220', borderRadius: '14px', padding: '20px', marginBottom: '22px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', borderBottom: '1px solid #FED7AA', paddingBottom: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ background: '#F58220', color: '#ffffff', fontSize: '0.68rem', fontWeight: 800, padding: '4px 10px', borderRadius: '20px', letterSpacing: '0.5px' }}>
+                      ⭐ TOP RECOMMENDED OFFER
+                    </span>
+                    <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.3rem', fontWeight: 800, color: 'rgb(66, 66, 66)', margin: 0 }}>
+                      {bestOffer.bankName}
+                    </h2>
+                  </div>
+                  <span style={{ background: '#EEF3FA', color: '#1E40AF', fontSize: '0.72rem', fontWeight: 750, padding: '4px 12px', borderRadius: '20px' }}>
+                    Pre-Approved
+                  </span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>Sanctioned Limit</div>
+                    <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#F58220', fontFamily: 'Outfit, sans-serif', marginTop: '3px' }}>
+                      {formatCurrency(bestOffer.loanAmount)}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>Monthly Installment</div>
+                    <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#1E40AF', fontFamily: 'Outfit, sans-serif', marginTop: '3px' }}>
+                      {formatNumber(bestOffer.monthlyEMI)}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>Interest Rate</div>
+                    <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'rgb(66, 66, 66)', fontFamily: 'Outfit, sans-serif', marginTop: '3px' }}>
+                      {bestOffer.roi}%
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>Repayment Tenure</div>
+                    <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'rgb(66, 66, 66)', fontFamily: 'Outfit, sans-serif', marginTop: '3px' }}>
+                      {bestOffer.tenure} Years
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Page 1 Footer */}
+          <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: '#94a3b8' }}>
+            <span>InCred Multi-Bank Rule Engine • Confidential Eligibility Assessment</span>
+            <span>Page 1 of 2</span>
+          </div>
+        </div>
+
+        {/* PAGE BREAK */}
+        <div style={{ pageBreakBefore: 'always', breakBefore: 'always', height: '1px' }} />
+
+        {/* PAGE 2: COMPARATIVE OFFERS TABLE & NEXT STEPS */}
+        <div className="pdf-page" style={{ minHeight: '1080px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', paddingTop: '20px', paddingBottom: '20px' }}>
+          <div>
+            {/* Header Strip Page 2 */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1.5px solid #E2E8F0', paddingBottom: '10px', marginBottom: '18px' }}>
+              <div style={{ fontSize: '1.15rem', fontWeight: 800, color: 'rgb(66, 66, 66)', fontFamily: 'Outfit, sans-serif' }}>
+                Pre-Approved <span style={{ color: '#F58220' }}>Bank Offers Comparison</span>
+              </div>
+              <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                Applicant: <strong>{metadata?.customerName || metadata?.name || 'Customer'}</strong>
+              </div>
+            </div>
+
+            {/* Clean, Highly Readable Summary Table */}
+            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '24px', fontSize: '0.84rem' }}>
+              <thead>
+                <tr style={{ background: 'linear-gradient(135deg, #1E40AF 0%, #2563EB 60%, #F58220 100%)', color: '#ffffff' }}>
+                  <th style={{ padding: '10px 14px', textAlign: 'left', borderRadius: '6px 0 0 0', fontWeight: 700 }}>Bank / Institution</th>
+                  <th style={{ padding: '10px 14px', textAlign: 'right', fontWeight: 700 }}>Loan Sanction</th>
+                  <th style={{ padding: '10px 14px', textAlign: 'right', fontWeight: 700 }}>Monthly EMI</th>
+                  <th style={{ padding: '10px 14px', textAlign: 'center', fontWeight: 700 }}>ROI (p.a.)</th>
+                  <th style={{ padding: '10px 14px', textAlign: 'center', fontWeight: 700 }}>Tenure</th>
+                  <th style={{ padding: '10px 14px', textAlign: 'center', borderRadius: '0 6px 0 0', fontWeight: 700 }}>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedEligibleBanks.map((b, idx) => (
+                  <tr 
+                    key={idx} 
+                    style={{ 
+                      background: b === bestOffer ? '#FFF7ED' : idx % 2 === 0 ? '#FFFFFF' : '#F8FAFC',
+                      borderBottom: '1px solid #E2E8F0'
+                    }}
+                  >
+                    <td style={{ padding: '10px 14px', fontWeight: 750, color: 'rgb(66, 66, 66)' }}>
+                      {b.bankName} {b === bestOffer && <span style={{ color: '#F58220', fontSize: '0.75rem', marginLeft: '4px' }}>★ Top Pick</span>}
+                    </td>
+                    <td style={{ padding: '10px 14px', textAlign: 'right', fontWeight: 800, color: '#F58220', fontFamily: 'Outfit, sans-serif' }}>
+                      {formatCurrency(b.loanAmount)}
+                    </td>
+                    <td style={{ padding: '10px 14px', textAlign: 'right', fontWeight: 750, color: '#1E40AF', fontFamily: 'Outfit, sans-serif' }}>
+                      {formatNumber(b.monthlyEMI)}
+                    </td>
+                    <td style={{ padding: '10px 14px', textAlign: 'center', fontWeight: 650, color: 'rgb(66, 66, 66)' }}>
+                      {b.roi}%
+                    </td>
+                    <td style={{ padding: '10px 14px', textAlign: 'center', fontWeight: 600, color: 'rgb(66, 66, 66)' }}>
+                      {b.tenure} Years
+                    </td>
+                    <td style={{ padding: '10px 14px', textAlign: 'center' }}>
+                      <span style={{ background: '#ECFDF5', color: '#15803D', fontSize: '0.72rem', fontWeight: 750, padding: '3px 10px', borderRadius: '12px', border: '1px solid #A7F3D0' }}>
+                        Pre-Approved
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* How to Proceed (Actionable Next Steps) */}
+            <div style={{ background: '#F8FAFC', border: '1.5px solid #E2E8F0', borderRadius: '12px', padding: '18px 20px', marginBottom: '20px' }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#1E40AF', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>
+                ⚡ Simple Steps to Claim Your Pre-Approved Sanction
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', fontSize: '0.82rem' }}>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <span style={{ background: '#F58220', color: '#ffffff', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 750, flexShrink: 0 }}>1</span>
+                  <div>
+                    <strong style={{ color: 'rgb(66, 66, 66)' }}>Select Preferred Bank</strong>
+                    <div style={{ color: '#64748b', marginTop: '3px', lineHeight: 1.4 }}>Choose the bank matching your required loan amount or lowest monthly EMI.</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <span style={{ background: '#1E40AF', color: '#ffffff', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 750, flexShrink: 0 }}>2</span>
+                  <div>
+                    <strong style={{ color: 'rgb(66, 66, 66)' }}>Digital Verification</strong>
+                    <div style={{ color: '#64748b', marginTop: '3px', lineHeight: 1.4 }}>Complete fast paperless KYC and salary account verification.</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <span style={{ background: '#15803D', color: '#ffffff', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 750, flexShrink: 0 }}>3</span>
+                  <div>
+                    <strong style={{ color: 'rgb(66, 66, 66)' }}>Instant Disbursement</strong>
+                    <div style={{ color: '#64748b', marginTop: '3px', lineHeight: 1.4 }}>Sanctioned loan funds are transferred directly to your bank account.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Advisory Note */}
+            <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '8px', padding: '12px 16px', fontSize: '0.74rem', color: '#92400E', lineHeight: 1.5 }}>
+              <strong>Advisory Notice:</strong> The eligibility and terms presented herein represent real-time multi-bank algorithmic sanction limits. Final loan sanction, documentation, and disbursement are subject to the respective lending institution’s internal policy verification.
+            </div>
+          </div>
+
+          {/* Page 2 Footer */}
+          <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: '#94a3b8' }}>
+            <span>InCred Multi-Bank Rule Engine • Zero Bureau Impact Guaranteed</span>
+            <span>Page 2 of 2</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
