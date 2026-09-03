@@ -498,6 +498,298 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
           Whether it's managing a medical emergency, planning a wedding, or renovating your home, we provide flexible repayment options and competitive personal loan interest rates tailored to your requirements.
         </motion.p>
 
+      {/* Steps to Apply Section (InCred Style Exact Grid) */}
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        style={{ marginTop: '5rem', marginBottom: '4rem' }}
+      >
+        {/* Section Title */}
+        <h2 
+          style={{
+            fontFamily: "'Outfit', 'Plus Jakarta Sans', 'Inter', sans-serif",
+            fontSize: '2.5rem',
+            fontWeight: 750,
+            color: '#1E293B',
+            textAlign: 'center',
+            marginBottom: '8px',
+            letterSpacing: '-0.5px'
+          }}
+        >
+          Steps to apply for <span style={{ color: '#0F172A', borderBottom: '3px solid #F58220', paddingBottom: '2px' }}>Laxmi Credit</span> Personal Loan
+        </h2>
+
+        {/* Small Orange Underline */}
+        <div 
+          style={{ 
+            width: '40px', 
+            height: '3.5px', 
+            background: '#F58220', 
+            margin: '12px auto 40px', 
+            borderRadius: '2px' 
+          }} 
+        />
+
+        {/* 6 Steps Grid (3x2) */}
+        <div 
+          style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(3, 1fr)', 
+            gap: '24px', 
+            maxWidth: '1200px', 
+            margin: '0 auto' 
+          }}
+        >
+          {/* Step 1 */}
+          <motion.div 
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.2 }}
+            style={{
+              background: '#ffffff',
+              border: '1.5px solid #E2E8F0',
+              borderRadius: '20px',
+              padding: '28px 24px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '20px',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)'
+            }}
+          >
+            <span 
+              style={{ 
+                fontFamily: "'Outfit', 'Inter', sans-serif", 
+                fontSize: '4rem', 
+                fontWeight: 800, 
+                color: '#A4C3F0', 
+                lineHeight: 1,
+                minWidth: '50px'
+              }}
+            >
+              1
+            </span>
+            <p 
+              style={{ 
+                fontFamily: "'Mulish', 'Inter', 'Plus Jakarta Sans', sans-serif", 
+                fontSize: '0.98rem', 
+                color: '#475569', 
+                fontWeight: 600,
+                lineHeight: 1.45,
+                margin: 0
+              }}
+            >
+              Click "Apply Now" and enter your mobile number
+            </p>
+          </motion.div>
+
+          {/* Step 2 */}
+          <motion.div 
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.2 }}
+            style={{
+              background: '#ffffff',
+              border: '1.5px solid #E2E8F0',
+              borderRadius: '20px',
+              padding: '28px 24px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '20px',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)'
+            }}
+          >
+            <span 
+              style={{ 
+                fontFamily: "'Outfit', 'Inter', sans-serif", 
+                fontSize: '4rem', 
+                fontWeight: 800, 
+                color: '#A4C3F0', 
+                lineHeight: 1,
+                minWidth: '50px'
+              }}
+            >
+              2
+            </span>
+            <p 
+              style={{ 
+                fontFamily: "'Mulish', 'Inter', 'Plus Jakarta Sans', sans-serif", 
+                fontSize: '0.98rem', 
+                color: '#475569', 
+                fontWeight: 600,
+                lineHeight: 1.45,
+                margin: 0
+              }}
+            >
+              Verify your identity with the SMS confirmation code
+            </p>
+          </motion.div>
+
+          {/* Step 3 */}
+          <motion.div 
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.2 }}
+            style={{
+              background: '#ffffff',
+              border: '1.5px solid #E2E8F0',
+              borderRadius: '20px',
+              padding: '28px 24px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '20px',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)'
+            }}
+          >
+            <span 
+              style={{ 
+                fontFamily: "'Outfit', 'Inter', sans-serif", 
+                fontSize: '4rem', 
+                fontWeight: 800, 
+                color: '#A4C3F0', 
+                lineHeight: 1,
+                minWidth: '50px'
+              }}
+            >
+              3
+            </span>
+            <p 
+              style={{ 
+                fontFamily: "'Mulish', 'Inter', 'Plus Jakarta Sans', sans-serif", 
+                fontSize: '0.98rem', 
+                color: '#475569', 
+                fontWeight: 600,
+                lineHeight: 1.45,
+                margin: 0
+              }}
+            >
+              Fill in basic details DOB, gender, pincode and PAN
+            </p>
+          </motion.div>
+
+          {/* Step 4 */}
+          <motion.div 
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.2 }}
+            style={{
+              background: '#ffffff',
+              border: '1.5px solid #E2E8F0',
+              borderRadius: '20px',
+              padding: '28px 24px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '20px',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)'
+            }}
+          >
+            <span 
+              style={{ 
+                fontFamily: "'Outfit', 'Inter', sans-serif", 
+                fontSize: '4rem', 
+                fontWeight: 800, 
+                color: '#A4C3F0', 
+                lineHeight: 1,
+                minWidth: '50px'
+              }}
+            >
+              4
+            </span>
+            <p 
+              style={{ 
+                fontFamily: "'Mulish', 'Inter', 'Plus Jakarta Sans', sans-serif", 
+                fontSize: '0.98rem', 
+                color: '#475569', 
+                fontWeight: 600,
+                lineHeight: 1.45,
+                margin: 0
+              }}
+            >
+              Select your employment type and provide income and company information
+            </p>
+          </motion.div>
+
+          {/* Step 5 */}
+          <motion.div 
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.2 }}
+            style={{
+              background: '#ffffff',
+              border: '1.5px solid #E2E8F0',
+              borderRadius: '20px',
+              padding: '28px 24px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '20px',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)'
+            }}
+          >
+            <span 
+              style={{ 
+                fontFamily: "'Outfit', 'Inter', sans-serif", 
+                fontSize: '4rem', 
+                fontWeight: 800, 
+                color: '#A4C3F0', 
+                lineHeight: 1,
+                minWidth: '50px'
+              }}
+            >
+              5
+            </span>
+            <p 
+              style={{ 
+                fontFamily: "'Mulish', 'Inter', 'Plus Jakarta Sans', sans-serif", 
+                fontSize: '0.98rem', 
+                color: '#475569', 
+                fontWeight: 600,
+                lineHeight: 1.45,
+                margin: 0
+              }}
+            >
+              Submit and check your eligibility instantly on-screen
+            </p>
+          </motion.div>
+
+          {/* Step 6 */}
+          <motion.div 
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.2 }}
+            style={{
+              background: '#ffffff',
+              border: '1.5px solid #E2E8F0',
+              borderRadius: '20px',
+              padding: '28px 24px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '20px',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)'
+            }}
+          >
+            <span 
+              style={{ 
+                fontFamily: "'Outfit', 'Inter', sans-serif", 
+                fontSize: '4rem', 
+                fontWeight: 800, 
+                color: '#A4C3F0', 
+                lineHeight: 1,
+                minWidth: '50px'
+              }}
+            >
+              6
+            </span>
+            <p 
+              style={{ 
+                fontFamily: "'Mulish', 'Inter', 'Plus Jakarta Sans', sans-serif", 
+                fontSize: '0.98rem', 
+                color: '#475569', 
+                fontWeight: 600,
+                lineHeight: 1.45,
+                margin: 0
+              }}
+            >
+              If eligible, a loan executive will contact you within 24 hours.
+            </p>
+          </motion.div>
+        </div>
+      </motion.div>
+
         {/* Full-Width InCred-Style Fixed Sliding Sticky Bottom Bar */}
         <AnimatePresence>
           {isStickyCta && (
