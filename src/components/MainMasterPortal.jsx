@@ -1271,12 +1271,17 @@ const MainMasterPortal = ({ onAdminClick }) => {
                       color: '#ffffff',
                       border: 'none',
                       borderRadius: '50px',
-                      padding: '8px 28px',
-                      fontSize: '1.05rem',
-                      fontWeight: 800,
+                      padding: '10px 30px',
+                      fontSize: '18px',
+                      fontWeight: 600,
                       cursor: 'pointer',
                       boxShadow: '0 4px 14px rgba(245, 130, 32, 0.35)',
-                      fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif"
+                      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                      letterSpacing: '0.2px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      lineHeight: '24px'
                     }}
                   >
                     Check now
