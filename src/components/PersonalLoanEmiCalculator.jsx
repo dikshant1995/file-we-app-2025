@@ -170,27 +170,17 @@ const PersonalLoanEmiCalculator = () => {
                 }}
               >
                 <span style={{ color: '#1E40AF', fontWeight: 700, fontSize: '1.1rem' }}>₹</span>
-                <input 
-                  type="number"
-                  min={10000}
-                  step={10000}
-                  value={loanAmount}
-                  onChange={(e) => {
-                    const val = Number(e.target.value);
-                    setLoanAmount(val >= 0 ? val : 0);
-                  }}
+                <span 
                   style={{ 
                     fontFamily: "'Inter', sans-serif", 
                     fontSize: '1.25rem', 
                     fontWeight: 800, 
                     color: '#1E3A8A',
-                    letterSpacing: '-0.2px',
-                    border: 'none',
-                    background: 'transparent',
-                    outline: 'none',
-                    width: '150px'
+                    letterSpacing: '-0.2px'
                   }}
-                />
+                >
+                  {formatIndian(loanAmount)}
+                </span>
                 {loanAmount >= 10000000 && (
                   <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#2563EB', marginLeft: '4px', background: '#DBEAFE', padding: '2px 8px', borderRadius: '6px' }}>
                     {(loanAmount / 10000000).toFixed(loanAmount % 10000000 === 0 ? 0 : 2)} Cr
@@ -292,28 +282,17 @@ const PersonalLoanEmiCalculator = () => {
                   boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04)'
                 }}
               >
-                <span style={{ color: '#EA580C', fontWeight: 700, fontSize: '0.95rem' }}>%</span>
-                <input 
-                  type="number"
-                  min={1}
-                  max={50}
-                  step={0.1}
-                  value={interestRate}
-                  onChange={(e) => {
-                    const val = Number(e.target.value);
-                    setInterestRate(val >= 0 ? val : 0);
-                  }}
+                <span 
                   style={{ 
                     fontFamily: "'Inter', sans-serif", 
                     fontSize: '1.15rem', 
                     fontWeight: 800, 
-                    color: '#9A3412',
-                    border: 'none',
-                    background: 'transparent',
-                    outline: 'none',
-                    width: '65px'
+                    color: '#9A3412' 
                   }}
-                />
+                >
+                  {interestRate}
+                </span>
+                <span style={{ color: '#EA580C', fontWeight: 700, fontSize: '0.95rem' }}>%</span>
               </div>
             </div>
 
@@ -378,28 +357,17 @@ const PersonalLoanEmiCalculator = () => {
                   boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04)'
                 }}
               >
-                <span style={{ color: '#15803D', fontWeight: 700, fontSize: '0.9rem' }}>Yr</span>
-                <input 
-                  type="number"
-                  min={1}
-                  max={30}
-                  step={1}
-                  value={tenureYears}
-                  onChange={(e) => {
-                    const val = Number(e.target.value);
-                    setTenureYears(val >= 0 ? val : 1);
-                  }}
+                <span 
                   style={{ 
                     fontFamily: "'Inter', sans-serif", 
                     fontSize: '1.15rem', 
                     fontWeight: 800, 
-                    color: '#14532D',
-                    border: 'none',
-                    background: 'transparent',
-                    outline: 'none',
-                    width: '55px'
+                    color: '#14532D' 
                   }}
-                />
+                >
+                  {tenureYears}
+                </span>
+                <span style={{ color: '#15803D', fontWeight: 700, fontSize: '0.9rem' }}>Yr</span>
               </div>
             </div>
 
