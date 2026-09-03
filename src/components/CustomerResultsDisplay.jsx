@@ -117,7 +117,17 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
               </span>
             </div>
           )}
-          <p>Verified assessment results across {results.length} banking institutions</p>
+          <p style={{
+            fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+            fontSize: '1.02rem',
+            color: 'rgb(66, 66, 66)',
+            lineHeight: '1.6',
+            maxWidth: '680px',
+            margin: '12px auto 0',
+            fontWeight: 500
+          }}>
+            Verified assessment results across {results.length} banking institutions with zero impact on CIBIL score.
+          </p>
           <button 
             className="btn-download-pdf" 
             onClick={() => window.print()}
