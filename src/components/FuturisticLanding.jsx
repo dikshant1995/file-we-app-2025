@@ -563,10 +563,14 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               style={{ 
                 fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", 
                 fontSize: '4.5rem', 
-                fontWeight: 600, 
-                color: '#A5C2F3', 
+                fontWeight: 700, 
+                background: 'linear-gradient(135deg, #F58220 0%, #2563EB 60%, #1E40AF 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
                 lineHeight: 1,
-                minWidth: '40px'
+                minWidth: '40px',
+                display: 'inline-block'
               }}
             >
               1
@@ -618,10 +622,14 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               style={{ 
                 fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", 
                 fontSize: '4.5rem', 
-                fontWeight: 600, 
-                color: '#A5C2F3', 
+                fontWeight: 700, 
+                background: 'linear-gradient(135deg, #F58220 0%, #2563EB 60%, #1E40AF 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
                 lineHeight: 1,
-                minWidth: '40px'
+                minWidth: '40px',
+                display: 'inline-block'
               }}
             >
               2
@@ -673,10 +681,14 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               style={{ 
                 fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", 
                 fontSize: '4.5rem', 
-                fontWeight: 600, 
-                color: '#A5C2F3', 
+                fontWeight: 700, 
+                background: 'linear-gradient(135deg, #F58220 0%, #2563EB 60%, #1E40AF 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
                 lineHeight: 1,
-                minWidth: '40px'
+                minWidth: '40px',
+                display: 'inline-block'
               }}
             >
               3
@@ -728,10 +740,14 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               style={{ 
                 fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", 
                 fontSize: '4.5rem', 
-                fontWeight: 600, 
-                color: '#A5C2F3', 
+                fontWeight: 700, 
+                background: 'linear-gradient(135deg, #F58220 0%, #2563EB 60%, #1E40AF 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
                 lineHeight: 1,
-                minWidth: '40px'
+                minWidth: '40px',
+                display: 'inline-block'
               }}
             >
               4
@@ -783,10 +799,14 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               style={{ 
                 fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", 
                 fontSize: '4.5rem', 
-                fontWeight: 600, 
-                color: '#A5C2F3', 
+                fontWeight: 700, 
+                background: 'linear-gradient(135deg, #F58220 0%, #2563EB 60%, #1E40AF 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
                 lineHeight: 1,
-                minWidth: '40px'
+                minWidth: '40px',
+                display: 'inline-block'
               }}
             >
               5
@@ -838,10 +858,14 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               style={{ 
                 fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", 
                 fontSize: '4.5rem', 
-                fontWeight: 600, 
-                color: '#A5C2F3', 
+                fontWeight: 700, 
+                background: 'linear-gradient(135deg, #F58220 0%, #2563EB 60%, #1E40AF 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
                 lineHeight: 1,
-                minWidth: '40px'
+                minWidth: '40px',
+                display: 'inline-block'
               }}
             >
               6
