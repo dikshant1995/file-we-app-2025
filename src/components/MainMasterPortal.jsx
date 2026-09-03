@@ -9,6 +9,7 @@ import documentsFolderIcon from '../assets/documents-folder-icon.png';
 import PersonalLoanEmiCalculator from './PersonalLoanEmiCalculator';
 import CustomerSuccessStories from './CustomerSuccessStories';
 import PortalFaqSection from './PortalFaqSection';
+import PortalFooter from './PortalFooter';
 
 const MainMasterPortal = ({ onAdminClick }) => {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
@@ -1647,11 +1648,8 @@ const MainMasterPortal = ({ onAdminClick }) => {
           )}
         </AnimatePresence>
 
-        {/* Minimal Clean Modern Footer */}
-        <footer style={{ textAlign: 'center', padding: '40px 20px 80px', color: '#9CA3AF', fontSize: '0.88rem', fontFamily: "'Inter', sans-serif" }}>
-          <p style={{ margin: '0 0 6px 0', color: '#6B7280', fontWeight: 500 }}>© {new Date().getFullYear()} Loan Eligibility & Multi-Bank Comparison Portal. All rights reserved.</p>
-          <p style={{ margin: 0, fontSize: '0.8rem', color: '#94A3B8' }}>100% Free • Soft Bureau Eligibility • 12+ Partner Banks</p>
-        </footer>
+        {/* Professional Assistance, Support & Feedback Footer in rgb(66, 66, 66) */}
+        <PortalFooter />
       </div>
     </div>
   );
