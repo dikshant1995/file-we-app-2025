@@ -1417,7 +1417,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                   transition: 'all 0.2s ease'
                 }}
               >
-                Salaried individuals can apply
+                Salaried individuals can check
               </motion.div>
 
               <motion.div 
@@ -1564,24 +1564,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                   transition: 'all 0.2s ease'
                 }}
               >
-                Last three month's bank statements
-              </motion.div>
-
-              <motion.div 
-                whileHover={{ scale: 1.01, backgroundColor: '#ffffff' }}
-                style={{
-                  background: 'rgba(255, 255, 255, 0.75)',
-                  border: '1px solid #86EFAC',
-                  borderRadius: '12px',
-                  padding: '14px 20px',
-                  fontSize: '0.96rem',
-                  fontWeight: 500,
-                  color: '#334155',
-                  fontFamily: "'Inter', sans-serif",
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                Last three month's pay slips
+                Last three month's bank statements & pay slips
               </motion.div>
             </div>
           </motion.div>
