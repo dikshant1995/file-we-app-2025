@@ -1,13 +1,15 @@
 /* ============================================================
-   CUSTOMER RESULTS DISPLAY — INCRED BANKING THEME
-   Unified light, high-trust institutional banking aesthetics
+   CUSTOMER RESULTS DISPLAY — 3-COLOR THEME
+   1. InCred Orange: rgb(245, 130, 32) / #F58220
+   2. Dark Charcoal: rgb(66, 66, 66)
+   3. Website Blue: #1E40AF (with #2563EB & #EEF3FA)
    ============================================================ */
 
 .customer-results-display {
   max-width: 1240px;
   margin: 0 auto;
   padding: 36px 20px 100px;
-  color: #0f172a;
+  color: rgb(66, 66, 66);
   background: #ffffff;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   box-sizing: border-box;
@@ -32,46 +34,16 @@
 }
 
 .results-header p {
-  color: #64748b;
+  color: rgb(66, 66, 66);
   font-size: 0.98rem;
   max-width: 650px;
   margin: 10px auto 0;
   line-height: 1.5;
   font-weight: 500;
+  opacity: 0.9;
 }
 
-/* Logic Bridge & Badges */
-.logic-bridge-active-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: #f0fdf4;
-  color: #15803d;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 0.78rem;
-  font-weight: 650;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-top: 8px;
-  margin-bottom: 8px;
-  border: 1px solid #bbf7d0;
-}
-
-.dot.pulse {
-  width: 7px;
-  height: 7px;
-  background: #16a34a;
-  border-radius: 50%;
-  animation: pulseGreen 1.5s infinite;
-}
-
-@keyframes pulseGreen {
-  0% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); }
-  70% { transform: scale(1.2); opacity: 0.7; box-shadow: 0 0 0 6px rgba(22, 163, 74, 0); }
-  100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
-}
-
+/* Company & Category Pills */
 .company-info-header {
   display: flex;
   justify-content: center;
@@ -83,34 +55,34 @@
 }
 
 .company-pill {
-  background: #eff6ff;
-  color: #1d4ed8;
-  padding: 5px 14px;
+  background: #EEF3FA;
+  color: #1E40AF;
+  padding: 6px 16px;
   border-radius: 20px;
   font-size: 0.85rem;
-  font-weight: 600;
-  border: 1px solid #bfdbfe;
+  font-weight: 650;
+  border: 1px solid #BFDBFE;
 }
 
 .category-pill {
-  background: #fff7ed;
-  color: #c2410c;
-  padding: 5px 14px;
+  background: #FFF4EC;
+  color: rgb(245, 130, 32);
+  padding: 6px 16px;
   border-radius: 20px;
   font-size: 0.85rem;
-  font-weight: 600;
-  border: 1px solid #fed7aa;
+  font-weight: 650;
+  border: 1px solid #FED7AA;
 }
 
 .category-pill strong {
-  color: #ea580c;
+  color: rgb(245, 130, 32);
   font-weight: 750;
 }
 
 .btn-download-pdf {
-  background: #fff7ed;
-  border: 1.5px solid #F58220;
-  color: #F58220;
+  background: #FFF4EC;
+  border: 1.5px solid rgb(245, 130, 32);
+  color: rgb(245, 130, 32);
   padding: 9px 24px;
   border-radius: 50px;
   font-weight: 650;
@@ -125,129 +97,9 @@
 }
 
 .btn-download-pdf:hover {
-  background: #F58220;
+  background: rgb(245, 130, 32);
   color: #ffffff;
   box-shadow: 0 4px 14px rgba(245, 130, 32, 0.3);
-}
-
-/* ── Neural Prediction Banner ────────────────────────────── */
-.neural-prediction-banner {
-  background: #fff7ed;
-  border: 1.5px solid #fed7aa;
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 36px;
-  display: flex;
-  gap: 20px;
-  align-items: center;
-  box-shadow: 0 4px 18px rgba(245, 130, 32, 0.08);
-}
-
-.neural-icon {
-  font-size: 2.5rem;
-}
-
-.neural-content h3 {
-  font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
-  font-size: 1.25rem;
-  font-weight: 750;
-  color: #111827;
-  margin: 0 0 6px 0;
-}
-
-.neural-desc {
-  color: #4b5563;
-  font-size: 0.9rem;
-  margin: 0 0 14px 0;
-}
-
-.neural-stats {
-  display: flex;
-  gap: 30px;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
-}
-
-.neural-stat {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.neural-stat .stat-label {
-  font-size: 0.85rem;
-  color: #64748b;
-  font-weight: 600;
-}
-
-.neural-stat .stat-value {
-  font-family: 'Outfit', sans-serif;
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: #F58220;
-}
-
-.confidence-container {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.confidence-bar {
-  height: 8px;
-  background: #F58220;
-  border-radius: 4px;
-  min-width: 60px;
-}
-
-.confidence-text {
-  font-size: 0.85rem;
-  font-weight: 750;
-  color: #111827;
-}
-
-.neural-insight {
-  font-size: 0.85rem;
-  color: #c2410c;
-  margin: 6px 0 0;
-  font-weight: 600;
-}
-
-/* ── Linguistic AI Bubble ────────────────────────────────── */
-.ai-insight-bubble {
-  background: #f0fdf4;
-  border: 1.5px solid #bbf7d0;
-  border-radius: 14px;
-  padding: 18px 22px;
-  margin-bottom: 36px;
-}
-
-.advisor-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.advisor-label {
-  font-size: 0.82rem;
-  font-weight: 750;
-  color: #15803d;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.pulse-indicator {
-  width: 6px;
-  height: 6px;
-  background: #16a34a;
-  border-radius: 50%;
-}
-
-.insight-text {
-  color: #166534;
-  font-size: 0.92rem;
-  line-height: 1.5;
 }
 
 /* ── Visual Analytics Charts ──────────────────────────────── */
@@ -260,7 +112,7 @@
 
 .chart-card {
   background: #ffffff;
-  border: 1.5px solid #e2e8f0;
+  border: 1.5px solid #E2E8F0;
   border-radius: 16px;
   padding: 24px;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
@@ -297,24 +149,24 @@
 }
 
 .bar-bank-name {
-  color: #1f2937;
+  color: rgb(66, 66, 66);
 }
 
 .bar-amount {
-  color: #F58220;
+  color: rgb(245, 130, 32);
   font-weight: 750;
 }
 
 .bar-track {
   height: 10px;
-  background: #f1f5f9;
+  background: #EEF3FA;
   border-radius: 6px;
   overflow: hidden;
 }
 
 .bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #F58220, #ea580c);
+  background: linear-gradient(90deg, #1E40AF 0%, #2563EB 50%, rgb(245, 130, 32) 100%);
   border-radius: 6px;
   box-shadow: 0 2px 8px rgba(245, 130, 32, 0.25);
 }
@@ -331,8 +183,8 @@
 
 .gauge-svg-container {
   position: relative;
-  width: 160px;
-  height: 160px;
+  width: 170px;
+  height: 170px;
 }
 
 .gauge-svg {
@@ -343,14 +195,14 @@
 
 .gauge-bg {
   fill: none;
-  stroke: #f1f5f9;
-  stroke-width: 8;
+  stroke: #EEF3FA;
+  stroke-width: 9;
 }
 
 .gauge-fill {
   fill: none;
   stroke: url(#gradientGauge);
-  stroke-width: 8;
+  stroke-width: 9;
   stroke-linecap: round;
   transition: stroke-dashoffset 1.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -365,15 +217,15 @@
 
 .gauge-percentage {
   font-family: 'Outfit', 'Montserrat', sans-serif;
-  font-size: 2rem;
+  font-size: 2.1rem;
   font-weight: 800;
-  color: #111827;
+  color: #1E40AF;
   line-height: 1;
 }
 
 .gauge-label {
-  font-size: 0.68rem;
-  color: #64748b;
+  font-size: 0.72rem;
+  color: rgb(66, 66, 66);
   text-transform: uppercase;
   margin-top: 4px;
   font-weight: 750;
@@ -396,7 +248,7 @@
 
 .stat-card {
   background: #ffffff;
-  border: 1.5px solid #e2e8f0;
+  border: 1.5px solid #E2E8F0;
   padding: 22px 18px;
   border-radius: 16px;
   text-align: center;
@@ -408,32 +260,32 @@
 
 .stat-card:hover {
   transform: translateY(-3px);
-  border-color: #f58220;
+  border-color: rgb(245, 130, 32);
   box-shadow: 0 10px 26px rgba(245, 130, 32, 0.12);
 }
 
 .stat-card.highlight {
-  border-color: #f58220;
-  background: #fff7ed;
+  border: 2px solid rgb(245, 130, 32) !important;
+  background: #FFF4EC !important;
 }
 
 .stat-value {
   font-family: 'Outfit', 'Montserrat', sans-serif !important;
   font-size: 1.85rem !important;
   font-weight: 800 !important;
-  color: #16a34a !important;
+  color: #1E40AF !important;
   margin-bottom: 6px !important;
   letter-spacing: -0.02em !important;
   display: block !important;
 }
 
 .stat-card.highlight .stat-value {
-  color: #f58220 !important;
+  color: rgb(245, 130, 32) !important;
 }
 
 .stat-label {
   font-size: 0.82rem !important;
-  color: #475569 !important;
+  color: rgb(66, 66, 66) !important;
   font-weight: 750 !important;
   text-transform: uppercase !important;
   letter-spacing: 0.05em !important;
@@ -442,25 +294,25 @@
 }
 
 .stat-card.highlight .stat-label {
-  color: #c2410c !important;
+  color: rgb(245, 130, 32) !important;
 }
 
 /* ── Best Offer Card ────────────────────────────────────── */
 .best-offer-card {
-  background: #fff7ed;
-  border: 2px solid #f58220;
+  background: #FFF4EC;
+  border: 2px solid rgb(245, 130, 32);
   border-radius: 20px;
   padding: 32px;
   margin-bottom: 36px;
   position: relative;
   box-shadow: 0 10px 30px rgba(245, 130, 32, 0.12);
   overflow: hidden;
-  color: #111827;
+  color: rgb(66, 66, 66);
 }
 
 .best-offer-badge {
   display: inline-block;
-  background: #f58220;
+  background: rgb(245, 130, 32);
   color: #ffffff;
   padding: 5px 14px;
   border-radius: 50px;
@@ -475,7 +327,7 @@
   font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
   font-size: 1.6rem;
   font-weight: 750;
-  color: #111827;
+  color: rgb(66, 66, 66);
   margin: 0 0 24px 0;
   display: flex;
   align-items: center;
@@ -495,7 +347,7 @@
 
 .detail-item .label {
   font-size: 0.8rem;
-  color: #64748b;
+  color: rgb(66, 66, 66);
   margin-bottom: 4px;
   font-weight: 650;
   text-transform: uppercase;
@@ -506,12 +358,12 @@
   font-family: 'Outfit', sans-serif;
   font-size: 1.4rem;
   font-weight: 800;
-  color: #111827;
+  color: #1E40AF;
 }
 
 .detail-item .value.large {
   font-size: 2rem;
-  color: #f58220;
+  color: rgb(245, 130, 32);
 }
 
 /* ── Controls Bar ───────────────────────────────────────── */
@@ -520,7 +372,7 @@
   justify-content: space-between;
   align-items: center;
   background: #ffffff;
-  border: 1.5px solid #e2e8f0;
+  border: 1.5px solid #E2E8F0;
   padding: 16px 22px;
   border-radius: 14px;
   margin-bottom: 24px;
@@ -537,15 +389,15 @@
 }
 
 .controls-bar label {
-  color: #334155;
+  color: rgb(66, 66, 66);
   font-size: 0.88rem;
   font-weight: 650;
 }
 
 .controls-bar select {
   background: #ffffff;
-  border: 1.5px solid #f58220;
-  color: #111827;
+  border: 1.5px solid rgb(245, 130, 32);
+  color: rgb(66, 66, 66);
   padding: 7px 14px;
   border-radius: 8px;
   font-size: 0.88rem;
@@ -563,7 +415,7 @@
 
 .bank-card {
   background: #ffffff;
-  border: 1.5px solid #e2e8f0;
+  border: 1.5px solid #E2E8F0;
   border-radius: 16px;
   overflow: hidden;
   transition: all 0.25s ease;
@@ -575,12 +427,12 @@
 
 .bank-card:hover {
   transform: translateY(-3px);
-  border-color: #f58220;
+  border-color: rgb(245, 130, 32);
   box-shadow: 0 10px 28px rgba(245, 130, 32, 0.15);
 }
 
 .bank-card.best {
-  border: 2px solid #f58220;
+  border: 2px solid rgb(245, 130, 32);
   box-shadow: 0 8px 30px rgba(245, 130, 32, 0.18);
 }
 
@@ -588,7 +440,7 @@
   position: absolute;
   top: 12px;
   right: 14px;
-  background: #f58220;
+  background: rgb(245, 130, 32);
   color: #ffffff;
   font-size: 0.72rem;
   font-weight: 750;
@@ -602,8 +454,8 @@
 /* Card Header */
 .bank-card-header {
   padding: 16px 20px;
-  background: #f8fafc;
-  border-bottom: 1px solid #f1f5f9;
+  background: #F8FAFC;
+  border-bottom: 1px solid #F1F5F9;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -612,14 +464,14 @@
 .bank-card-header h4 {
   font-size: 1.15rem;
   font-weight: 750;
-  color: #111827;
+  color: rgb(66, 66, 66);
   margin: 0;
   font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
 }
 
 .status-badge {
-  padding: 4px 10px;
-  border-radius: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -627,15 +479,15 @@
 }
 
 .status-badge.approved {
-  background: #f0fdf4;
-  color: #15803d;
-  border: 1px solid #bbf7d0;
+  background: #EEF3FA;
+  color: #1E40AF;
+  border: 1px solid #BFDBFE;
 }
 
 .status-badge.rejected {
-  background: #fef2f2;
-  color: #dc2626;
-  border: 1px solid #fecaca;
+  background: #F8FAFC;
+  color: rgb(66, 66, 66);
+  border: 1px solid #E2E8F0;
 }
 
 /* Card Body */
@@ -652,7 +504,7 @@
 .main-amount .label {
   display: block;
   font-size: 0.78rem;
-  color: #64748b;
+  color: rgb(66, 66, 66);
   margin-bottom: 4px;
   font-weight: 650;
   text-transform: uppercase;
@@ -663,34 +515,8 @@
   font-family: 'Outfit', sans-serif;
   font-size: 1.9rem;
   font-weight: 800;
-  color: #f58220;
+  color: rgb(245, 130, 32);
   letter-spacing: -0.02em;
-}
-
-/* Rejection Style */
-.bank-card.rejected {
-  opacity: 0.8;
-  background: #ffffff;
-  border: 1.5px solid #fee2e2;
-}
-
-.rejected-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  min-height: 100px;
-  background: #fef2f2;
-  padding: 14px;
-  border-radius: 10px;
-  margin-bottom: 14px;
-}
-
-.rejection-reason {
-  font-size: 0.85rem;
-  color: #dc2626;
-  font-weight: 500;
 }
 
 /* Details Grid (Monthly EMI / ROI / Tenure) */
@@ -698,19 +524,19 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1px;
-  background: #e2e8f0;
-  border-top: 1px solid #e2e8f0;
+  background: #E2E8F0;
+  border-top: 1px solid #E2E8F0;
 }
 
 .detail {
-  background: #f8fafc;
+  background: #F8FAFC;
   padding: 12px 8px;
   text-align: center;
 }
 
 .detail-label {
   font-size: 0.7rem;
-  color: #64748b;
+  color: rgb(66, 66, 66);
   margin-bottom: 2px;
   display: block;
   text-transform: uppercase;
@@ -721,7 +547,7 @@
   font-family: 'Outfit', 'Inter', sans-serif;
   font-size: 0.98rem;
   font-weight: 800;
-  color: #111827;
+  color: #1E40AF;
 }
 
 /* Floating Submit Bar */
@@ -732,7 +558,7 @@
   transform: translateX(-50%);
   width: min(92%, 820px);
   background: #ffffff;
-  border: 1.5px solid #f58220;
+  border: 1.5px solid rgb(245, 130, 32);
   border-radius: 50px;
   padding: 14px 28px;
   display: flex;
@@ -749,7 +575,7 @@
 }
 
 .table-submit-btn {
-  background: #f58220;
+  background: rgb(245, 130, 32);
   color: #ffffff;
   border: none;
   padding: 12px 28px;
@@ -769,8 +595,8 @@
 }
 
 .table-submit-btn:disabled {
-  background: #e2e8f0;
-  color: #94a3b8;
+  background: #E2E8F0;
+  color: rgb(66, 66, 66);
   cursor: not-allowed;
   box-shadow: none;
   transform: none;

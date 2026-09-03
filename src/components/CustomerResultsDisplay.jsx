@@ -210,8 +210,9 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
                 <svg className="gauge-svg" viewBox="0 0 100 100">
                   <defs>
                     <linearGradient id="gradientGauge" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#F58220" />
-                      <stop offset="100%" stopColor="#16A34A" />
+                      <stop offset="0%" stopColor="#1E40AF" />
+                      <stop offset="50%" stopColor="#2563EB" />
+                      <stop offset="100%" stopColor="#F58220" />
                     </linearGradient>
                   </defs>
                   {/* Background Ring */}
@@ -227,10 +228,10 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
                   />
                 </svg>
                 <div className="gauge-content-center">
-                  <div className="gauge-percentage">
+                  <div className="gauge-percentage" style={{ color: '#1E40AF' }}>
                     {Math.round((stats.eligibleCount / stats.totalBanks) * 100)}%
                   </div>
-                  <div className="gauge-label">Approved</div>
+                  <div className="gauge-label" style={{ color: 'rgb(66, 66, 66)' }}>Approved</div>
                 </div>
               </div>
             </div>
@@ -241,30 +242,30 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
       {/* Statistics Cards */}
       <div className="stats-grid">
         <div className="stat-card" style={{ background: '#ffffff', border: '1.5px solid #e2e8f0', padding: '22px 18px', borderRadius: '16px', textAlign: 'center', boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
-          <div className="stat-value" style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.85rem', fontWeight: 800, color: '#16a34a', marginBottom: '8px' }}>
+          <div className="stat-value" style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.85rem', fontWeight: 800, color: '#1E40AF', marginBottom: '8px' }}>
             {stats.eligibleCount}/{stats.totalBanks}
           </div>
-          <div className="stat-label" style={{ fontSize: '0.82rem', color: '#475569', fontWeight: 750, textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 1, display: 'block' }}>
+          <div className="stat-label" style={{ fontSize: '0.82rem', color: 'rgb(66, 66, 66)', fontWeight: 750, textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 1, display: 'block' }}>
             Institutions Evaluated
           </div>
         </div>
 
         {bestOffer && (
           <>
-            <div className="stat-card highlight" style={{ background: '#fff7ed', border: '2px solid #f58220', padding: '22px 18px', borderRadius: '16px', textAlign: 'center', boxShadow: '0 6px 20px rgba(245, 130, 32, 0.12)' }}>
+            <div className="stat-card highlight" style={{ background: '#FFF4EC', border: '2px solid #f58220', padding: '22px 18px', borderRadius: '16px', textAlign: 'center', boxShadow: '0 6px 20px rgba(245, 130, 32, 0.12)' }}>
               <div className="stat-value" style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.85rem', fontWeight: 800, color: '#f58220', marginBottom: '8px' }}>
                 {formatCurrency(bestOffer.loanAmount)}
               </div>
-              <div className="stat-label" style={{ fontSize: '0.82rem', color: '#c2410c', fontWeight: 750, textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 1, display: 'block' }}>
+              <div className="stat-label" style={{ fontSize: '0.82rem', color: '#f58220', fontWeight: 750, textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 1, display: 'block' }}>
                 Maximum Opportunity ({bestOffer.bankName})
               </div>
             </div>
 
             <div className="stat-card" style={{ background: '#ffffff', border: '1.5px solid #e2e8f0', padding: '22px 18px', borderRadius: '16px', textAlign: 'center', boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
-              <div className="stat-value" style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.85rem', fontWeight: 800, color: '#16a34a', marginBottom: '8px' }}>
+              <div className="stat-value" style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.85rem', fontWeight: 800, color: '#1E40AF', marginBottom: '8px' }}>
                 {formatNumber(bestOffer.monthlyEMI)}
               </div>
-              <div className="stat-label" style={{ fontSize: '0.82rem', color: '#475569', fontWeight: 750, textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 1, display: 'block' }}>
+              <div className="stat-label" style={{ fontSize: '0.82rem', color: 'rgb(66, 66, 66)', fontWeight: 750, textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 1, display: 'block' }}>
                 Optimal Monthly Obligation
               </div>
             </div>
@@ -272,10 +273,10 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
         )}
 
         <div className="stat-card" style={{ background: '#ffffff', border: '1.5px solid #e2e8f0', padding: '22px 18px', borderRadius: '16px', textAlign: 'center', boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
-          <div className="stat-value" style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.85rem', fontWeight: 800, color: '#16a34a', marginBottom: '8px' }}>
+          <div className="stat-value" style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.85rem', fontWeight: 800, color: '#1E40AF', marginBottom: '8px' }}>
             {formatCurrency(stats.avgLoanAmount)}
           </div>
-          <div className="stat-label" style={{ fontSize: '0.82rem', color: '#475569', fontWeight: 750, textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 1, display: 'block' }}>
+          <div className="stat-label" style={{ fontSize: '0.82rem', color: 'rgb(66, 66, 66)', fontWeight: 750, textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 1, display: 'block' }}>
             Mean Approval Value
           </div>
         </div>
@@ -283,26 +284,26 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
 
       {/* Best Offer Highlight */}
       {bestOffer && (
-        <div className="best-offer-card" style={{ background: '#fff7ed', border: '2px solid #f58220', borderRadius: '20px', padding: '32px', marginBottom: '36px', boxShadow: '0 10px 30px rgba(245, 130, 32, 0.12)' }}>
+        <div className="best-offer-card" style={{ background: '#FFF4EC', border: '2px solid #f58220', borderRadius: '20px', padding: '32px', marginBottom: '36px', boxShadow: '0 10px 30px rgba(245, 130, 32, 0.12)' }}>
           <div className="best-offer-badge" style={{ background: '#f58220', color: '#ffffff', padding: '5px 14px', borderRadius: '50px', fontSize: '0.72rem', fontWeight: 750, letterSpacing: '0.08em', textTransform: 'uppercase', display: 'inline-block', marginBottom: '16px' }}>OPTIMAL SELECTION</div>
           <div className="best-offer-content">
-            <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.6rem', fontWeight: 750, color: '#111827', margin: '0 0 24px 0' }}>{bestOffer.bankName}</h3>
+            <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.6rem', fontWeight: 750, color: 'rgb(66, 66, 66)', margin: '0 0 24px 0' }}>{bestOffer.bankName}</h3>
             <div className="best-offer-details" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '20px' }}>
               <div className="detail-item">
-                <span className="label" style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '4px', fontWeight: 650, textTransform: 'uppercase', display: 'block' }}>Loan Amount</span>
+                <span className="label" style={{ fontSize: '0.8rem', color: 'rgb(66, 66, 66)', marginBottom: '4px', fontWeight: 650, textTransform: 'uppercase', display: 'block' }}>Loan Amount</span>
                 <span className="value large" style={{ fontFamily: 'Outfit, sans-serif', fontSize: '2rem', fontWeight: 800, color: '#f58220', display: 'block' }}>{formatCurrency(bestOffer.loanAmount)}</span>
               </div>
               <div className="detail-item">
-                <span className="label" style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '4px', fontWeight: 650, textTransform: 'uppercase', display: 'block' }}>Monthly EMI</span>
-                <span className="value" style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.4rem', fontWeight: 800, color: '#111827', display: 'block' }}>{formatNumber(bestOffer.monthlyEMI)}</span>
+                <span className="label" style={{ fontSize: '0.8rem', color: 'rgb(66, 66, 66)', marginBottom: '4px', fontWeight: 650, textTransform: 'uppercase', display: 'block' }}>Monthly EMI</span>
+                <span className="value" style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.4rem', fontWeight: 800, color: '#1E40AF', display: 'block' }}>{formatNumber(bestOffer.monthlyEMI)}</span>
               </div>
               <div className="detail-item">
-                <span className="label" style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '4px', fontWeight: 650, textTransform: 'uppercase', display: 'block' }}>Interest Rate</span>
+                <span className="label" style={{ fontSize: '0.8rem', color: 'rgb(66, 66, 66)', marginBottom: '4px', fontWeight: 650, textTransform: 'uppercase', display: 'block' }}>Interest Rate</span>
                 <span className="value" style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.4rem', fontWeight: 800, color: '#f58220', display: 'block' }}>{bestOffer.interestRate}%</span>
               </div>
               <div className="detail-item">
-                <span className="label" style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '4px', fontWeight: 650, textTransform: 'uppercase', display: 'block' }}>Loan Tenure</span>
-                <span className="value" style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.4rem', fontWeight: 800, color: '#111827', display: 'block' }}>{bestOffer.loanTenure} years</span>
+                <span className="label" style={{ fontSize: '0.8rem', color: 'rgb(66, 66, 66)', marginBottom: '4px', fontWeight: 650, textTransform: 'uppercase', display: 'block' }}>Loan Tenure</span>
+                <span className="value" style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.4rem', fontWeight: 800, color: '#1E40AF', display: 'block' }}>{bestOffer.loanTenure} years</span>
               </div>
             </div>
             {bestOffer.calculationMethod && (
@@ -386,7 +387,11 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
                       )}
                       <h4>{bank.bankName}</h4>
                     </div>
-                    <div className={`status-badge ${bank.eligible ? 'approved' : 'rejected'}`}>
+                    <div className={`status-badge ${bank.eligible ? 'approved' : 'rejected'}`} style={{
+                      background: bank.eligible ? '#EEF3FA' : '#F8FAFC',
+                      color: bank.eligible ? '#1E40AF' : 'rgb(66, 66, 66)',
+                      border: `1px solid ${bank.eligible ? '#BFDBFE' : '#E2E8F0'}`
+                    }}>
                       {bank.eligible ? '✓ Approved' : '✕ Rejected'}
                     </div>
                   </div>
@@ -397,21 +402,21 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
                         {/* CAPPING ALERTS */}
                         {(bank.loanCappedByBank || bank.bachelorCapped) && (
                           <div className="capping-alert-box" style={{ 
-                            background: '#fff7ed', 
-                            border: '1px solid #fed7aa', 
+                            background: '#FFF4EC', 
+                            border: '1px solid #FED7AA', 
                             padding: '12px', 
                             borderRadius: '10px', 
                             marginBottom: '15px' 
                           }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#c2410c', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '4px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#F58220', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '4px' }}>
                               <span style={{ fontSize: '1.1rem' }}>⚠️</span> 
                               {bank.bachelorCapped ? 'BACHELOR LIMIT APPLIED' : 'BANK MAXIMUM CAP APPLIED'}
                             </div>
-                            <div style={{ fontSize: '0.82rem', color: '#4b5563' }}>
+                            <div style={{ fontSize: '0.82rem', color: 'rgb(66, 66, 66)' }}>
                               Total Eligibility: <span style={{ textDecoration: 'line-through' }}>{formatCurrency(bank.calculatedLoanBeforeCap || bank.regularMaxLoan)}</span>
                             </div>
                             {bank.bachelorCapped && bank.bachelorCapReason && (
-                              <div style={{ fontSize: '0.72rem', marginTop: '4px', fontStyle: 'italic', color: '#64748b' }}>
+                              <div style={{ fontSize: '0.72rem', marginTop: '4px', fontStyle: 'italic', color: 'rgb(66, 66, 66)' }}>
                                 Reason: {bank.bachelorCapReason}
                               </div>
                             )}
@@ -420,19 +425,19 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
 
                         {/* BT MODE DISPLAY */}
                         {(bank.isBTMode || bank.btType?.includes('BT') || bank.calculationMethod?.includes('BT')) ? (
-                          <div className="bt-mode-display" style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '14px 16px', borderRadius: '10px', marginBottom: '16px' }}>
-                            <div className="bt-badge" style={{ fontSize: '0.75rem', fontWeight: 750, color: '#15803d', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Liability Consolidation</div>
+                          <div className="bt-mode-display" style={{ background: '#EEF3FA', border: '1px solid #BFDBFE', padding: '14px 16px', borderRadius: '10px', marginBottom: '16px' }}>
+                            <div className="bt-badge" style={{ fontSize: '0.75rem', fontWeight: 750, color: '#1E40AF', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Liability Consolidation</div>
                             <div className="bt-breakdown" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                               <div className="bt-item" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem' }}>
-                                <span className="bt-label" style={{ color: '#4b5563', fontWeight: 500 }}>Total Loan Amount</span>
-                                <span className="bt-value" style={{ fontWeight: 750, color: '#111827' }}>{formatCurrency(bank.loanAmount)}</span>
+                                <span className="bt-label" style={{ color: 'rgb(66, 66, 66)', fontWeight: 500 }}>Total Loan Amount</span>
+                                <span className="bt-value" style={{ fontWeight: 750, color: '#1E40AF' }}>{formatCurrency(bank.loanAmount)}</span>
                               </div>
-                              <div className="bt-item" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem', color: '#dc2626' }}>
+                              <div className="bt-item" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem', color: 'rgb(66, 66, 66)' }}>
                                 <span className="bt-label" style={{ fontWeight: 500 }}>Existing Liabilities Clear</span>
                                 <span className="bt-value" style={{ fontWeight: 750 }}>- {formatCurrency(bank.totalDebtCleared || bank.btTotalOutstanding)}</span>
                               </div>
-                              <div style={{ height: '1px', background: '#dcfce7', margin: '4px 0' }}></div>
-                              <div className="bt-item" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.98rem', color: '#15803d', fontWeight: 800 }}>
+                              <div style={{ height: '1px', background: '#BFDBFE', margin: '4px 0' }}></div>
+                              <div className="bt-item" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.98rem', color: '#1E40AF', fontWeight: 800 }}>
                                 <span className="bt-label">Net Disbursement</span>
                                 <span className="bt-value">{formatCurrency(bank.freshAmountDisbursed)}</span>
                               </div>
@@ -459,40 +464,40 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
                             return (
                               <div className="details-expanded-content" style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '12px 14px', borderRadius: '10px' }}>
                                 <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                                  <span className="d-label" style={{ color: '#64748b', fontWeight: 500 }}>Company Tier</span>
-                                  <span className="d-value" style={{ fontWeight: 700, color: '#111827' }}>Category {bank.category || 'A'}</span>
+                                  <span className="d-label" style={{ color: 'rgb(66, 66, 66)', fontWeight: 500 }}>Company Tier</span>
+                                  <span className="d-value" style={{ fontWeight: 700, color: 'rgb(66, 66, 66)' }}>Category {bank.category || 'A'}</span>
                                 </div>
                                 
                                 {showFoir && bank.details?.foirPercentage && (
                                   <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                                    <span className="d-label" style={{ color: '#64748b', fontWeight: 500 }}>FOIR Cap</span>
-                                    <span className="d-value" style={{ fontWeight: 700, color: '#111827' }}>{bank.details.foirPercentage}</span>
+                                    <span className="d-label" style={{ color: 'rgb(66, 66, 66)', fontWeight: 500 }}>FOIR Cap</span>
+                                    <span className="d-value" style={{ fontWeight: 700, color: '#1E40AF' }}>{bank.details.foirPercentage}</span>
                                   </div>
                                 )}
 
                                 {showMultiplier && bank.details?.multiplier && (
                                   <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                                    <span className="d-label" style={{ color: '#64748b', fontWeight: 500 }}>Multiplier</span>
-                                    <span className="d-value" style={{ fontWeight: 700, color: '#111827' }}>{bank.details.multiplier}</span>
+                                    <span className="d-label" style={{ color: 'rgb(66, 66, 66)', fontWeight: 500 }}>Multiplier</span>
+                                    <span className="d-value" style={{ fontWeight: 700, color: '#1E40AF' }}>{bank.details.multiplier}</span>
                                   </div>
                                 )}
 
                                 {(bank.incentiveConsidered > 0 || bank.details?.incentiveConsidered > 0) && (
-                                  <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#15803d' }}>
+                                  <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#1E40AF' }}>
                                     <span className="d-label" style={{ fontWeight: 500 }}>Incentive Credit</span>
                                     <span className="d-value" style={{ fontWeight: 750 }}>+{formatNumber(bank.incentiveConsidered || bank.details.incentiveConsidered)}</span>
                                   </div>
                                 )}
 
                                 {(bank.ccObligation > 0 || bank.details?.creditCardObligation > 0) && (
-                                  <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#dc2626' }}>
+                                  <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'rgb(66, 66, 66)' }}>
                                     <span className="d-label" style={{ fontWeight: 500 }}>CC Obligation Deduction</span>
                                     <span className="d-value" style={{ fontWeight: 750 }}>-{formatNumber(bank.ccObligation || bank.details.creditCardObligation)}</span>
                                   </div>
                                 )}
 
                                 {bank.nonSelectedEMI > 0 && (
-                                  <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#dc2626' }}>
+                                  <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'rgb(66, 66, 66)' }}>
                                     <span className="d-label" style={{ fontWeight: 500 }}>External EMI Adjustment</span>
                                     <span className="d-value" style={{ fontWeight: 750 }}>-{formatNumber(bank.nonSelectedEMI)}</span>
                                   </div>
@@ -500,7 +505,7 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
                                 
                                 {bank.details?.limitingFactor && (
                                   <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', borderTop: '1px solid #e2e8f0', paddingTop: '6px', marginTop: '4px' }}>
-                                    <span className="d-label" style={{ color: '#64748b', fontWeight: 500 }}>Limiting Parameter</span>
+                                    <span className="d-label" style={{ color: 'rgb(66, 66, 66)', fontWeight: 500 }}>Limiting Parameter</span>
                                     <span className="d-value" style={{ color: '#F58220', fontWeight: 700 }}>{bank.details.limitingFactor}</span>
                                   </div>
                                 )}
@@ -515,7 +520,7 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
                           <span style={{ fontWeight: 'bold' }}>Exclusion:</span> {bank.reason || 'Criteria mismatch'}
                         </div>
                         {bank.category && (
-                          <div className="rejected-meta" style={{ marginTop: '8px', color: '#64748b', fontSize: '0.78rem' }}>
+                          <div className="rejected-meta" style={{ marginTop: '8px', color: 'rgb(66, 66, 66)', fontSize: '0.78rem' }}>
                             Identified Profile: Category {bank.category}
                           </div>
                         )}
@@ -526,7 +531,7 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
                   <div className="details-grid">
                     <div className="detail">
                       <span className="detail-label">Monthly EMI</span>
-                      <span className="detail-value">{formatNumber(bank.monthlyEMI)}</span>
+                      <span className="detail-value" style={{ color: '#1E40AF' }}>{formatNumber(bank.monthlyEMI)}</span>
                     </div>
                     <div className="detail">
                       <span className="detail-label">ROI</span>
@@ -534,7 +539,7 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
                     </div>
                     <div className="detail">
                       <span className="detail-label">Tenure</span>
-                      <span className="detail-value">{bank.loanTenure}Y</span>
+                      <span className="detail-value" style={{ color: 'rgb(66, 66, 66)' }}>{bank.loanTenure}Y</span>
                     </div>
                   </div>
                 </div>
