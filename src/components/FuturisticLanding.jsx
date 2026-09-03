@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, ArrowRight, ArrowLeft, ShieldCheck, Zap, Globe, Lock, Instagram, MessageSquare, Send, ChevronDown, Cpu, BarChart3, Fingerprint, Mail, FileText, Building2, FileCheck, Landmark, Scale, MonitorSmartphone, RefreshCw, Clock, Home, IndianRupee, Briefcase } from 'lucide-react';
+import { Sparkles, ArrowRight, ArrowLeft, ShieldCheck, Zap, Globe, Lock, Instagram, MessageSquare, Send, ChevronDown, Cpu, BarChart3, Fingerprint, Mail, FileText, Building2, FileCheck, Landmark, Scale, MonitorSmartphone, RefreshCw, Clock, Home, IndianRupee, Briefcase, UserCircle2 } from 'lucide-react';
 import './FuturisticLanding.css';
 
 
@@ -958,7 +958,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             margin: '0 auto 24px' 
           }}
         >
-          {/* Card 1: 12+ Lenders Policy Comparison */}
+          {/* Card 1: Compare 12+ Bank Policies Instantly */}
           <motion.div
             whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.05)' }}
             transition={{ duration: 0.2 }}
@@ -999,7 +999,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                   lineHeight: 1.3
                 }}
               >
-                12+ Lenders Policy Comparison
+                Compare 12+ Bank Policies Instantly
               </h3>
             </div>
             <p 
@@ -1012,11 +1012,11 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                 margin: 0 
               }}
             >
-              Compare maximum eligible loan amounts, real approval probability, and lowest interest rates starting from 10.49% across HDFC, ICICI, Kotak, Tata Capital, Piramal, and 7+ other lenders in 60 seconds.
+              We evaluate your unique financial profile against official lending policies across 12+ top banks and NBFCs simultaneously to secure your highest loan sanction at the lowest interest rate.
             </p>
           </motion.div>
 
-          {/* Card 2: Smart Balance Transfer (BT) */}
+          {/* Card 2: Discover Pre-Approved Loan Offers */}
           <motion.div
             whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.05)' }}
             transition={{ duration: 0.2 }}
@@ -1045,7 +1045,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                   flexShrink: 0 
                 }}
               >
-                <RefreshCw size={24} strokeWidth={2.4} />
+                <Sparkles size={24} strokeWidth={2.4} />
               </div>
               <h3 
                 style={{ 
@@ -1057,7 +1057,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                   lineHeight: 1.3
                 }}
               >
-                Smart Balance Transfer (BT)
+                Discover Pre-Approved Loan Offers
               </h3>
             </div>
             <p 
@@ -1070,11 +1070,11 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                 margin: 0 
               }}
             >
-              Consolidate running personal loans and high-interest credit card dues into a single lower-EMI plan, knocking off existing obligations to boost fresh loan eligibility and save lakhs.
+              Uncover personalized pre-approved loan options from eligible partner banks with transparent interest rates, clear EMI breakdowns, and verified approval odds in under 60 seconds.
             </p>
           </motion.div>
 
-          {/* Card 3: Zero CIBIL Impact (Enquiry-Less) */}
+          {/* Card 3: Zero Impact on Your CIBIL Score */}
           <motion.div
             whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.05)' }}
             transition={{ duration: 0.2 }}
@@ -1115,7 +1115,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                   lineHeight: 1.3
                 }}
               >
-                Zero CIBIL Impact Check
+                Zero Impact on Your CIBIL Score
               </h3>
             </div>
             <p 
@@ -1128,7 +1128,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                 margin: 0 
               }}
             >
-              Discover pre-approved eligibility across institutional bank policies with 100% soft checks — zero hard credit inquiries logged and zero negative impact on your CIBIL score.
+              Check and compare your eligibility across all 12+ partner lenders with 100% soft inquiry simulation — no hard credit bureau inquiries and zero negative marks on your credit score.
             </p>
           </motion.div>
         </div>
@@ -1143,7 +1143,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             margin: '0 auto' 
           }}
         >
-          {/* Card 4: Company Category & FOIR Maximizer */}
+          {/* Card 4: Smart Balance Transfer & EMI Saver */}
           <motion.div
             whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.05)' }}
             transition={{ duration: 0.2 }}
@@ -1170,95 +1170,95 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                   justifyContent: 'center', 
                   color: '#2563EB', 
                   flexShrink: 0 
-                    }}
-                  >
-                    <Briefcase size={24} strokeWidth={2.4} />
-                  </div>
-                  <h3 
-                    style={{ 
-                      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
-                      fontSize: '1.18rem', 
-                      fontWeight: 700, 
-                      color: '#1E293B', 
-                      margin: 0,
-                      lineHeight: 1.3
-                    }}
-                  >
-                    Company Category & FOIR Maximizer
-                  </h3>
-                </div>
-                <p 
-                  style={{ 
-                    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
-                    fontSize: '0.92rem', 
-                    color: '#4B5563', 
-                    fontWeight: 400, 
-                    lineHeight: 1.55, 
-                    margin: 0 
-                  }}
-                >
-                  Our intelligent engine matches your employer category (Super A, CAT A/B/C, Govt) and optimizes debt-to-income ratios to unlock maximum loan sanctions up to ₹75 Lakhs.
-                </p>
-              </motion.div>
-
-              {/* Card 5: 100% Digital & Assisted Disbursal */}
-              <motion.div
-                whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.05)' }}
-                transition={{ duration: 0.2 }}
-                style={{
-                  background: '#ffffff',
-                  border: '1px solid #EAEFF5',
-                  borderRadius: '16px',
-                  padding: '28px 24px',
-                  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '14px'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  <div 
-                    style={{ 
-                      width: '48px', 
-                      height: '48px', 
-                      borderRadius: '12px', 
-                      background: '#F1F5F9', 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'center', 
-                      color: '#475569', 
-                      flexShrink: 0 
-                    }}
-                  >
-                    <FileCheck size={24} strokeWidth={2.4} />
-                  </div>
-                  <h3 
-                    style={{ 
-                      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
-                      fontSize: '1.18rem', 
-                      fontWeight: 700, 
-                      color: '#1E293B', 
-                      margin: 0,
-                      lineHeight: 1.3
-                    }}
-                  >
-                    100% Digital & Assisted Disbursal
-                  </h3>
-                </div>
-                <p 
-                  style={{ 
-                    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
-                    fontSize: '0.92rem', 
-                    color: '#4B5563', 
-                    fontWeight: 400, 
-                    lineHeight: 1.55, 
-                    margin: 0 
-                  }}
-                >
-                  Experience paperless loan applications with transparent fee breakdowns, zero hidden costs, and dedicated loan expert support guiding your sanction straight to bank account disbursal.
-                </p>
-              </motion.div>
+                <RefreshCw size={24} strokeWidth={2.4} />
+              </div>
+              <h3 
+                style={{ 
+                  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                  fontSize: '1.18rem', 
+                  fontWeight: 700, 
+                  color: '#1E293B', 
+                  margin: 0,
+                  lineHeight: 1.3
+                }}
+              >
+                Smart Balance Transfer & EMI Saver
+              </h3>
             </div>
+            <p 
+              style={{ 
+                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                fontSize: '0.92rem', 
+                color: '#4B5563', 
+                fontWeight: 400, 
+                lineHeight: 1.55, 
+                margin: 0 
+              }}
+            >
+              Consolidate existing personal loans and high-interest credit card debt into a single, affordable EMI plan to relieve monthly stress and boost your fresh loan eligibility.
+            </p>
+          </motion.div>
+
+          {/* Card 5: Dedicated Expert Guidance to Disbursal */}
+          <motion.div
+            whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.05)' }}
+            transition={{ duration: 0.2 }}
+            style={{
+              background: '#ffffff',
+              border: '1px solid #EAEFF5',
+              borderRadius: '16px',
+              padding: '28px 24px',
+              boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '14px'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div 
+                style={{ 
+                  width: '48px', 
+                  height: '48px', 
+                  borderRadius: '12px', 
+                  background: '#F1F5F9', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  color: '#475569', 
+                  flexShrink: 0 
+                }}
+              >
+                <UserCircle2 size={24} strokeWidth={2.4} />
+              </div>
+              <h3 
+                style={{ 
+                  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                  fontSize: '1.18rem', 
+                  fontWeight: 700, 
+                  color: '#1E293B', 
+                  margin: 0,
+                  lineHeight: 1.3
+                }}
+              >
+                Dedicated Expert Guidance to Disbursal
+              </h3>
+            </div>
+            <p 
+              style={{ 
+                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                fontSize: '0.92rem', 
+                color: '#4B5563', 
+                fontWeight: 400, 
+                lineHeight: 1.55, 
+                margin: 0 
+              }}
+            >
+              Get personalized 1-on-1 assistance from seasoned loan specialists who help you choose the best offer, navigate bank formalities, and accelerate direct disbursal into your account.
+            </p>
+          </motion.div>
+        </div>
       </motion.div>
 
         {/* Full-Width InCred-Style Fixed Sliding Sticky Bottom Bar */}
