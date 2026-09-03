@@ -457,22 +457,6 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
             margin: '16px auto 14px',
             maxWidth: '850px'
           }}>
-            {(metadata?.customerName || metadata?.name) && (
-              <span className="applicant-pill" style={{
-                background: '#EEF3FA',
-                color: '#1E40AF',
-                padding: '7px 18px',
-                borderRadius: '20px',
-                fontSize: '0.92rem',
-                fontWeight: 700,
-                border: '1px solid #BFDBFE',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}>
-                👤 Customer: <strong>{metadata.customerName || metadata.name}</strong>
-              </span>
-            )}
             <span className="company-pill" style={{
               background: '#FFF4EC',
               color: 'rgb(245, 130, 32)',
