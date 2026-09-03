@@ -357,12 +357,6 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
                   className={`bank-card ${bank.eligible ? 'eligible' : 'rejected'} ${bank === bestOffer ? 'best' : ''}`}
                   onClick={() => bank.eligible && handleBankSelect(bank.bankName, true)}
                 >
-                  {bank === bestOffer && (
-                    <div className="best-badge">
-                      OPTIMAL
-                    </div>
-                  )}
-
                   <div className="bank-card-header">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       {bank.eligible && (
@@ -387,12 +381,32 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
                       )}
                       <h4>{bank.bankName}</h4>
                     </div>
-                    <div className={`status-badge ${bank.eligible ? 'approved' : 'rejected'}`} style={{
-                      background: bank.eligible ? '#EEF3FA' : '#F8FAFC',
-                      color: bank.eligible ? '#1E40AF' : 'rgb(66, 66, 66)',
-                      border: `1px solid ${bank.eligible ? '#BFDBFE' : '#E2E8F0'}`
-                    }}>
-                      {bank.eligible ? '✓ Approved' : '✕ Rejected'}
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                      {bank === bestOffer && (
+                        <span className="best-badge" style={{
+                          background: 'rgb(245, 130, 32)',
+                          color: '#ffffff',
+                          fontSize: '0.72rem',
+                          fontWeight: 750,
+                          padding: '4px 10px',
+                          borderRadius: '20px',
+                          letterSpacing: '0.5px',
+                          textTransform: 'uppercase',
+                          boxShadow: '0 2px 6px rgba(245, 130, 32, 0.3)',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          OPTIMAL
+                        </span>
+                      )}
+                      <div className={`status-badge ${bank.eligible ? 'approved' : 'rejected'}`} style={{
+                        background: bank.eligible ? '#EEF3FA' : '#F8FAFC',
+                        color: bank.eligible ? '#1E40AF' : 'rgb(66, 66, 66)',
+                        border: `1px solid ${bank.eligible ? '#BFDBFE' : '#E2E8F0'}`,
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {bank.eligible ? '✓ Approved' : '✕ Rejected'}
+                      </div>
                     </div>
                   </div>
 

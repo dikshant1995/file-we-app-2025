@@ -117,7 +117,7 @@
   filter: grayscale(0.8);
 }
 
-.bank-card-header {
+.banks-grid .bank-card-header {
   height: 60px;
   padding: 0 24px;
   display: flex;
@@ -126,7 +126,7 @@
   position: relative;
 }
 
-.bank-card-header::before {
+.banks-grid .bank-card-header::before {
   content: '';
   position: absolute;
   inset: 0;

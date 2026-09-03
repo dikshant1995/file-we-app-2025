@@ -437,28 +437,39 @@
 }
 
 .best-badge {
-  position: absolute;
-  top: 12px;
-  right: 14px;
   background: rgb(245, 130, 32);
   color: #ffffff;
   font-size: 0.72rem;
   font-weight: 750;
-  padding: 4px 12px;
+  padding: 4px 10px;
   border-radius: 20px;
-  z-index: 10;
   letter-spacing: 0.5px;
   text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  box-shadow: 0 2px 6px rgba(245, 130, 32, 0.3);
+  white-space: nowrap;
 }
 
 /* Card Header */
 .bank-card-header {
   padding: 16px 20px;
-  background: #F8FAFC;
-  border-bottom: 1px solid #F1F5F9;
+  background: linear-gradient(135deg, #EEF3FA 0%, #F8FAFC 100%) !important;
+  border-bottom: 1px solid #E2E8F0;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: relative;
+}
+
+.bank-card-header::before {
+  display: none !important;
+  content: none !important;
+}
+
+.bank-card.best .bank-card-header {
+  background: linear-gradient(135deg, #FFF4EC 0%, #EEF3FA 100%) !important;
+  border-bottom: 1px solid #FED7AA;
 }
 
 .bank-card-header h4 {
