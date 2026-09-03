@@ -169,10 +169,23 @@ const MainMasterPortal = ({ onAdminClick }) => {
                       fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif"
                     }}
                   >
-                    <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '0.3px' }}>
+                    <span style={{ 
+                      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
+                      fontSize: '18px', 
+                      fontWeight: 750, 
+                      color: 'rgb(255, 255, 255)',
+                      lineHeight: 'normal',
+                      letterSpacing: '0.2px' 
+                    }}>
                       Check loan eligibility
                     </span>
-                    <span style={{ fontSize: '0.8rem', fontWeight: 600, opacity: 0.95, marginTop: '2px' }}>
+                    <span style={{ 
+                      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
+                      fontSize: '13px', 
+                      fontWeight: 500, 
+                      color: 'rgba(255, 255, 255, 0.95)', 
+                      marginTop: '3px' 
+                    }}>
                       In less than a minute
                     </span>
                   </motion.button>
@@ -252,7 +265,13 @@ const MainMasterPortal = ({ onAdminClick }) => {
               >
                 <FileCheck size={32} color="#ffffff" strokeWidth={2.2} />
               </div>
-              <span style={{ fontSize: '1.25rem', fontWeight: 100, fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", color: '#ffffff', lineHeight: 1.3, letterSpacing: '0.4px' }}>
+              <span style={{ 
+                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
+                fontSize: '18px', 
+                fontWeight: 400, 
+                color: 'rgb(255, 255, 255)', 
+                lineHeight: '26px' 
+              }}>
                 Enquiry Less Loan
               </span>
             </div>
@@ -275,7 +294,13 @@ const MainMasterPortal = ({ onAdminClick }) => {
               >
                 <Landmark size={32} color="#ffffff" strokeWidth={2.2} />
               </div>
-              <span style={{ fontSize: '1.25rem', fontWeight: 100, fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", color: '#ffffff', lineHeight: 1.3, letterSpacing: '0.4px' }}>
+              <span style={{ 
+                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
+                fontSize: '18px', 
+                fontWeight: 400, 
+                color: 'rgb(255, 255, 255)', 
+                lineHeight: '26px' 
+              }}>
                 No Collateral Required
               </span>
             </div>
@@ -298,7 +323,13 @@ const MainMasterPortal = ({ onAdminClick }) => {
               >
                 <Scale size={32} color="#ffffff" strokeWidth={2.2} />
               </div>
-              <span style={{ fontSize: '1.25rem', fontWeight: 100, fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", color: '#ffffff', lineHeight: 1.3, letterSpacing: '0.4px' }}>
+              <span style={{ 
+                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
+                fontSize: '18px', 
+                fontWeight: 400, 
+                color: 'rgb(255, 255, 255)', 
+                lineHeight: '26px' 
+              }}>
                 Comparison of 12 Banks in One Minute
               </span>
             </div>
@@ -1279,30 +1310,31 @@ const MainMasterPortal = ({ onAdminClick }) => {
                 boxShadow: '0 2px 12px rgba(168, 85, 247, 0.04)'
               }}
             >
-              {/* Top-Right Circular White Backdrop for Icon (Exact InCred design) */}
+              {/* Top-Right Corner White Backdrop for Icon (Exact InCred flush design) */}
               <div 
                 style={{ 
                   position: 'absolute', 
-                  top: '-10px', 
-                  right: '-10px', 
-                  width: '130px', 
-                  height: '130px', 
-                  borderRadius: '50%', 
+                  top: 0, 
+                  right: 0, 
+                  width: '135px', 
+                  height: '135px', 
+                  borderBottomLeftRadius: '120px',
+                  borderTopRightRadius: '24px',
                   background: '#ffffff', 
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center',
-                  paddingTop: '16px',
-                  paddingRight: '16px',
-                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.04)'
+                  paddingBottom: '10px',
+                  paddingLeft: '10px',
+                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.03)'
                 }}
               >
                 <img 
                   src={eligibilityDocIcon} 
                   alt="Personal Loan eligibility" 
                   style={{ 
-                    width: '62px', 
-                    height: '68px', 
+                    width: '64px', 
+                    height: '70px', 
                     objectFit: 'contain',
                     display: 'block'
                   }} 
@@ -1409,30 +1441,31 @@ const MainMasterPortal = ({ onAdminClick }) => {
                 boxShadow: '0 2px 12px rgba(34, 197, 94, 0.04)'
               }}
             >
-              {/* Top-Right Circular White Backdrop for Icon (Exact InCred design) */}
+              {/* Top-Right Corner White Backdrop for Icon (Exact InCred flush design) */}
               <div 
                 style={{ 
                   position: 'absolute', 
-                  top: '-10px', 
-                  right: '-10px', 
-                  width: '130px', 
-                  height: '130px', 
-                  borderRadius: '50%', 
+                  top: 0, 
+                  right: 0, 
+                  width: '135px', 
+                  height: '135px', 
+                  borderBottomLeftRadius: '120px',
+                  borderTopRightRadius: '24px',
                   background: '#ffffff', 
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center',
-                  paddingTop: '16px',
-                  paddingRight: '16px',
-                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.04)'
+                  paddingBottom: '10px',
+                  paddingLeft: '10px',
+                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.03)'
                 }}
               >
                 <img 
                   src={documentsFolderIcon} 
                   alt="Documents required" 
                   style={{ 
-                    width: '64px', 
-                    height: '68px', 
+                    width: '66px', 
+                    height: '70px', 
                     objectFit: 'contain',
                     display: 'block'
                   }} 
