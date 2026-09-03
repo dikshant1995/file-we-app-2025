@@ -613,23 +613,14 @@ const EligibilityChecker = () => {
                                     value={calcAmount} 
                                     onChange={(e) => setCalcAmount(parseInt(e.target.value) || 0)}
                                     className="input-field compact mb-3 text-lg font-bold border-primary/30"
-                                    placeholder="Enter Custom Loan Amount"
-                                    style={{ padding: '0.6rem 1rem', background: 'rgba(255,255,255,0.05)', color: '#fff' }}
-                                />
-                                <input 
-                                    type="range" 
-                                    min="100000" 
-                                    max="10000000" 
-                                    step="50000"
-                                    value={calcAmount > 10000000 ? 10000000 : (calcAmount < 100000 ? 100000 : calcAmount)} 
-                                    onChange={(e) => setCalcAmount(parseInt(e.target.value))}
-                                    className="w-full accent-primary h-1 bg-white/10 rounded-lg appearance-none cursor-pointer"
+                                    placeholder="Enter Loan Amount (₹)"
+                                    style={{ padding: '0.6rem 1rem', background: 'rgba(255,255,255,0.05)', color: '#fff', width: '100%', borderRadius: '8px' }}
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="form-group">
                                     <label className="label text-white/80 mb-2">
-                                        <span>ROI (%)</span>
+                                        <span>ROI (% per annum)</span>
                                     </label>
                                     <input 
                                         type="number" 
@@ -637,21 +628,13 @@ const EligibilityChecker = () => {
                                         value={calcRoi} 
                                         onChange={(e) => setCalcRoi(parseFloat(e.target.value) || 0)}
                                         className="input-field compact mb-2 font-bold"
-                                        style={{ padding: '0.5rem 0.75rem', background: 'rgba(255,255,255,0.05)', color: '#fff' }}
-                                    />
-                                    <input 
-                                        type="range" 
-                                        min="5" 
-                                        max="30" 
-                                        step="0.25"
-                                        value={calcRoi > 30 ? 30 : (calcRoi < 5 ? 5 : calcRoi)} 
-                                        onChange={(e) => setCalcRoi(parseFloat(e.target.value))}
-                                        className="w-full accent-primary h-1 bg-white/10 rounded-lg appearance-none cursor-pointer"
+                                        placeholder="e.g. 10.5"
+                                        style={{ padding: '0.5rem 0.75rem', background: 'rgba(255,255,255,0.05)', color: '#fff', width: '100%', borderRadius: '8px' }}
                                     />
                                 </div>
                                 <div className="form-group">
                                     <label className="label text-white/80 mb-2">
-                                        <span>Tenure (Yrs)</span>
+                                        <span>Tenure (Years)</span>
                                     </label>
                                     <input 
                                         type="number" 
@@ -660,16 +643,8 @@ const EligibilityChecker = () => {
                                         value={calcTenure} 
                                         onChange={(e) => setCalcTenure(parseInt(e.target.value) || 1)}
                                         className="input-field compact mb-2 font-bold"
-                                        style={{ padding: '0.5rem 0.75rem', background: 'rgba(255,255,255,0.05)', color: '#fff' }}
-                                    />
-                                    <input 
-                                        type="range" 
-                                        min="1" 
-                                        max="7" 
-                                        step="1"
-                                        value={calcTenure > 7 ? 7 : (calcTenure < 1 ? 1 : calcTenure)} 
-                                        onChange={(e) => setCalcTenure(parseInt(e.target.value))}
-                                        className="w-full accent-primary h-1 bg-white/10 rounded-lg appearance-none cursor-pointer"
+                                        placeholder="e.g. 5"
+                                        style={{ padding: '0.5rem 0.75rem', background: 'rgba(255,255,255,0.05)', color: '#fff', width: '100%', borderRadius: '8px' }}
                                     />
                                 </div>
                             </div>
