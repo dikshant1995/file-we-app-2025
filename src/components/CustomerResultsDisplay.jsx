@@ -529,34 +529,58 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
           }}>
             Verified assessment results across {results.length} banking institutions with zero impact on CIBIL score.
           </p>
-          <button 
-            className="btn-download-pdf" 
-            onClick={handleDownloadReport}
-            disabled={isDownloading}
-            style={{
-              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
-              fontStyle: 'normal',
-              fontWeight: 750,
-              color: 'rgb(255, 255, 255)',
-              fontSize: '18px',
-              lineHeight: 'normal',
-              background: isDownloading ? '#9ca3af' : 'rgb(245, 130, 32)',
-              border: 'none',
-              borderRadius: '50px',
-              padding: '14px 36px',
-              cursor: isDownloading ? 'wait' : 'pointer',
-              boxShadow: '0 4px 16px rgba(245, 130, 32, 0.35)',
-              transition: 'all 0.25s ease',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px',
-              marginTop: '20px',
-              opacity: isDownloading ? 0.8 : 1
-            }}
-          >
-            {isDownloading ? 'Downloading Report...' : 'Download your eligibility report'}
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '14px', flexWrap: 'wrap', marginTop: '20px' }}>
+            <button 
+              className="btn-edit-details"
+              onClick={onNewCalculation}
+              style={{
+                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                fontWeight: 700,
+                color: '#1E40AF',
+                fontSize: '16px',
+                background: '#EEF3FA',
+                border: '1.5px solid #BFDBFE',
+                borderRadius: '50px',
+                padding: '13px 28px',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 8px rgba(30, 64, 175, 0.08)'
+              }}
+            >
+              <span>✏️</span> Edit / Change Details
+            </button>
+
+            <button 
+              className="btn-download-pdf" 
+              onClick={handleDownloadReport}
+              disabled={isDownloading}
+              style={{
+                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
+                fontStyle: 'normal',
+                fontWeight: 750,
+                color: 'rgb(255, 255, 255)',
+                fontSize: '18px',
+                lineHeight: 'normal',
+                background: isDownloading ? '#9ca3af' : 'rgb(245, 130, 32)',
+                border: 'none',
+                borderRadius: '50px',
+                padding: '14px 36px',
+                cursor: isDownloading ? 'wait' : 'pointer',
+                boxShadow: '0 4px 16px rgba(245, 130, 32, 0.35)',
+                transition: 'all 0.25s ease',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px',
+                opacity: isDownloading ? 0.8 : 1
+              }}
+            >
+              {isDownloading ? 'Downloading Report...' : 'Download your eligibility report'}
+            </button>
+          </div>
         </div>
       </div>
 

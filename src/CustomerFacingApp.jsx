@@ -27,6 +27,14 @@ function CustomerFacingApp() {
   const [showForm, setShowForm] = useState(false);
   const [aiResult, setAiResult] = useState(null);
   const [aiInsight, setAiInsight] = useState(null);
+  const [savedFormData, setSavedFormData] = useState(() => {
+    try {
+      const cached = localStorage.getItem('laxmi_last_form_data');
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
+  });
 
   // Initialize AI Brain
   React.useEffect(() => {
@@ -35,26 +43,52 @@ function CustomerFacingApp() {
   // Store raw formData so saveLead can access name/mobile/loans
   const lastFormDataRef = useRef(null);
 
-  const handleFormSubmit = async (formData, rawFormData) => {
+  const handleFormSubmit = async (submissionData, rawFormData) => {
     setLoading(true);
     setError(null);
     setResults(null);
-    // Store raw form data for lead capture
-    if (rawFormData) lastFormDataRef.current = rawFormData;
+
+    // Form unified reliable customer data object
+    const combinedData = {
+      ...(rawFormData || {}),
+      ...(submissionData || {}),
+      ...(submissionData?._metadata || {}),
+      customerName: rawFormData?.customerName || submissionData?.customerName || submissionData?._metadata?.customerName || 'Customer',
+      mobileNumber: rawFormData?.mobileNumber || submissionData?.mobileNumber || submissionData?._metadata?.mobileNumber || '',
+      companyName: rawFormData?.companyName || submissionData?.companyName || submissionData?._metadata?.companyName || 'LaxmiCredit',
+      category: rawFormData?.category || submissionData?.category || submissionData?._metadata?.category || 'B',
+      basicSalary: rawFormData?.basicSalary || submissionData?.basicSalary || 0,
+      age: rawFormData?.age || submissionData?.age || '',
+      city: rawFormData?.city || submissionData?.city || '',
+      state: rawFormData?.state || submissionData?.state || '',
+      maritalStatus: rawFormData?.maritalStatus || submissionData?.maritalStatus || '',
+      livingStatus: rawFormData?.livingStatus || submissionData?.livingStatus || '',
+      salaryMode: rawFormData?.salaryMode || submissionData?.salaryMode || 'bank',
+      existingLoans: rawFormData?.existingLoans || submissionData?.existingLoans || submissionData?._metadata?.existingLoans || []
+    };
+
+    setSavedFormData(combinedData);
+    lastFormDataRef.current = combinedData;
+    try {
+      localStorage.setItem('laxmi_last_form_data', JSON.stringify(combinedData));
+    } catch (e) {}
+
+    // Save lead into database immediately on "Check Eligibility"
+    saveLead(combinedData, submissionData);
 
     try {
       console.log('='.repeat(80));
       console.log('🚀 STARTING LOAN CALCULATION');
       console.log('='.repeat(80));
-      console.log('📋 Input Data:', formData);
+      console.log('📋 Input Data:', submissionData);
       console.log('⏱️  Start Time:', new Date().toLocaleTimeString());
       const startTime = performance.now();
 
       let calculationResults;
 
-      const hasLoansForBT = formData.wantsBT && formData.loansForBT && formData.loansForBT.length > 0;
-      const creditCardsInBT = hasLoansForBT ? formData.loansForBT.filter(loan => loan.type === 'Credit Card') : [];
-      const personalLoansInBT = hasLoansForBT ? formData.loansForBT.filter(loan => loan.type !== 'Credit Card') : [];
+      const hasLoansForBT = submissionData.wantsBT && submissionData.loansForBT && submissionData.loansForBT.length > 0;
+      const creditCardsInBT = hasLoansForBT ? submissionData.loansForBT.filter(loan => loan.type === 'Credit Card') : [];
+      const personalLoansInBT = hasLoansForBT ? submissionData.loansForBT.filter(loan => loan.type !== 'Credit Card') : [];
 
       if (hasLoansForBT) {
         console.log('🔄 BT MODE DETECTED!');
@@ -68,23 +102,23 @@ function CustomerFacingApp() {
           outstandingAmount: parseFloat(card.creditLimitUsed || 0)
         }));
         const btData = {
-          basicSalary: parseFloat(formData.basicSalary || 0),
-          averageIncentive: parseFloat(formData.averageIncentive || 0),
-          monthlyIncome: parseFloat(formData.monthlyIncome || 0),
-          loanTenure: parseInt(formData.loanTenure || 5),
-          category: formData.category || 'A',
-          companyName: formData.companyName || '',
-          creditScore: parseInt(formData.creditScore || 700),
-          employmentType: formData.employmentType || 'salaried',
-          existingEMI: parseFloat(formData.existingEMI || 0),
-          creditCardObligation: parseFloat(formData.creditCardObligation || 0),
+          basicSalary: parseFloat(submissionData.basicSalary || 0),
+          averageIncentive: parseFloat(submissionData.averageIncentive || 0),
+          monthlyIncome: parseFloat(submissionData.monthlyIncome || 0),
+          loanTenure: parseInt(submissionData.loanTenure || 5),
+          category: submissionData.category || 'A',
+          companyName: submissionData.companyName || '',
+          creditScore: parseInt(submissionData.creditScore || 700),
+          employmentType: submissionData.employmentType || 'salaried',
+          existingEMI: parseFloat(submissionData.existingEMI || 0),
+          creditCardObligation: parseFloat(submissionData.creditCardObligation || 0),
           existingLoans: existingLoans,
           creditCards: creditCards
         };
         calculationResults = await calculateBTWithCreditCards(btData);
       } else {
         console.log('💰 REGULAR LOAN CALCULATION');
-        calculationResults = await calculateLoanEligibility(formData);
+        calculationResults = await calculateLoanEligibility(submissionData);
       }
 
       const endTime = performance.now();
@@ -94,26 +128,19 @@ function CustomerFacingApp() {
       console.log('='.repeat(80));
 
       setResults(calculationResults);
-      setMetadata({
-        ...(rawFormData || {}),
-        ...(formData || {}),
-        ...(formData._metadata || {}),
-        companyName: formData.companyName || formData._metadata?.companyName || rawFormData?.companyName || 'Corporate Entity',
-        category: formData.category || formData._metadata?.category || 'Standard',
-        customerName: formData.customerName || formData._metadata?.customerName || rawFormData?.customerName || 'Customer'
-      });
+      setMetadata(combinedData);
 
       // --- 🧠 AI NEURAL PREDICTION (SAFE WRAPPER) ---
       try {
         if (!hasLoansForBT) {
-          const salary = parseFloat(formData.basicSalary) || parseFloat(formData.monthlyIncome) || 0;
-          const score = parseInt(formData.creditScore) || 700;
-          const tenure = parseInt(formData.loanTenure) || 5;
+          const salary = parseFloat(submissionData.basicSalary) || parseFloat(submissionData.monthlyIncome) || 0;
+          const score = parseInt(submissionData.creditScore) || 700;
+          const tenure = parseInt(submissionData.loanTenure) || 5;
           
           const aiPrediction = aiPredictionService.predict(salary, score, tenure);
           if (aiPrediction) {
             setAiResult(aiPrediction);
-            const insight = neuralExplainerService.generateInsight(aiPrediction, calculationResults, formData);
+            const insight = neuralExplainerService.generateInsight(aiPrediction, calculationResults, submissionData);
             setAiInsight(insight);
             console.log('🔮 AI Neural Insights generated successfully.');
           }
@@ -121,9 +148,6 @@ function CustomerFacingApp() {
       } catch (aiErr) {
         console.warn('⚠️ AI Prediction failed, but calculator is fine:', aiErr);
       }
-
-      // 🔴 Save lead to Google Sheets (silent, non-blocking)
-      saveLead(lastFormDataRef.current || {}, formData);
 
       setTimeout(() => {
         document.getElementById('results-section')?.scrollIntoView({
@@ -218,6 +242,7 @@ function CustomerFacingApp() {
           <CustomerLoanForm 
             onSubmit={handleFormSubmit} 
             loading={loading} 
+            initialData={savedFormData}
             onBackToHome={() => { setShowForm(false); setResults(null); navigate('/'); window.scrollTo({ top: 0 }); }} 
           />
 

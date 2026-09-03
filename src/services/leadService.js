@@ -49,6 +49,7 @@ export const saveLead = async (formData, submissionData) => {
             creditCards: creditCards || 'None',
             state: formData.state || submissionData.state || '',
             city: formData.city || submissionData.city || '',
+            age: formData.age || submissionData.age || '',
             salaryMode: formData.salaryMode || submissionData.salaryMode || '',
             maritalStatus: formData.maritalStatus || submissionData.maritalStatus || '',
             livingStatus: formData.livingStatus || submissionData.livingStatus || '',
@@ -59,8 +60,16 @@ export const saveLead = async (formData, submissionData) => {
             const localLeads = JSON.parse(localStorage.getItem('laxmi_leads') || '[]');
             const leadWithId = { ...lead, id: Date.now() };
             localLeads.unshift(leadWithId);
-            localStorage.setItem('laxmi_leads', JSON.stringify(localLeads.slice(0, 50)));
-            console.log('💾 Lead captured immediately for local pipeline');
+            localStorage.setItem('laxmi_leads', JSON.stringify(localLeads.slice(0, 100)));
+
+            const customerDb = JSON.parse(localStorage.getItem('laxmi_customer_database') || '[]');
+            customerDb.unshift({
+                ...lead,
+                id: `CUST-${Date.now()}`,
+                rawInputs: formData
+            });
+            localStorage.setItem('laxmi_customer_database', JSON.stringify(customerDb.slice(0, 200)));
+            console.log('💾 Lead captured immediately for local pipeline and customer database');
         } catch (localErr) {
             console.warn('⚠️ Local save failed but continuing...', localErr);
         }

@@ -3,30 +3,50 @@ import './CustomerLoanForm.css';
 import { loadUniversalCompanies, getCompanySuggestions, initializeBankDatabases } from '../services/companyDatabaseService.js';
 import { indianStates, stateCityData } from '../data/locationData.js';
 
-const CustomerLoanForm = ({ onSubmit, loading, onBackToHome }) => {
-  const [formData, setFormData] = useState({
-    customerName: '',
-    mobileNumber: '',
-    basicSalary: '',
-    // Changed: Instead of single averageIncentive, track last 3 months
-    incentiveMonth1: '', // Most recent month
-    incentiveMonth2: '', // 2 months ago
-    incentiveMonth3: '', // 3 months ago
-    age: '', // AGE is required for banks to decide tenure capping
-    category: 'B', // Default to Category B
-    employmentType: 'salaried',
-    salaryMode: 'bank', // Default to bank transfer
-    companyName: '',
-    hasExistingLoans: false,
-    existingLoans: [],
-    // NEW: Balance Transfer options
-    wantsBT: false, // Does customer want to do BT?
-    selectedLoansForBT: [], // Array of loan IDs selected for BT
-    state: '',
-    city: '',
-    maritalStatus: '',
-    livingStatus: ''
+const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
+  const [formData, setFormData] = useState(() => {
+    let saved = null;
+    if (initialData && Object.keys(initialData).length > 0) {
+      saved = initialData;
+    } else {
+      try {
+        const cached = localStorage.getItem('laxmi_last_form_data');
+        if (cached) saved = JSON.parse(cached);
+      } catch (e) {}
+    }
+
+    return {
+      customerName: saved?.customerName || '',
+      mobileNumber: saved?.mobileNumber || '',
+      basicSalary: saved?.basicSalary || '',
+      incentiveMonth1: saved?.incentiveMonth1 || '',
+      incentiveMonth2: saved?.incentiveMonth2 || '',
+      incentiveMonth3: saved?.incentiveMonth3 || '',
+      age: saved?.age || '',
+      category: saved?.category || 'B',
+      employmentType: saved?.employmentType || 'salaried',
+      salaryMode: saved?.salaryMode || 'bank',
+      companyName: saved?.companyName || '',
+      hasExistingLoans: saved?.hasExistingLoans || (Array.isArray(saved?.existingLoans) && saved.existingLoans.length > 0) || false,
+      existingLoans: saved?.existingLoans || [],
+      wantsBT: saved?.wantsBT || false,
+      selectedLoansForBT: saved?.selectedLoansForBT || [],
+      state: saved?.state || '',
+      city: saved?.city || '',
+      maritalStatus: saved?.maritalStatus || '',
+      livingStatus: saved?.livingStatus || ''
+    };
   });
+
+  useEffect(() => {
+    if (initialData && Object.keys(initialData).length > 0) {
+      setFormData(prev => ({
+        ...prev,
+        ...initialData,
+        hasExistingLoans: initialData.hasExistingLoans || (Array.isArray(initialData.existingLoans) && initialData.existingLoans.length > 0) || prev.hasExistingLoans
+      }));
+    }
+  }, [initialData]);
 
   const [companySuggestions, setCompanySuggestions] = useState([]);
 
