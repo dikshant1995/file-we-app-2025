@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import html2pdf from 'html2pdf.js';
 import './CustomerResultsDisplay.css';
 import { saveSelectedBanks } from '../services/leadService.js';
 
@@ -10,6 +11,7 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
   const [submitting, setSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null); // null | 'success' | 'error'
   const [expandedBank, setExpandedBank] = useState(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   if (!results || results.length === 0) {
     return (
@@ -89,6 +91,49 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
     return `₹${num.toLocaleString('en-IN')}`;
   };
 
+  const handleDownloadReport = async () => {
+    if (isDownloading) return;
+    try {
+      setIsDownloading(true);
+      const element = document.querySelector('.customer-results-display');
+      if (!element) {
+        window.print();
+        return;
+      }
+
+      const clientName = metadata?.name || metadata?.applicantName || metadata?.companyName || 'Applicant';
+      const cleanFileName = `Eligibility_Report_${String(clientName).replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`;
+
+      const opt = {
+        margin: [8, 8, 8, 8],
+        filename: cleanFileName,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          ignoreElements: (el) => {
+            return (
+              el.classList &&
+              (el.classList.contains('btn-download-pdf') ||
+                el.classList.contains('selection-summary-bar') ||
+                el.classList.contains('controls-bar') ||
+                el.classList.contains('neural-chatbot-container'))
+            );
+          }
+        },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      await html2pdf().set(opt).from(element).save();
+    } catch (err) {
+      console.error('PDF download error, fallback to print:', err);
+      window.print();
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
     <div className="customer-results-display">
       {/* Results Header */}
@@ -130,7 +175,8 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
           </p>
           <button 
             className="btn-download-pdf" 
-            onClick={() => window.print()}
+            onClick={handleDownloadReport}
+            disabled={isDownloading}
             style={{
               fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
               fontStyle: 'normal',
@@ -138,21 +184,22 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
               color: 'rgb(255, 255, 255)',
               fontSize: '18px',
               lineHeight: 'normal',
-              background: 'rgb(245, 130, 32)',
+              background: isDownloading ? '#9ca3af' : 'rgb(245, 130, 32)',
               border: 'none',
               borderRadius: '50px',
               padding: '14px 36px',
-              cursor: 'pointer',
+              cursor: isDownloading ? 'wait' : 'pointer',
               boxShadow: '0 4px 16px rgba(245, 130, 32, 0.35)',
               transition: 'all 0.25s ease',
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '10px',
-              marginTop: '20px'
+              marginTop: '20px',
+              opacity: isDownloading ? 0.8 : 1
             }}
           >
-            Download your eligibility report
+            {isDownloading ? 'Downloading Report...' : 'Download your eligibility report'}
           </button>
         </div>
       </div>
