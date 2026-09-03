@@ -424,3 +424,14 @@
 .autocomplete-dropdown::-webkit-scrollbar-thumb:hover {
   background: #f58220;
 }
+
+/* Disable spin buttons and range stepper behavior on all form inputs */
+.customer-loan-form input::-webkit-outer-spin-button,
+.customer-loan-form input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.customer-loan-form input[type=number] {
+  -moz-appearance: textfield;
+}

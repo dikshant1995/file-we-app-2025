@@ -64,25 +64,32 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
 
+    // Pure typed numeric inputs: allow ONLY digits, prevent any stepper/range shifts
+    const numericFields = ['basicSalary', 'incentiveMonth1', 'incentiveMonth2', 'incentiveMonth3', 'age'];
+    let finalValue = value;
+    if (numericFields.includes(name)) {
+      finalValue = value.replace(/[^0-9]/g, '');
+    }
+
     // Debug logging for salary input
     if (name === 'basicSalary') {
       console.log('💰 Salary Input Changed:', {
-        rawValue: value,
-        type: typeof value,
-        parsed: parseFloat(value)
+        rawValue: finalValue,
+        type: typeof finalValue,
+        parsed: parseFloat(finalValue)
       });
     }
 
     // Handle company name autocomplete
     if (name === 'companyName') {
-      const suggestions = getCompanySuggestions(value);
-      console.log('🔍 Autocomplete for:', value, '| Suggestions:', suggestions);
+      const suggestions = getCompanySuggestions(finalValue);
+      console.log('🔍 Autocomplete for:', finalValue, '| Suggestions:', suggestions);
       setCompanySuggestions(suggestions);
     }
 
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : finalValue
     }));
   };
 
@@ -113,6 +120,12 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
   };
 
   const handleLoanChange = (id, field, value) => {
+    const numericLoanFields = ['monthlyEMI', 'outstandingAmount', 'creditLimit', 'creditLimitUsed'];
+    let finalValue = value;
+    if (numericLoanFields.includes(field)) {
+      finalValue = value.replace(/[^0-9]/g, '');
+    }
+
     setFormData(prev => ({
       ...prev,
       existingLoans: prev.existingLoans.map(loan => {
@@ -138,7 +151,7 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
               outstandingAmount: loan.outstandingAmount || ''
             };
           }
-          return { ...loan, [field]: value };
+          return { ...loan, [field]: finalValue };
         }
         return loan;
       })
@@ -484,17 +497,17 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
             Monthly Basic Salary <span className="required">*</span>
           </label>
           <input
-            type="number"
+            type="text"
             id="basicSalary"
             name="basicSalary"
             value={formData.basicSalary}
             onChange={handleInputChange}
+            onWheel={(e) => e.target.blur()}
             placeholder="₹ 50,000"
             required
-            min="0"
-            step="1"
             inputMode="numeric"
             pattern="[0-9]*"
+            autoComplete="off"
             style={{ color: '#111827', WebkitTextFillColor: '#111827', backgroundColor: '#ffffff', fontWeight: 600 }}
           />
           {formData.basicSalary && (
@@ -518,14 +531,16 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
                 Current Month
               </label>
               <input
-                type="number"
+                type="text"
                 id="incentiveMonth1"
                 name="incentiveMonth1"
                 value={formData.incentiveMonth1}
                 onChange={handleInputChange}
+                onWheel={(e) => e.target.blur()}
                 placeholder="₹ 0"
-                min="0"
-                step="1"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                autoComplete="off"
                 style={{ marginTop: '5px', color: '#111827', WebkitTextFillColor: '#111827', backgroundColor: '#ffffff', fontWeight: 600 }}
               />
             </div>
@@ -535,14 +550,16 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
                 Last Month
               </label>
               <input
-                type="number"
+                type="text"
                 id="incentiveMonth2"
                 name="incentiveMonth2"
                 value={formData.incentiveMonth2}
                 onChange={handleInputChange}
+                onWheel={(e) => e.target.blur()}
                 placeholder="₹ 0"
-                min="0"
-                step="1"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                autoComplete="off"
                 style={{ marginTop: '5px', color: '#111827', WebkitTextFillColor: '#111827', backgroundColor: '#ffffff', fontWeight: 600 }}
               />
             </div>
@@ -552,14 +569,16 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
                 2 Months Ago
               </label>
               <input
-                type="number"
+                type="text"
                 id="incentiveMonth3"
                 name="incentiveMonth3"
                 value={formData.incentiveMonth3}
                 onChange={handleInputChange}
+                onWheel={(e) => e.target.blur()}
                 placeholder="₹ 0"
-                min="0"
-                step="1"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                autoComplete="off"
                 style={{ marginTop: '5px', color: '#111827', WebkitTextFillColor: '#111827', backgroundColor: '#ffffff', fontWeight: 600 }}
               />
             </div>
@@ -622,16 +641,18 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
             Current Age <span className="required">*</span>
           </label>
           <input
-            type="number"
+            type="text"
             id="age"
             name="age"
             value={formData.age}
             onChange={handleInputChange}
+            onWheel={(e) => e.target.blur()}
             placeholder="30"
             required
-            min="21"
-            max="65"
-            step="1"
+            maxLength={2}
+            inputMode="numeric"
+            pattern="[0-9]*"
+            autoComplete="off"
             style={{ color: '#111827', WebkitTextFillColor: '#111827', backgroundColor: '#ffffff', fontWeight: 600 }}
           />
           <small className="help-text">
@@ -815,24 +836,28 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
                       <div className="form-group">
                         <label>Credit Limit (₹)</label>
                         <input
-                          type="number"
+                          type="text"
                           value={loan.creditLimit}
                           onChange={(e) => handleLoanChange(loan.id, 'creditLimit', e.target.value)}
+                          onWheel={(e) => e.target.blur()}
                           placeholder="₹ 2,00,000"
-                          min="0"
-                          step="1"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          autoComplete="off"
                         />
                       </div>
 
                       <div className="form-group">
                         <label>Credit Limit Used / Outstanding (₹)</label>
                         <input
-                          type="number"
+                          type="text"
                           value={loan.creditLimitUsed}
                           onChange={(e) => handleLoanChange(loan.id, 'creditLimitUsed', e.target.value)}
+                          onWheel={(e) => e.target.blur()}
                           placeholder="₹ 50,000"
-                          min="0"
-                          step="1"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          autoComplete="off"
                         />
                       </div>
                     </>
@@ -842,24 +867,28 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
                       <div className="form-group">
                         <label>Outstanding Amount (₹)</label>
                         <input
-                          type="number"
+                          type="text"
                           value={loan.outstandingAmount}
                           onChange={(e) => handleLoanChange(loan.id, 'outstandingAmount', e.target.value)}
+                          onWheel={(e) => e.target.blur()}
                           placeholder="₹ 5,00,000"
-                          min="0"
-                          step="1"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          autoComplete="off"
                         />
                       </div>
 
                       <div className="form-group">
                         <label>Current Monthly EMI (₹)</label>
                         <input
-                          type="number"
+                          type="text"
                           value={loan.monthlyEMI}
                           onChange={(e) => handleLoanChange(loan.id, 'monthlyEMI', e.target.value)}
+                          onWheel={(e) => e.target.blur()}
                           placeholder="₹ 15,000"
-                          min="0"
-                          step="1"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          autoComplete="off"
                         />
                       </div>
                     </>
