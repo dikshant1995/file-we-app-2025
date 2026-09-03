@@ -1216,6 +1216,316 @@ const MainMasterPortal = ({ onAdminClick }) => {
 
         </section>
 
+        {/* ===== ELIGIBILITY CRITERIA & DOCUMENTATION SECTION ===== */}
+        <section 
+          className="eligibility-docs-section"
+          style={{ 
+            padding: '40px 24px 70px', 
+            maxWidth: '1240px', 
+            margin: '0 auto', 
+            width: '100%' 
+          }}
+        >
+          {/* Section Header */}
+          <div style={{ textAlign: 'center', marginBottom: '46px' }}>
+            <h2 
+              style={{ 
+                fontFamily: 'Outfit, "Plus Jakarta Sans", Inter, sans-serif', 
+                fontSize: 'clamp(28px, 4vw, 43px)', 
+                fontWeight: 750, 
+                color: 'rgb(66, 66, 66)', 
+                lineHeight: '54px', 
+                margin: 0,
+                letterSpacing: '-0.5px'
+              }}
+            >
+              Eligibility Criteria & Documentation
+            </h2>
+            <div 
+              style={{ 
+                width: '42px', 
+                height: '3.5px', 
+                backgroundColor: '#F58220', 
+                borderRadius: '2px', 
+                margin: '14px auto 0' 
+              }} 
+            />
+          </div>
+
+          {/* 2-Card Grid */}
+          <div 
+            style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', 
+              gap: '32px', 
+              maxWidth: '1200px', 
+              margin: '0 auto' 
+            }}
+          >
+            {/* Left Card: Personal Loan eligibility */}
+            <motion.div
+              whileHover={{ y: -4, boxShadow: '0 12px 32px rgba(147, 51, 234, 0.08)' }}
+              transition={{ duration: 0.2 }}
+              style={{
+                background: '#FAF5FF',
+                border: '1px solid #F3E8FF',
+                borderRadius: '24px',
+                padding: '36px 32px',
+                boxShadow: '0 4px 16px rgba(147, 51, 234, 0.03)',
+                display: 'flex',
+                flexDirection: 'column'
+              }}
+            >
+              {/* Header with Title + Subtitle + Icon */}
+              <div 
+                style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'flex-start', 
+                  gap: '18px',
+                  marginBottom: '26px' 
+                }}
+              >
+                <div>
+                  <h3 
+                    style={{ 
+                      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                      fontSize: '1.35rem', 
+                      fontWeight: 700, 
+                      color: '#1E293B', 
+                      margin: '0 0 8px 0' 
+                    }}
+                  >
+                    Personal Loan eligibility
+                  </h3>
+                  <p 
+                    style={{ 
+                      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                      fontSize: '0.94rem', 
+                      color: '#64748B', 
+                      lineHeight: 1.55, 
+                      margin: 0,
+                      maxWidth: '320px'
+                    }}
+                  >
+                    To qualify for a personal loan with us, please ensure you meet the following criteria
+                  </p>
+                </div>
+                
+                {/* Blue Document Badge Icon */}
+                <div 
+                  style={{ 
+                    width: '64px', 
+                    height: '64px', 
+                    borderRadius: '50%', 
+                    background: '#ffffff', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    boxShadow: '0 4px 14px rgba(147, 51, 234, 0.08)',
+                    flexShrink: 0 
+                  }}
+                >
+                  <svg width="34" height="40" viewBox="0 0 48 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="38" height="50" rx="6" fill="#0EA5E9" />
+                    <rect x="7" y="10" width="24" height="3" rx="1.5" fill="#ffffff" />
+                    <rect x="7" y="17" width="24" height="3" rx="1.5" fill="#ffffff" />
+                    <rect x="7" y="24" width="24" height="3" rx="1.5" fill="#ffffff" />
+                    <rect x="7" y="31" width="16" height="3" rx="1.5" fill="#ffffff" />
+                    <rect x="7" y="38" width="12" height="3" rx="1.5" fill="#ffffff" />
+                    <circle cx="36" cy="40" r="9" fill="#F58220" />
+                    <path d="M33 40L35.2 42.2L39.2 37.8" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Criteria Item Boxes */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <motion.div 
+                  whileHover={{ scale: 1.01, backgroundColor: '#ffffff' }}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.75)',
+                    border: '1px solid #E9D5FF',
+                    borderRadius: '12px',
+                    padding: '14px 20px',
+                    fontSize: '0.96rem',
+                    fontWeight: 500,
+                    color: '#334155',
+                    fontFamily: "'Inter', sans-serif",
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  Age from 21 to 60 years
+                </motion.div>
+
+                <motion.div 
+                  whileHover={{ scale: 1.01, backgroundColor: '#ffffff' }}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.75)',
+                    border: '1px solid #E9D5FF',
+                    borderRadius: '12px',
+                    padding: '14px 20px',
+                    fontSize: '0.96rem',
+                    fontWeight: 500,
+                    color: '#334155',
+                    fontFamily: "'Inter', sans-serif",
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  Both self-employed and salaried individuals can apply
+                </motion.div>
+
+                <motion.div 
+                  whileHover={{ scale: 1.01, backgroundColor: '#ffffff' }}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.75)',
+                    border: '1px solid #E9D5FF',
+                    borderRadius: '12px',
+                    padding: '14px 20px',
+                    fontSize: '0.96rem',
+                    fontWeight: 500,
+                    color: '#334155',
+                    fontFamily: "'Inter', sans-serif",
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  Minimum net monthly income of Rs. 15,000
+                </motion.div>
+              </div>
+            </motion.div>
+
+            {/* Right Card: Documents required */}
+            <motion.div
+              whileHover={{ y: -4, boxShadow: '0 12px 32px rgba(22, 163, 74, 0.08)' }}
+              transition={{ duration: 0.2 }}
+              style={{
+                background: '#F0FDF4',
+                border: '1px solid #DCFCE7',
+                borderRadius: '24px',
+                padding: '36px 32px',
+                boxShadow: '0 4px 16px rgba(22, 163, 74, 0.03)',
+                display: 'flex',
+                flexDirection: 'column'
+              }}
+            >
+              {/* Header with Title + Subtitle + Icon */}
+              <div 
+                style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'flex-start', 
+                  gap: '18px',
+                  marginBottom: '26px' 
+                }}
+              >
+                <div>
+                  <h3 
+                    style={{ 
+                      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                      fontSize: '1.35rem', 
+                      fontWeight: 700, 
+                      color: '#1E293B', 
+                      margin: '0 0 8px 0' 
+                    }}
+                  >
+                    Documents required
+                  </h3>
+                  <p 
+                    style={{ 
+                      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                      fontSize: '0.94rem', 
+                      color: '#64748B', 
+                      lineHeight: 1.55, 
+                      margin: 0,
+                      maxWidth: '320px'
+                    }}
+                  >
+                    When you apply for a personal loan, you will need to provide the following documents
+                  </p>
+                </div>
+                
+                {/* Yellow Folder with Blue Document Badge Icon */}
+                <div 
+                  style={{ 
+                    width: '64px', 
+                    height: '64px', 
+                    borderRadius: '50%', 
+                    background: '#ffffff', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    boxShadow: '0 4px 14px rgba(22, 163, 74, 0.08)',
+                    flexShrink: 0 
+                  }}
+                >
+                  <svg width="40" height="38" viewBox="0 0 54 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="14" y="5" width="28" height="32" rx="4" fill="#0284C7" />
+                    <rect x="19" y="11" width="18" height="2.5" rx="1.2" fill="#ffffff" />
+                    <rect x="19" y="16" width="18" height="2.5" rx="1.2" fill="#ffffff" />
+                    <rect x="19" y="21" width="12" height="2.5" rx="1.2" fill="#ffffff" />
+                    <path d="M4 17C4 14.7909 5.79086 13 8 13H18L23 19H46C48.2091 19 50 20.7909 50 23V42C50 44.2091 48.2091 46 46 46H8C5.79086 46 4 44.2091 4 42V17Z" fill="#FBBF24" />
+                    <path d="M4 22C4 20.3431 5.34315 19 7 19H47C48.6569 19 50 20.3431 50 22V42C50 44.2091 48.2091 46 46 46H8C5.79086 46 4 44.2091 4 42V22Z" fill="#FCD34D" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Document Item Boxes */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <motion.div 
+                  whileHover={{ scale: 1.01, backgroundColor: '#ffffff' }}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.75)',
+                    border: '1px solid #86EFAC',
+                    borderRadius: '12px',
+                    padding: '14px 20px',
+                    fontSize: '0.96rem',
+                    fontWeight: 500,
+                    color: '#334155',
+                    fontFamily: "'Inter', sans-serif",
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  PAN Card
+                </motion.div>
+
+                <motion.div 
+                  whileHover={{ scale: 1.01, backgroundColor: '#ffffff' }}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.75)',
+                    border: '1px solid #86EFAC',
+                    borderRadius: '12px',
+                    padding: '14px 20px',
+                    fontSize: '0.96rem',
+                    fontWeight: 500,
+                    color: '#334155',
+                    fontFamily: "'Inter', sans-serif",
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  Last three month's bank statements
+                </motion.div>
+
+                <motion.div 
+                  whileHover={{ scale: 1.01, backgroundColor: '#ffffff' }}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.75)',
+                    border: '1px solid #86EFAC',
+                    borderRadius: '12px',
+                    padding: '14px 20px',
+                    fontSize: '0.96rem',
+                    fontWeight: 500,
+                    color: '#334155',
+                    fontFamily: "'Inter', sans-serif",
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  Aadhaar Card
+                </motion.div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
         {/* Full-Width InCred-Style Fixed Sliding Sticky Bottom Bar */}
         <AnimatePresence>
           {isStickyCta && (
