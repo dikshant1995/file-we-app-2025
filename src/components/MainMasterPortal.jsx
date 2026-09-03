@@ -4,6 +4,8 @@ import { Cpu, ShieldCheck, Briefcase, UserCircle2, ArrowRight, Sparkles, Instagr
 import { Link } from 'react-router-dom';
 import './MainMasterPortal.css';
 import './FuturisticLanding.css'; // Reuse components styled earlier like founder and testimonials
+import eligibilityDocIcon from '../assets/eligibility-doc-icon.png';
+import documentsFolderIcon from '../assets/documents-folder-icon.png';
 
 const MainMasterPortal = ({ onAdminClick }) => {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
@@ -1281,37 +1283,30 @@ const MainMasterPortal = ({ onAdminClick }) => {
               <div 
                 style={{ 
                   position: 'absolute', 
-                  top: '-8px', 
-                  right: '-8px', 
-                  width: '115px', 
-                  height: '115px', 
+                  top: '-10px', 
+                  right: '-10px', 
+                  width: '130px', 
+                  height: '130px', 
                   borderRadius: '50%', 
                   background: '#ffffff', 
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center',
-                  paddingTop: '12px',
-                  paddingRight: '12px',
+                  paddingTop: '16px',
+                  paddingRight: '16px',
                   boxShadow: '0 4px 16px rgba(0, 0, 0, 0.04)'
                 }}
               >
-                {/* Blue Document SVG matching user screenshot */}
-                <svg width="48" height="54" viewBox="0 0 48 54" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  {/* Main Blue Document with Fold Corner Cutout */}
-                  <path d="M4 6C4 2.68629 6.68629 0 10 0H28L40 12V48C40 51.3137 37.3137 54 34 54H10C6.68629 54 4 51.3137 4 48V6Z" fill="#00A0FF" />
-                  {/* Top-Right Folded Corner */}
-                  <path d="M28 0V10C28 11.1046 28.8954 12 30 12H40L28 0Z" fill="#0080E0" />
-                  {/* 6 White Rounded Horizontal Lines */}
-                  <rect x="9" y="12" width="14" height="2.8" rx="1.4" fill="#FFFFFF" />
-                  <rect x="9" y="18" width="20" height="2.8" rx="1.4" fill="#FFFFFF" />
-                  <rect x="9" y="24" width="20" height="2.8" rx="1.4" fill="#FFFFFF" />
-                  <rect x="9" y="30" width="20" height="2.8" rx="1.4" fill="#FFFFFF" />
-                  <rect x="9" y="36" width="15" height="2.8" rx="1.4" fill="#FFFFFF" />
-                  <rect x="9" y="42" width="11" height="2.8" rx="1.4" fill="#FFFFFF" />
-                  {/* Golden-Orange Squircle Verified Check Badge */}
-                  <rect x="25" y="31" width="20" height="20" rx="5.5" fill="#FFB020" />
-                  <path d="M30 41L33.5 44.5L40 37.5" stroke="#FFFFFF" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+                <img 
+                  src={eligibilityDocIcon} 
+                  alt="Personal Loan eligibility" 
+                  style={{ 
+                    width: '62px', 
+                    height: '68px', 
+                    objectFit: 'contain',
+                    display: 'block'
+                  }} 
+                />
               </div>
 
               {/* Title & Subtitle */}
@@ -1418,34 +1413,30 @@ const MainMasterPortal = ({ onAdminClick }) => {
               <div 
                 style={{ 
                   position: 'absolute', 
-                  top: '-8px', 
-                  right: '-8px', 
-                  width: '115px', 
-                  height: '115px', 
+                  top: '-10px', 
+                  right: '-10px', 
+                  width: '130px', 
+                  height: '130px', 
                   borderRadius: '50%', 
                   background: '#ffffff', 
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center',
-                  paddingTop: '12px',
-                  paddingRight: '12px',
+                  paddingTop: '16px',
+                  paddingRight: '16px',
                   boxShadow: '0 4px 16px rgba(0, 0, 0, 0.04)'
                 }}
               >
-                {/* Yellow Folder SVG matching user screenshot */}
-                <svg width="52" height="50" viewBox="0 0 52 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  {/* Back Folder Tab */}
-                  <path d="M2 13C2 9.68629 4.68629 7 8 7H18L22 12H46C49.3137 12 52 14.6863 52 18V44C52 47.3137 49.3137 50 46 50H8C4.68629 50 2 47.3137 2 44V13Z" fill="#FFA726" />
-                  {/* Blue Document Sheet Sticking Out with white stripes */}
-                  <rect x="16" y="2" width="26" height="30" rx="3.5" fill="#00A0FF" />
-                  <rect x="20" y="8" width="18" height="2.4" rx="1.2" fill="#FFFFFF" />
-                  <rect x="20" y="13" width="18" height="2.4" rx="1.2" fill="#FFFFFF" />
-                  <rect x="20" y="18" width="12" height="2.4" rx="1.2" fill="#FFFFFF" />
-                  {/* Front Yellow Folder Pocket */}
-                  <path d="M0 19C0 15.6863 2.68629 13 6 13H24L28 17H48C50.2091 17 52 18.7909 52 21V44C52 47.3137 49.3137 50 46 50H6C2.68629 50 0 47.3137 0 44V19Z" fill="#FFCA28" />
-                  {/* Darker Golden Horizontal Clasp / Front Pocket Accent */}
-                  <rect x="17" y="31" width="18" height="11" rx="3" fill="#F57C00" />
-                </svg>
+                <img 
+                  src={documentsFolderIcon} 
+                  alt="Documents required" 
+                  style={{ 
+                    width: '64px', 
+                    height: '68px', 
+                    objectFit: 'contain',
+                    display: 'block'
+                  }} 
+                />
               </div>
 
               {/* Title & Subtitle */}
