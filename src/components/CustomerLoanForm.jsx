@@ -305,37 +305,6 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome }) => {
 
   return (
     <form onSubmit={handleSubmit} className="customer-loan-form" autoComplete="off">
-      {/* Top Header Bar */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
-        {onBackToHome && (
-          <button
-            type="button"
-            onClick={onBackToHome}
-            style={{
-              background: '#FFF7ED',
-              border: '1.5px solid #F58220',
-              color: '#F58220',
-              padding: '8px 20px',
-              borderRadius: '50px',
-              fontSize: '0.88rem',
-              fontWeight: 650,
-              cursor: 'pointer',
-              fontFamily: "'Inter', sans-serif",
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              transition: 'all 0.2s ease'
-            }}
-          >
-            ← Back to Home
-          </button>
-        )}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: '#16A34A', fontWeight: 650, background: '#F0FDF4', padding: '6px 14px', borderRadius: '20px', border: '1px solid #BBF7D0' }}>
-          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#16A34A', display: 'inline-block' }}></span>
-          12+ Partner Banks Live
-        </div>
-      </div>
-
       <div className="form-header">
         <h2>
           Personal Loan <span style={{ color: '#F58220' }}>Eligibility Application</span>
