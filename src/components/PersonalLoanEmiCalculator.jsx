@@ -485,8 +485,22 @@ const PersonalLoanEmiCalculator = () => {
           </div>
 
           {/* High-End Illustrated Donut Chart with Drop-Shadow */}
-          <div style={{ position: 'relative', width: '150px', height: '150px', margin: '0 auto 18px' }}>
-            <svg width="150" height="150" viewBox="0 0 150 150" style={{ transform: 'rotate(-90deg)', filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.05))' }}>
+          <div style={{ position: 'relative', width: '180px', height: '180px', margin: '0 auto 20px' }}>
+            <svg 
+              className="emi-donut-svg"
+              width="180" 
+              height="180" 
+              viewBox="0 0 180 180" 
+              style={{ 
+                width: '180px',
+                height: '180px',
+                minWidth: '180px',
+                minHeight: '180px',
+                display: 'block',
+                transform: 'rotate(-90deg)', 
+                filter: 'drop-shadow(0 6px 14px rgba(0,0,0,0.06))' 
+              }}
+            >
               <defs>
                 <linearGradient id="principalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stopColor="#FB923C" />
@@ -500,40 +514,40 @@ const PersonalLoanEmiCalculator = () => {
 
               {/* Background Full Track */}
               <circle
-                cx="75"
-                cy="75"
-                r="56"
+                cx="90"
+                cy="90"
+                r="68"
                 fill="none"
                 stroke="#F1F5F9"
-                strokeWidth="18"
+                strokeWidth="22"
               />
 
               {/* Orange Slice: Principal Amount */}
               <circle
-                cx="75"
-                cy="75"
-                r="56"
+                cx="90"
+                cy="90"
+                r="68"
                 fill="none"
                 stroke="url(#principalGrad)"
-                strokeWidth="18"
-                strokeDasharray={`${(principalPercent / 100) * (2 * Math.PI * 56)} ${2 * Math.PI * 56}`}
+                strokeWidth="22"
+                strokeDasharray={`${(principalPercent / 100) * 427.26} 427.26`}
                 strokeDashoffset="0"
                 strokeLinecap="round"
-                style={{ transition: 'stroke-dasharray 0.4s ease' }}
+                style={{ transition: 'stroke-dasharray 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
               />
 
               {/* Blue Slice: Total Interest */}
               <circle
-                cx="75"
-                cy="75"
-                r="56"
+                cx="90"
+                cy="90"
+                r="68"
                 fill="none"
                 stroke="url(#interestGrad)"
-                strokeWidth="18"
-                strokeDasharray={`${((100 - principalPercent) / 100) * (2 * Math.PI * 56)} ${2 * Math.PI * 56}`}
-                strokeDashoffset={-((principalPercent / 100) * (2 * Math.PI * 56))}
+                strokeWidth="22"
+                strokeDasharray={`${((100 - principalPercent) / 100) * 427.26} 427.26`}
+                strokeDashoffset={-((principalPercent / 100) * 427.26)}
                 strokeLinecap="round"
-                style={{ transition: 'stroke-dasharray 0.4s ease, stroke-dashoffset 0.4s ease' }}
+                style={{ transition: 'stroke-dasharray 0.3s cubic-bezier(0.4, 0, 0.2, 1), stroke-dashoffset 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
               />
             </svg>
 
@@ -545,13 +559,14 @@ const PersonalLoanEmiCalculator = () => {
                 left: '50%',
                 transform: 'translate(-50%, -50%)',
                 textAlign: 'center',
-                pointerEvents: 'none'
+                pointerEvents: 'none',
+                width: '100%'
               }}
             >
-              <div style={{ fontSize: '0.68rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.3px' }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                 Principal
               </div>
-              <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#EA580C' }}>
+              <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#EA580C', lineHeight: 1.1 }}>
                 {principalPercent}%
               </div>
             </div>
@@ -645,8 +660,8 @@ const PersonalLoanEmiCalculator = () => {
                 color: '#ffffff',
                 border: 'none',
                 borderRadius: '50px',
-                padding: '13px 24px',
-                fontSize: '1rem',
+                padding: '14px 24px',
+                fontSize: '1.05rem',
                 fontWeight: 750,
                 cursor: 'pointer',
                 boxShadow: '0 6px 20px rgba(245, 130, 32, 0.3)',
@@ -658,16 +673,10 @@ const PersonalLoanEmiCalculator = () => {
                 letterSpacing: '0.2px'
               }}
             >
-              <span>Check Offers for ₹{formatIndian(loanAmount)}</span>
-              <ArrowRight size={17} />
+              <span>Check Offers</span>
+              <ArrowRight size={18} />
             </motion.button>
           </Link>
-
-          {/* Trust Footnote */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '10px', fontSize: '0.75rem', color: '#94A3B8' }}>
-            <ShieldCheck size={13} color="#16A34A" />
-            <span>Instant verification • No credit score impact</span>
-          </div>
 
         </div>
       </div>

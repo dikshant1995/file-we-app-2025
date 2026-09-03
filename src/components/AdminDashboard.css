@@ -614,8 +614,9 @@
   background-clip: text;
 }
 
-/* Global SVG Visibility Patch - Definitive Force */
-svg,
+/* Global SVG Visibility Patch - Scoped to Admin Dashboard */
+.admin-dashboard svg,
+.admin-wrapper svg,
 svg.lucide,
 .sidebar-menu svg,
 .dashboard-header svg,

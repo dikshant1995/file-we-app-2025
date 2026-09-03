@@ -416,3 +416,12 @@ input[type="range"]::-moz-range-thumb {
   cursor: pointer;
 }
 
+/* EMI Donut Chart Explicit Sizing Protection */
+.emi-donut-svg {
+  width: 180px !important;
+  height: 180px !important;
+  min-width: 180px !important;
+  min-height: 180px !important;
+  display: block !important;
+}
+
