@@ -37,6 +37,7 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome }) => {
       await initializeBankDatabases();
       console.log('✅ Company databases ready');
     };
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     loadDatabases();
   }, []);
 

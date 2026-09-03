@@ -152,7 +152,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
 
               {/* Check Loan Eligibility Button */}
               <div style={{ marginBottom: '1rem', textAlign: 'left', display: 'flex', justifyContent: 'flex-start' }}>
-                <Link to="/personal-loan" style={{ textDecoration: 'none' }}>
+                <Link to="/personal-loan" onClick={() => window.scrollTo({ top: 0, left: 0, behavior: 'instant' })} style={{ textDecoration: 'none' }}>
                   <motion.button
                     className="check-eligibility-btn"
                     whileHover={{ scale: 1.03 }}
@@ -1375,21 +1375,19 @@ const MainMasterPortal = ({ onAdminClick }) => {
                 To qualify for loan eligibility across partner banks, please ensure you meet the following criteria
               </p>
 
-              {/* Criteria Item Boxes (Lavender Pills with Crisp Border & Vibrant Hover) */}
+              {/* Criteria Item Boxes (Lavender Pills with Crisp Border) */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', position: 'relative', zIndex: 2 }}>
                 <motion.div 
-                  whileHover={{ y: -3, scale: 1.015, backgroundColor: '#FAF5FF', borderColor: '#7C3AED', color: '#6D28D9', boxShadow: '0 8px 22px rgba(124, 58, 237, 0.2)' }}
+                  whileHover={{ scale: 1.01, backgroundColor: '#ffffff' }}
                   style={{
-                    background: '#FFFFFF',
-                    border: '1.5px solid #DDD6FE',
+                    background: 'rgba(255, 255, 255, 0.55)',
+                    border: '1.5px solid #E4D5F8',
                     borderRadius: '16px',
                     padding: '16px 22px',
                     fontSize: '0.98rem',
-                    fontWeight: 600,
-                    color: '#1E293B',
+                    fontWeight: 500,
+                    color: '#374151',
                     fontFamily: "'Inter', sans-serif",
-                    boxShadow: '0 2px 8px rgba(124, 58, 237, 0.05)',
-                    cursor: 'pointer',
                     transition: 'all 0.2s ease'
                   }}
                 >
@@ -1397,18 +1395,16 @@ const MainMasterPortal = ({ onAdminClick }) => {
                 </motion.div>
 
                 <motion.div 
-                  whileHover={{ y: -3, scale: 1.015, backgroundColor: '#FAF5FF', borderColor: '#7C3AED', color: '#6D28D9', boxShadow: '0 8px 22px rgba(124, 58, 237, 0.2)' }}
+                  whileHover={{ scale: 1.01, backgroundColor: '#ffffff' }}
                   style={{
-                    background: '#FFFFFF',
-                    border: '1.5px solid #DDD6FE',
+                    background: 'rgba(255, 255, 255, 0.55)',
+                    border: '1.5px solid #E4D5F8',
                     borderRadius: '16px',
                     padding: '16px 22px',
                     fontSize: '0.98rem',
-                    fontWeight: 600,
-                    color: '#1E293B',
+                    fontWeight: 500,
+                    color: '#374151',
                     fontFamily: "'Inter', sans-serif",
-                    boxShadow: '0 2px 8px rgba(124, 58, 237, 0.05)',
-                    cursor: 'pointer',
                     transition: 'all 0.2s ease'
                   }}
                 >
@@ -1416,18 +1412,16 @@ const MainMasterPortal = ({ onAdminClick }) => {
                 </motion.div>
 
                 <motion.div 
-                  whileHover={{ y: -3, scale: 1.015, backgroundColor: '#FAF5FF', borderColor: '#7C3AED', color: '#6D28D9', boxShadow: '0 8px 22px rgba(124, 58, 237, 0.2)' }}
+                  whileHover={{ scale: 1.01, backgroundColor: '#ffffff' }}
                   style={{
-                    background: '#FFFFFF',
-                    border: '1.5px solid #DDD6FE',
+                    background: 'rgba(255, 255, 255, 0.55)',
+                    border: '1.5px solid #E4D5F8',
                     borderRadius: '16px',
                     padding: '16px 22px',
                     fontSize: '0.98rem',
-                    fontWeight: 600,
-                    color: '#1E293B',
+                    fontWeight: 500,
+                    color: '#374151',
                     fontFamily: "'Inter', sans-serif",
-                    boxShadow: '0 2px 8px rgba(124, 58, 237, 0.05)',
-                    cursor: 'pointer',
                     transition: 'all 0.2s ease'
                   }}
                 >
@@ -1512,21 +1506,19 @@ const MainMasterPortal = ({ onAdminClick }) => {
                 When you apply for a personal loan, you will need to provide the following documents
               </p>
 
-              {/* Document Item Boxes (Mint Green Pills with Crisp Green Border & Vibrant Hover) */}
+              {/* Document Item Boxes (Mint Green Pills with Crisp Green Border) */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', position: 'relative', zIndex: 2 }}>
                 <motion.div 
-                  whileHover={{ y: -3, scale: 1.015, backgroundColor: '#F0FDF4', borderColor: '#16A34A', color: '#15803D', boxShadow: '0 8px 22px rgba(34, 197, 94, 0.2)' }}
+                  whileHover={{ scale: 1.01, backgroundColor: '#ffffff' }}
                   style={{
-                    background: '#FFFFFF',
-                    border: '1.5px solid #BBF7D0',
+                    background: 'rgba(255, 255, 255, 0.55)',
+                    border: '1.5px solid #86EFAC',
                     borderRadius: '16px',
                     padding: '16px 22px',
                     fontSize: '0.98rem',
-                    fontWeight: 600,
-                    color: '#1E293B',
+                    fontWeight: 500,
+                    color: '#374151',
                     fontFamily: "'Inter', sans-serif",
-                    boxShadow: '0 2px 8px rgba(34, 197, 94, 0.05)',
-                    cursor: 'pointer',
                     transition: 'all 0.2s ease'
                   }}
                 >
@@ -1534,18 +1526,16 @@ const MainMasterPortal = ({ onAdminClick }) => {
                 </motion.div>
 
                 <motion.div 
-                  whileHover={{ y: -3, scale: 1.015, backgroundColor: '#F0FDF4', borderColor: '#16A34A', color: '#15803D', boxShadow: '0 8px 22px rgba(34, 197, 94, 0.2)' }}
+                  whileHover={{ scale: 1.01, backgroundColor: '#ffffff' }}
                   style={{
-                    background: '#FFFFFF',
-                    border: '1.5px solid #BBF7D0',
+                    background: 'rgba(255, 255, 255, 0.55)',
+                    border: '1.5px solid #86EFAC',
                     borderRadius: '16px',
                     padding: '16px 22px',
                     fontSize: '0.98rem',
-                    fontWeight: 600,
-                    color: '#1E293B',
+                    fontWeight: 500,
+                    color: '#374151',
                     fontFamily: "'Inter', sans-serif",
-                    boxShadow: '0 2px 8px rgba(34, 197, 94, 0.05)',
-                    cursor: 'pointer',
                     transition: 'all 0.2s ease'
                   }}
                 >
@@ -1553,18 +1543,16 @@ const MainMasterPortal = ({ onAdminClick }) => {
                 </motion.div>
 
                 <motion.div 
-                  whileHover={{ y: -3, scale: 1.015, backgroundColor: '#F0FDF4', borderColor: '#16A34A', color: '#15803D', boxShadow: '0 8px 22px rgba(34, 197, 94, 0.2)' }}
+                  whileHover={{ scale: 1.01, backgroundColor: '#ffffff' }}
                   style={{
-                    background: '#FFFFFF',
-                    border: '1.5px solid #BBF7D0',
+                    background: 'rgba(255, 255, 255, 0.55)',
+                    border: '1.5px solid #86EFAC',
                     borderRadius: '16px',
                     padding: '16px 22px',
                     fontSize: '0.98rem',
-                    fontWeight: 600,
-                    color: '#1E293B',
+                    fontWeight: 500,
+                    color: '#374151',
                     fontFamily: "'Inter', sans-serif",
-                    boxShadow: '0 2px 8px rgba(34, 197, 94, 0.05)',
-                    cursor: 'pointer',
                     transition: 'all 0.2s ease'
                   }}
                 >
@@ -1630,7 +1618,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                 >
                   Compare your loan eligibility
                 </span>
-                <Link to="/personal-loan" style={{ textDecoration: 'none' }}>
+                <Link to="/personal-loan" onClick={() => window.scrollTo({ top: 0, left: 0, behavior: 'instant' })} style={{ textDecoration: 'none' }}>
                   <motion.button
                     whileHover={{ scale: 1.04 }}
                     whileTap={{ scale: 0.96 }}

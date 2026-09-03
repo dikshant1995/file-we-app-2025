@@ -168,10 +168,18 @@ function CustomerFacingApp() {
   const navigate = useNavigate();
   const isMasterPortal = location.pathname === '/';
 
-  // Automatically open application form directly when visiting /personal-loan
+  // Automatically scroll to top and open application form directly when visiting /personal-loan
   React.useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     if (location.pathname === '/personal-loan') {
       setShowForm(true);
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      });
+      setTimeout(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      }, 50);
     } else if (location.pathname === '/') {
       setShowForm(false);
       setResults(null);

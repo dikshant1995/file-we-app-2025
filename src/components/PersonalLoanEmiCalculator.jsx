@@ -231,22 +231,6 @@ const PersonalLoanEmiCalculator = () => {
                   key={item.val}
                   type="button"
                   onClick={() => setLoanAmount(item.val)}
-                  onMouseEnter={(e) => {
-                    if (loanAmount !== item.val) {
-                      e.currentTarget.style.background = '#EFF6FF';
-                      e.currentTarget.style.borderColor = '#3B82F6';
-                      e.currentTarget.style.color = '#1D4ED8';
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (loanAmount !== item.val) {
-                      e.currentTarget.style.background = '#F8FAFC';
-                      e.currentTarget.style.borderColor = '#E2E8F0';
-                      e.currentTarget.style.color = '#475569';
-                      e.currentTarget.style.transform = 'translateY(0)';
-                    }
-                  }}
                   style={{
                     background: loanAmount === item.val ? '#1E40AF' : '#F8FAFC',
                     color: loanAmount === item.val ? '#FFFFFF' : '#475569',
@@ -422,22 +406,6 @@ const PersonalLoanEmiCalculator = () => {
                   key={yr}
                   type="button"
                   onClick={() => setTenureYears(yr)}
-                  onMouseEnter={(e) => {
-                    if (tenureYears !== yr) {
-                      e.currentTarget.style.background = '#F0FDF4';
-                      e.currentTarget.style.borderColor = '#22C55E';
-                      e.currentTarget.style.color = '#15803D';
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (tenureYears !== yr) {
-                      e.currentTarget.style.background = '#F8FAFC';
-                      e.currentTarget.style.borderColor = '#E2E8F0';
-                      e.currentTarget.style.color = '#475569';
-                      e.currentTarget.style.transform = 'translateY(0)';
-                    }
-                  }}
                   style={{
                     flex: '1 1 0',
                     minWidth: '40px',
@@ -694,8 +662,7 @@ const PersonalLoanEmiCalculator = () => {
             </span>
           </div>
 
-          {/* Interactive CTA Button */}
-          <Link to="/personal-loan" style={{ textDecoration: 'none', width: '100%', maxWidth: '340px' }}>
+          <Link to="/personal-loan" onClick={() => window.scrollTo({ top: 0, left: 0, behavior: 'instant' })} style={{ textDecoration: 'none', width: '100%', maxWidth: '340px' }}>
             <motion.button
               whileHover={{ scale: 1.02, boxShadow: '0 10px 24px rgba(245, 130, 32, 0.4)' }}
               whileTap={{ scale: 0.98 }}
