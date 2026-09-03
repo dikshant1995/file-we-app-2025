@@ -303,7 +303,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
           </motion.div>
 
         {/* ===== VALUE PROPOSITION SECTION (InCred Style) ===== */}
-        <section className="incred-value-props-section" style={{ padding: '60px 20px 50px', maxWidth: '1280px', margin: '0 auto' }}>
+        <section className="incred-value-props-section" style={{ padding: '60px 20px 10px', maxWidth: '1280px', margin: '0 auto' }}>
           
           {/* Main Heading (InCred Screenshot Exact Style & Color) */}
           <motion.h2 
@@ -871,7 +871,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            style={{ marginTop: '5rem', marginBottom: '4rem' }}
+            style={{ marginTop: '4.5rem', marginBottom: '0.8rem' }}
           >
             {/* Section Title */}
             <h2 
@@ -1220,7 +1220,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
         <section 
           className="eligibility-docs-section"
           style={{ 
-            padding: '40px 24px 70px', 
+            padding: '12px 24px 70px', 
             maxWidth: '1240px', 
             margin: '0 auto', 
             width: '100%' 
