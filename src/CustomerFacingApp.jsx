@@ -98,9 +98,9 @@ function CustomerFacingApp() {
         ...(rawFormData || {}),
         ...(formData || {}),
         ...(formData._metadata || {}),
-        customerName: formData.customerName || formData._metadata?.customerName || rawFormData?.customerName || 'Customer',
-        companyName: formData.companyName || formData._metadata?.companyName || rawFormData?.companyName || 'LaxmiCredit',
-        category: formData.category || formData._metadata?.category || rawFormData?.category || 'Category B'
+        companyName: formData.companyName || formData._metadata?.companyName || rawFormData?.companyName || 'Corporate Entity',
+        category: formData.category || formData._metadata?.category || 'Standard',
+        customerName: formData.customerName || formData._metadata?.customerName || rawFormData?.customerName || 'Customer'
       });
 
       // --- 🧠 AI NEURAL PREDICTION (SAFE WRAPPER) ---

@@ -94,26 +94,38 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
   const generateCustomerSummaryHtml = () => {
     const applicantName = metadata?.customerName || metadata?.name || 'Valued Customer';
     const mobileNumber = metadata?.mobileNumber || 'N/A';
-    const age = metadata?.age ? `${metadata.age} Years` : 'N/A';
-    const city = metadata?.city || '';
-    const state = metadata?.state || '';
-    const location = (city && state) ? `${city}, ${state}` : (city || state || 'N/A');
-    const maritalStatus = metadata?.maritalStatus ? (String(metadata.maritalStatus).charAt(0).toUpperCase() + String(metadata.maritalStatus).slice(1)) : 'N/A';
-    const livingStatus = metadata?.livingStatus ? (String(metadata.livingStatus).charAt(0).toUpperCase() + String(metadata.livingStatus).slice(1)) : 'N/A';
+    const ageText = metadata?.age ? `${metadata.age} Yrs` : 'N/A';
+    const maritalText = metadata?.maritalStatus 
+      ? (metadata.maritalStatus.charAt(0).toUpperCase() + metadata.maritalStatus.slice(1)) 
+      : 'N/A';
+    
+    // Location & Living Status
+    const locationParts = [metadata?.city, metadata?.state].filter(Boolean);
+    const locationText = locationParts.length > 0 ? locationParts.join(', ') : 'India';
+    const livingText = metadata?.livingStatus 
+      ? (metadata.livingStatus.charAt(0).toUpperCase() + metadata.livingStatus.slice(1)) 
+      : 'Owned/Rented';
 
+    // Employment
     const companyName = metadata?.companyName || results?.find(r => r.companyName)?.companyName || 'LaxmiCredit';
+    const employmentText = metadata?.employmentType 
+      ? (metadata.employmentType === 'government' ? 'Government Employee' : 'Salaried Professional')
+      : 'Salaried Professional';
     const categoryTier = results?.find(r => r.category)?.category || metadata?.category || 'Category B';
-    const employmentType = metadata?.employmentType ? (String(metadata.employmentType).charAt(0).toUpperCase() + String(metadata.employmentType).slice(1)) : 'Salaried';
-    const salaryMode = metadata?.salaryMode ? (String(metadata.salaryMode).toUpperCase() + ' Transfer') : 'Bank Transfer';
-    const basicSalary = metadata?.basicSalary ? formatInr(parseFloat(metadata.basicSalary)) : (metadata?.monthlyIncome ? formatInr(parseFloat(metadata.monthlyIncome)) : 'N/A');
 
-    // Existing obligations summary
-    const existingLoansList = metadata?.existingLoans || [];
-    const activeLoansCount = existingLoansList.length;
-    const totalExistingEmi = existingLoansList.reduce((sum, l) => sum + (parseFloat(l.monthlyEMI) || 0), 0);
-    const existingObligationsText = activeLoansCount > 0 
-      ? `${activeLoansCount} Active (${formatInr(totalExistingEmi)}/mo)` 
-      : 'No Active Loans / Clean Track';
+    // Income
+    const rawSalary = parseFloat(metadata?.basicSalary) || parseFloat(metadata?.monthlyIncome) || 0;
+    const salaryText = rawSalary > 0 ? `₹${rawSalary.toLocaleString('en-IN')}` : 'N/A';
+    const salaryModeText = metadata?.salaryMode 
+      ? (metadata.salaryMode === 'bank' ? 'Bank Credit' : metadata.salaryMode.toUpperCase()) 
+      : 'Bank Credit';
+
+    // Existing Obligations
+    const existingLoansList = Array.isArray(metadata?.existingLoans) ? metadata.existingLoans : [];
+    const totalExistingEMI = existingLoansList.reduce((sum, loan) => sum + (parseFloat(loan.emi) || 0), 0);
+    const existingLoansText = totalExistingEMI > 0 
+      ? `₹${totalExistingEMI.toLocaleString('en-IN')}/mo (${existingLoansList.length} Active Loans)`
+      : 'Zero Active Loans (Nil EMI)';
 
     const reportDate = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
     const approvalRate = Math.round((stats.eligibleCount / stats.totalBanks) * 100);
@@ -153,7 +165,7 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
         <div style="min-height: 980px; display: flex; flex-direction: column; justify-content: space-between; page-break-after: always; break-after: always; margin-bottom: 20px;">
           <div>
             <!-- Header with Branding -->
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2.5px solid #F58220; padding-bottom: 12px; margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2.5px solid #F58220; padding-bottom: 12px; margin-bottom: 18px;">
               <div>
                 <div style="font-size: 22px; font-weight: 800; color: #1E40AF; letter-spacing: -0.5px;">
                   Laxmi <span style="color: #F58220;">Credit</span>
@@ -173,67 +185,61 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
             </div>
 
             <!-- Title -->
-            <div style="text-align: center; margin-bottom: 16px;">
-              <h1 style="font-size: 23px; font-weight: 800; color: rgb(66, 66, 66); margin: 0 0 4px 0;">
+            <div style="text-align: center; margin-bottom: 18px;">
+              <h1 style="font-size: 24px; font-weight: 800; color: rgb(66, 66, 66); margin: 0 0 4px 0;">
                 Personal Loan <span style="color: #F58220;">Eligibility Summary</span>
               </h1>
-              <p style="font-size: 12px; color: #64748b; margin: 0;">
+              <p style="font-size: 13px; color: #64748b; margin: 0;">
                 Verified institutional evaluation across ${results.length} leading partner banking institutions
               </p>
             </div>
 
-            <!-- Comprehensive Customer Application & Financial Profile Box -->
-            <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 12px 16px; margin-bottom: 16px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #E2E8F0; padding-bottom: 6px;">
-                <span style="font-size: 11px; font-weight: 800; color: #1E40AF; text-transform: uppercase; letter-spacing: 0.5px;">
-                  📋 Verified Customer Application & Financial Profile
-                </span>
-                <span style="font-size: 10px; font-weight: 700; color: #15803D; background: #ECFDF5; padding: 2px 8px; border-radius: 10px; border: 1px solid #A7F3D0;">
+            <!-- Customer Application Details (Complete Profile Form Data) -->
+            <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1.5px solid #E2E8F0; padding-bottom: 5px;">
+                <div style="font-size: 11px; font-weight: 800; color: #1E40AF; text-transform: uppercase; letter-spacing: 0.5px;">
+                  📋 Verified Customer Application Information
+                </div>
+                <div style="font-size: 10px; color: #15803D; font-weight: 700; background: #ECFDF5; padding: 2px 8px; border-radius: 10px; border: 1px solid #A7F3D0;">
                   ✓ Form Verified
-                </span>
+                </div>
               </div>
 
-              <table style="width: 100%; border: none; font-size: 12px; border-collapse: collapse;">
+              <table style="width: 100%; border-collapse: collapse;">
                 <tr>
-                  <td style="width: 33.3%; padding: 3px 6px;">
+                  <td style="width: 25%; vertical-align: top; padding: 3px 6px 5px 0;">
                     <div style="font-size: 9.5px; color: #64748b; text-transform: uppercase; font-weight: 600;">Applicant Name</div>
-                    <div style="font-weight: 750; color: rgb(66, 66, 66); font-size: 13px; margin-top: 1px;">${applicantName}</div>
+                    <div style="font-size: 12.5px; font-weight: 750; color: rgb(66, 66, 66); margin-top: 1px;">${applicantName}</div>
                   </td>
-                  <td style="width: 33.3%; padding: 3px 6px;">
-                    <div style="font-size: 9.5px; color: #64748b; text-transform: uppercase; font-weight: 600;">Contact Number</div>
-                    <div style="font-weight: 750; color: rgb(66, 66, 66); font-size: 13px; margin-top: 1px;">${mobileNumber}</div>
+                  <td style="width: 25%; vertical-align: top; padding: 3px 6px 5px 0;">
+                    <div style="font-size: 9.5px; color: #64748b; text-transform: uppercase; font-weight: 600;">Mobile Number</div>
+                    <div style="font-size: 12.5px; font-weight: 750; color: rgb(66, 66, 66); margin-top: 1px;">${mobileNumber}</div>
                   </td>
-                  <td style="width: 33.3%; padding: 3px 6px;">
+                  <td style="width: 25%; vertical-align: top; padding: 3px 6px 5px 0;">
                     <div style="font-size: 9.5px; color: #64748b; text-transform: uppercase; font-weight: 600;">Age & Marital Status</div>
-                    <div style="font-weight: 750; color: rgb(66, 66, 66); font-size: 13px; margin-top: 1px;">${age} • ${maritalStatus}</div>
+                    <div style="font-size: 12.5px; font-weight: 750; color: rgb(66, 66, 66); margin-top: 1px;">${ageText} • ${maritalText}</div>
+                  </td>
+                  <td style="width: 25%; vertical-align: top; padding: 3px 0 5px 0;">
+                    <div style="font-size: 9.5px; color: #64748b; text-transform: uppercase; font-weight: 600;">Location & Residence</div>
+                    <div style="font-size: 12.5px; font-weight: 750; color: rgb(66, 66, 66); margin-top: 1px;">${locationText} (${livingText})</div>
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding: 4px 6px;">
-                    <div style="font-size: 9.5px; color: #64748b; text-transform: uppercase; font-weight: 600;">City & State</div>
-                    <div style="font-weight: 700; color: rgb(66, 66, 66); font-size: 12.5px; margin-top: 1px;">${location}</div>
-                  </td>
-                  <td style="padding: 4px 6px;">
-                    <div style="font-size: 9.5px; color: #64748b; text-transform: uppercase; font-weight: 600;">Residential Status</div>
-                    <div style="font-weight: 700; color: rgb(66, 66, 66); font-size: 12.5px; margin-top: 1px;">${livingStatus}</div>
-                  </td>
-                  <td style="padding: 4px 6px;">
-                    <div style="font-size: 9.5px; color: #64748b; text-transform: uppercase; font-weight: 600;">Bureau Inquiry</div>
-                    <div style="font-weight: 750; color: #15803D; font-size: 12.5px; margin-top: 1px;">Soft Bureau Verified</div>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding: 4px 6px;">
+                  <td style="width: 25%; vertical-align: top; padding: 5px 6px 2px 0; border-top: 1px dashed #E2E8F0;">
                     <div style="font-size: 9.5px; color: #64748b; text-transform: uppercase; font-weight: 600;">Employer Organization</div>
-                    <div style="font-weight: 750; color: rgb(66, 66, 66); font-size: 12.5px; margin-top: 1px;">${companyName} (${categoryTier})</div>
+                    <div style="font-size: 12.5px; font-weight: 750; color: rgb(66, 66, 66); margin-top: 1px;">${companyName}</div>
                   </td>
-                  <td style="padding: 4px 6px;">
+                  <td style="width: 25%; vertical-align: top; padding: 5px 6px 2px 0; border-top: 1px dashed #E2E8F0;">
+                    <div style="font-size: 9.5px; color: #64748b; text-transform: uppercase; font-weight: 600;">Employment & Tier</div>
+                    <div style="font-size: 12.5px; font-weight: 750; color: rgb(66, 66, 66); margin-top: 1px;">${employmentText} (${categoryTier})</div>
+                  </td>
+                  <td style="width: 25%; vertical-align: top; padding: 5px 6px 2px 0; border-top: 1px dashed #E2E8F0;">
                     <div style="font-size: 9.5px; color: #64748b; text-transform: uppercase; font-weight: 600;">Net Monthly Salary</div>
-                    <div style="font-weight: 800; color: #1E40AF; font-size: 13px; margin-top: 1px;">${basicSalary} <span style="font-size: 10px; font-weight: normal; color: #64748b;">(${salaryMode})</span></div>
+                    <div style="font-size: 12.5px; font-weight: 750; color: #1E40AF; margin-top: 1px;">${salaryText} <span style="font-size: 9.5px; font-weight: normal; color: #64748b;">(${salaryModeText})</span></div>
                   </td>
-                  <td style="padding: 4px 6px;">
-                    <div style="font-size: 9.5px; color: #64748b; text-transform: uppercase; font-weight: 600;">Existing Obligations</div>
-                    <div style="font-weight: 700; color: rgb(66, 66, 66); font-size: 12.5px; margin-top: 1px;">${existingObligationsText}</div>
+                  <td style="width: 25%; vertical-align: top; padding: 5px 0 2px 0; border-top: 1px dashed #E2E8F0;">
+                    <div style="font-size: 9.5px; color: #64748b; text-transform: uppercase; font-weight: 600;">Active Loan Obligations</div>
+                    <div style="font-size: 12.5px; font-weight: 750; color: rgb(66, 66, 66); margin-top: 1px;">${existingLoansText}</div>
                   </td>
                 </tr>
               </table>
