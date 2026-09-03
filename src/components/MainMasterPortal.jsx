@@ -1252,14 +1252,15 @@ const MainMasterPortal = ({ onAdminClick }) => {
               >
                 <span 
                   style={{ 
-                    fontFamily: "'Mulish', 'Inter', 'Plus Jakarta Sans', sans-serif", 
-                    fontSize: '1.25rem', 
-                    fontWeight: 700, 
-                    color: '#4A5568', 
-                    letterSpacing: '-0.2px' 
+                    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"', 
+                    fontStyle: 'normal',
+                    fontWeight: 550, 
+                    color: 'rgb(98, 98, 98)', 
+                    fontSize: '28px',
+                    lineHeight: '40px'
                   }}
                 >
-                  Start your loan application
+                  Check & Compare Loan Eligibility
                 </span>
                 <Link to="/personal-loan" style={{ textDecoration: 'none' }}>
                   <motion.button
