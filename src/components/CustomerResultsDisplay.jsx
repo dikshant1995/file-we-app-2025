@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import './CustomerResultsDisplay.css';
 import { saveSelectedBanks } from '../services/leadService.js';
-import html2pdf from 'html2pdf.js';
 
 const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewCalculation }) => {
   const [sortBy, setSortBy] = useState('loanAmount');
@@ -11,55 +10,6 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
   const [submitting, setSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null); // null | 'success' | 'error'
   const [expandedBank, setExpandedBank] = useState(null);
-  const [downloadingPdf, setDownloadingPdf] = useState(false);
-  const reportContainerRef = useRef(null);
-
-  // PDF Generation & Download
-  const handleDownloadPdf = async () => {
-    if (downloadingPdf) return;
-    setDownloadingPdf(true);
-
-    const rawCustomerName = (metadata?.customerName || '').trim();
-    const cleanCustomerName = rawCustomerName ? rawCustomerName.replace(/[^a-zA-Z0-9_-]/g, '_') : 'Customer';
-    const fileName = `${cleanCustomerName}_laxmicredit.pdf`;
-
-    const originalTitle = document.title;
-    document.title = `${cleanCustomerName}_laxmicredit`;
-
-    try {
-      const element = reportContainerRef.current || document.querySelector('.customer-results-display');
-      if (!element) {
-        window.print();
-        return;
-      }
-
-      const opt = {
-        margin: [8, 8, 8, 8],
-        filename: fileName,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          scrollY: 0
-        },
-        jsPDF: {
-          unit: 'mm',
-          format: 'a4',
-          orientation: 'portrait'
-        },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-      };
-
-      await html2pdf().set(opt).from(element).save();
-    } catch (err) {
-      console.error('PDF export error, falling back to browser print:', err);
-      window.print();
-    } finally {
-      document.title = originalTitle;
-      setDownloadingPdf(false);
-    }
-  };
 
   if (!results || results.length === 0) {
     return (
@@ -140,7 +90,7 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
   };
 
   return (
-    <div className="customer-results-display" ref={reportContainerRef}>
+    <div className="customer-results-display">
       {/* Results Header */}
       <div className="results-header">
         <div style={{ textAlign: 'center', marginBottom: '20px' }}>
@@ -180,12 +130,29 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
           </p>
           <button 
             className="btn-download-pdf" 
-            onClick={handleDownloadPdf}
-            disabled={downloadingPdf}
-            data-html2canvas-ignore="true"
-            style={{ cursor: downloadingPdf ? 'wait' : 'pointer' }}
+            onClick={() => window.print()}
+            style={{
+              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
+              fontStyle: 'normal',
+              fontWeight: 750,
+              color: 'rgb(255, 255, 255)',
+              fontSize: '18px',
+              lineHeight: 'normal',
+              background: 'rgb(245, 130, 32)',
+              border: 'none',
+              borderRadius: '50px',
+              padding: '14px 36px',
+              cursor: 'pointer',
+              boxShadow: '0 4px 16px rgba(245, 130, 32, 0.35)',
+              transition: 'all 0.25s ease',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+              marginTop: '20px'
+            }}
           >
-            {downloadingPdf ? '⏳ Generating PDF...' : 'Download Your Eligibility Report'}
+            Download your eligibility report
           </button>
         </div>
       </div>
@@ -607,7 +574,7 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
 
       {/* Floating Submit Bar */}
       {eligibleBanks.length > 0 && (
-        <div className="selection-submit-bar" data-html2canvas-ignore="true">
+        <div className="selection-submit-bar">
           <div>
             <div style={{ color: '#111827', fontWeight: 750, fontSize: '1rem', fontFamily: 'Outfit, sans-serif' }}>
               {selectedBanks.length} Bank{selectedBanks.length !== 1 ? 's' : ''} Selected
@@ -630,7 +597,7 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
 
       {/* Submission Status Overlay */}
       {submitStatus && (
-        <div className="status-overlay" data-html2canvas-ignore="true" style={{
+        <div className="status-overlay" style={{
           position: 'fixed',
           top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.6)',
