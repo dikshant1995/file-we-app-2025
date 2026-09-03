@@ -462,13 +462,15 @@ const MainMasterPortal = ({ onAdminClick }) => {
             {/* Section Title */}
             <h2 
               style={{
-                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-                fontSize: '2.4rem',
-                fontWeight: 700,
+                fontFamily: "'Outfit', 'Plus Jakarta Sans', 'Inter', sans-serif",
+                fontStyle: 'normal',
+                fontWeight: 750,
+                fontSize: '43px',
+                lineHeight: '54px',
                 color: 'rgb(66, 66, 66)',
                 textAlign: 'center',
                 marginBottom: '0px',
-                letterSpacing: '-0.4px'
+                letterSpacing: '-0.6px'
               }}
             >
               Steps to Check Loan Eligibility & Compare Offers
