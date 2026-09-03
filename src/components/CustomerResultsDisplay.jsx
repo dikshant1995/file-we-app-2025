@@ -356,7 +356,9 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
 
       {/* All Bank Results */}
       <div className="all-banks-results">
-        <h3 style={{ fontFamily: 'Outfit, "Plus Jakarta Sans", Inter, sans-serif', fontWeight: 750, color: 'rgb(66, 66, 66)', fontSize: '1.4rem', marginBottom: '20px' }}>Verified Institutional Assessments</h3>
+        <h3 style={{ fontFamily: 'Outfit, "Plus Jakarta Sans", Inter, sans-serif', fontWeight: 750, color: 'rgb(66, 66, 66)', fontSize: '1.5rem', marginBottom: '20px' }}>
+          Your Pre-Approved <span style={{ color: '#F58220' }}>Loan Amount Options</span>
+        </h3>
 
         <div className="banks-grid">
           {(filterEligible === 'eligible' ? sortedEligibleBanks :
@@ -392,9 +394,11 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
                       <h4>{bank.bankName}</h4>
                     </div>
 
-                    <div className={`status-badge ${bank.eligible ? 'approved' : 'rejected'}`}>
-                      {bank.eligible ? '✓ Approved' : '✕ Rejected'}
-                    </div>
+                    {!bank.eligible && (
+                      <div className="status-badge rejected">
+                        ✕ Ineligible
+                      </div>
+                    )}
                   </div>
 
                   <div className="bank-card-body">
