@@ -6,6 +6,7 @@ import './MainMasterPortal.css';
 import './FuturisticLanding.css'; // Reuse components styled earlier like founder and testimonials
 import eligibilityDocIcon from '../assets/eligibility-doc-icon.png';
 import documentsFolderIcon from '../assets/documents-folder-icon.png';
+import PersonalLoanEmiCalculator from './PersonalLoanEmiCalculator';
 
 const MainMasterPortal = ({ onAdminClick }) => {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
@@ -1558,6 +1559,9 @@ const MainMasterPortal = ({ onAdminClick }) => {
             </motion.div>
           </div>
         </section>
+
+        {/* ===== PERSONAL LOAN EMI CALCULATOR SECTION ===== */}
+        <PersonalLoanEmiCalculator />
 
         {/* Full-Width InCred-Style Fixed Sliding Sticky Bottom Bar */}
         <AnimatePresence>

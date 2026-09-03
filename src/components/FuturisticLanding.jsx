@@ -4,6 +4,7 @@ import { Sparkles, ArrowRight, ArrowLeft, ShieldCheck, Zap, Globe, Lock, Instagr
 import './FuturisticLanding.css';
 import eligibilityDocIcon from '../assets/eligibility-doc-icon.png';
 import documentsFolderIcon from '../assets/documents-folder-icon.png';
+import PersonalLoanEmiCalculator from './PersonalLoanEmiCalculator';
 
 
 const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
@@ -1603,6 +1604,9 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
           </motion.div>
         </div>
       </section>
+
+      {/* ===== PERSONAL LOAN EMI CALCULATOR SECTION ===== */}
+      <PersonalLoanEmiCalculator />
 
         {/* Full-Width InCred-Style Fixed Sliding Sticky Bottom Bar */}
         <AnimatePresence>
