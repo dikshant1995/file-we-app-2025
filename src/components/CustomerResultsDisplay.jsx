@@ -93,7 +93,7 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
 
   const generateCustomerSummaryHtml = () => {
     const applicantName = metadata?.customerName || metadata?.name || 'Valued Customer';
-    const companyName = metadata?.companyName || results?.find(r => r.companyName)?.companyName || 'Corporate Entity';
+    const companyName = metadata?.companyName || results?.find(r => r.companyName)?.companyName || 'LaxmiCredit';
     const categoryTier = results?.find(r => r.category)?.category || metadata?.category || 'Category B';
     const reportDate = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
     const approvalRate = Math.round((stats.eligibleCount / stats.totalBanks) * 100);
@@ -136,10 +136,10 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2.5px solid #F58220; padding-bottom: 12px; margin-bottom: 18px;">
               <div>
                 <div style="font-size: 22px; font-weight: 800; color: #1E40AF; letter-spacing: -0.5px;">
-                  InCred <span style="color: #F58220;">Financial</span>
+                  Laxmi <span style="color: #F58220;">Credit</span>
                 </div>
                 <div style="font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px;">
-                  Multi-Bank Rule Engine • Institutional Sanction Assessment
+                  LaxmiCredit • Multi-Bank Institutional Lending Engine
                 </div>
               </div>
               <div style="text-align: right;">
@@ -259,7 +259,7 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
 
           <!-- Page 1 Footer -->
           <div style="border-top: 1px solid #E2E8F0; padding-top: 8px; display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8;">
-            <span>InCred Multi-Bank Rule Engine • Confidential Eligibility Assessment</span>
+            <span>LaxmiCredit Multi-Bank Rule Engine • Confidential Eligibility Assessment</span>
             <span>Page 1 of 2</span>
           </div>
         </div>
@@ -325,7 +325,7 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
 
           <!-- Page 2 Footer -->
           <div style="border-top: 1px solid #E2E8F0; padding-top: 8px; display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8;">
-            <span>InCred Multi-Bank Rule Engine • Zero Bureau Impact Guaranteed</span>
+            <span>LaxmiCredit Multi-Bank Rule Engine • Zero Bureau Impact Guaranteed</span>
             <span>Page 2 of 2</span>
           </div>
         </div>
