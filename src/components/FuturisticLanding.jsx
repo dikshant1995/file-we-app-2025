@@ -509,25 +509,25 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
         {/* Section Title */}
         <h2 
           style={{
-            fontFamily: "'Outfit', 'Plus Jakarta Sans', 'Inter', sans-serif",
-            fontSize: '2.5rem',
-            fontWeight: 750,
-            color: '#1E293B',
+            fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+            fontSize: '2.4rem',
+            fontWeight: 700,
+            color: '#2D3748',
             textAlign: 'center',
-            marginBottom: '8px',
-            letterSpacing: '-0.5px'
+            marginBottom: '0px',
+            letterSpacing: '-0.4px'
           }}
         >
-          Steps to apply for <span style={{ color: '#0F172A', borderBottom: '3px solid #F58220', paddingBottom: '2px' }}>Laxmi Credit</span> Personal Loan
+          Steps to apply for Laxmi Credit Personal Loan
         </h2>
 
-        {/* Small Orange Underline */}
+        {/* Small Orange Underline (Single centered line exact as InCred) */}
         <div 
           style={{ 
-            width: '40px', 
-            height: '3.5px', 
+            width: '32px', 
+            height: '3px', 
             background: '#F58220', 
-            margin: '12px auto 40px', 
+            margin: '10px auto 36px', 
             borderRadius: '2px' 
           }} 
         />
@@ -544,38 +544,38 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
         >
           {/* Step 1 */}
           <motion.div 
-            whileHover={{ y: -4 }}
+            whileHover={{ y: -3 }}
             transition={{ duration: 0.2 }}
             style={{
               background: '#ffffff',
-              border: '1.5px solid #E2E8F0',
-              borderRadius: '20px',
-              padding: '28px 24px',
+              border: '1px solid #EAEFF5',
+              borderRadius: '16px',
+              padding: '24px 20px',
               display: 'flex',
               alignItems: 'center',
-              gap: '20px',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)'
+              gap: '18px',
+              boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)'
             }}
           >
             <span 
               style={{ 
-                fontFamily: "'Outfit', 'Inter', sans-serif", 
-                fontSize: '4rem', 
-                fontWeight: 800, 
-                color: '#A4C3F0', 
+                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", 
+                fontSize: '4.5rem', 
+                fontWeight: 600, 
+                color: '#A5C2F3', 
                 lineHeight: 1,
-                minWidth: '50px'
+                minWidth: '45px'
               }}
             >
               1
             </span>
             <p 
               style={{ 
-                fontFamily: "'Mulish', 'Inter', 'Plus Jakarta Sans', sans-serif", 
-                fontSize: '0.98rem', 
-                color: '#475569', 
-                fontWeight: 600,
-                lineHeight: 1.45,
+                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                fontSize: '0.92rem', 
+                color: '#4B5563', 
+                fontWeight: 400,
+                lineHeight: 1.4,
                 margin: 0
               }}
             >
@@ -585,38 +585,38 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
 
           {/* Step 2 */}
           <motion.div 
-            whileHover={{ y: -4 }}
+            whileHover={{ y: -3 }}
             transition={{ duration: 0.2 }}
             style={{
               background: '#ffffff',
-              border: '1.5px solid #E2E8F0',
-              borderRadius: '20px',
-              padding: '28px 24px',
+              border: '1px solid #EAEFF5',
+              borderRadius: '16px',
+              padding: '24px 20px',
               display: 'flex',
               alignItems: 'center',
-              gap: '20px',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)'
+              gap: '18px',
+              boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)'
             }}
           >
             <span 
               style={{ 
-                fontFamily: "'Outfit', 'Inter', sans-serif", 
-                fontSize: '4rem', 
-                fontWeight: 800, 
-                color: '#A4C3F0', 
+                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", 
+                fontSize: '4.5rem', 
+                fontWeight: 600, 
+                color: '#A5C2F3', 
                 lineHeight: 1,
-                minWidth: '50px'
+                minWidth: '45px'
               }}
             >
               2
             </span>
             <p 
               style={{ 
-                fontFamily: "'Mulish', 'Inter', 'Plus Jakarta Sans', sans-serif", 
-                fontSize: '0.98rem', 
-                color: '#475569', 
-                fontWeight: 600,
-                lineHeight: 1.45,
+                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                fontSize: '0.92rem', 
+                color: '#4B5563', 
+                fontWeight: 400,
+                lineHeight: 1.4,
                 margin: 0
               }}
             >
@@ -626,38 +626,38 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
 
           {/* Step 3 */}
           <motion.div 
-            whileHover={{ y: -4 }}
+            whileHover={{ y: -3 }}
             transition={{ duration: 0.2 }}
             style={{
               background: '#ffffff',
-              border: '1.5px solid #E2E8F0',
-              borderRadius: '20px',
-              padding: '28px 24px',
+              border: '1px solid #EAEFF5',
+              borderRadius: '16px',
+              padding: '24px 20px',
               display: 'flex',
               alignItems: 'center',
-              gap: '20px',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)'
+              gap: '18px',
+              boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)'
             }}
           >
             <span 
               style={{ 
-                fontFamily: "'Outfit', 'Inter', sans-serif", 
-                fontSize: '4rem', 
-                fontWeight: 800, 
-                color: '#A4C3F0', 
+                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", 
+                fontSize: '4.5rem', 
+                fontWeight: 600, 
+                color: '#A5C2F3', 
                 lineHeight: 1,
-                minWidth: '50px'
+                minWidth: '45px'
               }}
             >
               3
             </span>
             <p 
               style={{ 
-                fontFamily: "'Mulish', 'Inter', 'Plus Jakarta Sans', sans-serif", 
-                fontSize: '0.98rem', 
-                color: '#475569', 
-                fontWeight: 600,
-                lineHeight: 1.45,
+                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                fontSize: '0.92rem', 
+                color: '#4B5563', 
+                fontWeight: 400,
+                lineHeight: 1.4,
                 margin: 0
               }}
             >
@@ -667,38 +667,38 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
 
           {/* Step 4 */}
           <motion.div 
-            whileHover={{ y: -4 }}
+            whileHover={{ y: -3 }}
             transition={{ duration: 0.2 }}
             style={{
               background: '#ffffff',
-              border: '1.5px solid #E2E8F0',
-              borderRadius: '20px',
-              padding: '28px 24px',
+              border: '1px solid #EAEFF5',
+              borderRadius: '16px',
+              padding: '24px 20px',
               display: 'flex',
               alignItems: 'center',
-              gap: '20px',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)'
+              gap: '18px',
+              boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)'
             }}
           >
             <span 
               style={{ 
-                fontFamily: "'Outfit', 'Inter', sans-serif", 
-                fontSize: '4rem', 
-                fontWeight: 800, 
-                color: '#A4C3F0', 
+                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", 
+                fontSize: '4.5rem', 
+                fontWeight: 600, 
+                color: '#A5C2F3', 
                 lineHeight: 1,
-                minWidth: '50px'
+                minWidth: '45px'
               }}
             >
               4
             </span>
             <p 
               style={{ 
-                fontFamily: "'Mulish', 'Inter', 'Plus Jakarta Sans', sans-serif", 
-                fontSize: '0.98rem', 
-                color: '#475569', 
-                fontWeight: 600,
-                lineHeight: 1.45,
+                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                fontSize: '0.92rem', 
+                color: '#4B5563', 
+                fontWeight: 400,
+                lineHeight: 1.4,
                 margin: 0
               }}
             >
@@ -708,38 +708,38 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
 
           {/* Step 5 */}
           <motion.div 
-            whileHover={{ y: -4 }}
+            whileHover={{ y: -3 }}
             transition={{ duration: 0.2 }}
             style={{
               background: '#ffffff',
-              border: '1.5px solid #E2E8F0',
-              borderRadius: '20px',
-              padding: '28px 24px',
+              border: '1px solid #EAEFF5',
+              borderRadius: '16px',
+              padding: '24px 20px',
               display: 'flex',
               alignItems: 'center',
-              gap: '20px',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)'
+              gap: '18px',
+              boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)'
             }}
           >
             <span 
               style={{ 
-                fontFamily: "'Outfit', 'Inter', sans-serif", 
-                fontSize: '4rem', 
-                fontWeight: 800, 
-                color: '#A4C3F0', 
+                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", 
+                fontSize: '4.5rem', 
+                fontWeight: 600, 
+                color: '#A5C2F3', 
                 lineHeight: 1,
-                minWidth: '50px'
+                minWidth: '45px'
               }}
             >
               5
             </span>
             <p 
               style={{ 
-                fontFamily: "'Mulish', 'Inter', 'Plus Jakarta Sans', sans-serif", 
-                fontSize: '0.98rem', 
-                color: '#475569', 
-                fontWeight: 600,
-                lineHeight: 1.45,
+                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                fontSize: '0.92rem', 
+                color: '#4B5563', 
+                fontWeight: 400,
+                lineHeight: 1.4,
                 margin: 0
               }}
             >
@@ -749,38 +749,38 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
 
           {/* Step 6 */}
           <motion.div 
-            whileHover={{ y: -4 }}
+            whileHover={{ y: -3 }}
             transition={{ duration: 0.2 }}
             style={{
               background: '#ffffff',
-              border: '1.5px solid #E2E8F0',
-              borderRadius: '20px',
-              padding: '28px 24px',
+              border: '1px solid #EAEFF5',
+              borderRadius: '16px',
+              padding: '24px 20px',
               display: 'flex',
               alignItems: 'center',
-              gap: '20px',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)'
+              gap: '18px',
+              boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)'
             }}
           >
             <span 
               style={{ 
-                fontFamily: "'Outfit', 'Inter', sans-serif", 
-                fontSize: '4rem', 
-                fontWeight: 800, 
-                color: '#A4C3F0', 
+                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", 
+                fontSize: '4.5rem', 
+                fontWeight: 600, 
+                color: '#A5C2F3', 
                 lineHeight: 1,
-                minWidth: '50px'
+                minWidth: '45px'
               }}
             >
               6
             </span>
             <p 
               style={{ 
-                fontFamily: "'Mulish', 'Inter', 'Plus Jakarta Sans', sans-serif", 
-                fontSize: '0.98rem', 
-                color: '#475569', 
-                fontWeight: 600,
-                lineHeight: 1.45,
+                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                fontSize: '0.92rem', 
+                color: '#4B5563', 
+                fontWeight: 400,
+                lineHeight: 1.4,
                 margin: 0
               }}
             >
