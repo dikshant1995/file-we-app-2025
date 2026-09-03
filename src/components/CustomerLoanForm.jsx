@@ -3,7 +3,7 @@ import './CustomerLoanForm.css';
 import { loadUniversalCompanies, getCompanySuggestions, initializeBankDatabases } from '../services/companyDatabaseService.js';
 import { indianStates, stateCityData } from '../data/locationData.js';
 
-const CustomerLoanForm = ({ onSubmit, loading }) => {
+const CustomerLoanForm = ({ onSubmit, loading, onBackToHome }) => {
   const [formData, setFormData] = useState({
     customerName: '',
     mobileNumber: '',
@@ -304,10 +304,46 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="customer-loan-form professional-grid-bg" autoComplete="off">
+    <form onSubmit={handleSubmit} className="customer-loan-form" autoComplete="off">
+      {/* Top Header Bar */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
+        {onBackToHome && (
+          <button
+            type="button"
+            onClick={onBackToHome}
+            style={{
+              background: '#FFF7ED',
+              border: '1.5px solid #F58220',
+              color: '#F58220',
+              padding: '8px 20px',
+              borderRadius: '50px',
+              fontSize: '0.88rem',
+              fontWeight: 650,
+              cursor: 'pointer',
+              fontFamily: "'Inter', sans-serif",
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            ← Back to Home
+          </button>
+        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: '#16A34A', fontWeight: 650, background: '#F0FDF4', padding: '6px 14px', borderRadius: '20px', border: '1px solid #BBF7D0' }}>
+          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#16A34A', display: 'inline-block' }}></span>
+          12+ Partner Banks Live
+        </div>
+      </div>
+
       <div className="form-header">
-        <h2>Financial Analysis Engine</h2>
-        <p>Comprehensive eligibility assessment across institutional databases</p>
+        <h2>
+          Personal Loan <span style={{ color: '#F58220' }}>Eligibility Application</span>
+        </h2>
+        <div style={{ width: '42px', height: '3.5px', backgroundColor: '#F58220', borderRadius: '2px', margin: '0 auto 12px' }} />
+        <p>
+          Fill in your details below — our multi-bank rule engine calculates real-time pre-approved offers with zero bureau impact.
+        </p>
       </div>
 
       {/* Personal Details */}
@@ -1005,12 +1041,11 @@ const CustomerLoanForm = ({ onSubmit, loading }) => {
 
       {/* Information Note */}
       <div className="form-note">
-        <p><strong>Note:</strong></p>
+        <p><strong>100% Free & Transparent:</strong></p>
         <ul>
-          <li>Fixed 11% interest rate calculation across all institutions</li>
-          <li>Optimized loan tenure based on specific banking algorithms</li>
-          <li>Maximum eligibility limit assessment in real-time</li>
-          <li>Comprehensive multi-bank comparison reports</li>
+          <li>Zero credit bureau impact — soft eligibility check across 12+ partner banks</li>
+          <li>Optimized loan tenure up to 7 years with instant rate comparisons</li>
+          <li>Real-time bank policy matching for maximum loan sanction limits</li>
         </ul>
       </div>
     </form>

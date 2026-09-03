@@ -1,66 +1,77 @@
 /* ============================================
-   CUSTOMER LOAN FORM — PROFESSIONAL AI THEME
-   Matches the landing page aesthetic
+   CUSTOMER LOAN FORM — PREMIUM CLEAN LIGHT THEME
+   Matches the main landing portal typography & colors
    ============================================ */
 
 .customer-loan-form {
   width: 100%;
-  padding: 50px 40px;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 44px 42px;
   background: #ffffff;
-  color: #0f172a;
-  border-radius: 16px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+  color: #1f2937;
+  border-radius: 24px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
   position: relative;
-  font-family: 'Inter', 'Montserrat', sans-serif;
+  font-family: 'Inter', -apple-system, sans-serif;
 }
 
 /* ---- Form Header ---- */
 .form-header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 36px;
   padding-bottom: 24px;
-  border-bottom: 2px solid #f1f5f9;
+  border-bottom: 1.5px solid #f1f5f9;
 }
 
 .form-header h2 {
-  font-family: 'Montserrat', sans-serif;
-  font-size: 2rem;
-  font-weight: 800;
-  color: #06064d;
-  margin-bottom: 8px;
-  letter-spacing: -0.02em;
+  font-family: 'Outfit', 'Plus Jakarta Sans', 'Inter', sans-serif;
+  font-size: clamp(24px, 3.5vw, 34px);
+  font-weight: 750;
+  color: rgb(66, 66, 66);
+  margin-bottom: 10px;
+  line-height: 1.3;
+  letter-spacing: -0.5px;
 }
 
 .form-header p {
-  color: #64748b;
-  font-size: 1rem;
+  color: #6b7280;
+  font-size: 0.98rem;
   font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  max-width: 620px;
+  margin: 12px auto 0;
+  line-height: 1.5;
 }
 
 /* ---- Form Section Blocks ---- */
 .form-section {
   margin-bottom: 24px;
-  padding: 28px;
+  padding: 28px 30px;
   background: #f8fafc;
-  border-radius: 12px;
+  border-radius: 16px;
   border: 1px solid #e2e8f0;
   transition: all 0.25s ease;
 }
 
 .form-section:hover {
-  border-color: rgba(245, 130, 32, 0.4);
-  box-shadow: 0 4px 20px rgba(245, 130, 32, 0.08);
+  border-color: rgba(245, 130, 32, 0.35);
+  box-shadow: 0 6px 20px rgba(245, 130, 32, 0.06);
 }
 
 .form-section h3 {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Outfit', 'Plus Jakarta Sans', 'Inter', sans-serif;
   font-size: 1.15rem;
-  color: #f58220;
+  color: rgb(66, 66, 66);
   margin-bottom: 20px;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
+  font-weight: 750;
+  letter-spacing: -0.2px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-left: 4px solid #f58220;
+  padding-left: 12px;
 }
 
 /* ---- Form Group ---- */
@@ -71,17 +82,24 @@
 
 .form-group label {
   display: block;
-  font-weight: 700;
-  color: #1e293b;
+  font-weight: 650;
+  color: #374151;
   margin-bottom: 8px;
-  font-size: 0.85rem;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
+  font-size: 0.88rem;
+  font-family: 'Inter', sans-serif;
 }
 
 .required {
   color: #ef4444;
-  margin-left: 2px;
+  margin-left: 3px;
+  font-weight: 700;
+}
+
+.optional {
+  color: #9ca3af;
+  font-weight: 400;
+  font-size: 0.8rem;
+  margin-left: 4px;
 }
 
 /* ---- Inputs & Selects ---- */
@@ -91,19 +109,20 @@
   padding: 13px 16px;
   background: #ffffff;
   border: 1.5px solid #cbd5e1;
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: 10px;
+  font-size: 0.98rem;
   font-weight: 500;
-  color: #0f172a;
+  color: #1e293b;
   transition: all 0.2s ease;
   outline: none;
   font-family: 'Inter', sans-serif;
+  box-sizing: border-box;
 }
 
 .form-group input:focus,
 .form-group select:focus {
-  border-color: #f58220;
-  box-shadow: 0 0 0 3px rgba(245, 130, 32, 0.18);
+  border-color: #f58220 !important;
+  box-shadow: 0 0 0 3.5px rgba(245, 130, 32, 0.18) !important;
 }
 
 .form-group select option {
@@ -114,37 +133,41 @@
 /* ---- Help Text ---- */
 .help-text {
   display: block;
-  margin-top: 8px;
-  color: var(--text-muted);
-  font-size: 0.8rem;
+  margin-top: 6px;
+  color: #64748b;
+  font-size: 0.82rem;
   line-height: 1.4;
+  font-family: 'Inter', sans-serif;
 }
 
 /* ---- Total Income Display ---- */
 .total-income-display {
-  margin-top: 24px;
-  padding: 16px 20px;
-  background: rgba(0, 255, 136, 0.03);
-  border: 1px solid rgba(0, 255, 136, 0.1);
-  border-radius: 8px;
-  font-size: 1rem;
-  color: #00ff88;
-  font-weight: 600;
+  margin-top: 20px;
+  padding: 14px 18px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #166534;
+  font-weight: 650;
   text-align: center;
+  font-family: 'Inter', sans-serif;
 }
 
 /* ---- Existing Loans Section ---- */
 .existing-loans-section {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
+  margin-top: 16px;
 }
 
 .loan-item {
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid var(--border-glow);
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
   border-radius: 12px;
   padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
 }
 
 .loan-item-header {
@@ -152,74 +175,85 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .loan-item-header h4 {
-  font-size: 0.95rem;
-  color: var(--text-secondary);
+  font-size: 0.98rem;
+  color: #1e293b;
   font-weight: 700;
+  font-family: 'Inter', sans-serif;
 }
 
 .btn-remove {
-  padding: 4px 10px;
-  background: rgba(239, 68, 68, 0.1);
-  color: var(--danger);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  border-radius: 4px;
+  padding: 4px 12px;
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
   font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: 'Inter', sans-serif;
 }
 
 .btn-remove:hover {
-  background: var(--danger);
-  color: #fff;
+  background: #dc2626;
+  color: #ffffff;
 }
 
 .btn-add-loan {
   width: 100%;
-  padding: 12px;
-  background: transparent;
-  border: 1px dashed var(--border-glow);
-  color: var(--accent-cyan);
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 600;
+  padding: 13px;
+  background: #fff7ed;
+  border: 1.5px dashed #f58220;
+  color: #ea580c;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  font-weight: 650;
   cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s ease;
+  margin-top: 14px;
 }
 
 .btn-add-loan:hover {
-  background: rgba(0, 212, 255, 0.05);
+  background: #ffedd5;
   border-style: solid;
 }
 
 /* ---- Submit Button ---- */
 .form-actions {
-  margin-top: 40px;
+  margin-top: 36px;
 }
 
 .btn-submit {
   width: 100%;
-  padding: 16px;
-  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-  color: #fff;
+  padding: 16px 24px;
+  background: #f58220;
+  color: #ffffff;
   border: none;
-  border-radius: 10px;
+  border-radius: 50px;
   font-size: 1.1rem;
-  font-weight: 800;
+  font-weight: 750;
+  font-family: 'Inter', sans-serif;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(0, 212, 255, 0.2);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 16px rgba(245, 130, 32, 0.35);
+  letter-spacing: 0.2px;
 }
 
-.btn-submit:hover {
+.btn-submit:hover:not(:disabled) {
+  background: #ea580c;
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0, 212, 255, 0.4);
-  filter: brightness(1.1);
+  box-shadow: 0 6px 22px rgba(245, 130, 32, 0.45);
 }
 
 .btn-submit:disabled {
-  background: #334155;
+  background: #cbd5e1;
+  color: #94a3b8;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
@@ -244,49 +278,51 @@
 
 @media (max-width: 480px) {
   .customer-loan-form {
-    padding: 20px 15px;
+    padding: 24px 16px;
   }
   .form-section {
-    padding: 15px;
-  }
-  .form-header h2 {
-    font-size: 1.4rem;
+    padding: 18px 16px;
   }
 }
 
 /* ---- Note Section ---- */
 .form-note {
   margin-top: 32px;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 8px;
-  border: 1px solid var(--border-glow);
+  padding: 20px 24px;
+  background: #fff7ed;
+  border-radius: 14px;
+  border: 1px solid #ffedd5;
+  font-family: 'Inter', sans-serif;
 }
 
 .form-note p {
-  color: var(--text-secondary);
-  font-weight: 700;
-  margin-bottom: 12px;
+  color: #9a3412;
+  font-weight: 750;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
 }
 
 .form-note ul {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 .form-note li {
-  color: var(--text-muted);
-  font-size: 0.85rem;
+  color: #7c2d12;
+  font-size: 0.88rem;
   margin-bottom: 8px;
   padding-left: 20px;
   position: relative;
+  line-height: 1.45;
 }
 
 .form-note li::before {
-  content: '→';
+  content: '✓';
   position: absolute;
   left: 0;
-  color: var(--accent-cyan);
+  color: #ea580c;
+  font-weight: 800;
 }
 
 /* ============================================
@@ -296,24 +332,25 @@
   position: absolute;
   z-index: 1000;
   width: 100%;
-  max-height: 250px;
+  max-height: 240px;
   overflow-y: auto;
-  background: #111b27;
-  border: 1px solid var(--border-active);
-  border-radius: 8px;
-  top: 100%; /* Force it BELOW the input */
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  top: 100%;
   left: 0;
   margin-top: 5px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 .autocomplete-item {
   padding: 12px 16px;
   cursor: pointer;
-  color: #fff;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  font-size: 0.9rem;
-  transition: all 0.2s ease;
+  color: #1e293b;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.92rem;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.15s ease;
 }
 
 .autocomplete-item:last-child {
@@ -321,25 +358,24 @@
 }
 
 .autocomplete-item:hover {
-  background: rgba(0, 212, 255, 0.1);
-  color: var(--accent-cyan);
+  background: #fff7ed;
+  color: #ea580c;
   padding-left: 20px;
 }
 
-/* Custom scrollbar for dropdown */
 .autocomplete-dropdown::-webkit-scrollbar {
   width: 6px;
 }
 
 .autocomplete-dropdown::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.2);
+  background: #f1f5f9;
 }
 
 .autocomplete-dropdown::-webkit-scrollbar-thumb {
-  background: var(--border-glow);
+  background: #cbd5e1;
   border-radius: 3px;
 }
 
 .autocomplete-dropdown::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-cyan);
+  background: #f58220;
 }

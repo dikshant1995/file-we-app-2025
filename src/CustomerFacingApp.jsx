@@ -199,10 +199,12 @@ function CustomerFacingApp() {
         >
 
 
-          {/* Form wrapped in glass */}
-          <div className="form-glass-wrapper">
-            <CustomerLoanForm onSubmit={handleFormSubmit} loading={loading} />
-          </div>
+          {/* Unified Single Platform Form */}
+          <CustomerLoanForm 
+            onSubmit={handleFormSubmit} 
+            loading={loading} 
+            onBackToHome={() => { setShowForm(false); setResults(null); navigate('/'); window.scrollTo({ top: 0 }); }} 
+          />
 
           {/* Error */}
           {error && (
