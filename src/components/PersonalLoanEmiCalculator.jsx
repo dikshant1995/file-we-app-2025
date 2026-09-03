@@ -93,7 +93,7 @@ const PersonalLoanEmiCalculator = () => {
             letterSpacing: '-0.5px'
           }}
         >
-          Personal Loan EMI Calculator
+          Personal Loan <span style={{ color: 'rgb(245, 130, 32)', fontFamily: 'Outfit, "Plus Jakarta Sans", Inter, sans-serif', fontWeight: 750 }}>EMI</span> Calculator
         </h2>
 
         {/* Orange Accent Underline Bar */}
