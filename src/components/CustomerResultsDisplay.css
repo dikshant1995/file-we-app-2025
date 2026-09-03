@@ -27,8 +27,8 @@
   font-style: normal;
   font-weight: 750;
   color: rgb(66, 66, 66);
-  font-size: clamp(26px, 3.5vw, 38px);
-  line-height: 48px;
+  font-size: 43px;
+  line-height: 54px;
   margin: 0 0 6px 0;
   letter-spacing: -0.5px;
 }

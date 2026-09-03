@@ -99,8 +99,8 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
             fontStyle: 'normal',
             fontWeight: 750,
             color: 'rgb(66, 66, 66)',
-            fontSize: 'clamp(26px, 3.5vw, 38px)',
-            lineHeight: '48px',
+            fontSize: '43px',
+            lineHeight: '54px',
             margin: '0 0 6px 0'
           }}>
             Institutional <span style={{ color: '#F58220' }}>Eligibility Analysis</span>
