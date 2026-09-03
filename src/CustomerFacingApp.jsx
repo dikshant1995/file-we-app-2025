@@ -26,7 +26,14 @@ function CustomerFacingApp() {
   const [error, setError] = useState(null);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
   const [showAdminLoginModal, setShowAdminLoginModal] = useState(false);
-  const [adminUser, setAdminUser] = useState(null);
+  const [adminUser, setAdminUser] = useState(() => {
+    try {
+      const stored = localStorage.getItem('laxmi_admin_user');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
   const [showForm, setShowForm] = useState(false);
   const [aiResult, setAiResult] = useState(null);
   const [aiInsight, setAiInsight] = useState(null);
@@ -195,6 +202,9 @@ function CustomerFacingApp() {
 
   const handleAdminLoginSuccess = (userProfile) => {
     setAdminUser(userProfile);
+    try {
+      localStorage.setItem('laxmi_admin_user', JSON.stringify(userProfile));
+    } catch (e) {}
     setShowAdminLoginModal(false);
     setShowAdminDashboard(true);
   };
@@ -247,7 +257,7 @@ function CustomerFacingApp() {
   }, [results]);
 
   if (showAdminDashboard) {
-    return <AdminDashboard onBackToCustomer={handleBackToCustomer} />;
+    return <AdminDashboard initialUser={adminUser} onBackToCustomer={handleBackToCustomer} />;
   }
 
   return (

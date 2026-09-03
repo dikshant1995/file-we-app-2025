@@ -17,14 +17,22 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { LogOut, User, Layout, FileText, MapPin, Settings, BarChart2, Database, ShieldCheck, Zap, UserPlus, TrendingUp, Shield, Layers, Users, FileMinus } from 'lucide-react';
 
-const AdminDashboard = ({ onBackToCustomer }) => {
+const AdminDashboard = ({ onBackToCustomer, initialUser }) => {
   const [activeMenu, setActiveMenu] = useState('leads'); // Default to leads for employees
   const [selectedLocation, setSelectedLocation] = useState({ state: '', city: '' });
   const [selectedBank, setSelectedBank] = useState(null);
   const [showAddBankModal, setShowAddBankModal] = useState(false);
   const [customBanks, setCustomBanks] = useState([]);
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(() => {
+    if (initialUser) return initialUser;
+    try {
+      const stored = localStorage.getItem('laxmi_admin_user');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [loading, setLoading] = useState(false);
 
   // Persistence of custom banks (if any)
   useEffect(() => {
@@ -34,24 +42,21 @@ const AdminDashboard = ({ onBackToCustomer }) => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setLoading(true); // Start load cycle
       try {
         if (firebaseUser) {
           const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
           if (userDoc.exists()) {
-            setUser(userDoc.data());
-          } else {
-            // User exists in Auth but not in database, treat as logged out to prompt again
-            setUser(null);
+            const data = userDoc.data();
+            setUser(data);
+            try {
+              localStorage.setItem('laxmi_admin_user', JSON.stringify(data));
+            } catch (e) {}
           }
-        } else {
-          setUser(null);
         }
       } catch (err) {
         console.error("Auth Loading Error:", err);
-        setUser(null);
       } finally {
-        setLoading(false); // Guarantee unlocking logic
+        setLoading(false);
       }
     });
     return () => unsubscribe();
@@ -59,10 +64,14 @@ const AdminDashboard = ({ onBackToCustomer }) => {
 
   const handleLogout = async () => {
     try {
+      localStorage.removeItem('laxmi_admin_user');
       await signOut(auth);
       setUser(null);
     } catch (err) {
       console.error('Logout Error:', err);
+    }
+    if (onBackToCustomer) {
+      onBackToCustomer();
     }
   };
 
