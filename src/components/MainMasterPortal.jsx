@@ -471,7 +471,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                 letterSpacing: '-0.4px'
               }}
             >
-              Steps to apply for Laxmi Credit Personal Loan
+              Steps to Check Loan Eligibility & Compare Offers
             </h2>
 
             {/* Small Orange Underline (Single centered line exact as InCred) */}
@@ -505,8 +505,8 @@ const MainMasterPortal = ({ onAdminClick }) => {
                   borderRadius: '16px',
                   padding: '24px 20px',
                   display: 'flex',
-                  alignItems: 'center',
-                  gap: '18px',
+                  alignItems: 'flex-start',
+                  gap: '16px',
                   boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)'
                 }}
               >
@@ -517,23 +517,37 @@ const MainMasterPortal = ({ onAdminClick }) => {
                     fontWeight: 600, 
                     color: '#A5C2F3', 
                     lineHeight: 1,
-                    minWidth: '45px'
+                    minWidth: '40px'
                   }}
                 >
                   1
                 </span>
-                <p 
-                  style={{ 
-                    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
-                    fontSize: '0.92rem', 
-                    color: '#4B5563', 
-                    fontWeight: 400,
-                    lineHeight: 1.4,
-                    margin: 0
-                  }}
-                >
-                  Click "Apply Now" and enter your mobile number
-                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <h4 
+                    style={{ 
+                      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                      fontSize: '1.02rem', 
+                      color: '#1E293B', 
+                      fontWeight: 700,
+                      margin: 0,
+                      lineHeight: 1.3
+                    }}
+                  >
+                    Enter Your Basic Details
+                  </h4>
+                  <p 
+                    style={{ 
+                      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                      fontSize: '0.88rem', 
+                      color: '#4B5563', 
+                      fontWeight: 400,
+                      lineHeight: 1.45,
+                      margin: 0
+                    }}
+                  >
+                    Provide your name, mobile number, city, age, and employment type.
+                  </p>
+                </div>
               </motion.div>
 
               {/* Step 2 */}
@@ -546,8 +560,8 @@ const MainMasterPortal = ({ onAdminClick }) => {
                   borderRadius: '16px',
                   padding: '24px 20px',
                   display: 'flex',
-                  alignItems: 'center',
-                  gap: '18px',
+                  alignItems: 'flex-start',
+                  gap: '16px',
                   boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)'
                 }}
               >
@@ -558,23 +572,37 @@ const MainMasterPortal = ({ onAdminClick }) => {
                     fontWeight: 600, 
                     color: '#A5C2F3', 
                     lineHeight: 1,
-                    minWidth: '45px'
+                    minWidth: '40px'
                   }}
                 >
                   2
                 </span>
-                <p 
-                  style={{ 
-                    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
-                    fontSize: '0.92rem', 
-                    color: '#4B5563', 
-                    fontWeight: 400,
-                    lineHeight: 1.4,
-                    margin: 0
-                  }}
-                >
-                  Verify your identity with the SMS confirmation code
-                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <h4 
+                    style={{ 
+                      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                      fontSize: '1.02rem', 
+                      color: '#1E293B', 
+                      fontWeight: 700,
+                      margin: 0,
+                      lineHeight: 1.3
+                    }}
+                  >
+                    Add Income & Financial Information
+                  </h4>
+                  <p 
+                    style={{ 
+                      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                      fontSize: '0.88rem', 
+                      color: '#4B5563', 
+                      fontWeight: 400,
+                      lineHeight: 1.45,
+                      margin: 0
+                    }}
+                  >
+                    Enter salary/business income, bank transfer mode, incentives, and other income details.
+                  </p>
+                </div>
               </motion.div>
 
               {/* Step 3 */}
@@ -587,8 +615,8 @@ const MainMasterPortal = ({ onAdminClick }) => {
                   borderRadius: '16px',
                   padding: '24px 20px',
                   display: 'flex',
-                  alignItems: 'center',
-                  gap: '18px',
+                  alignItems: 'flex-start',
+                  gap: '16px',
                   boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)'
                 }}
               >
@@ -599,23 +627,37 @@ const MainMasterPortal = ({ onAdminClick }) => {
                     fontWeight: 600, 
                     color: '#A5C2F3', 
                     lineHeight: 1,
-                    minWidth: '45px'
+                    minWidth: '40px'
                   }}
                 >
                   3
                 </span>
-                <p 
-                  style={{ 
-                    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
-                    fontSize: '0.92rem', 
-                    color: '#4B5563', 
-                    fontWeight: 400,
-                    lineHeight: 1.4,
-                    margin: 0
-                  }}
-                >
-                  Fill in basic details DOB, gender, pincode and PAN
-                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <h4 
+                    style={{ 
+                      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                      fontSize: '1.02rem', 
+                      color: '#1E293B', 
+                      fontWeight: 700,
+                      margin: 0,
+                      lineHeight: 1.3
+                    }}
+                  >
+                    Declare Existing Loan Obligations
+                  </h4>
+                  <p 
+                    style={{ 
+                      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                      fontSize: '0.88rem', 
+                      color: '#4B5563', 
+                      fontWeight: 400,
+                      lineHeight: 1.45,
+                      margin: 0
+                    }}
+                  >
+                    Add running EMIs, credit card dues, and other financial commitments.
+                  </p>
+                </div>
               </motion.div>
 
               {/* Step 4 */}
@@ -628,8 +670,8 @@ const MainMasterPortal = ({ onAdminClick }) => {
                   borderRadius: '16px',
                   padding: '24px 20px',
                   display: 'flex',
-                  alignItems: 'center',
-                  gap: '18px',
+                  alignItems: 'flex-start',
+                  gap: '16px',
                   boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)'
                 }}
               >
@@ -640,23 +682,37 @@ const MainMasterPortal = ({ onAdminClick }) => {
                     fontWeight: 600, 
                     color: '#A5C2F3', 
                     lineHeight: 1,
-                    minWidth: '45px'
+                    minWidth: '40px'
                   }}
                 >
                   4
                 </span>
-                <p 
-                  style={{ 
-                    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
-                    fontSize: '0.92rem', 
-                    color: '#4B5563', 
-                    fontWeight: 400,
-                    lineHeight: 1.4,
-                    margin: 0
-                  }}
-                >
-                  Select your employment type and provide income and company information
-                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <h4 
+                    style={{ 
+                      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                      fontSize: '1.02rem', 
+                      color: '#1E293B', 
+                      fontWeight: 700,
+                      margin: 0,
+                      lineHeight: 1.3
+                    }}
+                  >
+                    AI Eligibility Engine Analyzes Your Profile
+                  </h4>
+                  <p 
+                    style={{ 
+                      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                      fontSize: '0.88rem', 
+                      color: '#4B5563', 
+                      fontWeight: 400,
+                      lineHeight: 1.45,
+                      margin: 0
+                    }}
+                  >
+                    Our engine evaluates your profile against multiple bank and NBFC policies instantly.
+                  </p>
+                </div>
               </motion.div>
 
               {/* Step 5 */}
@@ -669,8 +725,8 @@ const MainMasterPortal = ({ onAdminClick }) => {
                   borderRadius: '16px',
                   padding: '24px 20px',
                   display: 'flex',
-                  alignItems: 'center',
-                  gap: '18px',
+                  alignItems: 'flex-start',
+                  gap: '16px',
                   boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)'
                 }}
               >
@@ -681,23 +737,37 @@ const MainMasterPortal = ({ onAdminClick }) => {
                     fontWeight: 600, 
                     color: '#A5C2F3', 
                     lineHeight: 1,
-                    minWidth: '45px'
+                    minWidth: '40px'
                   }}
                 >
                   5
                 </span>
-                <p 
-                  style={{ 
-                    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
-                    fontSize: '0.92rem', 
-                    color: '#4B5563', 
-                    fontWeight: 400,
-                    lineHeight: 1.4,
-                    margin: 0
-                  }}
-                >
-                  Submit and check your eligibility instantly on-screen
-                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <h4 
+                    style={{ 
+                      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                      fontSize: '1.02rem', 
+                      color: '#1E293B', 
+                      fontWeight: 700,
+                      margin: 0,
+                      lineHeight: 1.3
+                    }}
+                  >
+                    Compare Eligible Loan Offers
+                  </h4>
+                  <p 
+                    style={{ 
+                      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                      fontSize: '0.88rem', 
+                      color: '#4B5563', 
+                      fontWeight: 400,
+                      lineHeight: 1.45,
+                      margin: 0
+                    }}
+                  >
+                    View maximum eligible amount, ROI, EMI, tenure, and approval probability across lenders side-by-side.
+                  </p>
+                </div>
               </motion.div>
 
               {/* Step 6 */}
@@ -710,8 +780,8 @@ const MainMasterPortal = ({ onAdminClick }) => {
                   borderRadius: '16px',
                   padding: '24px 20px',
                   display: 'flex',
-                  alignItems: 'center',
-                  gap: '18px',
+                  alignItems: 'flex-start',
+                  gap: '16px',
                   boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)'
                 }}
               >
@@ -722,23 +792,37 @@ const MainMasterPortal = ({ onAdminClick }) => {
                     fontWeight: 600, 
                     color: '#A5C2F3', 
                     lineHeight: 1,
-                    minWidth: '45px'
+                    minWidth: '40px'
                   }}
                 >
                   6
                 </span>
-                <p 
-                  style={{ 
-                    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
-                    fontSize: '0.92rem', 
-                    color: '#4B5563', 
-                    fontWeight: 400,
-                    lineHeight: 1.4,
-                    margin: 0
-                  }}
-                >
-                  If eligible, a loan executive will contact you within 24 hours.
-                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <h4 
+                    style={{ 
+                      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                      fontSize: '1.02rem', 
+                      color: '#1E293B', 
+                      fontWeight: 700,
+                      margin: 0,
+                      lineHeight: 1.3
+                    }}
+                  >
+                    Select the Best Offer & Apply
+                  </h4>
+                  <p 
+                    style={{ 
+                      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                      fontSize: '0.88rem', 
+                      color: '#4B5563', 
+                      fontWeight: 400,
+                      lineHeight: 1.45,
+                      margin: 0
+                    }}
+                  >
+                    Choose the most suitable bank/NBFC and connect with a loan expert to complete the application process.
+                  </p>
+                </div>
               </motion.div>
             </div>
           </motion.div>
