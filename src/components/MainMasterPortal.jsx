@@ -381,10 +381,10 @@ const MainMasterPortal = ({ onAdminClick }) => {
               <div style={{ width: '90px', height: '90px', borderRadius: '26px', background: 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)', border: '1.5px solid #BFDBFE', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 10px 25px rgba(37, 99, 235, 0.12)' }}>
                 <Building2 size={46} color="#1D4ED8" strokeWidth={2.2} />
               </div>
-              <h4 style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", fontSize: '1.35rem', fontWeight: 800, color: '#0F172A', marginBottom: '3px' }}>
+              <h4 style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", fontSize: '1.35rem', fontWeight: 400, color: '#1E293B', marginBottom: '3px', letterSpacing: '0.3px' }}>
                 12+ Lenders
               </h4>
-              <p style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", fontSize: '1.1rem', color: '#475569', fontWeight: 500 }}>
+              <p style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", fontSize: '1.1rem', color: '#718096', fontWeight: 100, letterSpacing: '0.4px' }}>
                 Comparison
               </p>
             </motion.div>
@@ -401,10 +401,10 @@ const MainMasterPortal = ({ onAdminClick }) => {
               <div style={{ width: '90px', height: '90px', borderRadius: '26px', background: 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)', border: '1.5px solid #BFDBFE', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 10px 25px rgba(37, 99, 235, 0.12)' }}>
                 <Lock size={46} color="#1D4ED8" strokeWidth={2.2} />
               </div>
-              <h4 style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", fontSize: '1.35rem', fontWeight: 800, color: '#0F172A', marginBottom: '3px' }}>
+              <h4 style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", fontSize: '1.35rem', fontWeight: 400, color: '#1E293B', marginBottom: '3px', letterSpacing: '0.3px' }}>
                 Zero CIBIL
               </h4>
-              <p style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", fontSize: '1.1rem', color: '#475569', fontWeight: 500 }}>
+              <p style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", fontSize: '1.1rem', color: '#718096', fontWeight: 100, letterSpacing: '0.4px' }}>
                 Impact
               </p>
             </motion.div>
@@ -421,10 +421,10 @@ const MainMasterPortal = ({ onAdminClick }) => {
               <div style={{ width: '90px', height: '90px', borderRadius: '26px', background: 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)', border: '1.5px solid #BFDBFE', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 10px 25px rgba(37, 99, 235, 0.12)' }}>
                 <Zap size={46} color="#1D4ED8" strokeWidth={2.2} />
               </div>
-              <h4 style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", fontSize: '1.35rem', fontWeight: 800, color: '#0F172A', marginBottom: '3px' }}>
+              <h4 style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", fontSize: '1.35rem', fontWeight: 400, color: '#1E293B', marginBottom: '3px', letterSpacing: '0.3px' }}>
                 100% Digital
               </h4>
-              <p style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", fontSize: '1.1rem', color: '#475569', fontWeight: 500 }}>
+              <p style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", fontSize: '1.1rem', color: '#718096', fontWeight: 100, letterSpacing: '0.4px' }}>
                 Process
               </p>
             </motion.div>
