@@ -1260,7 +1260,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                     lineHeight: '40px'
                   }}
                 >
-                  Check & Compare Loan Eligibility
+                  Compare your loan eligibility
                 </span>
                 <Link to="/personal-loan" style={{ textDecoration: 'none' }}>
                   <motion.button
@@ -1279,7 +1279,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                       fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif"
                     }}
                   >
-                    Apply now
+                    Check now
                   </motion.button>
                 </Link>
               </div>

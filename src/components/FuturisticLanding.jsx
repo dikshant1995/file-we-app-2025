@@ -1305,7 +1305,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                     lineHeight: '40px'
                   }}
                 >
-                  Check & Compare Loan Eligibility
+                  Compare your loan eligibility
                 </span>
                 <motion.button
                   onClick={onGetStarted}
@@ -1324,7 +1324,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                     fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif"
                   }}
                 >
-                  Apply now
+                  Check now
                 </motion.button>
               </div>
             </motion.div>
