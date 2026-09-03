@@ -126,7 +126,7 @@ const PortalFooter = () => {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <a
-                  href="tel:18002025888"
+                  href="tel:+917014439276"
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -154,13 +154,13 @@ const PortalFooter = () => {
                     <PhoneCall size={16} color="#F58220" />
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>Toll-Free Support Helpline</div>
-                    <strong style={{ fontSize: '0.95rem' }}>1800-202-5888 / +91 98765 43210</strong>
+                    <div style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>Support Helpline</div>
+                    <strong style={{ fontSize: '0.95rem' }}>+91 7014439276</strong>
                   </div>
                 </a>
 
                 <a
-                  href="mailto:support@loanportal.in"
+                  href="mailto:dikshantsingh@laxmicredit.com"
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -189,7 +189,7 @@ const PortalFooter = () => {
                   </div>
                   <div>
                     <div style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>Email Assistance</div>
-                    <strong style={{ fontSize: '0.95rem' }}>support@loanportal.in</strong>
+                    <strong style={{ fontSize: '0.95rem', color: '#F58220' }}>dikshantsingh@laxmicredit.com</strong>
                   </div>
                 </a>
 
