@@ -1326,30 +1326,50 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             <div 
               style={{ 
                 position: 'absolute', 
-                top: '-15px', 
-                right: '-15px', 
-                width: '125px', 
-                height: '125px', 
+                top: '-20px', 
+                right: '-20px', 
+                width: '140px', 
+                height: '140px', 
                 borderRadius: '50%', 
                 background: '#ffffff', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center',
-                paddingTop: '16px',
-                paddingRight: '16px',
-                boxShadow: '0 4px 16px rgba(168, 85, 247, 0.06)'
+                paddingTop: '20px',
+                paddingRight: '20px',
+                boxShadow: '0 8px 24px rgba(168, 85, 247, 0.08)'
               }}
             >
-              {/* 3D-Style Blue Document SVG with Orange Verified Checkmark */}
-              <svg width="44" height="48" viewBox="0 0 44 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="2" y="2" width="34" height="44" rx="7" fill="#00A3FF" />
-                <rect x="8" y="10" width="22" height="3" rx="1.5" fill="#ffffff" />
-                <rect x="8" y="16" width="22" height="3" rx="1.5" fill="#ffffff" />
-                <rect x="8" y="22" width="22" height="3" rx="1.5" fill="#ffffff" />
-                <rect x="8" y="28" width="16" height="3" rx="1.5" fill="#ffffff" />
-                <rect x="8" y="34" width="12" height="3" rx="1.5" fill="#ffffff" />
-                <circle cx="33" cy="36" r="9.5" fill="#FFB020" />
-                <path d="M29.5 36L32 38.5L36.5 33.5" stroke="#ffffff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+              {/* 3D-Style Blue Document SVG with Dog-Ear Fold and Golden Squircle Checkmark */}
+              <svg width="56" height="62" viewBox="0 0 56 62" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 4px 10px rgba(0, 163, 255, 0.25))' }}>
+                <defs>
+                  <linearGradient id="docBodyGrad" x1="0" y1="0" x2="56" y2="62" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#00B2FE" />
+                    <stop offset="1" stopColor="#008BE8" />
+                  </linearGradient>
+                  <linearGradient id="foldCornerGrad" x1="30" y1="2" x2="44" y2="16" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#0273BF" />
+                    <stop offset="1" stopColor="#005B9E" />
+                  </linearGradient>
+                  <linearGradient id="goldBadgeGrad" x1="31" y1="35" x2="54" y2="58" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#FFC01E" />
+                    <stop offset="1" stopColor="#F59E0B" />
+                  </linearGradient>
+                </defs>
+                {/* Main Blue Page with Dog-Ear Fold Cutout */}
+                <path d="M4 8C4 4.68629 6.68629 2 10 2H32L46 16V54C46 57.3137 43.3137 60 40 60H10C6.68629 60 4 57.3137 4 54V8Z" fill="url(#docBodyGrad)" />
+                {/* Dog-Ear Fold */}
+                <path d="M32 2V13C32 14.6569 33.3431 16 35 16H46L32 2Z" fill="url(#foldCornerGrad)" />
+                {/* White Text Stripes */}
+                <rect x="11" y="15" width="16" height="3" rx="1.5" fill="#ffffff" />
+                <rect x="11" y="22" width="23" height="3" rx="1.5" fill="#ffffff" />
+                <rect x="11" y="29" width="23" height="3" rx="1.5" fill="#ffffff" />
+                <rect x="11" y="36" width="18" height="3" rx="1.5" fill="#ffffff" />
+                <rect x="11" y="43" width="14" height="3" rx="1.5" fill="#ffffff" />
+                <rect x="11" y="50" width="17" height="3" rx="1.5" fill="#ffffff" />
+                {/* Golden Squircle Verified Badge */}
+                <rect x="31" y="36" width="23" height="23" rx="7" fill="url(#goldBadgeGrad)" />
+                <path d="M36.5 47.5L40.5 51.5L48.5 43.5" stroke="#ffffff" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
 
@@ -1457,28 +1477,62 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             <div 
               style={{ 
                 position: 'absolute', 
-                top: '-15px', 
-                right: '-15px', 
-                width: '125px', 
-                height: '125px', 
+                top: '-20px', 
+                right: '-20px', 
+                width: '140px', 
+                height: '140px', 
                 borderRadius: '50%', 
                 background: '#ffffff', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center',
-                paddingTop: '16px',
-                paddingRight: '16px',
-                boxShadow: '0 4px 16px rgba(34, 197, 94, 0.06)'
+                paddingTop: '20px',
+                paddingRight: '20px',
+                boxShadow: '0 8px 24px rgba(34, 197, 94, 0.08)'
               }}
             >
-              {/* 3D-Style Yellow Folder with Blue Document Insert SVG */}
-              <svg width="48" height="44" viewBox="0 0 48 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="13" y="2" width="26" height="30" rx="4" fill="#00A3FF" />
-                <rect x="18" y="8" width="16" height="2.5" rx="1.2" fill="#ffffff" />
-                <rect x="18" y="13" width="16" height="2.5" rx="1.2" fill="#ffffff" />
-                <rect x="18" y="18" width="10" height="2.5" rx="1.2" fill="#ffffff" />
-                <path d="M2 14C2 11.7909 3.79086 10 6 10H15L19.5 15H42C44.2091 15 46 16.7909 46 19V38C46 40.2091 44.2091 42 42 42H6C3.79086 42 2 40.2091 2 38V14Z" fill="#FBBF24" />
-                <path d="M2 18C2 16.3431 3.34315 15 5 15H43C44.6569 15 46 16.3431 46 18V38C46 40.2091 44.2091 42 42 42H6C3.79086 42 2 40.2091 2 38V18Z" fill="#FCD34D" />
+              {/* 3D-Style Yellow Folder with Layered Blue Sheets SVG */}
+              <svg width="64" height="58" viewBox="0 0 64 58" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 4px 10px rgba(234, 179, 8, 0.25))' }}>
+                <defs>
+                  <linearGradient id="fldBackGrad" x1="4" y1="10" x2="60" y2="54" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#F59E0B" />
+                    <stop offset="1" stopColor="#D97706" />
+                  </linearGradient>
+                  <linearGradient id="fldFrontGrad" x1="2" y1="20" x2="60" y2="56" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#FFD147" />
+                    <stop offset="1" stopColor="#FFB300" />
+                  </linearGradient>
+                  <linearGradient id="sheetBack" x1="16" y1="3" x2="42" y2="34" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#0284C7" />
+                    <stop offset="1" stopColor="#0369A1" />
+                  </linearGradient>
+                  <linearGradient id="sheetFront" x1="22" y1="2" x2="50" y2="36" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#38BDF8" />
+                    <stop offset="1" stopColor="#0284C7" />
+                  </linearGradient>
+                </defs>
+
+                {/* Folder Back Base & Tab */}
+                <path d="M4 16C4 12.6863 6.68629 10 10 10H22L27 16H56C59.3137 16 62 18.6863 62 22V48C62 51.3137 59.3137 54 56 54H10C6.68629 54 4 51.3137 4 48V16Z" fill="url(#fldBackGrad)" />
+
+                {/* Back Blue Paper (Tilted) */}
+                <g transform="rotate(-6 22 14)">
+                  <rect x="18" y="3" width="26" height="32" rx="4" fill="url(#sheetBack)" />
+                  <rect x="23" y="9" width="16" height="2.4" rx="1.2" fill="rgba(255,255,255,0.7)" />
+                  <rect x="23" y="14" width="16" height="2.4" rx="1.2" fill="rgba(255,255,255,0.7)" />
+                </g>
+
+                {/* Front Blue Paper (Straight with clean white stripes) */}
+                <g transform="rotate(3 34 16)">
+                  <rect x="24" y="2" width="28" height="34" rx="4.5" fill="url(#sheetFront)" />
+                  <rect x="29" y="8" width="18" height="2.6" rx="1.3" fill="#ffffff" />
+                  <rect x="29" y="14" width="18" height="2.6" rx="1.3" fill="#ffffff" />
+                  <rect x="29" y="20" width="12" height="2.6" rx="1.3" fill="#ffffff" />
+                </g>
+
+                {/* Folder Front Pocket with smooth 3D curved corners */}
+                <path d="M2 22C2 18.6863 4.68629 16 8 16H28L32 20H58C60.2091 20 62 21.7909 62 24V48C62 52.4183 58.4183 56 54 56H10C5.58172 56 2 52.4183 2 48V22Z" fill="url(#fldFrontGrad)" />
+                <path d="M6 22H26L30 25H56" stroke="#FEF08A" strokeWidth="1.2" strokeLinecap="round" opacity="0.6" />
               </svg>
             </div>
 
