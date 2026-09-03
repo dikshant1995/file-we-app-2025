@@ -56,8 +56,8 @@ const PersonalLoanEmiCalculator = () => {
     <section 
       id="emi-calculator"
       style={{
-        padding: '90px 20px 80px',
-        maxWidth: '1280px',
+        padding: '30px 20px 60px',
+        maxWidth: '980px',
         margin: '0 auto',
         position: 'relative',
         zIndex: 2
@@ -67,49 +67,28 @@ const PersonalLoanEmiCalculator = () => {
       <div 
         style={{
           position: 'absolute',
-          top: '20%',
+          top: '15%',
           left: '50%',
           transform: 'translateX(-50%)',
-          width: '80%',
-          height: '60%',
+          width: '70%',
+          height: '50%',
           background: 'radial-gradient(ellipse at center, rgba(245, 130, 32, 0.08) 0%, rgba(37, 99, 235, 0.05) 50%, transparent 80%)',
-          filter: 'blur(60px)',
+          filter: 'blur(50px)',
           pointerEvents: 'none',
           zIndex: -1
         }}
       />
 
       {/* Header with InCred styling */}
-      <div style={{ textAlign: 'center', marginBottom: '45px' }}>
-        <div 
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            background: 'rgba(245, 130, 32, 0.1)',
-            border: '1px solid rgba(245, 130, 32, 0.25)',
-            borderRadius: '50px',
-            padding: '6px 18px',
-            fontSize: '0.85rem',
-            fontWeight: 700,
-            color: '#EA580C',
-            marginBottom: '14px',
-            textTransform: 'uppercase',
-            letterSpacing: '0.8px'
-          }}
-        >
-          <Sparkles size={15} />
-          <span>Interactive Rate Engine</span>
-        </div>
-
+      <div style={{ textAlign: 'center', marginBottom: '32px' }}>
         <h2
           style={{
             fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-            fontSize: '2.6rem',
+            fontSize: '2.4rem',
             fontWeight: 800,
             color: '#111827',
-            margin: '0 0 14px 0',
-            letterSpacing: '-0.6px',
+            margin: '0 0 12px 0',
+            letterSpacing: '-0.5px',
             lineHeight: 1.2
           }}
         >
@@ -119,7 +98,7 @@ const PersonalLoanEmiCalculator = () => {
         {/* Orange Accent Underline Bar */}
         <div 
           style={{ 
-            width: '56px', 
+            width: '52px', 
             height: '4px', 
             background: 'linear-gradient(90deg, #F58220 0%, #EA580C 100%)', 
             borderRadius: '4px', 
@@ -129,11 +108,11 @@ const PersonalLoanEmiCalculator = () => {
         <p 
           style={{ 
             fontFamily: "'Inter', sans-serif", 
-            fontSize: '1.05rem', 
+            fontSize: '0.98rem', 
             color: '#4B5563', 
-            marginTop: '14px',
-            maxWidth: '640px',
-            margin: '14px auto 0',
+            marginTop: '12px',
+            maxWidth: '580px',
+            margin: '12px auto 0',
             lineHeight: 1.5
           }}
         >
@@ -141,24 +120,24 @@ const PersonalLoanEmiCalculator = () => {
         </p>
       </div>
 
-      {/* Main Elevated Card Wrapper */}
+      {/* Main Compact Elevated Card Wrapper */}
       <div
         style={{
           background: 'linear-gradient(145deg, #FFFFFF 0%, #FAFCFF 100%)',
-          borderRadius: '32px',
-          boxShadow: '0 20px 60px -15px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(229, 231, 235, 0.9)',
-          padding: '48px 44px',
+          borderRadius: '28px',
+          boxShadow: '0 18px 50px -15px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(229, 231, 235, 0.9)',
+          padding: '36px 32px',
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-          gap: '48px',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gap: '32px',
           alignItems: 'stretch'
         }}
       >
         {/* Left Column: Sliders & Controls */}
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '34px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '22px' }}>
           
           {/* Input 1: Loan Amount */}
-          <div style={{ background: '#FFFFFF', borderRadius: '20px', padding: '22px 24px', border: '1px solid #EEF2F6', boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}>
+          <div style={{ background: '#FFFFFF', borderRadius: '18px', padding: '18px 20px', border: '1px solid #EEF2F6', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -259,16 +238,16 @@ const PersonalLoanEmiCalculator = () => {
           </div>
 
           {/* Input 2: Interest Rate */}
-          <div style={{ background: '#FFFFFF', borderRadius: '20px', padding: '22px 24px', border: '1px solid #EEF2F6', boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div style={{ background: '#FFFFFF', borderRadius: '18px', padding: '18px 20px', border: '1px solid #EEF2F6', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#FFF7ED', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Percent size={16} color="#EA580C" />
+                <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: '#FFF7ED', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Percent size={15} color="#EA580C" />
                 </div>
                 <label 
                   style={{ 
                     fontFamily: "'Inter', sans-serif", 
-                    fontSize: '1.05rem', 
+                    fontSize: '1rem', 
                     fontWeight: 700, 
                     color: '#1F2937' 
                   }}
@@ -281,20 +260,20 @@ const PersonalLoanEmiCalculator = () => {
               <div 
                 style={{ 
                   background: '#FFF7ED', 
-                  borderRadius: '14px', 
-                  padding: '8px 20px', 
+                  borderRadius: '12px', 
+                  padding: '6px 16px', 
                   display: 'flex', 
                   alignItems: 'center', 
-                  gap: '6px',
+                  gap: '4px',
                   border: '1.5px solid #FFEDD5',
                   boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04)'
                 }}
               >
-                <span style={{ color: '#EA580C', fontWeight: 700, fontSize: '1.05rem' }}>%</span>
+                <span style={{ color: '#EA580C', fontWeight: 700, fontSize: '0.95rem' }}>%</span>
                 <span 
                   style={{ 
                     fontFamily: "'Inter', sans-serif", 
-                    fontSize: '1.25rem', 
+                    fontSize: '1.15rem', 
                     fontWeight: 800, 
                     color: '#9A3412' 
                   }}
@@ -305,7 +284,7 @@ const PersonalLoanEmiCalculator = () => {
             </div>
 
             {/* Custom Range Slider */}
-            <div style={{ position: 'relative', margin: '14px 0 10px' }}>
+            <div style={{ position: 'relative', margin: '10px 0 8px' }}>
               <input 
                 type="range"
                 min={10}
@@ -315,7 +294,7 @@ const PersonalLoanEmiCalculator = () => {
                 onChange={(e) => setInterestRate(Number(e.target.value))}
                 style={{
                   width: '100%',
-                  height: '8px',
+                  height: '7px',
                   borderRadius: '6px',
                   outline: 'none',
                   appearance: 'none',
@@ -327,23 +306,23 @@ const PersonalLoanEmiCalculator = () => {
             </div>
 
             {/* Slider Min/Max Labels */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#64748B', fontWeight: 500, fontFamily: "'Inter', sans-serif" }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: '#64748B', fontWeight: 500, fontFamily: "'Inter', sans-serif" }}>
               <span>Min 10%</span>
               <span>Max 36%</span>
             </div>
           </div>
 
           {/* Input 3: Loan Tenure */}
-          <div style={{ background: '#FFFFFF', borderRadius: '20px', padding: '22px 24px', border: '1px solid #EEF2F6', boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div style={{ background: '#FFFFFF', borderRadius: '18px', padding: '18px 20px', border: '1px solid #EEF2F6', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#F0FDF4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Calendar size={16} color="#16A34A" />
+                <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: '#F0FDF4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Calendar size={15} color="#16A34A" />
                 </div>
                 <label 
                   style={{ 
                     fontFamily: "'Inter', sans-serif", 
-                    fontSize: '1.05rem', 
+                    fontSize: '1rem', 
                     fontWeight: 700, 
                     color: '#1F2937' 
                   }}
@@ -356,20 +335,20 @@ const PersonalLoanEmiCalculator = () => {
               <div 
                 style={{ 
                   background: '#F0FDF4', 
-                  borderRadius: '14px', 
-                  padding: '8px 20px', 
+                  borderRadius: '12px', 
+                  padding: '6px 16px', 
                   display: 'flex', 
                   alignItems: 'center', 
-                  gap: '6px',
+                  gap: '4px',
                   border: '1.5px solid #BBF7D0',
                   boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04)'
                 }}
               >
-                <span style={{ color: '#15803D', fontWeight: 700, fontSize: '0.95rem' }}>Yr</span>
+                <span style={{ color: '#15803D', fontWeight: 700, fontSize: '0.9rem' }}>Yr</span>
                 <span 
                   style={{ 
                     fontFamily: "'Inter', sans-serif", 
-                    fontSize: '1.25rem', 
+                    fontSize: '1.15rem', 
                     fontWeight: 800, 
                     color: '#14532D' 
                   }}
@@ -380,7 +359,7 @@ const PersonalLoanEmiCalculator = () => {
             </div>
 
             {/* Custom Range Slider */}
-            <div style={{ position: 'relative', margin: '14px 0 10px' }}>
+            <div style={{ position: 'relative', margin: '10px 0 8px' }}>
               <input 
                 type="range"
                 min={1}
@@ -390,7 +369,7 @@ const PersonalLoanEmiCalculator = () => {
                 onChange={(e) => setTenureYears(Number(e.target.value))}
                 style={{
                   width: '100%',
-                  height: '8px',
+                  height: '7px',
                   borderRadius: '6px',
                   outline: 'none',
                   appearance: 'none',
@@ -402,13 +381,13 @@ const PersonalLoanEmiCalculator = () => {
             </div>
 
             {/* Slider Min/Max Labels */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#64748B', fontWeight: 500, fontFamily: "'Inter', sans-serif" }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: '#64748B', fontWeight: 500, fontFamily: "'Inter', sans-serif" }}>
               <span>Min 1 year</span>
               <span>Max 5 years</span>
             </div>
 
             {/* Quick Tenure Pills */}
-            <div style={{ display: 'flex', gap: '8px', marginTop: '14px' }}>
+            <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
               {[1, 2, 3, 4, 5].map((yr) => (
                 <button
                   key={yr}
@@ -419,9 +398,9 @@ const PersonalLoanEmiCalculator = () => {
                     background: tenureYears === yr ? '#16A34A' : '#F8FAFC',
                     color: tenureYears === yr ? '#FFFFFF' : '#475569',
                     border: `1px solid ${tenureYears === yr ? '#16A34A' : '#E2E8F0'}`,
-                    borderRadius: '10px',
-                    padding: '8px 0',
-                    fontSize: '0.86rem',
+                    borderRadius: '8px',
+                    padding: '6px 0',
+                    fontSize: '0.82rem',
                     fontWeight: 700,
                     cursor: 'pointer',
                     transition: 'all 0.15s ease',
@@ -440,11 +419,11 @@ const PersonalLoanEmiCalculator = () => {
         <div
           style={{
             background: 'linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%)',
-            borderRadius: '28px',
+            borderRadius: '24px',
             border: '1.5px solid #E2E8F0',
-            padding: '38px 36px',
+            padding: '28px 24px',
             textAlign: 'center',
-            boxShadow: '0 16px 36px -10px rgba(0, 0, 0, 0.05)',
+            boxShadow: '0 12px 30px -10px rgba(0, 0, 0, 0.05)',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
@@ -457,11 +436,11 @@ const PersonalLoanEmiCalculator = () => {
             <span 
               style={{ 
                 fontFamily: "'Inter', sans-serif", 
-                fontSize: '1rem', 
+                fontSize: '0.92rem', 
                 fontWeight: 600, 
                 color: '#64748B',
                 textTransform: 'uppercase',
-                letterSpacing: '0.6px'
+                letterSpacing: '0.5px'
               }}
             >
               Your Monthly EMI
@@ -471,13 +450,13 @@ const PersonalLoanEmiCalculator = () => {
             <div 
               style={{ 
                 fontFamily: "'Inter', -apple-system, sans-serif", 
-                fontSize: '3.2rem', 
+                fontSize: '2.6rem', 
                 fontWeight: 900, 
                 background: 'linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
-                margin: '10px 0 4px',
-                letterSpacing: '-1.2px',
+                margin: '6px 0 2px',
+                letterSpacing: '-1px',
                 lineHeight: 1.1
               }}
             >
@@ -490,12 +469,12 @@ const PersonalLoanEmiCalculator = () => {
                 alignItems: 'center',
                 gap: '6px',
                 background: '#F1F5F9',
-                borderRadius: '20px',
-                padding: '4px 14px',
-                fontSize: '0.85rem', 
+                borderRadius: '16px',
+                padding: '3px 12px',
+                fontSize: '0.8rem', 
                 color: '#475569', 
                 fontWeight: 600,
-                marginBottom: '28px' 
+                marginBottom: '18px' 
               }}
             >
               <span>{interestRate}% Annual Interest</span>
@@ -505,8 +484,8 @@ const PersonalLoanEmiCalculator = () => {
           </div>
 
           {/* High-End Illustrated Donut Chart with Drop-Shadow */}
-          <div style={{ position: 'relative', width: '176px', height: '176px', margin: '0 auto 28px' }}>
-            <svg width="176" height="176" viewBox="0 0 176 176" style={{ transform: 'rotate(-90deg)', filter: 'drop-shadow(0 6px 14px rgba(0,0,0,0.06))' }}>
+          <div style={{ position: 'relative', width: '150px', height: '150px', margin: '0 auto 18px' }}>
+            <svg width="150" height="150" viewBox="0 0 150 150" style={{ transform: 'rotate(-90deg)', filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.05))' }}>
               <defs>
                 <linearGradient id="principalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stopColor="#FB923C" />
@@ -520,23 +499,23 @@ const PersonalLoanEmiCalculator = () => {
 
               {/* Background Full Track */}
               <circle
-                cx="88"
-                cy="88"
-                r={radius}
+                cx="75"
+                cy="75"
+                r="56"
                 fill="none"
                 stroke="#F1F5F9"
-                strokeWidth="22"
+                strokeWidth="18"
               />
 
               {/* Orange Slice: Principal Amount */}
               <circle
-                cx="88"
-                cy="88"
-                r={radius}
+                cx="75"
+                cy="75"
+                r="56"
                 fill="none"
                 stroke="url(#principalGrad)"
-                strokeWidth="22"
-                strokeDasharray={`${principalStroke} ${circumference}`}
+                strokeWidth="18"
+                strokeDasharray={`${(principalPercent / 100) * (2 * Math.PI * 56)} ${2 * Math.PI * 56}`}
                 strokeDashoffset="0"
                 strokeLinecap="round"
                 style={{ transition: 'stroke-dasharray 0.4s ease' }}
@@ -544,14 +523,14 @@ const PersonalLoanEmiCalculator = () => {
 
               {/* Blue Slice: Total Interest */}
               <circle
-                cx="88"
-                cy="88"
-                r={radius}
+                cx="75"
+                cy="75"
+                r="56"
                 fill="none"
                 stroke="url(#interestGrad)"
-                strokeWidth="22"
-                strokeDasharray={`${interestStroke} ${circumference}`}
-                strokeDashoffset={-principalStroke}
+                strokeWidth="18"
+                strokeDasharray={`${((100 - principalPercent) / 100) * (2 * Math.PI * 56)} ${2 * Math.PI * 56}`}
+                strokeDashoffset={-((principalPercent / 100) * (2 * Math.PI * 56))}
                 strokeLinecap="round"
                 style={{ transition: 'stroke-dasharray 0.4s ease, stroke-dashoffset 0.4s ease' }}
               />
@@ -568,10 +547,10 @@ const PersonalLoanEmiCalculator = () => {
                 pointerEvents: 'none'
               }}
             >
-              <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+              <div style={{ fontSize: '0.68rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.3px' }}>
                 Principal
               </div>
-              <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#EA580C' }}>
+              <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#EA580C' }}>
                 {principalPercent}%
               </div>
             </div>
@@ -582,10 +561,10 @@ const PersonalLoanEmiCalculator = () => {
             style={{ 
               display: 'grid', 
               gridTemplateColumns: '1fr 1fr', 
-              gap: '14px', 
+              gap: '10px', 
               width: '100%', 
-              maxWidth: '380px',
-              marginBottom: '20px'
+              maxWidth: '340px',
+              marginBottom: '16px'
             }}
           >
             {/* Principal Sub-Card */}
@@ -593,18 +572,18 @@ const PersonalLoanEmiCalculator = () => {
               style={{ 
                 background: '#FFF7ED', 
                 border: '1px solid #FFEDD5', 
-                borderRadius: '16px', 
-                padding: '14px 12px',
+                borderRadius: '14px', 
+                padding: '10px 8px',
                 textAlign: 'center' 
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '4px' }}>
-                <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#EA580C' }} />
-                <span style={{ fontSize: '0.82rem', color: '#9A3412', fontWeight: 600, fontFamily: "'Inter', sans-serif" }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', marginBottom: '2px' }}>
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#EA580C' }} />
+                <span style={{ fontSize: '0.78rem', color: '#9A3412', fontWeight: 600, fontFamily: "'Inter', sans-serif" }}>
                   Principal
                 </span>
               </div>
-              <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1F2937', fontFamily: "'Inter', sans-serif" }}>
+              <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1F2937', fontFamily: "'Inter', sans-serif" }}>
                 ₹{formatIndian(loanAmount)}
               </div>
             </div>
@@ -614,18 +593,18 @@ const PersonalLoanEmiCalculator = () => {
               style={{ 
                 background: '#EFF6FF', 
                 border: '1px solid #DBEAFE', 
-                borderRadius: '16px', 
-                padding: '14px 12px',
+                borderRadius: '14px', 
+                padding: '10px 8px',
                 textAlign: 'center' 
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '4px' }}>
-                <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#1E40AF' }} />
-                <span style={{ fontSize: '0.82rem', color: '#1E3A8A', fontWeight: 600, fontFamily: "'Inter', sans-serif" }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', marginBottom: '2px' }}>
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#1E40AF' }} />
+                <span style={{ fontSize: '0.78rem', color: '#1E3A8A', fontWeight: 600, fontFamily: "'Inter', sans-serif" }}>
                   Total Interest
                 </span>
               </div>
-              <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1F2937', fontFamily: "'Inter', sans-serif" }}>
+              <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1F2937', fontFamily: "'Inter', sans-serif" }}>
                 ₹{formatIndian(totalInterest)}
               </div>
             </div>
@@ -635,29 +614,29 @@ const PersonalLoanEmiCalculator = () => {
           <div 
             style={{ 
               width: '100%', 
-              maxWidth: '380px',
+              maxWidth: '340px',
               background: '#F8FAFC',
-              borderRadius: '14px',
-              padding: '10px 16px',
+              borderRadius: '12px',
+              padding: '8px 14px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              marginBottom: '24px',
+              marginBottom: '18px',
               border: '1px solid #E2E8F0'
             }}
           >
-            <span style={{ fontSize: '0.9rem', color: '#64748B', fontWeight: 600, fontFamily: "'Inter', sans-serif" }}>
-              Total Amount Payable
+            <span style={{ fontSize: '0.84rem', color: '#64748B', fontWeight: 600, fontFamily: "'Inter', sans-serif" }}>
+              Total Payable
             </span>
-            <span style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0F172A', fontFamily: "'Inter', sans-serif" }}>
+            <span style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A', fontFamily: "'Inter', sans-serif" }}>
               ₹{formatIndian(totalAmount)}
             </span>
           </div>
 
           {/* Interactive CTA Button */}
-          <Link to="/personal-loan" style={{ textDecoration: 'none', width: '100%', maxWidth: '380px' }}>
+          <Link to="/personal-loan" style={{ textDecoration: 'none', width: '100%', maxWidth: '340px' }}>
             <motion.button
-              whileHover={{ scale: 1.02, boxShadow: '0 12px 30px rgba(245, 130, 32, 0.45)' }}
+              whileHover={{ scale: 1.02, boxShadow: '0 10px 24px rgba(245, 130, 32, 0.4)' }}
               whileTap={{ scale: 0.98 }}
               style={{
                 width: '100%',
@@ -665,28 +644,28 @@ const PersonalLoanEmiCalculator = () => {
                 color: '#ffffff',
                 border: 'none',
                 borderRadius: '50px',
-                padding: '16px 28px',
-                fontSize: '1.08rem',
+                padding: '13px 24px',
+                fontSize: '1rem',
                 fontWeight: 750,
                 cursor: 'pointer',
-                boxShadow: '0 8px 24px rgba(245, 130, 32, 0.35)',
+                boxShadow: '0 6px 20px rgba(245, 130, 32, 0.3)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '10px',
+                gap: '8px',
                 fontFamily: "'Inter', sans-serif",
                 letterSpacing: '0.2px'
               }}
             >
               <span>Check Offers for ₹{formatIndian(loanAmount)}</span>
-              <ArrowRight size={19} />
+              <ArrowRight size={17} />
             </motion.button>
           </Link>
 
           {/* Trust Footnote */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '14px', fontSize: '0.78rem', color: '#94A3B8' }}>
-            <ShieldCheck size={14} color="#16A34A" />
-            <span>Instant eligibility verification • No credit score impact</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '10px', fontSize: '0.75rem', color: '#94A3B8' }}>
+            <ShieldCheck size={13} color="#16A34A" />
+            <span>Instant verification • No credit score impact</span>
           </div>
 
         </div>

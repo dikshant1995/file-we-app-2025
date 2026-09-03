@@ -1299,7 +1299,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
       <section 
         className="eligibility-docs-section"
         style={{ 
-          padding: '5rem 24px 70px', 
+          padding: '5rem 24px 10px', 
           maxWidth: '1240px', 
           margin: '0 auto', 
           width: '100%' 
