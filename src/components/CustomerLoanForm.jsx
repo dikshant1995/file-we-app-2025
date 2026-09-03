@@ -319,7 +319,7 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome }) => {
         </h2>
         <div style={{ width: '42px', height: '3.5px', backgroundColor: '#F58220', borderRadius: '2px', margin: '0 auto 12px' }} />
         <p>
-          Fill in your details below — our multi-bank rule engine calculates real-time pre-approved offers with zero bureau impact.
+          Enter your details to discover instant pre-approved personal loan offers tailored to your profile.
         </p>
       </div>
 
