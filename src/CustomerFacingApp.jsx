@@ -4,6 +4,7 @@ import CustomerLoanForm from './components/CustomerLoanForm.jsx';
 import CustomerResultsDisplay from './components/CustomerResultsDisplay.jsx';
 import FuturisticLanding from './components/FuturisticLanding.jsx';
 import AdminDashboard from './components/AdminDashboard.jsx';
+import AdminLogin from './components/admin/AdminLogin.jsx';
 // import NeuralChatBot from './components/NeuralChatBot.jsx';
 import { calculateLoanEligibility } from './services/realLoanService.js';
 import { calculateBTWithCreditCards } from './services/btLoanService.js';
@@ -24,6 +25,8 @@ function CustomerFacingApp() {
   const [metadata, setMetadata] = useState(null);
   const [error, setError] = useState(null);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
+  const [showAdminLoginModal, setShowAdminLoginModal] = useState(false);
+  const [adminUser, setAdminUser] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [aiResult, setAiResult] = useState(null);
   const [aiInsight, setAiInsight] = useState(null);
@@ -183,6 +186,16 @@ function CustomerFacingApp() {
   };
 
   const handleAdminClick = () => {
+    if (adminUser) {
+      setShowAdminDashboard(true);
+    } else {
+      setShowAdminLoginModal(true);
+    }
+  };
+
+  const handleAdminLoginSuccess = (userProfile) => {
+    setAdminUser(userProfile);
+    setShowAdminLoginModal(false);
     setShowAdminDashboard(true);
   };
 
@@ -289,6 +302,14 @@ function CustomerFacingApp() {
         <Route path="/blog" element={<BlogHome />} />
         <Route path="/blog/:slug" element={<BlogArticle />} />
       </Routes>
+
+      {/* Admin Login Modal (Website remains visible in background) */}
+      {showAdminLoginModal && (
+        <AdminLogin
+          onLoginSuccess={handleAdminLoginSuccess}
+          onBack={() => setShowAdminLoginModal(false)}
+        />
+      )}
     </div>
   );
 }

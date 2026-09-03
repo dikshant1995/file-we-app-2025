@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { auth, db } from '../../config/firebase.js';
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { Lock, Mail, Eye, EyeOff, ArrowLeft, CheckCircle, AlertCircle, Loader2, Shield } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff, ArrowLeft, CheckCircle, AlertCircle, Loader2, Shield, X } from 'lucide-react';
 import './AdminLogin.css';
 
 const AdminLogin = ({ onLoginSuccess, onBack }) => {
@@ -99,14 +99,27 @@ const AdminLogin = ({ onLoginSuccess, onBack }) => {
     };
 
     return (
-        <div className="simple-login-backdrop">
+        <div className="simple-login-backdrop" onClick={(e) => {
+            if (e.target === e.currentTarget && onBack) onBack();
+        }}>
             <div className="simple-login-card">
-                {/* Header Tab */}
+                {/* Header Tab & Close */}
                 <div className="simple-login-tabs">
                     <div className="simple-tab active">
                         <Shield size={16} />
                         <span>Admin Login</span>
                     </div>
+                    {onBack && (
+                        <button
+                            type="button"
+                            className="simple-modal-close"
+                            onClick={onBack}
+                            title="Close and return to website"
+                            aria-label="Close"
+                        >
+                            <X size={18} />
+                        </button>
+                    )}
                 </div>
 
                 <div className="simple-login-body">

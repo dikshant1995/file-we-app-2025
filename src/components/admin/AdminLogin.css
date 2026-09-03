@@ -48,21 +48,41 @@
 /* Tabs Header */
 .simple-login-tabs {
     display: flex;
+    justify-content: space-between;
+    align-items: center;
     background: #f8fafc;
     border-bottom: 1px solid #e2e8f0;
-    padding: 0 16px;
+    padding: 0 12px 0 16px;
 }
 
 .simple-tab {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 12px 16px;
+    padding: 12px 16px 12px 0;
     font-size: 0.85rem;
     font-weight: 700;
     color: #1E40AF;
     border-bottom: 2.5px solid #1E40AF;
     letter-spacing: 0.2px;
+}
+
+.simple-modal-close {
+    background: none;
+    border: none;
+    padding: 6px;
+    border-radius: 6px;
+    color: #94a3b8;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+.simple-modal-close:hover {
+    color: #0f172a;
+    background: #e2e8f0;
 }
 
 /* Card Body */
