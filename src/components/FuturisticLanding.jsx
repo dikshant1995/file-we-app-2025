@@ -428,10 +428,10 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             <div style={{ width: '90px', height: '90px', borderRadius: '26px', background: 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)', border: '1.5px solid #BFDBFE', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 10px 25px rgba(37, 99, 235, 0.12)' }}>
               <Building2 size={46} color="#1D4ED8" strokeWidth={2.2} />
             </div>
-            <h4 style={{ fontFamily: "'Outfit', 'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.35rem', fontWeight: 850, color: '#0F172A', marginBottom: '3px' }}>
+            <h4 style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", fontSize: '1.35rem', fontWeight: 800, color: '#0F172A', marginBottom: '3px' }}>
               12+ Lenders
             </h4>
-            <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.1rem', color: '#475569', fontWeight: 600 }}>
+            <p style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", fontSize: '1.1rem', color: '#475569', fontWeight: 500 }}>
               Comparison
             </p>
           </motion.div>
@@ -448,10 +448,10 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             <div style={{ width: '90px', height: '90px', borderRadius: '26px', background: 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)', border: '1.5px solid #BFDBFE', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 10px 25px rgba(37, 99, 235, 0.12)' }}>
               <Lock size={46} color="#1D4ED8" strokeWidth={2.2} />
             </div>
-            <h4 style={{ fontFamily: "'Outfit', 'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.35rem', fontWeight: 850, color: '#0F172A', marginBottom: '3px' }}>
+            <h4 style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", fontSize: '1.35rem', fontWeight: 800, color: '#0F172A', marginBottom: '3px' }}>
               Zero CIBIL
             </h4>
-            <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.1rem', color: '#475569', fontWeight: 600 }}>
+            <p style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", fontSize: '1.1rem', color: '#475569', fontWeight: 500 }}>
               Impact
             </p>
           </motion.div>
@@ -468,10 +468,10 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             <div style={{ width: '90px', height: '90px', borderRadius: '26px', background: 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)', border: '1.5px solid #BFDBFE', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 10px 25px rgba(37, 99, 235, 0.12)' }}>
               <Zap size={46} color="#1D4ED8" strokeWidth={2.2} />
             </div>
-            <h4 style={{ fontFamily: "'Outfit', 'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.35rem', fontWeight: 850, color: '#0F172A', marginBottom: '3px' }}>
+            <h4 style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", fontSize: '1.35rem', fontWeight: 800, color: '#0F172A', marginBottom: '3px' }}>
               100% Digital
             </h4>
-            <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif", fontSize: '1.1rem', color: '#475569', fontWeight: 600 }}>
+            <p style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", fontSize: '1.1rem', color: '#475569', fontWeight: 500 }}>
               Process
             </p>
           </motion.div>
