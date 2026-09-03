@@ -42,9 +42,9 @@ const PersonalLoanEmiCalculator = () => {
   };
 
   // Slider progress percentages for CSS styling
-  const amountPercent = ((loanAmount - 50000) / (1500000 - 50000)) * 100;
+  const amountPercent = ((loanAmount - 50000) / (15000000 - 50000)) * 100;
   const ratePercent = ((interestRate - 10) / (36 - 10)) * 100;
-  const tenurePercent = ((tenureYears - 1) / (5 - 1)) * 100;
+  const tenurePercent = ((tenureYears - 1) / (7 - 1)) * 100;
 
   // Donut chart SVG stroke calculations
   const radius = 68;
@@ -181,6 +181,11 @@ const PersonalLoanEmiCalculator = () => {
                 >
                   {formatIndian(loanAmount)}
                 </span>
+                {loanAmount >= 10000000 && (
+                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#2563EB', marginLeft: '4px', background: '#DBEAFE', padding: '2px 8px', borderRadius: '6px' }}>
+                    {(loanAmount / 10000000).toFixed(loanAmount % 10000000 === 0 ? 0 : 2)} Cr
+                  </span>
+                )}
               </div>
             </div>
 
@@ -189,8 +194,8 @@ const PersonalLoanEmiCalculator = () => {
               <input 
                 type="range"
                 min={50000}
-                max={1500000}
-                step={25000}
+                max={15000000}
+                step={50000}
                 value={loanAmount}
                 onChange={(e) => setLoanAmount(Number(e.target.value))}
                 style={{
@@ -209,30 +214,37 @@ const PersonalLoanEmiCalculator = () => {
             {/* Slider Min/Max Labels */}
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#64748B', fontWeight: 500, fontFamily: "'Inter', sans-serif" }}>
               <span>₹50,000</span>
-              <span>₹15,00,000 (15 L)</span>
+              <span>₹1,50,00,000 (1.5 Cr)</span>
             </div>
 
             {/* Quick Amount Presets */}
             <div style={{ display: 'flex', gap: '8px', marginTop: '14px', flexWrap: 'wrap' }}>
-              {[100000, 300000, 500000, 1000000, 1500000].map((amt) => (
+              {[
+                { val: 500000, label: '₹5L' },
+                { val: 1500000, label: '₹15L' },
+                { val: 2500000, label: '₹25L' },
+                { val: 5000000, label: '₹50L' },
+                { val: 10000000, label: '₹1 Cr' },
+                { val: 15000000, label: '₹1.5 Cr' }
+              ].map((item) => (
                 <button
-                  key={amt}
+                  key={item.val}
                   type="button"
-                  onClick={() => setLoanAmount(amt)}
+                  onClick={() => setLoanAmount(item.val)}
                   style={{
-                    background: loanAmount === amt ? '#1E40AF' : '#F8FAFC',
-                    color: loanAmount === amt ? '#FFFFFF' : '#475569',
-                    border: `1px solid ${loanAmount === amt ? '#1E40AF' : '#E2E8F0'}`,
+                    background: loanAmount === item.val ? '#1E40AF' : '#F8FAFC',
+                    color: loanAmount === item.val ? '#FFFFFF' : '#475569',
+                    border: `1px solid ${loanAmount === item.val ? '#1E40AF' : '#E2E8F0'}`,
                     borderRadius: '10px',
                     padding: '6px 14px',
                     fontSize: '0.82rem',
                     fontWeight: 700,
                     cursor: 'pointer',
                     transition: 'all 0.15s ease',
-                    boxShadow: loanAmount === amt ? '0 4px 10px rgba(30, 64, 175, 0.25)' : 'none'
+                    boxShadow: loanAmount === item.val ? '0 4px 10px rgba(30, 64, 175, 0.25)' : 'none'
                   }}
                 >
-                  ₹{amt >= 100000 ? `${amt / 100000}L` : `${amt / 1000}k`}
+                  {item.label}
                 </button>
               ))}
             </div>
@@ -364,7 +376,7 @@ const PersonalLoanEmiCalculator = () => {
               <input 
                 type="range"
                 min={1}
-                max={5}
+                max={7}
                 step={1}
                 value={tenureYears}
                 onChange={(e) => setTenureYears(Number(e.target.value))}
@@ -384,18 +396,19 @@ const PersonalLoanEmiCalculator = () => {
             {/* Slider Min/Max Labels */}
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: '#64748B', fontWeight: 500, fontFamily: "'Inter', sans-serif" }}>
               <span>Min 1 year</span>
-              <span>Max 5 years</span>
+              <span>Max 7 years</span>
             </div>
 
             {/* Quick Tenure Pills */}
-            <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-              {[1, 2, 3, 4, 5].map((yr) => (
+            <div style={{ display: 'flex', gap: '6px', marginTop: '12px', flexWrap: 'wrap' }}>
+              {[1, 2, 3, 4, 5, 6, 7].map((yr) => (
                 <button
                   key={yr}
                   type="button"
                   onClick={() => setTenureYears(yr)}
                   style={{
-                    flex: 1,
+                    flex: '1 1 0',
+                    minWidth: '40px',
                     background: tenureYears === yr ? '#16A34A' : '#F8FAFC',
                     color: tenureYears === yr ? '#FFFFFF' : '#475569',
                     border: `1px solid ${tenureYears === yr ? '#16A34A' : '#E2E8F0'}`,

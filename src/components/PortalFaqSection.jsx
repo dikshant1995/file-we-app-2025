@@ -31,7 +31,7 @@ const allFaqsData = [
   {
     id: 6,
     question: "What loan amounts and repayment tenures can I apply for?",
-    answer: "You can apply for unsecured personal loans ranging from ₹50,000 up to ₹15,00,000 (15 Lakhs). Flexible repayment tenures range from 12 months (1 year) up to 60 months (5 years) with fixed monthly EMIs."
+    answer: "You can apply for personal loans ranging from ₹50,000 up to ₹1,50,00,000 (1.5 Crore) depending on your profile, income, and partner bank lending policies. Flexible repayment tenures range from 12 months (1 year) up to 84 months (7 years) with fixed monthly EMIs."
   },
   {
     id: 7,
