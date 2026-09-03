@@ -383,25 +383,26 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
           }} 
         />
 
-        {/* Subheading (Ultra Light Grey Font & Weight as in InCred screenshot) */}
+        {/* Subheading */}
         <motion.p 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
           style={{
-            fontFamily: "'Space Grotesk', 'Outfit', 'Plus Jakarta Sans', sans-serif",
-            fontSize: '1.25rem',
-            color: '#475569',
-            fontWeight: 500,
+            fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+            fontSize: '24px',
+            color: 'rgb(66, 66, 66)',
+            fontWeight: 300,
+            fontStyle: 'normal',
             textAlign: 'center',
-            maxWidth: '840px',
+            maxWidth: '860px',
             margin: '0 auto 3.5rem',
-            lineHeight: 1.6,
+            lineHeight: '32px',
             letterSpacing: '0.2px'
           }}
         >
-          Get instant access to pre-approved personal loan offers. Discover your maximum loan amount and lowest interest rate across 12+ top banks — 100% enquiry-free.
+          Discover your pre approved maximum loan amount and lowest interest rate across 12+ top banks — 100% enquiry-free.
         </motion.p>
 
         {/* 3 Pillars Grid */}
