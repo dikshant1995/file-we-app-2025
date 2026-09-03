@@ -958,7 +958,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             margin: '0 auto 24px' 
           }}
         >
-          {/* Card 1: Compare 12+ Bank Policies Instantly */}
+          {/* Card 1: Compare 12+ Bank Policies */}
           <motion.div
             whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.05)' }}
             transition={{ duration: 0.2 }}
@@ -970,7 +970,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)',
               display: 'flex',
               flexDirection: 'column',
-              gap: '14px'
+              gap: '12px'
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -999,7 +999,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                   lineHeight: 1.3
                 }}
               >
-                Compare 12+ Bank Policies Instantly
+                Compare 12+ Bank Policies
               </h3>
             </div>
             <p 
@@ -1012,11 +1012,11 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                 margin: 0 
               }}
             >
-              We evaluate your unique financial profile against official lending policies across 12+ top banks and NBFCs simultaneously to secure your highest loan sanction at the lowest interest rate.
+              Compare lending criteria across 12+ top banks to secure your lowest interest rate instantly.
             </p>
           </motion.div>
 
-          {/* Card 2: Discover Pre-Approved Loan Offers */}
+          {/* Card 2: Discover Pre-Approved Loans */}
           <motion.div
             whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.05)' }}
             transition={{ duration: 0.2 }}
@@ -1028,7 +1028,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)',
               display: 'flex',
               flexDirection: 'column',
-              gap: '14px'
+              gap: '12px'
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -1057,7 +1057,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                   lineHeight: 1.3
                 }}
               >
-                Discover Pre-Approved Loan Offers
+                Discover Pre-Approved Loans
               </h3>
             </div>
             <p 
@@ -1070,11 +1070,11 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                 margin: 0 
               }}
             >
-              Uncover personalized pre-approved loan options from eligible partner banks with transparent interest rates, clear EMI breakdowns, and verified approval odds in under 60 seconds.
+              Unlock eligible pre-approved loan offers tailored to your profile with zero guesswork.
             </p>
           </motion.div>
 
-          {/* Card 3: Zero Impact on Your CIBIL Score */}
+          {/* Card 3: Zero CIBIL Score Impact */}
           <motion.div
             whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.05)' }}
             transition={{ duration: 0.2 }}
@@ -1086,7 +1086,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)',
               display: 'flex',
               flexDirection: 'column',
-              gap: '14px'
+              gap: '12px'
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -1115,7 +1115,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                   lineHeight: 1.3
                 }}
               >
-                Zero Impact on Your CIBIL Score
+                Zero CIBIL Score Impact
               </h3>
             </div>
             <p 
@@ -1128,7 +1128,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                 margin: 0 
               }}
             >
-              Check and compare your eligibility across all 12+ partner lenders with 100% soft inquiry simulation — no hard credit bureau inquiries and zero negative marks on your credit score.
+              Check and compare your eligibility safely across all lenders with 100% soft inquiries.
             </p>
           </motion.div>
         </div>
@@ -1143,7 +1143,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             margin: '0 auto' 
           }}
         >
-          {/* Card 4: Smart Balance Transfer & EMI Saver */}
+          {/* Card 4: Smart Balance Transfer */}
           <motion.div
             whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.05)' }}
             transition={{ duration: 0.2 }}
@@ -1155,7 +1155,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)',
               display: 'flex',
               flexDirection: 'column',
-              gap: '14px'
+              gap: '12px'
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -1184,7 +1184,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                   lineHeight: 1.3
                 }}
               >
-                Smart Balance Transfer & EMI Saver
+                Smart Balance Transfer
               </h3>
             </div>
             <p 
@@ -1197,11 +1197,11 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                 margin: 0 
               }}
             >
-              Consolidate existing personal loans and high-interest credit card debt into a single, affordable EMI plan to relieve monthly stress and boost your fresh loan eligibility.
+              Consolidate running debts and credit card dues into a single, lower-interest EMI.
             </p>
           </motion.div>
 
-          {/* Card 5: Dedicated Expert Guidance to Disbursal */}
+          {/* Card 5: Dedicated Expert Assistance */}
           <motion.div
             whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.05)' }}
             transition={{ duration: 0.2 }}
@@ -1213,7 +1213,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
               boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)',
               display: 'flex',
               flexDirection: 'column',
-              gap: '14px'
+              gap: '12px'
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -1242,7 +1242,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                   lineHeight: 1.3
                 }}
               >
-                Dedicated Expert Guidance to Disbursal
+                Dedicated Expert Assistance
               </h3>
             </div>
             <p 
@@ -1255,7 +1255,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                 margin: 0 
               }}
             >
-              Get personalized 1-on-1 assistance from seasoned loan specialists who help you choose the best offer, navigate bank formalities, and accelerate direct disbursal into your account.
+              Get 1-on-1 advisor guidance from bank selection straight through to account disbursal.
             </p>
           </motion.div>
         </div>
