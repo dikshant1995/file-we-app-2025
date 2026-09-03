@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, ArrowRight, ArrowLeft, ShieldCheck, Zap, Globe, Lock, Instagram, MessageSquare, Send, ChevronDown, Cpu, BarChart3, Fingerprint, Mail, FileText, Building2, FileCheck, Landmark, Scale, MonitorSmartphone, RefreshCw } from 'lucide-react';
+import { Sparkles, ArrowRight, ArrowLeft, ShieldCheck, Zap, Globe, Lock, Instagram, MessageSquare, Send, ChevronDown, Cpu, BarChart3, Fingerprint, Mail, FileText, Building2, FileCheck, Landmark, Scale, MonitorSmartphone, RefreshCw, Clock, Home, IndianRupee } from 'lucide-react';
 import './FuturisticLanding.css';
 
 
@@ -908,6 +908,355 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
                 Choose the most suitable bank/NBFC and connect with a loan expert to complete the application process.
               </p>
             </div>
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* ===== FEATURES & BENEFITS SECTION ===== */}
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        style={{ marginTop: '5rem', marginBottom: '4rem' }}
+      >
+        {/* Section Title */}
+        <h2 
+          style={{
+            fontFamily: "'Outfit', 'Plus Jakarta Sans', 'Inter', sans-serif",
+            fontStyle: 'normal',
+            fontWeight: 750,
+            fontSize: '43px',
+            lineHeight: '54px',
+            color: 'rgb(66, 66, 66)',
+            textAlign: 'center',
+            marginBottom: '0px',
+            letterSpacing: '-0.6px'
+          }}
+        >
+          Features & <span style={{ color: '#F58220' }}>Benefits</span>
+        </h2>
+
+        {/* Small Orange Underline */}
+        <div 
+          style={{ 
+            width: '36px', 
+            height: '3.5px', 
+            background: '#F58220', 
+            margin: '10px auto 44px', 
+            borderRadius: '2px' 
+          }} 
+        />
+
+        {/* Row 1: 3 Cards */}
+        <div 
+          style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
+            gap: '24px', 
+            maxWidth: '1200px', 
+            margin: '0 auto 24px' 
+          }}
+        >
+          {/* Card 1: Loan upto 50 lakhs */}
+          <motion.div
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.2 }}
+            style={{
+              background: '#ffffff',
+              border: '1px solid #EAEFF5',
+              borderRadius: '16px',
+              padding: '28px 24px',
+              boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '14px'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div 
+                style={{ 
+                  width: '48px', 
+                  height: '48px', 
+                  borderRadius: '12px', 
+                  background: '#DCFCE7', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  color: '#16A34A', 
+                  flexShrink: 0 
+                }}
+              >
+                <IndianRupee size={24} strokeWidth={2.5} />
+              </div>
+              <h3 
+                style={{ 
+                  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                  fontSize: '1.18rem', 
+                  fontWeight: 700, 
+                  color: '#1E293B', 
+                  margin: 0,
+                  lineHeight: 1.3
+                }}
+              >
+                Loan upto 50 lakhs
+              </h3>
+            </div>
+            <p 
+              style={{ 
+                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                fontSize: '0.92rem', 
+                color: '#4B5563', 
+                fontWeight: 400, 
+                lineHeight: 1.55, 
+                margin: 0 
+              }}
+            >
+              Get a personal loan online for up to Rs. 50 lakh, with options starting from Rs. 50,000 to manage all your expenses
+            </p>
+          </motion.div>
+
+          {/* Card 2: Instant approval in seconds */}
+          <motion.div
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.2 }}
+            style={{
+              background: '#ffffff',
+              border: '1px solid #EAEFF5',
+              borderRadius: '16px',
+              padding: '28px 24px',
+              boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '14px'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div 
+                style={{ 
+                  width: '48px', 
+                  height: '48px', 
+                  borderRadius: '12px', 
+                  background: '#E0F2FE', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  color: '#0284C7', 
+                  flexShrink: 0 
+                }}
+              >
+                <Zap size={24} strokeWidth={2.5} />
+              </div>
+              <h3 
+                style={{ 
+                  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                  fontSize: '1.18rem', 
+                  fontWeight: 700, 
+                  color: '#1E293B', 
+                  margin: 0,
+                  lineHeight: 1.3
+                }}
+              >
+                Instant approval in seconds
+              </h3>
+            </div>
+            <p 
+              style={{ 
+                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                fontSize: '0.92rem', 
+                color: '#4B5563', 
+                fontWeight: 400, 
+                lineHeight: 1.55, 
+                margin: 0 
+              }}
+            >
+              Complete your online personal loan application in minutes and enjoy instant loan approval
+            </p>
+          </motion.div>
+
+          {/* Card 3: Quick Disbursements */}
+          <motion.div
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.2 }}
+            style={{
+              background: '#ffffff',
+              border: '1px solid #EAEFF5',
+              borderRadius: '16px',
+              padding: '28px 24px',
+              boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '14px'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div 
+                style={{ 
+                  width: '48px', 
+                  height: '48px', 
+                  borderRadius: '12px', 
+                  background: '#FFEDD5', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  color: '#EA580C', 
+                  flexShrink: 0 
+                }}
+              >
+                <Clock size={24} strokeWidth={2.5} />
+              </div>
+              <h3 
+                style={{ 
+                  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                  fontSize: '1.18rem', 
+                  fontWeight: 700, 
+                  color: '#1E293B', 
+                  margin: 0,
+                  lineHeight: 1.3
+                }}
+              >
+                Quick Disbursements
+              </h3>
+            </div>
+            <p 
+              style={{ 
+                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                fontSize: '0.92rem', 
+                color: '#4B5563', 
+                fontWeight: 400, 
+                lineHeight: 1.55, 
+                margin: 0 
+              }}
+            >
+              Receive money in your account within 15 minutes of approval with our personal loan online process loan approval
+            </p>
+          </motion.div>
+        </div>
+
+        {/* Row 2: 2 Cards Centered */}
+        <div 
+          style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
+            gap: '24px', 
+            maxWidth: '800px', 
+            margin: '0 auto' 
+          }}
+        >
+          {/* Card 4: No hidden charges */}
+          <motion.div
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.2 }}
+            style={{
+              background: '#ffffff',
+              border: '1px solid #EAEFF5',
+              borderRadius: '16px',
+              padding: '28px 24px',
+              boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '14px'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div 
+                style={{ 
+                  width: '48px', 
+                  height: '48px', 
+                  borderRadius: '12px', 
+                  background: '#EFF6FF', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  color: '#2563EB', 
+                  flexShrink: 0 
+                }}
+              >
+                <ShieldCheck size={24} strokeWidth={2.5} />
+              </div>
+              <h3 
+                style={{ 
+                  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                  fontSize: '1.18rem', 
+                  fontWeight: 700, 
+                  color: '#1E293B', 
+                  margin: 0,
+                  lineHeight: 1.3
+                }}
+              >
+                No hidden charges
+              </h3>
+            </div>
+            <p 
+              style={{ 
+                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                fontSize: '0.92rem', 
+                color: '#4B5563', 
+                fontWeight: 400, 
+                lineHeight: 1.55, 
+                margin: 0 
+              }}
+            >
+              Experience transparent personal loans in India, where all fees are clearly outlined with no hidden charges
+            </p>
+          </motion.div>
+
+          {/* Card 5: No Collateral Required */}
+          <motion.div
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.2 }}
+            style={{
+              background: '#ffffff',
+              border: '1px solid #EAEFF5',
+              borderRadius: '16px',
+              padding: '28px 24px',
+              boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '14px'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div 
+                style={{ 
+                  width: '48px', 
+                  height: '48px', 
+                  borderRadius: '12px', 
+                  background: '#F1F5F9', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  color: '#475569', 
+                  flexShrink: 0 
+                }}
+              >
+                <Home size={24} strokeWidth={2.5} />
+              </div>
+              <h3 
+                style={{ 
+                  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                  fontSize: '1.18rem', 
+                  fontWeight: 700, 
+                  color: '#1E293B', 
+                  margin: 0,
+                  lineHeight: 1.3
+                }}
+              >
+                No Collateral Required
+              </h3>
+            </div>
+            <p 
+              style={{ 
+                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+                fontSize: '0.92rem', 
+                color: '#4B5563', 
+                fontWeight: 400, 
+                lineHeight: 1.55, 
+                margin: 0 
+              }}
+            >
+              Apply for a personal loan without security no guarantor or collateral needed
+            </p>
           </motion.div>
         </div>
       </motion.div>
