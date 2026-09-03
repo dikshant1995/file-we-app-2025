@@ -5,6 +5,7 @@ import './FuturisticLanding.css';
 import eligibilityDocIcon from '../assets/eligibility-doc-icon.png';
 import documentsFolderIcon from '../assets/documents-folder-icon.png';
 import PersonalLoanEmiCalculator from './PersonalLoanEmiCalculator';
+import CustomerSuccessStories from './CustomerSuccessStories';
 import PortalFaqSection from './PortalFaqSection';
 
 
@@ -1608,6 +1609,9 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
 
       {/* ===== PERSONAL LOAN EMI CALCULATOR SECTION ===== */}
       <PersonalLoanEmiCalculator />
+
+      {/* ===== CUSTOMER SUCCESS STORIES SECTION ===== */}
+      <CustomerSuccessStories />
 
       {/* ===== FREQUENTLY ASKED QUESTIONS (FAQS) SECTION ===== */}
       <PortalFaqSection />
