@@ -306,7 +306,15 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome }) => {
   return (
     <form onSubmit={handleSubmit} className="customer-loan-form" autoComplete="off">
       <div className="form-header">
-        <h2>
+        <h2 style={{
+          fontFamily: 'Outfit, "Plus Jakarta Sans", Inter, sans-serif',
+          fontStyle: 'normal',
+          fontWeight: 750,
+          color: 'rgb(66, 66, 66)',
+          fontSize: 'clamp(28px, 4vw, 43px)',
+          lineHeight: '54px',
+          margin: '0 0 8px 0'
+        }}>
           Personal Loan <span style={{ color: '#F58220' }}>Eligibility Application</span>
         </h2>
         <div style={{ width: '42px', height: '3.5px', backgroundColor: '#F58220', borderRadius: '2px', margin: '0 auto 12px' }} />
@@ -1013,6 +1021,14 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome }) => {
           type="submit"
           className="btn-submit"
           disabled={loading}
+          style={{
+            fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            fontStyle: 'normal',
+            fontWeight: 600,
+            color: 'rgb(255, 255, 255)',
+            fontSize: '18px',
+            lineHeight: '24px'
+          }}
         >
           {loading ? 'Processing Analysis...' : 'Generate Eligibility Report'}
         </button>
