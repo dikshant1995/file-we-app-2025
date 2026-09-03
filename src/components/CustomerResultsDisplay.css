@@ -418,24 +418,31 @@
 }
 
 .stat-value {
-  font-family: 'Outfit', 'Montserrat', sans-serif;
-  font-size: 1.85rem;
-  font-weight: 800;
-  color: #111827;
-  margin-bottom: 6px;
-  letter-spacing: -0.02em;
+  font-family: 'Outfit', 'Montserrat', sans-serif !important;
+  font-size: 1.85rem !important;
+  font-weight: 800 !important;
+  color: #16a34a !important;
+  margin-bottom: 6px !important;
+  letter-spacing: -0.02em !important;
+  display: block !important;
 }
 
 .stat-card.highlight .stat-value {
-  color: #f58220;
+  color: #f58220 !important;
 }
 
 .stat-label {
-  font-size: 0.78rem;
-  color: #475569;
-  font-weight: 750;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: 0.82rem !important;
+  color: #475569 !important;
+  font-weight: 750 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  opacity: 1 !important;
+  display: block !important;
+}
+
+.stat-card.highlight .stat-label {
+  color: #c2410c !important;
 }
 
 /* ── Best Offer Card ────────────────────────────────────── */

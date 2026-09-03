@@ -264,53 +264,69 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
 
       {/* Statistics Cards */}
       <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-value">{stats.eligibleCount}/{stats.totalBanks}</div>
-          <div className="stat-label">Institutions Evaluated</div>
+        <div className="stat-card" style={{ background: '#ffffff', border: '1.5px solid #e2e8f0', padding: '22px 18px', borderRadius: '16px', textAlign: 'center', boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
+          <div className="stat-value" style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.85rem', fontWeight: 800, color: '#16a34a', marginBottom: '8px' }}>
+            {stats.eligibleCount}/{stats.totalBanks}
+          </div>
+          <div className="stat-label" style={{ fontSize: '0.82rem', color: '#475569', fontWeight: 750, textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 1, display: 'block' }}>
+            Institutions Evaluated
+          </div>
         </div>
 
         {bestOffer && (
           <>
-            <div className="stat-card highlight">
-              <div className="stat-value">{formatCurrency(bestOffer.loanAmount)}</div>
-              <div className="stat-label">Maximum Opportunity ({bestOffer.bankName})</div>
+            <div className="stat-card highlight" style={{ background: '#fff7ed', border: '2px solid #f58220', padding: '22px 18px', borderRadius: '16px', textAlign: 'center', boxShadow: '0 6px 20px rgba(245, 130, 32, 0.12)' }}>
+              <div className="stat-value" style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.85rem', fontWeight: 800, color: '#f58220', marginBottom: '8px' }}>
+                {formatCurrency(bestOffer.loanAmount)}
+              </div>
+              <div className="stat-label" style={{ fontSize: '0.82rem', color: '#c2410c', fontWeight: 750, textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 1, display: 'block' }}>
+                Maximum Opportunity ({bestOffer.bankName})
+              </div>
             </div>
 
-            <div className="stat-card">
-              <div className="stat-value">{formatNumber(bestOffer.monthlyEMI)}</div>
-              <div className="stat-label">Optimal Monthly Obligation</div>
+            <div className="stat-card" style={{ background: '#ffffff', border: '1.5px solid #e2e8f0', padding: '22px 18px', borderRadius: '16px', textAlign: 'center', boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
+              <div className="stat-value" style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.85rem', fontWeight: 800, color: '#16a34a', marginBottom: '8px' }}>
+                {formatNumber(bestOffer.monthlyEMI)}
+              </div>
+              <div className="stat-label" style={{ fontSize: '0.82rem', color: '#475569', fontWeight: 750, textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 1, display: 'block' }}>
+                Optimal Monthly Obligation
+              </div>
             </div>
           </>
         )}
 
-        <div className="stat-card">
-          <div className="stat-value">{formatCurrency(stats.avgLoanAmount)}</div>
-          <div className="stat-label">Mean Approval Value</div>
+        <div className="stat-card" style={{ background: '#ffffff', border: '1.5px solid #e2e8f0', padding: '22px 18px', borderRadius: '16px', textAlign: 'center', boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
+          <div className="stat-value" style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.85rem', fontWeight: 800, color: '#16a34a', marginBottom: '8px' }}>
+            {formatCurrency(stats.avgLoanAmount)}
+          </div>
+          <div className="stat-label" style={{ fontSize: '0.82rem', color: '#475569', fontWeight: 750, textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 1, display: 'block' }}>
+            Mean Approval Value
+          </div>
         </div>
       </div>
 
       {/* Best Offer Highlight */}
       {bestOffer && (
-        <div className="best-offer-card">
-          <div className="best-offer-badge">OPTIMAL SELECTION</div>
+        <div className="best-offer-card" style={{ background: '#fff7ed', border: '2px solid #f58220', borderRadius: '20px', padding: '32px', marginBottom: '36px', boxShadow: '0 10px 30px rgba(245, 130, 32, 0.12)' }}>
+          <div className="best-offer-badge" style={{ background: '#f58220', color: '#ffffff', padding: '5px 14px', borderRadius: '50px', fontSize: '0.72rem', fontWeight: 750, letterSpacing: '0.08em', textTransform: 'uppercase', display: 'inline-block', marginBottom: '16px' }}>OPTIMAL SELECTION</div>
           <div className="best-offer-content">
-            <h3>{bestOffer.bankName}</h3>
-            <div className="best-offer-details">
+            <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.6rem', fontWeight: 750, color: '#111827', margin: '0 0 24px 0' }}>{bestOffer.bankName}</h3>
+            <div className="best-offer-details" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '20px' }}>
               <div className="detail-item">
-                <span className="label">Loan Amount</span>
-                <span className="value large">{formatCurrency(bestOffer.loanAmount)}</span>
+                <span className="label" style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '4px', fontWeight: 650, textTransform: 'uppercase', display: 'block' }}>Loan Amount</span>
+                <span className="value large" style={{ fontFamily: 'Outfit, sans-serif', fontSize: '2rem', fontWeight: 800, color: '#f58220', display: 'block' }}>{formatCurrency(bestOffer.loanAmount)}</span>
               </div>
               <div className="detail-item">
-                <span className="label">Monthly EMI</span>
-                <span className="value">{formatNumber(bestOffer.monthlyEMI)}</span>
+                <span className="label" style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '4px', fontWeight: 650, textTransform: 'uppercase', display: 'block' }}>Monthly EMI</span>
+                <span className="value" style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.4rem', fontWeight: 800, color: '#111827', display: 'block' }}>{formatNumber(bestOffer.monthlyEMI)}</span>
               </div>
               <div className="detail-item">
-                <span className="label">Interest Rate</span>
-                <span className="value">{bestOffer.interestRate}%</span>
+                <span className="label" style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '4px', fontWeight: 650, textTransform: 'uppercase', display: 'block' }}>Interest Rate</span>
+                <span className="value" style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.4rem', fontWeight: 800, color: '#f58220', display: 'block' }}>{bestOffer.interestRate}%</span>
               </div>
               <div className="detail-item">
-                <span className="label">Loan Tenure</span>
-                <span className="value">{bestOffer.loanTenure} years</span>
+                <span className="label" style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '4px', fontWeight: 650, textTransform: 'uppercase', display: 'block' }}>Loan Tenure</span>
+                <span className="value" style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.4rem', fontWeight: 800, color: '#111827', display: 'block' }}>{bestOffer.loanTenure} years</span>
               </div>
             </div>
             {bestOffer.calculationMethod && (
