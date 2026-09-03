@@ -361,7 +361,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             fontFamily: "'Outfit', 'Plus Jakarta Sans', 'Inter', sans-serif",
             fontSize: '2.7rem',
             fontWeight: 750,
-            color: '#1E293B',
+            color: 'rgb(66, 66, 66)',
             textAlign: 'center',
             lineHeight: 1.25,
             marginBottom: '0px',
@@ -512,7 +512,7 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
             fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
             fontSize: '2.4rem',
             fontWeight: 700,
-            color: '#2D3748',
+            color: 'rgb(66, 66, 66)',
             textAlign: 'center',
             marginBottom: '0px',
             letterSpacing: '-0.4px'

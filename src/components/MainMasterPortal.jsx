@@ -315,7 +315,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
               fontFamily: "'Outfit', 'Plus Jakarta Sans', 'Inter', sans-serif",
               fontSize: '2.7rem',
               fontWeight: 750,
-              color: '#1E293B',
+              color: 'rgb(66, 66, 66)',
               textAlign: 'center',
               lineHeight: 1.25,
               marginBottom: '0px',
@@ -329,123 +329,155 @@ const MainMasterPortal = ({ onAdminClick }) => {
           {/* Orange Accent Line Under Heading (as in InCred screenshot) */}
           <div 
             style={{ 
-              width: '45px', 
+              width: '40px', 
               height: '3.5px', 
               background: '#F58220', 
-              margin: '14px auto 24px', 
+              margin: '12px auto 45px', 
               borderRadius: '2px' 
             }} 
           />
 
-          {/* Subheading (Ultra-thin Hairline Inter font matching InCred screenshot media_1788377725268.png) */}
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            style={{
-              fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-              fontSize: '23px',
-              color: '#718096',
-              fontWeight: 100, 
-              fontStyle: 'normal',
-              textAlign: 'center',
-              maxWidth: '860px',
-              margin: '0 auto 3.5rem',
-              lineHeight: '34px',
-              letterSpacing: '0.4px'
-            }}
-          >
-            Discover your pre approved maximum loan amount and lowest interest rate across 12+ top banks — 100% enquiry-free.
-          </motion.p>
-
-          {/* 3 Pillars Grid */}
+          {/* 3 Feature Pillars Grid */}
           <div 
             style={{ 
               display: 'grid', 
               gridTemplateColumns: 'repeat(3, 1fr)', 
-              gap: '40px', 
-              maxWidth: '1000px', 
-              margin: '0 auto 3.5rem',
-              textAlign: 'center'
-            }}>
+              gap: '24px', 
+              marginBottom: '45px' 
+            }}
+          >
             {/* Pillar 1 */}
             <motion.div 
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              whileHover={{ y: -6, scale: 1.04 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.1 }}
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }}
+              whileHover={{ y: -4 }}
+              transition={{ duration: 0.2 }}
+              style={{
+                background: '#ffffff',
+                borderRadius: '16px',
+                padding: '24px 20px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '16px',
+                border: '1.5px solid #E2E8F0',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)'
+              }}
             >
-              <div style={{ width: '90px', height: '90px', borderRadius: '26px', background: 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)', border: '1.5px solid #BFDBFE', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 10px 25px rgba(37, 99, 235, 0.12)' }}>
-                <Building2 size={46} color="#1D4ED8" strokeWidth={2.2} />
+              <div 
+                style={{ 
+                  width: '48px', 
+                  height: '48px', 
+                  borderRadius: '50%', 
+                  background: '#F0F5FF', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <Building2 size={24} color="#F58220" />
               </div>
-              <h4 style={{ fontFamily: "'Outfit', 'Mulish', 'Plus Jakarta Sans', 'Inter', sans-serif", fontSize: '1.35rem', fontWeight: 850, color: '#0F172A', marginBottom: '3px' }}>
-                12+ Lenders
-              </h4>
-              <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', 'Inter', sans-serif", fontSize: '1.1rem', color: '#475569', fontWeight: 600 }}>
-                Comparison
-              </p>
+              <div>
+                <h3 style={{ fontFamily: "'Inter', sans-serif", fontSize: '1.3rem', fontWeight: 850, color: '#0F172A', margin: 0, lineHeight: 1.15 }}>
+                  12+ Lenders
+                </h3>
+                <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '1rem', fontWeight: 600, color: '#64748B', margin: 0, marginTop: '2px' }}>
+                  Comparison
+                </p>
+              </div>
             </motion.div>
 
             {/* Pillar 2 */}
             <motion.div 
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              whileHover={{ y: -6, scale: 1.04 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.2 }}
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }}
+              whileHover={{ y: -4 }}
+              transition={{ duration: 0.2 }}
+              style={{
+                background: '#ffffff',
+                borderRadius: '16px',
+                padding: '24px 20px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '16px',
+                border: '1.5px solid #E2E8F0',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)'
+              }}
             >
-              <div style={{ width: '90px', height: '90px', borderRadius: '26px', background: 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)', border: '1.5px solid #BFDBFE', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 10px 25px rgba(37, 99, 235, 0.12)' }}>
-                <Lock size={46} color="#1D4ED8" strokeWidth={2.2} />
+              <div 
+                style={{ 
+                  width: '48px', 
+                  height: '48px', 
+                  borderRadius: '50%', 
+                  background: '#F0F5FF', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <ShieldCheck size={24} color="#F58220" />
               </div>
-              <h4 style={{ fontFamily: "'Outfit', 'Mulish', 'Plus Jakarta Sans', 'Inter', sans-serif", fontSize: '1.35rem', fontWeight: 850, color: '#0F172A', marginBottom: '3px' }}>
-                Zero CIBIL
-              </h4>
-              <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', 'Inter', sans-serif", fontSize: '1.1rem', color: '#475569', fontWeight: 600 }}>
-                Impact
-              </p>
+              <div>
+                <h3 style={{ fontFamily: "'Inter', sans-serif", fontSize: '1.3rem', fontWeight: 850, color: '#0F172A', margin: 0, lineHeight: 1.15 }}>
+                  Zero CIBIL
+                </h3>
+                <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '1rem', fontWeight: 600, color: '#64748B', margin: 0, marginTop: '2px' }}>
+                  Impact
+                </p>
+              </div>
             </motion.div>
 
             {/* Pillar 3 */}
             <motion.div 
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              whileHover={{ y: -6, scale: 1.04 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.3 }}
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }}
+              whileHover={{ y: -4 }}
+              transition={{ duration: 0.2 }}
+              style={{
+                background: '#ffffff',
+                borderRadius: '16px',
+                padding: '24px 20px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '16px',
+                border: '1.5px solid #E2E8F0',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)'
+              }}
             >
-              <div style={{ width: '90px', height: '90px', borderRadius: '26px', background: 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)', border: '1.5px solid #BFDBFE', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 10px 25px rgba(37, 99, 235, 0.12)' }}>
-                <Zap size={46} color="#1D4ED8" strokeWidth={2.2} />
+              <div 
+                style={{ 
+                  width: '48px', 
+                  height: '48px', 
+                  borderRadius: '50%', 
+                  background: '#F0F5FF', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <Zap size={24} color="#F58220" />
               </div>
-              <h4 style={{ fontFamily: "'Outfit', 'Mulish', 'Plus Jakarta Sans', 'Inter', sans-serif", fontSize: '1.35rem', fontWeight: 850, color: '#0F172A', marginBottom: '3px' }}>
-                100% Digital
-              </h4>
-              <p style={{ fontFamily: "'Mulish', 'Plus Jakarta Sans', 'Inter', sans-serif", fontSize: '1.1rem', color: '#475569', fontWeight: 600 }}>
-                Process
-              </p>
+              <div>
+                <h3 style={{ fontFamily: "'Inter', sans-serif", fontSize: '1.3rem', fontWeight: 850, color: '#0F172A', margin: 0, lineHeight: 1.15 }}>
+                  100% Digital
+                </h3>
+                <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '1rem', fontWeight: 600, color: '#64748B', margin: 0, marginTop: '2px' }}>
+                  Process
+                </p>
+              </div>
             </motion.div>
           </div>
 
-          {/* Description Paragraph */}
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
+          {/* Detailed Paragraph Below Pillars */}
+          <motion.p
+            initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
             style={{
               fontFamily: "'Mulish', 'Inter', 'Plus Jakarta Sans', sans-serif",
-              fontSize: '1.25rem',
-              color: '#555555',
-              fontWeight: 400,
+              fontSize: '1.15rem',
+              lineHeight: 1.7,
+              color: '#475569',
               textAlign: 'center',
-              maxWidth: '840px',
-              margin: '0 auto 3rem',
-              lineHeight: 1.6,
-              letterSpacing: '0.3px'
+              maxWidth: '1050px',
+              margin: '0 auto'
             }}
           >
             Whether it's managing a medical emergency, planning a wedding, or renovating your home, we provide flexible repayment options and competitive personal loan interest rates tailored to your requirements.
@@ -465,7 +497,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                 fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
                 fontSize: '2.4rem',
                 fontWeight: 700,
-                color: '#2D3748',
+                color: 'rgb(66, 66, 66)',
                 textAlign: 'center',
                 marginBottom: '0px',
                 letterSpacing: '-0.4px'
