@@ -457,20 +457,6 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
             margin: '16px auto 14px',
             maxWidth: '850px'
           }}>
-            <span className="company-pill" style={{
-              background: '#FFF4EC',
-              color: 'rgb(245, 130, 32)',
-              padding: '7px 18px',
-              borderRadius: '20px',
-              fontSize: '0.92rem',
-              fontWeight: 700,
-              border: '1px solid #FED7AA',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}>
-              🏢 Company: <strong>{metadata?.companyName || results.find(r => r.companyName)?.companyName || 'Corporate Entity'}</strong>
-            </span>
             <span className="category-pill" style={{
               background: '#F8FAFC',
               color: 'rgb(66, 66, 66)',
