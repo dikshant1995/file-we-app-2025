@@ -124,11 +124,7 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
               Institutional <span style={{ color: '#F58220' }}>Eligibility Analysis</span>
             </h2>
             <div style={{ width: '42px', height: '3.5px', backgroundColor: '#F58220', borderRadius: '2px', margin: '0 auto 12px' }} />
-            
-            <div className="logic-bridge-active-badge">
-              <span className="dot pulse"></span>
-              SYSTEM READY: MULTI-BANK RULE ENGINE OPTIMIZED
-            </div>
+
 
             {metadata && (
               <div className="company-info-header">
