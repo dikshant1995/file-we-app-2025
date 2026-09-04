@@ -1,5 +1,13 @@
-// Bank Configuration Service - Centralized storage and retrieval
+// Bank Configuration Service - Centralized storage and Cloud Firestore Sync
+import { db } from '../config/firebase.js';
+import { doc, getDoc, setDoc, collection, getDocs } from 'firebase/firestore';
+
 const STORAGE_KEY = 'bank_configurations';
+
+// Helper to generate a clean Firestore document ID for each bank
+export const getBankDocId = (bankName) => {
+  return String(bankName || '').replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+};
 
 // Default configurations for all banks
 const defaultConfigs = {
@@ -110,7 +118,26 @@ export const saveBankConfig = (bankName, sectionName, config, location = null) =
       console.log(`🌐 Saved Global ${sectionName} for ${bankName}:`, config);
     }
 
+    // 1. Save locally for instant offline/zero-latency UI
     localStorage.setItem(STORAGE_KEY, JSON.stringify(allConfigs));
+
+    // 2. Asynchronously sync to Firebase Firestore Cloud
+    try {
+      const bankDocId = getBankDocId(bankName);
+      const docRef = doc(db, 'bank_configurations', bankDocId);
+      setDoc(docRef, {
+        bankName,
+        config: allConfigs[bankName],
+        lastUpdated: new Date().toISOString()
+      }, { merge: true }).then(() => {
+        console.log(`☁️ Synced ${bankName} policy to Firebase Firestore (doc: ${bankDocId})`);
+      }).catch(cloudErr => {
+        console.warn(`⚠️ Firebase sync warning for ${bankName}:`, cloudErr.message);
+      });
+    } catch (fbErr) {
+      console.warn('Firebase Firestore background sync error:', fbErr);
+    }
+
     return true;
   } catch (error) {
     console.error('Error saving bank config:', error);
@@ -201,3 +228,83 @@ export const importConfigs = (jsonString) => {
     return false;
   }
 };
+
+/**
+ * Sync all bank configurations from Firebase Firestore to local storage
+ */
+export const syncAllBankConfigsFromCloud = async () => {
+  try {
+    const colRef = collection(db, 'bank_configurations');
+    const snapshot = await getDocs(colRef);
+    if (!snapshot.empty) {
+      const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      let syncCount = 0;
+
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        if (data && data.bankName && data.config) {
+          allConfigs[data.bankName] = {
+            ...defaultConfigs[data.bankName],
+            ...allConfigs[data.bankName],
+            ...data.config
+          };
+          syncCount++;
+
+          // If this bank config contains cityOverrides with unifiedPolicy, also update local snapshot keys
+          if (data.config.cityOverrides) {
+            const bankDocId = getBankDocId(data.bankName);
+            Object.entries(data.config.cityOverrides).forEach(([locationKey, locConfig]) => {
+              if (locConfig && locConfig.unifiedPolicy) {
+                try {
+                  localStorage.setItem(`policy_config_${bankDocId}_${locationKey}`, JSON.stringify(locConfig.unifiedPolicy));
+                } catch (snapErr) {
+                  console.warn('Snapshot cache warning:', snapErr);
+                }
+              }
+            });
+          }
+        }
+      });
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(allConfigs));
+      console.log(`☁️ Synced ${syncCount} bank policies from Firebase Firestore.`);
+      return allConfigs;
+    }
+  } catch (err) {
+    console.warn('⚠️ Cloud sync for bank policies unavailable, using local defaults:', err.message);
+  }
+  return null;
+};
+
+/**
+ * Fetch a specific bank configuration directly from Cloud Firestore
+ */
+export const fetchBankConfigFromCloud = async (bankName) => {
+  try {
+    const bankDocId = getBankDocId(bankName);
+    const docRef = doc(db, 'bank_configurations', bankDocId);
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      const data = snap.data();
+      if (data && data.config) {
+        const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        allConfigs[bankName] = {
+          ...defaultConfigs[bankName],
+          ...allConfigs[bankName],
+          ...data.config
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(allConfigs));
+        return data.config;
+      }
+    }
+  } catch (err) {
+    console.warn(`Could not load ${bankName} config from Firestore:`, err.message);
+  }
+  return null;
+};
+
+// Automatic initial sync in browser environment
+if (typeof window !== 'undefined') {
+  syncAllBankConfigsFromCloud();
+}
+

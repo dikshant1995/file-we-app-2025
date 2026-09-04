@@ -11,6 +11,7 @@ import { calculateBTWithCreditCards } from './services/btLoanService.js';
 import { saveLead } from './services/leadService.js';
 import { aiPredictionService } from './services/aiPredictionService.js';
 import { neuralExplainerService } from './services/neuralExplainerService.js';
+import { syncAllBankConfigsFromCloud } from './services/bankConfigService.js';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar.jsx';
 import BlogHome from './components/BlogHome.jsx';
@@ -46,9 +47,10 @@ function CustomerFacingApp() {
     }
   });
 
-  // Initialize AI Brain
+  // Initialize AI Brain & Sync Bank Policies from Cloud Firestore
   React.useEffect(() => {
     aiPredictionService.initialize();
+    syncAllBankConfigsFromCloud();
   }, []);
   // Store raw formData so saveLead can access name/mobile/loans
   const lastFormDataRef = useRef(null);

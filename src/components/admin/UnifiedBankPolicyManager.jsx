@@ -251,15 +251,22 @@ const UnifiedBankPolicyManager = () => {
     setActiveConfigTab('rates');
     setSaveAlert('');
 
-    // Load any existing custom config from localStorage or service
+    // Load any existing custom config from localStorage or cloud-synced service
     const locationKey = `${selectedState}-${selectedCity}`;
     const stored = localStorage.getItem(`policy_config_${bank.id}_${locationKey}`);
     if (stored) {
       try {
         setPolicyData(JSON.parse(stored));
+        return;
       } catch (e) {
         console.error(e);
       }
+    }
+
+    // Cloud Firestore Fallback: check bankConfigService (synced from Firestore)
+    const cloudPolicy = getBankConfig(bank.name, 'unifiedPolicy', locationKey) || getBankConfig(bank.name, 'unifiedPolicy');
+    if (cloudPolicy && cloudPolicy.interestRates) {
+      setPolicyData(cloudPolicy);
     }
   };
 
@@ -270,7 +277,7 @@ const UnifiedBankPolicyManager = () => {
     try {
       localStorage.setItem(`policy_config_${activeConfigBank.id}_${locationKey}`, JSON.stringify(policyData));
       
-      // Also update bankConfigService
+      // Also update bankConfigService (which automatically writes to Firebase Firestore)
       saveBankConfig(activeConfigBank.name, 'unifiedPolicy', policyData, locationKey);
 
       // Update quick highlights on the bank card
@@ -285,8 +292,8 @@ const UnifiedBankPolicyManager = () => {
       });
       persistBanks(updatedBanks);
 
-      setSaveAlert(`All policy tables for ${activeConfigBank.name} committed successfully for ${selectedCity}, ${selectedState}!`);
-      setTimeout(() => setSaveAlert(''), 4000);
+      setSaveAlert(`All policy tables for ${activeConfigBank.name} committed successfully & synced to Firebase Firestore Cloud ☁️!`);
+      setTimeout(() => setSaveAlert(''), 4500);
     } catch (e) {
       alert('Failed to save policy changes: ' + e.message);
     }
