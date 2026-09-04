@@ -1,7 +1,8 @@
 // ============================================================
-//  GOOGLE SHEETS LEAD SERVICE
-//  Paste your Apps Script Web App URL below after deployment.
+//  LEAD SERVICE - LOCAL, GOOGLE SHEETS & FIREBASE FIRESTORE SYNC
 // ============================================================
+import { db } from '../config/firebase.js';
+import { doc, setDoc } from 'firebase/firestore';
 
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgAGkw2nw1MdYob_-liwla8M79HQVnqgZKhxFJ_unSsFo0q2aM2cWlwlKTeZpCi2K0og/exec';
 
@@ -69,7 +70,19 @@ export const saveLead = async (formData, submissionData) => {
                 rawInputs: formData
             });
             localStorage.setItem('laxmi_customer_database', JSON.stringify(customerDb.slice(0, 200)));
-            console.log('💾 Lead captured immediately for local pipeline and customer database');
+            // ── FIREBASE FIRESTORE SYNC (CLOUD REALTIME) ─────────────────────────
+            try {
+                const leadDocId = `lead_${leadWithId.id}`;
+                setDoc(doc(db, 'leads', leadDocId), {
+                    ...leadWithId,
+                    createdAt: new Date().toISOString(),
+                    status: 'New'
+                }, { merge: true })
+                    .then(() => console.log('🔥 Lead saved to Firebase Firestore collection: leads'))
+                    .catch(e => console.warn('⚠️ Firestore lead save error:', e));
+            } catch (fsErr) {
+                console.warn('⚠️ Firestore lead sync error:', fsErr);
+            }
         } catch (localErr) {
             console.warn('⚠️ Local save failed but continuing...', localErr);
         }
@@ -135,6 +148,15 @@ export const saveSelectedBanks = async (metadata, selectedBanks) => {
             });
             localStorage.setItem('laxmi_leads', JSON.stringify(updatedLeads));
             console.log('💾 Local lead updated with bank selections');
+
+            // ── FIREBASE FIRESTORE SYNC ──────────────────────────────────────────
+            const matchingLead = localLeads.find(l => l.mobile === payload.mobile && l.name === payload.name);
+            if (matchingLead && matchingLead.id) {
+                const leadDocId = `lead_${matchingLead.id}`;
+                setDoc(doc(db, 'leads', leadDocId), { selectedBanks: payload.selectedBanks }, { merge: true })
+                    .then(() => console.log('🔥 Lead banks updated in Firestore'))
+                    .catch(e => console.warn('⚠️ Firestore bank update error:', e));
+            }
         } catch (localErr) {
             console.warn('⚠️ Could not update local lead:', localErr);
         }
