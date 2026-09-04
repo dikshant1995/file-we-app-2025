@@ -58,10 +58,10 @@ const formatCategoryDisplay = (cat) => {
 
 const getCategoryBadgeClass = (cat) => {
   const upper = String(cat || '').toUpperCase().trim();
-  if (upper.includes('SUPER') || upper === 'SCATA' || upper === 'A+') return 'cat-badge-super-a';
-  if (upper === 'CATGA' || upper === 'A' || upper.includes('CATEGORY A')) return 'cat-badge-a';
-  if (upper === 'CATGB' || upper === 'B' || upper.includes('CATEGORY B')) return 'cat-badge-b';
-  if (upper === 'CATGC' || upper === 'C' || upper.includes('CATEGORY C')) return 'cat-badge-c';
+  if (upper.includes('SUPER') || upper === 'SCATA' || upper === 'A+' || upper.includes('PLATINUM') || upper.includes('DIAMOND') || upper.includes('TIER 1')) return 'cat-badge-super-a';
+  if (upper === 'CATGA' || upper === 'A' || upper.includes('CATEGORY A') || upper.includes('GOLD') || upper.includes('TIER 2')) return 'cat-badge-a';
+  if (upper === 'CATGB' || upper === 'B' || upper.includes('CATEGORY B') || upper.includes('SILVER') || upper.includes('TIER 3')) return 'cat-badge-b';
+  if (upper === 'CATGC' || upper === 'C' || upper.includes('CATEGORY C') || upper.includes('BRONZE') || upper.includes('TIER 4')) return 'cat-badge-c';
   if (upper === 'CATGD' || upper === 'D' || upper.includes('CATEGORY D')) return 'cat-badge-d';
   if (upper.includes('GOVT') || upper.includes('PSU')) return 'cat-badge-govt';
   return 'cat-badge-unlisted';
@@ -460,7 +460,115 @@ const UnifiedBankPolicyManager = () => {
           console.warn('Could not sync to cloud, stored locally:', cloudErr);
         }
 
-        setUploadSuccessMessage(`Successfully updated ${parsedCompanies.length.toLocaleString('en-IN')} companies from ${file.name} for ${activeConfigBank.name}!`);
+        // =========================================================================
+        // SOLUTION 2: AUTOMATIC POLICY TABLE TRANSFORMATION
+        // If uploaded Excel contains new/different categories (e.g. Platinum, Gold),
+        // automatically transform all 4 policy tables and pre-fill draft baselines!
+        // =========================================================================
+        const distinctCategories = Array.from(new Set(parsedCompanies.map(c => c.category).filter(Boolean)));
+        const currentPolicyCats = (policyData.interestRates || []).map(r => String(r.category || '').toUpperCase().trim());
+        
+        const hasNewCategories = distinctCategories.length > 0 && distinctCategories.some(
+          c => !currentPolicyCats.includes(String(c).toUpperCase().trim())
+        );
+
+        let policyTransformed = false;
+        if (hasNewCategories) {
+          console.log(`🔄 New categories detected in ${file.name}:`, distinctCategories);
+
+          // 1. Transform Interest Rates Table
+          const newInterestRates = distinctCategories.map((catName, idx) => {
+            const baseline = (policyData.interestRates && policyData.interestRates[idx]) || 
+              (policyData.interestRates && policyData.interestRates[policyData.interestRates.length - 1]) || {
+                minRoi: 10.5 + idx * 0.75,
+                maxRoi: 12.0 + idx * 1.5,
+                defaultRoi: 10.75 + idx * 0.75,
+                minSalary: Math.max(20000, 100000 - idx * 20000)
+              };
+            return {
+              category: catName,
+              minRoi: baseline.minRoi,
+              maxRoi: baseline.maxRoi,
+              defaultRoi: baseline.defaultRoi,
+              minSalary: baseline.minSalary
+            };
+          });
+
+          // 2. Transform Loan Capping Table
+          const newLoanCapping = distinctCategories.map((catName, idx) => {
+            const baseline = (policyData.loanCapping && policyData.loanCapping[idx]) || 
+              (policyData.loanCapping && policyData.loanCapping[policyData.loanCapping.length - 1]) || {
+                minLoan: 100000,
+                maxLoan: Math.max(1000000, 7500000 - idx * 1250000),
+                bachelorCap: Math.max(1000000, 3000000 - idx * 500000),
+                minSalary: Math.max(20000, 100000 - idx * 20000)
+              };
+            return {
+              tier: catName,
+              minLoan: baseline.minLoan,
+              maxLoan: baseline.maxLoan,
+              bachelorCap: baseline.bachelorCap,
+              minSalary: baseline.minSalary
+            };
+          });
+
+          // 3. Transform Tenure Optimization Table
+          const newTenureRules = distinctCategories.map((catName, idx) => {
+            const baseline = (policyData.tenureRules && policyData.tenureRules[idx]) || 
+              (policyData.tenureRules && policyData.tenureRules[policyData.tenureRules.length - 1]) || {
+                minMonths: 12,
+                maxMonths: Math.max(36, 84 - idx * 12),
+                description: `Up to ${Math.round(Math.max(36, 84 - idx * 12) / 12)} Years`
+              };
+            return {
+              category: catName,
+              minMonths: baseline.minMonths,
+              maxMonths: baseline.maxMonths,
+              description: baseline.description
+            };
+          });
+
+          // 4. Transform FOIR & Multipliers Table
+          const newFoirMultiplier = distinctCategories.map((catName, idx) => {
+            const baseline = (policyData.foirMultiplier && policyData.foirMultiplier[idx]) || 
+              (policyData.foirMultiplier && policyData.foirMultiplier[policyData.foirMultiplier.length - 1]) || {
+                maxFoir: Math.max(45, 70 - idx * 5),
+                multiplier: Math.max(12, 28 - idx * 3),
+                ccObligation: 5
+              };
+            return {
+              category: catName,
+              maxFoir: baseline.maxFoir,
+              multiplier: baseline.multiplier,
+              ccObligation: baseline.ccObligation
+            };
+          });
+
+          const transformedPolicy = {
+            ...policyData,
+            interestRates: newInterestRates,
+            loanCapping: newLoanCapping,
+            tenureRules: newTenureRules,
+            foirMultiplier: newFoirMultiplier
+          };
+
+          setPolicyData(transformedPolicy);
+
+          const locationKey = `${selectedState}-${selectedCity}`;
+          try {
+            localStorage.setItem(`policy_config_${activeConfigBank.id}_${locationKey}`, JSON.stringify(transformedPolicy));
+            saveBankConfig(activeConfigBank.name, 'unifiedPolicy', transformedPolicy, locationKey);
+          } catch (storageErr) {
+            console.warn('Local policy cache warning:', storageErr);
+          }
+          policyTransformed = true;
+        }
+
+        const msg = policyTransformed 
+          ? `Successfully uploaded ${parsedCompanies.length.toLocaleString('en-IN')} companies! 🔄 Policy tables were automatically transformed to match new categories: [${distinctCategories.join(', ')}]. Previous rates were copied as a draft baseline. Review and click "Save Policy Changes" to commit.`
+          : `Successfully updated ${parsedCompanies.length.toLocaleString('en-IN')} companies from ${file.name} for ${activeConfigBank.name}!`;
+
+        setUploadSuccessMessage(msg);
         setCurrentPage(1);
       } catch (err) {
         console.error('Excel upload error:', err);

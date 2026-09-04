@@ -211,8 +211,48 @@ export const calculateLoanEligibility = async (userData) => {
         bankInput.govtMaxTenure = govtPolicy.maxTenureMonths;
       }
 
-      // Apply Global Multiplier/Rate Overrides from Admin Panel
-      if (adminAllConfig.interestRates && !govtPolicy) {
+      // Apply Dynamic Unified Bank Policy Overrides (Supports Custom Excel Categories e.g. Platinum, Gold, etc.)
+      if (adminAllConfig.unifiedPolicy && !govtPolicy) {
+        const uPolicy = adminAllConfig.unifiedPolicy;
+        const normBankCat = String(bankCategory || '').toUpperCase().trim();
+
+        // 1. Dynamic Interest Rate match
+        if (Array.isArray(uPolicy.interestRates)) {
+          const matchedRate = uPolicy.interestRates.find(r => String(r.category || '').toUpperCase().trim() === normBankCat);
+          if (matchedRate && (matchedRate.defaultRoi || matchedRate.minRoi)) {
+            bankInput.interestRateOverride = Number(matchedRate.defaultRoi || matchedRate.minRoi);
+          }
+        }
+
+        // 2. Dynamic Loan Capping match
+        if (Array.isArray(uPolicy.loanCapping)) {
+          const matchedCap = uPolicy.loanCapping.find(c => String(c.tier || c.category || '').toUpperCase().trim() === normBankCat);
+          if (matchedCap) {
+            if (matchedCap.maxLoan) bankInput.maxLoanOverride = Number(matchedCap.maxLoan);
+            if (matchedCap.bachelorCap && calculatorInput.maritalStatus === 'single' && calculatorInput.livingStatus === 'rented') {
+              bankInput.dynamicBachelorLimitOverride = Number(matchedCap.bachelorCap);
+            }
+          }
+        }
+
+        // 3. Dynamic FOIR & Multiplier match
+        if (Array.isArray(uPolicy.foirMultiplier)) {
+          const matchedFoir = uPolicy.foirMultiplier.find(m => String(m.category || '').toUpperCase().trim() === normBankCat);
+          if (matchedFoir) {
+            if (matchedFoir.multiplier) bankInput.multiplierOverride = Number(matchedFoir.multiplier);
+            if (matchedFoir.maxFoir) bankInput.foirOverride = Number(matchedFoir.maxFoir);
+          }
+        }
+
+        // 4. Dynamic Tenure match
+        if (Array.isArray(uPolicy.tenureRules)) {
+          const matchedTenure = uPolicy.tenureRules.find(t => String(t.category || '').toUpperCase().trim() === normBankCat);
+          if (matchedTenure && matchedTenure.maxMonths) {
+            bankInput.maxTenureOverride = Number(matchedTenure.maxMonths);
+          }
+        }
+      } else if (adminAllConfig.interestRates && !govtPolicy) {
+        // Fallback to legacy global interest rate overrides
         const catRate = adminAllConfig.interestRates.categoryRates?.[bankCategory] || adminAllConfig.interestRates.defaultRate;
         if (catRate) bankInput.interestRateOverride = catRate;
       }
