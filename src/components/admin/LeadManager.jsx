@@ -619,64 +619,26 @@ const LeadManager = ({ userRole }) => {
                                 </td>
                                 <td>
                                     <div className="action-buttons-cell">
-                                        {/* Main Share Button */}
+                                        {/* Main Share Lead Button */}
                                         <button
                                             className="btn-share-lead-main"
-                                            title="Open Share Options"
+                                            title="Share Lead (WhatsApp, Email, Copy, System)"
                                             onClick={() => setActiveShareLead(lead)}
                                         >
                                             <Share2 size={15} />
-                                            <span>Share</span>
+                                            <span>Share Lead</span>
                                         </button>
 
-                                        {/* Quick WhatsApp Action */}
-                                        <button
-                                            className="action-btn-advanced wa"
-                                            title="Share on WhatsApp"
-                                            onClick={() => handleWhatsAppShare(lead)}
-                                        >
-                                            <MessageCircle size={18} color="#25D366" />
-                                        </button>
-
-                                        {/* Quick Email Action */}
-                                        <button
-                                            className="action-btn-advanced mail"
-                                            title="Email Lead Details"
-                                            onClick={() => handleEmailShare(lead)}
-                                        >
-                                            <Mail size={18} color="#EA4335" />
-                                        </button>
-
-                                        {/* Quick Copy Action */}
-                                        <button
-                                            className="action-btn-advanced copy"
-                                            title="Copy Lead Dossier"
-                                            onClick={() => handleCopyLead(lead)}
-                                        >
-                                            {copiedLeadId === lead?.id ? (
-                                                <Check size={18} color="#00ff88" />
-                                            ) : (
-                                                <Copy size={18} color="#00d4ff" />
-                                            )}
-                                        </button>
-
-                                        {/* Detail Inspector Button */}
-                                        <button
-                                            className="action-btn-advanced inspect"
-                                            title="View Full Lead Details"
-                                            onClick={() => setActiveDetailLead(lead)}
-                                        >
-                                            <Eye size={18} color="#ffb703" />
-                                        </button>
-
-                                        {/* Delete Button (CEO restricted) */}
-                                        <button
-                                            className="action-btn-advanced delete"
-                                            title="Delete Lead"
-                                            onClick={() => handleDelete(lead?.id)}
-                                        >
-                                            <Trash2 size={17} color="#ff4444" />
-                                        </button>
+                                        {/* CEO Delete Action */}
+                                        {userRole === 'ceo' && (
+                                            <button
+                                                className="btn-delete-lead"
+                                                title="Delete Lead"
+                                                onClick={() => handleDelete(lead?.id)}
+                                            >
+                                                <Trash2 size={15} color="#ff4444" />
+                                            </button>
+                                        )}
                                     </div>
                                 </td>
                             </tr>
@@ -907,20 +869,6 @@ const LeadManager = ({ userRole }) => {
                                 >
                                     <Share2 size={16} />
                                     <span>Share This Lead</span>
-                                </button>
-                                <button 
-                                    className="action-btn-advanced wa"
-                                    onClick={() => handleWhatsAppShare(activeDetailLead)}
-                                    title="WhatsApp Lead"
-                                >
-                                    <MessageCircle size={18} color="#25D366" />
-                                </button>
-                                <button 
-                                    className="action-btn-advanced mail"
-                                    onClick={() => handleEmailShare(activeDetailLead)}
-                                    title="Email Lead"
-                                >
-                                    <Mail size={18} color="#EA4335" />
                                 </button>
                             </div>
                             <button className="btn-modal-close" onClick={() => setActiveDetailLead(null)}>

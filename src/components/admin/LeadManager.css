@@ -514,47 +514,23 @@
     transform: translateY(-1px);
 }
 
-.action-btn-advanced {
-    width: 32px;
-    height: 32px;
-    display: flex;
+.btn-delete-lead {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
+    padding: 6px 9px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.25);
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s;
 }
 
-.action-btn-advanced:hover {
-    transform: translateY(-2px);
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.action-btn-advanced.wa:hover {
-    border-color: #25D366;
-    box-shadow: 0 0 10px rgba(37, 211, 102, 0.4);
-}
-
-.action-btn-advanced.mail:hover {
-    border-color: #EA4335;
-    box-shadow: 0 0 10px rgba(234, 67, 53, 0.4);
-}
-
-.action-btn-advanced.copy:hover {
-    border-color: #00d4ff;
-    box-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
-}
-
-.action-btn-advanced.inspect:hover {
-    border-color: #ffb703;
-    box-shadow: 0 0 10px rgba(255, 183, 3, 0.4);
-}
-
-.action-btn-advanced.delete:hover {
-    border-color: #ff4444;
-    box-shadow: 0 0 10px rgba(255, 68, 68, 0.4);
+.btn-delete-lead:hover {
+    background: rgba(239, 68, 68, 0.25);
+    border-color: rgba(239, 68, 68, 0.6);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+    transform: translateY(-1px);
 }
 
 /* Empty State */
