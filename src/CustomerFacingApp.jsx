@@ -86,7 +86,11 @@ function CustomerFacingApp() {
     } catch (e) {}
 
     // Save lead into database immediately on "Check Eligibility"
-    saveLead(combinedData, submissionData);
+    try {
+      await saveLead(combinedData, submissionData);
+    } catch (saveErr) {
+      console.warn('Non-blocking lead save notice:', saveErr);
+    }
 
     try {
       console.log('='.repeat(80));

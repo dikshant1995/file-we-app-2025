@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { db } from '../../config/firebase.js';
-import { collection, getDocs, doc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, deleteDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import './LeadManager.css';
 
 const MONTH_NAMES = [
@@ -124,10 +124,48 @@ const LeadManager = ({ userRole }) => {
         }
     };
 
+    // Real-time Firestore Cloud Listener
     useEffect(() => {
-        fetchLeads();
-        window.addEventListener('storage', fetchLeads);
-        return () => window.removeEventListener('storage', fetchLeads);
+        setLoading(true);
+        let unsubscribe = () => {};
+        try {
+            unsubscribe = onSnapshot(collection(db, 'leads'), (snapshot) => {
+                const firestoreLeads = snapshot.docs.map(d => ({
+                    ...d.data(),
+                    id: d.data().id || d.id
+                }));
+                console.log(`🔥 Real-time leads sync: ${firestoreLeads.length} leads in Firestore`);
+
+                const stored = localStorage.getItem('laxmi_leads');
+                const localLeads = stored ? JSON.parse(stored) : [];
+
+                const combined = [...firestoreLeads, ...(Array.isArray(localLeads) ? localLeads : [])];
+                const uniqueMap = new Map();
+                combined.forEach(item => {
+                    const key = item.id || `${item.mobile}_${item.name}`;
+                    if (!uniqueMap.has(key)) {
+                        uniqueMap.set(key, item);
+                    }
+                });
+
+                const uniqueLeads = Array.from(uniqueMap.values());
+                setLeads(uniqueLeads.length > 0 ? uniqueLeads : mockLeads);
+                setLoading(false);
+            }, (fsErr) => {
+                console.warn('⚠️ Real-time listener fallback:', fsErr);
+                fetchLeads();
+            });
+        } catch (e) {
+            fetchLeads();
+        }
+
+        const handleStorageChange = () => fetchLeads();
+        window.addEventListener('storage', handleStorageChange);
+
+        return () => {
+            unsubscribe();
+            window.removeEventListener('storage', handleStorageChange);
+        };
     }, []);
 
     // Robust Lead Date Parser
