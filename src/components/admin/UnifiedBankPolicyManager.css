@@ -847,6 +847,801 @@
   background: rgba(239, 68, 68, 0.1);
 }
 
+/* ==========================================================================
+   COMPANY CATEGORY MASTER & EXCEL OVERHAUL STYLES
+   ========================================================================== */
+
+.company-category-overhaul-card {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.card-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(30, 64, 175, 0.22);
+  color: #60a5fa;
+  border: 1px solid rgba(96, 165, 250, 0.3);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+/* Alert Banners */
+.excel-alert-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  animation: fadeInDown 0.25s ease;
+}
+
+.excel-alert-banner.success {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.excel-alert-banner.error {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.alert-dismiss-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.7;
+  padding: 2px;
+}
+
+.alert-dismiss-btn:hover {
+  opacity: 1;
+}
+
+/* 1. Excel Management Panel */
+.excel-management-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #0b1329;
+  border: 1px solid #1e293b;
+  border-radius: 14px;
+  padding: 18px 24px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.excel-meta-box {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.excel-file-icon-wrap {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #10b981;
+}
+
+.excel-file-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.excel-file-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.excel-file-name-row .file-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.2px;
+}
+
+.status-badge-live {
+  background: rgba(16, 185, 129, 0.18);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.excel-stats-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: #94a3b8;
+}
+
+.stat-pill strong {
+  color: #60a5fa;
+}
+
+.stat-separator {
+  color: #475569;
+}
+
+.excel-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-download-excel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #111c38;
+  color: #60a5fa;
+  border: 1px solid #1e40af;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  font-family: inherit;
+}
+
+.btn-download-excel:hover:not(:disabled) {
+  background: #1e40af;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+}
+
+.btn-download-excel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-replace-excel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #F58220;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 0.88rem;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  box-shadow: 0 3px 12px rgba(245, 130, 32, 0.35);
+  font-family: inherit;
+  user-select: none;
+}
+
+.btn-replace-excel:hover {
+  background: #ea580c;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 16px rgba(245, 130, 32, 0.45);
+}
+
+.btn-replace-excel.loading {
+  background: #94a3b8;
+  cursor: wait;
+}
+
+/* 2. Manual Company Category Lookup Tool */
+.company-lookup-section {
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 14px;
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.lookup-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lookup-title-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.lookup-icon {
+  color: #F58220;
+  margin-top: 2px;
+}
+
+.lookup-title-group h4 {
+  margin: 0 0 4px 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.lookup-title-group p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #94a3b8;
+}
+
+.lookup-title-group em {
+  color: #F58220;
+  font-style: normal;
+  font-weight: 700;
+}
+
+/* Search Bar & Autocomplete Dropdown Wrapper */
+.company-lookup-bar-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  width: 100%;
+}
+
+.lookup-input-container {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.inner-search-icon {
+  position: absolute;
+  left: 16px;
+  color: #64748b;
+  pointer-events: none;
+}
+
+.lookup-text-input {
+  width: 100%;
+  background: #0b1329;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 13px 44px 13px 46px;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  outline: none;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.lookup-text-input:focus {
+  border-color: #F58220;
+  box-shadow: 0 0 0 3px rgba(245, 130, 32, 0.15);
+  background: #080e20;
+}
+
+.btn-clear-lookup {
+  position: absolute;
+  right: 14px;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-clear-lookup:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-find-category {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #1E40AF;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 13px 26px;
+  font-size: 0.92rem;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  box-shadow: 0 4px 14px rgba(30, 64, 175, 0.35);
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.btn-find-category:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(30, 64, 175, 0.45);
+}
+
+/* Autocomplete Dropdown Popover */
+.autocomplete-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #0b1329;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65);
+  z-index: 1000;
+  overflow: hidden;
+  max-height: 320px;
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: #080e20;
+  border-bottom: 1px solid #1e293b;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dropdown-header small {
+  color: #F58220;
+  text-transform: none;
+}
+
+.dropdown-list {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  overflow-y: auto;
+  max-height: 270px;
+}
+
+.dropdown-list::-webkit-scrollbar {
+  width: 5px;
+}
+.dropdown-list::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 10px;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.dropdown-item:hover {
+  background: #111c38;
+}
+
+.dropdown-item-icon {
+  color: #60a5fa;
+  flex-shrink: 0;
+}
+
+.dropdown-item-name {
+  font-size: 0.88rem;
+  font-weight: 650;
+  color: #f1f5f9;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-item-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #F58220;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.dropdown-item:hover .dropdown-item-action {
+  opacity: 1;
+}
+
+/* Result Card */
+.lookup-result-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-radius: 12px;
+  gap: 20px;
+  animation: fadeIn 0.25s ease;
+  flex-wrap: wrap;
+}
+
+.lookup-result-card.found {
+  background: rgba(30, 64, 175, 0.12);
+  border: 1px solid rgba(96, 165, 250, 0.35);
+}
+
+.lookup-result-card.fallback {
+  background: rgba(245, 130, 32, 0.08);
+  border: 1px solid rgba(245, 130, 32, 0.3);
+}
+
+.result-card-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.category-display-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.badge-tier-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.badge-tier-value {
+  font-size: 1.15rem;
+  font-weight: 900;
+  letter-spacing: -0.3px;
+}
+
+.cat-badge-super-a {
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  color: #ffffff;
+  box-shadow: 0 3px 12px rgba(124, 58, 237, 0.35);
+}
+
+.cat-badge-a {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #ffffff;
+  box-shadow: 0 3px 12px rgba(37, 99, 235, 0.35);
+}
+
+.cat-badge-b {
+  background: linear-gradient(135deg, #059669, #047857);
+  color: #ffffff;
+  box-shadow: 0 3px 12px rgba(5, 150, 105, 0.35);
+}
+
+.cat-badge-c {
+  background: linear-gradient(135deg, #d97706, #b45309);
+  color: #ffffff;
+  box-shadow: 0 3px 12px rgba(217, 119, 6, 0.35);
+}
+
+.cat-badge-d {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: #ffffff;
+  box-shadow: 0 3px 12px rgba(220, 38, 38, 0.35);
+}
+
+.cat-badge-govt {
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  color: #ffffff;
+  box-shadow: 0 3px 12px rgba(2, 132, 199, 0.35);
+}
+
+.cat-badge-unlisted {
+  background: #334155;
+  color: #cbd5e1;
+}
+
+.result-company-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.result-company-name {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.result-bank-statement {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #cbd5e1;
+}
+
+.result-bank-statement strong {
+  color: #F58220;
+}
+
+.partial-match-note {
+  font-size: 0.75rem;
+  color: #60a5fa;
+}
+
+.result-card-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 750;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.status-indicator.verified {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-indicator.fallback {
+  background: rgba(245, 130, 32, 0.15);
+  color: #fb923c;
+  border: 1px solid rgba(245, 130, 32, 0.3);
+}
+
+.policy-impact-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  color: #94a3b8;
+}
+
+.policy-impact-pill svg {
+  color: #F58220;
+}
+
+/* 3. Master Table Section */
+.excel-table-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.table-header-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.table-title-area h5 {
+  margin: 0 0 2px 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.table-title-area span {
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+.table-filter-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.table-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.table-search-box .search-icon {
+  position: absolute;
+  left: 10px;
+  color: #64748b;
+}
+
+.table-search-box input {
+  background: #0b1329;
+  border: 1px solid #1e293b;
+  border-radius: 8px;
+  padding: 7px 28px 7px 32px;
+  color: #ffffff;
+  font-size: 0.82rem;
+  outline: none;
+  width: 200px;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.table-search-box input:focus {
+  border-color: #60a5fa;
+  width: 240px;
+}
+
+.btn-clear-sub {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.tier-filter-pills {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.filter-pill-btn {
+  background: #0b1329;
+  color: #94a3b8;
+  border: 1px solid #1e293b;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  font-family: inherit;
+}
+
+.filter-pill-btn:hover {
+  color: #ffffff;
+  border-color: #334155;
+}
+
+.filter-pill-btn.active {
+  background: #F58220;
+  color: #ffffff;
+  border-color: #F58220;
+}
+
+.page-size-selector select {
+  background: #0b1329;
+  border: 1px solid #1e293b;
+  color: #94a3b8;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  outline: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.company-master-table th {
+  background: #080e20;
+  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 12px 14px;
+}
+
+.company-table-name-cell strong {
+  color: #f8fafc;
+  font-size: 0.88rem;
+}
+
+.table-pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 4px;
+  font-size: 0.82rem;
+  color: #94a3b8;
+}
+
+.pagination-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-page-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #0b1329;
+  border: 1px solid #1e293b;
+  color: #94a3b8;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.btn-page-nav:hover:not(:disabled) {
+  color: #ffffff;
+  border-color: #60a5fa;
+  background: #111c38;
+}
+
+.btn-page-nav:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.spin-animate {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @media (max-width: 900px) {
   .policy-location-selector-bar {
     flex-direction: column;
@@ -861,4 +1656,23 @@
   .card-actions-row {
     grid-template-columns: 1fr;
   }
+  .excel-management-panel {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .company-lookup-bar-wrapper {
+    flex-direction: column;
+  }
+  .btn-find-category {
+    width: 100%;
+    justify-content: center;
+  }
+  .lookup-result-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .result-card-right {
+    align-items: flex-start;
+  }
 }
+

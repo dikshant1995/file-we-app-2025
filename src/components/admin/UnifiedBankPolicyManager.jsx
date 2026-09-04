@@ -1,11 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import * as XLSX from 'xlsx';
 import { 
   Building2, Settings, AlertTriangle, Trash2, CheckCircle2, 
   ArrowLeft, Search, Plus, Save, RefreshCw, Layers, TrendingUp, 
   Zap, Shield, User, DollarSign, Calendar, MapPin, SlidersHorizontal, 
-  PowerOff, Play, Check, X
+  PowerOff, Play, Check, X, Download, Upload, FileSpreadsheet,
+  ChevronLeft, ChevronRight, CheckCircle, HelpCircle, FileText, ArrowRight
 } from 'lucide-react';
 import { getBankConfig, saveBankConfig } from '../../services/bankConfigService.js';
+import { 
+  loadBankDatabase, 
+  setBankDatabaseInMemory, 
+  saveBankDatabaseToCloud, 
+  syncToUniversalDatabase, 
+  getCompanySuggestions, 
+  loadUniversalCompanies 
+} from '../../services/companyDatabaseService.js';
 import './UnifiedBankPolicyManager.css';
 
 // 12 Standard Partner Banks
@@ -23,6 +33,39 @@ const INITIAL_12_BANKS = [
   { id: 'shri-ram', name: 'Shri Ram Finance', color: '#1F4E78', minRate: 12.5, maxLoan: 2000000, maxTenure: 48, enabled: true },
   { id: 'piramal', name: 'Piramal Finance', color: '#1F4E78', minRate: 11.75, maxLoan: 3000000, maxTenure: 60, enabled: true }
 ];
+
+const getBankDbKey = (bankId) => {
+  const map = {
+    'axis-fin': 'axis_fin',
+    'cholamandalam': 'chola',
+    'shri-ram': 'shri_ram'
+  };
+  return map[bankId] || bankId;
+};
+
+const formatCategoryDisplay = (cat) => {
+  if (!cat) return 'Category B (Default)';
+  const upper = String(cat).toUpperCase().trim();
+  if (upper === 'SCATA' || upper === 'SUPER A' || upper === 'A+') return 'Super A';
+  if (upper === 'CATGA' || upper === 'A' || upper === 'CAT A' || upper === 'CATEGORY A') return 'Category A';
+  if (upper === 'CATGB' || upper === 'B' || upper === 'CAT B' || upper === 'CATEGORY B') return 'Category B';
+  if (upper === 'CATGC' || upper === 'C' || upper === 'CAT C' || upper === 'CATEGORY C') return 'Category C';
+  if (upper === 'CATGD' || upper === 'D' || upper === 'CAT D' || upper === 'CATEGORY D') return 'Category D';
+  if (upper === 'GOVT' || upper === 'PSU') return 'Govt / PSU';
+  if (upper === 'UNLISTED') return 'Unlisted';
+  return cat;
+};
+
+const getCategoryBadgeClass = (cat) => {
+  const upper = String(cat || '').toUpperCase().trim();
+  if (upper.includes('SUPER') || upper === 'SCATA' || upper === 'A+') return 'cat-badge-super-a';
+  if (upper === 'CATGA' || upper === 'A' || upper.includes('CATEGORY A')) return 'cat-badge-a';
+  if (upper === 'CATGB' || upper === 'B' || upper.includes('CATEGORY B')) return 'cat-badge-b';
+  if (upper === 'CATGC' || upper === 'C' || upper.includes('CATEGORY C')) return 'cat-badge-c';
+  if (upper === 'CATGD' || upper === 'D' || upper.includes('CATEGORY D')) return 'cat-badge-d';
+  if (upper.includes('GOVT') || upper.includes('PSU')) return 'cat-badge-govt';
+  return 'cat-badge-unlisted';
+};
 
 // State & City Data
 const STATE_CITY_MAPPING = {
@@ -127,9 +170,34 @@ const UnifiedBankPolicyManager = () => {
     companies: INITIAL_COMPANY_DATABASE
   });
 
-  // Search in Company Category List
-  const [companySearch, setCompanySearch] = useState('');
-  const [companyCategoryFilter, setCompanyCategoryFilter] = useState('all');
+  // Bank Specific Company Database State
+  const [bankCompanies, setBankCompanies] = useState([]);
+  const [bankFileMetadata, setBankFileMetadata] = useState({
+    fileName: '',
+    totalCount: 0,
+    lastUpdated: ''
+  });
+  const [isLoadingBankCompanies, setIsLoadingBankCompanies] = useState(false);
+  const [isUploadingExcel, setIsUploadingExcel] = useState(false);
+  const [uploadSuccessMessage, setUploadSuccessMessage] = useState('');
+  const [uploadErrorMessage, setUploadErrorMessage] = useState('');
+
+  // Manual Company Category Lookup State
+  const [lookupQuery, setLookupQuery] = useState('');
+  const [selectedLookupCompany, setSelectedLookupCompany] = useState('');
+  const [lookupSuggestions, setLookupSuggestions] = useState([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [lookupResult, setLookupResult] = useState(null);
+  const dropdownRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  // Table Controls & Pagination
+  const [tableSearch, setTableSearch] = useState('');
+  const [tableCatFilter, setTableCatFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+
+  // Fallback Add Single Company Form
   const [newCompany, setNewCompany] = useState({ name: '', category: 'A', type: 'Private Enterprise', minSalary: 30000 });
 
   // Update cities whenever state changes
@@ -214,6 +282,302 @@ const UnifiedBankPolicyManager = () => {
     }
   };
 
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Load active bank's company database whenever activeConfigBank changes
+  useEffect(() => {
+    if (activeConfigBank) {
+      const bankKey = getBankDbKey(activeConfigBank.id);
+      setIsLoadingBankCompanies(true);
+      setUploadSuccessMessage('');
+      setUploadErrorMessage('');
+      setLookupResult(null);
+      setLookupQuery('');
+      setSelectedLookupCompany('');
+      setIsDropdownOpen(false);
+      setTableSearch('');
+      setTableCatFilter('all');
+      setCurrentPage(1);
+
+      loadBankDatabase(bankKey).then(data => {
+        if (data && data.length > 0) {
+          setBankCompanies(data);
+          setBankFileMetadata({
+            fileName: `${activeConfigBank.name.replace(/[^a-zA-Z0-9]/g, '_')}_company_category_master.xlsx`,
+            totalCount: data.length,
+            lastUpdated: 'Live Active System'
+          });
+        } else {
+          const fallbackData = INITIAL_COMPANY_DATABASE.map((c, i) => ({
+            id: 'c_' + i,
+            companyName: c.name,
+            category: c.category
+          }));
+          setBankCompanies(fallbackData);
+          setBankFileMetadata({
+            fileName: `${activeConfigBank.name.replace(/[^a-zA-Z0-9]/g, '_')}_default_master.xlsx`,
+            totalCount: fallbackData.length,
+            lastUpdated: 'Default Template'
+          });
+        }
+        setIsLoadingBankCompanies(false);
+      }).catch(err => {
+        console.warn('Bank company loading notice:', err);
+        const fallbackData = INITIAL_COMPANY_DATABASE.map((c, i) => ({
+          id: 'c_' + i,
+          companyName: c.name,
+          category: c.category
+        }));
+        setBankCompanies(fallbackData);
+        setIsLoadingBankCompanies(false);
+      });
+
+      // Pre-load universal companies in background for autocomplete
+      loadUniversalCompanies().catch(() => {});
+    }
+  }, [activeConfigBank]);
+
+  // 1. Download Current Excel (.xlsx)
+  const handleDownloadExcel = () => {
+    if (!bankCompanies || bankCompanies.length === 0) {
+      alert(`No company records found for ${activeConfigBank.name} to download.`);
+      return;
+    }
+
+    const exportRows = bankCompanies.map((c, idx) => ({
+      "S.No": idx + 1,
+      "Company Name": c.companyName || c.name || "",
+      "Category Tier": c.category || "B",
+      "Partner Bank": activeConfigBank.name
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportRows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Company Categories");
+    
+    const cleanBankName = activeConfigBank.name.replace(/[^a-zA-Z0-9]/g, '_');
+    const fileName = `${cleanBankName}_Company_Category_List.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+  };
+
+  // 2. Replace / Upload New Excel File
+  const handleExcelUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingExcel(true);
+    setUploadSuccessMessage('');
+    setUploadErrorMessage('');
+
+    const reader = new FileReader();
+    reader.onload = async (evt) => {
+      try {
+        const binaryStr = evt.target.result;
+        const workbook = XLSX.read(binaryStr, { type: 'binary' });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        const rawRows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+
+        if (!rawRows || rawRows.length === 0) {
+          throw new Error('The uploaded spreadsheet contains no data rows.');
+        }
+
+        // Auto-detect company name and category columns
+        const sampleRow = rawRows[0];
+        const keys = Object.keys(sampleRow);
+        
+        const compKey = keys.find(k => 
+          /company|employer|firm|corporate|organization|name/i.test(k)
+        ) || keys[0];
+
+        const catKey = keys.find(k => 
+          /category|cat|tier|grade|classification/i.test(k)
+        ) || (keys[1] || keys[0]);
+
+        const parsedCompanies = [];
+        const seen = new Set();
+
+        rawRows.forEach((row, idx) => {
+          const rawName = row[compKey];
+          if (!rawName) return;
+          const name = String(rawName).trim();
+          if (!name || seen.has(name.toUpperCase())) return;
+          seen.add(name.toUpperCase());
+
+          const rawCat = row[catKey];
+          const category = rawCat ? String(rawCat).trim() : 'B';
+
+          parsedCompanies.push({
+            id: 'comp_' + idx,
+            companyName: name,
+            category: category
+          });
+        });
+
+        if (parsedCompanies.length === 0) {
+          throw new Error('Could not identify valid company records in the uploaded spreadsheet.');
+        }
+
+        const bankKey = getBankDbKey(activeConfigBank.id);
+        
+        // Update state
+        setBankCompanies(parsedCompanies);
+        setBankFileMetadata({
+          fileName: file.name,
+          totalCount: parsedCompanies.length,
+          lastUpdated: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+        });
+
+        // Update in-memory database
+        setBankDatabaseInMemory(bankKey, parsedCompanies);
+
+        // Async sync to Cloud Firestore & Universal Database
+        try {
+          await saveBankDatabaseToCloud(bankKey, parsedCompanies);
+          await syncToUniversalDatabase(parsedCompanies);
+        } catch (cloudErr) {
+          console.warn('Could not sync to cloud, stored locally:', cloudErr);
+        }
+
+        setUploadSuccessMessage(`Successfully updated ${parsedCompanies.length.toLocaleString('en-IN')} companies from ${file.name} for ${activeConfigBank.name}!`);
+        setCurrentPage(1);
+      } catch (err) {
+        console.error('Excel upload error:', err);
+        setUploadErrorMessage(err.message || 'Failed to parse Excel file. Please ensure columns include Company Name and Category.');
+      } finally {
+        setIsUploadingExcel(false);
+        e.target.value = '';
+      }
+    };
+    reader.readAsBinaryString(file);
+  };
+
+  // 3. Search & Autocomplete Lookup
+  const handleLookupInputChange = (e) => {
+    const value = e.target.value;
+    setLookupQuery(value);
+    setSelectedLookupCompany(value);
+    setLookupResult(null);
+
+    if (value.trim().length >= 2) {
+      const q = value.toLowerCase().trim();
+      // Filter from active bank companies
+      const bankMatches = bankCompanies
+        .filter(c => (c.companyName || c.name || '').toLowerCase().includes(q))
+        .map(c => c.companyName || c.name);
+
+      // Also get suggestions from universal database
+      const universalMatches = getCompanySuggestions(value) || [];
+
+      // Deduplicate and combine (bank matches prioritized)
+      const combined = Array.from(new Set([...bankMatches, ...universalMatches])).slice(0, 12);
+      setLookupSuggestions(combined);
+      setIsDropdownOpen(combined.length > 0);
+    } else {
+      setLookupSuggestions([]);
+      setIsDropdownOpen(false);
+    }
+  };
+
+  const handleSelectSuggestion = (companyName) => {
+    setLookupQuery(companyName);
+    setSelectedLookupCompany(companyName);
+    setIsDropdownOpen(false);
+    executeFindCategory(companyName);
+  };
+
+  const executeFindCategory = (companyNameToSearch) => {
+    const target = (companyNameToSearch || lookupQuery || '').trim();
+    if (!target) {
+      alert('Please enter or select a company name to find its category.');
+      return;
+    }
+
+    setIsDropdownOpen(false);
+    const normalizedTarget = target.toUpperCase();
+    
+    // Look in active bankCompanies
+    const exactMatch = bankCompanies.find(c => 
+      (c.companyName || c.name || '').trim().toUpperCase() === normalizedTarget
+    );
+
+    if (exactMatch) {
+      setLookupResult({
+        companyName: exactMatch.companyName || exactMatch.name,
+        category: exactMatch.category,
+        displayCategory: formatCategoryDisplay(exactMatch.category),
+        isListed: true,
+        bankName: activeConfigBank.name
+      });
+      return;
+    }
+
+    // If no exact match, try partial match
+    const partialMatch = bankCompanies.find(c => 
+      (c.companyName || c.name || '').trim().toUpperCase().includes(normalizedTarget)
+    );
+
+    if (partialMatch) {
+      setLookupResult({
+        companyName: partialMatch.companyName || partialMatch.name,
+        searchQuery: target,
+        category: partialMatch.category,
+        displayCategory: formatCategoryDisplay(partialMatch.category),
+        isListed: true,
+        isPartial: true,
+        bankName: activeConfigBank.name
+      });
+      return;
+    }
+
+    // If unlisted in this bank
+    setLookupResult({
+      companyName: target,
+      category: 'UNLISTED',
+      displayCategory: 'Unlisted (Default Category B)',
+      isListed: false,
+      bankName: activeConfigBank.name
+    });
+  };
+
+  // Inline Category Change in Table
+  const handleInlineCategoryChange = (indexOrId, newCategory) => {
+    setBankCompanies(prev => {
+      const updated = [...prev];
+      if (typeof indexOrId === 'number') {
+        updated[indexOrId] = { ...updated[indexOrId], category: newCategory };
+      } else {
+        const idx = updated.findIndex(c => c.id === indexOrId);
+        if (idx !== -1) updated[idx] = { ...updated[idx], category: newCategory };
+      }
+      const bankKey = getBankDbKey(activeConfigBank.id);
+      setBankDatabaseInMemory(bankKey, updated);
+      return updated;
+    });
+  };
+
+  // Delete Company from Active Bank List
+  const handleDeleteBankCompany = (compToDelete) => {
+    const targetName = compToDelete.companyName || compToDelete.name;
+    if (window.confirm(`Remove "${targetName}" from ${activeConfigBank.name}'s database?`)) {
+      setBankCompanies(prev => {
+        const updated = prev.filter(c => (c.companyName || c.name) !== targetName);
+        const bankKey = getBankDbKey(activeConfigBank.id);
+        setBankDatabaseInMemory(bankKey, updated);
+        return updated;
+      });
+    }
+  };
+
   // Add Company to Category List
   const handleAddCompany = (e) => {
     e.preventDefault();
@@ -223,32 +587,37 @@ const UnifiedBankPolicyManager = () => {
     }
     const created = {
       id: 'c_' + Date.now(),
-      name: newCompany.name.trim(),
+      companyName: newCompany.name.trim(),
       category: newCompany.category,
       type: newCompany.type,
       minSalary: Number(newCompany.minSalary) || 25000
     };
-    setPolicyData(prev => ({
-      ...prev,
-      companies: [created, ...prev.companies]
-    }));
+    const updated = [created, ...bankCompanies];
+    setBankCompanies(updated);
+    const bankKey = getBankDbKey(activeConfigBank.id);
+    setBankDatabaseInMemory(bankKey, updated);
     setNewCompany({ name: '', category: 'A', type: 'Private Enterprise', minSalary: 30000 });
   };
 
-  // Delete Company from Category List
-  const handleDeleteCompany = (id) => {
-    setPolicyData(prev => ({
-      ...prev,
-      companies: prev.companies.filter(c => c.id !== id)
-    }));
-  };
-
-  // Filtered Company List
-  const filteredCompanies = policyData.companies.filter(c => {
-    const matchesSearch = c.name.toLowerCase().includes(companySearch.toLowerCase());
-    const matchesCategory = companyCategoryFilter === 'all' || c.category === companyCategoryFilter;
-    return matchesSearch && matchesCategory;
+  // Filtered Company List for Table
+  const filteredBankCompanies = bankCompanies.filter(comp => {
+    const name = (comp.companyName || comp.name || '').toLowerCase();
+    const matchesSearch = !tableSearch || name.includes(tableSearch.toLowerCase().trim());
+    if (!matchesSearch) return false;
+    if (tableCatFilter === 'all') return true;
+    const cat = String(comp.category || '').toUpperCase();
+    if (tableCatFilter === 'SUPER_A') return cat.includes('SUPER') || cat === 'SCATA' || cat === 'A+';
+    if (tableCatFilter === 'A') return cat === 'CATGA' || cat === 'A' || cat.includes('CATEGORY A');
+    if (tableCatFilter === 'B') return cat === 'CATGB' || cat === 'B' || cat.includes('CATEGORY B');
+    if (tableCatFilter === 'C') return cat === 'CATGC' || cat === 'C' || cat.includes('CATEGORY C');
+    if (tableCatFilter === 'D') return cat === 'CATGD' || cat === 'D' || cat.includes('CATEGORY D');
+    if (tableCatFilter === 'GOVT') return cat.includes('GOVT') || cat.includes('PSU');
+    if (tableCatFilter === 'UNLISTED') return cat.includes('UNLISTED');
+    return true;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filteredBankCompanies.length / pageSize));
+  const paginatedCompanies = filteredBankCompanies.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
     <div className="unified-policy-manager">
@@ -989,153 +1358,385 @@ const UnifiedBankPolicyManager = () => {
             </div>
           )}
 
-          {/* TAB 6: COMPANY CATEGORY LIST (VIEW & EDIT) */}
+          {/* TAB 6: COMPANY CATEGORY DATABASE & EXCEL MANAGER */}
           {activeConfigTab === 'companies' && (
-            <div className="tabular-policy-card">
-              <div className="table-card-header">
+            <div className="tabular-policy-card company-category-overhaul-card">
+              {/* Header */}
+              <div className="table-card-header company-category-top-header">
                 <div>
-                  <h3>Company Category Database ({filteredCompanies.length})</h3>
-                  <p>View, search, assign, or add corporate employers and their category tier for {activeConfigBank.name}.</p>
+                  <div className="card-badge-pill">
+                    <FileSpreadsheet size={14} />
+                    <span>INSTITUTIONAL CORPORATE MASTER</span>
+                  </div>
+                  <h3>Company Category Master — {activeConfigBank.name}</h3>
+                  <p>Manage the active employer database for {activeConfigBank.name}. Download or replace the spreadsheet, or manually lookup company category tiers.</p>
                 </div>
               </div>
 
-              {/* Add New Company Form */}
-              <form onSubmit={handleAddCompany} className="add-company-inline-form">
-                <div className="form-input-box">
-                  <label>Company Name</label>
-                  <input 
-                    type="text"
-                    placeholder="e.g. Adobe India, Cognizant..."
-                    value={newCompany.name}
-                    onChange={(e) => setNewCompany({ ...newCompany, name: e.target.value })}
-                    required
-                  />
+              {/* Upload Alert Banners */}
+              {uploadSuccessMessage && (
+                <div className="excel-alert-banner success">
+                  <CheckCircle size={18} />
+                  <span>{uploadSuccessMessage}</span>
+                  <button onClick={() => setUploadSuccessMessage('')} className="alert-dismiss-btn"><X size={14} /></button>
                 </div>
-                <div className="form-input-box" style={{ maxWidth: '160px' }}>
-                  <label>Assign Category</label>
-                  <select 
-                    value={newCompany.category}
-                    onChange={(e) => setNewCompany({ ...newCompany, category: e.target.value })}
+              )}
+              {uploadErrorMessage && (
+                <div className="excel-alert-banner error">
+                  <AlertTriangle size={18} />
+                  <span>{uploadErrorMessage}</span>
+                  <button onClick={() => setUploadErrorMessage('')} className="alert-dismiss-btn"><X size={14} /></button>
+                </div>
+              )}
+
+              {/* 1. Current Excel Dataset Card & Operations */}
+              <div className="excel-management-panel">
+                <div className="excel-meta-box">
+                  <div className="excel-file-icon-wrap">
+                    <FileSpreadsheet size={28} className="excel-icon" />
+                  </div>
+                  <div className="excel-file-info">
+                    <div className="excel-file-name-row">
+                      <span className="file-name">{bankFileMetadata.fileName || `${activeConfigBank.name}_Company_Master.xlsx`}</span>
+                      <span className="status-badge-live">Active Database</span>
+                    </div>
+                    <div className="excel-stats-row">
+                      <span className="stat-pill">
+                        <strong>{(bankFileMetadata.totalCount || bankCompanies.length).toLocaleString('en-IN')}</strong> Companies Indexed
+                      </span>
+                      <span className="stat-separator">•</span>
+                      <span className="stat-pill text-muted">
+                        Status: {bankFileMetadata.lastUpdated || 'Synchronized'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="excel-action-buttons">
+                  <button 
+                    type="button" 
+                    className="btn-download-excel"
+                    onClick={handleDownloadExcel}
+                    title="Download active database as formatted Excel spreadsheet"
+                    disabled={isLoadingBankCompanies}
                   >
-                    <option value="Super A">Super A</option>
-                    <option value="A">Category A</option>
-                    <option value="B">Category B</option>
-                    <option value="C">Category C</option>
-                    <option value="Govt">Govt / PSU</option>
-                  </select>
-                </div>
-                <div className="form-input-box" style={{ maxWidth: '180px' }}>
-                  <label>Company Type</label>
-                  <input 
-                    type="text"
-                    placeholder="e.g. Listed MNC"
-                    value={newCompany.type}
-                    onChange={(e) => setNewCompany({ ...newCompany, type: e.target.value })}
-                  />
-                </div>
-                <div className="form-input-box" style={{ maxWidth: '160px' }}>
-                  <label>Min Salary (₹)</label>
-                  <input 
-                    type="number"
-                    value={newCompany.minSalary}
-                    onChange={(e) => setNewCompany({ ...newCompany, minSalary: e.target.value })}
-                  />
-                </div>
-                <button type="submit" className="btn-add-company">
-                  <Plus size={16} />
-                  <span>Add Company</span>
-                </button>
-              </form>
+                    <Download size={16} />
+                    <span>Download Current Excel</span>
+                  </button>
 
-              {/* Controls: Search & Category Filter */}
-              <div className="company-table-controls">
-                <div className="search-input-group">
-                  <Search size={16} className="search-icon" />
-                  <input 
-                    type="text"
-                    placeholder="Search employer by name..."
-                    value={companySearch}
-                    onChange={(e) => setCompanySearch(e.target.value)}
-                  />
-                </div>
-
-                <div className="cat-filter-group">
-                  <span>Filter:</span>
-                  {['all', 'Super A', 'A', 'B', 'C', 'Govt'].map(cat => (
-                    <button 
-                      key={cat}
-                      className={`filter-btn ${companyCategoryFilter === cat ? 'active' : ''}`}
-                      onClick={() => setCompanyCategoryFilter(cat)}
-                    >
-                      {cat === 'all' ? 'All Tiers' : cat}
-                    </button>
-                  ))}
+                  <label className={`btn-replace-excel ${isUploadingExcel ? 'loading' : ''}`} title="Upload new .xlsx, .xls, or .csv file to replace database">
+                    {isUploadingExcel ? (
+                      <>
+                        <RefreshCw size={16} className="spin-animate" />
+                        <span>Processing Spreadsheet...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload size={16} />
+                        <span>Replace Excel File</span>
+                      </>
+                    )}
+                    <input 
+                      ref={fileInputRef}
+                      type="file" 
+                      accept=".xlsx, .xls, .csv" 
+                      onChange={handleExcelUpload}
+                      style={{ display: 'none' }}
+                      disabled={isUploadingExcel}
+                    />
+                  </label>
                 </div>
               </div>
 
-              {/* Company List Table */}
-              <div className="table-responsive" style={{ maxHeight: '520px', overflowY: 'auto' }}>
-                <table className="policy-table">
-                  <thead>
-                    <tr>
-                      <th style={{ width: '40%' }}>Employer / Company Name</th>
-                      <th>Category Tier</th>
-                      <th>Industry / Classification</th>
-                      <th>Min Verifiable Salary</th>
-                      <th style={{ textAlign: 'center' }}>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredCompanies.length > 0 ? (
-                      filteredCompanies.map(comp => (
-                        <tr key={comp.id}>
-                          <td>
-                            <strong>{comp.name}</strong>
-                          </td>
-                          <td>
-                            {/* Inline Category Editor Dropdown */}
-                            <select 
-                              className={`cat-select-inline cat-${comp.category.toLowerCase().replace(/\s+/g, '-')}`}
-                              value={comp.category}
-                              onChange={(e) => {
-                                const newCat = e.target.value;
-                                setPolicyData(prev => ({
-                                  ...prev,
-                                  companies: prev.companies.map(c => c.id === comp.id ? { ...c, category: newCat } : c)
-                                }));
-                              }}
+              {/* 2. Manual Company Category Lookup Tool */}
+              <div className="company-lookup-section">
+                <div className="lookup-section-header">
+                  <div className="lookup-title-group">
+                    <Search size={18} className="lookup-icon" />
+                    <div>
+                      <h4>Manual Company Category Lookup</h4>
+                      <p>Type a company name (e.g. <em>bikaji</em>) and select from the dropdown to verify its exact tier in {activeConfigBank.name}.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="company-lookup-bar-wrapper" ref={dropdownRef}>
+                  <div className="lookup-input-container">
+                    <Search size={18} className="inner-search-icon" />
+                    <input 
+                      type="text"
+                      className="lookup-text-input"
+                      placeholder="Type company name here (e.g. Bikaji, Tata, Infosys)..."
+                      value={lookupQuery}
+                      onChange={handleLookupInputChange}
+                      onFocus={() => {
+                        if (lookupSuggestions.length > 0) setIsDropdownOpen(true);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          executeFindCategory();
+                        }
+                      }}
+                    />
+                    {lookupQuery && (
+                      <button 
+                        type="button" 
+                        className="btn-clear-lookup"
+                        onClick={() => {
+                          setLookupQuery('');
+                          setSelectedLookupCompany('');
+                          setLookupSuggestions([]);
+                          setIsDropdownOpen(false);
+                          setLookupResult(null);
+                        }}
+                      >
+                        <X size={14} />
+                      </button>
+                    )}
+
+                    {/* Auto-suggest dropdown popover */}
+                    {isDropdownOpen && lookupSuggestions.length > 0 && (
+                      <div className="autocomplete-dropdown">
+                        <div className="dropdown-header">
+                          <span>Matching Companies ({lookupSuggestions.length})</span>
+                          <small>Click to select & verify</small>
+                        </div>
+                        <ul className="dropdown-list">
+                          {lookupSuggestions.map((suggestion, sIdx) => (
+                            <li 
+                              key={sIdx} 
+                              className="dropdown-item"
+                              onClick={() => handleSelectSuggestion(suggestion)}
                             >
-                              <option value="Super A">Super A</option>
-                              <option value="A">Category A</option>
-                              <option value="B">Category B</option>
-                              <option value="C">Category C</option>
-                              <option value="Govt">Govt / PSU</option>
-                            </select>
-                          </td>
-                          <td>
-                            <span className="type-badge">{comp.type}</span>
-                          </td>
-                          <td>₹{Number(comp.minSalary || 25000).toLocaleString('en-IN')}</td>
-                          <td style={{ textAlign: 'center' }}>
-                            <button 
-                              className="btn-delete-company-row"
-                              onClick={() => handleDeleteCompany(comp.id)}
-                              title="Delete company from category mapping"
-                            >
-                              <Trash2 size={14} />
-                            </button>
+                              <Building2 size={14} className="dropdown-item-icon" />
+                              <span className="dropdown-item-name">{suggestion}</span>
+                              <span className="dropdown-item-action">Select <ArrowRight size={12} /></span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+
+                  <button 
+                    type="button"
+                    className="btn-find-category"
+                    onClick={() => executeFindCategory()}
+                  >
+                    <Search size={16} />
+                    <span>Find Category</span>
+                  </button>
+                </div>
+
+                {/* Lookup Result Card */}
+                {lookupResult && (
+                  <div className={`lookup-result-card ${lookupResult.isListed ? 'found' : 'fallback'}`}>
+                    <div className="result-card-left">
+                      <div className={`category-display-badge ${getCategoryBadgeClass(lookupResult.category)}`}>
+                        <span className="badge-tier-label">ASSIGNED TIER</span>
+                        <span className="badge-tier-value">{lookupResult.displayCategory}</span>
+                      </div>
+                      <div className="result-company-details">
+                        <h4 className="result-company-name">{lookupResult.companyName}</h4>
+                        <p className="result-bank-statement">
+                          This company belongs to <strong>{lookupResult.displayCategory}</strong> in <strong>{lookupResult.bankName}</strong>.
+                        </p>
+                        {lookupResult.isPartial && (
+                          <span className="partial-match-note">
+                            ℹ Matched via closest entity in {lookupResult.bankName} catalog.
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="result-card-right">
+                      {lookupResult.isListed ? (
+                        <div className="status-indicator verified">
+                          <CheckCircle2 size={18} />
+                          <span>Mapped in {lookupResult.bankName} Database</span>
+                        </div>
+                      ) : (
+                        <div className="status-indicator fallback">
+                          <HelpCircle size={18} />
+                          <span>Unlisted • System Uses Fallback Category B</span>
+                        </div>
+                      )}
+                      <div className="policy-impact-pill">
+                        <Zap size={14} />
+                        <span>Calculation Rules: Multipliers & ROI apply for {lookupResult.displayCategory}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 3. Master Table View */}
+              <div className="excel-table-section">
+                <div className="table-header-controls-row">
+                  <div className="table-title-area">
+                    <h5>Master Directory Preview ({filteredBankCompanies.length.toLocaleString('en-IN')})</h5>
+                    <span className="text-muted">Showing {Math.min(filteredBankCompanies.length, (currentPage - 1) * pageSize + 1)} - {Math.min(filteredBankCompanies.length, currentPage * pageSize)} of {filteredBankCompanies.length.toLocaleString('en-IN')}</span>
+                  </div>
+
+                  <div className="table-filter-controls">
+                    {/* Search inside table */}
+                    <div className="table-search-box">
+                      <Search size={14} className="search-icon" />
+                      <input 
+                        type="text"
+                        placeholder="Search in preview table..."
+                        value={tableSearch}
+                        onChange={(e) => {
+                          setTableSearch(e.target.value);
+                          setCurrentPage(1);
+                        }}
+                      />
+                      {tableSearch && (
+                        <button onClick={() => setTableSearch('')} className="btn-clear-sub"><X size={12} /></button>
+                      )}
+                    </div>
+
+                    {/* Filter Pills */}
+                    <div className="tier-filter-pills">
+                      {[
+                        { id: 'all', label: 'All Tiers' },
+                        { id: 'SUPER_A', label: 'Super A' },
+                        { id: 'A', label: 'Cat A' },
+                        { id: 'B', label: 'Cat B' },
+                        { id: 'C', label: 'Cat C' },
+                        { id: 'GOVT', label: 'Govt' },
+                        { id: 'UNLISTED', label: 'Unlisted' }
+                      ].map(tab => (
+                        <button 
+                          key={tab.id}
+                          className={`filter-pill-btn ${tableCatFilter === tab.id ? 'active' : ''}`}
+                          onClick={() => {
+                            setTableCatFilter(tab.id);
+                            setCurrentPage(1);
+                          }}
+                        >
+                          {tab.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Page Size Selector */}
+                    <div className="page-size-selector">
+                      <select 
+                        value={pageSize} 
+                        onChange={(e) => {
+                          setPageSize(Number(e.target.value));
+                          setCurrentPage(1);
+                        }}
+                      >
+                        <option value={10}>10 / page</option>
+                        <option value={20}>20 / page</option>
+                        <option value={50}>50 / page</option>
+                        <option value={100}>100 / page</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Table */}
+                <div className="table-responsive" style={{ maxHeight: '500px', overflowY: 'auto' }}>
+                  <table className="policy-table company-master-table">
+                    <thead>
+                      <tr>
+                        <th style={{ width: '8%' }}>#</th>
+                        <th style={{ width: '52%' }}>Employer / Company Name</th>
+                        <th style={{ width: '25%' }}>Category Tier</th>
+                        <th style={{ width: '15%', textAlign: 'center' }}>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {isLoadingBankCompanies ? (
+                        <tr>
+                          <td colSpan="4" style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>
+                            <RefreshCw size={24} className="spin-animate" style={{ marginBottom: '10px' }} />
+                            <div>Loading company database for {activeConfigBank.name}...</div>
                           </td>
                         </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="5" style={{ textAlign: 'center', padding: '30px', color: '#94a3b8' }}>
-                          No companies match the search term "{companySearch}".
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+                      ) : paginatedCompanies.length > 0 ? (
+                        paginatedCompanies.map((comp, idx) => {
+                          const globalIdx = (currentPage - 1) * pageSize + idx + 1;
+                          const compName = comp.companyName || comp.name || 'Unnamed';
+                          const catVal = comp.category || 'B';
+                          return (
+                            <tr key={comp.id || idx}>
+                              <td className="text-muted">{globalIdx}</td>
+                              <td>
+                                <div className="company-table-name-cell">
+                                  <strong>{compName}</strong>
+                                </div>
+                              </td>
+                              <td>
+                                <select 
+                                  className={`cat-select-inline ${getCategoryBadgeClass(catVal)}`}
+                                  value={catVal}
+                                  onChange={(e) => handleInlineCategoryChange(comp.id || idx, e.target.value)}
+                                >
+                                  <option value="Super A">Super A</option>
+                                  <option value="A">Category A</option>
+                                  <option value="CATGA">CATGA (Tier A)</option>
+                                  <option value="B">Category B</option>
+                                  <option value="CATGB">CATGB (Tier B)</option>
+                                  <option value="C">Category C</option>
+                                  <option value="CATGC">CATGC (Tier C)</option>
+                                  <option value="Govt">Govt / PSU</option>
+                                  <option value="UNLISTED">Unlisted</option>
+                                </select>
+                              </td>
+                              <td style={{ textAlign: 'center' }}>
+                                <button 
+                                  className="btn-delete-company-row"
+                                  onClick={() => handleDeleteBankCompany(comp)}
+                                  title="Delete company record from bank database"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      ) : (
+                        <tr>
+                          <td colSpan="4" style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>
+                            No companies match "{tableSearch}". Try clearing the search or filter.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className="table-pagination-bar">
+                    <span className="pagination-info">
+                      Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong> ({filteredBankCompanies.length.toLocaleString('en-IN')} total records)
+                    </span>
+                    <div className="pagination-buttons">
+                      <button 
+                        className="btn-page-nav"
+                        disabled={currentPage === 1}
+                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      >
+                        <ChevronLeft size={16} />
+                        <span>Previous</span>
+                      </button>
+                      <button 
+                        className="btn-page-nav"
+                        disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      >
+                        <span>Next</span>
+                        <ChevronRight size={16} />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}

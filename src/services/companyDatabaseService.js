@@ -97,7 +97,10 @@ export const loadUniversalCompanies = async () => {
 /**
  * Load bank-specific company database
  */
-const loadBankDatabase = async (bankName) => {
+export const loadBankDatabase = async (bankName) => {
+  if (!dbHealth.banks[bankName]) {
+    dbHealth.banks[bankName] = { status: 'idle', count: 0 };
+  }
   dbHealth.banks[bankName].status = 'loading';
   try {
     // 1. Try Firestore first
@@ -105,24 +108,39 @@ const loadBankDatabase = async (bankName) => {
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      bankDatabases[bankName] = docSnap.data().data;
+      bankDatabases[bankName] = docSnap.data().data || [];
       dbHealth.banks[bankName].status = 'ok';
       dbHealth.banks[bankName].count = bankDatabases[bankName].length;
-      console.log(`✅ CLOUD SUCCESS: ${bankName} database loaded from Firestore.`);
+      console.log(`✅ CLOUD SUCCESS: ${bankName} database loaded from Firestore (${bankDatabases[bankName].length} items).`);
       return bankDatabases[bankName];
     }
 
     // 2. Fallback to local JSON
     const data = await fetchWithRetry(`/data/${bankName}_companies.json`);
-    bankDatabases[bankName] = data;
+    bankDatabases[bankName] = data || [];
     dbHealth.banks[bankName].status = 'ok';
     dbHealth.banks[bankName].count = data.length;
-    console.log(`✅ LOCAL SUCCESS: ${bankName} database loaded from JSON.`);
+    console.log(`✅ LOCAL SUCCESS: ${bankName} database loaded from JSON (${data.length} items).`);
     return data;
   } catch (error) {
     dbHealth.banks[bankName].status = 'failed';
-    console.error(`❌ Error loading ${bankName} database:`, error.message);
-    return [];
+    console.warn(`⚠️ Note on loading ${bankName} database: ${error.message}`);
+    // If not found in JSON or Firestore, return empty or fallback
+    return bankDatabases[bankName] || [];
+  }
+};
+
+export const getLoadedBankDatabase = (bankName) => {
+  return bankDatabases[bankName] || [];
+};
+
+export const setBankDatabaseInMemory = (bankName, data) => {
+  bankDatabases[bankName] = data;
+  if (!dbHealth.banks[bankName]) {
+    dbHealth.banks[bankName] = { status: 'ok', count: data.length };
+  } else {
+    dbHealth.banks[bankName].status = 'ok';
+    dbHealth.banks[bankName].count = data.length;
   }
 };
 
