@@ -179,6 +179,7 @@ const UnifiedBankPolicyManager = () => {
   });
   const [isLoadingBankCompanies, setIsLoadingBankCompanies] = useState(false);
   const [isUploadingExcel, setIsUploadingExcel] = useState(false);
+  const [isDownloadingExcel, setIsDownloadingExcel] = useState(false);
   const [uploadSuccessMessage, setUploadSuccessMessage] = useState('');
   const [uploadErrorMessage, setUploadErrorMessage] = useState('');
 
@@ -353,20 +354,31 @@ const UnifiedBankPolicyManager = () => {
       return;
     }
 
-    const exportRows = bankCompanies.map((c, idx) => ({
-      "S.No": idx + 1,
-      "Company Name": c.companyName || c.name || "",
-      "Category Tier": c.category || "B",
-      "Partner Bank": activeConfigBank.name
-    }));
+    setIsDownloadingExcel(true);
 
-    const worksheet = XLSX.utils.json_to_sheet(exportRows);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Company Categories");
-    
-    const cleanBankName = activeConfigBank.name.replace(/[^a-zA-Z0-9]/g, '_');
-    const fileName = `${cleanBankName}_Company_Category_List.xlsx`;
-    XLSX.writeFile(workbook, fileName);
+    setTimeout(() => {
+      try {
+        const exportRows = bankCompanies.map((c, idx) => ({
+          "S.No": idx + 1,
+          "Company Name": c.companyName || c.name || "",
+          "Category Tier": c.category || "B",
+          "Partner Bank": activeConfigBank.name
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(exportRows);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Company Categories");
+        
+        const cleanBankName = activeConfigBank.name.replace(/[^a-zA-Z0-9]/g, '_');
+        const fileName = `${cleanBankName}_Company_Category_List.xlsx`;
+        XLSX.writeFile(workbook, fileName);
+      } catch (err) {
+        console.error("Excel generation error:", err);
+        alert("Failed to export Excel file: " + err.message);
+      } finally {
+        setIsDownloadingExcel(false);
+      }
+    }, 60);
   };
 
   // 2. Replace / Upload New Excel File
@@ -1418,10 +1430,19 @@ const UnifiedBankPolicyManager = () => {
                     className="btn-download-excel"
                     onClick={handleDownloadExcel}
                     title="Download active database as formatted Excel spreadsheet"
-                    disabled={isLoadingBankCompanies}
+                    disabled={isLoadingBankCompanies || isDownloadingExcel}
                   >
-                    <Download size={16} />
-                    <span>Download Current Excel</span>
+                    {isDownloadingExcel ? (
+                      <>
+                        <RefreshCw size={16} className="spin-animate" />
+                        <span>Generating Excel ({(bankFileMetadata.totalCount || bankCompanies.length).toLocaleString('en-IN')} rows)...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Download size={16} />
+                        <span>Download Current Excel</span>
+                      </>
+                    )}
                   </button>
 
                   <label className={`btn-replace-excel ${isUploadingExcel ? 'loading' : ''}`} title="Upload new .xlsx, .xls, or .csv file to replace database">

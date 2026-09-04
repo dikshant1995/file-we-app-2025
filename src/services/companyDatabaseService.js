@@ -101,33 +101,62 @@ export const loadBankDatabase = async (bankName) => {
   if (!dbHealth.banks[bankName]) {
     dbHealth.banks[bankName] = { status: 'idle', count: 0 };
   }
+
+  // If already loaded in memory with records, return immediately
+  if (bankDatabases[bankName] && bankDatabases[bankName].length > 0) {
+    return bankDatabases[bankName];
+  }
+
   dbHealth.banks[bankName].status = 'loading';
+
+  // 1. Load bank-specific master JSON first (Contains full 40,000 to 182,000 companies)
   try {
-    // 1. Try Firestore first
+    const data = await fetchWithRetry(`/data/${bankName}_companies.json`);
+    if (data && Array.isArray(data) && data.length > 0) {
+      bankDatabases[bankName] = data;
+      dbHealth.banks[bankName].status = 'ok';
+      dbHealth.banks[bankName].count = data.length;
+      console.log(`✅ MASTER JSON SUCCESS: ${bankName} database loaded (${data.length.toLocaleString('en-IN')} companies).`);
+      return data;
+    }
+  } catch (localErr) {
+    console.warn(`Local JSON not found for ${bankName} (${localErr.message}). Attempting universal baseline...`);
+  }
+
+  // 2. Fallback to Universal Database for banks without a dedicated file (Bandhan, Shri Ram, Piramal)
+  try {
+    const universalData = await fetchWithRetry('/data/universal_companies.json');
+    if (universalData && Array.isArray(universalData) && universalData.length > 0) {
+      const mapped = universalData.map((c, idx) => ({
+        companyName: c.companyName || c.name || `Company ${idx + 1}`,
+        category: 'CATGB' // Standard Tier B default
+      }));
+      bankDatabases[bankName] = mapped;
+      dbHealth.banks[bankName].status = 'ok';
+      dbHealth.banks[bankName].count = mapped.length;
+      console.log(`✅ UNIVERSAL BASELINE SUCCESS: ${bankName} loaded with ${mapped.length.toLocaleString('en-IN')} companies.`);
+      return mapped;
+    }
+  } catch (uErr) {
+    console.warn(`Universal fallback failed for ${bankName}: ${uErr.message}`);
+  }
+
+  // 3. Optional Firestore check for custom admin patches
+  try {
     const docRef = doc(db, 'company_databases', bankName);
     const docSnap = await getDoc(docRef);
-
     if (docSnap.exists()) {
-      bankDatabases[bankName] = docSnap.data().data || [];
+      const cloudData = docSnap.data().data || [];
+      bankDatabases[bankName] = cloudData;
       dbHealth.banks[bankName].status = 'ok';
-      dbHealth.banks[bankName].count = bankDatabases[bankName].length;
-      console.log(`✅ CLOUD SUCCESS: ${bankName} database loaded from Firestore (${bankDatabases[bankName].length} items).`);
-      return bankDatabases[bankName];
+      dbHealth.banks[bankName].count = cloudData.length;
+      return cloudData;
     }
-
-    // 2. Fallback to local JSON
-    const data = await fetchWithRetry(`/data/${bankName}_companies.json`);
-    bankDatabases[bankName] = data || [];
-    dbHealth.banks[bankName].status = 'ok';
-    dbHealth.banks[bankName].count = data.length;
-    console.log(`✅ LOCAL SUCCESS: ${bankName} database loaded from JSON (${data.length} items).`);
-    return data;
-  } catch (error) {
-    dbHealth.banks[bankName].status = 'failed';
-    console.warn(`⚠️ Note on loading ${bankName} database: ${error.message}`);
-    // If not found in JSON or Firestore, return empty or fallback
-    return bankDatabases[bankName] || [];
+  } catch (cloudErr) {
+    console.warn(`Firestore check skipped for ${bankName}`);
   }
+
+  return bankDatabases[bankName] || [];
 };
 
 export const getLoadedBankDatabase = (bankName) => {
