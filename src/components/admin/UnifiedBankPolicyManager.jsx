@@ -183,6 +183,15 @@ const UnifiedBankPolicyManager = () => {
   const [uploadSuccessMessage, setUploadSuccessMessage] = useState('');
   const [uploadErrorMessage, setUploadErrorMessage] = useState('');
 
+  // Replace Excel Modal & Drag & Drop Staging State
+  const [isReplaceModalOpen, setIsReplaceModalOpen] = useState(false);
+  const [isDragActive, setIsDragActive] = useState(false);
+  const [isOuterDragActive, setIsOuterDragActive] = useState(false);
+  const [isParsingStagedFile, setIsParsingStagedFile] = useState(false);
+  const [isSavingReplacement, setIsSavingReplacement] = useState(false);
+  const [stagedFile, setStagedFile] = useState(null);
+  const modalFileInputRef = useRef(null);
+
   // Manual Company Category Lookup State
   const [lookupQuery, setLookupQuery] = useState('');
   const [selectedLookupCompany, setSelectedLookupCompany] = useState('');
@@ -381,13 +390,37 @@ const UnifiedBankPolicyManager = () => {
     }, 60);
   };
 
-  // 2. Replace / Upload New Excel File
-  const handleExcelUpload = (e) => {
-    const file = e.target.files?.[0];
+  // 2. Replace Excel File - Safe Staging & Modal Handlers
+  const handleOpenReplaceModal = () => {
+    setIsReplaceModalOpen(true);
+    setStagedFile(null);
+    setUploadErrorMessage('');
+    setIsDragActive(false);
+  };
+
+  const handleCloseReplaceModal = () => {
+    if (isSavingReplacement) return;
+    setIsReplaceModalOpen(false);
+    setStagedFile(null);
+    setIsParsingStagedFile(false);
+    setIsDragActive(false);
+    setUploadErrorMessage('');
+  };
+
+  // Stage & Parse Excel File (Preview Mode - Does NOT Overwrite yet!)
+  const stageExcelFile = (file) => {
     if (!file) return;
 
-    setIsUploadingExcel(true);
-    setUploadSuccessMessage('');
+    // Validate file extension
+    const validExts = ['.xlsx', '.xls', '.csv'];
+    const fileNameLower = (file.name || '').toLowerCase();
+    const isValid = validExts.some(ext => fileNameLower.endsWith(ext));
+    if (!isValid) {
+      setUploadErrorMessage('Invalid file format. Please upload an Excel (.xlsx, .xls) or CSV (.csv) file.');
+      return;
+    }
+
+    setIsParsingStagedFile(true);
     setUploadErrorMessage('');
 
     const reader = new FileReader();
@@ -439,146 +472,177 @@ const UnifiedBankPolicyManager = () => {
           throw new Error('Could not identify valid company records in the uploaded spreadsheet.');
         }
 
-        const bankKey = getBankDbKey(activeConfigBank.id);
-        
-        // Update state
-        setBankCompanies(parsedCompanies);
-        setBankFileMetadata({
-          fileName: file.name,
-          totalCount: parsedCompanies.length,
-          lastUpdated: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-        });
-
-        // Update in-memory database
-        setBankDatabaseInMemory(bankKey, parsedCompanies);
-
-        // Async sync to Cloud Firestore & Universal Database
-        try {
-          await saveBankDatabaseToCloud(bankKey, parsedCompanies);
-          await syncToUniversalDatabase(parsedCompanies);
-        } catch (cloudErr) {
-          console.warn('Could not sync to cloud, stored locally:', cloudErr);
-        }
-
-        // =========================================================================
-        // SOLUTION 2: AUTOMATIC POLICY TABLE TRANSFORMATION
-        // If uploaded Excel contains new/different categories (e.g. Platinum, Gold),
-        // automatically transform all 4 policy tables and pre-fill draft baselines!
-        // =========================================================================
         const distinctCategories = Array.from(new Set(parsedCompanies.map(c => c.category).filter(Boolean)));
         const currentPolicyCats = (policyData.interestRates || []).map(r => String(r.category || '').toUpperCase().trim());
-        
         const hasNewCategories = distinctCategories.length > 0 && distinctCategories.some(
           c => !currentPolicyCats.includes(String(c).toUpperCase().trim())
         );
 
-        let policyTransformed = false;
-        if (hasNewCategories) {
-          console.log(`🔄 New categories detected in ${file.name}:`, distinctCategories);
+        const fileSizeFormatted = file.size < 1024 * 1024
+          ? `${(file.size / 1024).toFixed(1)} KB`
+          : `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
 
-          // 1. Transform Interest Rates Table
-          const newInterestRates = distinctCategories.map((catName, idx) => {
-            const baseline = (policyData.interestRates && policyData.interestRates[idx]) || 
-              (policyData.interestRates && policyData.interestRates[policyData.interestRates.length - 1]) || {
-                minRoi: 10.5 + idx * 0.75,
-                maxRoi: 12.0 + idx * 1.5,
-                defaultRoi: 10.75 + idx * 0.75,
-                minSalary: Math.max(20000, 100000 - idx * 20000)
-              };
-            return {
-              category: catName,
-              minRoi: baseline.minRoi,
-              maxRoi: baseline.maxRoi,
-              defaultRoi: baseline.defaultRoi,
-              minSalary: baseline.minSalary
-            };
-          });
-
-          // 2. Transform Loan Capping Table
-          const newLoanCapping = distinctCategories.map((catName, idx) => {
-            const baseline = (policyData.loanCapping && policyData.loanCapping[idx]) || 
-              (policyData.loanCapping && policyData.loanCapping[policyData.loanCapping.length - 1]) || {
-                minLoan: 100000,
-                maxLoan: Math.max(1000000, 7500000 - idx * 1250000),
-                bachelorCap: Math.max(1000000, 3000000 - idx * 500000),
-                minSalary: Math.max(20000, 100000 - idx * 20000)
-              };
-            return {
-              tier: catName,
-              minLoan: baseline.minLoan,
-              maxLoan: baseline.maxLoan,
-              bachelorCap: baseline.bachelorCap,
-              minSalary: baseline.minSalary
-            };
-          });
-
-          // 3. Transform Tenure Optimization Table
-          const newTenureRules = distinctCategories.map((catName, idx) => {
-            const baseline = (policyData.tenureRules && policyData.tenureRules[idx]) || 
-              (policyData.tenureRules && policyData.tenureRules[policyData.tenureRules.length - 1]) || {
-                minMonths: 12,
-                maxMonths: Math.max(36, 84 - idx * 12),
-                description: `Up to ${Math.round(Math.max(36, 84 - idx * 12) / 12)} Years`
-              };
-            return {
-              category: catName,
-              minMonths: baseline.minMonths,
-              maxMonths: baseline.maxMonths,
-              description: baseline.description
-            };
-          });
-
-          // 4. Transform FOIR & Multipliers Table
-          const newFoirMultiplier = distinctCategories.map((catName, idx) => {
-            const baseline = (policyData.foirMultiplier && policyData.foirMultiplier[idx]) || 
-              (policyData.foirMultiplier && policyData.foirMultiplier[policyData.foirMultiplier.length - 1]) || {
-                maxFoir: Math.max(45, 70 - idx * 5),
-                multiplier: Math.max(12, 28 - idx * 3),
-                ccObligation: 5
-              };
-            return {
-              category: catName,
-              maxFoir: baseline.maxFoir,
-              multiplier: baseline.multiplier,
-              ccObligation: baseline.ccObligation
-            };
-          });
-
-          const transformedPolicy = {
-            ...policyData,
-            interestRates: newInterestRates,
-            loanCapping: newLoanCapping,
-            tenureRules: newTenureRules,
-            foirMultiplier: newFoirMultiplier
-          };
-
-          setPolicyData(transformedPolicy);
-
-          const locationKey = `${selectedState}-${selectedCity}`;
-          try {
-            localStorage.setItem(`policy_config_${activeConfigBank.id}_${locationKey}`, JSON.stringify(transformedPolicy));
-            saveBankConfig(activeConfigBank.name, 'unifiedPolicy', transformedPolicy, locationKey);
-          } catch (storageErr) {
-            console.warn('Local policy cache warning:', storageErr);
-          }
-          policyTransformed = true;
-        }
-
-        const msg = policyTransformed 
-          ? `Successfully uploaded ${parsedCompanies.length.toLocaleString('en-IN')} companies! 🔄 Policy tables were automatically transformed to match new categories: [${distinctCategories.join(', ')}]. Previous rates were copied as a draft baseline. Review and click "Save Policy Changes" to commit.`
-          : `Successfully updated ${parsedCompanies.length.toLocaleString('en-IN')} companies from ${file.name} for ${activeConfigBank.name}!`;
-
-        setUploadSuccessMessage(msg);
-        setCurrentPage(1);
+        setStagedFile({
+          file,
+          fileName: file.name,
+          fileSize: fileSizeFormatted,
+          totalCount: parsedCompanies.length,
+          parsedCompanies,
+          distinctCategories,
+          hasNewCategories,
+          sampleRows: parsedCompanies.slice(0, 5)
+        });
       } catch (err) {
-        console.error('Excel upload error:', err);
+        console.error('Spreadsheet staging error:', err);
         setUploadErrorMessage(err.message || 'Failed to parse Excel file. Please ensure columns include Company Name and Category.');
       } finally {
-        setIsUploadingExcel(false);
-        e.target.value = '';
+        setIsParsingStagedFile(false);
       }
     };
     reader.readAsBinaryString(file);
+  };
+
+  // Submit and Save Replacement (Final Commit upon user clicking Submit & Save)
+  const handleCommitReplacement = async () => {
+    if (!stagedFile || !stagedFile.parsedCompanies || stagedFile.parsedCompanies.length === 0) {
+      alert('No staged file to save. Please choose a valid file first.');
+      return;
+    }
+
+    setIsSavingReplacement(true);
+    setUploadSuccessMessage('');
+    setUploadErrorMessage('');
+
+    try {
+      const bankKey = getBankDbKey(activeConfigBank.id);
+      const parsedCompanies = stagedFile.parsedCompanies;
+      const distinctCategories = stagedFile.distinctCategories;
+
+      // 1. Update state
+      setBankCompanies(parsedCompanies);
+      setBankFileMetadata({
+        fileName: stagedFile.fileName,
+        totalCount: parsedCompanies.length,
+        lastUpdated: new Date().toLocaleDateString('en-IN', { 
+          day: 'numeric', month: 'short', year: 'numeric', 
+          hour: '2-digit', minute: '2-digit' 
+        })
+      });
+
+      // 2. Update in-memory database
+      setBankDatabaseInMemory(bankKey, parsedCompanies);
+
+      // 3. Async sync to Cloud Firestore & Universal Database
+      try {
+        await saveBankDatabaseToCloud(bankKey, parsedCompanies);
+        await syncToUniversalDatabase(parsedCompanies);
+      } catch (cloudErr) {
+        console.warn('Could not sync to cloud, stored locally:', cloudErr);
+      }
+
+      // 4. Solution 2: Automatic Policy Table Transformation if categories changed
+      let policyTransformed = false;
+      if (stagedFile.hasNewCategories) {
+        console.log(`🔄 Automatic policy transformation triggered for ${stagedFile.fileName}:`, distinctCategories);
+
+        const newInterestRates = distinctCategories.map((catName, idx) => {
+          const baseline = (policyData.interestRates && policyData.interestRates[idx]) || 
+            (policyData.interestRates && policyData.interestRates[policyData.interestRates.length - 1]) || {
+              minRoi: 10.5 + idx * 0.75,
+              maxRoi: 12.0 + idx * 1.5,
+              defaultRoi: 10.75 + idx * 0.75,
+              minSalary: Math.max(20000, 100000 - idx * 20000)
+            };
+          return {
+            category: catName,
+            minRoi: baseline.minRoi,
+            maxRoi: baseline.maxRoi,
+            defaultRoi: baseline.defaultRoi,
+            minSalary: baseline.minSalary
+          };
+        });
+
+        const newLoanCapping = distinctCategories.map((catName, idx) => {
+          const baseline = (policyData.loanCapping && policyData.loanCapping[idx]) || 
+            (policyData.loanCapping && policyData.loanCapping[policyData.loanCapping.length - 1]) || {
+              minLoan: 100000,
+              maxLoan: Math.max(1000000, 7500000 - idx * 1250000),
+              bachelorCap: Math.max(1000000, 3000000 - idx * 500000),
+              minSalary: Math.max(20000, 100000 - idx * 20000)
+            };
+          return {
+            tier: catName,
+            minLoan: baseline.minLoan,
+            maxLoan: baseline.maxLoan,
+            bachelorCap: baseline.bachelorCap,
+            minSalary: baseline.minSalary
+          };
+        });
+
+        const newTenureRules = distinctCategories.map((catName, idx) => {
+          const baseline = (policyData.tenureRules && policyData.tenureRules[idx]) || 
+            (policyData.tenureRules && policyData.tenureRules[policyData.tenureRules.length - 1]) || {
+              minMonths: 12,
+              maxMonths: Math.max(36, 84 - idx * 12),
+              description: `Up to ${Math.round(Math.max(36, 84 - idx * 12) / 12)} Years`
+            };
+          return {
+            category: catName,
+            minMonths: baseline.minMonths,
+            maxMonths: baseline.maxMonths,
+            description: baseline.description
+          };
+        });
+
+        const newFoirMultiplier = distinctCategories.map((catName, idx) => {
+          const baseline = (policyData.foirMultiplier && policyData.foirMultiplier[idx]) || 
+            (policyData.foirMultiplier && policyData.foirMultiplier[policyData.foirMultiplier.length - 1]) || {
+              maxFoir: Math.max(45, 70 - idx * 5),
+              multiplier: Math.max(12, 28 - idx * 3),
+              ccObligation: 5
+            };
+          return {
+            category: catName,
+            maxFoir: baseline.maxFoir,
+            multiplier: baseline.multiplier,
+            ccObligation: baseline.ccObligation
+          };
+        });
+
+        const transformedPolicy = {
+          ...policyData,
+          interestRates: newInterestRates,
+          loanCapping: newLoanCapping,
+          tenureRules: newTenureRules,
+          foirMultiplier: newFoirMultiplier
+        };
+
+        setPolicyData(transformedPolicy);
+
+        const locationKey = `${selectedState}-${selectedCity}`;
+        try {
+          localStorage.setItem(`policy_config_${activeConfigBank.id}_${locationKey}`, JSON.stringify(transformedPolicy));
+          saveBankConfig(activeConfigBank.name, 'unifiedPolicy', transformedPolicy, locationKey);
+        } catch (storageErr) {
+          console.warn('Local policy cache warning:', storageErr);
+        }
+        policyTransformed = true;
+      }
+
+      const msg = policyTransformed 
+        ? `✅ Success! Replaced ${activeConfigBank.name} database with ${parsedCompanies.length.toLocaleString('en-IN')} companies from ${stagedFile.fileName}. 🔄 Policy tables were automatically transformed for new categories [${distinctCategories.join(', ')}]. Review rates and click "Save Policy Changes" to fine-tune.`
+        : `✅ Success! Replaced ${activeConfigBank.name} database with ${parsedCompanies.length.toLocaleString('en-IN')} companies from ${stagedFile.fileName}!`;
+
+      setUploadSuccessMessage(msg);
+      setCurrentPage(1);
+      setIsReplaceModalOpen(false);
+      setStagedFile(null);
+    } catch (err) {
+      console.error('Commit replacement error:', err);
+      setUploadErrorMessage('Failed to save replacement: ' + err.message);
+    } finally {
+      setIsSavingReplacement(false);
+    }
   };
 
   // 3. Search & Autocomplete Lookup
@@ -1510,7 +1574,20 @@ const UnifiedBankPolicyManager = () => {
               )}
 
               {/* 1. Current Excel Dataset Card & Operations */}
-              <div className="excel-management-panel">
+              <div 
+                className={`excel-management-panel ${isOuterDragActive ? 'panel-drag-active' : ''}`}
+                onDragOver={(e) => { e.preventDefault(); setIsOuterDragActive(true); }}
+                onDragLeave={(e) => { e.preventDefault(); setIsOuterDragActive(false); }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsOuterDragActive(false);
+                  const dropped = e.dataTransfer.files?.[0];
+                  if (dropped) {
+                    handleOpenReplaceModal();
+                    stageExcelFile(dropped);
+                  }
+                }}
+              >
                 <div className="excel-meta-box">
                   <div className="excel-file-icon-wrap">
                     <FileSpreadsheet size={28} className="excel-icon" />
@@ -1553,27 +1630,15 @@ const UnifiedBankPolicyManager = () => {
                     )}
                   </button>
 
-                  <label className={`btn-replace-excel ${isUploadingExcel ? 'loading' : ''}`} title="Upload new .xlsx, .xls, or .csv file to replace database">
-                    {isUploadingExcel ? (
-                      <>
-                        <RefreshCw size={16} className="spin-animate" />
-                        <span>Processing Spreadsheet...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Upload size={16} />
-                        <span>Replace Excel File</span>
-                      </>
-                    )}
-                    <input 
-                      ref={fileInputRef}
-                      type="file" 
-                      accept=".xlsx, .xls, .csv" 
-                      onChange={handleExcelUpload}
-                      style={{ display: 'none' }}
-                      disabled={isUploadingExcel}
-                    />
-                  </label>
+                  <button 
+                    type="button" 
+                    className="btn-replace-excel" 
+                    onClick={handleOpenReplaceModal}
+                    title="Upload or Drag & Drop new .xlsx, .xls, or .csv file to replace database"
+                  >
+                    <Upload size={16} />
+                    <span>Replace Excel File</span>
+                  </button>
                 </div>
               </div>
 
@@ -1701,6 +1766,275 @@ const UnifiedBankPolicyManager = () => {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* 5. REPLACE EXCEL FILE MODAL & STAGING DIALOG            */}
+      {/* ======================================================== */}
+      {isReplaceModalOpen && (
+        <div 
+          className="excel-replace-modal-backdrop" 
+          onClick={(e) => { 
+            if (e.target === e.currentTarget && !isSavingReplacement) handleCloseReplaceModal(); 
+          }}
+        >
+          <div className="excel-replace-modal-container">
+            {/* Modal Header */}
+            <div className="excel-replace-modal-header">
+              <div className="modal-title-wrap">
+                <div className="modal-bank-badge" style={{ backgroundColor: activeConfigBank.color || '#F58220' }}>
+                  <Building2 size={18} color="#fff" />
+                </div>
+                <div>
+                  <h3 className="modal-heading">Replace Company Master Database</h3>
+                  <p className="modal-subheading">Update company list & category tiers for <strong>{activeConfigBank.name}</strong></p>
+                </div>
+              </div>
+              <button 
+                type="button" 
+                className="modal-close-btn" 
+                onClick={handleCloseReplaceModal}
+                disabled={isSavingReplacement}
+                title="Close dialog"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="excel-replace-modal-body">
+              {uploadErrorMessage && (
+                <div className="modal-error-banner">
+                  <AlertTriangle size={18} />
+                  <span>{uploadErrorMessage}</span>
+                </div>
+              )}
+
+              {/* State 1: No file staged yet -> Prominent Drag & Drop Zone */}
+              {!stagedFile && !isParsingStagedFile && (
+                <div 
+                  className={`excel-dropzone ${isDragActive ? 'drag-active' : ''}`}
+                  onDragEnter={(e) => { e.preventDefault(); setIsDragActive(true); }}
+                  onDragOver={(e) => { e.preventDefault(); setIsDragActive(true); }}
+                  onDragLeave={(e) => { e.preventDefault(); setIsDragActive(false); }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDragActive(false);
+                    const file = e.dataTransfer.files?.[0];
+                    if (file) stageExcelFile(file);
+                  }}
+                  onClick={() => modalFileInputRef.current?.click()}
+                >
+                  <input 
+                    ref={modalFileInputRef}
+                    type="file" 
+                    accept=".xlsx, .xls, .csv" 
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) stageExcelFile(file);
+                      e.target.value = '';
+                    }}
+                    style={{ display: 'none' }}
+                  />
+                  <div className="dropzone-icon-circle">
+                    <Upload size={34} />
+                  </div>
+                  <h4 className="dropzone-title">
+                    {isDragActive ? 'Drop your spreadsheet here' : 'Drag & Drop your Excel or CSV file here'}
+                  </h4>
+                  <p className="dropzone-subtitle">or click anywhere inside to browse files (.xlsx, .xls, .csv)</p>
+                  <div className="dropzone-badge-row">
+                    <span className="dropzone-pill">Microsoft Excel (.xlsx, .xls)</span>
+                    <span className="dropzone-pill">Comma-Separated Values (.csv)</span>
+                  </div>
+                  <div className="dropzone-security-note">
+                    <Shield size={14} />
+                    <span>Safe Preview: The active database will <strong>not</strong> be replaced until you review the staged summary and click <strong>Submit & Save</strong>.</span>
+                  </div>
+                </div>
+              )}
+
+              {/* State 2: Parsing in progress */}
+              {isParsingStagedFile && (
+                <div className="excel-parsing-state">
+                  <RefreshCw size={36} className="spin-animate parsing-spinner" />
+                  <h4>Validating & Parsing Spreadsheet...</h4>
+                  <p>Detecting company names, reading category tiers, and checking formatting.</p>
+                </div>
+              )}
+
+              {/* State 3: Staged File Preview & Review Card */}
+              {stagedFile && !isParsingStagedFile && (
+                <div className="staged-file-review">
+                  {/* File Metadata Bar */}
+                  <div className="staged-file-header">
+                    <div className="staged-file-details">
+                      <div className="staged-icon-wrap">
+                        <FileSpreadsheet size={28} className="staged-excel-icon" />
+                      </div>
+                      <div>
+                        <div className="staged-name-row">
+                          <h4 className="staged-file-name">{stagedFile.fileName}</h4>
+                          <span className="staged-badge-ready">Staged Preview</span>
+                        </div>
+                        <span className="staged-file-meta">{stagedFile.fileSize} • {stagedFile.totalCount.toLocaleString('en-IN')} valid companies identified</span>
+                      </div>
+                    </div>
+                    <button 
+                      type="button" 
+                      className="btn-change-staged-file"
+                      onClick={() => modalFileInputRef.current?.click()}
+                      disabled={isSavingReplacement}
+                    >
+                      <Upload size={14} />
+                      <span>Choose Different File</span>
+                    </button>
+                    <input 
+                      ref={modalFileInputRef}
+                      type="file" 
+                      accept=".xlsx, .xls, .csv" 
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) stageExcelFile(file);
+                        e.target.value = '';
+                      }}
+                      style={{ display: 'none' }}
+                    />
+                  </div>
+
+                  {/* Impact Comparison Cards */}
+                  <div className="staged-metrics-grid">
+                    <div className="staged-metric-box">
+                      <span className="metric-label">Current Active Companies</span>
+                      <span className="metric-value">{(bankFileMetadata.totalCount || bankCompanies.length).toLocaleString('en-IN')}</span>
+                      <span className="metric-sub">{bankFileMetadata.fileName || 'Active Master Database'}</span>
+                    </div>
+                    <div className="staged-metric-box new-highlight">
+                      <span className="metric-label">Staged New Companies</span>
+                      <span className="metric-value">{stagedFile.totalCount.toLocaleString('en-IN')}</span>
+                      <span className="metric-sub">{stagedFile.fileName}</span>
+                    </div>
+                    <div className="staged-metric-box diff-box">
+                      <span className="metric-label">Net Database Impact</span>
+                      <span className="metric-value">
+                        {stagedFile.totalCount >= (bankFileMetadata.totalCount || bankCompanies.length) ? '+' : ''}
+                        {(stagedFile.totalCount - (bankFileMetadata.totalCount || bankCompanies.length)).toLocaleString('en-IN')}
+                      </span>
+                      <span className="metric-sub">Company Difference</span>
+                    </div>
+                  </div>
+
+                  {/* Detected Categories & Solution 2 Notice */}
+                  <div className="staged-categories-section">
+                    <div className="staged-cat-header">
+                      <span className="staged-cat-title">Detected Category Tiers in File ({stagedFile.distinctCategories.length})</span>
+                    </div>
+                    <div className="staged-cat-badges">
+                      {stagedFile.distinctCategories.map(cat => (
+                        <span key={cat} className={`cat-pill ${getCategoryBadgeClass(cat)}`}>
+                          {formatCategoryDisplay(cat)}
+                        </span>
+                      ))}
+                    </div>
+
+                    {stagedFile.hasNewCategories ? (
+                      <div className="staged-transformation-notice">
+                        <AlertTriangle size={20} className="notice-icon orange" />
+                        <div>
+                          <strong>Solution 2: Automatic Policy Table Transformation</strong>
+                          <p>
+                            This spreadsheet contains new category tiers: <strong>[{stagedFile.distinctCategories.join(', ')}]</strong>. 
+                            When you click <strong>Submit & Save Replacement</strong> below, all 4 policy tables (Interest Rates, Loan Capping, Tenure Rules, and FOIR Multipliers) will be automatically transformed with draft baselines pre-filled.
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="staged-standard-notice">
+                        <CheckCircle2 size={20} className="notice-icon green" />
+                        <div>
+                          <strong>Standard Category Structure Verified</strong>
+                          <p>All category tiers align with {activeConfigBank.name}'s current policy tables. Existing rate cards and capping limits will remain intact.</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Sample Preview Table */}
+                  <div className="staged-preview-table-container">
+                    <div className="preview-table-header">
+                      <span className="preview-table-title">Sample Data Verification (First 5 Rows)</span>
+                      <span className="preview-table-note">Columns mapped: Company Name & Category</span>
+                    </div>
+                    <table className="staged-preview-table">
+                      <thead>
+                        <tr>
+                          <th style={{ width: '60px' }}>#</th>
+                          <th>Company / Employer Name</th>
+                          <th style={{ width: '180px' }}>Detected Category</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {stagedFile.sampleRows.map((r, i) => (
+                          <tr key={i}>
+                            <td>{i + 1}</td>
+                            <td className="comp-name-cell">{r.companyName}</td>
+                            <td>
+                              <span className={`cat-pill ${getCategoryBadgeClass(r.category)}`}>
+                                {formatCategoryDisplay(r.category)}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="excel-replace-modal-footer">
+              <button 
+                type="button" 
+                className="btn-modal-cancel" 
+                onClick={handleCloseReplaceModal}
+                disabled={isSavingReplacement}
+              >
+                Discard & Cancel
+              </button>
+
+              {stagedFile ? (
+                <button 
+                  type="button" 
+                  className="btn-modal-submit-save" 
+                  onClick={handleCommitReplacement}
+                  disabled={isSavingReplacement}
+                >
+                  {isSavingReplacement ? (
+                    <>
+                      <RefreshCw size={18} className="spin-animate" />
+                      <span>Saving & Replacing ({stagedFile.totalCount.toLocaleString('en-IN')} rows)...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 size={18} />
+                      <span>Submit & Save Replacement</span>
+                    </>
+                  )}
+                </button>
+              ) : (
+                <button 
+                  type="button" 
+                  className="btn-modal-browse-trigger"
+                  onClick={() => modalFileInputRef.current?.click()}
+                >
+                  <Upload size={16} />
+                  <span>Browse Excel File</span>
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>
