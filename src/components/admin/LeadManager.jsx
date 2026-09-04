@@ -184,13 +184,13 @@ ${(lead?.selectedBanks || '').split(',').map(b => `- ${b.trim()}`).join('\n') ||
                         value={dateFilter}
                         onChange={(e) => setDateFilter(e.target.value)}
                     >
-                        <option value="today">Today's Leads</option>
+                        <option value="today">Today</option>
                         <option value="2days">Last 2 Days</option>
-                        <option value="week">Past Week</option>
-                        <option value="month">Past Month</option>
-                        <option value="3months">Past 3 Months</option>
-                        <option value="6months">Past 6 Months</option>
-                        <option value="all">Till Date (All)</option>
+                        <option value="week">This Week</option>
+                        <option value="month">1 Month</option>
+                        <option value="3months">3 Months</option>
+                        <option value="6months">6 Months</option>
+                        <option value="all">All Time (Till Date)</option>
                     </select>
                     <button className="btn-download-advanced" onClick={handleDownloadCSV}>
                         <Download size={18} />

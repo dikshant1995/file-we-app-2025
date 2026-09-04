@@ -1,0 +1,864 @@
+/* Unified Bank Policy Suite Styles - Executive Theme */
+
+.unified-policy-manager {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  animation: fadeIn 0.25s ease-out;
+}
+
+/* ======================================================== */
+/* 1. STATE & CITY SELECTOR BAR                             */
+/* ======================================================== */
+.policy-location-selector-bar {
+  background: #111c38;
+  border: 1px solid #1e293b;
+  border-radius: 16px;
+  padding: 18px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
+}
+
+.selector-bar-left {
+  display: flex;
+  align-items: center;
+}
+
+.selector-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pin-icon {
+  color: #F58220;
+  flex-shrink: 0;
+}
+
+.selector-heading {
+  font-size: 1.05rem;
+  font-weight: 750;
+  color: #f8fafc;
+  display: block;
+}
+
+.selector-subheading {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin: 2px 0 0 0;
+}
+
+.selector-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.select-box-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.select-box-wrapper label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.5px;
+}
+
+.location-select {
+  background: #0f172a;
+  color: #ffffff;
+  border: 1.5px solid #334155;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  min-width: 160px;
+}
+
+.location-select:focus {
+  border-color: #F58220;
+  box-shadow: 0 0 0 3px rgba(245, 130, 32, 0.15);
+}
+
+.location-context-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(245, 130, 32, 0.12);
+  color: #F58220;
+  border: 1px solid rgba(245, 130, 32, 0.3);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-top: 16px;
+}
+
+.location-context-pill .dot {
+  width: 8px;
+  height: 8px;
+  background: #F58220;
+  border-radius: 50%;
+  animation: pulseDot 1.5s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 0.4; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* ======================================================== */
+/* 2. 12 BANK CARDS GRID                                    */
+/* ======================================================== */
+.bank-cards-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cards-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.cards-section-header h2 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #f8fafc;
+  margin: 0;
+}
+
+.cards-section-header p {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin: 4px 0 0;
+}
+
+.cards-stats-pills {
+  display: flex;
+  gap: 10px;
+}
+
+.stat-pill {
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.stat-pill.active {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.stat-pill.suspended {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.bank-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.bank-action-card {
+  background: #111c38;
+  border: 1px solid #1e293b;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.bank-action-card:hover {
+  transform: translateY(-3px);
+  border-color: #334155;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+}
+
+.bank-action-card.is-suspended {
+  opacity: 0.85;
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+.card-top-strip {
+  height: 4px;
+  width: 100%;
+}
+
+.card-main-content {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+}
+
+.card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.bank-brand-block {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bank-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #ffffff;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.bank-title-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.bank-name {
+  font-size: 1rem;
+  font-weight: 750;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.location-tag {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  border-radius: 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.status-badge.active {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-badge.suspended {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Quick Metrics Row */
+.card-quick-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  background: #0b1329;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  padding: 10px 8px;
+  text-align: center;
+}
+
+.metric-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-right: 1px solid #1e293b;
+}
+
+.metric-cell:last-child {
+  border-right: none;
+}
+
+.metric-label {
+  font-size: 0.65rem;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.metric-val {
+  font-size: 0.82rem;
+  font-weight: 750;
+  color: #f8fafc;
+}
+
+/* 3 Card Action Buttons */
+.card-actions-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 0.8fr;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.btn-card-action {
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.18s ease;
+  font-family: inherit;
+}
+
+.btn-config {
+  background: #F58220;
+  color: #ffffff;
+}
+
+.btn-config:hover {
+  background: #ea580c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(245, 130, 32, 0.35);
+}
+
+.btn-suspend.btn-warn {
+  background: rgba(245, 130, 32, 0.12);
+  color: #F58220;
+  border: 1px solid rgba(245, 130, 32, 0.3);
+}
+
+.btn-suspend.btn-warn:hover {
+  background: rgba(245, 130, 32, 0.22);
+}
+
+.btn-suspend.btn-success {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.btn-suspend.btn-success:hover {
+  background: rgba(16, 185, 129, 0.25);
+}
+
+.btn-delete {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.btn-delete:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+/* ======================================================== */
+/* 3. ALL-IN-ONE TABULAR POLICY VIEWER & EDITOR             */
+/* ======================================================== */
+.unified-config-view {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.config-view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  background: #111c38;
+  border: 1px solid #1e293b;
+  border-radius: 16px;
+  padding: 16px 24px;
+}
+
+.config-header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.btn-back-to-cards {
+  background: #0f172a;
+  color: #94a3b8;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+}
+
+.btn-back-to-cards:hover {
+  color: #ffffff;
+  border-color: #60a5fa;
+  background: #1e293b;
+}
+
+.config-bank-ident {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ident-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.ident-name {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+}
+
+.ident-sub {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.btn-save-all-policy {
+  background: #F58220;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 11px 22px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(245, 130, 32, 0.35);
+  transition: all 0.2s ease;
+}
+
+.btn-save-all-policy:hover {
+  background: #ea580c;
+  transform: translateY(-1px);
+}
+
+.save-alert-banner {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  padding: 12px 18px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+/* Tabs Navigation */
+.config-tabs-nav {
+  display: flex;
+  background: #111c38;
+  border: 1px solid #1e293b;
+  border-radius: 14px;
+  padding: 6px;
+  gap: 6px;
+  overflow-x: auto;
+}
+
+.config-tab-btn {
+  flex: 1;
+  min-width: 140px;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  font-weight: 650;
+  color: #94a3b8;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.config-tab-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.config-tab-btn.active {
+  background: #F58220;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(245, 130, 32, 0.3);
+}
+
+/* Tabular Policy Cards */
+.tabular-policy-card {
+  background: #111c38;
+  border: 1px solid #1e293b;
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.table-card-header h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 4px;
+}
+
+.table-card-header p {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* Policy Tables */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.policy-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.policy-table th {
+  background: #0f172a;
+  padding: 12px 16px;
+  font-size: 0.78rem;
+  font-weight: 750;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #1e293b;
+}
+
+.policy-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #1e293b;
+  font-size: 0.88rem;
+  color: #f8fafc;
+  vertical-align: middle;
+}
+
+.policy-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Category Badges */
+.cat-pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.cat-super-a {
+  background: rgba(147, 51, 234, 0.2);
+  color: #c084fc;
+  border: 1px solid rgba(192, 132, 252, 0.35);
+}
+
+.cat-a {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  border: 1px solid rgba(96, 165, 250, 0.35);
+}
+
+.cat-b {
+  background: rgba(245, 130, 32, 0.2);
+  color: #fb923c;
+  border: 1px solid rgba(251, 146, 60, 0.35);
+}
+
+.cat-c {
+  background: rgba(100, 116, 139, 0.2);
+  color: #cbd5e1;
+  border: 1px solid rgba(203, 213, 225, 0.3);
+}
+
+.cat-govt {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.35);
+}
+
+/* Table Input Cell */
+.table-input-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #0f172a;
+  border: 1.5px solid #334155;
+  border-radius: 6px;
+  padding: 4px 8px;
+  max-width: 140px;
+}
+
+.table-input-cell.highlight {
+  border-color: rgba(245, 130, 32, 0.5);
+  background: rgba(245, 130, 32, 0.05);
+}
+
+.table-input-cell input {
+  width: 100%;
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  outline: none;
+  font-family: inherit;
+}
+
+.table-input-cell span {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.tag-lakhs {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #F58220;
+}
+
+.tag-years {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #60a5fa;
+}
+
+.text-muted-sm {
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+/* ======================================================== */
+/* 4. COMPANY CATEGORY LIST SECTION                         */
+/* ======================================================== */
+.add-company-inline-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  padding: 16px;
+  border-radius: 12px;
+  flex-wrap: wrap;
+}
+
+.form-input-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 130px;
+}
+
+.form-input-box label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.form-input-box input,
+.form-input-box select {
+  background: #111c38;
+  color: #ffffff;
+  border: 1.5px solid #334155;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.form-input-box input:focus,
+.form-input-box select:focus {
+  border-color: #F58220;
+}
+
+.btn-add-company {
+  background: #F58220;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+
+.btn-add-company:hover {
+  background: #ea580c;
+}
+
+.company-table-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.search-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #0f172a;
+  border: 1.5px solid #334155;
+  border-radius: 8px;
+  padding: 6px 12px;
+  width: 320px;
+}
+
+.search-input-group .search-icon {
+  color: #64748b;
+}
+
+.search-input-group input {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 0.85rem;
+  width: 100%;
+  outline: none;
+}
+
+.cat-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.filter-btn {
+  background: #0f172a;
+  color: #94a3b8;
+  border: 1px solid #1e293b;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.filter-btn:hover {
+  color: #ffffff;
+  border-color: #334155;
+}
+
+.filter-btn.active {
+  background: rgba(245, 130, 32, 0.18);
+  color: #F58220;
+  border-color: #F58220;
+}
+
+.cat-select-inline {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+  outline: none;
+}
+
+.type-badge {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  background: #0f172a;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.btn-delete-company-row {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.btn-delete-company-row:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+@media (max-width: 900px) {
+  .policy-location-selector-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .selector-bar-right {
+    width: 100%;
+  }
+  .location-select {
+    width: 100%;
+  }
+  .card-actions-row {
+    grid-template-columns: 1fr;
+  }
+}
