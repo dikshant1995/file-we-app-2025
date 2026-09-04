@@ -76,32 +76,32 @@ const AdminDashboard = ({ onBackToCustomer, initialUser }) => {
   };
 
   const menuItems = [
-    { id: 'leads', icon: <Users size={18} stroke="#00d4ff" />, label: 'Lead Management', component: 'LeadManager' },
-    { id: 'blog', icon: <FileText size={18} stroke="#00d4ff" />, label: 'Blogger Section', component: 'BlogManager' },
-    { id: 'banks', icon: <Database size={18} stroke="#00d4ff" />, label: 'Institutional Overview', component: 'BankList' },
-    { id: 'config', icon: <Settings size={18} stroke="#00d4ff" />, label: 'Generic Configuration', component: 'BankConfigEditor' },
-    { id: 'categories', icon: <Layers size={18} stroke="#00d4ff" />, label: 'Categorization Models', component: 'BankConfigEditor', section: 'categories' },
-    { id: 'interest', icon: <TrendingUp size={18} stroke="#00d4ff" />, label: 'Rate Structures', component: 'BankConfigEditor', section: 'interest' },
-    { id: 'loan-capping', icon: <Zap size={18} stroke="#00d4ff" />, label: 'Capital Capping', component: 'BankConfigEditor', section: 'loanCapping' },
-    { id: 'age-rules', icon: <User size={18} stroke="#00d4ff" />, label: 'Demographic Rules', component: 'BankConfigEditor', section: 'ageRules' },
-    { id: 'tenure', icon: <Zap size={18} stroke="#00d4ff" />, label: 'Tenure Optimization', component: 'BankConfigEditor', section: 'tenureRules' },
-    { id: 'foir', icon: <Shield size={18} stroke="#00d4ff" />, label: 'FOIR Parameters', component: 'BankConfigEditor', section: 'foir' },
-    { id: 'multiplier', icon: <Zap size={18} stroke="#00d4ff" />, label: 'Multiplier Logic', component: 'BankConfigEditor', section: 'multiplier' },
-    { id: 'bt', icon: <Zap size={18} stroke="#00d4ff" />, label: 'Liability Consolidation', component: 'BankConfigEditor', section: 'bt' },
-    { id: 'credit-score', icon: <Shield size={18} stroke="#00d4ff" />, label: 'Risk Assessment', component: 'BankConfigEditor', section: 'creditScore' },
-    { id: 'employment', icon: <Zap size={18} stroke="#00d4ff" />, label: 'Employment Credentialing', component: 'BankConfigEditor', section: 'employment' },
-    { id: 'govt-policy', icon: <ShieldCheck size={18} stroke="#00d4ff" />, label: 'Government Policies', component: 'BankConfigEditor', section: 'govt-policy' },
-    { id: 'incentive-policy', icon: <TrendingUp size={18} stroke="#00ff88" />, label: 'Incentive Master Stroke', component: 'BankConfigEditor', section: 'incentive-policy' },
-    { id: 'documents', icon: <FileText size={18} stroke="#00d4ff" />, label: 'Documentation Protocol', component: 'BankConfigEditor', section: 'documents' },
-    { id: 'special', icon: <Zap size={18} stroke="#00d4ff" />, label: 'Exceptional Policies', component: 'BankConfigEditor', section: 'special' },
-    { id: 'fees', icon: <Zap size={18} stroke="#00d4ff" />, label: 'Fee Schedules', component: 'BankConfigEditor', section: 'fees' },
-    { id: 'company-db', icon: <Database size={18} stroke="#00ff88" />, label: 'Company Database', component: 'BankConfigEditor', section: 'company-db' },
+    { id: 'leads', icon: <Users size={18} stroke="#60a5fa" />, label: 'Lead Management', component: 'LeadManager' },
+    { id: 'blog', icon: <FileText size={18} stroke="#60a5fa" />, label: 'Blogger Section', component: 'BlogManager' },
+    { id: 'banks', icon: <Database size={18} stroke="#F58220" />, label: 'Institutional Overview', component: 'BankList' },
+    { id: 'config', icon: <Settings size={18} stroke="#60a5fa" />, label: 'Generic Configuration', component: 'BankConfigEditor' },
+    { id: 'categories', icon: <Layers size={18} stroke="#60a5fa" />, label: 'Categorization Models', component: 'BankConfigEditor', section: 'categories' },
+    { id: 'interest', icon: <TrendingUp size={18} stroke="#F58220" />, label: 'Rate Structures', component: 'BankConfigEditor', section: 'interest' },
+    { id: 'loan-capping', icon: <Zap size={18} stroke="#F58220" />, label: 'Capital Capping', component: 'BankConfigEditor', section: 'loanCapping' },
+    { id: 'age-rules', icon: <User size={18} stroke="#60a5fa" />, label: 'Demographic Rules', component: 'BankConfigEditor', section: 'ageRules' },
+    { id: 'tenure', icon: <Zap size={18} stroke="#60a5fa" />, label: 'Tenure Optimization', component: 'BankConfigEditor', section: 'tenureRules' },
+    { id: 'foir', icon: <Shield size={18} stroke="#F58220" />, label: 'FOIR Parameters', component: 'BankConfigEditor', section: 'foir' },
+    { id: 'multiplier', icon: <Zap size={18} stroke="#60a5fa" />, label: 'Multiplier Logic', component: 'BankConfigEditor', section: 'multiplier' },
+    { id: 'bt', icon: <Zap size={18} stroke="#60a5fa" />, label: 'Liability Consolidation', component: 'BankConfigEditor', section: 'bt' },
+    { id: 'credit-score', icon: <Shield size={18} stroke="#F58220" />, label: 'Risk Assessment', component: 'BankConfigEditor', section: 'creditScore' },
+    { id: 'employment', icon: <Zap size={18} stroke="#60a5fa" />, label: 'Employment Credentialing', component: 'BankConfigEditor', section: 'employment' },
+    { id: 'govt-policy', icon: <ShieldCheck size={18} stroke="#60a5fa" />, label: 'Government Policies', component: 'BankConfigEditor', section: 'govt-policy' },
+    { id: 'incentive-policy', icon: <TrendingUp size={18} stroke="#F58220" />, label: 'Incentive Policy', component: 'BankConfigEditor', section: 'incentive-policy' },
+    { id: 'documents', icon: <FileText size={18} stroke="#60a5fa" />, label: 'Documentation Protocol', component: 'BankConfigEditor', section: 'documents' },
+    { id: 'special', icon: <Zap size={18} stroke="#60a5fa" />, label: 'Exceptional Policies', component: 'BankConfigEditor', section: 'special' },
+    { id: 'fees', icon: <Zap size={18} stroke="#60a5fa" />, label: 'Fee Schedules', component: 'BankConfigEditor', section: 'fees' },
+    { id: 'company-db', icon: <Database size={18} stroke="#F58220" />, label: 'Company Database', component: 'BankConfigEditor', section: 'company-db' },
 
-    { id: 'user-management', icon: <UserPlus size={18} stroke="#00d4ff" />, label: 'Nexus Control', component: 'UserManager' },
-    { id: 'profile-security', icon: <Settings size={18} stroke="#00d4ff" />, label: 'Profile & Security', component: 'ProfileSecurity' },
-    { id: 'analytics', icon: <BarChart2 size={18} stroke="#00d4ff" />, label: 'Strategic Analytics', component: 'Analytics' },
-    { id: 'import-export', icon: <ShieldCheck size={18} stroke="#00d4ff" />, label: 'Data Migration', component: 'ImportExport' },
-    { id: 'audit', icon: <ShieldCheck size={18} stroke="#00d4ff" />, label: 'Governance Logs', component: 'AuditLog' }
+    { id: 'user-management', icon: <UserPlus size={18} stroke="#60a5fa" />, label: 'User & Staff Access', component: 'UserManager' },
+    { id: 'profile-security', icon: <Settings size={18} stroke="#60a5fa" />, label: 'Profile & Security', component: 'ProfileSecurity' },
+    { id: 'analytics', icon: <BarChart2 size={18} stroke="#F58220" />, label: 'Strategic Analytics', component: 'Analytics' },
+    { id: 'import-export', icon: <ShieldCheck size={18} stroke="#60a5fa" />, label: 'Data Migration', component: 'ImportExport' },
+    { id: 'audit', icon: <ShieldCheck size={18} stroke="#60a5fa" />, label: 'Governance Logs', component: 'AuditLog' }
   ];
 
   const renderContent = () => {
@@ -193,7 +193,7 @@ const AdminDashboard = ({ onBackToCustomer, initialUser }) => {
     }
   };
 
-  if (loading) return <div className="neural-loading">Syncing Neural Networks...</div>;
+  if (loading) return <div className="neural-loading">Loading Admin Console...</div>;
   if (!user) return <AdminLogin onLoginSuccess={(u) => setUser(u)} onBack={onBackToCustomer} />;
 
   return (
@@ -210,11 +210,17 @@ const AdminDashboard = ({ onBackToCustomer, initialUser }) => {
         />
       )}
 
-      <header className="dashboard-header glass-panel">
+      <header className="dashboard-header executive-header">
         <div className="header-content">
           <div className="header-left">
-            <button className="btn-back-portal" onClick={onBackToCustomer}>← Return to Portal</button>
-            <div className="neural-brand">LAXMI NEURAL CORE v2.0</div>
+            <div 
+              className="admin-brand-logo" 
+              onClick={onBackToCustomer} 
+              title="Return to LaxmiCredit Home Page"
+            >
+              <span className="brand-laxmi">Laxmi</span><span className="brand-credit">Credit</span>
+              <span className="brand-portal-tag">Admin Console</span>
+            </div>
           </div>
           <div className="header-right">
             <div className="presence-metadata">
@@ -225,13 +231,10 @@ const AdminDashboard = ({ onBackToCustomer, initialUser }) => {
                 <div className="entity-icon">👤</div>
                 <div className="entity-info">
                   <span className="entity-name">{user.displayName || 'System Admin'}</span>
-                  <span className={`entity-role ${user.role}`}>{user.role?.toUpperCase()}</span>
+                  <span className={`entity-role ${user.role}`}>{user.role?.toUpperCase() || 'ADMIN'}</span>
                 </div>
               </div>
             </div>
-            <button className="btn-logout-neural" onClick={handleLogout} title="Sever Connection">
-              <LogOut size={18} />
-            </button>
           </div>
         </div>
       </header>

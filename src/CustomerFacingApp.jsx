@@ -194,6 +194,7 @@ function CustomerFacingApp() {
 
   const handleAdminClick = () => {
     if (adminUser) {
+      window.history.pushState({ view: 'admin' }, '', window.location.pathname);
       setShowAdminDashboard(true);
     } else {
       setShowAdminLoginModal(true);
@@ -206,6 +207,7 @@ function CustomerFacingApp() {
       localStorage.setItem('laxmi_admin_user', JSON.stringify(userProfile));
     } catch (e) {}
     setShowAdminLoginModal(false);
+    window.history.pushState({ view: 'admin' }, '', window.location.pathname);
     setShowAdminDashboard(true);
   };
 
@@ -219,6 +221,8 @@ function CustomerFacingApp() {
 
   const handleBackToCustomer = () => {
     setShowAdminDashboard(false);
+    navigate('/');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const location = useLocation();
@@ -243,10 +247,14 @@ function CustomerFacingApp() {
     }
   }, [location.pathname]);
 
-  // When user clicks the browser BACK button on results page, return smoothly to the application form
+  // Handle browser BACK button (from Admin Dashboard to Home, or from Results to Form)
   React.useEffect(() => {
     const handlePopState = () => {
-      if (results) {
+      if (showAdminDashboard) {
+        setShowAdminDashboard(false);
+        navigate('/');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (results) {
         setResults(null);
         setShowForm(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -254,7 +262,7 @@ function CustomerFacingApp() {
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [results]);
+  }, [showAdminDashboard, results, navigate]);
 
   if (showAdminDashboard) {
     return <AdminDashboard initialUser={adminUser} onBackToCustomer={handleBackToCustomer} />;
