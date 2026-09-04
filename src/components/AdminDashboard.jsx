@@ -86,7 +86,7 @@ const AdminDashboard = ({ onBackToCustomer, initialUser }) => {
 
   return (
     <div className="admin-dashboard professional-grid-bg">
-      {/* Executive Header */}
+      {/* Executive Header with Top Navigation Buttons */}
       <header className="dashboard-header executive-header">
         <div className="header-content">
           <div className="header-left">
@@ -99,6 +99,20 @@ const AdminDashboard = ({ onBackToCustomer, initialUser }) => {
               <span className="brand-portal-tag">Admin Console</span>
             </div>
           </div>
+
+          {/* Top Header Navigation Buttons (Moved from Side Nav Bar) */}
+          <nav className="header-nav-buttons">
+            {menuItems.map(item => (
+              <button
+                key={item.id}
+                className={`header-nav-btn ${activeMenu === item.id ? 'active' : ''}`}
+                onClick={() => setActiveMenu(item.id)}
+              >
+                <span className="nav-btn-icon">{item.icon}</span>
+                <span className="nav-btn-label">{item.label}</span>
+              </button>
+            ))}
+          </nav>
 
           <div className="header-right">
             <div className="presence-metadata">
@@ -114,27 +128,9 @@ const AdminDashboard = ({ onBackToCustomer, initialUser }) => {
         </div>
       </header>
 
-      {/* Main Container with Sidebar and Content */}
-      <div className="dashboard-container">
-        <aside className="dashboard-sidebar executive-sidebar">
-          <div className="sidebar-scrollable">
-            <div className="sidebar-group-label">PRIMARY MODULES</div>
-            <nav className="sidebar-menu">
-              {menuItems.map(item => (
-                <button
-                  key={item.id}
-                  className={`menu-item ${activeMenu === item.id ? 'active' : ''}`}
-                  onClick={() => setActiveMenu(item.id)}
-                >
-                  <span className="menu-icon">{item.icon}</span>
-                  <span className="menu-label">{item.label}</span>
-                </button>
-              ))}
-            </nav>
-          </div>
-        </aside>
-
-        <main className="dashboard-main">
+      {/* Main Full-Width Container */}
+      <div className="dashboard-container full-width">
+        <main className="dashboard-main full-width">
           <div className="content-area">
             {renderContent()}
           </div>
