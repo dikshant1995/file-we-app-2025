@@ -107,6 +107,77 @@ const INITIAL_COMPANY_DATABASE = [
   { id: 'c20', name: 'Proprietorship / Small Firm', category: 'C', type: 'SME / Micro Business', minSalary: 50000 }
 ];
 
+const DEFAULT_DEMOGRAPHIC_RULES = {
+  minAge: 21,
+  maxAge: 60,
+  retirementSalaried: 60,
+  retirementGovt: 62,
+  minSalary: 25000,
+  minExperienceTotal: 12,
+  minExperienceCurrent: 6,
+  minCibilScore: 650
+};
+
+const DEFAULT_UNIFIED_POLICY = {
+  interestRates: [
+    { category: 'Super A', minRoi: 10.25, maxRoi: 12.00, defaultRoi: 10.50, minSalary: 100000 },
+    { category: 'A', minRoi: 10.75, maxRoi: 13.50, defaultRoi: 11.00, minSalary: 50000 },
+    { category: 'B', minRoi: 11.50, maxRoi: 15.00, defaultRoi: 12.00, minSalary: 35000 },
+    { category: 'C', minRoi: 12.50, maxRoi: 18.00, defaultRoi: 13.50, minSalary: 25000 },
+    { category: 'Govt', minRoi: 10.50, maxRoi: 12.50, defaultRoi: 10.75, minSalary: 20000 }
+  ],
+  loanCapping: [
+    { tier: 'Super A', minLoan: 100000, maxLoan: 7500000, bachelorCap: 3000000, minSalary: 100000 },
+    { tier: 'A', minLoan: 100000, maxLoan: 5000000, bachelorCap: 2500000, minSalary: 50000 },
+    { tier: 'B', minLoan: 100000, maxLoan: 3500000, bachelorCap: 1500000, minSalary: 35000 },
+    { tier: 'C', minLoan: 100000, maxLoan: 2000000, bachelorCap: 1000000, minSalary: 25000 },
+    { tier: 'Govt', minLoan: 100000, maxLoan: 5000000, bachelorCap: 3000000, minSalary: 20000 }
+  ],
+  tenureRules: [
+    { category: 'Super A', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years' },
+    { category: 'A', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years' },
+    { category: 'B', minMonths: 12, maxMonths: 72, description: 'Up to 6 Years' },
+    { category: 'C', minMonths: 12, maxMonths: 60, description: 'Up to 5 Years' },
+    { category: 'Govt', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years' }
+  ],
+  foirMultiplier: [
+    { category: 'Super A', maxFoir: 70, multiplier: 28, ccObligation: 5 },
+    { category: 'A', maxFoir: 65, multiplier: 24, ccObligation: 5 },
+    { category: 'B', maxFoir: 60, multiplier: 20, ccObligation: 5 },
+    { category: 'C', maxFoir: 55, multiplier: 18, ccObligation: 5 },
+    { category: 'Govt', maxFoir: 65, multiplier: 25, ccObligation: 3 }
+  ],
+  demographics: DEFAULT_DEMOGRAPHIC_RULES,
+  companies: INITIAL_COMPANY_DATABASE
+};
+
+const sanitizePolicyData = (raw) => {
+  if (!raw || typeof raw !== 'object') return { ...DEFAULT_UNIFIED_POLICY };
+  return {
+    ...DEFAULT_UNIFIED_POLICY,
+    ...raw,
+    interestRates: Array.isArray(raw.interestRates) && raw.interestRates.length > 0 
+      ? raw.interestRates 
+      : DEFAULT_UNIFIED_POLICY.interestRates,
+    loanCapping: Array.isArray(raw.loanCapping) && raw.loanCapping.length > 0 
+      ? raw.loanCapping 
+      : DEFAULT_UNIFIED_POLICY.loanCapping,
+    tenureRules: Array.isArray(raw.tenureRules) && raw.tenureRules.length > 0 
+      ? raw.tenureRules 
+      : DEFAULT_UNIFIED_POLICY.tenureRules,
+    foirMultiplier: Array.isArray(raw.foirMultiplier) && raw.foirMultiplier.length > 0 
+      ? raw.foirMultiplier 
+      : DEFAULT_UNIFIED_POLICY.foirMultiplier,
+    demographics: {
+      ...DEFAULT_DEMOGRAPHIC_RULES,
+      ...(raw.demographics || {})
+    },
+    companies: Array.isArray(raw.companies) && raw.companies.length > 0 
+      ? raw.companies 
+      : DEFAULT_UNIFIED_POLICY.companies
+  };
+};
+
 const UnifiedBankPolicyManager = () => {
   // Location Selection State
   const [selectedState, setSelectedState] = useState('All India');
@@ -127,48 +198,8 @@ const UnifiedBankPolicyManager = () => {
   const [activeConfigTab, setActiveConfigTab] = useState('rates'); // rates, capping, tenure, foir, demographics, companies
   const [saveAlert, setSaveAlert] = useState('');
 
-  // Editable Policy State for Active Bank
-  const [policyData, setPolicyData] = useState({
-    interestRates: [
-      { category: 'Super A', minRoi: 10.25, maxRoi: 12.00, defaultRoi: 10.50, minSalary: 100000 },
-      { category: 'A', minRoi: 10.75, maxRoi: 13.50, defaultRoi: 11.00, minSalary: 50000 },
-      { category: 'B', minRoi: 11.50, maxRoi: 15.00, defaultRoi: 12.00, minSalary: 35000 },
-      { category: 'C', minRoi: 12.50, maxRoi: 18.00, defaultRoi: 13.50, minSalary: 25000 },
-      { category: 'Govt', minRoi: 10.50, maxRoi: 12.50, defaultRoi: 10.75, minSalary: 20000 }
-    ],
-    loanCapping: [
-      { tier: 'Super A', minLoan: 100000, maxLoan: 7500000, bachelorCap: 3000000, minSalary: 100000 },
-      { tier: 'A', minLoan: 100000, maxLoan: 5000000, bachelorCap: 2500000, minSalary: 50000 },
-      { tier: 'B', minLoan: 100000, maxLoan: 3500000, bachelorCap: 1500000, minSalary: 35000 },
-      { tier: 'C', minLoan: 100000, maxLoan: 2000000, bachelorCap: 1000000, minSalary: 25000 },
-      { tier: 'Govt', minLoan: 100000, maxLoan: 5000000, bachelorCap: 3000000, minSalary: 20000 }
-    ],
-    tenureRules: [
-      { category: 'Super A', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years' },
-      { category: 'A', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years' },
-      { category: 'B', minMonths: 12, maxMonths: 72, description: 'Up to 6 Years' },
-      { category: 'C', minMonths: 12, maxMonths: 60, description: 'Up to 5 Years' },
-      { category: 'Govt', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years' }
-    ],
-    foirMultiplier: [
-      { category: 'Super A', maxFoir: 70, multiplier: 28, ccObligation: 5 },
-      { category: 'A', maxFoir: 65, multiplier: 24, ccObligation: 5 },
-      { category: 'B', maxFoir: 60, multiplier: 20, ccObligation: 5 },
-      { category: 'C', maxFoir: 55, multiplier: 18, ccObligation: 5 },
-      { category: 'Govt', maxFoir: 65, multiplier: 25, ccObligation: 3 }
-    ],
-    demographics: {
-      minAge: 21,
-      maxAge: 60,
-      retirementSalaried: 60,
-      retirementGovt: 62,
-      minSalary: 25000,
-      minExperienceTotal: 12,
-      minExperienceCurrent: 6,
-      minCibilScore: 650
-    },
-    companies: INITIAL_COMPANY_DATABASE
-  });
+  // Editable Policy State for Active Bank (Fully sanitized with demographics)
+  const [policyData, setPolicyData] = useState(() => sanitizePolicyData(null));
 
   // Bank Specific Company Database State
   const [bankCompanies, setBankCompanies] = useState([]);
@@ -256,17 +287,28 @@ const UnifiedBankPolicyManager = () => {
     const stored = localStorage.getItem(`policy_config_${bank.id}_${locationKey}`);
     if (stored) {
       try {
-        setPolicyData(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        setPolicyData(sanitizePolicyData(parsed));
         return;
       } catch (e) {
-        console.error(e);
+        console.error('Error parsing stored policy:', e);
       }
     }
 
     // Cloud Firestore Fallback: check bankConfigService (synced from Firestore)
     const cloudPolicy = getBankConfig(bank.name, 'unifiedPolicy', locationKey) || getBankConfig(bank.name, 'unifiedPolicy');
-    if (cloudPolicy && cloudPolicy.interestRates) {
-      setPolicyData(cloudPolicy);
+    if (cloudPolicy) {
+      setPolicyData(sanitizePolicyData(cloudPolicy));
+    } else {
+      setPolicyData(sanitizePolicyData({
+        interestRates: [
+          { category: 'Super A', minRoi: bank.minRate || 10.25, maxRoi: (bank.minRate || 10.25) + 1.75, defaultRoi: bank.minRate || 10.50, minSalary: 100000 },
+          { category: 'A', minRoi: (bank.minRate || 10.50) + 0.5, maxRoi: (bank.minRate || 10.50) + 2.5, defaultRoi: (bank.minRate || 10.50) + 0.75, minSalary: 50000 },
+          { category: 'B', minRoi: (bank.minRate || 10.50) + 1.25, maxRoi: (bank.minRate || 10.50) + 4.0, defaultRoi: (bank.minRate || 10.50) + 1.75, minSalary: 35000 },
+          { category: 'C', minRoi: (bank.minRate || 10.50) + 2.25, maxRoi: (bank.minRate || 10.50) + 6.0, defaultRoi: (bank.minRate || 10.50) + 3.0, minSalary: 25000 },
+          { category: 'Govt', minRoi: bank.minRate || 10.25, maxRoi: (bank.minRate || 10.25) + 2.0, defaultRoi: (bank.minRate || 10.25) + 0.5, minSalary: 20000 }
+        ]
+      }));
     }
   };
 
@@ -1075,7 +1117,7 @@ const UnifiedBankPolicyManager = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {policyData.interestRates.map((row, idx) => (
+                    {(policyData?.interestRates || []).map((row, idx) => (
                       <tr key={idx}>
                         <td>
                           <span className={`cat-pill cat-${row.category.toLowerCase().replace(/\s+/g, '-')}`}>
@@ -1175,7 +1217,7 @@ const UnifiedBankPolicyManager = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {policyData.loanCapping.map((row, idx) => (
+                    {(policyData?.loanCapping || []).map((row, idx) => (
                       <tr key={idx}>
                         <td>
                           <span className={`cat-pill cat-${row.tier.toLowerCase().replace(/\s+/g, '-')}`}>
@@ -1262,7 +1304,7 @@ const UnifiedBankPolicyManager = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {policyData.tenureRules.map((row, idx) => (
+                    {(policyData?.tenureRules || []).map((row, idx) => (
                       <tr key={idx}>
                         <td>
                           <span className={`cat-pill cat-${row.category.toLowerCase().replace(/\s+/g, '-')}`}>
@@ -1276,7 +1318,7 @@ const UnifiedBankPolicyManager = () => {
                               value={row.minMonths}
                               onChange={(e) => {
                                 const val = Number(e.target.value);
-                                const updated = [...policyData.tenureRules];
+                                const updated = [...(policyData?.tenureRules || [])];
                                 updated[idx].minMonths = val;
                                 setPolicyData({ ...policyData, tenureRules: updated });
                               }}
@@ -1291,7 +1333,7 @@ const UnifiedBankPolicyManager = () => {
                               value={row.maxMonths}
                               onChange={(e) => {
                                 const val = Number(e.target.value);
-                                const updated = [...policyData.tenureRules];
+                                const updated = [...(policyData?.tenureRules || [])];
                                 updated[idx].maxMonths = val;
                                 updated[idx].description = `Up to ${(val / 12).toFixed(1)} Years`;
                                 setPolicyData({ ...policyData, tenureRules: updated });
@@ -1337,7 +1379,7 @@ const UnifiedBankPolicyManager = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {policyData.foirMultiplier.map((row, idx) => (
+                    {(policyData?.foirMultiplier || []).map((row, idx) => (
                       <tr key={idx}>
                         <td>
                           <span className={`cat-pill cat-${row.category.toLowerCase().replace(/\s+/g, '-')}`}>
@@ -1424,11 +1466,14 @@ const UnifiedBankPolicyManager = () => {
                         <div className="table-input-cell">
                           <input 
                             type="number"
-                            value={policyData.demographics.minAge}
-                            onChange={(e) => setPolicyData({
-                              ...policyData,
-                              demographics: { ...policyData.demographics, minAge: Number(e.target.value) }
-                            })}
+                            value={policyData?.demographics?.minAge ?? 21}
+                            onChange={(e) => {
+                              const val = Number(e.target.value);
+                              setPolicyData(prev => ({
+                                ...prev,
+                                demographics: { ...(prev?.demographics || DEFAULT_DEMOGRAPHIC_RULES), minAge: val }
+                              }));
+                            }}
                           />
                           <span>Years</span>
                         </div>
@@ -1442,11 +1487,14 @@ const UnifiedBankPolicyManager = () => {
                         <div className="table-input-cell">
                           <input 
                             type="number"
-                            value={policyData.demographics.maxAge}
-                            onChange={(e) => setPolicyData({
-                              ...policyData,
-                              demographics: { ...policyData.demographics, maxAge: Number(e.target.value) }
-                            })}
+                            value={policyData?.demographics?.maxAge ?? 60}
+                            onChange={(e) => {
+                              const val = Number(e.target.value);
+                              setPolicyData(prev => ({
+                                ...prev,
+                                demographics: { ...(prev?.demographics || DEFAULT_DEMOGRAPHIC_RULES), maxAge: val }
+                              }));
+                            }}
                           />
                           <span>Years</span>
                         </div>
@@ -1460,11 +1508,14 @@ const UnifiedBankPolicyManager = () => {
                         <div className="table-input-cell">
                           <input 
                             type="number"
-                            value={policyData.demographics.retirementSalaried}
-                            onChange={(e) => setPolicyData({
-                              ...policyData,
-                              demographics: { ...policyData.demographics, retirementSalaried: Number(e.target.value) }
-                            })}
+                            value={policyData?.demographics?.retirementSalaried ?? 60}
+                            onChange={(e) => {
+                              const val = Number(e.target.value);
+                              setPolicyData(prev => ({
+                                ...prev,
+                                demographics: { ...(prev?.demographics || DEFAULT_DEMOGRAPHIC_RULES), retirementSalaried: val }
+                              }));
+                            }}
                           />
                           <span>Years</span>
                         </div>
@@ -1478,11 +1529,14 @@ const UnifiedBankPolicyManager = () => {
                         <div className="table-input-cell">
                           <input 
                             type="number"
-                            value={policyData.demographics.retirementGovt}
-                            onChange={(e) => setPolicyData({
-                              ...policyData,
-                              demographics: { ...policyData.demographics, retirementGovt: Number(e.target.value) }
-                            })}
+                            value={policyData?.demographics?.retirementGovt ?? 62}
+                            onChange={(e) => {
+                              const val = Number(e.target.value);
+                              setPolicyData(prev => ({
+                                ...prev,
+                                demographics: { ...(prev?.demographics || DEFAULT_DEMOGRAPHIC_RULES), retirementGovt: val }
+                              }));
+                            }}
                           />
                           <span>Years</span>
                         </div>
@@ -1497,11 +1551,14 @@ const UnifiedBankPolicyManager = () => {
                           <span>₹</span>
                           <input 
                             type="number"
-                            value={policyData.demographics.minSalary}
-                            onChange={(e) => setPolicyData({
-                              ...policyData,
-                              demographics: { ...policyData.demographics, minSalary: Number(e.target.value) }
-                            })}
+                            value={policyData?.demographics?.minSalary ?? 25000}
+                            onChange={(e) => {
+                              const val = Number(e.target.value);
+                              setPolicyData(prev => ({
+                                ...prev,
+                                demographics: { ...(prev?.demographics || DEFAULT_DEMOGRAPHIC_RULES), minSalary: val }
+                              }));
+                            }}
                           />
                         </div>
                       </td>
@@ -1514,11 +1571,14 @@ const UnifiedBankPolicyManager = () => {
                         <div className="table-input-cell">
                           <input 
                             type="number"
-                            value={policyData.demographics.minExperienceTotal}
-                            onChange={(e) => setPolicyData({
-                              ...policyData,
-                              demographics: { ...policyData.demographics, minExperienceTotal: Number(e.target.value) }
-                            })}
+                            value={policyData?.demographics?.minExperienceTotal ?? 12}
+                            onChange={(e) => {
+                              const val = Number(e.target.value);
+                              setPolicyData(prev => ({
+                                ...prev,
+                                demographics: { ...(prev?.demographics || DEFAULT_DEMOGRAPHIC_RULES), minExperienceTotal: val }
+                              }));
+                            }}
                           />
                           <span>Months</span>
                         </div>
@@ -1532,11 +1592,14 @@ const UnifiedBankPolicyManager = () => {
                         <div className="table-input-cell highlight">
                           <input 
                             type="number"
-                            value={policyData.demographics.minCibilScore}
-                            onChange={(e) => setPolicyData({
-                              ...policyData,
-                              demographics: { ...policyData.demographics, minCibilScore: Number(e.target.value) }
-                            })}
+                            value={policyData?.demographics?.minCibilScore ?? 650}
+                            onChange={(e) => {
+                              const val = Number(e.target.value);
+                              setPolicyData(prev => ({
+                                ...prev,
+                                demographics: { ...(prev?.demographics || DEFAULT_DEMOGRAPHIC_RULES), minCibilScore: val }
+                              }));
+                            }}
                           />
                         </div>
                       </td>
