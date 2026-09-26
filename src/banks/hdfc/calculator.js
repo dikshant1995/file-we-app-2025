@@ -2,10 +2,30 @@ import { hdfcConfig } from './config.js';
 import { getBankConfig } from '../../services/bankConfigService.js';
 import { getSlabRate } from '../../utils/policyUtils.js';
 
-// Helper function to get interest rate based on category and loan amount
+// Helper function to get interest rate based on category and loan amount (HDFC Excel Policy)
 const getInterestRateForLoan = (category, loanAmount, location = null) => {
-  let lookupCategory = category === 'Govt' ? 'A' : category;
-  return getSlabRate('HDFC Bank', lookupCategory, loanAmount, location, hdfcConfig.interestRate);
+  let lookupCategory = (category === 'Govt' || category === 'GOVT') ? 'A' : category;
+  
+  // First check if dynamic admin slab override exists
+  const dynamicRate = getSlabRate('HDFC Bank', lookupCategory, loanAmount, location, null);
+  if (dynamicRate !== null && dynamicRate !== undefined) {
+    return dynamicRate;
+  }
+
+  // Exact HDFC Master Policy Slabs from BANKS POLICYS.xlsx
+  const normCat = (lookupCategory || 'B').toUpperCase();
+  const isC = normCat === 'C' || normCat === 'D';
+  const amt = loanAmount || 0;
+
+  if (amt >= 2000000) {
+    return isC ? 10.25 : 9.99; // 20 LAKH +
+  } else if (amt >= 1500000) {
+    return isC ? 10.50 : 10.15; // 15 LAKH+ (15L - 20L)
+  } else if (amt >= 1000000) {
+    return isC ? 11.00 : 10.50; // 10-15 LAKH
+  } else {
+    return 11.50; // 5-10 LAKH (and below)
+  }
 };
 
 // Function to calculate EMI

@@ -35,9 +35,10 @@ import { protectAgainstProcessingFee } from '../utils/processingFeeGuard.js';
 // Import bank configuration service for logic bridge
 import { getBankConfig, getAllBankConfig } from './bankConfigService.js';
 
-// Import Axis Bank and IndusInd Bank Master Excel Policies
+// Import Axis Bank, IndusInd Bank, and HDFC Bank Master Excel Policies
 import { AXIS_BANK_EXCEL_POLICY } from '../config/axisBankPolicy.js';
 import { INDUSIND_BANK_EXCEL_POLICY } from '../config/indusindBankPolicy.js';
+import { HDFC_BANK_EXCEL_POLICY } from '../config/hdfcBankPolicy.js';
 
 /**
  * Universal Bank Calculator for Institutional Banks without legacy hardcoded calculators
@@ -267,6 +268,10 @@ const matchCategory = (cat1, cat2) => {
       if (!uPolicy && (name === 'IndusInd Bank' || id === 'indusind')) {
         uPolicy = INDUSIND_BANK_EXCEL_POLICY;
       }
+      // Master Policy Fallback for HDFC Bank from Excel
+      if (!uPolicy && (name === 'HDFC Bank' || id === 'hdfc')) {
+        uPolicy = HDFC_BANK_EXCEL_POLICY;
+      }
 
       // 1. SALARY MODE GATE
       if (calculatorInput.salaryMode === 'cash' && adminAllConfig.employmentRules?.allowCashSalary === false) {
@@ -455,16 +460,18 @@ const matchCategory = (cat1, cat2) => {
             let dynamicRoi = matchedRate.defaultRoi || matchedRate.minRoi || 10.5;
             if (calculatorInput.desiredLoanAmount && calculatorInput.desiredLoanAmount > 0) {
               const reqAmount = calculatorInput.desiredLoanAmount;
-              if (reqAmount >= 1500000 && matchedRate.roiAbove15L) {
-                dynamicRoi = matchedRate.roiAbove15L;
+              if (reqAmount >= 2000000 && matchedRate.roiAbove20L) {
+                dynamicRoi = matchedRate.roiAbove20L;
+              } else if (reqAmount >= 1500000 && (matchedRate.roi15Lto20L || matchedRate.roiAbove15L)) {
+                dynamicRoi = matchedRate.roi15Lto20L || matchedRate.roiAbove15L;
               } else if (reqAmount >= 1000000 && matchedRate.roi10Lto15L) {
                 dynamicRoi = matchedRate.roi10Lto15L;
-              } else if (matchedRate.roiBelow10L) {
-                dynamicRoi = matchedRate.roiBelow10L;
+              } else if (matchedRate.roi5Lto10L || matchedRate.roiBelow10L) {
+                dynamicRoi = matchedRate.roi5Lto10L || matchedRate.roiBelow10L;
               }
             } else {
               // Customer entered NO loan amount: use best provisional base rate (e.g. 9.99%) to determine max capacity
-              dynamicRoi = matchedRate.roiAbove15L || matchedRate.defaultRoi || matchedRate.minRoi || 9.99;
+              dynamicRoi = matchedRate.roiAbove20L || matchedRate.roiAbove15L || matchedRate.defaultRoi || matchedRate.minRoi || 9.99;
             }
             bankInput.interestRateOverride = Number(dynamicRoi);
             bankInput.matchedRateConfig = matchedRate;
@@ -695,14 +702,17 @@ const matchCategory = (cat1, cat2) => {
         let appliedRoiSlab = '< ₹10 Lakhs';
         if (bankInput.matchedRateConfig) {
           const mRate = bankInput.matchedRateConfig;
-          if (maxEligibleLoan >= 1500000 && mRate.roiAbove15L) {
-            finalRate = Number(mRate.roiAbove15L);
-            appliedRoiSlab = '≥ ₹15 Lakhs';
+          if (maxEligibleLoan >= 2000000 && mRate.roiAbove20L) {
+            finalRate = Number(mRate.roiAbove20L);
+            appliedRoiSlab = '≥ ₹20 Lakhs';
+          } else if (maxEligibleLoan >= 1500000 && (mRate.roi15Lto20L || mRate.roiAbove15L)) {
+            finalRate = Number(mRate.roi15Lto20L || mRate.roiAbove15L);
+            appliedRoiSlab = '₹15 Lakhs - ₹20 Lakhs';
           } else if (maxEligibleLoan >= 1000000 && mRate.roi10Lto15L) {
             finalRate = Number(mRate.roi10Lto15L);
             appliedRoiSlab = '₹10 Lakhs - ₹15 Lakhs';
-          } else if (mRate.roiBelow10L) {
-            finalRate = Number(mRate.roiBelow10L);
+          } else if (mRate.roi5Lto10L || mRate.roiBelow10L) {
+            finalRate = Number(mRate.roi5Lto10L || mRate.roiBelow10L);
             appliedRoiSlab = '< ₹10 Lakhs';
           }
         }

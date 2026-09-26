@@ -515,6 +515,48 @@ const UnifiedBankPolicyManager = () => {
     // Load any existing custom config from localStorage or cloud-synced service
     const locationKey = `${selectedState}-${selectedCity}`;
     const stored = localStorage.getItem(`policy_config_${bank.id}_${locationKey}`) || localStorage.getItem(`policy_config_${bank.id}`);
+
+    // Direct Master Policy from Excel for Axis Bank
+    if (bank.id === 'axis-bank' || bank.name === 'Axis Bank') {
+      let axisBase = AXIS_BANK_EXCEL_POLICY;
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          axisBase = { ...axisBase, ...parsed };
+        } catch (e) {}
+      }
+      setPolicyData(sanitizePolicyData(axisBase));
+      return;
+    }
+
+    // Direct Master Policy from Excel for IndusInd Bank
+    if (bank.id === 'indusind' || bank.name === 'IndusInd Bank') {
+      let indusBase = INDUSIND_BANK_EXCEL_POLICY;
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          indusBase = { ...indusBase, ...parsed };
+        } catch (e) {}
+      }
+      setPolicyData(sanitizePolicyData(indusBase));
+      return;
+    }
+
+    // Direct Master Policy from Excel for HDFC Bank
+    if (bank.id === 'hdfc' || bank.name === 'HDFC Bank') {
+      let hdfcBase = HDFC_BANK_EXCEL_POLICY;
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (parsed?.interestRates?.some(r => r.roiAbove20L !== undefined)) {
+            hdfcBase = { ...hdfcBase, ...parsed };
+          }
+        } catch (e) {}
+      }
+      setPolicyData(sanitizePolicyData(hdfcBase));
+      return;
+    }
+
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
@@ -523,24 +565,6 @@ const UnifiedBankPolicyManager = () => {
       } catch (e) {
         console.error('Error parsing stored policy:', e);
       }
-    }
-
-    // Direct Master Policy from Excel for Axis Bank
-    if (bank.id === 'axis-bank' || bank.name === 'Axis Bank') {
-      setPolicyData(sanitizePolicyData(AXIS_BANK_EXCEL_POLICY));
-      return;
-    }
-
-    // Direct Master Policy from Excel for IndusInd Bank
-    if (bank.id === 'indusind' || bank.name === 'IndusInd Bank') {
-      setPolicyData(sanitizePolicyData(INDUSIND_BANK_EXCEL_POLICY));
-      return;
-    }
-
-    // Direct Master Policy from Excel for HDFC Bank
-    if (bank.id === 'hdfc' || bank.name === 'HDFC Bank') {
-      setPolicyData(sanitizePolicyData(HDFC_BANK_EXCEL_POLICY));
-      return;
     }
 
     // Cloud Firestore Fallback: check bankConfigService (synced from Firestore)
@@ -1350,91 +1374,306 @@ const UnifiedBankPolicyManager = () => {
           </div>
 
           {/* TAB 1: INTEREST RATES TABULAR VIEW */}
-          {activeConfigTab === 'rates' && (
-            <div className="tabular-policy-card">
-              <div className="table-card-header">
-                <div>
-                  <h3>Interest Rate Structures & Slabs (By Loan Amount)</h3>
-                  <p>Define minimum ROI strictly according to employer category and loan amount brackets (≥ ₹15 Lakhs, ₹10 Lakhs - ₹15 Lakhs, &lt; ₹10 Lakhs).</p>
+          {activeConfigTab === 'rates' && (() => {
+            const isHdfc = activeConfigBank?.id === 'hdfc' || activeConfigBank?.name?.toLowerCase().includes('hdfc');
+            const isIndusind = activeConfigBank?.id === 'indusind' || activeConfigBank?.name?.toLowerCase().includes('indusind');
+            const isAxis = activeConfigBank?.id === 'axis-bank' || activeConfigBank?.name?.toLowerCase().includes('axis');
+
+            // For banks whose Excel policy only has Super A, A, B, C, Govt in ROI (HDFC, IndusInd, Axis), exclude Category D from ROI table
+            const rawRates = policyData?.interestRates || [];
+            const displayRates = (isHdfc || isIndusind || isAxis)
+              ? rawRates.filter(r => r.category !== 'D')
+              : rawRates;
+
+            return (
+              <div className="tabular-policy-card">
+                <div className="table-card-header">
+                  <div>
+                    <h3>Interest Rate Structures & Slabs (By Loan Amount)</h3>
+                    {isHdfc && (
+                      <p>HDFC Master Policy Slabs: <strong>20 LAKH +</strong> (9.99%), <strong>15 LAKH+</strong> (10.15%), <strong>10-15 LAKH</strong> (10.50%), and <strong>5-10 LAKH</strong> (11.50%).</p>
+                    )}
+                    {isIndusind && (
+                      <p>IndusInd Master Policy Slabs: <strong>10L ABOVE CASES (Insurance Mandate)</strong> (9.99%) and <strong>5L ABOVE CASES</strong> (12.00%).</p>
+                    )}
+                    {isAxis && (
+                      <p>Axis Bank Master Policy Slabs: <strong>10L ABOVE CASES</strong> (Super A/A: 10.35%, B: 10.45%, C: 10.75%, Govt: 10.45%).</p>
+                    )}
+                    {!isHdfc && !isIndusind && !isAxis && (
+                      <p>Define minimum ROI strictly according to employer category and loan amount brackets.</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="table-responsive">
+                  <table className="policy-table">
+                    <thead>
+                      <tr>
+                        <th>Category Tier</th>
+                        {isHdfc && (
+                          <>
+                            <th>20 LAKH + (% p.a.)</th>
+                            <th>15 LAKH+ (% p.a.)</th>
+                            <th>10-15 LAKH (% p.a.)</th>
+                            <th>5-10 LAKH (% p.a.)</th>
+                          </>
+                        )}
+                        {isIndusind && (
+                          <>
+                            <th>10L Above Cases (Insurance Mandate) (% p.a.)</th>
+                            <th>5L Above Cases (% p.a.)</th>
+                          </>
+                        )}
+                        {isAxis && (
+                          <>
+                            <th>10L Above Cases (% p.a.)</th>
+                          </>
+                        )}
+                        {!isHdfc && !isIndusind && !isAxis && (
+                          <>
+                            <th>≥ ₹15 Lakh Loan ROI (% p.a.)</th>
+                            <th>₹10L to &lt; ₹15L Loan ROI (% p.a.)</th>
+                            <th>&lt; ₹10 Lakh Loan ROI (% p.a.)</th>
+                          </>
+                        )}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {displayRates.map((row, idx) => (
+                        <tr key={idx}>
+                          <td>
+                            <span className={`cat-pill cat-${row.category.toLowerCase().replace(/\s+/g, '-')}`}>
+                              {row.category}
+                            </span>
+                          </td>
+
+                          {isHdfc && (
+                            <>
+                              <td>
+                                <div className="table-input-cell highlight">
+                                  <input 
+                                    type="number"
+                                    step="0.01"
+                                    value={row.roiAbove20L ?? (row.category === 'C' ? 10.25 : 9.99)}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.interestRates];
+                                      const realIdx = updated.findIndex(r => r.category === row.category);
+                                      if (realIdx >= 0) {
+                                        updated[realIdx].roiAbove20L = val;
+                                        updated[realIdx].minRoi = val;
+                                        setPolicyData({ ...policyData, interestRates: updated });
+                                      }
+                                    }}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number"
+                                    step="0.01"
+                                    value={row.roi15Lto20L ?? (row.category === 'C' ? 10.50 : 10.15)}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.interestRates];
+                                      const realIdx = updated.findIndex(r => r.category === row.category);
+                                      if (realIdx >= 0) {
+                                        updated[realIdx].roi15Lto20L = val;
+                                        updated[realIdx].roiAbove15L = val;
+                                        setPolicyData({ ...policyData, interestRates: updated });
+                                      }
+                                    }}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number"
+                                    step="0.01"
+                                    value={row.roi10Lto15L ?? (row.category === 'C' ? 11.00 : 10.50)}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.interestRates];
+                                      const realIdx = updated.findIndex(r => r.category === row.category);
+                                      if (realIdx >= 0) {
+                                        updated[realIdx].roi10Lto15L = val;
+                                        setPolicyData({ ...policyData, interestRates: updated });
+                                      }
+                                    }}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number"
+                                    step="0.01"
+                                    value={row.roi5Lto10L ?? 11.50}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.interestRates];
+                                      const realIdx = updated.findIndex(r => r.category === row.category);
+                                      if (realIdx >= 0) {
+                                        updated[realIdx].roi5Lto10L = val;
+                                        updated[realIdx].roiBelow10L = val;
+                                        updated[realIdx].defaultRoi = val;
+                                        setPolicyData({ ...policyData, interestRates: updated });
+                                      }
+                                    }}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                            </>
+                          )}
+
+                          {isIndusind && (
+                            <>
+                              <td>
+                                <div className="table-input-cell highlight">
+                                  <input 
+                                    type="number"
+                                    step="0.01"
+                                    value={row.roiAbove15L ?? (row.category === 'C' ? 10.60 : 9.99)}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.interestRates];
+                                      const realIdx = updated.findIndex(r => r.category === row.category);
+                                      if (realIdx >= 0) {
+                                        updated[realIdx].roiAbove15L = val;
+                                        updated[realIdx].minRoi = val;
+                                        setPolicyData({ ...policyData, interestRates: updated });
+                                      }
+                                    }}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number"
+                                    step="0.01"
+                                    value={row.roiBelow10L ?? (row.category === 'C' ? 13.00 : 12.00)}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.interestRates];
+                                      const realIdx = updated.findIndex(r => r.category === row.category);
+                                      if (realIdx >= 0) {
+                                        updated[realIdx].roiBelow10L = val;
+                                        updated[realIdx].defaultRoi = val;
+                                        setPolicyData({ ...policyData, interestRates: updated });
+                                      }
+                                    }}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                            </>
+                          )}
+
+                          {isAxis && (
+                            <>
+                              <td>
+                                <div className="table-input-cell highlight">
+                                  <input 
+                                    type="number"
+                                    step="0.01"
+                                    value={row.roiAbove15L ?? (row.category === 'C' ? 10.75 : (row.category === 'B' || row.category === 'Govt' ? 10.45 : 10.35))}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.interestRates];
+                                      const realIdx = updated.findIndex(r => r.category === row.category);
+                                      if (realIdx >= 0) {
+                                        updated[realIdx].roiAbove15L = val;
+                                        updated[realIdx].minRoi = val;
+                                        setPolicyData({ ...policyData, interestRates: updated });
+                                      }
+                                    }}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                            </>
+                          )}
+
+                          {!isHdfc && !isIndusind && !isAxis && (
+                            <>
+                              <td>
+                                <div className="table-input-cell highlight">
+                                  <input 
+                                    type="number"
+                                    step="0.01"
+                                    value={row.roiAbove15L ?? row.minRoi ?? ''}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.interestRates];
+                                      const realIdx = updated.findIndex(r => r.category === row.category);
+                                      if (realIdx >= 0) {
+                                        updated[realIdx].roiAbove15L = val;
+                                        updated[realIdx].minRoi = val;
+                                        setPolicyData({ ...policyData, interestRates: updated });
+                                      }
+                                    }}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number"
+                                    step="0.01"
+                                    value={row.roi10Lto15L ?? row.maxRoi ?? ''}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.interestRates];
+                                      const realIdx = updated.findIndex(r => r.category === row.category);
+                                      if (realIdx >= 0) {
+                                        updated[realIdx].roi10Lto15L = val;
+                                        updated[realIdx].maxRoi = val;
+                                        setPolicyData({ ...policyData, interestRates: updated });
+                                      }
+                                    }}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number"
+                                    step="0.01"
+                                    value={row.roiBelow10L ?? row.defaultRoi ?? ''}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.interestRates];
+                                      const realIdx = updated.findIndex(r => r.category === row.category);
+                                      if (realIdx >= 0) {
+                                        updated[realIdx].roiBelow10L = val;
+                                        updated[realIdx].defaultRoi = val;
+                                        setPolicyData({ ...policyData, interestRates: updated });
+                                      }
+                                    }}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                            </>
+                          )}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
-
-              <div className="table-responsive">
-                <table className="policy-table">
-                  <thead>
-                    <tr>
-                      <th>Category Tier</th>
-                      <th>≥ ₹15 Lakh Loan ROI (% p.a.)</th>
-                      <th>₹10L to &lt; ₹15L Loan ROI (% p.a.)</th>
-                      <th>&lt; ₹10 Lakh Loan ROI (% p.a.)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(policyData?.interestRates || []).map((row, idx) => (
-                      <tr key={idx}>
-                        <td>
-                          <span className={`cat-pill cat-${row.category.toLowerCase().replace(/\s+/g, '-')}`}>
-                            {row.category}
-                          </span>
-                        </td>
-                        <td>
-                          <div className="table-input-cell highlight">
-                            <input 
-                              type="number"
-                              step="0.01"
-                              value={row.roiAbove15L ?? row.minRoi ?? ''}
-                              onChange={(e) => {
-                                const val = Number(e.target.value);
-                                const updated = [...policyData.interestRates];
-                                updated[idx].roiAbove15L = val;
-                                updated[idx].minRoi = val;
-                                setPolicyData({ ...policyData, interestRates: updated });
-                              }}
-                            />
-                            <span>%</span>
-                          </div>
-                        </td>
-                        <td>
-                          <div className="table-input-cell">
-                            <input 
-                              type="number"
-                              step="0.01"
-                              value={row.roi10Lto15L ?? row.maxRoi ?? ''}
-                              onChange={(e) => {
-                                const val = Number(e.target.value);
-                                const updated = [...policyData.interestRates];
-                                updated[idx].roi10Lto15L = val;
-                                updated[idx].maxRoi = val;
-                                setPolicyData({ ...policyData, interestRates: updated });
-                              }}
-                            />
-                            <span>%</span>
-                          </div>
-                        </td>
-                        <td>
-                          <div className="table-input-cell">
-                            <input 
-                              type="number"
-                              step="0.01"
-                              value={row.roiBelow10L ?? row.defaultRoi ?? ''}
-                              onChange={(e) => {
-                                const val = Number(e.target.value);
-                                const updated = [...policyData.interestRates];
-                                updated[idx].roiBelow10L = val;
-                                updated[idx].defaultRoi = val;
-                                setPolicyData({ ...policyData, interestRates: updated });
-                              }}
-                            />
-                            <span>%</span>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* TAB 2: CAPITAL / LOAN CAPPING TABULAR VIEW */}
           {activeConfigTab === 'capping' && (
