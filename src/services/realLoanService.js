@@ -285,7 +285,8 @@ const matchCategory = (cat1, cat2) => {
           return { bankName: name, eligible: false, reason: `Income below policy threshold (Min: ₹${minSalaryReq.toLocaleString()})`, category: 'REJECTED' };
         }
 
-        if (demoRules.minCibilScore && calculatorInput.creditScore < demoRules.minCibilScore) {
+        const isAxisBank = name === 'Axis Bank' || id === 'axis-bank';
+        if (!isAxisBank && demoRules.minCibilScore && Number(demoRules.minCibilScore) > 0 && calculatorInput.creditScore < demoRules.minCibilScore) {
           return { bankName: name, eligible: false, reason: `Credit score below minimum requirement (Min: ${demoRules.minCibilScore})`, category: 'REJECTED' };
         }
       }
@@ -372,7 +373,8 @@ const matchCategory = (cat1, cat2) => {
           const matchedCap = uPolicy.loanCapping.find(c => matchCategory(c.tier || c.category, bankCategory));
           if (matchedCap) {
             if (matchedCap.maxLoan) bankInput.maxLoanOverride = Number(matchedCap.maxLoan);
-            if (matchedCap.bachelorCap && calculatorInput.maritalStatus === 'single' && calculatorInput.livingStatus === 'rented') {
+            const isAxis = name === 'Axis Bank' || id === 'axis-bank';
+            if (!isAxis && matchedCap.bachelorCap && calculatorInput.maritalStatus === 'single' && calculatorInput.livingStatus === 'rented') {
               bankInput.dynamicBachelorLimitOverride = Number(matchedCap.bachelorCap);
             }
           }
@@ -421,7 +423,8 @@ const matchCategory = (cat1, cat2) => {
       }
 
       // 👨 INJECT DYNAMIC BACHELOR CAPPING OVERRIDES
-      if (adminAllConfig.bachelorCapping?.enabled && adminAllConfig.bachelorCapping?.limits) {
+      const isAxis = name === 'Axis Bank' || id === 'axis-bank';
+      if (!isAxis && adminAllConfig.bachelorCapping?.enabled && adminAllConfig.bachelorCapping?.limits) {
         if (calculatorInput.maritalStatus === 'single' && calculatorInput.livingStatus === 'rented') {
           const rentedLimit = adminAllConfig.bachelorCapping.limits['rented_bachelor'];
           if (rentedLimit !== null && rentedLimit !== undefined && rentedLimit !== '') {

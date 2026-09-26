@@ -1,20 +1,20 @@
 ﻿// Exact Master Policy Configuration for AXIS BANK from Excel
 export const AXIS_BANK_EXCEL_POLICY = {
   interestRates: [
-    { category: 'Super A', roiAbove15L: 9.99, roi10Lto15L: 10.35, roiBelow10L: 10.49, minRoi: 9.99, maxRoi: 10.35, defaultRoi: 9.99, minSalary: 40000 },
-    { category: 'A', roiAbove15L: 9.99, roi10Lto15L: 10.35, roiBelow10L: 10.49, minRoi: 9.99, maxRoi: 10.35, defaultRoi: 9.99, minSalary: 40000 },
-    { category: 'B', roiAbove15L: 10.39, roi10Lto15L: 10.45, roiBelow10L: 10.75, minRoi: 10.39, maxRoi: 10.45, defaultRoi: 10.39, minSalary: 35000 },
-    { category: 'C', roiAbove15L: 10.59, roi10Lto15L: 10.75, roiBelow10L: 11.25, minRoi: 10.59, maxRoi: 10.75, defaultRoi: 10.59, minSalary: 25000 },
-    { category: 'D', roiAbove15L: 10.75, roi10Lto15L: 11.00, roiBelow10L: 11.50, minRoi: 10.75, maxRoi: 11.00, defaultRoi: 10.75, minSalary: 25000 },
-    { category: 'Govt', roiAbove15L: 10.39, roi10Lto15L: 10.45, roiBelow10L: 10.75, minRoi: 10.39, maxRoi: 10.45, defaultRoi: 10.39, minSalary: 25000 }
+    { category: 'Super A', roiAbove15L: 9.99, roi10Lto15L: 10.35, roiBelow10L: 10.49, minRoi: 9.99, maxRoi: 10.35, defaultRoi: 9.99 },
+    { category: 'A', roiAbove15L: 9.99, roi10Lto15L: 10.35, roiBelow10L: 10.49, minRoi: 9.99, maxRoi: 10.35, defaultRoi: 9.99 },
+    { category: 'B', roiAbove15L: 10.39, roi10Lto15L: 10.45, roiBelow10L: 10.75, minRoi: 10.39, maxRoi: 10.45, defaultRoi: 10.39 },
+    { category: 'C', roiAbove15L: 10.59, roi10Lto15L: 10.75, roiBelow10L: 11.25, minRoi: 10.59, maxRoi: 10.75, defaultRoi: 10.59 },
+    { category: 'D', roiAbove15L: 10.75, roi10Lto15L: 11.00, roiBelow10L: 11.50, minRoi: 10.75, maxRoi: 11.00, defaultRoi: 10.75 },
+    { category: 'Govt', roiAbove15L: 10.39, roi10Lto15L: 10.45, roiBelow10L: 10.75, minRoi: 10.39, maxRoi: 10.45, defaultRoi: 10.39 }
   ],
   loanCapping: [
-    { tier: 'Super A', minLoan: 50000, maxLoan: 5000000, bachelorCap: 3000000, minSalary: 175000 },
-    { tier: 'A', minLoan: 50000, maxLoan: 5000000, bachelorCap: 2500000, minSalary: 175000 },
-    { tier: 'B', minLoan: 50000, maxLoan: 5000000, bachelorCap: 2000000, minSalary: 175000 },
-    { tier: 'C', minLoan: 50000, maxLoan: 5000000, bachelorCap: 1500000, minSalary: 175000 },
-    { tier: 'D', minLoan: 50000, maxLoan: 5000000, bachelorCap: 1500000, minSalary: 175000 },
-    { tier: 'Govt', minLoan: 50000, maxLoan: 5000000, bachelorCap: 2500000, minSalary: 175000 }
+    { tier: 'Super A', minLoan: 50000, maxLoan: 5000000, bachelorCap: null, minSalary: 175000 },
+    { tier: 'A', minLoan: 50000, maxLoan: 5000000, bachelorCap: null, minSalary: 175000 },
+    { tier: 'B', minLoan: 50000, maxLoan: 5000000, bachelorCap: null, minSalary: 175000 },
+    { tier: 'C', minLoan: 50000, maxLoan: 5000000, bachelorCap: null, minSalary: 175000 },
+    { tier: 'D', minLoan: 50000, maxLoan: 5000000, bachelorCap: null, minSalary: 175000 },
+    { tier: 'Govt', minLoan: 50000, maxLoan: 5000000, bachelorCap: null, minSalary: 175000 }
   ],
   tenureRules: [
     { category: 'Super A', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years' },
@@ -40,7 +40,7 @@ export const AXIS_BANK_EXCEL_POLICY = {
     minSalary: 25000,
     minExperienceTotal: 12,
     minExperienceCurrent: 6,
-    minCibilScore: 650,
+    minCibilScore: 0,
     ccObligationPercent: 4,
     ccBtAllowedCount: 5
   }
