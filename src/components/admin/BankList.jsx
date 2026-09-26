@@ -17,7 +17,16 @@ const BankList = ({ onSelectBank, onAddBank, onDeleteCustomBank, customBanks = [
     { id: 'axis-fin', name: 'Axis Finance', enabled: true, logo: '', color: '#800000' },
     { id: 'indusind', name: 'IndusInd Bank', enabled: true, logo: '', color: '#005596' },
     { id: 'shri-ram', name: 'Shri Ram Finance', enabled: true, logo: '', color: '#1F4E78' },
-    { id: 'piramal', name: 'Piramal Finance', enabled: true, logo: '', color: '#1F4E78' }
+    { id: 'piramal', name: 'Piramal Finance', enabled: true, logo: '', color: '#1F4E78' },
+    // 8 Additional Partner Institutions from Policy Master
+    { id: 'axis-bank', name: 'Axis Bank', enabled: true, logo: '', color: '#97144D' },
+    { id: 'lnt', name: 'L&T Finance', enabled: true, logo: '', color: '#004F9E' },
+    { id: 'smfg', name: 'SMFG India Credit', enabled: true, logo: '', color: '#002D62' },
+    { id: 'bajaj', name: 'Bajaj Finance', enabled: true, logo: '', color: '#0072BB' },
+    { id: 'incred', name: 'Incred Finance', enabled: true, logo: '', color: '#F37023' },
+    { id: 'au-bank', name: 'AU Small Finance Bank', enabled: true, logo: '', color: '#6F2C91' },
+    { id: 'abfl', name: 'Aditya Birla Finance', enabled: true, logo: '', color: '#A6192E' },
+    { id: 'finnable', name: 'Finnable Finance', enabled: true, logo: '', color: '#10B981' }
   ]);
 
   // Merge default banks with custom banks

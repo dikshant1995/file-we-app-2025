@@ -18,7 +18,7 @@ import {
 } from '../../services/companyDatabaseService.js';
 import './UnifiedBankPolicyManager.css';
 
-// 12 Standard Partner Banks
+// Partner Lending Institutions (Banks & NBFCs)
 const INITIAL_12_BANKS = [
   { id: 'kotak', name: 'Kotak Mahindra Bank', color: '#ED1C24', minRate: 10.5, maxLoan: 5000000, maxTenure: 84, enabled: true },
   { id: 'tata', name: 'Tata Capital', color: '#1F4E78', minRate: 10.99, maxLoan: 4000000, maxTenure: 72, enabled: true },
@@ -31,14 +31,25 @@ const INITIAL_12_BANKS = [
   { id: 'axis-fin', name: 'Axis Finance', color: '#800000', minRate: 10.75, maxLoan: 5000000, maxTenure: 84, enabled: true },
   { id: 'indusind', name: 'IndusInd Bank', color: '#005596', minRate: 10.49, maxLoan: 5000000, maxTenure: 84, enabled: true },
   { id: 'shri-ram', name: 'Shri Ram Finance', color: '#1F4E78', minRate: 12.5, maxLoan: 2000000, maxTenure: 48, enabled: true },
-  { id: 'piramal', name: 'Piramal Finance', color: '#1F4E78', minRate: 11.75, maxLoan: 3000000, maxTenure: 60, enabled: true }
+  { id: 'piramal', name: 'Piramal Finance', color: '#1F4E78', minRate: 11.75, maxLoan: 3000000, maxTenure: 60, enabled: true },
+  // Additional Banks & NBFCs from Master Policy
+  { id: 'axis-bank', name: 'Axis Bank', color: '#97144D', minRate: 9.99, maxLoan: 5000000, maxTenure: 84, enabled: true },
+  { id: 'lnt', name: 'L&T Finance', color: '#004F9E', minRate: 11.5, maxLoan: 3000000, maxTenure: 60, enabled: true },
+  { id: 'smfg', name: 'SMFG India Credit', color: '#002D62', minRate: 11.99, maxLoan: 3000000, maxTenure: 60, enabled: true },
+  { id: 'bajaj', name: 'Bajaj Finance', color: '#0072BB', minRate: 10.0, maxLoan: 4000000, maxTenure: 84, enabled: true },
+  { id: 'incred', name: 'Incred Finance', color: '#F37023', minRate: 13.49, maxLoan: 1500000, maxTenure: 60, enabled: true },
+  { id: 'au-bank', name: 'AU Small Finance Bank', color: '#6F2C91', minRate: 11.5, maxLoan: 3500000, maxTenure: 60, enabled: true },
+  { id: 'abfl', name: 'Aditya Birla Finance', color: '#A6192E', minRate: 11.25, maxLoan: 5000000, maxTenure: 84, enabled: true },
+  { id: 'finnable', name: 'Finnable Finance', color: '#10B981', minRate: 14.0, maxLoan: 1000000, maxTenure: 60, enabled: true }
 ];
 
 const getBankDbKey = (bankId) => {
   const map = {
     'axis-fin': 'axis_fin',
     'cholamandalam': 'chola',
-    'shri-ram': 'shri_ram'
+    'shri-ram': 'shri_ram',
+    'axis-bank': 'axis_bank',
+    'au-bank': 'au_bank'
   };
   return map[bankId] || bankId;
 };
@@ -183,11 +194,26 @@ const UnifiedBankPolicyManager = () => {
   const [selectedState, setSelectedState] = useState('All India');
   const [selectedCity, setSelectedCity] = useState('All Cities (National Default)');
 
-  // 12 Banks State (stored in localStorage for persistence)
+  // Institutional Banks State (stored in localStorage with auto-sync for newly added institutions)
   const [banks, setBanks] = useState(() => {
     try {
       const stored = localStorage.getItem('laxmi_admin_12_banks');
-      return stored ? JSON.parse(stored) : INITIAL_12_BANKS;
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const existingIds = new Set(parsed.map(b => b.id));
+          const missingBanks = INITIAL_12_BANKS.filter(b => !existingIds.has(b.id));
+          if (missingBanks.length > 0) {
+            const merged = [...parsed, ...missingBanks];
+            try {
+              localStorage.setItem('laxmi_admin_12_banks', JSON.stringify(merged));
+            } catch (e) {}
+            return merged;
+          }
+          return parsed;
+        }
+      }
+      return INITIAL_12_BANKS;
     } catch {
       return INITIAL_12_BANKS;
     }
