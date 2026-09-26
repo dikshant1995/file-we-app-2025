@@ -157,6 +157,16 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
         return { bankName: name, eligible: false, reason: `${name} policy: BT currently disabled via Admin override.` };
       }
 
+      // IndusInd Bank Excel Policy: CC BT Not Allowed
+      if ((id === 'indusind' || name === 'IndusInd Bank') && activeLiabilities.some(l => l.type === 'Credit Card' || l.type === 'credit_card')) {
+        return {
+          bankName: name,
+          eligible: false,
+          reason: 'Credit Card Balance Transfer is not permitted for IndusInd Bank (CC BT Not Allowed as per policy).',
+          isBTMode: true
+        };
+      }
+
       // Fallback to local config if Admin hasn't specified
       if (btConfig.enabled === undefined && config.btConfig && !config.btConfig.isAvailable) {
         return { bankName: name, eligible: false, reason: `${name} does not offer Balance Transfer facility for personal loans` };
@@ -250,6 +260,16 @@ export const calculatePartialBT = async (customerInfo, existingLiabilities, sele
 
       if (btConfig.enabled === false) {
         return { bankName: name, eligible: false, reason: `${name} policy: BT currently disabled.` };
+      }
+
+      // IndusInd Bank Excel Policy: CC BT Not Allowed
+      if ((id === 'indusind' || name === 'IndusInd Bank') && selectedLiabilities.some(l => l.type === 'Credit Card' || l.type === 'credit_card')) {
+        return {
+          bankName: name,
+          eligible: false,
+          reason: 'Credit Card Balance Transfer is not permitted for IndusInd Bank (CC BT Not Allowed as per policy).',
+          isBTMode: true
+        };
       }
 
       if (btConfig.enabled === undefined && config.btConfig && !config.btConfig.isAvailable) {

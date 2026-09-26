@@ -69,9 +69,9 @@ const defaultConfigs = {
     multiplierRules: { categoryBasedMultiplier: { A: 35, B: 30, C: 25, D: 20 } },
     creditScoreRules: { minCreditScore: 650, recommendedScore: 700, premiumScore: 750, autoRejectionThreshold: 600 },
     interestRates: { defaultRate: 11.0, categoryRates: { A: 11.0, B: 11.0, C: 11.0, D: 11.0 } },
-    loanCapping: { absoluteMaxLoan: 5000000, minLoanAmount: 100000, bachelorCapping: { enabled: true, limits: { unmarried_bachelor: null, unmarried_family: null, married_bachelor: null, unmarried_self_owned: null } } },
+    loanCapping: { absoluteMaxLoan: 7500000, minLoanAmount: 100000, bachelorCapping: { enabled: false } },
     employmentRules: { salariedMinSalary: 25000, selfEmployedMinIncome: 300000, itrYearsRequired: 2 },
-    btConfiguration: { enabled: true, maxLoansForBT: 3, creditCardBTSupported: true, processingFeePercentage: 1.5, maxCreditCardBTMultiplier: 6 },
+    btConfiguration: { enabled: true, maxLoansForBT: 5, creditCardBTSupported: false, processingFeePercentage: 1.5, maxCreditCardBTMultiplier: 0 },
     feesAndCharges: { processingFeePercentage: 3.5, btChargesPercentage: 1.5, prepaymentChargesPercentage: 4 },
     incentivePolicy: { percentage: 100, months: 3 }
   },
