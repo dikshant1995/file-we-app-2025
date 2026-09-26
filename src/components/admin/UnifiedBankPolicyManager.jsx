@@ -126,7 +126,7 @@ const DEFAULT_DEMOGRAPHIC_RULES = {
   minSalary: 25000,
   minExperienceTotal: 12,
   minExperienceCurrent: 6,
-  minCibilScore: 650,
+  minCibilScore: 0, // Bypassed
   ccObligationPercent: 5,
   ccBtAllowedCount: 3
 };

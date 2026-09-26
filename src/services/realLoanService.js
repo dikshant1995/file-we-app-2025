@@ -110,7 +110,8 @@ export const calculateLoanEligibility = async (userData) => {
     existingEMI: userData.existingEMI ? parseFloat(userData.existingEMI) : 0,
     companyName: userData.companyName || '',
     category: userData.category || 'A', // Fallback category if company not found
-    creditScore: userData.creditScore ? parseInt(userData.creditScore) : 700,
+    creditScore: 850, // CIBIL score bypassed across all lenders
+    customerReportedCreditScore: userData.creditScore || null,
     employmentType: userData.employmentType || 'salaried',
     age: userData.age ? parseInt(userData.age) : null, // AGE for tenure capping
     existingLoanBanks: userData.existingLoanBanks || [], // CRITICAL: Banks where customer has existing loans
@@ -285,10 +286,8 @@ const matchCategory = (cat1, cat2) => {
           return { bankName: name, eligible: false, reason: `Income below policy threshold (Min: ₹${minSalaryReq.toLocaleString()})`, category: 'REJECTED' };
         }
 
-        const isAxisBank = name === 'Axis Bank' || id === 'axis-bank';
-        if (!isAxisBank && demoRules.minCibilScore && Number(demoRules.minCibilScore) > 0 && calculatorInput.creditScore < demoRules.minCibilScore) {
-          return { bankName: name, eligible: false, reason: `Credit score below minimum requirement (Min: ${demoRules.minCibilScore})`, category: 'REJECTED' };
-        }
+        // CIBIL score gate bypassed across platform as per business policy
+        // No applicant is rejected based on CIBIL score
       }
 
       // 2.5 BT CREDIT CARD MULTIPLIER GATE

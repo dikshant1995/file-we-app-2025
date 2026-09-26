@@ -78,7 +78,7 @@ export const calculateFreshLoan = async (customerInfo) => {
     existingEMI: customerInfo.existingEMI || 0,
     companyName: customerInfo.companyName || '',
     category: customerInfo.category || 'A',
-    creditScore: customerInfo.creditScore ? parseInt(customerInfo.creditScore) : 700,
+    creditScore: 850, // CIBIL bypassed
     employmentType: customerInfo.employmentType || 'salaried',
     state: state || '',
     city: city || ''
