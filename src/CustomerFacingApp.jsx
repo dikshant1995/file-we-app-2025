@@ -134,6 +134,17 @@ function CustomerFacingApp() {
 
       setResults(calculationResults);
       setMetadata(combinedData);
+
+      // Save/update lead in Cloud Firestore & LocalStorage with exact list of eligible banks in short form
+      try {
+        const approvedBanks = (calculationResults || [])
+          .filter(r => r && r.eligible)
+          .map(r => r.bankName);
+        await saveLead(combinedData, submissionData, approvedBanks);
+      } catch (postSaveErr) {
+        console.warn('Post-calculation lead update notice:', postSaveErr);
+      }
+
       try {
         window.history.pushState({ view: 'results' }, '', window.location.href);
       } catch (e) {}

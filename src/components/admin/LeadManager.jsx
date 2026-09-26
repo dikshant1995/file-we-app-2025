@@ -7,6 +7,7 @@ import {
 import * as XLSX from 'xlsx';
 import { db } from '../../config/firebase.js';
 import { collection, getDocs, doc, setDoc, deleteDoc, updateDoc, onSnapshot } from 'firebase/firestore';
+import { formatBanksShortList } from '../../services/leadService.js';
 import './LeadManager.css';
 
 const MONTH_NAMES = [
@@ -298,6 +299,72 @@ const LeadManager = ({ userRole }) => {
         }
     };
 
+    // Individual Lead Excel Export Feature (.xlsx)
+    const handleDownloadSingleLead = (lead) => {
+        if (!lead) return;
+
+        const safeName = (lead.name || 'Applicant').replace(/[^a-zA-Z0-9_-]/g, '_');
+        const mobile = lead.mobile || 'NoPhone';
+        const formattedBanks = formatBanksShortList(lead.selectedBanks || lead.eligibleBanks);
+
+        // Sheet 1: Customer Dossier (Key-Value Representation)
+        const dossierRows = [
+            { 'Dossier Field': 'Lead ID', 'Customer Information': lead.id || 'N/A' },
+            { 'Dossier Field': 'Date Logged', 'Customer Information': lead.timestamp || (lead.createdAt ? new Date(lead.createdAt).toLocaleString('en-IN') : 'N/A') },
+            { 'Dossier Field': 'Customer Name', 'Customer Information': lead.name || 'Anonymous Applicant' },
+            { 'Dossier Field': 'Mobile Number', 'Customer Information': lead.mobile || 'N/A' },
+            { 'Dossier Field': 'Company / Employer', 'Customer Information': lead.company || lead.employer || 'N/A' },
+            { 'Dossier Field': 'Company Category', 'Customer Information': lead.category || 'General' },
+            { 'Dossier Field': 'Employment Type', 'Customer Information': lead.employment || 'Salaried' },
+            { 'Dossier Field': 'Net Monthly In-Hand (₹)', 'Customer Information': Number(lead.totalIncome || lead.monthlyIncome || 0) },
+            { 'Dossier Field': 'Basic Salary (₹)', 'Customer Information': Number(lead.basicSalary || 0) },
+            { 'Dossier Field': 'Monthly Incentives (₹)', 'Customer Information': (Number(lead.incentive1 || 0) + Number(lead.incentive2 || 0) + Number(lead.incentive3 || 0)) },
+            { 'Dossier Field': 'Existing Monthly EMIs (₹)', 'Customer Information': Number(lead.existingEMI || 0) },
+            { 'Dossier Field': 'Balance Transfer (BT) Requested', 'Customer Information': lead.wantsBT || 'No' },
+            { 'Dossier Field': 'Personal Loans Running', 'Customer Information': lead.personalLoans || 'None recorded' },
+            { 'Dossier Field': 'Credit Cards Held', 'Customer Information': lead.creditCards || 'None recorded' },
+            { 'Dossier Field': 'Location', 'Customer Information': `${lead.city || 'N/A'}${lead.state ? `, ${lead.state}` : ''}` },
+            { 'Dossier Field': 'Applicant Age', 'Customer Information': lead.age ? `${lead.age} years` : 'N/A' },
+            { 'Dossier Field': 'Salary Mode', 'Customer Information': lead.salaryMode || 'Bank Transfer' },
+            { 'Dossier Field': 'Marital Status', 'Customer Information': lead.maritalStatus || 'N/A' },
+            { 'Dossier Field': 'Living Status', 'Customer Information': lead.livingStatus || 'N/A' },
+            { 'Dossier Field': 'Eligible / Pre-approved Banks', 'Customer Information': formattedBanks },
+            { 'Dossier Field': 'Application Status', 'Customer Information': lead.status || 'New' }
+        ];
+
+        const dossierSheet = XLSX.utils.json_to_sheet(dossierRows);
+        dossierSheet['!cols'] = [
+            { wch: 32 },
+            { wch: 45 }
+        ];
+
+        // Sheet 2: Eligible Banks Breakdown
+        const bankList = formattedBanks.split(',').map(b => b.trim()).filter(Boolean);
+        const banksRows = bankList.map((bank, index) => ({
+            'S.No': index + 1,
+            'Eligible Partner Bank': bank,
+            'Eligibility Status': 'Pre-Approved / Applicable',
+            'Lead Customer': lead.name || 'Applicant',
+            'Contact Mobile': lead.mobile || 'N/A'
+        }));
+
+        const banksSheet = XLSX.utils.json_to_sheet(banksRows);
+        banksSheet['!cols'] = [
+            { wch: 8 },
+            { wch: 25 },
+            { wch: 28 },
+            { wch: 25 },
+            { wch: 16 }
+        ];
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, dossierSheet, 'Customer Dossier');
+        XLSX.utils.book_append_sheet(workbook, banksSheet, 'Eligible Banks');
+
+        const fileName = `LaxmiCredit_Dossier_${safeName}_${mobile}.xlsx`;
+        XLSX.writeFile(workbook, fileName);
+    };
+
     // Excel Export Feature (.xlsx)
     const handleDownloadExcel = () => {
         const exportData = selectedLeadIds.size > 0
@@ -331,7 +398,7 @@ const LeadManager = ({ userRole }) => {
             'Salary Mode': l.salaryMode || 'N/A',
             'Marital Status': l.maritalStatus || 'N/A',
             'Residence Status': l.livingStatus || 'N/A',
-            'Pre-approved / Selected Banks': l.selectedBanks || 'None Selected',
+            'Pre-approved / Selected Banks': formatBanksShortList(l.selectedBanks || l.eligibleBanks),
             'Lead Status': l.status || 'New'
         }));
 
@@ -360,7 +427,7 @@ const LeadManager = ({ userRole }) => {
             { wch: 16 }, // Salary Mode
             { wch: 16 }, // Marital Status
             { wch: 18 }, // Living Status
-            { wch: 32 }, // Selected Banks
+            { wch: 36 }, // Selected Banks
             { wch: 14 }, // Lead Status
         ];
         worksheet['!cols'] = columnWidths;
@@ -389,7 +456,7 @@ const LeadManager = ({ userRole }) => {
 💳 *Existing EMIs:* ₹${Number(lead?.existingEMI || 0).toLocaleString('en-IN')}
 🔄 *Balance Transfer (BT):* ${lead?.wantsBT || 'No'}
 📍 *Location:* ${lead?.city || 'N/A'}, ${lead?.state || 'N/A'}
-🏛️ *Selected / Eligible Banks:* ${lead?.selectedBanks || 'All Applicable'}
+🏛️ *Selected / Eligible Banks:* ${formatBanksShortList(lead?.selectedBanks || lead?.eligibleBanks)}
 📅 *Date Logged:* ${lead?.timestamp || (lead?.createdAt ? new Date(lead?.createdAt).toLocaleString('en-IN') : 'N/A')}
 --------------------------------------
 *Laxmi Omni Systems - Financial Services Division*`.trim();
@@ -637,7 +704,7 @@ const LeadManager = ({ userRole }) => {
                                 </td>
                                 <td>
                                     <div className="lead-banks">
-                                        {(lead?.selectedBanks || 'All Eligible').split(',').map((bank, index) => (
+                                        {formatBanksShortList(lead?.selectedBanks || lead?.eligibleBanks).split(',').map((bank, index) => (
                                             bank.trim() && <span key={index} className="bank-tag">{bank.trim()}</span>
                                         ))}
                                     </div>
@@ -657,6 +724,16 @@ const LeadManager = ({ userRole }) => {
                                 </td>
                                 <td>
                                     <div className="action-buttons-cell">
+                                        {/* Download Single Lead Report */}
+                                        <button
+                                            className="btn-download-lead-single"
+                                            title="Download Customer Excel Report (.xlsx)"
+                                            onClick={() => handleDownloadSingleLead(lead)}
+                                        >
+                                            <Download size={14} />
+                                            <span>Report</span>
+                                        </button>
+
                                         {/* Main Share Lead Button */}
                                         <button
                                             className="btn-share-lead-main"
@@ -724,7 +801,7 @@ const LeadManager = ({ userRole }) => {
                                     <div><strong>Monthly Income:</strong> ₹{Number(activeShareLead?.totalIncome || activeShareLead?.monthlyIncome || 0).toLocaleString('en-IN')}</div>
                                     <div><strong>Existing EMI:</strong> ₹{Number(activeShareLead?.existingEMI || 0).toLocaleString('en-IN')}</div>
                                     <div><strong>Location:</strong> {activeShareLead?.city || 'N/A'}</div>
-                                    <div className="col-span-2"><strong>Selected Banks:</strong> {activeShareLead?.selectedBanks || 'All Applicable'}</div>
+                                    <div className="col-span-2"><strong>Selected Banks:</strong> {formatBanksShortList(activeShareLead?.selectedBanks || activeShareLead?.eligibleBanks)}</div>
                                 </div>
                             </div>
                         </div>
@@ -766,6 +843,17 @@ const LeadManager = ({ userRole }) => {
                                         {copiedLeadId === activeShareLead?.id ? 'Copied to Clipboard!' : 'Copy Dossier'}
                                     </div>
                                     <div className="action-desc">Copy full text to paste anywhere</div>
+                                </div>
+                            </button>
+
+                            <button 
+                                className="share-action-card excel-card"
+                                onClick={() => handleDownloadSingleLead(activeShareLead)}
+                            >
+                                <FileSpreadsheet size={26} color="#10b981" />
+                                <div>
+                                    <div className="action-title">Download Report</div>
+                                    <div className="action-desc">Download single Lead Excel report</div>
                                 </div>
                             </button>
 
@@ -887,7 +975,7 @@ const LeadManager = ({ userRole }) => {
                                 <div className="selected-banks-box">
                                     <span className="detail-label">Shortlisted Banks:</span>
                                     <div className="lead-banks" style={{ marginTop: '8px' }}>
-                                        {(activeDetailLead?.selectedBanks || 'All Banks').split(',').map((bank, index) => (
+                                        {formatBanksShortList(activeDetailLead?.selectedBanks || activeDetailLead?.eligibleBanks).split(',').map((bank, index) => (
                                             bank.trim() && <span key={index} className="bank-tag">{bank.trim()}</span>
                                         ))}
                                     </div>
@@ -897,6 +985,14 @@ const LeadManager = ({ userRole }) => {
 
                         <div className="modal-footer detail-modal-footer">
                             <div className="footer-left">
+                                <button 
+                                    className="btn-download-lead-single"
+                                    style={{ padding: '8px 14px' }}
+                                    onClick={() => handleDownloadSingleLead(activeDetailLead)}
+                                >
+                                    <Download size={16} />
+                                    <span>Download Excel Report</span>
+                                </button>
                                 <button 
                                     className="btn-share-lead-main"
                                     onClick={() => {

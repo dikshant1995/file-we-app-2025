@@ -6,6 +6,38 @@ import { doc, setDoc } from 'firebase/firestore';
 
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgAGkw2nw1MdYob_-liwla8M79HQVnqgZKhxFJ_unSsFo0q2aM2cWlwlKTeZpCi2K0og/exec';
 
+// Helper for standardized short bank names
+export const getBankShortName = (bankName) => {
+    if (!bankName) return '';
+    const s = String(bankName).trim();
+    const lower = s.toLowerCase();
+    if (lower.includes('kotak')) return 'Kotak';
+    if (lower.includes('hdfc')) return 'HDFC';
+    if (lower.includes('icici')) return 'ICICI';
+    if (lower.includes('tata')) return 'Tata';
+    if (lower.includes('idfc')) return 'IDFC';
+    if (lower.includes('poonawala') || lower.includes('poonawalla')) return 'Poonawala';
+    if (lower.includes('axis')) return 'Axis';
+    if (lower.includes('indusind')) return 'IndusInd';
+    if (lower.includes('bandhan')) return 'Bandhan';
+    if (lower.includes('chola') || lower.includes('cholamandalam')) return 'Chola';
+    if (lower.includes('shri') || lower.includes('shriram')) return 'Shriram';
+    if (lower.includes('piramal')) return 'Piramal';
+    if (lower.includes('sbi')) return 'SBI';
+    return s.replace(/ Bank| Finance| Capital/gi, '').trim();
+};
+
+export const STANDARD_ALL_BANKS_SHORT = 'HDFC, ICICI, Kotak, Tata, IDFC, Poonawala, Axis, IndusInd, Bandhan, Chola, Piramal, Shriram';
+
+export const formatBanksShortList = (banksInput) => {
+    if (!banksInput || banksInput === 'All Applicable' || banksInput === 'None Selected' || banksInput === 'All Eligible') {
+        return STANDARD_ALL_BANKS_SHORT;
+    }
+    const arr = Array.isArray(banksInput) ? banksInput : String(banksInput).split(',');
+    const shortNames = arr.map(b => getBankShortName(b)).filter(Boolean);
+    return shortNames.length > 0 ? shortNames.join(', ') : STANDARD_ALL_BANKS_SHORT;
+};
+
 /**
  * Saves a lead safely to:
  * 1. LocalStorage (immediate offline/local persistence)
@@ -14,8 +46,9 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgAGkw2nw1MdYo
  *
  * @param {Object} formData  - raw formData state from CustomerLoanForm
  * @param {Object} submissionData - the processed submission sent to loan engine
+ * @param {String|Array} eligibleBanks - list of banks customer is eligible for
  */
-export const saveLead = async (formData = {}, submissionData = {}) => {
+export const saveLead = async (formData = {}, submissionData = {}, eligibleBanks = '') => {
     try {
         const rawForm = formData || {};
         const subData = submissionData || {};
@@ -43,7 +76,13 @@ export const saveLead = async (formData = {}, submissionData = {}) => {
         const basicSalary = Number(rawForm.basicSalary || metaData.basicSalary || subData.basicSalary || 0);
         const monthlyIncome = Number(subData.monthlyIncome || rawForm.totalMonthlyIncome || rawForm.monthlyIncome || basicSalary || 0);
         const existingEMI = Number(subData.existingEMI || rawForm.existingEMI || 0);
-        const wantsBT = (subData.wantsBT || rawForm.wantsBT) ? 'Yes' : 'No';
+
+        // Balance Transfer is only YES if customer actually has existing loans or non-zero EMI
+        const hasLiabilities = loansArr.length > 0 || existingEMI > 0;
+        const wantsBT = ((subData.wantsBT || rawForm.wantsBT) && hasLiabilities) ? 'Yes' : 'No';
+
+        // Format eligible banks short list
+        const formattedEligibleBanks = formatBanksShortList(eligibleBanks || subData.selectedBanks || rawForm.selectedBanks || '');
 
         const now = new Date();
         const leadId = Date.now();
@@ -76,7 +115,8 @@ export const saveLead = async (formData = {}, submissionData = {}) => {
             maritalStatus: rawForm.maritalStatus || metaData.maritalStatus || subData.maritalStatus || '',
             livingStatus: rawForm.livingStatus || metaData.livingStatus || subData.livingStatus || '',
             status: 'New',
-            selectedBanks: ''
+            selectedBanks: formattedEligibleBanks,
+            eligibleBanks: formattedEligibleBanks
         };
 
         // ── STEP 1: PERSIST LOCALLY (IMMEDIATE) ───────────────────────────────

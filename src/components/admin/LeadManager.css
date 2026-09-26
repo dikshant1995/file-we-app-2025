@@ -514,6 +514,27 @@
     transform: translateY(-1px);
 }
 
+.btn-download-lead-single {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 11px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    color: #10b981;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-download-lead-single:hover {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(5, 150, 105, 0.3) 100%);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+    transform: translateY(-1px);
+}
+
 .btn-delete-lead {
     display: inline-flex;
     align-items: center;
@@ -722,6 +743,11 @@
 .copy-card:hover {
     border-color: #00d4ff;
     box-shadow: 0 0 14px rgba(0, 212, 255, 0.3);
+}
+
+.excel-card:hover {
+    border-color: #10b981;
+    box-shadow: 0 0 14px rgba(16, 185, 129, 0.35);
 }
 
 .native-card:hover {
