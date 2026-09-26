@@ -133,11 +133,11 @@ const DEFAULT_DEMOGRAPHIC_RULES = {
 
 const DEFAULT_UNIFIED_POLICY = {
   interestRates: [
-    { category: 'Super A', minRoi: 10.25, maxRoi: 12.00, defaultRoi: 10.50, minSalary: 100000 },
-    { category: 'A', minRoi: 10.75, maxRoi: 13.50, defaultRoi: 11.00, minSalary: 50000 },
-    { category: 'B', minRoi: 11.50, maxRoi: 15.00, defaultRoi: 12.00, minSalary: 35000 },
-    { category: 'C', minRoi: 12.50, maxRoi: 18.00, defaultRoi: 13.50, minSalary: 25000 },
-    { category: 'Govt', minRoi: 10.50, maxRoi: 12.50, defaultRoi: 10.75, minSalary: 20000 }
+    { category: 'Super A', roiAbove15L: 10.25, roi10Lto15L: 10.50, roiBelow10L: 11.00, minRoi: 10.25, maxRoi: 11.00, defaultRoi: 10.50, minSalary: 100000 },
+    { category: 'A', roiAbove15L: 10.50, roi10Lto15L: 10.75, roiBelow10L: 11.25, minRoi: 10.50, maxRoi: 11.25, defaultRoi: 10.75, minSalary: 50000 },
+    { category: 'B', roiAbove15L: 11.00, roi10Lto15L: 11.50, roiBelow10L: 12.00, minRoi: 11.00, maxRoi: 12.00, defaultRoi: 11.50, minSalary: 35000 },
+    { category: 'C', roiAbove15L: 12.00, roi10Lto15L: 12.50, roiBelow10L: 13.50, minRoi: 12.00, maxRoi: 13.50, defaultRoi: 12.50, minSalary: 25000 },
+    { category: 'Govt', roiAbove15L: 10.35, roi10Lto15L: 10.50, roiBelow10L: 10.75, minRoi: 10.35, maxRoi: 10.75, defaultRoi: 10.50, minSalary: 20000 }
   ],
   loanCapping: [
     { tier: 'Super A', minLoan: 100000, maxLoan: 7500000, bachelorCap: 3000000, minSalary: 100000 },
@@ -167,12 +167,12 @@ const DEFAULT_UNIFIED_POLICY = {
 // Exact Master Policy Configuration for AXIS BANK from Excel
 export const AXIS_BANK_EXCEL_POLICY = {
   interestRates: [
-    { category: 'Super A', minRoi: 9.99, maxRoi: 10.35, defaultRoi: 9.99, minSalary: 40000 },
-    { category: 'A', minRoi: 9.99, maxRoi: 10.35, defaultRoi: 9.99, minSalary: 40000 },
-    { category: 'B', minRoi: 10.39, maxRoi: 10.45, defaultRoi: 10.39, minSalary: 35000 },
-    { category: 'C', minRoi: 10.59, maxRoi: 10.75, defaultRoi: 10.59, minSalary: 25000 },
-    { category: 'D', minRoi: 10.75, maxRoi: 11.25, defaultRoi: 10.75, minSalary: 25000 },
-    { category: 'Govt', minRoi: 10.39, maxRoi: 10.45, defaultRoi: 10.39, minSalary: 25000 }
+    { category: 'Super A', roiAbove15L: 9.99, roi10Lto15L: 10.35, roiBelow10L: 10.49, minRoi: 9.99, maxRoi: 10.35, defaultRoi: 9.99, minSalary: 40000 },
+    { category: 'A', roiAbove15L: 9.99, roi10Lto15L: 10.35, roiBelow10L: 10.49, minRoi: 9.99, maxRoi: 10.35, defaultRoi: 9.99, minSalary: 40000 },
+    { category: 'B', roiAbove15L: 10.39, roi10Lto15L: 10.45, roiBelow10L: 10.75, minRoi: 10.39, maxRoi: 10.45, defaultRoi: 10.39, minSalary: 35000 },
+    { category: 'C', roiAbove15L: 10.59, roi10Lto15L: 10.75, roiBelow10L: 11.25, minRoi: 10.59, maxRoi: 10.75, defaultRoi: 10.59, minSalary: 25000 },
+    { category: 'D', roiAbove15L: 10.75, roi10Lto15L: 11.00, roiBelow10L: 11.50, minRoi: 10.75, maxRoi: 11.00, defaultRoi: 10.75, minSalary: 25000 },
+    { category: 'Govt', roiAbove15L: 10.39, roi10Lto15L: 10.45, roiBelow10L: 10.75, minRoi: 10.39, maxRoi: 10.45, defaultRoi: 10.39, minSalary: 25000 }
   ],
   loanCapping: [
     { tier: 'Super A', minLoan: 50000, maxLoan: 5000000, bachelorCap: 3000000, minSalary: 175000 },
@@ -219,7 +219,16 @@ const sanitizePolicyData = (raw) => {
     ...DEFAULT_UNIFIED_POLICY,
     ...raw,
     interestRates: Array.isArray(raw.interestRates) && raw.interestRates.length > 0 
-      ? raw.interestRates 
+      ? raw.interestRates.map(row => ({
+          category: row.category,
+          roiAbove15L: row.roiAbove15L ?? row.minRoi ?? 9.99,
+          roi10Lto15L: row.roi10Lto15L ?? row.maxRoi ?? 10.35,
+          roiBelow10L: row.roiBelow10L ?? row.defaultRoi ?? 10.75,
+          minRoi: row.roiAbove15L ?? row.minRoi ?? 9.99,
+          maxRoi: row.roi10Lto15L ?? row.maxRoi ?? 10.35,
+          defaultRoi: row.roiBelow10L ?? row.defaultRoi ?? 10.75,
+          minSalary: row.minSalary ?? 25000
+        }))
       : DEFAULT_UNIFIED_POLICY.interestRates,
     loanCapping: Array.isArray(raw.loanCapping) && raw.loanCapping.length > 0 
       ? raw.loanCapping 
@@ -434,11 +443,11 @@ const UnifiedBankPolicyManager = () => {
     } else {
       setPolicyData(sanitizePolicyData({
         interestRates: [
-          { category: 'Super A', minRoi: bank.minRate || 10.25, maxRoi: (bank.minRate || 10.25) + 1.75, defaultRoi: bank.minRate || 10.50, minSalary: 100000 },
-          { category: 'A', minRoi: (bank.minRate || 10.50) + 0.5, maxRoi: (bank.minRate || 10.50) + 2.5, defaultRoi: (bank.minRate || 10.50) + 0.75, minSalary: 50000 },
-          { category: 'B', minRoi: (bank.minRate || 10.50) + 1.25, maxRoi: (bank.minRate || 10.50) + 4.0, defaultRoi: (bank.minRate || 10.50) + 1.75, minSalary: 35000 },
-          { category: 'C', minRoi: (bank.minRate || 10.50) + 2.25, maxRoi: (bank.minRate || 10.50) + 6.0, defaultRoi: (bank.minRate || 10.50) + 3.0, minSalary: 25000 },
-          { category: 'Govt', minRoi: bank.minRate || 10.25, maxRoi: (bank.minRate || 10.25) + 2.0, defaultRoi: (bank.minRate || 10.25) + 0.5, minSalary: 20000 }
+          { category: 'Super A', roiAbove15L: bank.minRate || 10.25, roi10Lto15L: (bank.minRate || 10.25) + 0.25, roiBelow10L: (bank.minRate || 10.25) + 0.50, minRoi: bank.minRate || 10.25, maxRoi: (bank.minRate || 10.25) + 0.25, defaultRoi: (bank.minRate || 10.25) + 0.50, minSalary: 100000 },
+          { category: 'A', roiAbove15L: bank.minRate || 10.50, roi10Lto15L: (bank.minRate || 10.50) + 0.25, roiBelow10L: (bank.minRate || 10.50) + 0.75, minRoi: bank.minRate || 10.50, maxRoi: (bank.minRate || 10.50) + 0.25, defaultRoi: (bank.minRate || 10.50) + 0.75, minSalary: 50000 },
+          { category: 'B', roiAbove15L: (bank.minRate || 10.50) + 0.5, roi10Lto15L: (bank.minRate || 10.50) + 0.75, roiBelow10L: (bank.minRate || 10.50) + 1.25, minRoi: (bank.minRate || 10.50) + 0.5, maxRoi: (bank.minRate || 10.50) + 0.75, defaultRoi: (bank.minRate || 10.50) + 1.25, minSalary: 35000 },
+          { category: 'C', roiAbove15L: (bank.minRate || 10.50) + 1.0, roi10Lto15L: (bank.minRate || 10.50) + 1.5, roiBelow10L: (bank.minRate || 10.50) + 2.0, minRoi: (bank.minRate || 10.50) + 1.0, maxRoi: (bank.minRate || 10.50) + 1.5, defaultRoi: (bank.minRate || 10.50) + 2.0, minSalary: 25000 },
+          { category: 'Govt', roiAbove15L: bank.minRate || 10.25, roi10Lto15L: (bank.minRate || 10.25) + 0.25, roiBelow10L: (bank.minRate || 10.25) + 0.50, minRoi: bank.minRate || 10.25, maxRoi: (bank.minRate || 10.25) + 0.25, defaultRoi: (bank.minRate || 10.25) + 0.50, minSalary: 20000 }
         ]
       }));
     }
@@ -730,16 +739,22 @@ const UnifiedBankPolicyManager = () => {
         const newInterestRates = distinctCategories.map((catName, idx) => {
           const baseline = (policyData.interestRates && policyData.interestRates[idx]) || 
             (policyData.interestRates && policyData.interestRates[policyData.interestRates.length - 1]) || {
-              minRoi: 10.5 + idx * 0.75,
-              maxRoi: 12.0 + idx * 1.5,
-              defaultRoi: 10.75 + idx * 0.75,
+              roiAbove15L: 10.25 + idx * 0.5,
+              roi10Lto15L: 10.50 + idx * 0.5,
+              roiBelow10L: 11.00 + idx * 0.5,
+              minRoi: 10.25 + idx * 0.5,
+              maxRoi: 10.50 + idx * 0.5,
+              defaultRoi: 11.00 + idx * 0.5,
               minSalary: Math.max(20000, 100000 - idx * 20000)
             };
           return {
             category: catName,
-            minRoi: baseline.minRoi,
-            maxRoi: baseline.maxRoi,
-            defaultRoi: baseline.defaultRoi,
+            roiAbove15L: baseline.roiAbove15L ?? baseline.minRoi ?? (10.25 + idx * 0.5),
+            roi10Lto15L: baseline.roi10Lto15L ?? baseline.maxRoi ?? (10.50 + idx * 0.5),
+            roiBelow10L: baseline.roiBelow10L ?? baseline.defaultRoi ?? (11.00 + idx * 0.5),
+            minRoi: baseline.roiAbove15L ?? baseline.minRoi ?? (10.25 + idx * 0.5),
+            maxRoi: baseline.roi10Lto15L ?? baseline.maxRoi ?? (10.50 + idx * 0.5),
+            defaultRoi: baseline.roiBelow10L ?? baseline.defaultRoi ?? (11.00 + idx * 0.5),
             minSalary: baseline.minSalary
           };
         });
@@ -779,13 +794,17 @@ const UnifiedBankPolicyManager = () => {
         const newFoirMultiplier = distinctCategories.map((catName, idx) => {
           const baseline = (policyData.foirMultiplier && policyData.foirMultiplier[idx]) || 
             (policyData.foirMultiplier && policyData.foirMultiplier[policyData.foirMultiplier.length - 1]) || {
-              maxFoir: Math.max(45, 70 - idx * 5),
-              multiplier: Math.max(12, 28 - idx * 3),
-              ccObligation: 5
+              slab1Foir: Math.max(40, 55 - idx * 5),
+              slab2Foir: Math.max(50, 65 - idx * 5),
+              maxFoir: Math.max(55, 75 - idx * 5),
+              multiplier: Math.max(12, 36 - idx * 4),
+              ccObligation: 4
             };
           return {
             category: catName,
-            maxFoir: baseline.maxFoir,
+            slab1Foir: baseline.slab1Foir ?? 55,
+            slab2Foir: baseline.slab2Foir ?? 65,
+            maxFoir: baseline.maxFoir ?? 75,
             multiplier: baseline.multiplier,
             ccObligation: baseline.ccObligation
           };
@@ -1225,8 +1244,8 @@ const UnifiedBankPolicyManager = () => {
             <div className="tabular-policy-card">
               <div className="table-card-header">
                 <div>
-                  <h3>Interest Rate Structures & Slabs</h3>
-                  <p>Define minimum, maximum, and default ROI percentage per employer category.</p>
+                  <h3>Interest Rate Structures & Slabs (By Loan Amount)</h3>
+                  <p>Define minimum ROI according to loan amount brackets (≥ ₹15 Lakhs, ₹10 Lakhs - ₹15 Lakhs, &lt; ₹10 Lakhs) and minimum salary criteria.</p>
                 </div>
               </div>
 
@@ -1235,10 +1254,10 @@ const UnifiedBankPolicyManager = () => {
                   <thead>
                     <tr>
                       <th>Category Tier</th>
+                      <th>≥ ₹15 Lakh Loan ROI (% p.a.)</th>
+                      <th>₹10L to &lt; ₹15L Loan ROI (% p.a.)</th>
+                      <th>&lt; ₹10 Lakh Loan ROI (% p.a.)</th>
                       <th>Minimum Net Salary</th>
-                      <th>Min ROI (% p.a.)</th>
-                      <th>Max ROI (% p.a.)</th>
-                      <th>Default Offered ROI (% p.a.)</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1250,29 +1269,15 @@ const UnifiedBankPolicyManager = () => {
                           </span>
                         </td>
                         <td>
-                          <div className="table-input-cell">
-                            <span>₹</span>
+                          <div className="table-input-cell highlight">
                             <input 
                               type="number"
-                              value={row.minSalary}
+                              step="0.01"
+                              value={row.roiAbove15L ?? row.minRoi ?? ''}
                               onChange={(e) => {
                                 const val = Number(e.target.value);
                                 const updated = [...policyData.interestRates];
-                                updated[idx].minSalary = val;
-                                setPolicyData({ ...policyData, interestRates: updated });
-                              }}
-                            />
-                          </div>
-                        </td>
-                        <td>
-                          <div className="table-input-cell">
-                            <input 
-                              type="number"
-                              step="0.05"
-                              value={row.minRoi}
-                              onChange={(e) => {
-                                const val = Number(e.target.value);
-                                const updated = [...policyData.interestRates];
+                                updated[idx].roiAbove15L = val;
                                 updated[idx].minRoi = val;
                                 setPolicyData({ ...policyData, interestRates: updated });
                               }}
@@ -1284,11 +1289,12 @@ const UnifiedBankPolicyManager = () => {
                           <div className="table-input-cell">
                             <input 
                               type="number"
-                              step="0.05"
-                              value={row.maxRoi}
+                              step="0.01"
+                              value={row.roi10Lto15L ?? row.maxRoi ?? ''}
                               onChange={(e) => {
                                 const val = Number(e.target.value);
                                 const updated = [...policyData.interestRates];
+                                updated[idx].roi10Lto15L = val;
                                 updated[idx].maxRoi = val;
                                 setPolicyData({ ...policyData, interestRates: updated });
                               }}
@@ -1297,19 +1303,35 @@ const UnifiedBankPolicyManager = () => {
                           </div>
                         </td>
                         <td>
-                          <div className="table-input-cell highlight">
+                          <div className="table-input-cell">
                             <input 
                               type="number"
-                              step="0.05"
-                              value={row.defaultRoi}
+                              step="0.01"
+                              value={row.roiBelow10L ?? row.defaultRoi ?? ''}
                               onChange={(e) => {
                                 const val = Number(e.target.value);
                                 const updated = [...policyData.interestRates];
+                                updated[idx].roiBelow10L = val;
                                 updated[idx].defaultRoi = val;
                                 setPolicyData({ ...policyData, interestRates: updated });
                               }}
                             />
                             <span>%</span>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="table-input-cell">
+                            <span>₹</span>
+                            <input 
+                              type="number"
+                              value={row.minSalary ?? ''}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                const updated = [...policyData.interestRates];
+                                updated[idx].minSalary = val;
+                                setPolicyData({ ...policyData, interestRates: updated });
+                              }}
+                            />
                           </div>
                         </td>
                       </tr>
