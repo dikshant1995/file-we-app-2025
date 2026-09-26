@@ -24,22 +24,19 @@ export const axisFinConfig = {
       'A': 24,
       'B': 24,
       'GOVT': 24,
-      'C': 20,
-      'D': 11  // Significantly lower for Category D
+      'C': 20
     },
     '50001-75000': {
       'A': 26,
       'B': 26,
       'GOVT': 26,
-      'C': 22,
-      'D': 15  // Still constrained despite higher income
+      'C': 22
     },
     '75001+': {
       'A': 28,
       'B': 28,
       'GOVT': 28,
-      'C': 24,
-      'D': 18  // Lower than A/B/GOVT's lowest multiplier (24)
+      'C': 24
     }
   },
 
@@ -51,8 +48,7 @@ export const axisFinConfig = {
     'A': 25000,
     'B': 25000,
     'GOVT': 25000,
-    'C': 25000,
-    'D': 25000
+    'C': 25000
   },
 
   // Maximum tenure by category (in months)
@@ -60,8 +56,7 @@ export const axisFinConfig = {
     'A': 84,        // 7 years - CAT A
     'GOVT': 84,     // 7 years - CAT GOVT
     'B': 84,        // 7 years - CAT B
-    'C': 60,        // 5 years - CAT C
-    'D': 48         // 4 years - CAT D
+    'C': 60         // 5 years - CAT C
   },
 
   // Category descriptions
@@ -69,8 +64,7 @@ export const axisFinConfig = {
     'A': { description: 'Category A - Top Tier Companies (Highest Multipliers)' },
     'B': { description: 'Category B - Good Companies (Highest Multipliers)' },
     'GOVT': { description: 'Government Employees (Highest Multipliers, Stable)' },
-    'C': { description: 'Category C - Mid-Tier Companies (Moderate Multipliers)' },
-    'D': { description: 'Category D - Lower-Tier Companies (Constrained Multipliers)' }
+    'C': { description: 'Category C - Mid-Tier Companies (Moderate Multipliers)' }
   },
 
   employmentTypes: ['salaried', 'government'],
@@ -83,7 +77,6 @@ export const axisFinConfig = {
     'Universal ₹25,000 minimum across all categories',
     'Category-based multiplier system',
     'A, B, GOVT grouped together with highest multipliers',
-    'Category D significantly constrained even at high income',
     'Risk-adjusted lending through multipliers'
   ],
 

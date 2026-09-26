@@ -370,6 +370,19 @@ const matchCategory = (cat1, cat2) => {
         }
       }
 
+      // 3.6 AXIS BANK & AXIS FINANCE CATEGORY D RESTRICTION (Not in Policy)
+      if (name === 'Axis Bank' || id === 'axis-bank' || name === 'Axis Finance' || id === 'axis') {
+        const catUpper = String(bankCategory || '').toUpperCase().trim();
+        if (catUpper === 'D' || catUpper === 'CATGD' || catUpper === 'CAT D' || catUpper === 'UNLISTED') {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `${name} policy does not fund Category D companies (Policy covers Category Super A, A, B, C, and Govt only).`,
+            category: bankCategory
+          };
+        }
+      }
+
       // -------------------------------------------------------------
       // Dynamic Bank Policy Specific Credit Card Obligation Percentage
       // -------------------------------------------------------------

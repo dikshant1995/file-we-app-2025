@@ -159,11 +159,12 @@ export const calculateAxisFinEligibility = (userData) => {
     };
   }
 
-  // Check if category is supported
-  if (category === 'UNLISTED') {
+  // Check if category is supported (Axis does not fund Category D or Unlisted)
+  const normCategory = String(category || '').toUpperCase().trim();
+  if (normCategory === 'D' || normCategory === 'CATGD' || normCategory === 'CAT D' || normCategory === 'UNLISTED') {
     return {
       eligible: false,
-      reason: 'Axis Finance does not provide loans to UNLISTED company employees'
+      reason: `Axis policy does not fund Category ${category} companies. Only Category Super A, A, B, C, and Govt are eligible.`
     };
   }
 
