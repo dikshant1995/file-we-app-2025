@@ -152,6 +152,28 @@
   gap: 16px;
 }
 
+.btn-quick-change-password {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  color: #00d4ff;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-quick-change-password:hover {
+  background: rgba(0, 212, 255, 0.22);
+  border-color: #00d4ff;
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.35);
+  transform: translateY(-1px);
+}
+
 .presence-metadata {
   display: flex;
   align-items: center;

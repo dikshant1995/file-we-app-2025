@@ -3,14 +3,16 @@ import './AdminDashboard.css';
 import LeadManager from './admin/LeadManager.jsx';
 import UnifiedBankPolicyManager from './admin/UnifiedBankPolicyManager.jsx';
 import AdminLogin from './admin/AdminLogin.jsx';
+import ChangePasswordModal from './admin/ChangePasswordModal.jsx';
 import { auth, db } from '../config/firebase.js';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
-import { Users, Building2 } from 'lucide-react';
+import { Users, Building2, KeyRound } from 'lucide-react';
 
 const AdminDashboard = ({ onBackToCustomer, initialUser }) => {
   // Only 2 Main Features: 'leads' and 'bank-policy'
   const [activeMenu, setActiveMenu] = useState('leads');
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [user, setUser] = useState(() => {
     if (initialUser) return initialUser;
     try {
@@ -115,6 +117,14 @@ const AdminDashboard = ({ onBackToCustomer, initialUser }) => {
           </nav>
 
           <div className="header-right">
+            <button 
+              className="btn-quick-change-password"
+              onClick={() => setIsPasswordModalOpen(true)}
+              title="Change Administrator Password"
+            >
+              <KeyRound size={15} />
+              <span>Change Password</span>
+            </button>
             <div className="presence-metadata">
               <div className="user-entity-badge">
                 <div className="entity-icon">👤</div>
@@ -136,6 +146,13 @@ const AdminDashboard = ({ onBackToCustomer, initialUser }) => {
           </div>
         </main>
       </div>
+
+      {/* Admin Change Password Modal */}
+      <ChangePasswordModal 
+        isOpen={isPasswordModalOpen} 
+        onClose={() => setIsPasswordModalOpen(false)} 
+        user={user} 
+      />
     </div>
   );
 };

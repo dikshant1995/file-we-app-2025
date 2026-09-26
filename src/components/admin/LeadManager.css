@@ -604,38 +604,73 @@
 
 .share-modal-container {
     width: 100%;
-    max-width: 660px;
-    max-height: 90vh;
+    max-width: 920px;
+    max-height: 88vh;
     overflow-y: auto;
     background: #0b1329;
     border: 1px solid rgba(0, 212, 255, 0.35);
     border-radius: 18px;
-    padding: 24px;
+    padding: 20px 24px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
 }
 
-.modal-header {
+.share-modal-topbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    padding-bottom: 14px;
+    padding-bottom: 12px;
 }
 
-.modal-header-info {
+.topbar-left {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 }
 
-.modal-header-info h3 {
+.share-title {
     margin: 0;
-    font-size: 1.25rem;
+    font-size: 1.15rem;
     font-weight: 700;
     color: #fff;
+}
+
+.share-subtitle {
+    font-size: 0.72rem;
+    color: #00d4ff;
+    display: block;
+}
+
+.dossier-view-tabs-compact {
+    display: flex;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.35);
+    padding: 3px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dossier-tab-btn-compact {
+    padding: 5px 12px;
+    border-radius: 6px;
+    border: none;
+    font-size: 0.76rem;
+    font-weight: 700;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.6);
+    background: transparent;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.dossier-tab-btn-compact.active {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
+    color: #00d4ff;
+    border: 1px solid rgba(0, 212, 255, 0.4);
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
 }
 
 .close-btn {
@@ -656,102 +691,240 @@
     background: rgba(255, 255, 255, 0.1);
 }
 
-/* Dossier View Tabs */
-.dossier-view-tabs {
-    display: flex;
-    gap: 8px;
-    background: rgba(0, 0, 0, 0.35);
-    padding: 4px;
-    border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+/* 2-Column Split Body */
+.dossier-modal-split {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 18px;
+    align-items: start;
 }
 
-.dossier-tab-btn {
-    flex: 1;
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: none;
-    font-size: 0.82rem;
+.dossier-left-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.dossier-right-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    padding: 16px;
+}
+
+.panel-title-badge {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: #38bdf8;
+    text-transform: uppercase;
+}
+
+.dispatch-buttons-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.dispatch-action-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s ease;
+}
+
+.dispatch-action-card:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.dispatch-icon-box {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.wa-card:hover {
+    border-color: #25D366;
+    box-shadow: 0 0 14px rgba(37, 211, 102, 0.3);
+}
+
+.wa-icon {
+    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+    box-shadow: 0 0 10px rgba(37, 211, 102, 0.35);
+}
+
+.excel-card:hover {
+    border-color: #10b981;
+    box-shadow: 0 0 14px rgba(16, 185, 129, 0.35);
+}
+
+.excel-icon {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.35);
+}
+
+.copy-card:hover {
+    border-color: #00d4ff;
+    box-shadow: 0 0 14px rgba(0, 212, 255, 0.3);
+}
+
+.copy-icon {
+    background: rgba(0, 212, 255, 0.15);
+    border: 1px solid rgba(0, 212, 255, 0.4);
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.25);
+}
+
+.mail-card:hover {
+    border-color: #EA4335;
+    box-shadow: 0 0 14px rgba(234, 67, 53, 0.3);
+}
+
+.mail-icon {
+    background: rgba(234, 67, 53, 0.15);
+    border: 1px solid rgba(234, 67, 53, 0.4);
+}
+
+.dispatch-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.dispatch-name {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.dispatch-hint {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.btn-native-share-wide {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 9px;
+    background: rgba(255, 171, 0, 0.1);
+    border: 1px solid rgba(255, 171, 0, 0.3);
+    color: #ffab00;
+    border-radius: 10px;
+    font-size: 0.78rem;
     font-weight: 700;
     cursor: pointer;
-    color: rgba(255, 255, 255, 0.6);
-    background: transparent;
     transition: all 0.2s;
-    text-align: center;
 }
 
-.dossier-tab-btn.active {
-    background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
-    color: #00d4ff;
-    border: 1px solid rgba(0, 212, 255, 0.4);
-    box-shadow: 0 0 12px rgba(0, 212, 255, 0.2);
+.btn-native-share-wide:hover {
+    background: rgba(255, 171, 0, 0.2);
+    border-color: #ffab00;
+    box-shadow: 0 0 10px rgba(255, 171, 0, 0.25);
 }
 
-/* Tab 1: Executive Dossier Card */
+.right-panel-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 12px;
+    margin-top: 4px;
+}
+
+.btn-modal-close-wide {
+    width: 100%;
+    padding: 9px 0;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-modal-close-wide:hover {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+/* Executive Dossier Card */
 .dossier-executive-card {
     background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(11, 19, 43, 0.95) 100%);
     border: 1px solid rgba(245, 158, 11, 0.35);
     border-radius: 14px;
-    padding: 18px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    padding: 14px 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 10px;
 }
 
 .dossier-card-top-banner {
     text-align: center;
     border-bottom: 1px dashed rgba(245, 158, 11, 0.3);
-    padding-bottom: 10px;
+    padding-bottom: 8px;
 }
 
 .dossier-brand-title {
-    font-size: 0.96rem;
+    font-size: 0.88rem;
     font-weight: 800;
     color: #fbbf24;
     letter-spacing: 0.04em;
 }
 
 .dossier-brand-sub {
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     color: #94a3b8;
     font-style: italic;
-    margin-top: 2px;
+    margin-top: 1px;
 }
 
 .dossier-applicant-header {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     background: rgba(255, 255, 255, 0.03);
-    padding: 10px 14px;
-    border-radius: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
     border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .applicant-avatar {
-    width: 38px;
-    height: 38px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     background: linear-gradient(135deg, #00d4ff, #3b82f6);
     color: #020617;
     font-weight: 800;
-    font-size: 1.1rem;
+    font-size: 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0 12px rgba(0, 212, 255, 0.4);
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
 }
 
 .applicant-meta {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 2px;
 }
 
 .applicant-name {
-    font-size: 1.05rem;
+    font-size: 0.98rem;
     font-weight: 700;
     color: #ffffff;
     text-transform: capitalize;
@@ -759,9 +932,9 @@
 
 .applicant-contact {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     flex-wrap: wrap;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: #94a3b8;
 }
 
@@ -778,15 +951,15 @@
 .dossier-metrics-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 7px;
 }
 
 .dossier-metric-item {
     display: flex;
     align-items: flex-start;
-    gap: 10px;
+    gap: 8px;
     background: rgba(255, 255, 255, 0.02);
-    padding: 10px 12px;
+    padding: 7px 10px;
     border-radius: 8px;
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
@@ -797,19 +970,19 @@
 }
 
 .metric-icon {
-    font-size: 1.1rem;
-    margin-top: 2px;
+    font-size: 0.95rem;
+    margin-top: 1px;
 }
 
 .metric-content {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 1px;
     overflow: hidden;
 }
 
 .metric-label {
-    font-size: 0.68rem;
+    font-size: 0.65rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: rgba(255, 255, 255, 0.45);
@@ -817,7 +990,7 @@
 }
 
 .metric-val {
-    font-size: 0.86rem;
+    font-size: 0.82rem;
     color: #f8fafc;
     font-weight: 600;
     word-break: break-word;
@@ -830,14 +1003,14 @@
 .cyan-bold {
     color: #00d4ff !important;
     font-weight: 800 !important;
-    font-size: 0.95rem !important;
+    font-size: 0.88rem !important;
 }
 
 .bt-pill {
     display: inline-block;
-    padding: 2px 8px;
-    border-radius: 5px;
-    font-size: 0.72rem;
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-size: 0.68rem;
     font-weight: 700;
     width: fit-content;
 }
@@ -856,35 +1029,35 @@
 .dossier-banks-section {
     background: rgba(59, 130, 246, 0.05);
     border: 1px solid rgba(59, 130, 246, 0.2);
-    border-radius: 10px;
-    padding: 12px;
+    border-radius: 8px;
+    padding: 9px 12px;
 }
 
 .dossier-banks-header {
-    font-size: 0.76rem;
+    font-size: 0.72rem;
     font-weight: 700;
     color: #60a5fa;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .dossier-banks-chips {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 5px;
 }
 
 .dossier-bank-chip {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
     background: rgba(59, 130, 246, 0.15);
     border: 1px solid rgba(59, 130, 246, 0.35);
     color: #93c5fd;
-    padding: 3px 8px;
-    border-radius: 6px;
-    font-size: 0.72rem;
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-size: 0.68rem;
     font-weight: 700;
 }
 
@@ -898,6 +1071,7 @@
     border: 1px solid rgba(37, 211, 102, 0.3);
     border-radius: 12px;
     overflow: hidden;
+    height: 100%;
 }
 
 .raw-box-header {
@@ -905,10 +1079,10 @@
     justify-content: space-between;
     align-items: center;
     background: rgba(37, 211, 102, 0.1);
-    padding: 8px 14px;
+    padding: 7px 12px;
     border-bottom: 1px solid rgba(37, 211, 102, 0.2);
     color: #25D366;
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.05em;
 }
@@ -920,9 +1094,9 @@
     background: rgba(37, 211, 102, 0.2);
     border: 1px solid rgba(37, 211, 102, 0.4);
     color: #25D366;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 0.72rem;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 0.7rem;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s;
@@ -933,99 +1107,22 @@
 }
 
 .raw-whatsapp-text {
-    padding: 14px;
+    padding: 12px;
     margin: 0;
     font-family: 'Consolas', 'Courier New', monospace;
-    font-size: 0.8rem;
+    font-size: 0.76rem;
     color: #e2e8f0;
-    line-height: 1.6;
+    line-height: 1.5;
     white-space: pre-wrap;
     word-break: break-word;
+    max-height: 380px;
+    overflow-y: auto;
 }
 
-/* Share Actions Container & Cards */
-.share-actions-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.share-options-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-.share-action-card {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    cursor: pointer;
-    text-align: left;
-    transition: all 0.2s ease;
-}
-
-.share-action-card:hover {
-    transform: translateY(-2px);
-    background: rgba(255, 255, 255, 0.08);
-}
-
-.wa-card:hover {
-    border-color: #25D366;
-    box-shadow: 0 0 14px rgba(37, 211, 102, 0.3);
-}
-
-.mail-card:hover {
-    border-color: #EA4335;
-    box-shadow: 0 0 14px rgba(234, 67, 53, 0.3);
-}
-
-.copy-card:hover {
-    border-color: #00d4ff;
-    box-shadow: 0 0 14px rgba(0, 212, 255, 0.3);
-}
-
-.excel-card:hover {
-    border-color: #10b981;
-    box-shadow: 0 0 14px rgba(16, 185, 129, 0.35);
-}
-
-.btn-native-share-wide {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 10px;
-    background: rgba(255, 171, 0, 0.1);
-    border: 1px solid rgba(255, 171, 0, 0.3);
-    color: #ffab00;
-    border-radius: 10px;
-    font-size: 0.82rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.btn-native-share-wide:hover {
-    background: rgba(255, 171, 0, 0.2);
-    border-color: #ffab00;
-    box-shadow: 0 0 12px rgba(255, 171, 0, 0.25);
-}
-
-.action-title {
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: #ffffff;
-}
-
-.action-desc {
-    font-size: 0.72rem;
-    color: rgba(255, 255, 255, 0.5);
-    margin-top: 2px;
+@media (max-width: 860px) {
+    .dossier-modal-split {
+        grid-template-columns: 1fr;
+    }
 }
 
 .modal-footer {

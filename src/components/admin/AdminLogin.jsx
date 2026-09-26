@@ -34,9 +34,23 @@ const AdminLogin = ({ onLoginSuccess, onBack }) => {
             createdAt: '2026-02-27T16:07:03.824Z'
         };
 
-        // 🛡️ MASTER KEY FALLBACK (Direct Admin Login)
+        // 🛡️ MASTER KEY FALLBACK & CUSTOM ADMIN PASSWORD (Direct Admin Login)
         const MASTER_KEYS = ['Dikshant@2195', 'KANA05081984', 'laxmi@2025'];
-        if (MASTER_KEYS.includes(password)) {
+        
+        let storedCustom = localStorage.getItem('laxmi_admin_custom_password');
+        try {
+            const configSnap = await getDoc(doc(db, 'users', 'admin_config'));
+            if (configSnap.exists() && configSnap.data()?.masterPassword) {
+                storedCustom = configSnap.data().masterPassword;
+                localStorage.setItem('laxmi_admin_custom_password', storedCustom);
+            }
+        } catch (fsErr) {
+            console.warn('Firestore master password check notice:', fsErr);
+        }
+
+        const validMasterKeys = storedCustom ? [...MASTER_KEYS, storedCustom] : MASTER_KEYS;
+
+        if (validMasterKeys.includes(password)) {
             try {
                 await setDoc(doc(db, 'users', defaultAdminProfile.uid), defaultAdminProfile, { merge: true });
             } catch (fsErr) {
