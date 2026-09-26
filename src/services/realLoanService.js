@@ -122,6 +122,7 @@ export const calculateLoanEligibility = async (userData) => {
     salaryMode: userData.salaryMode || 'bank',
     maritalStatus: userData.maritalStatus || '', // Added for bachelor capping
     livingStatus: userData.livingStatus || '',   // Added for bachelor capping
+    creditCards: userData.creditCards || [],
     creditCardObligation: (userData.creditCardObligation !== undefined && userData.creditCardObligation !== null)
       ? parseFloat(userData.creditCardObligation)
       : (userData.creditCards || [])
@@ -351,12 +352,49 @@ const matchCategory = (cat1, cat2) => {
         console.log(`   🏭 ${name}: Using default Category B (no database)`);
       }
 
+      // -------------------------------------------------------------
+      // Dynamic Bank Policy Specific Credit Card Obligation Percentage
+      // -------------------------------------------------------------
+      let bankCcObligationPercent = 5; // Default standard bank policy
+
+      // 1. Check Unified / Excel Policy foirMultiplier for this category
+      if (uPolicy && Array.isArray(uPolicy.foirMultiplier)) {
+        const matchedFoirRow = uPolicy.foirMultiplier.find(m => matchCategory(m.category, bankCategory));
+        if (matchedFoirRow && matchedFoirRow.ccObligation !== undefined && matchedFoirRow.ccObligation !== null && matchedFoirRow.ccObligation !== '') {
+          bankCcObligationPercent = Number(matchedFoirRow.ccObligation);
+        }
+      }
+      // 2. Check Unified / Excel Policy demographics
+      if (uPolicy?.demographics?.ccObligationPercent !== undefined && uPolicy?.demographics?.ccObligationPercent !== null && uPolicy?.demographics?.ccObligationPercent !== '') {
+        bankCcObligationPercent = Number(uPolicy.demographics.ccObligationPercent);
+      }
+      // 3. Check Admin Panel FOIR settings
+      if (adminAllConfig.foirSettings?.creditCardObligationPercentage !== undefined && adminAllConfig.foirSettings?.creditCardObligationPercentage !== null && adminAllConfig.foirSettings?.creditCardObligationPercentage !== '') {
+        bankCcObligationPercent = Number(adminAllConfig.foirSettings.creditCardObligationPercentage);
+      }
+
+      // Calculate active credit card balance to obligate (excluding cards selected for BT)
+      const activeCcOutstanding = (calculatorInput.creditCards || [])
+        .filter(card => !card.isBT)
+        .reduce((sum, card) => sum + (parseFloat(card.outstandingAmount || card.creditLimitUsed || 0)), 0);
+
+      let bankCreditCardObligation = 0;
+      if (activeCcOutstanding > 0) {
+        // Use exact bank policy percentage (e.g., 4% for Axis Bank, 5% for IndusInd Bank)
+        bankCreditCardObligation = Math.round(activeCcOutstanding * (bankCcObligationPercent / 100));
+      } else if (calculatorInput.creditCardObligation > 0) {
+        // Fallback: pro-rate if only aggregated standard 5% obligation was passed
+        bankCreditCardObligation = Math.round(calculatorInput.creditCardObligation * (bankCcObligationPercent / 5));
+      }
+
       // 🌉 INJECT ADMIN OVERRIDES INTO THE ENGINE
       const bankInput = {
         ...calculatorInput,
         category: bankCategory,
         bankName: name,
-        bankId: id
+        bankId: id,
+        creditCardObligation: bankCreditCardObligation,
+        creditCardObligationPercentage: bankCcObligationPercent
       };
 
       // Apply Govt Overrides if available
@@ -535,7 +573,7 @@ const matchCategory = (cat1, cat2) => {
         }
         const tenureYears = tenureMonths / 12;
 
-        const totalObligations = (calculatorInput.existingEMI || 0) + (calculatorInput.creditCardObligation || 0);
+        const totalObligations = (calculatorInput.existingEMI || 0) + (bankInput.creditCardObligation || 0);
         const monthlyIncome = calculatorInput.monthlyIncome || calculatorInput.basicSalary || 0;
 
         // FOIR calculations
@@ -638,6 +676,9 @@ const matchCategory = (cat1, cat2) => {
         result.details.multiplierLoanAmount = Math.round(multiplierLoanAmount);
         result.details.maxEligibleLoan = Math.round(maxEligibleLoan);
         result.details.appliedRoiSlab = appliedRoiSlab;
+        result.details.bankCreditCardObligation = bankInput.creditCardObligation || 0;
+        result.details.creditCardObligationPercentage = (bankInput.creditCardObligationPercentage || 5) + '%';
+        result.details.totalObligations = totalObligations;
       }
 
       const bankEndTime = performance.now();
