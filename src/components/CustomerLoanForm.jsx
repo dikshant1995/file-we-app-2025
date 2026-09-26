@@ -65,6 +65,10 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
             creditLimitUsed: c.creditLimitUsed || ''
           }));
 
+    const isNewCreditSaved = saved?.isNewToCredit !== undefined
+      ? saved.isNewToCredit
+      : (saved?.creditScore === -1 || saved?.creditScore === '-1');
+
     return {
       customerName: saved?.customerName || '',
       mobileNumber: saved?.mobileNumber || '',
@@ -73,6 +77,8 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
       incentiveMonth2: saved?.incentiveMonth2 || '',
       incentiveMonth3: saved?.incentiveMonth3 || '',
       age: saved?.age || '',
+      creditScore: isNewCreditSaved ? '-1' : (saved?.creditScore !== undefined ? String(saved.creditScore) : '750'),
+      isNewToCredit: isNewCreditSaved,
       category: saved?.category || 'B',
       employmentType: saved?.employmentType || 'salaried',
       salaryMode: saved?.salaryMode || 'bank',
@@ -113,9 +119,15 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
               creditLimitUsed: c.creditLimitUsed || ''
             }));
 
+      const isNewInit = initialData.isNewToCredit !== undefined
+        ? initialData.isNewToCredit
+        : (initialData.creditScore === -1 || initialData.creditScore === '-1');
+
       setFormData(prev => ({
         ...prev,
         ...initialData,
+        creditScore: isNewInit ? '-1' : (initialData.creditScore !== undefined ? String(initialData.creditScore) : (prev.creditScore || '750')),
+        isNewToCredit: isNewInit !== undefined ? isNewInit : (prev.isNewToCredit || false),
         hasExistingLoans: initialData.hasExistingLoans !== undefined ? initialData.hasExistingLoans : (initialLoans.length > 0 || prev.hasExistingLoans),
         existingLoans: initialLoans.length > 0 ? initialLoans : prev.existingLoans,
         hasCreditCards: initialData.hasCreditCards !== undefined ? initialData.hasCreditCards : (initialCards.length > 0 || prev.hasCreditCards),
@@ -148,7 +160,7 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
     const { name, value, type, checked } = e.target;
 
     // Pure typed numeric inputs: allow ONLY digits, prevent any stepper/range shifts
-    const numericFields = ['basicSalary', 'incentiveMonth1', 'incentiveMonth2', 'incentiveMonth3', 'age'];
+    const numericFields = ['basicSalary', 'incentiveMonth1', 'incentiveMonth2', 'incentiveMonth3', 'age', 'creditScore'];
     let finalValue = value;
     if (numericFields.includes(name)) {
       finalValue = value.replace(/[^0-9]/g, '');
@@ -191,6 +203,15 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : finalValue
+    }));
+  };
+
+  const handleToggleNewToCredit = (e) => {
+    const checked = e.target.checked;
+    setFormData(prev => ({
+      ...prev,
+      isNewToCredit: checked,
+      creditScore: checked ? '-1' : (prev.creditScore === '-1' ? '750' : prev.creditScore)
     }));
   };
 
@@ -452,7 +473,13 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
       wantsBT: formData.wantsBT,
       selectedLoansForBT: formData.wantsBT ? formData.selectedLoansForBT : [],
       loansForBT: loansForBT,
-      creditScore: formData.creditScore ? parseInt(formData.creditScore) : 700,
+      creditScore: (formData.isNewToCredit || formData.creditScore === '-1' || formData.creditScore === -1)
+        ? -1
+        : (formData.creditScore ? parseInt(formData.creditScore, 10) : 750),
+      cibilScore: (formData.isNewToCredit || formData.creditScore === '-1' || formData.creditScore === -1)
+        ? -1
+        : (formData.creditScore ? parseInt(formData.creditScore, 10) : 750),
+      isNewToCredit: Boolean(formData.isNewToCredit || formData.creditScore === '-1' || formData.creditScore === -1),
       state: formData.state,
       city: formData.city,
       salaryMode: formData.salaryMode || 'bank',
@@ -477,6 +504,13 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
         state: formData.state,
         city: formData.city,
         age: formData.age,
+        creditScore: (formData.isNewToCredit || formData.creditScore === '-1' || formData.creditScore === -1)
+          ? -1
+          : (formData.creditScore ? parseInt(formData.creditScore, 10) : 750),
+        cibilScore: (formData.isNewToCredit || formData.creditScore === '-1' || formData.creditScore === -1)
+          ? -1
+          : (formData.creditScore ? parseInt(formData.creditScore, 10) : 750),
+        isNewToCredit: Boolean(formData.isNewToCredit || formData.creditScore === '-1' || formData.creditScore === -1),
         employmentType: formData.employmentType,
         salaryMode: formData.salaryMode,
         maritalStatus: formData.maritalStatus,
@@ -804,6 +838,77 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
           />
           <small className="help-text">
             Banks use age to decide maximum loan tenure (retirement age limit)
+          </small>
+        </div>
+
+        {/* CIBIL Score & New To Credit (-1) Toggle */}
+        <div className="form-group" style={{ position: 'relative' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px', flexWrap: 'wrap', gap: '8px' }}>
+            <label htmlFor="creditScore" style={{ margin: 0, fontWeight: 700, color: '#1f2937' }}>
+              CIBIL / Credit Score <span className="required">*</span>
+            </label>
+            <label style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              cursor: 'pointer',
+              fontSize: '12.5px',
+              fontWeight: 700,
+              color: (formData.isNewToCredit || formData.creditScore === '-1') ? '#1d4ed8' : '#4b5563',
+              margin: 0,
+              backgroundColor: (formData.isNewToCredit || formData.creditScore === '-1') ? '#eff6ff' : '#f3f4f6',
+              padding: '4px 10px',
+              borderRadius: '6px',
+              border: (formData.isNewToCredit || formData.creditScore === '-1') ? '1.5px solid #3b82f6' : '1px solid #d1d5db',
+              transition: 'all 0.2s ease'
+            }}>
+              <input
+                type="checkbox"
+                id="isNewToCreditToggle"
+                checked={Boolean(formData.isNewToCredit || formData.creditScore === '-1')}
+                onChange={handleToggleNewToCredit}
+                style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#2563eb' }}
+              />
+              New to Credit / No CIBIL (-1)
+            </label>
+          </div>
+
+          {(formData.isNewToCredit || formData.creditScore === '-1') ? (
+            <div style={{
+              padding: '10px 14px',
+              backgroundColor: '#eff6ff',
+              border: '2px dashed #3b82f6',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              fontWeight: 600,
+              color: '#1d4ed8'
+            }}>
+              <span>🌟 First Time Borrower / New to Credit</span>
+              <span style={{ backgroundColor: '#2563eb', color: '#ffffff', padding: '3px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 800 }}>
+                Score: -1
+              </span>
+            </div>
+          ) : (
+            <input
+              type="text"
+              id="creditScore"
+              name="creditScore"
+              value={formData.creditScore}
+              onChange={handleInputChange}
+              onWheel={(e) => e.target.blur()}
+              placeholder="e.g. 750"
+              maxLength={3}
+              inputMode="numeric"
+              pattern="[0-9]*"
+              autoComplete="off"
+              required={!formData.isNewToCredit}
+              style={{ color: '#111827', WebkitTextFillColor: '#111827', backgroundColor: '#ffffff', fontWeight: 600 }}
+            />
+          )}
+          <small className="help-text">
+            Enter CIBIL score (300-900) or check toggle if customer has no past credit history (-1)
           </small>
         </div>
 

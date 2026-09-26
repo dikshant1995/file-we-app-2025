@@ -419,8 +419,17 @@ const matchCategory = (cat1, cat2) => {
       }
 
       // 🌉 INJECT ADMIN OVERRIDES INTO THE ENGINE
+      // Only apply customer's reported CIBIL score if the bank has an active CIBIL policy (e.g., IndusInd Bank for -1 capping)
+      const rawCibil = calculatorInput.cibilScore ?? calculatorInput.customerReportedCreditScore;
+      const bankHasCibilPolicy = (name === 'IndusInd Bank' || id === 'indusind');
+      const effectiveCreditScore = bankHasCibilPolicy
+        ? (rawCibil !== null && rawCibil !== undefined ? Number(rawCibil) : 750)
+        : 750;
+
       const bankInput = {
         ...calculatorInput,
+        creditScore: effectiveCreditScore,
+        cibilScore: rawCibil,
         category: bankCategory,
         bankName: name,
         bankId: id,
@@ -526,6 +535,29 @@ const matchCategory = (cat1, cat2) => {
               }
               bankInput.foirOverride = Number(foirPct);
               if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
+            } else if (name === 'HDFC Bank' || id === 'hdfc') {
+              // HDFC Bank Master Excel Policy:
+              // Salary 75,000+: Super A/A/Govt: 70% FOIR, 27x Multiplier | B: 65% FOIR, 25x Multiplier | C/D: 50% FOIR, 20x Multiplier
+              // Salary 50k-75k: Super A/A/Govt: 60% FOIR, 25x | B: 55% FOIR, 22x | C/D: 45% FOIR, 18x
+              // Salary 25k-50k: Super A/A/Govt: 50% FOIR, 20x | B: 50% FOIR, 18x | C/D: 40% FOIR, 15x
+              const catUpper = String(bankCategory || '').toUpperCase();
+              let hdfcMultiplier = matchedFoir.multiplier || 27;
+              let hdfcFoir = matchedFoir.maxFoir || 70;
+
+              if (income >= 75000) {
+                hdfcMultiplier = matchedFoir.multiplier || ((catUpper === 'C' || catUpper === 'D') ? 20 : (catUpper === 'B' ? 25 : 27));
+                hdfcFoir = matchedFoir.maxFoir || ((catUpper === 'C' || catUpper === 'D') ? 50 : (catUpper === 'B' ? 65 : 70));
+              } else if (income >= 50000) {
+                hdfcMultiplier = (catUpper === 'C' || catUpper === 'D') ? 18 : (catUpper === 'B' ? 22 : 25);
+                hdfcFoir = matchedFoir.slab2Foir || ((catUpper === 'C' || catUpper === 'D') ? 45 : (catUpper === 'B' ? 55 : 60));
+              } else {
+                hdfcMultiplier = (catUpper === 'C' || catUpper === 'D') ? 15 : (catUpper === 'B' ? 18 : 20);
+                hdfcFoir = matchedFoir.slab1Foir || ((catUpper === 'C' || catUpper === 'D') ? 40 : 50);
+              }
+
+              bankInput.multiplierOverride = hdfcMultiplier;
+              bankInput.foirOverride = hdfcFoir;
+              if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
             } else {
               // Standard Bank FOIR logic
               if (matchedFoir.multiplier) bankInput.multiplierOverride = Number(matchedFoir.multiplier);
@@ -575,7 +607,7 @@ const matchCategory = (cat1, cat2) => {
       }
 
       // 👨 INJECT DYNAMIC BACHELOR CAPPING OVERRIDES
-      const isBypassBachelor = name === 'Axis Bank' || id === 'axis-bank' || name === 'IndusInd Bank' || id === 'indusind';
+      const isBypassBachelor = name === 'Axis Bank' || id === 'axis-bank' || name === 'IndusInd Bank' || id === 'indusind' || name === 'HDFC Bank' || id === 'hdfc';
       if (!isBypassBachelor && adminAllConfig.bachelorCapping?.enabled && adminAllConfig.bachelorCapping?.limits) {
         if (calculatorInput.maritalStatus === 'single' && calculatorInput.livingStatus === 'rented') {
           const rentedLimit = adminAllConfig.bachelorCapping.limits['rented_bachelor'];

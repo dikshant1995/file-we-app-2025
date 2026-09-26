@@ -127,6 +127,10 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
       ? `₹${totalExistingEMI.toLocaleString('en-IN')}/mo (${existingLoansList.length} Active Loans)`
       : 'Zero Active Loans (Nil EMI)';
 
+    // CIBIL Profile Info
+    const isCibilMinus1 = metadata?.creditScore === -1 || metadata?.creditScore === '-1' || metadata?.cibilScore === -1 || metadata?.cibilScore === '-1' || metadata?.isNewToCredit;
+    const reportedCibil = metadata?.cibilScore ?? metadata?.creditScore ?? 750;
+
     const reportDate = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
     const approvalRate = Math.round((stats.eligibleCount / stats.totalBanks) * 100);
 
@@ -208,8 +212,13 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
                 <div style="font-size: 10.5px; font-weight: 800; color: #1E40AF; text-transform: uppercase; letter-spacing: 0.5px;">
                   📋 Verified Customer Application Information
                 </div>
-                <div style="font-size: 9.5px; color: #15803D; font-weight: 700; background: #ECFDF5; padding: 2px 7px; border-radius: 8px; border: 1px solid #A7F3D0;">
-                  ✓ Form Verified
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span style="font-size: 9.5px; color: ${isCibilMinus1 ? '#6D28D9' : '#1E40AF'}; font-weight: 700; background: ${isCibilMinus1 ? '#F5F3FF' : '#EFF6FF'}; padding: 2px 7px; border-radius: 8px; border: 1px solid ${isCibilMinus1 ? '#DDD6FE' : '#BFDBFE'};">
+                    ${isCibilMinus1 ? '★ New to Credit (-1)' : `CIBIL: ${reportedCibil}`}
+                  </span>
+                  <span style="font-size: 9.5px; color: #15803D; font-weight: 700; background: #ECFDF5; padding: 2px 7px; border-radius: 8px; border: 1px solid #A7F3D0;">
+                    ✓ Form Verified
+                  </span>
                 </div>
               </div>
 
@@ -493,6 +502,22 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
             }}>
               Category: <strong>{results.find(r => r.category)?.category || metadata?.category || 'Category B'}</strong>
             </span>
+            {(metadata?.creditScore !== undefined || metadata?.cibilScore !== undefined) && (
+              <span style={{
+                background: (metadata?.creditScore === -1 || metadata?.creditScore === '-1' || metadata?.cibilScore === -1 || metadata?.cibilScore === '-1' || metadata?.isNewToCredit) ? '#F5F3FF' : '#F0FDF4',
+                color: (metadata?.creditScore === -1 || metadata?.creditScore === '-1' || metadata?.cibilScore === -1 || metadata?.cibilScore === '-1' || metadata?.isNewToCredit) ? '#6D28D9' : '#15803D',
+                padding: '7px 18px',
+                borderRadius: '20px',
+                fontSize: '0.92rem',
+                fontWeight: 700,
+                border: (metadata?.creditScore === -1 || metadata?.creditScore === '-1' || metadata?.cibilScore === -1 || metadata?.cibilScore === '-1' || metadata?.isNewToCredit) ? '1px solid #DDD6FE' : '1px solid #BBF7D0',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}>
+                {(metadata?.creditScore === -1 || metadata?.creditScore === '-1' || metadata?.cibilScore === -1 || metadata?.cibilScore === '-1' || metadata?.isNewToCredit) ? '🌟 New to Credit (CIBIL: -1)' : `📊 Bureau CIBIL: ${metadata.cibilScore || metadata.creditScore}`}
+              </span>
+            )}
             <span style={{
               background: '#EEF3FA',
               color: '#1E40AF',

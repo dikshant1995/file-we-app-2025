@@ -56,19 +56,18 @@ const calculateLoanAmountFromEMI = (emi, annualInterestRate, tenureInYears) => {
 
 // Function to determine salary band for FOIR table
 const getFoirSalaryBand = (salary) => {
-  if (salary >= 25000 && salary <= 50000) return '25000-50000';
-  if (salary >= 50001 && salary <= 75000) return '50001-75000';
-  if (salary >= 75001 && salary <= 100000) return '75001-100000';
-  if (salary > 100000) return '100001+';
+  if (salary > 75000) return '75001+';
+  if (salary >= 50001) return '50001-75000';
+  if (salary >= 25000) return '25000-50000';
   return null;
 };
 
 // Function to determine salary band for multiplier table
 const getMultiplierSalaryBand = (salary) => {
-  if (salary >= 25000 && salary <= 35000) return '25000-35000';
-  if (salary >= 35001 && salary <= 50000) return '35001-50000';
-  if (salary >= 50001 && salary <= 75000) return '50001-75000';
   if (salary > 75000) return '75001+';
+  if (salary >= 50001) return '50001-75000';
+  if (salary >= 35001) return '35001-50000';
+  if (salary >= 25000) return '25000-35000';
   return null;
 };
 
@@ -133,6 +132,9 @@ export const calculateHdfcEligibility = (userData) => {
     existingLoanBanks, // NEW: List of banks where customer has existing personal loans
     // Admin Overrides (Logic Bridge)
     interestRateOverride,
+    multiplierOverride,
+    foirOverride,
+    maxTenureOverride,
     isGovtEmployee,
     govtROI,
     govtFOIR,
@@ -243,9 +245,9 @@ export const calculateHdfcEligibility = (userData) => {
 
 
   // Apply tenure capping based on category (tenure is in months)
-  // Logic Bridge: Use govtMaxTenure if available
+  // Logic Bridge: Use maxTenureOverride or govtMaxTenure if available
   let lookupCategory = companyCategory === 'Govt' ? 'A' : companyCategory;
-  let maxTenureForCategory = (isGovtEmployee && govtMaxTenure) ? govtMaxTenure : hdfcConfig.maxTenureByCategory[lookupCategory];
+  let maxTenureForCategory = maxTenureOverride || ((isGovtEmployee && govtMaxTenure) ? govtMaxTenure : hdfcConfig.maxTenureByCategory[lookupCategory]);
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
@@ -280,16 +282,16 @@ export const calculateHdfcEligibility = (userData) => {
   // For BT mode, use adjusted income
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncomeForCalc;
 
-  // Logic Bridge: Use govtMultiplier if available
+  // Logic Bridge: Use multiplierOverride or govtMultiplier if available
   let lookupCategoryMultiplier = companyCategory === 'Govt' ? 'A' : companyCategory;
-  let multiplier = (isGovtEmployee && govtMultiplier) ? govtMultiplier : getMultiplier(incomeForCalculation, lookupCategoryMultiplier);
+  let multiplier = multiplierOverride || ((isGovtEmployee && govtMultiplier) ? govtMultiplier : getMultiplier(incomeForCalculation, lookupCategoryMultiplier));
 
   if (!multiplier) {
-    return {
-      eligible: false,
-      reason: 'Unable to determine multiplier for the provided salary and category',
-      isBTMode: isBT
-    };
+    if (incomeForCalculation >= 75000) {
+      multiplier = (lookupCategoryMultiplier === 'C' || lookupCategoryMultiplier === 'D') ? 20 : (lookupCategoryMultiplier === 'B' ? 25 : 27);
+    } else {
+      multiplier = (lookupCategoryMultiplier === 'C' || lookupCategoryMultiplier === 'D') ? 15 : (lookupCategoryMultiplier === 'B' ? 18 : 20);
+    }
   }
 
   // IMPORTANT: For multiplier, use salary after deducting existing EMI + credit card obligations (non-BT mode)
@@ -298,16 +300,16 @@ export const calculateHdfcEligibility = (userData) => {
   const multiplierLoanAmount = availableSalary * multiplier;
 
   // Calculate using FOIR method
-  // Logic Bridge: Use govtFOIR if available
+  // Logic Bridge: Use foirOverride or govtFOIR if available
   let lookupCategoryFOIR = companyCategory === 'Govt' ? 'A' : companyCategory;
-  let foirPercentage = (isGovtEmployee && govtFOIR) ? (govtFOIR / 100) : getFoirPercentage(incomeForCalculation, lookupCategoryFOIR);
+  let foirPercentage = foirOverride ? (foirOverride / 100) : ((isGovtEmployee && govtFOIR) ? (govtFOIR / 100) : getFoirPercentage(incomeForCalculation, lookupCategoryFOIR));
 
   if (!foirPercentage) {
-    return {
-      eligible: false,
-      reason: 'Unable to determine FOIR percentage for the provided salary and category',
-      isBTMode: isBT
-    };
+    if (incomeForCalculation >= 75000) {
+      foirPercentage = (lookupCategoryFOIR === 'C' || lookupCategoryFOIR === 'D') ? 0.50 : (lookupCategoryFOIR === 'B' ? 0.65 : 0.70);
+    } else {
+      foirPercentage = (lookupCategoryFOIR === 'C' || lookupCategoryFOIR === 'D') ? 0.40 : 0.50;
+    }
   }
 
   const foirCap = isBT ? (adjustedIncome * foirPercentage) : (monthlyIncomeForCalc * foirPercentage);
@@ -347,27 +349,8 @@ export const calculateHdfcEligibility = (userData) => {
   const maxLoanCapAmount = Math.min(maxLoanAmount, hdfcConfig.maxLoanAmount);
   const loanCapped = maxLoanAmount > hdfcConfig.maxLoanAmount;
 
-  // Apply Dynamic Bachelor Capping
-  let appliedBachelorCap = false;
-  let bachelorLimitAmount = null;
-  let bachelorCapReasonStr = null;
+  // HDFC Master Policy: No bachelor capping restriction
   let finalLoanAmount = maxLoanCapAmount;
-
-  if (userData.dynamicBachelorLimitOverride !== undefined) {
-    bachelorLimitAmount = userData.dynamicBachelorLimitOverride;
-    if (finalLoanAmount > bachelorLimitAmount) {
-      finalLoanAmount = bachelorLimitAmount;
-      appliedBachelorCap = true;
-      bachelorCapReasonStr = userData.dynamicBachelorCapReason || 'Dynamic Bachelor Capping limit applied';
-    }
-  } else if (hdfcConfig.bachelorMaxLoanAmount !== undefined && userData.maritalStatus === 'single' && userData.livingStatus === 'rented') {
-    bachelorLimitAmount = hdfcConfig.bachelorMaxLoanAmount;
-    if (finalLoanAmount > bachelorLimitAmount) {
-      finalLoanAmount = bachelorLimitAmount;
-      appliedBachelorCap = true;
-      bachelorCapReasonStr = 'Rented Bachelor Limit Applied (Bank Default)';
-    }
-  }
 
   // ========== BALANCE TRANSFER CALCULATION ==========
   let btFreshAmount = 0;
@@ -418,10 +401,10 @@ export const calculateHdfcEligibility = (userData) => {
     maxLoanCap: hdfcConfig.maxLoanAmount,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(maxLoanAmount) : null,
-    bachelorCapped: appliedBachelorCap,
-    bachelorCapReason: bachelorCapReasonStr,
+    bachelorCapped: false,
+    bachelorCapReason: null,
     regularMaxLoan: Math.round(maxLoanCapAmount),
-    bachelorMaxLoanAmount: bachelorLimitAmount !== null ? Math.round(bachelorLimitAmount) : null,
+    bachelorMaxLoanAmount: null,
     interestRate: effectiveInterestRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,

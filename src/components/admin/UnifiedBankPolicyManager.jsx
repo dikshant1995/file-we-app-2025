@@ -24,7 +24,7 @@ const INITIAL_12_BANKS = [
   { id: 'tata', name: 'Tata Capital', color: '#1F4E78', minRate: 10.99, maxLoan: 4000000, maxTenure: 72, enabled: true },
   { id: 'poonawala', name: 'Poonawala Finance', color: '#005596', minRate: 11.25, maxLoan: 3500000, maxTenure: 60, enabled: true },
   { id: 'idfc', name: 'IDFC First Bank', color: '#8B1538', minRate: 10.49, maxLoan: 5000000, maxTenure: 84, enabled: true },
-  { id: 'hdfc', name: 'HDFC Bank', color: '#004C8F', minRate: 10.5, maxLoan: 7500000, maxTenure: 84, enabled: true },
+  { id: 'hdfc', name: 'HDFC Bank', color: '#004C8F', minRate: 9.99, maxLoan: 7500000, maxTenure: 84, enabled: true },
   { id: 'icici', name: 'ICICI Bank', color: '#ED1C24', minRate: 10.75, maxLoan: 5000000, maxTenure: 84, enabled: true },
   { id: 'bandhan', name: 'Bandhan Bank', color: '#DC0028', minRate: 11.5, maxLoan: 2500000, maxTenure: 60, enabled: true },
   { id: 'cholamandalam', name: 'Cholamandalam Finance', color: '#F37021', minRate: 12.0, maxLoan: 3000000, maxTenure: 60, enabled: true },
@@ -238,6 +238,56 @@ export const INDUSIND_BANK_EXCEL_POLICY = {
     { category: 'B', slab1Foir: 50, slab2Foir: 60, maxFoir: 70, multiplierBelow75k: 20, multiplier75kTo125k: 25, multiplierAbove125k: 30, multiplier: 25, ccObligation: 5 },
     { category: 'C', slab1Foir: 50, slab2Foir: 60, maxFoir: 60, multiplierBelow75k: 21, multiplier75kTo125k: 21, multiplierAbove125k: 21, multiplier: 21, ccObligation: 5 },
     { category: 'Govt', slab1Foir: 50, slab2Foir: 60, maxFoir: 70, multiplierBelow75k: 20, multiplier75kTo125k: 25, multiplierAbove125k: 30, multiplier: 30, ccObligation: 5 }
+  ],
+  demographics: {
+    minAge: 21,
+    maxAge: 60,
+    retirementSalaried: 60,
+    retirementGovt: 60,
+    minSalary: 25000,
+    minExperienceTotal: 12,
+    minExperienceCurrent: 0,
+    minCibilScore: 0,
+    ccObligationPercent: 5,
+    ccBtAllowedCount: 0,
+    allowCcBt: false
+  },
+  companies: INITIAL_COMPANY_DATABASE
+};
+
+// Exact Master Policy Configuration for HDFC BANK from Excel
+export const HDFC_BANK_EXCEL_POLICY = {
+  interestRates: [
+    { category: 'Super A', roiAbove20L: 9.99, roi15Lto20L: 10.15, roi10Lto15L: 10.50, roi5Lto10L: 11.50, roiAbove15L: 10.15, roiBelow10L: 11.50, minRoi: 9.99, maxRoi: 11.50, defaultRoi: 9.99 },
+    { category: 'A', roiAbove20L: 9.99, roi15Lto20L: 10.15, roi10Lto15L: 10.50, roi5Lto10L: 11.50, roiAbove15L: 10.15, roiBelow10L: 11.50, minRoi: 9.99, maxRoi: 11.50, defaultRoi: 9.99 },
+    { category: 'B', roiAbove20L: 9.99, roi15Lto20L: 10.15, roi10Lto15L: 10.50, roi5Lto10L: 11.50, roiAbove15L: 10.15, roiBelow10L: 11.50, minRoi: 9.99, maxRoi: 11.50, defaultRoi: 9.99 },
+    { category: 'C', roiAbove20L: 10.25, roi15Lto20L: 10.50, roi10Lto15L: 11.00, roi5Lto10L: 11.50, roiAbove15L: 10.50, roiBelow10L: 11.50, minRoi: 10.25, maxRoi: 11.50, defaultRoi: 10.25 },
+    { category: 'D', roiAbove20L: 10.25, roi15Lto20L: 10.50, roi10Lto15L: 11.00, roi5Lto10L: 11.50, roiAbove15L: 10.50, roiBelow10L: 11.50, minRoi: 10.25, maxRoi: 11.50, defaultRoi: 10.25 },
+    { category: 'Govt', roiAbove20L: 9.99, roi15Lto20L: 10.15, roi10Lto15L: 10.50, roi5Lto10L: 11.50, roiAbove15L: 10.15, roiBelow10L: 11.50, minRoi: 9.99, maxRoi: 11.50, defaultRoi: 9.99 }
+  ],
+  loanCapping: [
+    { tier: 'Super A', minLoan: 100000, maxLoan: 7500000, bachelorCap: null, minSalary: 25000 },
+    { tier: 'A', minLoan: 100000, maxLoan: 7500000, bachelorCap: null, minSalary: 25000 },
+    { tier: 'B', minLoan: 100000, maxLoan: 7500000, bachelorCap: null, minSalary: 25000 },
+    { tier: 'C', minLoan: 100000, maxLoan: 7500000, bachelorCap: null, minSalary: 25000 },
+    { tier: 'D', minLoan: 100000, maxLoan: 7500000, bachelorCap: null, minSalary: 25000 },
+    { tier: 'Govt', minLoan: 100000, maxLoan: 7500000, bachelorCap: null, minSalary: 25000 }
+  ],
+  tenureRules: [
+    { category: 'Super A', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years (84 Months)' },
+    { category: 'A', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years (84 Months)' },
+    { category: 'B', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years (84 Months)' },
+    { category: 'C', minMonths: 12, maxMonths: 72, description: 'Up to 6 Years (72 Months)' },
+    { category: 'D', minMonths: 12, maxMonths: 60, description: 'Up to 5 Years (60 Months)' },
+    { category: 'Govt', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years (84 Months)' }
+  ],
+  foirMultiplier: [
+    { category: 'Super A', slab1Foir: 50, slab2Foir: 60, maxFoir: 70, multiplier: 27, ccObligation: 5 },
+    { category: 'A', slab1Foir: 50, slab2Foir: 60, maxFoir: 70, multiplier: 27, ccObligation: 5 },
+    { category: 'B', slab1Foir: 50, slab2Foir: 55, maxFoir: 65, multiplier: 25, ccObligation: 5 },
+    { category: 'C', slab1Foir: 40, slab2Foir: 45, maxFoir: 50, multiplier: 20, ccObligation: 5 },
+    { category: 'D', slab1Foir: 40, slab2Foir: 45, maxFoir: 50, multiplier: 20, ccObligation: 5 },
+    { category: 'Govt', slab1Foir: 50, slab2Foir: 60, maxFoir: 70, multiplier: 27, ccObligation: 5 }
   ],
   demographics: {
     minAge: 21,
@@ -484,6 +534,12 @@ const UnifiedBankPolicyManager = () => {
     // Direct Master Policy from Excel for IndusInd Bank
     if (bank.id === 'indusind' || bank.name === 'IndusInd Bank') {
       setPolicyData(sanitizePolicyData(INDUSIND_BANK_EXCEL_POLICY));
+      return;
+    }
+
+    // Direct Master Policy from Excel for HDFC Bank
+    if (bank.id === 'hdfc' || bank.name === 'HDFC Bank') {
+      setPolicyData(sanitizePolicyData(HDFC_BANK_EXCEL_POLICY));
       return;
     }
 
@@ -1611,6 +1667,40 @@ const UnifiedBankPolicyManager = () => {
                       <div style={{ marginTop: '3px' }}>• Category C: <strong>21x Multiplier</strong> | ₹35K–₹80K: <strong>60% FOIR</strong> (Cap: ₹15L)</div>
                       <div style={{ marginTop: '3px', color: '#fca5a5' }}>• <strong>CIBIL -1 Policy</strong>: Max tenure strictly capped to <strong>48 Months</strong></div>
                       <div style={{ marginTop: '3px', color: '#fdba74' }}>• CC Obligation: <strong>5% of limit</strong> (CC BT Not Allowed)</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeConfigBank?.id === 'hdfc' && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(0, 76, 143, 0.12) 0%, rgba(14, 165, 233, 0.12) 100%)',
+                  border: '1.5px solid rgba(0, 76, 143, 0.35)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38bdf8', fontWeight: 700, fontSize: '0.95rem' }}>
+                    <CheckCircle2 size={18} />
+                    <span>HDFC Bank Master Policy Rules (from Excel)</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 FOIR & Multipliers (₹75K+ Salary):</strong>
+                      <div style={{ marginTop: '5px' }}>• Super A, A, Govt: <strong>70% Max FOIR</strong> | <strong>27x Multiplier</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Category B: <strong>65% Max FOIR</strong> | <strong>25x Multiplier</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Category C & D: <strong>50% Max FOIR</strong> | <strong>20x Multiplier</strong></div>
+                      <div style={{ marginTop: '3px', color: '#86efac' }}>• CC Obligation: <strong>5% of the usage</strong></div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
+                      <strong style={{ color: '#f59e0b', fontSize: '0.88rem' }}>📌 Loan & Tenure Capping:</strong>
+                      <div style={{ marginTop: '5px' }}>• Max Loan Sanction: <strong>₹75 Lakhs</strong> (Min: ₹1 Lakh, all tiers)</div>
+                      <div style={{ marginTop: '3px' }}>• Super A, A, B, Govt: <strong>84 Months (7 Years)</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Category C: <strong>72 Months (6 Years)</strong> | Category D: <strong>60 Months (5 Years)</strong></div>
+                      <div style={{ marginTop: '3px', color: '#86efac' }}>• Bachelor Capping: <strong>No Restriction (Disabled)</strong></div>
                     </div>
                   </div>
                 </div>
