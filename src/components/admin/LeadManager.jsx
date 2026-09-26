@@ -809,7 +809,7 @@ const LeadManager = ({ userRole }) => {
                             title="Close Dossier (Esc)"
                             aria-label="Close Dossier"
                         >
-                            <X size={20} strokeWidth={2.5} color="#ffffff" />
+                            ✕
                         </button>
 
                         {/* Top Official Header Banner */}

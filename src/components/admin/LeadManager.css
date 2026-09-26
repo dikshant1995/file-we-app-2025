@@ -634,58 +634,61 @@
 .lead-dossier-card {
     position: relative !important;
     width: 100%;
-    max-width: 540px;
-    max-height: 90vh;
+    max-width: 530px;
+    max-height: 94vh;
     overflow-y: auto;
     background: linear-gradient(180deg, #0d1527 0%, #080d1a 100%) !important;
     border: 1.5px solid rgba(245, 158, 11, 0.5) !important;
-    border-radius: 18px;
-    padding: 20px 22px;
+    border-radius: 16px;
+    padding: 14px 18px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.92), 0 0 30px rgba(245, 158, 11, 0.22) !important;
     box-sizing: border-box;
 }
 
-/* Floating High-Contrast Close [X] Button */
+/* Floating High-Contrast Cancel [X] Button - Bright Red with White X */
 .dossier-floating-close-btn {
     position: absolute !important;
-    top: 14px !important;
-    right: 14px !important;
-    width: 34px !important;
-    height: 34px !important;
+    top: 10px !important;
+    right: 12px !important;
+    width: 32px !important;
+    height: 32px !important;
     border-radius: 50% !important;
-    background: rgba(255, 255, 255, 0.14) !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
+    background: #ef4444 !important;
+    border: 2px solid #ffffff !important;
     color: #ffffff !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     cursor: pointer !important;
-    transition: all 0.22s ease !important;
-    z-index: 50 !important;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6) !important;
+    font-size: 17px !important;
+    font-weight: 900 !important;
+    font-family: Arial, sans-serif !important;
+    line-height: 1 !important;
+    transition: all 0.2s ease !important;
+    z-index: 100 !important;
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.6) !important;
+    padding: 0 !important;
 }
 
 .dossier-floating-close-btn:hover {
-    background: #ef4444 !important;
-    border-color: #ef4444 !important;
-    color: #ffffff !important;
-    transform: scale(1.12) rotate(90deg) !important;
-    box-shadow: 0 0 16px rgba(239, 68, 68, 0.7) !important;
+    background: #dc2626 !important;
+    transform: scale(1.14) !important;
+    box-shadow: 0 0 18px rgba(239, 68, 68, 0.9) !important;
 }
 
 .dossier-card-top-banner {
     text-align: center;
     border-bottom: 1px dashed rgba(245, 158, 11, 0.35);
-    padding-bottom: 10px;
+    padding-bottom: 7px;
     padding-right: 36px;
     padding-left: 36px;
 }
 
 .dossier-brand-title {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 800;
     color: #fbbf24;
     letter-spacing: 0.05em;
@@ -693,7 +696,7 @@
 }
 
 .dossier-brand-sub {
-    font-size: 0.68rem;
+    font-size: 0.65rem;
     color: #94a3b8;
     font-style: italic;
     margin-top: 2px;
@@ -761,9 +764,9 @@
 .dossier-actions-bar {
     display: grid;
     grid-template-columns: 1.4fr 1.15fr 1fr 0.8fr 0.75fr;
-    gap: 7px;
-    margin-top: 3px;
-    padding-top: 11px;
+    gap: 6px;
+    margin-top: 2px;
+    padding-top: 8px;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -771,10 +774,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    padding: 9px 8px;
-    border-radius: 9px;
-    font-size: 0.76rem;
+    gap: 5px;
+    padding: 7px 6px;
+    border-radius: 8px;
+    font-size: 0.72rem;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -853,36 +856,37 @@
 .dossier-applicant-header {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     background: rgba(255, 255, 255, 0.03);
-    padding: 8px 12px;
+    padding: 6px 10px;
     border-radius: 8px;
     border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .applicant-avatar {
-    width: 34px;
-    height: 34px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     background: linear-gradient(135deg, #00d4ff, #3b82f6);
     color: #020617;
     font-weight: 800;
-    font-size: 1rem;
+    font-size: 0.88rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
+    box-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
+    flex-shrink: 0;
 }
 
 .applicant-meta {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 1px;
 }
 
 .applicant-name {
-    font-size: 0.98rem;
+    font-size: 0.92rem;
     font-weight: 700;
     color: #ffffff;
     text-transform: capitalize;
@@ -890,9 +894,9 @@
 
 .applicant-contact {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     color: #94a3b8;
 }
 
@@ -909,16 +913,16 @@
 .dossier-metrics-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 7px;
+    gap: 5px;
 }
 
 .dossier-metric-item {
     display: flex;
     align-items: flex-start;
-    gap: 8px;
+    gap: 6px;
     background: rgba(255, 255, 255, 0.02);
-    padding: 7px 10px;
-    border-radius: 8px;
+    padding: 4px 8px;
+    border-radius: 6px;
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -928,7 +932,7 @@
 }
 
 .metric-icon {
-    font-size: 0.95rem;
+    font-size: 0.82rem;
     margin-top: 1px;
 }
 
@@ -940,7 +944,7 @@
 }
 
 .metric-label {
-    font-size: 0.65rem;
+    font-size: 0.58rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: rgba(255, 255, 255, 0.45);
@@ -948,7 +952,7 @@
 }
 
 .metric-val {
-    font-size: 0.82rem;
+    font-size: 0.76rem;
     color: #f8fafc;
     font-weight: 600;
     word-break: break-word;
@@ -961,14 +965,14 @@
 .cyan-bold {
     color: #00d4ff !important;
     font-weight: 800 !important;
-    font-size: 0.88rem !important;
+    font-size: 0.82rem !important;
 }
 
 .bt-pill {
     display: inline-block;
-    padding: 1px 7px;
+    padding: 1px 6px;
     border-radius: 4px;
-    font-size: 0.68rem;
+    font-size: 0.65rem;
     font-weight: 700;
     width: fit-content;
 }
@@ -987,23 +991,24 @@
 .dossier-banks-section {
     background: rgba(59, 130, 246, 0.05);
     border: 1px solid rgba(59, 130, 246, 0.2);
-    border-radius: 8px;
-    padding: 9px 12px;
+    border-radius: 7px;
+    padding: 6px 10px;
+    margin-top: 2px;
 }
 
 .dossier-banks-header {
-    font-size: 0.72rem;
+    font-size: 0.66rem;
     font-weight: 700;
     color: #60a5fa;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
 }
 
 .dossier-banks-chips {
     display: flex;
     flex-wrap: wrap;
-    gap: 5px;
+    gap: 4px;
 }
 
 .dossier-bank-chip {
