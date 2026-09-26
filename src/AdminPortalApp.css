@@ -1,0 +1,199 @@
+/* Admin Portal Dedicated Styling */
+.admin-portal-container {
+  min-height: 100vh;
+  background-color: #0b1120;
+  color: #f8fafc;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-portal-system-banner {
+  background: #0f172a;
+  border-bottom: 1px solid #1e293b;
+  padding: 8px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 0.8rem;
+  z-index: 100;
+}
+
+.system-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.system-badge {
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  color: #f1f5f9;
+}
+
+.system-domain-pill {
+  background: rgba(245, 130, 32, 0.15);
+  border: 1px solid rgba(245, 130, 32, 0.4);
+  color: #F58220;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.system-status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
+.pulse-dot {
+  width: 7px;
+  height: 7px;
+  background: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
+  animation: pulseGreen 2s infinite ease-in-out;
+}
+
+@keyframes pulseGreen {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.system-banner-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.banner-customer-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.75rem;
+  transition: color 0.2s ease;
+}
+
+.banner-customer-link:hover {
+  color: #38bdf8;
+}
+
+.system-logout-btn {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.system-logout-btn:hover {
+  background: rgba(239, 68, 68, 0.25);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.6);
+}
+
+/* Dedicated Login Wrapper */
+.admin-portal-login-wrapper {
+  min-height: 100vh;
+  background: radial-gradient(circle at 50% 20%, #1e293b 0%, #0b1120 70%);
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-portal-login-topbar {
+  padding: 20px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.admin-portal-brand {
+  font-size: 1.5rem;
+  font-weight: 900;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.brand-orange {
+  color: #F58220;
+}
+
+.brand-blue {
+  color: #3b82f6;
+}
+
+.brand-domain-badge {
+  font-style: normal;
+  font-size: 0.75rem;
+  font-weight: 800;
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #94a3b8;
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-left: 8px;
+}
+
+.admin-portal-consumer-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #94a3b8;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.2s ease;
+}
+
+.admin-portal-consumer-link:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Loader Screen */
+.admin-portal-loader-screen {
+  min-height: 100vh;
+  background: #0b1120;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: #94a3b8;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 0.95rem;
+}
+
+.admin-portal-spinner {
+  width: 42px;
+  height: 42px;
+  border: 3px solid rgba(245, 130, 32, 0.2);
+  border-top-color: #F58220;
+  border-radius: 50%;
+  animation: adminSpin 0.8s linear infinite;
+}
+
+@keyframes adminSpin {
+  to { transform: rotate(360deg); }
+}

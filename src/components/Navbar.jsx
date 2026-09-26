@@ -27,10 +27,7 @@ const Navbar = ({ onAdminClick }) => {
                     </Link>
                 </div>
                 <div className="nav-right">
-                    <button className="nav-admin-btn" onClick={onAdminClick}>
-                        <Lock size={14} />
-                        <span>ADMIN</span>
-                    </button>
+                    {/* Public customer navigation */}
                 </div>
             </div>
         </nav>

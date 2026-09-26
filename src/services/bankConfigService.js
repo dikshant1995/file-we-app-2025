@@ -1,6 +1,5 @@
-// Bank Configuration Service - Centralized storage and Cloud Firestore Sync
 import { db } from '../config/firebase.js';
-import { doc, getDoc, setDoc, collection, getDocs } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, getDocs, onSnapshot } from 'firebase/firestore';
 
 const STORAGE_KEY = 'bank_configurations';
 
@@ -303,8 +302,60 @@ export const fetchBankConfigFromCloud = async (bankName) => {
   return null;
 };
 
-// Automatic initial sync in browser environment
+/**
+ * Real-time listener for bank configurations from Firebase Firestore
+ */
+export const initBankConfigRealtimeListener = (onChangeCallback) => {
+  if (typeof window === 'undefined') return () => {};
+  try {
+    const colRef = collection(db, 'bank_configurations');
+    return onSnapshot(colRef, (snapshot) => {
+      if (!snapshot.empty) {
+        const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        let syncCount = 0;
+        snapshot.forEach(docSnap => {
+          const data = docSnap.data();
+          if (data && data.bankName && data.config) {
+            allConfigs[data.bankName] = {
+              ...defaultConfigs[data.bankName],
+              ...allConfigs[data.bankName],
+              ...data.config
+            };
+            syncCount++;
+
+            if (data.config.cityOverrides) {
+              const bankDocId = getBankDocId(data.bankName);
+              Object.entries(data.config.cityOverrides).forEach(([locationKey, locConfig]) => {
+                if (locConfig && locConfig.unifiedPolicy) {
+                  try {
+                    localStorage.setItem(`policy_config_${bankDocId}_${locationKey}`, JSON.stringify(locConfig.unifiedPolicy));
+                  } catch (snapErr) {
+                    console.warn('Snapshot cache warning:', snapErr);
+                  }
+                }
+              });
+            }
+          }
+        });
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(allConfigs));
+        console.log(`⚡ Real-time synced ${syncCount} bank policies from Cloud Firestore.`);
+        if (typeof onChangeCallback === 'function') {
+          onChangeCallback(allConfigs);
+        }
+      }
+    }, (err) => {
+      console.warn('⚠️ Real-time Firestore policy listener notice:', err.message);
+    });
+  } catch (err) {
+    console.warn('Could not initialize real-time Firestore policy listener:', err.message);
+    return () => {};
+  }
+};
+
+// Automatic initial sync & real-time subscription in browser environment
 if (typeof window !== 'undefined') {
   syncAllBankConfigsFromCloud();
+  initBankConfigRealtimeListener();
 }
 

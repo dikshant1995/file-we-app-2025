@@ -87,30 +87,7 @@ const MainMasterPortal = ({ onAdminClick }) => {
                 Laxmi credit
               </span>
             </div>
-            <div className="portal-nav-actions">
-              <button
-                className="nav-admin-btn"
-                onClick={onAdminClick}
-                style={{
-                  background: '#F58220',
-                  border: 'none',
-                  color: '#ffffff',
-                  padding: '9px 22px',
-                  borderRadius: '8px',
-                  fontSize: '0.82rem',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  fontFamily: "'Mulish', 'Plus Jakarta Sans', sans-serif",
-                  boxShadow: '0 4px 14px rgba(245, 130, 32, 0.35)'
-                }}
-              >
-                <Lock size={14} />
-                <span>ADMIN</span>
-              </button>
-            </div>
+            {/* Clean consumer header without admin triggers */}
           </div>
         </header>
 

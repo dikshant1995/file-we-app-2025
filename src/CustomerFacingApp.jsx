@@ -3,8 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import CustomerLoanForm from './components/CustomerLoanForm.jsx';
 import CustomerResultsDisplay from './components/CustomerResultsDisplay.jsx';
 import FuturisticLanding from './components/FuturisticLanding.jsx';
-import AdminDashboard from './components/AdminDashboard.jsx';
-import AdminLogin from './components/admin/AdminLogin.jsx';
 // import NeuralChatBot from './components/NeuralChatBot.jsx';
 import { calculateLoanEligibility } from './services/realLoanService.js';
 import { calculateBTWithCreditCards } from './services/btLoanService.js';
@@ -25,16 +23,7 @@ function CustomerFacingApp() {
   const [loading, setLoading] = useState(false);
   const [metadata, setMetadata] = useState(null);
   const [error, setError] = useState(null);
-  const [showAdminDashboard, setShowAdminDashboard] = useState(false);
-  const [showAdminLoginModal, setShowAdminLoginModal] = useState(false);
-  const [adminUser, setAdminUser] = useState(() => {
-    try {
-      const stored = localStorage.getItem('laxmi_admin_user');
-      return stored ? JSON.parse(stored) : null;
-    } catch {
-      return null;
-    }
-  });
+
   const [showForm, setShowForm] = useState(false);
   const [aiResult, setAiResult] = useState(null);
   const [aiInsight, setAiInsight] = useState(null);
@@ -198,36 +187,11 @@ function CustomerFacingApp() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleAdminClick = () => {
-    if (adminUser) {
-      window.history.pushState({ view: 'admin' }, '', window.location.pathname);
-      setShowAdminDashboard(true);
-    } else {
-      setShowAdminLoginModal(true);
-    }
-  };
-
-  const handleAdminLoginSuccess = (userProfile) => {
-    setAdminUser(userProfile);
-    try {
-      localStorage.setItem('laxmi_admin_user', JSON.stringify(userProfile));
-    } catch (e) {}
-    setShowAdminLoginModal(false);
-    window.history.pushState({ view: 'admin' }, '', window.location.pathname);
-    setShowAdminDashboard(true);
-  };
-
   const handleHomeClick = () => {
     setShowForm(false);
     setResults(null);
     setMetadata(null);
     setError(null);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleBackToCustomer = () => {
-    setShowAdminDashboard(false);
-    navigate('/');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -253,14 +217,10 @@ function CustomerFacingApp() {
     }
   }, [location.pathname]);
 
-  // Handle browser BACK button (from Admin Dashboard to Home, or from Results to Form)
+  // Handle browser BACK button (from Results to Form)
   React.useEffect(() => {
     const handlePopState = () => {
-      if (showAdminDashboard) {
-        setShowAdminDashboard(false);
-        navigate('/');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } else if (results) {
+      if (results) {
         setResults(null);
         setShowForm(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -268,19 +228,15 @@ function CustomerFacingApp() {
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [showAdminDashboard, results, navigate]);
-
-  if (showAdminDashboard) {
-    return <AdminDashboard initialUser={adminUser} onBackToCustomer={handleBackToCustomer} />;
-  }
+  }, [results, navigate]);
 
   return (
     <div className="customer-facing-app">
-      {!isMasterPortal && <Navbar onAdminClick={handleAdminClick} onHomeClick={handleHomeClick} />}
+      {!isMasterPortal && <Navbar onHomeClick={handleHomeClick} />}
       {/* <NeuralChatBot aiResult={aiResult} aiInsight={aiInsight} userData={lastFormDataRef.current} /> */}
 
       <Routes>
-        <Route path="/" element={<MainMasterPortal onAdminClick={handleAdminClick} />} />
+        <Route path="/" element={<MainMasterPortal />} />
         <Route path="/personal-loan" element={
           <>
       {/* PAGE 1: Application Form — direct page replacement without intermediate landing */}
@@ -327,13 +283,6 @@ function CustomerFacingApp() {
         <Route path="/blog/:slug" element={<BlogArticle />} />
       </Routes>
 
-      {/* Admin Login Modal (Website remains visible in background) */}
-      {showAdminLoginModal && (
-        <AdminLogin
-          onLoginSuccess={handleAdminLoginSuccess}
-          onBack={() => setShowAdminLoginModal(false)}
-        />
-      )}
     </div>
   );
 }
