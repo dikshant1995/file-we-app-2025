@@ -90,6 +90,8 @@ export const calculateIndusindEligibility = (userData) => {
     existingLoanBanks,
     // Admin Overrides (Logic Bridge)
     interestRateOverride,
+    multiplierOverride,
+    foirOverride,
     isGovtEmployee,
     govtROI,
     govtFOIR,
@@ -233,22 +235,32 @@ export const calculateIndusindEligibility = (userData) => {
   const multiplierSalaryBand = getSalaryBand(incomeForCalculation, multiplierLookupCategory, indusindConfig.multiplierTable);
   const foirSalaryBand = getSalaryBand(incomeForCalculation, foirLookupCategory, indusindConfig.foirTable);
 
-  if (!multiplierSalaryBand && !govtMultiplier) {
+  if (!multiplierSalaryBand && !govtMultiplier && !multiplierOverride) {
     return { eligible: false, reason: `Salary does not fall within any eligible multiplier band for category ${category}`, isBTMode: isBT };
   }
-  if (!foirSalaryBand && !govtFOIR) {
+  if (!foirSalaryBand && !govtFOIR && !foirOverride) {
     return { eligible: false, reason: `Salary does not fall within any eligible FOIR band for category ${category}`, isBTMode: isBT };
   }
 
-  // Logic Bridge: Support overrides
-  let multiplier = (isGovtEmployee && govtMultiplier) ? govtMultiplier : (indusindConfig.multiplierTable[multiplierLookupCategory]?.[multiplierSalaryBand]);
-  let foirPercentage = (isGovtEmployee && govtFOIR) ? (govtFOIR / 100) : (indusindConfig.foirTable[foirLookupCategory]?.[foirSalaryBand]);
-
+  // Multiplier determination: Override > Govt > Config table > Direct Excel salary slabs
+  let multiplier = multiplierOverride || ((isGovtEmployee && govtMultiplier) ? govtMultiplier : (indusindConfig.multiplierTable[multiplierLookupCategory]?.[multiplierSalaryBand]));
   if (!multiplier) {
-    return { eligible: false, reason: `No multiplier available for category ${category} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
+    if (String(category || '').toUpperCase().trim() === 'C') {
+      multiplier = 21;
+    } else {
+      if (incomeForCalculation >= 125000) multiplier = 30;
+      else if (incomeForCalculation >= 75000) multiplier = 25;
+      else multiplier = 20;
+    }
   }
+
+  let foirPercentage = foirOverride ? (foirOverride / 100) : ((isGovtEmployee && govtFOIR) ? (govtFOIR / 100) : (indusindConfig.foirTable[foirLookupCategory]?.[foirSalaryBand]));
   if (!foirPercentage) {
-    return { eligible: false, reason: `No FOIR percentage available for category ${category} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
+    if (String(category || '').toUpperCase().trim() === 'C') {
+      foirPercentage = incomeForCalculation >= 35000 ? 0.60 : 0.50;
+    } else {
+      foirPercentage = incomeForCalculation >= 50000 ? 0.70 : (incomeForCalculation >= 35000 ? 0.60 : 0.50);
+    }
   }
 
   // MULTIPLIER PATH

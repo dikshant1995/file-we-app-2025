@@ -482,17 +482,17 @@ const matchCategory = (cat1, cat2) => {
             const isIndusind = name === 'IndusInd Bank' || id === 'indusind';
 
             if (isIndusind) {
-              // IndusInd Multipliers from Excel:
-              // Cat A, B, Govt: >= 1.25L -> 30x, 75k to 1.25L -> 25x, < 75k -> 20x
+              // IndusInd Multipliers from Excel & Policy Config:
+              // Cat Super A, A, B, Govt: >= 1.25L -> 30x, 75k to 1.25L -> 25x, < 75k -> 20x
               // Cat C: Any salary -> 21x
               let indusMultiplier = 20;
               const catUpper = String(bankCategory || '').toUpperCase();
               if (catUpper === 'C' || catUpper === 'CAT C') {
-                indusMultiplier = 21;
+                indusMultiplier = matchedFoir.multiplierBelow75k ?? matchedFoir.multiplier ?? 21;
               } else {
-                if (income >= 125000) indusMultiplier = 30;
-                else if (income >= 75000) indusMultiplier = 25;
-                else indusMultiplier = 20;
+                if (income >= 125000) indusMultiplier = matchedFoir.multiplierAbove125k ?? matchedFoir.multiplier ?? 30;
+                else if (income >= 75000) indusMultiplier = matchedFoir.multiplier75kTo125k ?? matchedFoir.multiplier ?? 25;
+                else indusMultiplier = matchedFoir.multiplierBelow75k ?? 20;
               }
               bankInput.multiplierOverride = indusMultiplier;
 

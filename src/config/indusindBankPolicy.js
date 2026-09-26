@@ -22,11 +22,11 @@ export const INDUSIND_BANK_EXCEL_POLICY = {
     { category: 'Govt', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years (CIBIL -1 capped to 48M)' }
   ],
   foirMultiplier: [
-    { category: 'Super A', slab1Foir: 50, slab2Foir: 60, maxFoir: 70, multiplier: 30, ccObligation: 5 },
-    { category: 'A', slab1Foir: 50, slab2Foir: 60, maxFoir: 70, multiplier: 30, ccObligation: 5 },
-    { category: 'B', slab1Foir: 50, slab2Foir: 60, maxFoir: 70, multiplier: 25, ccObligation: 5 },
-    { category: 'C', slab1Foir: 50, slab2Foir: 60, maxFoir: 60, multiplier: 21, ccObligation: 5 },
-    { category: 'Govt', slab1Foir: 50, slab2Foir: 60, maxFoir: 70, multiplier: 30, ccObligation: 5 }
+    { category: 'Super A', slab1Foir: 50, slab2Foir: 60, maxFoir: 70, multiplierBelow75k: 20, multiplier75kTo125k: 25, multiplierAbove125k: 30, multiplier: 30, ccObligation: 5 },
+    { category: 'A', slab1Foir: 50, slab2Foir: 60, maxFoir: 70, multiplierBelow75k: 20, multiplier75kTo125k: 25, multiplierAbove125k: 30, multiplier: 30, ccObligation: 5 },
+    { category: 'B', slab1Foir: 50, slab2Foir: 60, maxFoir: 70, multiplierBelow75k: 20, multiplier75kTo125k: 25, multiplierAbove125k: 30, multiplier: 25, ccObligation: 5 },
+    { category: 'C', slab1Foir: 50, slab2Foir: 60, maxFoir: 60, multiplierBelow75k: 21, multiplier75kTo125k: 21, multiplierAbove125k: 21, multiplier: 21, ccObligation: 5 },
+    { category: 'Govt', slab1Foir: 50, slab2Foir: 60, maxFoir: 70, multiplierBelow75k: 20, multiplier75kTo125k: 25, multiplierAbove125k: 30, multiplier: 30, ccObligation: 5 }
   ],
   demographics: {
     minAge: 21,
