@@ -99,22 +99,51 @@ export const saveBankConfig = (bankName, sectionName, config, location = null) =
       allConfigs[bankName] = { ...defaultConfigs[bankName], cityOverrides: {} };
     }
 
-    if (location) {
-      // Ensure cityOverrides exists
-      if (!allConfigs[bankName].cityOverrides) {
-        allConfigs[bankName].cityOverrides = {};
+    const isGlobal = !location || 
+      location === 'All India-All Cities' || 
+      location === 'All India' || 
+      location === 'All Cities' ||
+      String(location).includes('All India') ||
+      String(location).includes('All Cities');
+
+    if (isGlobal) {
+      // 1. Save directly to global root for the bank (available to all cities)
+      allConfigs[bankName][sectionName] = config;
+
+      // 2. Also keep 'All India-All Cities' override synced for backward compatibility
+      if (!allConfigs[bankName].cityOverrides) allConfigs[bankName].cityOverrides = {};
+      if (!allConfigs[bankName].cityOverrides['All India-All Cities']) {
+        allConfigs[bankName].cityOverrides['All India-All Cities'] = {};
       }
-      // Ensure specific location entry exists
+      allConfigs[bankName].cityOverrides['All India-All Cities'][sectionName] = config;
+
+      // 3. If unifiedPolicy, also update sub-objects for older legacy readers
+      if (sectionName === 'unifiedPolicy' && config) {
+        if (config.demographics) allConfigs[bankName].demographics = config.demographics;
+        if (config.demographics) allConfigs[bankName].ageRules = {
+          minAge: config.demographics.minAge,
+          maxAge: config.demographics.maxAge,
+          retirementAge: { salaried: config.demographics.retirementSalaried || 60, selfEmployed: 65 }
+        };
+        if (config.interestRates) allConfigs[bankName].interestRates = config.interestRates;
+        if (config.loanCapping) allConfigs[bankName].loanCapping = config.loanCapping;
+        if (config.tenureRules) allConfigs[bankName].tenureRules = config.tenureRules;
+        if (config.foirMultiplier) allConfigs[bankName].foirMultiplier = config.foirMultiplier;
+      }
+      console.log(`🌐 Saved Global ${sectionName} for ${bankName}:`, config);
+    } else {
+      // Save to specific location entry
+      if (!allConfigs[bankName].cityOverrides) allConfigs[bankName].cityOverrides = {};
       if (!allConfigs[bankName].cityOverrides[location]) {
         allConfigs[bankName].cityOverrides[location] = {};
       }
-      // Save to location-specific section
       allConfigs[bankName].cityOverrides[location][sectionName] = config;
+
+      // Also ensure bank's global has unifiedPolicy as fallback if not already set
+      if (!allConfigs[bankName][sectionName]) {
+        allConfigs[bankName][sectionName] = config;
+      }
       console.log(`📍 Saved ${sectionName} override for ${bankName} in ${location}:`, config);
-    } else {
-      // Save to global section
-      allConfigs[bankName][sectionName] = config;
-      console.log(`🌐 Saved Global ${sectionName} for ${bankName}:`, config);
     }
 
     // 1. Save locally for instant offline/zero-latency UI
@@ -154,12 +183,17 @@ export const getBankConfig = (bankName, sectionName, location = null) => {
       return allConfigs[bankName].cityOverrides[location][sectionName];
     }
 
-    // 2. Fallback to Global Saved Config
+    // 2. Try 'All India-All Cities'
+    if (allConfigs[bankName]?.cityOverrides?.['All India-All Cities']?.[sectionName]) {
+      return allConfigs[bankName].cityOverrides['All India-All Cities'][sectionName];
+    }
+
+    // 3. Fallback to Global Saved Config
     if (allConfigs[bankName]?.[sectionName]) {
       return allConfigs[bankName][sectionName];
     }
 
-    // 3. Fallback to Default Template
+    // 4. Fallback to Default Template
     if (defaultConfigs[bankName]?.[sectionName]) {
       return defaultConfigs[bankName][sectionName];
     }
@@ -175,7 +209,20 @@ export const getBankConfig = (bankName, sectionName, location = null) => {
 export const getAllBankConfig = (bankName, location = null) => {
   try {
     const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    const baseConfig = allConfigs[bankName] || defaultConfigs[bankName] || {};
+    const baseConfig = { ...(defaultConfigs[bankName] || {}), ...(allConfigs[bankName] || {}) };
+
+    // Resolve unifiedPolicy fallback if missing from baseConfig root
+    if (!baseConfig.unifiedPolicy) {
+      if (allConfigs[bankName]?.cityOverrides?.['All India-All Cities']?.unifiedPolicy) {
+        baseConfig.unifiedPolicy = allConfigs[bankName].cityOverrides['All India-All Cities'].unifiedPolicy;
+      } else if (allConfigs[bankName]?.cityOverrides) {
+        // Fallback to any configured city's unifiedPolicy if global hasn't been set
+        const firstKey = Object.keys(allConfigs[bankName].cityOverrides).find(k => allConfigs[bankName].cityOverrides[k]?.unifiedPolicy);
+        if (firstKey) {
+          baseConfig.unifiedPolicy = allConfigs[bankName].cityOverrides[firstKey].unifiedPolicy;
+        }
+      }
+    }
 
     if (location && allConfigs[bankName]?.cityOverrides?.[location]) {
       // Merge location specific overrides onto base config
@@ -321,6 +368,12 @@ export const initBankConfigRealtimeListener = (onChangeCallback) => {
               ...allConfigs[data.bankName],
               ...data.config
             };
+
+            // Ensure unifiedPolicy is on root if stored under All India-All Cities
+            if (!allConfigs[data.bankName].unifiedPolicy && data.config.cityOverrides?.['All India-All Cities']?.unifiedPolicy) {
+              allConfigs[data.bankName].unifiedPolicy = data.config.cityOverrides['All India-All Cities'].unifiedPolicy;
+            }
+
             syncCount++;
 
             if (data.config.cityOverrides) {

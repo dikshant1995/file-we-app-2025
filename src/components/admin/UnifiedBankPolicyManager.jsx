@@ -318,6 +318,7 @@ const UnifiedBankPolicyManager = () => {
     const locationKey = `${selectedState}-${selectedCity}`;
     try {
       localStorage.setItem(`policy_config_${activeConfigBank.id}_${locationKey}`, JSON.stringify(policyData));
+      localStorage.setItem(`policy_config_${activeConfigBank.id}`, JSON.stringify(policyData));
       
       // Also update bankConfigService (which automatically writes to Firebase Firestore)
       saveBankConfig(activeConfigBank.name, 'unifiedPolicy', policyData, locationKey);

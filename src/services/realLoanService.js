@@ -120,6 +120,66 @@ export const calculateLoanEligibility = async (userData) => {
   console.log('🏛️  Calling 12 banks with Logic Bridge active...');
   console.log('='.repeat(60));
 
+// Financial helper calculations for dynamic policy enforcement
+const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
+  if (!principal || principal <= 0) return 0;
+  const monthlyRate = (annualInterestRate || 11.0) / 12 / 100;
+  const numberOfMonths = (tenureInYears || 5) * 12;
+  const emi = (principal * monthlyRate * Math.pow(1 + monthlyRate, numberOfMonths)) / 
+              (Math.pow(1 + monthlyRate, numberOfMonths) - 1);
+  return Math.round(emi);
+};
+
+const calculateLoanAmountFromEMI = (emi, annualInterestRate, tenureInYears) => {
+  if (!emi || emi <= 0) return 0;
+  const monthlyRate = (annualInterestRate || 11.0) / 12 / 100;
+  const numberOfMonths = (tenureInYears || 5) * 12;
+  const loanAmount = (emi * (Math.pow(1 + monthlyRate, numberOfMonths) - 1)) / 
+                     (monthlyRate * Math.pow(1 + monthlyRate, numberOfMonths));
+  return Math.round(loanAmount);
+};
+
+// Universal category matcher across bank configs and policy matrix
+const matchCategory = (cat1, cat2) => {
+  if (!cat1 || !cat2) return false;
+  const s1 = String(cat1).toUpperCase().replace(/[^A-Z0-9+]/g, '');
+  const s2 = String(cat2).toUpperCase().replace(/[^A-Z0-9+]/g, '');
+
+  if (s1 === s2) return true;
+
+  // Super A / A+
+  const isSuperA1 = s1 === 'SUPERA' || s1 === 'A+' || s1 === 'SCATA' || s1 === 'PLUS' || s1 === 'APLUS';
+  const isSuperA2 = s2 === 'SUPERA' || s2 === 'A+' || s2 === 'SCATA' || s2 === 'PLUS' || s2 === 'APLUS';
+  if (isSuperA1 && isSuperA2) return true;
+
+  // Category A
+  const isCatA1 = s1 === 'A' || s1 === 'CATA' || s1 === 'CATGA' || s1 === 'CATEGORYA';
+  const isCatA2 = s2 === 'A' || s2 === 'CATA' || s2 === 'CATGA' || s2 === 'CATEGORYA';
+  if (isCatA1 && isCatA2) return true;
+
+  // Category B
+  const isCatB1 = s1 === 'B' || s1 === 'CATB' || s1 === 'CATGB' || s1 === 'CATEGORYB';
+  const isCatB2 = s2 === 'B' || s2 === 'CATB' || s2 === 'CATGB' || s2 === 'CATEGORYB';
+  if (isCatB1 && isCatB2) return true;
+
+  // Category C
+  const isCatC1 = s1 === 'C' || s1 === 'CATC' || s1 === 'CATGC' || s1 === 'CATEGORYC';
+  const isCatC2 = s2 === 'C' || s2 === 'CATC' || s2 === 'CATGC' || s2 === 'CATEGORYC';
+  if (isCatC1 && isCatC2) return true;
+
+  // Category D
+  const isCatD1 = s1 === 'D' || s1 === 'CATD' || s1 === 'CATGD' || s1 === 'CATEGORYD';
+  const isCatD2 = s2 === 'D' || s2 === 'CATD' || s2 === 'CATGD' || s2 === 'CATEGORYD';
+  if (isCatD1 && isCatD2) return true;
+
+  // Govt
+  const isGovt1 = s1 === 'GOVT' || s1 === 'PSU' || s1 === 'GOVERNMENT';
+  const isGovt2 = s2 === 'GOVT' || s2 === 'PSU' || s2 === 'GOVERNMENT';
+  if (isGovt1 && isGovt2) return true;
+
+  return false;
+};
+
   const results = bankCalculators.map(({ id, name, calculator, config, hasDatabase }, index) => {
     const bankStartTime = performance.now();
     console.log(`🏦 [${index + 1}/12] Calculating: ${name}...`);
@@ -130,8 +190,9 @@ export const calculateLoanEligibility = async (userData) => {
         ? `${calculatorInput.city}, ${calculatorInput.state}` 
         : (calculatorInput.city || calculatorInput.state);
       const adminAllConfig = getAllBankConfig(name, location);
+      const uPolicy = adminAllConfig.unifiedPolicy;
 
-      // 1. STRING 8: SALARY MODE GATE
+      // 1. SALARY MODE GATE
       if (calculatorInput.salaryMode === 'cash' && adminAllConfig.employmentRules?.allowCashSalary === false) {
         return { bankName: name, eligible: false, reason: 'Cash salaries not accepted by this institution.', category: 'REJECTED' };
       }
@@ -139,23 +200,32 @@ export const calculateLoanEligibility = async (userData) => {
         return { bankName: name, eligible: false, reason: 'Cheque salaries not accepted by this institution.', category: 'REJECTED' };
       }
 
-      // 2. STRING 2 & 3: BASIC ELIGIBILITY GATES
-      if (calculatorInput.age && adminAllConfig.ageRules) {
-        if (calculatorInput.age < adminAllConfig.ageRules.minAge) {
-          return { bankName: name, eligible: false, reason: `Age below criteria (Min: ${adminAllConfig.ageRules.minAge})`, category: 'REJECTED' };
+      // 2. DEMOGRAPHIC & AGE RULES GATE (Tab 5 in Admin Console)
+      const demoRules = uPolicy?.demographics || adminAllConfig.demographics || adminAllConfig.ageRules;
+      if (demoRules) {
+        if (calculatorInput.age) {
+          const minAge = demoRules.minAge || 21;
+          const maxAge = demoRules.maxAge || 60;
+          if (calculatorInput.age < minAge) {
+            return { bankName: name, eligible: false, reason: `Age below criteria (Min: ${minAge} years)`, category: 'REJECTED' };
+          }
+          if (calculatorInput.age > maxAge) {
+            return { bankName: name, eligible: false, reason: `Age above criteria (Max: ${maxAge} years)`, category: 'REJECTED' };
+          }
         }
-        if (calculatorInput.age > adminAllConfig.ageRules.maxAge) {
-          return { bankName: name, eligible: false, reason: `Age above criteria (Max: ${adminAllConfig.ageRules.maxAge})`, category: 'REJECTED' };
-        }
-      }
 
-      if (calculatorInput.monthlyIncome < (adminAllConfig.employmentRules?.salariedMinSalary || 25000)) {
-        return { bankName: name, eligible: false, reason: `Income below bank threshold (Min: ₹${adminAllConfig.employmentRules?.salariedMinSalary || 25000})`, category: 'REJECTED' };
+        const minSalaryReq = demoRules.minSalary || adminAllConfig.employmentRules?.salariedMinSalary || 25000;
+        if (calculatorInput.monthlyIncome < minSalaryReq) {
+          return { bankName: name, eligible: false, reason: `Income below policy threshold (Min: ₹${minSalaryReq.toLocaleString()})`, category: 'REJECTED' };
+        }
+
+        if (demoRules.minCibilScore && calculatorInput.creditScore < demoRules.minCibilScore) {
+          return { bankName: name, eligible: false, reason: `Credit score below minimum requirement (Min: ${demoRules.minCibilScore})`, category: 'REJECTED' };
+        }
       }
 
       // 2.5 BT CREDIT CARD MULTIPLIER GATE
       if (calculatorInput.isBTMode && adminAllConfig.btConfiguration?.maxCreditCardBTMultiplier) {
-        // Find total credit card POS in the BT list
         const btCreditCardPOS = calculatorInput.loansForBT
             .filter(loan => loan.type === 'Credit Card')
             .reduce((sum, loan) => sum + (parseFloat(loan.creditLimitUsed) || parseFloat(loan.outstandingAmount) || 0), 0);
@@ -175,14 +245,13 @@ export const calculateLoanEligibility = async (userData) => {
       let bankCategory;
       let govtPolicy = null;
 
-      // 3. STRING 7: GOVT DIRECT INJECTION
+      // 3. GOVT OR PRIVATE SECTOR PATH
       if (calculatorInput.employmentType === 'government') {
         bankCategory = 'Govt';
         govtPolicy = getBankConfig(name, 'govtPolicy', location);
         console.log(`   🏛️ ${name}: Govt Direct Injection Active`, govtPolicy);
       } else if (hasDatabase) {
-        // PRIVATE SECTOR PATH
-        const bankDbKey = id === 'shriram' ? 'shriram' : id; // Match Database keys
+        const bankDbKey = id === 'shriram' ? 'shriram' : id;
 
         if (calculatorInput.companyName) {
           bankCategory = getCompanyCategoryForBank(calculatorInput.companyName, bankDbKey);
@@ -203,7 +272,6 @@ export const calculateLoanEligibility = async (userData) => {
 
       // Apply Govt Overrides if available
       if (govtPolicy) {
-        // Note: These flags tell the individual bank calculators to use Govt rules
         bankInput.isGovtEmployee = true;
         bankInput.govtROI = govtPolicy.roi;
         bankInput.govtFOIR = govtPolicy.foir;
@@ -211,14 +279,11 @@ export const calculateLoanEligibility = async (userData) => {
         bankInput.govtMaxTenure = govtPolicy.maxTenureMonths;
       }
 
-      // Apply Dynamic Unified Bank Policy Overrides (Supports Custom Excel Categories e.g. Platinum, Gold, etc.)
-      if (adminAllConfig.unifiedPolicy && !govtPolicy) {
-        const uPolicy = adminAllConfig.unifiedPolicy;
-        const normBankCat = String(bankCategory || '').toUpperCase().trim();
-
+      // 🎯 BIND DYNAMIC UNIFIED BANK POLICY (Rates, Caps, FOIR, Multipliers, Tenure)
+      if (uPolicy && !govtPolicy) {
         // 1. Dynamic Interest Rate match
         if (Array.isArray(uPolicy.interestRates)) {
-          const matchedRate = uPolicy.interestRates.find(r => String(r.category || '').toUpperCase().trim() === normBankCat);
+          const matchedRate = uPolicy.interestRates.find(r => matchCategory(r.category, bankCategory));
           if (matchedRate && (matchedRate.defaultRoi || matchedRate.minRoi)) {
             bankInput.interestRateOverride = Number(matchedRate.defaultRoi || matchedRate.minRoi);
           }
@@ -226,7 +291,7 @@ export const calculateLoanEligibility = async (userData) => {
 
         // 2. Dynamic Loan Capping match
         if (Array.isArray(uPolicy.loanCapping)) {
-          const matchedCap = uPolicy.loanCapping.find(c => String(c.tier || c.category || '').toUpperCase().trim() === normBankCat);
+          const matchedCap = uPolicy.loanCapping.find(c => matchCategory(c.tier || c.category, bankCategory));
           if (matchedCap) {
             if (matchedCap.maxLoan) bankInput.maxLoanOverride = Number(matchedCap.maxLoan);
             if (matchedCap.bachelorCap && calculatorInput.maritalStatus === 'single' && calculatorInput.livingStatus === 'rented') {
@@ -235,29 +300,29 @@ export const calculateLoanEligibility = async (userData) => {
           }
         }
 
-        // 3. Dynamic FOIR & Multiplier match
+        // 3. Dynamic FOIR & Multiplier match (Tab 4 in Admin)
         if (Array.isArray(uPolicy.foirMultiplier)) {
-          const matchedFoir = uPolicy.foirMultiplier.find(m => String(m.category || '').toUpperCase().trim() === normBankCat);
+          const matchedFoir = uPolicy.foirMultiplier.find(m => matchCategory(m.category, bankCategory));
           if (matchedFoir) {
             if (matchedFoir.multiplier) bankInput.multiplierOverride = Number(matchedFoir.multiplier);
             if (matchedFoir.maxFoir) bankInput.foirOverride = Number(matchedFoir.maxFoir);
+            if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
           }
         }
 
-        // 4. Dynamic Tenure match
+        // 4. Dynamic Tenure match (Tab 3 in Admin)
         if (Array.isArray(uPolicy.tenureRules)) {
-          const matchedTenure = uPolicy.tenureRules.find(t => String(t.category || '').toUpperCase().trim() === normBankCat);
+          const matchedTenure = uPolicy.tenureRules.find(t => matchCategory(t.category, bankCategory));
           if (matchedTenure && matchedTenure.maxMonths) {
             bankInput.maxTenureOverride = Number(matchedTenure.maxMonths);
           }
         }
       } else if (adminAllConfig.interestRates && !govtPolicy) {
-        // Fallback to legacy global interest rate overrides
         const catRate = adminAllConfig.interestRates.categoryRates?.[bankCategory] || adminAllConfig.interestRates.defaultRate;
         if (catRate) bankInput.interestRateOverride = catRate;
       }
 
-      // 🌉 INJECT INCENTIVE OVERRIDES (Master Stroke Logic)
+      // 🌉 INJECT INCENTIVE OVERRIDES
       if (adminAllConfig.incentivePolicy) {
         if (adminAllConfig.incentivePolicy.percentage !== undefined) {
           bankInput.incentivePercentageOverride = adminAllConfig.incentivePolicy.percentage / 100;
@@ -268,19 +333,107 @@ export const calculateLoanEligibility = async (userData) => {
       }
 
       // 👨 INJECT DYNAMIC BACHELOR CAPPING OVERRIDES
-      // CRITICAL LOGIC: Capping ONLY applies to Rented/Living Alone Bachelors
       if (adminAllConfig.bachelorCapping?.enabled && adminAllConfig.bachelorCapping?.limits) {
         if (calculatorInput.maritalStatus === 'single' && calculatorInput.livingStatus === 'rented') {
           const rentedLimit = adminAllConfig.bachelorCapping.limits['rented_bachelor'];
           if (rentedLimit !== null && rentedLimit !== undefined && rentedLimit !== '') {
              bankInput.dynamicBachelorLimitOverride = rentedLimit;
              bankInput.dynamicBachelorCapReason = 'Rented / Living Alone Bachelor Limit Applied';
-             console.log(`   👨 ${name}: Applying Rented Bachelor Limit: ₹${rentedLimit}`);
           }
         }
       }
 
+      // Execute base calculator
       const result = calculator(bankInput);
+
+      // 🚀 ENFORCE AND RECALCULATE DYNAMIC ADMIN POLICY PARAMETERS (FOIR, Multiplier, Rate, Tenures)
+      if (result && result.eligible) {
+        const effectiveFOIR = bankInput.foirOverride 
+          ? (Number(bankInput.foirOverride) / 100) 
+          : (typeof result.foirPercentage === 'number' ? result.foirPercentage : 0.60);
+
+        const effectiveMultiplier = bankInput.multiplierOverride 
+          ? Number(bankInput.multiplierOverride) 
+          : (result.multiplier || 20);
+
+        const effectiveRate = bankInput.interestRateOverride 
+          ? Number(bankInput.interestRateOverride) 
+          : (result.interestRate || 11.0);
+
+        // Tenure calculations
+        let tenureMonths = calculatorInput.loanTenure ? (calculatorInput.loanTenure * 12) : 60;
+        if (bankInput.maxTenureOverride) {
+          tenureMonths = Math.min(tenureMonths, Number(bankInput.maxTenureOverride));
+        } else if (result.loanTenureMonths) {
+          tenureMonths = Math.min(tenureMonths, result.loanTenureMonths);
+        }
+        const tenureYears = tenureMonths / 12;
+
+        const totalObligations = (calculatorInput.existingEMI || 0) + (calculatorInput.creditCardObligation || 0);
+        const monthlyIncome = calculatorInput.monthlyIncome || calculatorInput.basicSalary || 0;
+
+        // FOIR calculations
+        const foirCap = calculatorInput.isBTMode 
+          ? (calculatorInput.adjustedIncome || monthlyIncome) * effectiveFOIR 
+          : (monthlyIncome * effectiveFOIR);
+        
+        const availableEMI = calculatorInput.isBTMode 
+          ? foirCap 
+          : (foirCap - totalObligations);
+
+        if (availableEMI <= 0 && !calculatorInput.isBTMode) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Existing EMI (₹${totalObligations.toLocaleString()}) exceeds ${(effectiveFOIR * 100).toFixed(0)}% FOIR limit of ₹${Math.round(foirCap).toLocaleString()}`,
+            category: bankCategory
+          };
+        }
+
+        // Loan amount from FOIR
+        const foirLoanAmount = calculateLoanAmountFromEMI(availableEMI, effectiveRate, tenureYears);
+
+        // Loan amount from Multiplier
+        const availableSalary = calculatorInput.isBTMode ? monthlyIncome : (monthlyIncome - totalObligations);
+        const multiplierLoanAmount = availableSalary * effectiveMultiplier;
+
+        // Take minimum of Multiplier, FOIR, and requested amount
+        let calculatedLoan = Math.min(
+          calculatorInput.desiredLoanAmount || Infinity,
+          multiplierLoanAmount,
+          foirLoanAmount
+        );
+
+        // Apply maximum loan cap from policy
+        const maxLoanCap = bankInput.maxLoanOverride || result.maxLoanCap || 5000000;
+        calculatedLoan = Math.min(calculatedLoan, maxLoanCap);
+
+        // Apply bachelor cap if present
+        if (bankInput.dynamicBachelorLimitOverride) {
+          calculatedLoan = Math.min(calculatedLoan, bankInput.dynamicBachelorLimitOverride);
+        }
+
+        const finalLoanAmount = Math.max(0, Math.round(calculatedLoan));
+        const finalMonthlyEMI = calculateEMI(finalLoanAmount, effectiveRate, tenureYears);
+
+        // Update result object with exact policy values
+        result.loanAmount = finalLoanAmount;
+        result.monthlyEMI = finalMonthlyEMI;
+        result.interestRate = effectiveRate;
+        result.loanTenure = tenureYears;
+        result.loanTenureMonths = tenureMonths;
+        result.multiplier = effectiveMultiplier;
+        result.foirPercentage = effectiveFOIR;
+
+        if (!result.details) result.details = {};
+        result.details.foirPercentage = (effectiveFOIR * 100).toFixed(0) + '%';
+        result.details.multiplier = effectiveMultiplier + 'x';
+        result.details.foirCap = Math.round(foirCap);
+        result.details.availableEMI = Math.round(availableEMI);
+        result.details.foirLoanAmount = Math.round(foirLoanAmount);
+        result.details.multiplierLoanAmount = Math.round(multiplierLoanAmount);
+      }
+
       const bankEndTime = performance.now();
       const bankTime = (bankEndTime - bankStartTime).toFixed(2);
 
@@ -290,8 +443,7 @@ export const calculateLoanEligibility = async (userData) => {
         ...result,
         category: bankCategory,
         salaryMode: calculatorInput.salaryMode,
-        adminApplied: true, // Marker for Logic Bridge
-        // Pass through Admin config for UI display
+        adminApplied: true,
         btConfig: adminAllConfig.btConfig || config.btConfig,
         processingFee: adminAllConfig.feesAndCharges?.processingFeePercentage,
       };
