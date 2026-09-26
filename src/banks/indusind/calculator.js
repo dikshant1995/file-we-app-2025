@@ -125,6 +125,9 @@ export const calculateIndusindEligibility = (userData) => {
   let nonBTLoansEMI = 0;
 
   if (isBT) {
+    if (loansForBT && loansForBT.some(l => l.type === 'Credit Card' || l.type === 'credit_card')) {
+      return { eligible: false, reason: 'IndusInd Bank policy does not allow Credit Card Balance Transfer (CC BT Not Allowed)', isBTMode: true };
+    }
     nonBTLoansEMI = existingEMI - btTotalEMI;
     // NEW: Also deduct credit card obligations from adjusted income
     const creditCardDeduction = creditCardObligation || 0;
@@ -173,6 +176,12 @@ export const calculateIndusindEligibility = (userData) => {
   // Logic Bridge: Support govtMaxTenure override
   let lookupCategory = category === 'Govt' ? 'A' : category;
   let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : indusindConfig.maxTenureByCategory[lookupCategory];
+
+  // Excel Policy: If CIBIL = -1, max tenure is capped to 48 months
+  const isCibilMinusOne = creditScore === -1 || creditScore === '-1' || userData.cibilScore === -1 || userData.cibilScore === '-1';
+  if (isCibilMinusOne && maxTenureForCategory) {
+    maxTenureForCategory = Math.min(maxTenureForCategory, 48);
+  }
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
@@ -260,7 +269,10 @@ export const calculateIndusindEligibility = (userData) => {
     desiredLoanAmount || Infinity
   );
 
-  const preliminaryCappedLoan = Math.min(preliminaryLoanAmount, indusindConfig.maxLoanAmount);
+  // Category loan capping from Excel: Cat C: 15L, Cat A/B/Govt: 75L
+  const catUpper = String(category || '').toUpperCase();
+  const categoryMaxLoan = (catUpper === 'C' || catUpper === 'D') ? 1500000 : (indusindConfig.maxLoanAmount || 7500000);
+  const preliminaryCappedLoan = Math.min(preliminaryLoanAmount, categoryMaxLoan);
 
   // ROI Calculation using Logic Bridge and Slabs
   let effectiveInterestRate = interestRateOverride;
@@ -281,8 +293,8 @@ export const calculateIndusindEligibility = (userData) => {
     desiredLoanAmount || Infinity
   );
 
-  const maxLoanCapAmount = Math.min(finalLoanAmount, indusindConfig.maxLoanAmount);
-  const loanCapped = finalLoanAmount > indusindConfig.maxLoanAmount;
+  const maxLoanCapAmount = Math.min(finalLoanAmount, categoryMaxLoan);
+  const loanCapped = finalLoanAmount > categoryMaxLoan;
 
   // Apply Dynamic Bachelor Capping
   let appliedBachelorCap = false;
@@ -290,14 +302,14 @@ export const calculateIndusindEligibility = (userData) => {
   let bachelorCapReasonStr = null;
   let cappedFinalLoan = maxLoanCapAmount;
 
-  if (userData.dynamicBachelorLimitOverride !== undefined) {
+  if (userData.dynamicBachelorLimitOverride !== undefined && userData.dynamicBachelorLimitOverride !== null) {
     bachelorLimitAmount = userData.dynamicBachelorLimitOverride;
     if (cappedFinalLoan > bachelorLimitAmount) {
       cappedFinalLoan = bachelorLimitAmount;
       appliedBachelorCap = true;
       bachelorCapReasonStr = userData.dynamicBachelorCapReason || 'Dynamic Bachelor Capping limit applied';
     }
-  } else if (indusindConfig.bachelorMaxLoanAmount !== undefined && userData.maritalStatus === 'single' && userData.livingStatus === 'rented') {
+  } else if (indusindConfig.bachelorMaxLoanAmount && userData.maritalStatus === 'single' && userData.livingStatus === 'rented') {
     bachelorLimitAmount = indusindConfig.bachelorMaxLoanAmount;
     if (cappedFinalLoan > bachelorLimitAmount) {
       cappedFinalLoan = bachelorLimitAmount;

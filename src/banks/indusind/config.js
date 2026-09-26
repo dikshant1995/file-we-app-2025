@@ -1,156 +1,156 @@
-// IndusInd Bank Configuration
-// Multiplier-Only System (No FOIR)
-// Uses category-based multipliers with salary bands
+// IndusInd Bank Configuration - Exact Master Policy from Excel
 export const indusindConfig = {
   id: 'indusind',
   name: 'IndusInd Bank',
-  minAge: 22, // Minimum age requirement
-  maxAge: 60, // Maximum age at loan maturity
-  minCreditScore: 650,
-  maxLoanTenure: 20,
-  maxLoanAmount: 5000000, // ₹50 Lakhs (Mid-Cap Lender)
-  bachelorMaxLoanAmount: 2000000, // ₹20 Lakhs maximum for unmarried individuals
-  interestRate: 11.0, // Fixed at 11% for all banks as per policy
+  minAge: 21, // Minimum age requirement: 21 Years from Excel
+  maxAge: 60, // Maximum age at loan maturity: 60 Years from Excel
+  minCreditScore: 0, // Bypassed (Not in Excel policy)
+  maxLoanTenure: 7, // 84 months (7 years)
+  maxLoanAmount: 7500000, // ₹75 Lakhs from Excel (Cat A, B, Govt: 75L; Cat C: 15L)
+  bachelorMaxLoanAmount: null, // Bypassed (No bachelor limit in Excel policy)
+  interestRate: 9.99, // Base rate for >= 10L
   processingFee: 0.01,
 
   // Incentive policy
-  incentivePercentage: 1.0, // 100% of average incentive
-  incentivePeriodMonths: 3, // Last 3 months
-  // FOIR table based on salary
+  incentivePercentage: 1.0,
+  incentivePeriodMonths: 3,
+
+  // FOIR table based on salary and category from Excel
   foirTable: {
+    'Super A': {
+      '20000-35000': 0.50,
+      '35001-50000': 0.60,
+      '50001+': 0.70
+    },
     'A+': {
       '20000-35000': 0.50,
       '35001-50000': 0.60,
-      '50001-80000': 0.70,
-      '>80000': 0.75
+      '50001+': 0.70
     },
     'A': {
       '20000-35000': 0.50,
       '35001-50000': 0.60,
-      '50001-80000': 0.70,
-      '>80000': 0.75
+      '50001+': 0.70
     },
     'GOVT': {
       '20000-35000': 0.50,
       '35001-50000': 0.60,
-      '50001-80000': 0.70,
-      '>80000': 0.75
+      '50001+': 0.70
     },
     'B': {
       '20000-35000': 0.50,
       '35001-50000': 0.60,
-      '50001-80000': 0.70,
-      '>80000': 0.70
+      '50001+': 0.70
     },
     'C': {
       '20000-35000': 0.50,
-      '35001-50000': 0.50,
-      '50001-80000': 0.70,
-      '>80000': 0.70
+      '35001+': 0.60
     },
     'D': {
       '20000-35000': 0.50,
-      '35001-50000': 0.50,
-      '50001-80000': 0.70,
-      '>80000': 0.70
+      '35001+': 0.60
     },
     'UNLISTED': {
       '20000-35000': 0.50,
-      '35001-50000': 0.50,
-      '50001-80000': 0.70,
-      '>80000': 0.70
+      '35001+': 0.60
     }
   },
 
-  // Multiplier table based on salary bands and categories
-  // Formula: Loan Amount = Monthly Salary × Multiplier
+  // Multiplier table based on salary bands and categories from Excel
   multiplierTable: {
-    // Categories A+, A, B, and GOVT (combined treatment)
+    'Super A': {
+      '<75000': 20,
+      '75000-125000': 25,
+      '125001+': 30
+    },
     'A+': {
-      '25000-75000': 21,
-      '75001-125000': 25,
+      '<75000': 20,
+      '75000-125000': 25,
       '125001+': 30
     },
     'A': {
-      '25000-75000': 21,
-      '75001-125000': 25,
+      '<75000': 20,
+      '75000-125000': 25,
+      '125001+': 30
+    },
+    'GOVT': {
+      '<75000': 20,
+      '75000-125000': 25,
       '125001+': 30
     },
     'B': {
-      '25000-75000': 21,
-      '75001+': 25  // Only 2 tiers for Category B
-    },
-    'GOVT': {
-      '25000-75000': 21,
-      '75001-125000': 25,
+      '<75000': 20,
+      '75000-125000': 25,
       '125001+': 30
     },
-    // Category C (separate treatment)
     'C': {
-      '30000+': 21  // Single tier - starts at 30K base
+      '25000+': 21
     },
-    // Categories D and UNLISTED (similar treatment)
     'D': {
-      '25000+': 18  // Lower multiplier for Category D
+      '25000+': 21
     },
     'UNLISTED': {
-      '25000+': 18  // Same as Category D
+      '25000+': 21
     }
   },
 
-  // Minimum salary requirements by category
+  // Minimum salary requirements by category (Excel: Min 25K salary)
   minSalaryByCategory: {
+    'Super A': 25000,
     'A+': 25000,
     'A': 25000,
     'B': 25000,
     'GOVT': 25000,
-    'C': 30000,  // Higher minimum for Category C
-    'D': 25000,  // Same as A/B
-    'UNLISTED': 25000  // Same as A/B
+    'C': 25000,
+    'D': 25000,
+    'UNLISTED': 25000
   },
 
-  // Maximum tenure by category (in months)
+  // Maximum tenure by category (Excel: up to 84 months, CIBIL -1 capped to 48 months)
   maxTenureByCategory: {
-    'A+': 72,      // 6 years - CAT A+
-    'A': 72,       // 6 years - CAT A
-    'GOVT': 72,    // 6 years - CAT GOVT
-    'B': 72,       // 6 years - CAT B
-    'C': 48,       // 4 years - CAT C
-    'D': 48,       // 4 years - CAT D
-    'UNLISTED': 48 // 4 years - UNLISTED
+    'Super A': 84,
+    'A+': 84,
+    'A': 84,
+    'GOVT': 84,
+    'B': 84,
+    'C': 84,
+    'D': 84,
+    'UNLISTED': 84
   },
 
   // Category descriptions
   categories: {
-    'A+': { description: 'Category A+ - Premium Companies (Highest Multipliers)' },
-    'A': { description: 'Category A - Top Tier Companies (Highest Multipliers)' },
-    'B': { description: 'Category B - Good Companies (Moderate Multipliers)' },
-    'GOVT': { description: 'Government Employees (Highest Multipliers, Stable)' },
-    'C': { description: 'Category C - Standard Companies (Base Multiplier)' },
-    'D': { description: 'Category D - Lower Tier Companies' },
+    'Super A': { description: 'Category Super A - Top Tier Companies (Up to 30x Multiplier, ₹75L Max)' },
+    'A+': { description: 'Category A+ - Premium Companies (Up to 30x Multiplier, ₹75L Max)' },
+    'A': { description: 'Category A - Top Tier Companies (Up to 30x Multiplier, ₹75L Max)' },
+    'B': { description: 'Category B - Good Companies (Up to 30x Multiplier, ₹75L Max)' },
+    'GOVT': { description: 'Government Employees (Up to 30x Multiplier, ₹75L Max)' },
+    'C': { description: 'Category C - Standard Companies (21x Multiplier, ₹15L Max)' },
+    'D': { description: 'Category D - Lower Tier Companies (21x Multiplier, ₹15L Max)' },
     'UNLISTED': { description: 'Unlisted Companies' }
   },
 
   employmentTypes: ['salaried', 'government'],
   specialPrograms: ['indusind-select', 'government-special', 'premium-banking'],
 
-  // Calculation method
   calculationMethod: 'Both (Dual)',
-  approach: 'Category-Based Minimum Salary + Tiered Multipliers',
+  approach: 'Category-Based Minimum Salary + Tiered Multipliers & FOIR',
   keyFeatures: [
-    'Multiplier-only system (no FOIR calculation)',
-    'Category C has higher minimum salary (₹30K vs ₹25K)',
-    'A+, A, GOVT get highest multipliers (up to 30x)',
-    'Category B capped at 25x multiplier',
-    'Category C flat 21x multiplier regardless of income',
-    'Progressive multipliers for premium categories'
+    'Dual evaluation (FOIR + Multiplier)',
+    'Min salary ₹25,000 across all categories',
+    'Max loan ₹75L for Cat A, B, Govt; ₹15L for Cat C',
+    'Tenure up to 84 months (CIBIL -1 capped to 48 months)',
+    'No bachelor capping (Bypassed)',
+    'No CIBIL score cutoff (Bypassed)',
+    '5% Credit card obligation (CC BT not allowed)'
   ],
 
   // Balance Transfer (BT) Configuration
   btConfig: {
-    isAvailable: true, // BT facility is available
-    maxLoansForBT: 5, // Maximum number of existing personal loans that can be consolidated
-    acceptsFintechLoans: false, // Does NOT accept BT for Fintech/digital platform loans
-    description: 'IndusInd Bank allows balance transfer for up to 5 existing personal loans (excluding Fintech loans)'
+    isAvailable: true,
+    maxLoansForBT: 5,
+    acceptsFintechLoans: false,
+    allowCreditCardBT: false, // Excel: CC BT NOT ALLOW
+    description: 'IndusInd Bank allows balance transfer for up to 5 existing personal loans (CC BT not allowed)'
   }
 };

@@ -35,8 +35,9 @@ import { protectAgainstProcessingFee } from '../utils/processingFeeGuard.js';
 // Import bank configuration service for logic bridge
 import { getBankConfig, getAllBankConfig } from './bankConfigService.js';
 
-// Import Axis Bank Master Excel Policy
+// Import Axis Bank and IndusInd Bank Master Excel Policies
 import { AXIS_BANK_EXCEL_POLICY } from '../config/axisBankPolicy.js';
+import { INDUSIND_BANK_EXCEL_POLICY } from '../config/indusindBankPolicy.js';
 
 /**
  * Universal Bank Calculator for Institutional Banks without legacy hardcoded calculators
@@ -104,14 +105,15 @@ export const calculateLoanEligibility = async (userData) => {
   const calculatorInput = {
     desiredLoanAmount: userData.desiredLoanAmount ? parseFloat(userData.desiredLoanAmount) : null,
     loanTenure: userData.loanTenure ? parseInt(userData.loanTenure) : 5, // Default to 5 years
-    basicSalary: userData.basicSalary || 0,
-    averageIncentive: userData.averageIncentive || 0,
-    monthlyIncome: userData.monthlyIncome ? parseFloat(userData.monthlyIncome) : 0,
+    basicSalary: userData.basicSalary !== undefined ? parseFloat(userData.basicSalary) : (userData.monthlyIncome ? parseFloat(userData.monthlyIncome) : 0),
+    averageIncentive: userData.averageIncentive ? parseFloat(userData.averageIncentive) : 0,
+    monthlyIncome: userData.monthlyIncome ? parseFloat(userData.monthlyIncome) : (userData.basicSalary ? parseFloat(userData.basicSalary) : 0),
     existingEMI: userData.existingEMI ? parseFloat(userData.existingEMI) : 0,
     companyName: userData.companyName || '',
     category: userData.category || 'A', // Fallback category if company not found
     creditScore: 850, // CIBIL score bypassed across all lenders
-    customerReportedCreditScore: userData.creditScore || null,
+    cibilScore: userData.cibilScore !== undefined ? userData.cibilScore : (userData.creditScore !== undefined ? userData.creditScore : null),
+    customerReportedCreditScore: userData.cibilScore !== undefined ? userData.cibilScore : (userData.creditScore || null),
     employmentType: userData.employmentType || 'salaried',
     age: userData.age ? parseInt(userData.age) : null, // AGE for tenure capping
     existingLoanBanks: userData.existingLoanBanks || [], // CRITICAL: Banks where customer has existing loans
@@ -258,6 +260,10 @@ const matchCategory = (cat1, cat2) => {
       if (!uPolicy && (name === 'Axis Bank' || id === 'axis-bank')) {
         uPolicy = AXIS_BANK_EXCEL_POLICY;
       }
+      // Master Policy Fallback for IndusInd Bank from Excel
+      if (!uPolicy && (name === 'IndusInd Bank' || id === 'indusind')) {
+        uPolicy = INDUSIND_BANK_EXCEL_POLICY;
+      }
 
       // 1. SALARY MODE GATE
       if (calculatorInput.salaryMode === 'cash' && adminAllConfig.employmentRules?.allowCashSalary === false) {
@@ -265,6 +271,19 @@ const matchCategory = (cat1, cat2) => {
       }
       if (calculatorInput.salaryMode === 'cheque' && adminAllConfig.employmentRules?.allowChequeSalary === false) {
         return { bankName: name, eligible: false, reason: 'Cheque salaries not accepted by this institution.', category: 'REJECTED' };
+      }
+
+      // 1.5 CC BT RESTRICTION GATE (IndusInd Bank Excel Policy: CC BT NOT ALLOW)
+      if (calculatorInput.isBTMode && (name === 'IndusInd Bank' || id === 'indusind')) {
+        const hasCcInBt = (calculatorInput.loansForBT || []).some(l => l.type === 'Credit Card' || l.type === 'credit_card');
+        if (hasCcInBt) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: 'Credit Card Balance Transfer is not permitted for IndusInd Bank (CC BT Not Allowed as per policy).',
+            category: 'REJECTED'
+          };
+        }
       }
 
       // 2. DEMOGRAPHIC & AGE RULES GATE (Tab 5 in Admin Console)
@@ -372,8 +391,8 @@ const matchCategory = (cat1, cat2) => {
           const matchedCap = uPolicy.loanCapping.find(c => matchCategory(c.tier || c.category, bankCategory));
           if (matchedCap) {
             if (matchedCap.maxLoan) bankInput.maxLoanOverride = Number(matchedCap.maxLoan);
-            const isAxis = name === 'Axis Bank' || id === 'axis-bank';
-            if (!isAxis && matchedCap.bachelorCap && calculatorInput.maritalStatus === 'single' && calculatorInput.livingStatus === 'rented') {
+            const isBypassBachelor = name === 'Axis Bank' || id === 'axis-bank' || name === 'IndusInd Bank' || id === 'indusind';
+            if (!isBypassBachelor && matchedCap.bachelorCap && calculatorInput.maritalStatus === 'single' && calculatorInput.livingStatus === 'rented') {
               bankInput.dynamicBachelorLimitOverride = Number(matchedCap.bachelorCap);
             }
           }
@@ -383,19 +402,68 @@ const matchCategory = (cat1, cat2) => {
         if (Array.isArray(uPolicy.foirMultiplier)) {
           const matchedFoir = uPolicy.foirMultiplier.find(m => matchCategory(m.category, bankCategory));
           if (matchedFoir) {
-            if (matchedFoir.multiplier) bankInput.multiplierOverride = Number(matchedFoir.multiplier);
-            
             const income = calculatorInput.monthlyIncome || calculatorInput.basicSalary || 0;
-            let foirPct = matchedFoir.maxFoir || 75;
-            if (matchedFoir.slab1Foir && income >= 25000 && income < 35000) {
-              foirPct = matchedFoir.slab1Foir;
-            } else if (matchedFoir.slab2Foir && income >= 35000 && income < 40000) {
-              foirPct = matchedFoir.slab2Foir;
-            } else if (matchedFoir.maxFoir && income >= 40000) {
-              foirPct = matchedFoir.maxFoir;
+            const isIndusind = name === 'IndusInd Bank' || id === 'indusind';
+
+            if (isIndusind) {
+              // IndusInd Multipliers from Excel:
+              // Cat A, B, Govt: >= 1.25L -> 30x, 75k to 1.25L -> 25x, < 75k -> 20x
+              // Cat C: Any salary -> 21x
+              let indusMultiplier = 20;
+              const catUpper = String(bankCategory || '').toUpperCase();
+              if (catUpper === 'C' || catUpper === 'CAT C' || catUpper === 'D') {
+                indusMultiplier = 21;
+              } else {
+                if (income >= 125000) indusMultiplier = 30;
+                else if (income >= 75000) indusMultiplier = 25;
+                else indusMultiplier = 20;
+              }
+              bankInput.multiplierOverride = indusMultiplier;
+
+              // IndusInd FOIR from Excel:
+              // Cat A, B, C, Govt: 20k to 35k -> 50% FOIR
+              // Cat A, B, Govt: 35k to 50k -> 60% FOIR
+              // Cat A, B, Govt: >= 50k -> Owned: 70%, Rented: 65%, HL/LAP running: up to 75%
+              // Cat C: 35k to 80k -> 60% FOIR
+              let foirPct = 50;
+              const hasHlOrLap = (calculatorInput.existingLoanTypes && 
+                (calculatorInput.existingLoanTypes.includes('Home Loan') || 
+                 calculatorInput.existingLoanTypes.includes('Loan Against Property') ||
+                 calculatorInput.existingLoanTypes.includes('HL') ||
+                 calculatorInput.existingLoanTypes.includes('LAP'))) ||
+                (Array.isArray(calculatorInput.loansForBT) && 
+                 calculatorInput.loansForBT.some(l => l.type === 'Home Loan' || l.type === 'LAP'));
+
+              if (catUpper === 'C' || catUpper === 'CAT C' || catUpper === 'D') {
+                if (income >= 35000) foirPct = 60;
+                else foirPct = 50;
+              } else {
+                if (income >= 50000) {
+                  if (hasHlOrLap) foirPct = 75;
+                  else if (calculatorInput.livingStatus === 'owned') foirPct = 70;
+                  else foirPct = 65;
+                } else if (income >= 35000) {
+                  foirPct = 60;
+                } else {
+                  foirPct = 50;
+                }
+              }
+              bankInput.foirOverride = Number(foirPct);
+              if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
+            } else {
+              // Standard Bank FOIR logic
+              if (matchedFoir.multiplier) bankInput.multiplierOverride = Number(matchedFoir.multiplier);
+              let foirPct = matchedFoir.maxFoir || 75;
+              if (matchedFoir.slab1Foir && income >= 25000 && income < 35000) {
+                foirPct = matchedFoir.slab1Foir;
+              } else if (matchedFoir.slab2Foir && income >= 35000 && income < 40000) {
+                foirPct = matchedFoir.slab2Foir;
+              } else if (matchedFoir.maxFoir && income >= 40000) {
+                foirPct = matchedFoir.maxFoir;
+              }
+              bankInput.foirOverride = Number(foirPct);
+              if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
             }
-            bankInput.foirOverride = Number(foirPct);
-            if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
           }
         }
 
@@ -422,8 +490,8 @@ const matchCategory = (cat1, cat2) => {
       }
 
       // 👨 INJECT DYNAMIC BACHELOR CAPPING OVERRIDES
-      const isAxis = name === 'Axis Bank' || id === 'axis-bank';
-      if (!isAxis && adminAllConfig.bachelorCapping?.enabled && adminAllConfig.bachelorCapping?.limits) {
+      const isBypassBachelor = name === 'Axis Bank' || id === 'axis-bank' || name === 'IndusInd Bank' || id === 'indusind';
+      if (!isBypassBachelor && adminAllConfig.bachelorCapping?.enabled && adminAllConfig.bachelorCapping?.limits) {
         if (calculatorInput.maritalStatus === 'single' && calculatorInput.livingStatus === 'rented') {
           const rentedLimit = adminAllConfig.bachelorCapping.limits['rented_bachelor'];
           if (rentedLimit !== null && rentedLimit !== undefined && rentedLimit !== '') {
@@ -456,6 +524,12 @@ const matchCategory = (cat1, cat2) => {
           tenureMonths = Math.min(tenureMonths, Number(bankInput.maxTenureOverride));
         } else if (result.loanTenureMonths) {
           tenureMonths = Math.min(tenureMonths, result.loanTenureMonths);
+        }
+
+        // IndusInd Bank Excel Policy: If CIBIL = -1 (New to Credit), tenure capped to 48 months
+        const rawCibil = calculatorInput.cibilScore ?? calculatorInput.customerReportedCreditScore;
+        if ((name === 'IndusInd Bank' || id === 'indusind') && (rawCibil === -1 || rawCibil === '-1' || Number(rawCibil) === -1)) {
+          tenureMonths = Math.min(tenureMonths, 48);
         }
         const tenureYears = tenureMonths / 12;
 
@@ -547,6 +621,11 @@ const matchCategory = (cat1, cat2) => {
         result.multiplier = effectiveMultiplier;
         result.foirPercentage = effectiveFOIR;
         result.appliedRoiSlab = appliedRoiSlab;
+
+        if (isBypassBachelor) {
+          result.bachelorCapped = false;
+          result.bachelorCapReason = null;
+        }
 
         if (!result.details) result.details = {};
         result.details.foirPercentage = (effectiveFOIR * 100).toFixed(0) + '%';

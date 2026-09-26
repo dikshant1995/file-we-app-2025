@@ -29,7 +29,7 @@ const INITIAL_12_BANKS = [
   { id: 'bandhan', name: 'Bandhan Bank', color: '#DC0028', minRate: 11.5, maxLoan: 2500000, maxTenure: 60, enabled: true },
   { id: 'cholamandalam', name: 'Cholamandalam Finance', color: '#F37021', minRate: 12.0, maxLoan: 3000000, maxTenure: 60, enabled: true },
   { id: 'axis-fin', name: 'Axis Finance', color: '#800000', minRate: 10.75, maxLoan: 5000000, maxTenure: 84, enabled: true },
-  { id: 'indusind', name: 'IndusInd Bank', color: '#005596', minRate: 10.49, maxLoan: 5000000, maxTenure: 84, enabled: true },
+  { id: 'indusind', name: 'IndusInd Bank', color: '#005596', minRate: 9.99, maxLoan: 7500000, maxTenure: 84, enabled: true },
   { id: 'shri-ram', name: 'Shri Ram Finance', color: '#1F4E78', minRate: 12.5, maxLoan: 2000000, maxTenure: 48, enabled: true },
   { id: 'piramal', name: 'Piramal Finance', color: '#1F4E78', minRate: 11.75, maxLoan: 3000000, maxTenure: 60, enabled: true },
   // Additional Banks & NBFCs from Master Policy
@@ -209,6 +209,56 @@ export const AXIS_BANK_EXCEL_POLICY = {
     minCibilScore: 0,
     ccObligationPercent: 4,
     ccBtAllowedCount: 5
+  },
+  companies: INITIAL_COMPANY_DATABASE
+};
+
+// Exact Master Policy Configuration for INDUSIND BANK LTD from Excel
+export const INDUSIND_BANK_EXCEL_POLICY = {
+  interestRates: [
+    { category: 'Super A', roiAbove15L: 9.99, roi10Lto15L: 9.99, roiBelow10L: 12.00, minRoi: 9.99, maxRoi: 12.00, defaultRoi: 9.99 },
+    { category: 'A', roiAbove15L: 9.99, roi10Lto15L: 9.99, roiBelow10L: 12.00, minRoi: 9.99, maxRoi: 12.00, defaultRoi: 9.99 },
+    { category: 'B', roiAbove15L: 9.99, roi10Lto15L: 9.99, roiBelow10L: 12.00, minRoi: 9.99, maxRoi: 12.00, defaultRoi: 9.99 },
+    { category: 'C', roiAbove15L: 10.60, roi10Lto15L: 13.00, roiBelow10L: 13.00, minRoi: 10.60, maxRoi: 13.00, defaultRoi: 10.60 },
+    { category: 'D', roiAbove15L: 10.60, roi10Lto15L: 13.00, roiBelow10L: 13.00, minRoi: 10.60, maxRoi: 13.00, defaultRoi: 10.60 },
+    { category: 'Govt', roiAbove15L: 9.99, roi10Lto15L: 9.99, roiBelow10L: 12.00, minRoi: 9.99, maxRoi: 12.00, defaultRoi: 9.99 }
+  ],
+  loanCapping: [
+    { tier: 'Super A', minLoan: 100000, maxLoan: 7500000, bachelorCap: null, minSalary: 25000 },
+    { tier: 'A', minLoan: 100000, maxLoan: 7500000, bachelorCap: null, minSalary: 25000 },
+    { tier: 'B', minLoan: 100000, maxLoan: 7500000, bachelorCap: null, minSalary: 25000 },
+    { tier: 'C', minLoan: 100000, maxLoan: 1500000, bachelorCap: null, minSalary: 25000 },
+    { tier: 'D', minLoan: 100000, maxLoan: 1500000, bachelorCap: null, minSalary: 25000 },
+    { tier: 'Govt', minLoan: 100000, maxLoan: 7500000, bachelorCap: null, minSalary: 25000 }
+  ],
+  tenureRules: [
+    { category: 'Super A', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years (CIBIL -1 capped to 48M)' },
+    { category: 'A', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years (CIBIL -1 capped to 48M)' },
+    { category: 'B', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years (CIBIL -1 capped to 48M)' },
+    { category: 'C', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years (CIBIL -1 capped to 48M)' },
+    { category: 'D', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years (CIBIL -1 capped to 48M)' },
+    { category: 'Govt', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years (CIBIL -1 capped to 48M)' }
+  ],
+  foirMultiplier: [
+    { category: 'Super A', slab1Foir: 50, slab2Foir: 60, maxFoir: 70, multiplier: 30, ccObligation: 5 },
+    { category: 'A', slab1Foir: 50, slab2Foir: 60, maxFoir: 70, multiplier: 30, ccObligation: 5 },
+    { category: 'B', slab1Foir: 50, slab2Foir: 60, maxFoir: 70, multiplier: 25, ccObligation: 5 },
+    { category: 'C', slab1Foir: 50, slab2Foir: 60, maxFoir: 60, multiplier: 21, ccObligation: 5 },
+    { category: 'D', slab1Foir: 50, slab2Foir: 60, maxFoir: 60, multiplier: 21, ccObligation: 5 },
+    { category: 'Govt', slab1Foir: 50, slab2Foir: 60, maxFoir: 70, multiplier: 30, ccObligation: 5 }
+  ],
+  demographics: {
+    minAge: 21,
+    maxAge: 60,
+    retirementSalaried: 60,
+    retirementGovt: 60,
+    minSalary: 25000,
+    minExperienceTotal: 12,
+    minExperienceCurrent: 0,
+    minCibilScore: 0,
+    ccObligationPercent: 5,
+    ccBtAllowedCount: 0,
+    allowCcBt: false
   },
   companies: INITIAL_COMPANY_DATABASE
 };
@@ -433,6 +483,12 @@ const UnifiedBankPolicyManager = () => {
     // Direct Master Policy from Excel for Axis Bank
     if (bank.id === 'axis-bank' || bank.name === 'Axis Bank') {
       setPolicyData(sanitizePolicyData(AXIS_BANK_EXCEL_POLICY));
+      return;
+    }
+
+    // Direct Master Policy from Excel for IndusInd Bank
+    if (bank.id === 'indusind' || bank.name === 'IndusInd Bank') {
+      setPolicyData(sanitizePolicyData(INDUSIND_BANK_EXCEL_POLICY));
       return;
     }
 
