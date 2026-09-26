@@ -29,6 +29,9 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
       companyName: saved?.companyName || '',
       hasExistingLoans: saved?.hasExistingLoans || (Array.isArray(saved?.existingLoans) && saved.existingLoans.length > 0) || false,
       existingLoans: saved?.existingLoans || [],
+      isCcObligationVerified: saved?.isCcObligationVerified || false,
+      verifiedCcObligation: saved?.verifiedCcObligation || '',
+      ccObligationMethod: saved?.ccObligationMethod || 'standard',
       wantsBT: saved?.wantsBT || false,
       selectedLoansForBT: saved?.selectedLoansForBT || [],
       state: saved?.state || '',
@@ -112,6 +115,25 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
           monthlyEMI: '',
           lender: '',
           // Credit Card specific fields
+          creditLimit: '',
+          creditLimitUsed: ''
+        }
+      ]
+    }));
+  };
+
+  const handleAddCreditCard = () => {
+    setFormData(prev => ({
+      ...prev,
+      hasExistingLoans: true,
+      existingLoans: [
+        ...prev.existingLoans,
+        {
+          id: Date.now(),
+          type: 'Credit Card',
+          outstandingAmount: '',
+          monthlyEMI: '',
+          lender: '',
           creditLimit: '',
           creditLimitUsed: ''
         }
@@ -260,15 +282,20 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
       return sum + (parseFloat(loan.monthlyEMI) || 0);
     }, 0);
 
-    // Calculate total credit card obligation (5% of used amount for non-BT credit cards)
-    const totalCreditCardObligation = formData.existingLoans.reduce((sum, loan) => {
-      if (loan.type !== 'Credit Card') return sum;
-      // If credit card is selected for BT, don't count it as obligation
-      if (formData.wantsBT && formData.selectedLoansForBT.includes(loan.id)) return sum;
-      // Otherwise, add 5% of credit limit used as monthly obligation
-      const creditLimitUsed = parseFloat(loan.creditLimitUsed) || 0;
-      return sum + (creditLimitUsed * 0.05);
-    }, 0);
+    // Calculate total credit card obligation (Standard 5% or Custom Verified)
+    let totalCreditCardObligation = 0;
+    if (formData.isCcObligationVerified && formData.ccObligationMethod === 'custom' && formData.verifiedCcObligation !== '') {
+      totalCreditCardObligation = parseFloat(formData.verifiedCcObligation) || 0;
+    } else {
+      totalCreditCardObligation = formData.existingLoans.reduce((sum, loan) => {
+        if (loan.type !== 'Credit Card') return sum;
+        // If credit card is selected for BT, don't count it as obligation
+        if (formData.wantsBT && formData.selectedLoansForBT.includes(loan.id)) return sum;
+        // Otherwise, add 5% of credit limit used as monthly obligation
+        const creditLimitUsed = parseFloat(loan.creditLimitUsed) || 0;
+        return sum + (creditLimitUsed * 0.05);
+      }, 0);
+    }
 
     // Extract existing loan bank names (for checking if customer already has loan from same bank)
     const existingLoanBanks = formData.existingLoans
@@ -304,7 +331,18 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
       employmentType: formData.employmentType,
       companyName: formData.companyName,
       existingEMI: totalExistingEMI,
-      creditCardObligation: totalCreditCardObligation, // NEW: 5% of non-BT credit card balances
+      creditCardObligation: Math.round(totalCreditCardObligation), // 5% or verified CC obligation
+      isCcObligationVerified: formData.isCcObligationVerified || false,
+      verifiedCcObligation: formData.verifiedCcObligation || '',
+      ccObligationMethod: formData.ccObligationMethod || 'standard',
+      creditCards: formData.existingLoans
+        .filter(loan => loan.type === 'Credit Card')
+        .map(loan => ({
+          cardName: loan.lender || 'Credit Card',
+          outstandingAmount: parseFloat(loan.creditLimitUsed || loan.outstandingAmount || 0),
+          creditLimit: parseFloat(loan.creditLimit || 0),
+          isBT: formData.wantsBT && formData.selectedLoansForBT.includes(loan.id)
+        })),
       existingLoanBanks: existingLoanBanks, // NEW: List of banks where customer has existing personal loans
       // NEW: Balance Transfer data
       wantsBT: formData.wantsBT,
@@ -867,6 +905,20 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
                           autoComplete="off"
                         />
                       </div>
+
+                      <div className="form-group" style={{ gridColumn: 'span 2', background: '#eff6ff', padding: '10px 14px', borderRadius: '8px', borderLeft: '4px solid #2563eb', marginTop: '2px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '6px' }}>
+                          <span style={{ fontSize: '0.88rem', color: '#1e40af', fontWeight: 600 }}>
+                            💳 Calculated Monthly Bank Obligation (5%):
+                          </span>
+                          <span style={{ fontSize: '0.95rem', color: '#1e3a8a', fontWeight: 700 }}>
+                            ₹{Math.round((parseFloat(loan.creditLimitUsed) || 0) * 0.05).toLocaleString('en-IN')} / month
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '0.78rem', color: '#4b5563', marginTop: '3px' }}>
+                          Banks count 5% of credit card outstanding as a monthly EMI commitment reducing disposable income.
+                        </div>
+                      </div>
                     </>
                   ) : (
                     <>
@@ -936,19 +988,45 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
               </div>
             ))}
 
-            <button
-              type="button"
-              className="btn-add-loan"
-              onClick={handleAddLoan}
-            >
-              + Add Another Loan
-            </button>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '15px' }}>
+              <button
+                type="button"
+                className="btn-add-loan"
+                onClick={handleAddLoan}
+              >
+                + Add Another Loan
+              </button>
+              <button
+                type="button"
+                className="btn-add-loan"
+                style={{ background: '#0284c7', color: '#fff', border: 'none' }}
+                onClick={handleAddCreditCard}
+              >
+                💳 + Add Credit Card
+              </button>
+            </div>
 
             {formData.existingLoans.length > 0 && (
               <div className="loans-summary">
-                <strong>Total Existing EMI:</strong> ₹{formData.existingLoans.reduce((sum, loan) =>
-                  sum + (parseFloat(loan.monthlyEMI) || 0), 0
-                ).toLocaleString('en-IN')}
+                <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+                  <div>
+                    <strong>Total Existing Loan EMI:</strong> ₹{formData.existingLoans
+                      .filter(l => l.type !== 'Credit Card')
+                      .reduce((sum, loan) => sum + (parseFloat(loan.monthlyEMI) || 0), 0)
+                      .toLocaleString('en-IN')} / mo
+                  </div>
+                  {formData.existingLoans.some(l => l.type === 'Credit Card') && (
+                    <div style={{ color: '#1e40af' }}>
+                      <strong>Active CC Monthly Obligation:</strong> ₹{Math.round(
+                        formData.isCcObligationVerified && formData.ccObligationMethod === 'custom' && formData.verifiedCcObligation !== ''
+                          ? (parseFloat(formData.verifiedCcObligation) || 0)
+                          : formData.existingLoans
+                              .filter(l => l.type === 'Credit Card')
+                              .reduce((sum, loan) => sum + ((parseFloat(loan.creditLimitUsed) || 0) * 0.05), 0)
+                      ).toLocaleString('en-IN')} / mo
+                    </div>
+                  )}
+                </div>
 
                 {/* Show which banks will be excluded */}
                 {formData.existingLoans.some(loan =>
@@ -979,6 +1057,146 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
                       </div>
                     </div>
                   )}
+
+                {/* Credit Card Obligation Verification & Breakdown Section */}
+                {formData.existingLoans.some(l => l.type === 'Credit Card') && (
+                  <div className="cc-obligation-verification-box" style={{
+                    background: '#f8fafc',
+                    border: '1.5px solid #cbd5e1',
+                    borderRadius: '10px',
+                    padding: '16px',
+                    marginTop: '16px',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.04)'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '10px', marginBottom: '12px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '1.25rem' }}>💳</span>
+                        <strong style={{ fontSize: '1.05rem', color: '#0f172a' }}>Credit Card Obligation Verification</strong>
+                      </div>
+                      <span style={{
+                        padding: '4px 10px',
+                        borderRadius: '20px',
+                        fontSize: '0.78rem',
+                        fontWeight: 700,
+                        backgroundColor: formData.isCcObligationVerified ? '#dcfce7' : '#fef9c3',
+                        color: formData.isCcObligationVerified ? '#15803d' : '#854d0e',
+                        border: formData.isCcObligationVerified ? '1px solid #86efac' : '1px solid #fde047'
+                      }}>
+                        {formData.isCcObligationVerified ? '✓ Verified by User' : 'Pending Verification'}
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginBottom: '14px' }}>
+                      <div style={{ background: '#ffffff', padding: '10px 14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                        <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>Total Credit Cards</div>
+                        <div style={{ fontSize: '1.15rem', fontWeight: 700, color: '#1e293b' }}>
+                          {formData.existingLoans.filter(l => l.type === 'Credit Card').length} Card(s)
+                        </div>
+                      </div>
+                      <div style={{ background: '#ffffff', padding: '10px 14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                        <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>Total CC Outstanding</div>
+                        <div style={{ fontSize: '1.15rem', fontWeight: 700, color: '#b91c1c' }}>
+                          ₹{formData.existingLoans.filter(l => l.type === 'Credit Card').reduce((sum, l) => sum + (parseFloat(l.creditLimitUsed) || 0), 0).toLocaleString('en-IN')}
+                        </div>
+                      </div>
+                      <div style={{ background: '#eff6ff', padding: '10px 14px', borderRadius: '8px', border: '1px solid #bfdbfe' }}>
+                        <div style={{ fontSize: '0.75rem', color: '#1e40af', textTransform: 'uppercase', fontWeight: 600 }}>Calculated Monthly Obligation</div>
+                        <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#1d4ed8' }}>
+                          ₹{Math.round(
+                            formData.isCcObligationVerified && formData.ccObligationMethod === 'custom' && formData.verifiedCcObligation !== ''
+                              ? (parseFloat(formData.verifiedCcObligation) || 0)
+                              : formData.existingLoans.filter(l => l.type === 'Credit Card').reduce((sum, l) => sum + (parseFloat(l.creditLimitUsed) || 0), 0) * 0.05
+                          ).toLocaleString('en-IN')} / mo
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Verification Controls */}
+                    <div style={{ background: '#ffffff', padding: '14px 16px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '10px' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontWeight: 600, color: '#1e293b', fontSize: '0.92rem' }}>
+                        <input
+                          type="checkbox"
+                          checked={formData.isCcObligationVerified || false}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            isCcObligationVerified: e.target.checked
+                          }))}
+                          style={{ width: '18px', height: '18px', accentColor: '#2563eb' }}
+                        />
+                        <span>Verify & Confirm Credit Card Monthly Obligation</span>
+                      </label>
+
+                      {formData.isCcObligationVerified && (
+                        <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed #cbd5e1' }}>
+                          <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#334155', marginBottom: '8px' }}>
+                            Obligation Calculation Method:
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '0.85rem', cursor: 'pointer', color: '#1e293b' }}>
+                              <input
+                                type="radio"
+                                name="ccObligationMethod"
+                                value="standard"
+                                checked={formData.ccObligationMethod !== 'custom'}
+                                onChange={() => setFormData(prev => ({ ...prev, ccObligationMethod: 'standard' }))}
+                                style={{ marginTop: '2px', accentColor: '#2563eb' }}
+                              />
+                              <div>
+                                <strong>Standard 5% Bank Policy (Recommended)</strong>
+                                <div style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                                  Calculates 5% of total outstanding card balance (₹{Math.round(formData.existingLoans.filter(l => l.type === 'Credit Card').reduce((sum, l) => sum + (parseFloat(l.creditLimitUsed) || 0), 0) * 0.05).toLocaleString('en-IN')}/mo) as monthly obligation. Enforced by IndusInd Bank (5%) and partner institutions.
+                                </div>
+                              </div>
+                            </label>
+
+                            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '0.85rem', cursor: 'pointer', color: '#1e293b' }}>
+                              <input
+                                type="radio"
+                                name="ccObligationMethod"
+                                value="custom"
+                                checked={formData.ccObligationMethod === 'custom'}
+                                onChange={() => setFormData(prev => ({ ...prev, ccObligationMethod: 'custom' }))}
+                                style={{ marginTop: '2px', accentColor: '#2563eb' }}
+                              />
+                              <div>
+                                <strong>Custom Verified Minimum Monthly Due (From CIBIL/Statement)</strong>
+                                <div style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                                  Override with the exact verified minimum due from your official credit bureau report or card statement.
+                                </div>
+                              </div>
+                            </label>
+                          </div>
+
+                          {formData.ccObligationMethod === 'custom' && (
+                            <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                              <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>
+                                Verified Monthly Due (₹):
+                              </label>
+                              <input
+                                type="text"
+                                value={formData.verifiedCcObligation || ''}
+                                onChange={(e) => setFormData(prev => ({
+                                  ...prev,
+                                  verifiedCcObligation: e.target.value.replace(/[^0-9]/g, '')
+                                }))}
+                                placeholder="e.g. 2500"
+                                style={{ width: '160px', padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                                inputMode="numeric"
+                              />
+                              <span style={{ fontSize: '0.78rem', color: '#059669', fontWeight: 600 }}>
+                                ✓ Custom commitment will be deducted from monthly disposable salary
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    <div style={{ fontSize: '0.78rem', color: '#64748b', background: '#f1f5f9', padding: '8px 12px', borderRadius: '6px', lineHeight: '1.4' }}>
+                      ℹ️ <strong>Lender Policy Insight:</strong> IndusInd Bank charges 5% of credit card outstanding as monthly commitment (CC BT is not allowed). Axis Bank calculates 4%.
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
