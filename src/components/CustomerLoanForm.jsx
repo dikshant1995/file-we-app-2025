@@ -3,6 +3,34 @@ import './CustomerLoanForm.css';
 import { loadUniversalCompanies, getCompanySuggestions, initializeBankDatabases } from '../services/companyDatabaseService.js';
 import { indianStates, stateCityData } from '../data/locationData.js';
 
+export const LENDER_OPTIONS = [
+  { value: "kotak mahindra bank", label: "Kotak Mahindra Bank" },
+  { value: "hdfc bank", label: "HDFC Bank" },
+  { value: "icici bank", label: "ICICI Bank" },
+  { value: "sbi cards / sbi bank", label: "State Bank of India (SBI)" },
+  { value: "axis bank", label: "Axis Bank" },
+  { value: "indusind bank", label: "IndusInd Bank" },
+  { value: "idfc bank", label: "IDFC First Bank" },
+  { value: "rbl bank", label: "RBL Bank" },
+  { value: "standard chartered bank", label: "Standard Chartered Bank" },
+  { value: "hsbc bank", label: "HSBC Bank" },
+  { value: "bandhan bank", label: "Bandhan Bank" },
+  { value: "cholamandalam finance", label: "Cholamandalam Finance" },
+  { value: "tata capital", label: "Tata Capital" },
+  { value: "poonawala finance", label: "Poonawala Finance" },
+  { value: "axis finance", label: "Axis Finance" },
+  { value: "shri ram finance", label: "Shri Ram Finance" },
+  { value: "piramal finance", label: "Piramal Finance" },
+  { value: "l&t finance", label: "L&T Finance" },
+  { value: "smfg india credit", label: "SMFG India Credit" },
+  { value: "bajaj finance", label: "Bajaj Finance" },
+  { value: "incred finance", label: "Incred Finance" },
+  { value: "au small finance bank", label: "AU Small Finance Bank" },
+  { value: "aditya birla finance", label: "Aditya Birla Finance" },
+  { value: "finnable finance", label: "Finnable Finance" },
+  { value: "other", label: "Other Bank / NBFC (Not Listed)" }
+];
+
 const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
   const [formData, setFormData] = useState(() => {
     let saved = null;
@@ -14,6 +42,28 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
         if (cached) saved = JSON.parse(cached);
       } catch (e) {}
     }
+
+    // Support migrating any previous cached format
+    const rawLoans = Array.isArray(saved?.existingLoans) ? saved.existingLoans : [];
+    const initialLoans = rawLoans
+      .filter(l => l.type !== 'Credit Card')
+      .map(l => ({
+        id: l.id || Date.now() + Math.random(),
+        outstandingAmount: l.outstandingAmount || '',
+        monthlyEMI: l.monthlyEMI || '',
+        lender: l.lender || ''
+      }));
+
+    const initialCards = Array.isArray(saved?.creditCards) && saved.creditCards.length > 0
+      ? saved.creditCards
+      : rawLoans
+          .filter(l => l.type === 'Credit Card')
+          .map(c => ({
+            id: c.id || Date.now() + Math.random(),
+            lender: c.lender || '',
+            creditLimit: c.creditLimit || '',
+            creditLimitUsed: c.creditLimitUsed || ''
+          }));
 
     return {
       customerName: saved?.customerName || '',
@@ -27,11 +77,10 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
       employmentType: saved?.employmentType || 'salaried',
       salaryMode: saved?.salaryMode || 'bank',
       companyName: saved?.companyName || '',
-      hasExistingLoans: saved?.hasExistingLoans || (Array.isArray(saved?.existingLoans) && saved.existingLoans.length > 0) || false,
-      existingLoans: saved?.existingLoans || [],
-      isCcObligationVerified: saved?.isCcObligationVerified || false,
-      verifiedCcObligation: saved?.verifiedCcObligation || '',
-      ccObligationMethod: saved?.ccObligationMethod || 'standard',
+      hasExistingLoans: saved?.hasExistingLoans !== undefined ? saved.hasExistingLoans : (initialLoans.length > 0),
+      existingLoans: initialLoans,
+      hasCreditCards: saved?.hasCreditCards !== undefined ? saved.hasCreditCards : (initialCards.length > 0),
+      creditCards: initialCards,
       wantsBT: saved?.wantsBT || false,
       selectedLoansForBT: saved?.selectedLoansForBT || [],
       state: saved?.state || '',
@@ -43,10 +92,34 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
 
   useEffect(() => {
     if (initialData && Object.keys(initialData).length > 0) {
+      const rawLoans = Array.isArray(initialData.existingLoans) ? initialData.existingLoans : [];
+      const initialLoans = rawLoans
+        .filter(l => l.type !== 'Credit Card')
+        .map(l => ({
+          id: l.id || Date.now() + Math.random(),
+          outstandingAmount: l.outstandingAmount || '',
+          monthlyEMI: l.monthlyEMI || '',
+          lender: l.lender || ''
+        }));
+
+      const initialCards = Array.isArray(initialData.creditCards) && initialData.creditCards.length > 0
+        ? initialData.creditCards
+        : rawLoans
+            .filter(l => l.type === 'Credit Card')
+            .map(c => ({
+              id: c.id || Date.now() + Math.random(),
+              lender: c.lender || '',
+              creditLimit: c.creditLimit || '',
+              creditLimitUsed: c.creditLimitUsed || ''
+            }));
+
       setFormData(prev => ({
         ...prev,
         ...initialData,
-        hasExistingLoans: initialData.hasExistingLoans || (Array.isArray(initialData.existingLoans) && initialData.existingLoans.length > 0) || prev.hasExistingLoans
+        hasExistingLoans: initialData.hasExistingLoans !== undefined ? initialData.hasExistingLoans : (initialLoans.length > 0 || prev.hasExistingLoans),
+        existingLoans: initialLoans.length > 0 ? initialLoans : prev.existingLoans,
+        hasCreditCards: initialData.hasCreditCards !== undefined ? initialData.hasCreditCards : (initialCards.length > 0 || prev.hasCreditCards),
+        creditCards: initialCards.length > 0 ? initialCards : prev.creditCards
       }));
     }
   }, [initialData]);
@@ -93,8 +166,26 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
     // Handle company name autocomplete
     if (name === 'companyName') {
       const suggestions = getCompanySuggestions(finalValue);
-      console.log('🔍 Autocomplete for:', finalValue, '| Suggestions:', suggestions);
       setCompanySuggestions(suggestions);
+    }
+
+    // Auto-initialize first item if user checks the box and list is empty
+    if (name === 'hasExistingLoans' && checked && formData.existingLoans.length === 0) {
+      setFormData(prev => ({
+        ...prev,
+        hasExistingLoans: true,
+        existingLoans: [{ id: Date.now(), lender: '', outstandingAmount: '', monthlyEMI: '' }]
+      }));
+      return;
+    }
+
+    if (name === 'hasCreditCards' && checked && (!formData.creditCards || formData.creditCards.length === 0)) {
+      setFormData(prev => ({
+        ...prev,
+        hasCreditCards: true,
+        creditCards: [{ id: Date.now(), lender: '', creditLimit: '', creditLimitUsed: '' }]
+      }));
+      return;
     }
 
     setFormData(prev => ({
@@ -106,36 +197,14 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
   const handleAddLoan = () => {
     setFormData(prev => ({
       ...prev,
-      existingLoans: [
-        ...prev.existingLoans,
-        {
-          id: Date.now(),
-          type: 'Personal Loan',
-          outstandingAmount: '',
-          monthlyEMI: '',
-          lender: '',
-          // Credit Card specific fields
-          creditLimit: '',
-          creditLimitUsed: ''
-        }
-      ]
-    }));
-  };
-
-  const handleAddCreditCard = () => {
-    setFormData(prev => ({
-      ...prev,
       hasExistingLoans: true,
       existingLoans: [
         ...prev.existingLoans,
         {
-          id: Date.now(),
-          type: 'Credit Card',
+          id: Date.now() + Math.random(),
           outstandingAmount: '',
           monthlyEMI: '',
-          lender: '',
-          creditLimit: '',
-          creditLimitUsed: ''
+          lender: ''
         }
       ]
     }));
@@ -144,12 +213,13 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
   const handleRemoveLoan = (id) => {
     setFormData(prev => ({
       ...prev,
-      existingLoans: prev.existingLoans.filter(loan => loan.id !== id)
+      existingLoans: prev.existingLoans.filter(loan => loan.id !== id),
+      selectedLoansForBT: prev.selectedLoansForBT.filter(loanId => loanId !== id)
     }));
   };
 
   const handleLoanChange = (id, field, value) => {
-    const numericLoanFields = ['monthlyEMI', 'outstandingAmount', 'creditLimit', 'creditLimitUsed'];
+    const numericLoanFields = ['monthlyEMI', 'outstandingAmount'];
     let finalValue = value;
     if (numericLoanFields.includes(field)) {
       finalValue = value.replace(/[^0-9]/g, '');
@@ -159,27 +229,6 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
       ...prev,
       existingLoans: prev.existingLoans.map(loan => {
         if (loan.id === id) {
-          // If changing loan type to Credit Card, clear EMI and set credit card fields
-          if (field === 'type' && value === 'Credit Card') {
-            return {
-              ...loan,
-              [field]: value,
-              monthlyEMI: '',
-              outstandingAmount: '', // Will use creditLimitUsed instead
-              creditLimit: loan.creditLimit || '',
-              creditLimitUsed: loan.creditLimitUsed || ''
-            };
-          }
-          // If changing FROM Credit Card to another type, clear credit card fields
-          if (field === 'type' && loan.type === 'Credit Card' && value !== 'Credit Card') {
-            return {
-              ...loan,
-              [field]: value,
-              creditLimit: '',
-              creditLimitUsed: '',
-              outstandingAmount: loan.outstandingAmount || ''
-            };
-          }
           return { ...loan, [field]: finalValue };
         }
         return loan;
@@ -187,14 +236,56 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
     }));
   };
 
-  const handleBTToggle = (loanId) => {
+  const handleAddCreditCard = () => {
+    setFormData(prev => ({
+      ...prev,
+      hasCreditCards: true,
+      creditCards: [
+        ...(prev.creditCards || []),
+        {
+          id: Date.now() + Math.random(),
+          lender: '',
+          creditLimit: '',
+          creditLimitUsed: ''
+        }
+      ]
+    }));
+  };
+
+  const handleRemoveCreditCard = (id) => {
+    setFormData(prev => ({
+      ...prev,
+      creditCards: (prev.creditCards || []).filter(card => card.id !== id),
+      selectedLoansForBT: prev.selectedLoansForBT.filter(loanId => loanId !== id)
+    }));
+  };
+
+  const handleCreditCardChange = (id, field, value) => {
+    const numericCardFields = ['creditLimit', 'creditLimitUsed'];
+    let finalValue = value;
+    if (numericCardFields.includes(field)) {
+      finalValue = value.replace(/[^0-9]/g, '');
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      creditCards: (prev.creditCards || []).map(card => {
+        if (card.id === id) {
+          return { ...card, [field]: finalValue };
+        }
+        return card;
+      })
+    }));
+  };
+
+  const handleBTToggle = (id) => {
     setFormData(prev => {
-      const isSelected = prev.selectedLoansForBT.includes(loanId);
+      const isSelected = prev.selectedLoansForBT.includes(id);
       return {
         ...prev,
         selectedLoansForBT: isSelected
-          ? prev.selectedLoansForBT.filter(id => id !== loanId)
-          : [...prev.selectedLoansForBT, loanId]
+          ? prev.selectedLoansForBT.filter(item => item !== id)
+          : [...prev.selectedLoansForBT, id]
       };
     });
   };
@@ -249,16 +340,28 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
     }
     
     // Security Hook: Negative numbers on Liabilities
-    for (let i = 0; i < formData.existingLoans.length; i++) {
-      const loan = formData.existingLoans[i];
-      if (
-        (parseFloat(loan.monthlyEMI) < 0) || 
-        (parseFloat(loan.outstandingAmount) < 0) || 
-        (parseFloat(loan.creditLimit) < 0) || 
-        (parseFloat(loan.creditLimitUsed) < 0)
-      ) {
-        setValidationError(`Security Error: Loan parameters cannot be negative numbers (Review Loan ${i + 1}).`);
-        return;
+    if (formData.hasExistingLoans) {
+      for (let i = 0; i < formData.existingLoans.length; i++) {
+        const loan = formData.existingLoans[i];
+        if (
+          (parseFloat(loan.monthlyEMI) < 0) || 
+          (parseFloat(loan.outstandingAmount) < 0)
+        ) {
+          setValidationError(`Security Error: Loan parameters cannot be negative numbers (Review Loan ${i + 1}).`);
+          return;
+        }
+      }
+    }
+    if (formData.hasCreditCards && formData.creditCards) {
+      for (let i = 0; i < formData.creditCards.length; i++) {
+        const card = formData.creditCards[i];
+        if (
+          (parseFloat(card.creditLimit) < 0) || 
+          (parseFloat(card.creditLimitUsed) < 0)
+        ) {
+          setValidationError(`Security Error: Credit card parameters cannot be negative numbers (Review Credit Card ${i + 1}).`);
+          return;
+        }
       }
     }
     // ───────────────────────────────────────────────────────────────────────
@@ -275,90 +378,88 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
     // Total monthly income = basic + incentive (frontend provides total, banks apply their %)
     const totalMonthlyIncome = basicSalary + averageIncentive;
 
-    // Calculate total existing EMI (excluding credit cards)
-    const totalExistingEMI = formData.existingLoans.reduce((sum, loan) => {
-      // Credit cards don't have fixed EMI, skip them
-      if (loan.type === 'Credit Card') return sum;
-      return sum + (parseFloat(loan.monthlyEMI) || 0);
+    // Calculate total existing EMI (from active loans)
+    const totalExistingEMI = formData.hasExistingLoans
+      ? formData.existingLoans.reduce((sum, loan) => sum + (parseFloat(loan.monthlyEMI) || 0), 0)
+      : 0;
+
+    // Directly use credit card obligation internally (5% of credit limit used)
+    const activeCreditCards = (formData.hasCreditCards && Array.isArray(formData.creditCards))
+      ? formData.creditCards
+      : [];
+    const totalCreditCardObligation = activeCreditCards.reduce((sum, card) => {
+      // If credit card is selected for BT, don't count it as active monthly obligation
+      if (formData.wantsBT && formData.selectedLoansForBT.includes(card.id)) return sum;
+      const creditLimitUsed = parseFloat(card.creditLimitUsed) || 0;
+      return sum + (creditLimitUsed * 0.05);
     }, 0);
 
-    // Calculate total credit card obligation (Standard 5% or Custom Verified)
-    let totalCreditCardObligation = 0;
-    if (formData.isCcObligationVerified && formData.ccObligationMethod === 'custom' && formData.verifiedCcObligation !== '') {
-      totalCreditCardObligation = parseFloat(formData.verifiedCcObligation) || 0;
-    } else {
-      totalCreditCardObligation = formData.existingLoans.reduce((sum, loan) => {
-        if (loan.type !== 'Credit Card') return sum;
-        // If credit card is selected for BT, don't count it as obligation
-        if (formData.wantsBT && formData.selectedLoansForBT.includes(loan.id)) return sum;
-        // Otherwise, add 5% of credit limit used as monthly obligation
-        const creditLimitUsed = parseFloat(loan.creditLimitUsed) || 0;
-        return sum + (creditLimitUsed * 0.05);
-      }, 0);
-    }
-
     // Extract existing loan bank names (for checking if customer already has loan from same bank)
-    const existingLoanBanks = formData.existingLoans
+    const existingLoanBanks = (formData.hasExistingLoans ? formData.existingLoans : [])
       .filter(loan =>
-        loan.type === 'Personal Loan' &&
         loan.lender &&
         loan.lender.trim() !== '' &&
         loan.lender !== 'other' // Exclude "Other Bank (Not Listed)"
       )
       .map(loan => loan.lender.trim().toLowerCase());
 
-    // Extract actual loan objects for Balance Transfer
-    const loansForBT = formData.wantsBT 
-      ? formData.existingLoans.filter(loan => formData.selectedLoansForBT.includes(loan.id))
-      : [];
+    // Prepare loans and credit cards selected for Balance Transfer
+    const selectedLoans = (formData.hasExistingLoans ? formData.existingLoans : [])
+      .filter(loan => formData.selectedLoansForBT.includes(loan.id))
+      .map(loan => ({ ...loan, type: 'Personal Loan' }));
+
+    const selectedCards = activeCreditCards
+      .filter(card => formData.selectedLoansForBT.includes(card.id))
+      .map(card => ({
+        ...card,
+        type: 'Credit Card',
+        outstandingAmount: parseFloat(card.creditLimitUsed || 0)
+      }));
+
+    const loansForBT = formData.wantsBT ? [...selectedLoans, ...selectedCards] : [];
 
     // DEBUG: Log extracted bank names
     console.log('='.repeat(80));
-    console.log('🔍 EXISTING LOAN BANKS CHECK:');
-    console.log('Total existing loans:', formData.existingLoans.length);
-    console.log('Loans selected for BT:', loansForBT.length);
-    console.log('Existing loans data:', formData.existingLoans);
-    console.log('Filtered Personal Loan banks:', existingLoanBanks);
+    console.log('🔍 EXISTING LIABILITIES CHECK:');
+    console.log('Existing loans count:', formData.hasExistingLoans ? formData.existingLoans.length : 0);
+    console.log('Credit cards count:', activeCreditCards.length);
+    console.log('Total Existing EMI (Loans):', totalExistingEMI);
+    console.log('Internal CC Obligation (5%):', Math.round(totalCreditCardObligation));
+    console.log('Loans/Cards selected for BT:', loansForBT.length);
     console.log('='.repeat(80));
 
     // Prepare data EXACTLY as realLoanService expects
     const submissionData = {
-      basicSalary: basicSalary, // NEW: Pass basic salary separately
-      averageIncentive: averageIncentive, // NEW: Pass average incentive separately
-      monthlyIncome: totalMonthlyIncome, // Total income (for backward compatibility)
-      age: parseInt(formData.age), // AGE required for tenure capping
-      category: formData.employmentType === 'government' ? 'GOVT' : formData.category, // Auto-select GOVT for govt employees
+      basicSalary: basicSalary,
+      averageIncentive: averageIncentive,
+      monthlyIncome: totalMonthlyIncome,
+      age: parseInt(formData.age),
+      category: formData.employmentType === 'government' ? 'GOVT' : formData.category,
       employmentType: formData.employmentType,
       companyName: formData.companyName,
       existingEMI: totalExistingEMI,
-      creditCardObligation: Math.round(totalCreditCardObligation), // 5% or verified CC obligation
-      isCcObligationVerified: formData.isCcObligationVerified || false,
-      verifiedCcObligation: formData.verifiedCcObligation || '',
-      ccObligationMethod: formData.ccObligationMethod || 'standard',
-      creditCards: formData.existingLoans
-        .filter(loan => loan.type === 'Credit Card')
-        .map(loan => ({
-          cardName: loan.lender || 'Credit Card',
-          outstandingAmount: parseFloat(loan.creditLimitUsed || loan.outstandingAmount || 0),
-          creditLimit: parseFloat(loan.creditLimit || 0),
-          isBT: formData.wantsBT && formData.selectedLoansForBT.includes(loan.id)
-        })),
-      existingLoanBanks: existingLoanBanks, // NEW: List of banks where customer has existing personal loans
-      // NEW: Balance Transfer data
+      creditCardObligation: Math.round(totalCreditCardObligation), // Directly computed 5% internally
+      creditCards: activeCreditCards.map(card => ({
+        id: card.id,
+        cardName: card.lender || 'Credit Card',
+        lender: card.lender || 'Credit Card',
+        outstandingAmount: parseFloat(card.creditLimitUsed || 0),
+        creditLimit: parseFloat(card.creditLimit || 0),
+        creditLimitUsed: parseFloat(card.creditLimitUsed || 0),
+        isBT: formData.wantsBT && formData.selectedLoansForBT.includes(card.id)
+      })),
+      existingLoanBanks: existingLoanBanks,
       wantsBT: formData.wantsBT,
       selectedLoansForBT: formData.wantsBT ? formData.selectedLoansForBT : [],
-      loansForBT: loansForBT, // NEW: Full loan objects for calculation
+      loansForBT: loansForBT,
       creditScore: formData.creditScore ? parseInt(formData.creditScore) : 700,
       state: formData.state,
       city: formData.city,
       salaryMode: formData.salaryMode || 'bank',
       maritalStatus: formData.maritalStatus,
       livingStatus: formData.livingStatus,
-      // loanTenure will default to 5 years in backend, banks will cap based on age
-      // desiredLoanAmount not provided - banks calculate maximum
-      // creditScore will default to 700 in backend (used by some banks internally)
 
-      // Additional data for display purposes (not used in calculation)
+      // Additional data for display purposes
       _metadata: {
         customerName: formData.customerName,
         mobileNumber: formData.mobileNumber,
@@ -370,13 +471,14 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
         incentiveMonth2: incentiveMonth2,
         incentiveMonth3: incentiveMonth3,
         existingLoans: formData.existingLoans,
+        creditCards: formData.creditCards,
         wantsBT: formData.wantsBT,
         selectedLoansForBT: formData.selectedLoansForBT,
         state: formData.state,
         city: formData.city,
         age: formData.age,
         employmentType: formData.employmentType,
-        salaryMode: formData.salaryMode, // Add salaryMode to metadata
+        salaryMode: formData.salaryMode,
         maritalStatus: formData.maritalStatus,
         livingStatus: formData.livingStatus
       }
@@ -827,11 +929,12 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
         </div>
       </div>
 
-      {/* Existing Loans */}
+      {/* Existing Loans and Credit Cards */}
       <div className="form-section">
         <h3>Financial Commitments</h3>
 
-        <div className="form-group checkbox-group">
+        {/* 1. Existing Loans First */}
+        <div className="form-group checkbox-group" style={{ marginBottom: formData.hasExistingLoans ? '15px' : '22px' }}>
           <label>
             <input
               type="checkbox"
@@ -839,15 +942,15 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
               checked={formData.hasExistingLoans}
               onChange={handleInputChange}
             />
-            I have existing loans
+            <strong>I have existing loans</strong>
           </label>
           <small className="help-text" style={{ display: 'block', marginTop: '5px', marginLeft: '24px' }}>
-            Add all your existing loans below (personal loans, car loans, credit cards, etc.)
+            Add any active loans you are currently paying EMI for (personal loans, car loans, home loans, etc.)
           </small>
         </div>
 
         {formData.hasExistingLoans && (
-          <div className="existing-loans-section">
+          <div className="existing-loans-section" style={{ marginBottom: '25px' }}>
             {formData.existingLoans.map((loan, index) => (
               <div key={loan.id} className="loan-item">
                 <div className="loan-item-header">
@@ -863,146 +966,57 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
 
                 <div className="loan-fields">
                   <div className="form-group">
-                    <label>Loan Type</label>
-                    <select
-                      value={loan.type}
-                      onChange={(e) => handleLoanChange(loan.id, 'type', e.target.value)}
-                    >
-                      <option value="Personal Loan">Personal Loan</option>
-                      <option value="Credit Card">Credit Card</option>
-                      <option value="Car Loan">Car Loan</option>
-                      <option value="Other">Other</option>
-                    </select>
-                  </div>
-
-                  {/* Credit Card: Show Credit Limit and Credit Limit Used */}
-                  {loan.type === 'Credit Card' ? (
-                    <>
-                      <div className="form-group">
-                        <label>Credit Limit (₹)</label>
-                        <input
-                          type="text"
-                          value={loan.creditLimit}
-                          onChange={(e) => handleLoanChange(loan.id, 'creditLimit', e.target.value)}
-                          onWheel={(e) => e.target.blur()}
-                          placeholder="₹ 2,00,000"
-                          inputMode="numeric"
-                          pattern="[0-9]*"
-                          autoComplete="off"
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>Credit Limit Used / Outstanding (₹)</label>
-                        <input
-                          type="text"
-                          value={loan.creditLimitUsed}
-                          onChange={(e) => handleLoanChange(loan.id, 'creditLimitUsed', e.target.value)}
-                          onWheel={(e) => e.target.blur()}
-                          placeholder="₹ 50,000"
-                          inputMode="numeric"
-                          pattern="[0-9]*"
-                          autoComplete="off"
-                        />
-                      </div>
-
-                      <div className="form-group" style={{ gridColumn: 'span 2', background: '#eff6ff', padding: '10px 14px', borderRadius: '8px', borderLeft: '4px solid #2563eb', marginTop: '2px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '6px' }}>
-                          <span style={{ fontSize: '0.88rem', color: '#1e40af', fontWeight: 600 }}>
-                            💳 Calculated Monthly Bank Obligation (5%):
-                          </span>
-                          <span style={{ fontSize: '0.95rem', color: '#1e3a8a', fontWeight: 700 }}>
-                            ₹{Math.round((parseFloat(loan.creditLimitUsed) || 0) * 0.05).toLocaleString('en-IN')} / month
-                          </span>
-                        </div>
-                        <div style={{ fontSize: '0.78rem', color: '#4b5563', marginTop: '3px' }}>
-                          Banks count 5% of credit card outstanding as a monthly EMI commitment reducing disposable income.
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      {/* Other Loan Types: Show Outstanding Amount and EMI */}
-                      <div className="form-group">
-                        <label>Outstanding Amount (₹)</label>
-                        <input
-                          type="text"
-                          value={loan.outstandingAmount}
-                          onChange={(e) => handleLoanChange(loan.id, 'outstandingAmount', e.target.value)}
-                          onWheel={(e) => e.target.blur()}
-                          placeholder="₹ 5,00,000"
-                          inputMode="numeric"
-                          pattern="[0-9]*"
-                          autoComplete="off"
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>Current Monthly EMI (₹)</label>
-                        <input
-                          type="text"
-                          value={loan.monthlyEMI}
-                          onChange={(e) => handleLoanChange(loan.id, 'monthlyEMI', e.target.value)}
-                          onWheel={(e) => e.target.blur()}
-                          placeholder="₹ 15,000"
-                          inputMode="numeric"
-                          pattern="[0-9]*"
-                          autoComplete="off"
-                        />
-                      </div>
-                    </>
-                  )}
-
-                  <div className="form-group">
                     <label>Current Lender <span className="required">*</span></label>
                     <select
                       value={loan.lender}
                       onChange={(e) => handleLoanChange(loan.id, 'lender', e.target.value)}
                       required
                     >
-                      <option value="">-- Select Bank --</option>
-                      <option value="kotak mahindra bank">Kotak Mahindra Bank</option>
-                      <option value="hdfc bank">HDFC Bank</option>
-                      <option value="icici bank">ICICI Bank</option>
-                      <option value="bandhan bank">Bandhan Bank</option>
-                      <option value="cholamandalam finance">Cholamandalam Finance</option>
-                      <option value="tata capital">Tata Capital</option>
-                      <option value="poonawala finance">Poonawala Finance</option>
-                      <option value="axis finance">Axis Finance</option>
-                      <option value="indusind bank">IndusInd Bank</option>
-                      <option value="idfc bank">IDFC First Bank</option>
-                      <option value="shri ram finance">Shri Ram Finance</option>
-                      <option value="piramal finance">Piramal Finance</option>
-                      <option value="axis bank">Axis Bank</option>
-                      <option value="l&t finance">L&T Finance</option>
-                      <option value="smfg india credit">SMFG India Credit</option>
-                      <option value="bajaj finance">Bajaj Finance</option>
-                      <option value="incred finance">Incred Finance</option>
-                      <option value="au small finance bank">AU Small Finance Bank</option>
-                      <option value="aditya birla finance">Aditya Birla Finance</option>
-                      <option value="finnable finance">Finnable Finance</option>
-                      <option value="other">Other Bank (Not Listed)</option>
+                      <option value="">-- Select Bank / NBFC --</option>
+                      {LENDER_OPTIONS.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
                     </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Outstanding Amount (₹)</label>
+                    <input
+                      type="text"
+                      value={loan.outstandingAmount}
+                      onChange={(e) => handleLoanChange(loan.id, 'outstandingAmount', e.target.value)}
+                      onWheel={(e) => e.target.blur()}
+                      placeholder="₹ 5,00,000"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      autoComplete="off"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Current Monthly EMI (₹)</label>
+                    <input
+                      type="text"
+                      value={loan.monthlyEMI}
+                      onChange={(e) => handleLoanChange(loan.id, 'monthlyEMI', e.target.value)}
+                      onWheel={(e) => e.target.blur()}
+                      placeholder="₹ 15,000"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      autoComplete="off"
+                    />
                   </div>
                 </div>
               </div>
             ))}
 
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '15px' }}>
+            <div style={{ marginBottom: '15px' }}>
               <button
                 type="button"
                 className="btn-add-loan"
                 onClick={handleAddLoan}
               >
                 + Add Another Loan
-              </button>
-              <button
-                type="button"
-                className="btn-add-loan"
-                style={{ background: '#0284c7', color: '#fff', border: 'none' }}
-                onClick={handleAddCreditCard}
-              >
-                💳 + Add Credit Card
               </button>
             </div>
 
@@ -1011,189 +1025,35 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
                   <div>
                     <strong>Total Existing Loan EMI:</strong> ₹{formData.existingLoans
-                      .filter(l => l.type !== 'Credit Card')
                       .reduce((sum, loan) => sum + (parseFloat(loan.monthlyEMI) || 0), 0)
                       .toLocaleString('en-IN')} / mo
                   </div>
-                  {formData.existingLoans.some(l => l.type === 'Credit Card') && (
-                    <div style={{ color: '#1e40af' }}>
-                      <strong>Active CC Monthly Obligation:</strong> ₹{Math.round(
-                        formData.isCcObligationVerified && formData.ccObligationMethod === 'custom' && formData.verifiedCcObligation !== ''
-                          ? (parseFloat(formData.verifiedCcObligation) || 0)
-                          : formData.existingLoans
-                              .filter(l => l.type === 'Credit Card')
-                              .reduce((sum, loan) => sum + ((parseFloat(loan.creditLimitUsed) || 0) * 0.05), 0)
-                      ).toLocaleString('en-IN')} / mo
-                    </div>
-                  )}
                 </div>
 
                 {/* Show which banks will be excluded */}
                 {formData.existingLoans.some(loan =>
-                  loan.type === 'Personal Loan' &&
                   loan.lender &&
                   loan.lender.trim() !== '' &&
                   loan.lender !== 'other'
                 ) && (
-                    <div style={{ marginTop: '10px', padding: '10px', background: '#fff3cd', borderRadius: '5px', borderLeft: '4px solid #ffc107' }}>
-                      <strong>Bank Exclusions Detected:</strong>
-                      <div style={{ marginTop: '5px', fontSize: '0.9em' }}>
-                        {formData.existingLoans
-                          .filter(loan =>
-                            loan.type === 'Personal Loan' &&
-                            loan.lender &&
-                            loan.lender.trim() !== '' &&
-                            loan.lender !== 'other'
-                          )
-                          .map((loan, idx) => (
-                            <div key={idx} style={{ color: '#856404' }}>
-                              Exclusion: <strong style={{ textTransform: 'capitalize' }}>{loan.lender}</strong> - Active personal loan detected with this institution
-                            </div>
-                          ))
-                        }
-                        <div style={{ marginTop: '5px', fontSize: '0.85em', fontStyle: 'italic', color: '#666' }}>
-                          These banks will not appear in your eligibility results.
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                {/* Credit Card Obligation Verification & Breakdown Section */}
-                {formData.existingLoans.some(l => l.type === 'Credit Card') && (
-                  <div className="cc-obligation-verification-box" style={{
-                    background: '#f8fafc',
-                    border: '1.5px solid #cbd5e1',
-                    borderRadius: '10px',
-                    padding: '16px',
-                    marginTop: '16px',
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.04)'
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '10px', marginBottom: '12px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '1.25rem' }}>💳</span>
-                        <strong style={{ fontSize: '1.05rem', color: '#0f172a' }}>Credit Card Obligation Verification</strong>
-                      </div>
-                      <span style={{
-                        padding: '4px 10px',
-                        borderRadius: '20px',
-                        fontSize: '0.78rem',
-                        fontWeight: 700,
-                        backgroundColor: formData.isCcObligationVerified ? '#dcfce7' : '#fef9c3',
-                        color: formData.isCcObligationVerified ? '#15803d' : '#854d0e',
-                        border: formData.isCcObligationVerified ? '1px solid #86efac' : '1px solid #fde047'
-                      }}>
-                        {formData.isCcObligationVerified ? '✓ Verified by User' : 'Pending Verification'}
-                      </span>
-                    </div>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginBottom: '14px' }}>
-                      <div style={{ background: '#ffffff', padding: '10px 14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                        <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>Total Credit Cards</div>
-                        <div style={{ fontSize: '1.15rem', fontWeight: 700, color: '#1e293b' }}>
-                          {formData.existingLoans.filter(l => l.type === 'Credit Card').length} Card(s)
-                        </div>
-                      </div>
-                      <div style={{ background: '#ffffff', padding: '10px 14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                        <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>Total CC Outstanding</div>
-                        <div style={{ fontSize: '1.15rem', fontWeight: 700, color: '#b91c1c' }}>
-                          ₹{formData.existingLoans.filter(l => l.type === 'Credit Card').reduce((sum, l) => sum + (parseFloat(l.creditLimitUsed) || 0), 0).toLocaleString('en-IN')}
-                        </div>
-                      </div>
-                      <div style={{ background: '#eff6ff', padding: '10px 14px', borderRadius: '8px', border: '1px solid #bfdbfe' }}>
-                        <div style={{ fontSize: '0.75rem', color: '#1e40af', textTransform: 'uppercase', fontWeight: 600 }}>Calculated Monthly Obligation</div>
-                        <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#1d4ed8' }}>
-                          ₹{Math.round(
-                            formData.isCcObligationVerified && formData.ccObligationMethod === 'custom' && formData.verifiedCcObligation !== ''
-                              ? (parseFloat(formData.verifiedCcObligation) || 0)
-                              : formData.existingLoans.filter(l => l.type === 'Credit Card').reduce((sum, l) => sum + (parseFloat(l.creditLimitUsed) || 0), 0) * 0.05
-                          ).toLocaleString('en-IN')} / mo
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Verification Controls */}
-                    <div style={{ background: '#ffffff', padding: '14px 16px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '10px' }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontWeight: 600, color: '#1e293b', fontSize: '0.92rem' }}>
-                        <input
-                          type="checkbox"
-                          checked={formData.isCcObligationVerified || false}
-                          onChange={(e) => setFormData(prev => ({
-                            ...prev,
-                            isCcObligationVerified: e.target.checked
-                          }))}
-                          style={{ width: '18px', height: '18px', accentColor: '#2563eb' }}
-                        />
-                        <span>Verify & Confirm Credit Card Monthly Obligation</span>
-                      </label>
-
-                      {formData.isCcObligationVerified && (
-                        <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed #cbd5e1' }}>
-                          <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#334155', marginBottom: '8px' }}>
-                            Obligation Calculation Method:
+                  <div style={{ marginTop: '10px', padding: '10px', background: '#fff3cd', borderRadius: '5px', borderLeft: '4px solid #ffc107' }}>
+                    <strong>Bank Exclusions Detected:</strong>
+                    <div style={{ marginTop: '5px', fontSize: '0.9em' }}>
+                      {formData.existingLoans
+                        .filter(loan =>
+                          loan.lender &&
+                          loan.lender.trim() !== '' &&
+                          loan.lender !== 'other'
+                        )
+                        .map((loan, idx) => (
+                          <div key={idx} style={{ color: '#856404' }}>
+                            Exclusion: <strong style={{ textTransform: 'capitalize' }}>{loan.lender}</strong> - Active loan detected with this institution
                           </div>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '0.85rem', cursor: 'pointer', color: '#1e293b' }}>
-                              <input
-                                type="radio"
-                                name="ccObligationMethod"
-                                value="standard"
-                                checked={formData.ccObligationMethod !== 'custom'}
-                                onChange={() => setFormData(prev => ({ ...prev, ccObligationMethod: 'standard' }))}
-                                style={{ marginTop: '2px', accentColor: '#2563eb' }}
-                              />
-                              <div>
-                                <strong>Standard 5% Bank Policy (Recommended)</strong>
-                                <div style={{ fontSize: '0.78rem', color: '#64748b' }}>
-                                  Calculates 5% of total outstanding card balance (₹{Math.round(formData.existingLoans.filter(l => l.type === 'Credit Card').reduce((sum, l) => sum + (parseFloat(l.creditLimitUsed) || 0), 0) * 0.05).toLocaleString('en-IN')}/mo) as monthly obligation. Enforced by IndusInd Bank (5%) and partner institutions.
-                                </div>
-                              </div>
-                            </label>
-
-                            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '0.85rem', cursor: 'pointer', color: '#1e293b' }}>
-                              <input
-                                type="radio"
-                                name="ccObligationMethod"
-                                value="custom"
-                                checked={formData.ccObligationMethod === 'custom'}
-                                onChange={() => setFormData(prev => ({ ...prev, ccObligationMethod: 'custom' }))}
-                                style={{ marginTop: '2px', accentColor: '#2563eb' }}
-                              />
-                              <div>
-                                <strong>Custom Verified Minimum Monthly Due (From CIBIL/Statement)</strong>
-                                <div style={{ fontSize: '0.78rem', color: '#64748b' }}>
-                                  Override with the exact verified minimum due from your official credit bureau report or card statement.
-                                </div>
-                              </div>
-                            </label>
-                          </div>
-
-                          {formData.ccObligationMethod === 'custom' && (
-                            <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                              <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>
-                                Verified Monthly Due (₹):
-                              </label>
-                              <input
-                                type="text"
-                                value={formData.verifiedCcObligation || ''}
-                                onChange={(e) => setFormData(prev => ({
-                                  ...prev,
-                                  verifiedCcObligation: e.target.value.replace(/[^0-9]/g, '')
-                                }))}
-                                placeholder="e.g. 2500"
-                                style={{ width: '160px', padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                                inputMode="numeric"
-                              />
-                              <span style={{ fontSize: '0.78rem', color: '#059669', fontWeight: 600 }}>
-                                ✓ Custom commitment will be deducted from monthly disposable salary
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    <div style={{ fontSize: '0.78rem', color: '#64748b', background: '#f1f5f9', padding: '8px 12px', borderRadius: '6px', lineHeight: '1.4' }}>
-                      ℹ️ <strong>Lender Policy Insight:</strong> IndusInd Bank charges 5% of credit card outstanding as monthly commitment (CC BT is not allowed). Axis Bank calculates 4%.
+                        ))
+                      }
+                      <div style={{ marginTop: '5px', fontSize: '0.85em', fontStyle: 'italic', color: '#666' }}>
+                        These banks will not appear in your eligibility results.
+                      </div>
                     </div>
                   </div>
                 )}
@@ -1201,11 +1061,102 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
             )}
           </div>
         )}
+
+        {/* 2. Active Credit Cards Second */}
+        <div className="form-group checkbox-group" style={{ marginTop: '18px', marginBottom: formData.hasCreditCards ? '15px' : '20px', paddingTop: '15px', borderTop: '1px solid #e2e8f0' }}>
+          <label>
+            <input
+              type="checkbox"
+              name="hasCreditCards"
+              checked={formData.hasCreditCards}
+              onChange={handleInputChange}
+            />
+            <strong>I have active credit cards</strong>
+          </label>
+          <small className="help-text" style={{ display: 'block', marginTop: '5px', marginLeft: '24px' }}>
+            Add any active credit cards you currently hold and their outstanding balance
+          </small>
+        </div>
+
+        {formData.hasCreditCards && (
+          <div className="existing-credit-cards-section" style={{ marginBottom: '20px' }}>
+            {(formData.creditCards || []).map((card, index) => (
+              <div key={card.id} className="loan-item" style={{ borderLeft: '4px solid #0284c7' }}>
+                <div className="loan-item-header">
+                  <h4>💳 Credit Card {index + 1}</h4>
+                  <button
+                    type="button"
+                    className="btn-remove"
+                    onClick={() => handleRemoveCreditCard(card.id)}
+                  >
+                    ✕ Remove
+                  </button>
+                </div>
+
+                <div className="loan-fields">
+                  <div className="form-group">
+                    <label>Card Issuer / Bank <span className="required">*</span></label>
+                    <select
+                      value={card.lender}
+                      onChange={(e) => handleCreditCardChange(card.id, 'lender', e.target.value)}
+                      required
+                    >
+                      <option value="">-- Select Bank / Card Issuer --</option>
+                      {LENDER_OPTIONS.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Credit Limit (₹)</label>
+                    <input
+                      type="text"
+                      value={card.creditLimit}
+                      onChange={(e) => handleCreditCardChange(card.id, 'creditLimit', e.target.value)}
+                      onWheel={(e) => e.target.blur()}
+                      placeholder="₹ 2,00,000"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      autoComplete="off"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Credit Limit Used / Outstanding (₹)</label>
+                    <input
+                      type="text"
+                      value={card.creditLimitUsed}
+                      onChange={(e) => handleCreditCardChange(card.id, 'creditLimitUsed', e.target.value)}
+                      onWheel={(e) => e.target.blur()}
+                      placeholder="₹ 50,000"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      autoComplete="off"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            <div style={{ marginBottom: '15px' }}>
+              <button
+                type="button"
+                className="btn-add-loan"
+                style={{ background: '#0284c7', color: '#fff', border: 'none' }}
+                onClick={handleAddCreditCard}
+              >
+                + Add Another Credit Card
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Balance Transfer Section */}
       {
-        formData.hasExistingLoans && formData.existingLoans.length > 0 && (
+        ((formData.hasExistingLoans && formData.existingLoans.length > 0) ||
+         (formData.hasCreditCards && formData.creditCards && formData.creditCards.length > 0)) && (
           <div className="form-section" style={{ background: '#f0f7ff', borderLeft: '4px solid #2196f3' }}>
             <h3>Balance Transfer Optimization</h3>
 
@@ -1220,16 +1171,16 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
                 <strong>Yes, I want to do Balance Transfer</strong>
               </label>
               <small className="help-text" style={{ display: 'block', marginTop: '5px', marginLeft: '24px' }}>
-                Select which specific loans you want to transfer to a new bank with better rates
+                Select which specific loans or credit cards you want to transfer to a new bank with better rates
               </small>
             </div>
 
             {formData.wantsBT && (
               <div style={{ marginTop: '20px' }}>
-                <h4 style={{ marginBottom: '15px', color: '#1976d2' }}>Select Loans for Balance Transfer:</h4>
+                <h4 style={{ marginBottom: '15px', color: '#1976d2' }}>Select Loans / Cards for Balance Transfer:</h4>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {formData.existingLoans.map((loan, index) => (
+                  {formData.hasExistingLoans && formData.existingLoans.map((loan, index) => (
                     <div
                       key={loan.id}
                       style={{
@@ -1251,21 +1202,46 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
                         />
                         <div style={{ flex: 1 }}>
                           <div style={{ fontWeight: '600', fontSize: '1.05em', marginBottom: '8px', color: '#333' }}>
-                            Loan {index + 1}: {loan.type}
+                            Loan {index + 1}
                           </div>
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px', fontSize: '0.9em', color: '#666' }}>
                             <div>🏦 <strong>Bank:</strong> <span style={{ textTransform: 'capitalize' }}>{loan.lender || 'Not specified'}</span></div>
-                            {loan.type === 'Credit Card' ? (
-                              <>
-                                <div>💳 <strong>Credit Limit:</strong> ₹{loan.creditLimit ? parseFloat(loan.creditLimit).toLocaleString('en-IN') : '0'}</div>
-                                <div>💵 <strong>Used:</strong> ₹{loan.creditLimitUsed ? parseFloat(loan.creditLimitUsed).toLocaleString('en-IN') : '0'}</div>
-                              </>
-                            ) : (
-                              <>
-                                <div>💵 <strong>Outstanding:</strong> ₹{loan.outstandingAmount ? parseFloat(loan.outstandingAmount).toLocaleString('en-IN') : '0'}</div>
-                                <div>💳 <strong>EMI:</strong> ₹{loan.monthlyEMI ? parseFloat(loan.monthlyEMI).toLocaleString('en-IN') : '0'}</div>
-                              </>
-                            )}
+                            <div>💵 <strong>Outstanding:</strong> ₹{loan.outstandingAmount ? parseFloat(loan.outstandingAmount).toLocaleString('en-IN') : '0'}</div>
+                            <div>💳 <strong>EMI:</strong> ₹{loan.monthlyEMI ? parseFloat(loan.monthlyEMI).toLocaleString('en-IN') : '0'}</div>
+                          </div>
+                        </div>
+                      </label>
+                    </div>
+                  ))}
+
+                  {formData.hasCreditCards && formData.creditCards && formData.creditCards.map((card, index) => (
+                    <div
+                      key={card.id}
+                      style={{
+                        padding: '15px',
+                        background: 'white',
+                        borderRadius: '8px',
+                        border: formData.selectedLoansForBT.includes(card.id) ? '2px solid #0284c7' : '2px solid #e0e0e0',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onClick={() => handleBTToggle(card.id)}
+                    >
+                      <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                        <input
+                          type="checkbox"
+                          checked={formData.selectedLoansForBT.includes(card.id)}
+                          onChange={() => handleBTToggle(card.id)}
+                          style={{ marginTop: '4px', width: '18px', height: '18px', cursor: 'pointer' }}
+                        />
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontWeight: '600', fontSize: '1.05em', marginBottom: '8px', color: '#0369a1' }}>
+                            💳 Credit Card {index + 1}
+                          </div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px', fontSize: '0.9em', color: '#666' }}>
+                            <div>🏦 <strong>Bank:</strong> <span style={{ textTransform: 'capitalize' }}>{card.lender || 'Not specified'}</span></div>
+                            <div>💳 <strong>Credit Limit:</strong> ₹{card.creditLimit ? parseFloat(card.creditLimit).toLocaleString('en-IN') : '0'}</div>
+                            <div>💵 <strong>Outstanding Used:</strong> ₹{card.creditLimitUsed ? parseFloat(card.creditLimitUsed).toLocaleString('en-IN') : '0'}</div>
                           </div>
                         </div>
                       </label>
@@ -1275,25 +1251,29 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
 
                 {formData.selectedLoansForBT.length > 0 && (
                   <div style={{ marginTop: '15px', padding: '15px', background: '#e8f5e9', borderRadius: '8px', borderLeft: '4px solid #4caf50' }}>
-                    <strong>✅ Selected for BT:</strong> {formData.selectedLoansForBT.length} loan(s)
+                    <strong>✅ Selected for BT:</strong> {formData.selectedLoansForBT.length} item(s)
                     <div style={{ marginTop: '8px', fontSize: '0.9em' }}>
-                      <strong>Total EMI to Transfer:</strong> ₹{formData.existingLoans
+                      <strong>Total Monthly Loan EMI to Transfer:</strong> ₹{(formData.hasExistingLoans ? formData.existingLoans : [])
                         .filter(loan => formData.selectedLoansForBT.includes(loan.id))
                         .reduce((sum, loan) => sum + (parseFloat(loan.monthlyEMI) || 0), 0)
                         .toLocaleString('en-IN')}
                     </div>
                     <div style={{ marginTop: '5px', fontSize: '0.9em' }}>
-                      <strong>Total Outstanding to Transfer:</strong> ₹{formData.existingLoans
-                        .filter(loan => formData.selectedLoansForBT.includes(loan.id))
-                        .reduce((sum, loan) => sum + (parseFloat(loan.outstandingAmount) || 0), 0)
-                        .toLocaleString('en-IN')}
+                      <strong>Total Outstanding Balance to Transfer:</strong> ₹{(
+                        (formData.hasExistingLoans ? formData.existingLoans : [])
+                          .filter(loan => formData.selectedLoansForBT.includes(loan.id))
+                          .reduce((sum, loan) => sum + (parseFloat(loan.outstandingAmount) || 0), 0) +
+                        (formData.hasCreditCards && formData.creditCards ? formData.creditCards : [])
+                          .filter(card => formData.selectedLoansForBT.includes(card.id))
+                          .reduce((sum, card) => sum + (parseFloat(card.creditLimitUsed) || 0), 0)
+                      ).toLocaleString('en-IN')}
                     </div>
                   </div>
                 )}
 
                 {formData.selectedLoansForBT.length === 0 && (
                   <div style={{ marginTop: '15px', padding: '12px', background: '#fff3cd', borderRadius: '6px', fontSize: '0.9em', color: '#856404' }}>
-                    ⚠️ Please select at least one loan for Balance Transfer
+                    ⚠️ Please select at least one loan or credit card for Balance Transfer
                   </div>
                 )}
               </div>
