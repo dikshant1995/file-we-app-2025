@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { 
     Mail, Download, Search, MessageCircle, Copy, Trash2, 
     Share2, Check, FileSpreadsheet, Eye, X, Calendar, 
@@ -32,14 +33,18 @@ const LeadManager = ({ userRole }) => {
     // Modals
     const [activeShareLead, setActiveShareLead] = useState(null);
     const [activeDetailLead, setActiveDetailLead] = useState(null);
-    const [shareViewMode, setShareViewMode] = useState('card'); // 'card' or 'raw'
-    const shareModalRef = useRef(null);
 
+    // Prevent body scrolling when a modal is open
     useEffect(() => {
-        if (activeShareLead && shareModalRef.current) {
-            shareModalRef.current.scrollTop = 0;
+        if (activeShareLead || activeDetailLead) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
         }
-    }, [activeShareLead]);
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [activeShareLead, activeDetailLead]);
 
     // Initial mock fallback data
     const mockLeads = [
@@ -783,257 +788,168 @@ const LeadManager = ({ userRole }) => {
                 </table>
             </div>
 
-            {/* SHARE MODAL DIALOG - ULTRA-COMPACT ZERO-SCROLL SPLIT LAYOUT */}
-            {activeShareLead && (
-                <div className="modal-overlay" onClick={() => setActiveShareLead(null)}>
-                    <div className="share-modal-container glass-panel" ref={shareModalRef} onClick={(e) => e.stopPropagation()}>
-                        {/* Compact Top Bar */}
-                        <div className="share-modal-topbar">
-                            <div className="topbar-left">
-                                <Share2 size={20} color="#00d4ff" />
-                                <div>
-                                    <h3 className="share-title">Loan Lead Dossier Dispatch</h3>
-                                    <span className="share-subtitle">{activeShareLead?.name || 'Applicant'} • {activeShareLead?.mobile || ''}</span>
-                                </div>
+            {/* PORTAL RENDERED LEAD DOSSIER MODAL - STRICTLY THE DOSSIER ONLY */}
+            {activeShareLead && createPortal(
+                <div className="lead-dossier-overlay" onClick={() => setActiveShareLead(null)}>
+                    <div className="lead-dossier-card" onClick={(e) => e.stopPropagation()}>
+                        {/* Dossier Header Banner */}
+                        <div className="dossier-card-top-banner">
+                            <div className="dossier-header-center">
+                                <div className="dossier-brand-title">🌟 LAXMICREDIT LOAN LEAD DOSSIER 🌟</div>
+                                <div className="dossier-brand-sub">Laxmi Omni Systems - Financial Services Division</div>
                             </div>
-
-                            {/* View Switcher Tabs inside header */}
-                            <div className="dossier-view-tabs-compact">
-                                <button 
-                                    className={`dossier-tab-btn-compact ${shareViewMode === 'card' ? 'active' : ''}`}
-                                    onClick={() => setShareViewMode('card')}
-                                >
-                                    🌟 Visual Dossier
-                                </button>
-                                <button 
-                                    className={`dossier-tab-btn-compact ${shareViewMode === 'raw' ? 'active' : ''}`}
-                                    onClick={() => setShareViewMode('raw')}
-                                >
-                                    📱 WhatsApp Text
-                                </button>
-                            </div>
-
-                            <button className="close-btn" onClick={() => setActiveShareLead(null)} title="Close">
-                                <X size={20} />
+                            <button className="dossier-close-btn" onClick={() => setActiveShareLead(null)} title="Close Dossier">
+                                <X size={18} />
                             </button>
                         </div>
 
-                        {/* 2-Column Split Body */}
-                        <div className="dossier-modal-split">
-                            {/* LEFT COLUMN: THE DOSSIER */}
-                            <div className="dossier-left-panel">
-                                {shareViewMode === 'card' ? (
-                                    <div className="dossier-executive-card">
-                                        <div className="dossier-card-top-banner">
-                                            <div className="dossier-brand-title">🌟 LAXMICREDIT LOAN LEAD DOSSIER 🌟</div>
-                                            <div className="dossier-brand-sub">Laxmi Omni Systems - Financial Services Division</div>
-                                        </div>
-
-                                        <div className="dossier-applicant-header">
-                                            <div className="applicant-avatar">
-                                                {(activeShareLead?.name || 'A').trim().charAt(0).toUpperCase()}
-                                            </div>
-                                            <div className="applicant-meta">
-                                                <div className="applicant-name">{activeShareLead?.name || 'Anonymous Applicant'}</div>
-                                                <div className="applicant-contact">
-                                                    <span className="phone-badge">📱 {activeShareLead?.mobile || 'N/A'}</span>
-                                                    <span className="date-badge">📅 {activeShareLead?.timestamp || (activeShareLead?.createdAt ? new Date(activeShareLead?.createdAt).toLocaleString('en-IN') : 'N/A')}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="dossier-metrics-grid">
-                                            <div className="dossier-metric-item">
-                                                <span className="metric-icon">🏢</span>
-                                                <div className="metric-content">
-                                                    <span className="metric-label">Company</span>
-                                                    <span className="metric-val">{activeShareLead?.company || activeShareLead?.employer || 'N/A'}</span>
-                                                    {activeShareLead?.category && <span className="cat-chip" style={{ width: 'fit-content', marginTop: '2px' }}>Cat: {activeShareLead.category}</span>}
-                                                </div>
-                                            </div>
-
-                                            <div className="dossier-metric-item">
-                                                <span className="metric-icon">💼</span>
-                                                <div className="metric-content">
-                                                    <span className="metric-label">Employment</span>
-                                                    <span className="metric-val text-capitalize">{activeShareLead?.employment || 'Salaried'}</span>
-                                                </div>
-                                            </div>
-
-                                            <div className="dossier-metric-item highlight-cyan">
-                                                <span className="metric-icon">💰</span>
-                                                <div className="metric-content">
-                                                    <span className="metric-label">Net Monthly Income</span>
-                                                    <span className="metric-val cyan-bold">₹{Number(activeShareLead?.totalIncome || activeShareLead?.monthlyIncome || 0).toLocaleString('en-IN')} <span className="p-m">p.m.</span></span>
-                                                </div>
-                                            </div>
-
-                                            <div className="dossier-metric-item">
-                                                <span className="metric-icon">💵</span>
-                                                <div className="metric-content">
-                                                    <span className="metric-label">Basic Salary</span>
-                                                    <span className="metric-val">₹{Number(activeShareLead?.basicSalary || 0).toLocaleString('en-IN')}</span>
-                                                </div>
-                                            </div>
-
-                                            <div className="dossier-metric-item">
-                                                <span className="metric-icon">💳</span>
-                                                <div className="metric-content">
-                                                    <span className="metric-label">Existing EMIs</span>
-                                                    <span className="metric-val font-semibold">₹{Number(activeShareLead?.existingEMI || 0).toLocaleString('en-IN')}</span>
-                                                </div>
-                                            </div>
-
-                                            <div className="dossier-metric-item">
-                                                <span className="metric-icon">🔄</span>
-                                                <div className="metric-content">
-                                                    <span className="metric-label">Balance Transfer (BT)</span>
-                                                    <span className={`bt-pill ${activeShareLead?.wantsBT === 'Yes' ? 'bt-yes' : 'bt-no'}`}>
-                                                        {activeShareLead?.wantsBT || 'No'}
-                                                    </span>
-                                                </div>
-                                            </div>
-
-                                            <div className="dossier-metric-item col-span-2">
-                                                <span className="metric-icon">📍</span>
-                                                <div className="metric-content">
-                                                    <span className="metric-label">Location</span>
-                                                    <span className="metric-val">{activeShareLead?.city || 'N/A'}{activeShareLead?.state ? `, ${activeShareLead.state}` : ''}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="dossier-banks-section">
-                                            <div className="dossier-banks-header">
-                                                <span>🏛️ Selected / Eligible Banks:</span>
-                                            </div>
-                                            <div className="dossier-banks-chips">
-                                                {formatBanksShortList(activeShareLead?.selectedBanks || activeShareLead?.eligibleBanks).split(',').map((bank, idx) => (
-                                                    bank.trim() && (
-                                                        <span key={idx} className="dossier-bank-chip">
-                                                            <Check size={11} className="chip-check" />
-                                                            {bank.trim()}
-                                                        </span>
-                                                    )
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="dossier-raw-whatsapp-box">
-                                        <div className="raw-box-header">
-                                            <span>📱 EXACT WHATSAPP DISPATCH TEXT</span>
-                                            <button 
-                                                className="btn-copy-raw" 
-                                                onClick={() => handleCopyLead(activeShareLead)}
-                                            >
-                                                {copiedLeadId === activeShareLead?.id ? (
-                                                    <>
-                                                        <CheckCircle2 size={13} color="#00ff88" />
-                                                        <span>Copied!</span>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <Copy size={13} />
-                                                        <span>Copy Text</span>
-                                                    </>
-                                                )}
-                                            </button>
-                                        </div>
-                                        <pre className="raw-whatsapp-text">
-                                            {generateLeadShareText(activeShareLead)}
-                                        </pre>
-                                    </div>
-                                )}
+                        {/* Applicant Identity Header */}
+                        <div className="dossier-applicant-header">
+                            <div className="applicant-avatar">
+                                {(activeShareLead?.name || 'A').trim().charAt(0).toUpperCase()}
                             </div>
-
-                            {/* RIGHT COLUMN: INSTANT DISPATCH CHANNELS */}
-                            <div className="dossier-right-panel">
-                                <div className="panel-title-badge">⚡ INSTANT DISPATCH CHANNELS</div>
-                                
-                                <div className="dispatch-buttons-stack">
-                                    <button 
-                                        className="dispatch-action-card wa-card"
-                                        onClick={() => { handleWhatsAppShare(activeShareLead); setActiveShareLead(null); }}
-                                    >
-                                        <div className="dispatch-icon-box wa-icon">
-                                            <MessageCircle size={22} color="#ffffff" />
-                                        </div>
-                                        <div className="dispatch-info">
-                                            <div className="dispatch-name">Share on WhatsApp</div>
-                                            <div className="dispatch-hint">Send dossier directly via WhatsApp</div>
-                                        </div>
-                                    </button>
-
-                                    <button 
-                                        className="dispatch-action-card excel-card"
-                                        onClick={() => handleDownloadSingleLead(activeShareLead)}
-                                    >
-                                        <div className="dispatch-icon-box excel-icon">
-                                            <FileSpreadsheet size={22} color="#ffffff" />
-                                        </div>
-                                        <div className="dispatch-info">
-                                            <div className="dispatch-name">Download Excel Report</div>
-                                            <div className="dispatch-hint">Export customer .xlsx dossier</div>
-                                        </div>
-                                    </button>
-
-                                    <button 
-                                        className="dispatch-action-card copy-card"
-                                        onClick={() => handleCopyLead(activeShareLead)}
-                                    >
-                                        <div className="dispatch-icon-box copy-icon">
-                                            {copiedLeadId === activeShareLead?.id ? (
-                                                <CheckCircle2 size={22} color="#00ff88" />
-                                            ) : (
-                                                <Copy size={22} color="#00d4ff" />
-                                            )}
-                                        </div>
-                                        <div className="dispatch-info">
-                                            <div className="dispatch-name">
-                                                {copiedLeadId === activeShareLead?.id ? 'Copied to Clipboard!' : 'Copy Dossier Text'}
-                                            </div>
-                                            <div className="dispatch-hint">Copy formatted text to paste anywhere</div>
-                                        </div>
-                                    </button>
-
-                                    <button 
-                                        className="dispatch-action-card mail-card"
-                                        onClick={() => { handleEmailShare(activeShareLead); setActiveShareLead(null); }}
-                                    >
-                                        <div className="dispatch-icon-box mail-icon">
-                                            <Mail size={22} color="#EA4335" />
-                                        </div>
-                                        <div className="dispatch-info">
-                                            <div className="dispatch-name">Email Dispatch</div>
-                                            <div className="dispatch-hint">Send structured email dispatch</div>
-                                        </div>
-                                    </button>
-
-                                    {navigator.share && (
-                                        <button 
-                                            className="btn-native-share-wide"
-                                            onClick={() => { handleNativeShare(activeShareLead); setActiveShareLead(null); }}
-                                        >
-                                            <ArrowUpRight size={15} />
-                                            <span>Open Device Share Sheet</span>
-                                        </button>
-                                    )}
-                                </div>
-
-                                <div className="right-panel-footer">
-                                    <button className="btn-modal-close-wide" onClick={() => setActiveShareLead(null)}>
-                                        Close Dossier
-                                    </button>
+                            <div className="applicant-meta">
+                                <div className="applicant-name">{activeShareLead?.name || 'Anonymous Applicant'}</div>
+                                <div className="applicant-contact">
+                                    <span className="phone-badge">📱 {activeShareLead?.mobile || 'N/A'}</span>
+                                    <span className="date-badge">📅 {activeShareLead?.timestamp || (activeShareLead?.createdAt ? new Date(activeShareLead?.createdAt).toLocaleString('en-IN') : 'N/A')}</span>
                                 </div>
                             </div>
                         </div>
+
+                        {/* Financial & Profile Attributes Grid */}
+                        <div className="dossier-metrics-grid">
+                            <div className="dossier-metric-item">
+                                <span className="metric-icon">🏢</span>
+                                <div className="metric-content">
+                                    <span className="metric-label">Company</span>
+                                    <span className="metric-val">{activeShareLead?.company || activeShareLead?.employer || 'N/A'}</span>
+                                    {activeShareLead?.category && <span className="cat-chip" style={{ width: 'fit-content', marginTop: '2px' }}>Cat: {activeShareLead.category}</span>}
+                                </div>
+                            </div>
+
+                            <div className="dossier-metric-item">
+                                <span className="metric-icon">💼</span>
+                                <div className="metric-content">
+                                    <span className="metric-label">Employment</span>
+                                    <span className="metric-val text-capitalize">{activeShareLead?.employment || 'Salaried'}</span>
+                                </div>
+                            </div>
+
+                            <div className="dossier-metric-item highlight-cyan">
+                                <span className="metric-icon">💰</span>
+                                <div className="metric-content">
+                                    <span className="metric-label">Net Monthly Income</span>
+                                    <span className="metric-val cyan-bold">₹{Number(activeShareLead?.totalIncome || activeShareLead?.monthlyIncome || 0).toLocaleString('en-IN')} <span className="p-m">p.m.</span></span>
+                                </div>
+                            </div>
+
+                            <div className="dossier-metric-item">
+                                <span className="metric-icon">💵</span>
+                                <div className="metric-content">
+                                    <span className="metric-label">Basic Salary</span>
+                                    <span className="metric-val">₹{Number(activeShareLead?.basicSalary || 0).toLocaleString('en-IN')}</span>
+                                </div>
+                            </div>
+
+                            <div className="dossier-metric-item">
+                                <span className="metric-icon">💳</span>
+                                <div className="metric-content">
+                                    <span className="metric-label">Existing EMIs</span>
+                                    <span className="metric-val font-semibold">₹{Number(activeShareLead?.existingEMI || 0).toLocaleString('en-IN')}</span>
+                                </div>
+                            </div>
+
+                            <div className="dossier-metric-item">
+                                <span className="metric-icon">🔄</span>
+                                <div className="metric-content">
+                                    <span className="metric-label">Balance Transfer (BT)</span>
+                                    <span className={`bt-pill ${activeShareLead?.wantsBT === 'Yes' ? 'bt-yes' : 'bt-no'}`}>
+                                        {activeShareLead?.wantsBT || 'No'}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="dossier-metric-item col-span-2">
+                                <span className="metric-icon">📍</span>
+                                <div className="metric-content">
+                                    <span className="metric-label">Location</span>
+                                    <span className="metric-val">{activeShareLead?.city || 'N/A'}{activeShareLead?.state ? `, ${activeShareLead.state}` : ''}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Selected / Eligible Banks Section */}
+                        <div className="dossier-banks-section">
+                            <div className="dossier-banks-header">
+                                <span>🏛️ Selected / Eligible Banks:</span>
+                            </div>
+                            <div className="dossier-banks-chips">
+                                {formatBanksShortList(activeShareLead?.selectedBanks || activeShareLead?.eligibleBanks).split(',').map((bank, idx) => (
+                                    bank.trim() && (
+                                        <span key={idx} className="dossier-bank-chip">
+                                            <Check size={11} className="chip-check" />
+                                            {bank.trim()}
+                                        </span>
+                                    )
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Direct 1-Click Action Bar */}
+                        <div className="dossier-actions-bar">
+                            <button 
+                                className="dossier-action-btn btn-wa"
+                                onClick={() => handleWhatsAppShare(activeShareLead)}
+                                title="Share dossier directly on WhatsApp"
+                            >
+                                <MessageCircle size={17} />
+                                <span>Share on WhatsApp</span>
+                            </button>
+
+                            <button 
+                                className="dossier-action-btn btn-report"
+                                onClick={() => handleDownloadSingleLead(activeShareLead)}
+                                title="Download Excel dossier report"
+                            >
+                                <FileSpreadsheet size={17} />
+                                <span>Download Report</span>
+                            </button>
+
+                            <button 
+                                className="dossier-action-btn btn-copy"
+                                onClick={() => handleCopyLead(activeShareLead)}
+                                title="Copy formatted dossier to clipboard"
+                            >
+                                {copiedLeadId === activeShareLead?.id ? (
+                                    <>
+                                        <CheckCircle2 size={17} color="#00ff88" />
+                                        <span style={{ color: '#00ff88' }}>Copied!</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Copy size={17} />
+                                        <span>Copy Dossier</span>
+                                    </>
+                                )}
+                            </button>
+
+                            <button 
+                                className="dossier-action-btn btn-email"
+                                onClick={() => handleEmailShare(activeShareLead)}
+                                title="Send email dispatch"
+                            >
+                                <Mail size={17} />
+                                <span>Email</span>
+                            </button>
+                        </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
             {/* FULL LEAD DETAIL INSPECTION MODAL */}
-            {activeDetailLead && (
+            {activeDetailLead && createPortal(
                 <div className="modal-overlay" onClick={() => setActiveDetailLead(null)}>
                     <div className="detail-modal-container glass-panel" onClick={(e) => e.stopPropagation()}>
                         <div className="modal-header">
@@ -1162,7 +1078,8 @@ const LeadManager = ({ userRole }) => {
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

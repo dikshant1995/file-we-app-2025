@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { auth, db } from '../../config/firebase.js';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { updatePassword } from 'firebase/auth';
@@ -19,6 +20,17 @@ const ChangePasswordModal = ({ isOpen, onClose, user }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
@@ -110,7 +122,7 @@ const ChangePasswordModal = ({ isOpen, onClose, user }) => {
         }
     };
 
-    return (
+    return createPortal(
         <div className="password-modal-overlay" onClick={onClose}>
             <div className="password-modal-container glass-panel" onClick={(e) => e.stopPropagation()}>
                 <div className="password-modal-header">
@@ -231,7 +243,8 @@ const ChangePasswordModal = ({ isOpen, onClose, user }) => {
                     </div>
                 </form>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 
