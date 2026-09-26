@@ -339,17 +339,22 @@ const matchCategory = (cat1, cat2) => {
         govtPolicy = getBankConfig(name, 'govtPolicy', location);
         console.log(`   🏛️ ${name}: Govt Direct Injection Active`, govtPolicy);
       } else if (hasDatabase) {
-        const bankDbKey = id === 'shriram' ? 'shriram' : id;
+        let bankDbKey = id;
+        if (id === 'axis-bank' || id === 'axis' || name === 'Axis Bank' || name === 'Axis Finance') {
+          bankDbKey = 'axis_fin';
+        } else if (id === 'shriram') {
+          bankDbKey = 'shriram';
+        }
 
         if (calculatorInput.companyName) {
-          bankCategory = getCompanyCategoryForBank(calculatorInput.companyName, bankDbKey);
+          bankCategory = getCompanyCategoryForBank(calculatorInput.companyName, bankDbKey, calculatorInput.category || 'A');
           console.log(`   🏭 ${name}: ${calculatorInput.companyName} → ${bankCategory}`);
         } else {
-          bankCategory = calculatorInput.category;
+          bankCategory = calculatorInput.category || 'A';
         }
       } else {
-        bankCategory = 'B';
-        console.log(`   🏭 ${name}: Using default Category B (no database)`);
+        bankCategory = calculatorInput.category || 'B';
+        console.log(`   🏭 ${name}: Using default Category ${bankCategory} (no database)`);
       }
 
       // -------------------------------------------------------------
@@ -412,14 +417,19 @@ const matchCategory = (cat1, cat2) => {
         if (Array.isArray(uPolicy.interestRates)) {
           const matchedRate = uPolicy.interestRates.find(r => matchCategory(r.category, bankCategory));
           if (matchedRate) {
-            const reqAmount = calculatorInput.desiredLoanAmount || 1000000;
             let dynamicRoi = matchedRate.defaultRoi || matchedRate.minRoi || 10.5;
-            if (reqAmount >= 1500000 && matchedRate.roiAbove15L) {
-              dynamicRoi = matchedRate.roiAbove15L;
-            } else if (reqAmount >= 1000000 && matchedRate.roi10Lto15L) {
-              dynamicRoi = matchedRate.roi10Lto15L;
-            } else if (matchedRate.roiBelow10L) {
-              dynamicRoi = matchedRate.roiBelow10L;
+            if (calculatorInput.desiredLoanAmount && calculatorInput.desiredLoanAmount > 0) {
+              const reqAmount = calculatorInput.desiredLoanAmount;
+              if (reqAmount >= 1500000 && matchedRate.roiAbove15L) {
+                dynamicRoi = matchedRate.roiAbove15L;
+              } else if (reqAmount >= 1000000 && matchedRate.roi10Lto15L) {
+                dynamicRoi = matchedRate.roi10Lto15L;
+              } else if (matchedRate.roiBelow10L) {
+                dynamicRoi = matchedRate.roiBelow10L;
+              }
+            } else {
+              // Customer entered NO loan amount: use best provisional base rate (e.g. 9.99%) to determine max capacity
+              dynamicRoi = matchedRate.roiAbove15L || matchedRate.defaultRoi || matchedRate.minRoi || 9.99;
             }
             bankInput.interestRateOverride = Number(dynamicRoi);
             bankInput.matchedRateConfig = matchedRate;

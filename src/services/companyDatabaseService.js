@@ -11,7 +11,9 @@ const bankDatabases = {
   'icici': [],
   'chola': [],
   'indusind': [],
-  'axis_fin': []
+  'axis_fin': [],
+  'axis': [],
+  'axis-bank': []
 };
 
 // Health tracking for production stability
@@ -28,6 +30,24 @@ export const dbHealth = {
     'indusind': { status: 'idle', count: 0 },
     'axis_fin': { status: 'idle', count: 0 }
   }
+};
+
+/**
+ * Resolve bank alias to canonical database key
+ */
+export const resolveBankDbKey = (bankName) => {
+  if (!bankName) return 'universal';
+  const clean = String(bankName).toLowerCase().replace(/[-_ ]/g, '');
+  if (clean.includes('axis')) return 'axis_fin';
+  if (clean.includes('indusind')) return 'indusind';
+  if (clean.includes('kotak')) return 'kotak';
+  if (clean.includes('tata')) return 'tata';
+  if (clean.includes('poonawala')) return 'poonawala';
+  if (clean.includes('idfc')) return 'idfc';
+  if (clean.includes('hdfc')) return 'hdfc';
+  if (clean.includes('icici')) return 'icici';
+  if (clean.includes('chola')) return 'chola';
+  return bankName;
 };
 
 /**
@@ -98,29 +118,39 @@ export const loadUniversalCompanies = async () => {
  * Load bank-specific company database
  */
 export const loadBankDatabase = async (bankName) => {
-  if (!dbHealth.banks[bankName]) {
-    dbHealth.banks[bankName] = { status: 'idle', count: 0 };
+  const targetKey = resolveBankDbKey(bankName);
+
+  if (!dbHealth.banks[targetKey]) {
+    dbHealth.banks[targetKey] = { status: 'idle', count: 0 };
   }
 
   // If already loaded in memory with records, return immediately
-  if (bankDatabases[bankName] && bankDatabases[bankName].length > 0) {
-    return bankDatabases[bankName];
+  if (bankDatabases[targetKey] && bankDatabases[targetKey].length > 0) {
+    if (targetKey !== bankName) {
+      bankDatabases[bankName] = bankDatabases[targetKey];
+    }
+    return bankDatabases[targetKey];
   }
 
-  dbHealth.banks[bankName].status = 'loading';
+  dbHealth.banks[targetKey].status = 'loading';
 
   // 1. Load bank-specific master JSON first (Contains full 40,000 to 182,000 companies)
   try {
-    const data = await fetchWithRetry(`/data/${bankName}_companies.json`);
+    const data = await fetchWithRetry(`/data/${targetKey}_companies.json`);
     if (data && Array.isArray(data) && data.length > 0) {
+      bankDatabases[targetKey] = data;
       bankDatabases[bankName] = data;
-      dbHealth.banks[bankName].status = 'ok';
-      dbHealth.banks[bankName].count = data.length;
-      console.log(`✅ MASTER JSON SUCCESS: ${bankName} database loaded (${data.length.toLocaleString('en-IN')} companies).`);
+      if (targetKey === 'axis_fin') {
+        bankDatabases['axis'] = data;
+        bankDatabases['axis-bank'] = data;
+      }
+      dbHealth.banks[targetKey].status = 'ok';
+      dbHealth.banks[targetKey].count = data.length;
+      console.log(`✅ MASTER JSON SUCCESS: ${targetKey} database loaded (${data.length.toLocaleString('en-IN')} companies).`);
       return data;
     }
   } catch (localErr) {
-    console.warn(`Local JSON not found for ${bankName} (${localErr.message}). Attempting universal baseline...`);
+    console.warn(`Local JSON not found for ${targetKey} (${localErr.message}). Attempting universal baseline...`);
   }
 
   // 2. Fallback to Universal Database for banks without a dedicated file (Bandhan, Shri Ram, Piramal)
@@ -131,45 +161,50 @@ export const loadBankDatabase = async (bankName) => {
         companyName: c.companyName || c.name || `Company ${idx + 1}`,
         category: 'CATGB' // Standard Tier B default
       }));
+      bankDatabases[targetKey] = mapped;
       bankDatabases[bankName] = mapped;
-      dbHealth.banks[bankName].status = 'ok';
-      dbHealth.banks[bankName].count = mapped.length;
-      console.log(`✅ UNIVERSAL BASELINE SUCCESS: ${bankName} loaded with ${mapped.length.toLocaleString('en-IN')} companies.`);
+      dbHealth.banks[targetKey].status = 'ok';
+      dbHealth.banks[targetKey].count = mapped.length;
+      console.log(`✅ UNIVERSAL BASELINE SUCCESS: ${targetKey} loaded with ${mapped.length.toLocaleString('en-IN')} companies.`);
       return mapped;
     }
   } catch (uErr) {
-    console.warn(`Universal fallback failed for ${bankName}: ${uErr.message}`);
+    console.warn(`Universal fallback failed for ${targetKey}: ${uErr.message}`);
   }
 
   // 3. Optional Firestore check for custom admin patches
   try {
-    const docRef = doc(db, 'company_databases', bankName);
+    const docRef = doc(db, 'company_databases', targetKey);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       const cloudData = docSnap.data().data || [];
+      bankDatabases[targetKey] = cloudData;
       bankDatabases[bankName] = cloudData;
-      dbHealth.banks[bankName].status = 'ok';
-      dbHealth.banks[bankName].count = cloudData.length;
+      dbHealth.banks[targetKey].status = 'ok';
+      dbHealth.banks[targetKey].count = cloudData.length;
       return cloudData;
     }
   } catch (cloudErr) {
-    console.warn(`Firestore check skipped for ${bankName}`);
+    console.warn(`Firestore check skipped for ${targetKey}`);
   }
 
-  return bankDatabases[bankName] || [];
+  return bankDatabases[targetKey] || [];
 };
 
 export const getLoadedBankDatabase = (bankName) => {
-  return bankDatabases[bankName] || [];
+  const targetKey = resolveBankDbKey(bankName);
+  return bankDatabases[targetKey] || bankDatabases[bankName] || [];
 };
 
 export const setBankDatabaseInMemory = (bankName, data) => {
+  const targetKey = resolveBankDbKey(bankName);
+  bankDatabases[targetKey] = data;
   bankDatabases[bankName] = data;
-  if (!dbHealth.banks[bankName]) {
-    dbHealth.banks[bankName] = { status: 'ok', count: data.length };
+  if (!dbHealth.banks[targetKey]) {
+    dbHealth.banks[targetKey] = { status: 'ok', count: data.length };
   } else {
-    dbHealth.banks[bankName].status = 'ok';
-    dbHealth.banks[bankName].count = data.length;
+    dbHealth.banks[targetKey].status = 'ok';
+    dbHealth.banks[targetKey].count = data.length;
   }
 };
 
@@ -179,6 +214,11 @@ export const setBankDatabaseInMemory = (bankName, data) => {
 export const initializeBankDatabases = async () => {
   const bankNames = Object.keys(dbHealth.banks);
   await Promise.all(bankNames.map(name => loadBankDatabase(name)));
+  // Ensure aliases are synchronized
+  if (bankDatabases['axis_fin'] && bankDatabases['axis_fin'].length > 0) {
+    bankDatabases['axis'] = bankDatabases['axis_fin'];
+    bankDatabases['axis-bank'] = bankDatabases['axis_fin'];
+  }
   console.log('🏁 Health Check:', dbHealth);
 };
 
@@ -225,22 +265,48 @@ const mapCategoryToConfigKey = (standardizedCategory) => {
 export const getCompanyCategoryForBank = (companyName, bankName, fallbackCategory = 'B') => {
   if (!companyName) return fallbackCategory;
 
+  const targetKey = resolveBankDbKey(bankName);
   const normalizedCompany = companyName.trim().toUpperCase();
-  const bankDb = bankDatabases[bankName] || [];
+  const bankDb = bankDatabases[targetKey] || bankDatabases[bankName] || [];
 
   // Safety: If database failed to load or is empty, use the user selected fallback
   if (bankDb.length === 0) {
-    console.warn(`🛡️ Fallback: ${bankName} database empty. Using user selection: ${fallbackCategory}`);
+    console.warn(`🛡️ Fallback: ${bankName} (${targetKey}) database empty. Using user selection: ${fallbackCategory}`);
     return fallbackCategory;
   }
 
-  const match = bankDb.find(
-    company => company.companyName.trim().toUpperCase() === normalizedCompany
+  // 1. Exact match
+  let match = bankDb.find(
+    company => company?.companyName && company.companyName.trim().toUpperCase() === normalizedCompany
   );
+
+  // 2. Cleaned suffix match (stripping PVT, LTD, PRIVATE, LIMITED, and special characters)
+  if (!match) {
+    const cleanSearch = normalizedCompany.replace(/\b(PVT|LTD|PRIVATE|LIMITED)\b/g, '').replace(/[^A-Z0-9]/g, ' ').trim();
+    if (cleanSearch) {
+      match = bankDb.find(company => {
+        if (!company?.companyName) return false;
+        const cClean = company.companyName.trim().toUpperCase().replace(/\b(PVT|LTD|PRIVATE|LIMITED)\b/g, '').replace(/[^A-Z0-9]/g, ' ').trim();
+        return cClean === cleanSearch;
+      });
+    }
+  }
+
+  // 3. Prefix match if at least 4 characters
+  if (!match) {
+    const cleanSearch = normalizedCompany.replace(/\b(PVT|LTD|PRIVATE|LIMITED)\b/g, '').replace(/[^A-Z0-9]/g, ' ').trim();
+    if (cleanSearch && cleanSearch.length >= 4) {
+      match = bankDb.find(company => {
+        if (!company?.companyName) return false;
+        const cClean = company.companyName.trim().toUpperCase().replace(/\b(PVT|LTD|PRIVATE|LIMITED)\b/g, '').replace(/[^A-Z0-9]/g, ' ').trim();
+        return cClean.startsWith(cleanSearch) || cleanSearch.startsWith(cClean);
+      });
+    }
+  }
 
   if (match) {
     const configKey = mapCategoryToConfigKey(match.category);
-    console.log(`✅ ${bankName}: ${companyName} → ${match.category}`);
+    console.log(`✅ ${bankName} (${targetKey}): ${companyName} → ${match.category} (${configKey})`);
     return configKey;
   }
 
@@ -262,7 +328,8 @@ export const getCompanyCategoriesForAllBanks = (companyName, globalFallback = 'B
     icici: getCompanyCategoryForBank(companyName, 'icici', globalFallback),
     chola: getCompanyCategoryForBank(companyName, 'chola', globalFallback),
     indusind: getCompanyCategoryForBank(companyName, 'indusind', globalFallback),
-    'axis_fin': getCompanyCategoryForBank(companyName, 'axis_fin', globalFallback)
+    'axis_fin': getCompanyCategoryForBank(companyName, 'axis_fin', globalFallback),
+    'axis-bank': getCompanyCategoryForBank(companyName, 'axis-bank', globalFallback)
   };
 };
 
