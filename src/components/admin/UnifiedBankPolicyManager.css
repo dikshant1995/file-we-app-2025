@@ -609,6 +609,12 @@
   border: 1px solid rgba(203, 213, 225, 0.3);
 }
 
+.cat-d {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.35);
+}
+
 .cat-govt {
   background: rgba(16, 185, 129, 0.2);
   color: #34d399;

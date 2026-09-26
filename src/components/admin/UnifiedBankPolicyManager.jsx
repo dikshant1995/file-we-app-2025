@@ -154,11 +154,11 @@ const DEFAULT_UNIFIED_POLICY = {
     { category: 'Govt', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years' }
   ],
   foirMultiplier: [
-    { category: 'Super A', maxFoir: 70, multiplier: 28, ccObligation: 5 },
-    { category: 'A', maxFoir: 65, multiplier: 24, ccObligation: 5 },
-    { category: 'B', maxFoir: 60, multiplier: 20, ccObligation: 5 },
-    { category: 'C', maxFoir: 55, multiplier: 18, ccObligation: 5 },
-    { category: 'Govt', maxFoir: 65, multiplier: 25, ccObligation: 3 }
+    { category: 'Super A', slab1Foir: 55, slab2Foir: 65, maxFoir: 70, multiplier: 28, ccObligation: 5 },
+    { category: 'A', slab1Foir: 50, slab2Foir: 60, maxFoir: 65, multiplier: 24, ccObligation: 5 },
+    { category: 'B', slab1Foir: 50, slab2Foir: 55, maxFoir: 60, multiplier: 20, ccObligation: 5 },
+    { category: 'C', slab1Foir: 45, slab2Foir: 50, maxFoir: 55, multiplier: 18, ccObligation: 5 },
+    { category: 'Govt', slab1Foir: 55, slab2Foir: 60, maxFoir: 65, multiplier: 25, ccObligation: 3 }
   ],
   demographics: DEFAULT_DEMOGRAPHIC_RULES,
   companies: INITIAL_COMPANY_DATABASE
@@ -171,6 +171,7 @@ export const AXIS_BANK_EXCEL_POLICY = {
     { category: 'A', minRoi: 9.99, maxRoi: 10.35, defaultRoi: 9.99, minSalary: 40000 },
     { category: 'B', minRoi: 10.39, maxRoi: 10.45, defaultRoi: 10.39, minSalary: 35000 },
     { category: 'C', minRoi: 10.59, maxRoi: 10.75, defaultRoi: 10.59, minSalary: 25000 },
+    { category: 'D', minRoi: 10.75, maxRoi: 11.25, defaultRoi: 10.75, minSalary: 25000 },
     { category: 'Govt', minRoi: 10.39, maxRoi: 10.45, defaultRoi: 10.39, minSalary: 25000 }
   ],
   loanCapping: [
@@ -178,6 +179,7 @@ export const AXIS_BANK_EXCEL_POLICY = {
     { tier: 'A', minLoan: 50000, maxLoan: 5000000, bachelorCap: 2500000, minSalary: 175000 },
     { tier: 'B', minLoan: 50000, maxLoan: 5000000, bachelorCap: 2000000, minSalary: 175000 },
     { tier: 'C', minLoan: 50000, maxLoan: 5000000, bachelorCap: 1500000, minSalary: 175000 },
+    { tier: 'D', minLoan: 50000, maxLoan: 5000000, bachelorCap: 1500000, minSalary: 175000 },
     { tier: 'Govt', minLoan: 50000, maxLoan: 5000000, bachelorCap: 2500000, minSalary: 175000 }
   ],
   tenureRules: [
@@ -185,14 +187,16 @@ export const AXIS_BANK_EXCEL_POLICY = {
     { category: 'A', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years' },
     { category: 'B', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years' },
     { category: 'C', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years' },
+    { category: 'D', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years' },
     { category: 'Govt', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years' }
   ],
   foirMultiplier: [
-    { category: 'Super A', maxFoir: 75, multiplier: 36, ccObligation: 4 },
-    { category: 'A', maxFoir: 75, multiplier: 36, ccObligation: 4 },
-    { category: 'B', maxFoir: 75, multiplier: 36, ccObligation: 4 },
-    { category: 'C', maxFoir: 75, multiplier: 36, ccObligation: 4 },
-    { category: 'Govt', maxFoir: 75, multiplier: 36, ccObligation: 4 }
+    { category: 'Super A', slab1Foir: 55, slab2Foir: 65, maxFoir: 75, multiplier: 36, ccObligation: 4 },
+    { category: 'A', slab1Foir: 55, slab2Foir: 65, maxFoir: 75, multiplier: 36, ccObligation: 4 },
+    { category: 'B', slab1Foir: 55, slab2Foir: 65, maxFoir: 75, multiplier: 36, ccObligation: 4 },
+    { category: 'C', slab1Foir: 55, slab2Foir: 65, maxFoir: 75, multiplier: 36, ccObligation: 4 },
+    { category: 'D', slab1Foir: 55, slab2Foir: 65, maxFoir: 75, multiplier: 36, ccObligation: 4 },
+    { category: 'Govt', slab1Foir: 55, slab2Foir: 65, maxFoir: 75, multiplier: 36, ccObligation: 4 }
   ],
   demographics: {
     minAge: 21,
@@ -224,7 +228,14 @@ const sanitizePolicyData = (raw) => {
       ? raw.tenureRules 
       : DEFAULT_UNIFIED_POLICY.tenureRules,
     foirMultiplier: Array.isArray(raw.foirMultiplier) && raw.foirMultiplier.length > 0 
-      ? raw.foirMultiplier 
+      ? raw.foirMultiplier.map(row => ({
+          category: row.category,
+          slab1Foir: row.slab1Foir ?? (row.maxFoir ? Math.max(40, row.maxFoir - 20) : 55),
+          slab2Foir: row.slab2Foir ?? (row.maxFoir ? Math.max(50, row.maxFoir - 10) : 65),
+          maxFoir: row.maxFoir ?? 75,
+          multiplier: row.multiplier ?? 30,
+          ccObligation: row.ccObligation ?? 5
+        }))
       : DEFAULT_UNIFIED_POLICY.foirMultiplier,
     demographics: {
       ...DEFAULT_DEMOGRAPHIC_RULES,
@@ -1478,7 +1489,7 @@ const UnifiedBankPolicyManager = () => {
               <div className="table-card-header">
                 <div>
                   <h3>FOIR (Fixed Obligation to Income Ratio) & Income Multipliers</h3>
-                  <p>Determine borrower obligation tolerance and salary multiplier factors.</p>
+                  <p>Configure permitted FOIR percentages across net monthly salary slabs and income multiplier limits.</p>
                 </div>
               </div>
 
@@ -1487,9 +1498,11 @@ const UnifiedBankPolicyManager = () => {
                   <thead>
                     <tr>
                       <th>Category Tier</th>
-                      <th>Max Permitted FOIR (%)</th>
-                      <th>Net Salary Multiplier (x)</th>
-                      <th>Credit Card Obligation Factor (%)</th>
+                      <th>₹25K – ₹35K Salary FOIR</th>
+                      <th>₹35K – ₹40K Salary FOIR</th>
+                      <th>₹40K+ Salary Max FOIR</th>
+                      <th>Net Salary Multiplier</th>
+                      <th>Credit Card Obligation</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1501,10 +1514,40 @@ const UnifiedBankPolicyManager = () => {
                           </span>
                         </td>
                         <td>
+                          <div className="table-input-cell">
+                            <input 
+                              type="number"
+                              value={row.slab1Foir ?? 55}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                const updated = [...policyData.foirMultiplier];
+                                updated[idx].slab1Foir = val;
+                                setPolicyData({ ...policyData, foirMultiplier: updated });
+                              }}
+                            />
+                            <span>% (50–55%)</span>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="table-input-cell">
+                            <input 
+                              type="number"
+                              value={row.slab2Foir ?? 65}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                const updated = [...policyData.foirMultiplier];
+                                updated[idx].slab2Foir = val;
+                                setPolicyData({ ...policyData, foirMultiplier: updated });
+                              }}
+                            />
+                            <span>% (55–65%)</span>
+                          </div>
+                        </td>
+                        <td>
                           <div className="table-input-cell highlight">
                             <input 
                               type="number"
-                              value={row.maxFoir}
+                              value={row.maxFoir ?? 75}
                               onChange={(e) => {
                                 const val = Number(e.target.value);
                                 const updated = [...policyData.foirMultiplier];
@@ -1512,7 +1555,7 @@ const UnifiedBankPolicyManager = () => {
                                 setPolicyData({ ...policyData, foirMultiplier: updated });
                               }}
                             />
-                            <span>%</span>
+                            <span>% (Up to 75%)</span>
                           </div>
                         </td>
                         <td>
