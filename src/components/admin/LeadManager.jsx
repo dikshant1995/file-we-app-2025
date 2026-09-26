@@ -34,26 +34,34 @@ const LeadManager = ({ userRole }) => {
     const [activeShareLead, setActiveShareLead] = useState(null);
     const [activeDetailLead, setActiveDetailLead] = useState(null);
 
-    // Prevent body scrolling when a modal is open and handle Escape key
+    // Prevent body scrolling when a modal is open, handle Escape key, and close modal on Browser Back
     useEffect(() => {
         if (activeShareLead || activeDetailLead) {
             document.body.style.overflow = 'hidden';
+            window.history.pushState({ modalOpen: true }, '');
+
+            const handlePopState = () => {
+                setActiveShareLead(null);
+                setActiveDetailLead(null);
+            };
+            window.addEventListener('popstate', handlePopState, { once: true });
+
+            const handleKeyDown = (e) => {
+                if (e.key === 'Escape') {
+                    setActiveShareLead(null);
+                    setActiveDetailLead(null);
+                }
+            };
+            window.addEventListener('keydown', handleKeyDown);
+
+            return () => {
+                document.body.style.overflow = '';
+                window.removeEventListener('keydown', handleKeyDown);
+                window.removeEventListener('popstate', handlePopState);
+            };
         } else {
             document.body.style.overflow = '';
         }
-
-        const handleKeyDown = (e) => {
-            if (e.key === 'Escape') {
-                setActiveShareLead(null);
-                setActiveDetailLead(null);
-            }
-        };
-        window.addEventListener('keydown', handleKeyDown);
-
-        return () => {
-            document.body.style.overflow = '';
-            window.removeEventListener('keydown', handleKeyDown);
-        };
     }, [activeShareLead, activeDetailLead]);
 
     // Initial mock fallback data

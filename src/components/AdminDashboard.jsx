@@ -7,7 +7,7 @@ import ChangePasswordModal from './admin/ChangePasswordModal.jsx';
 import { auth, db } from '../config/firebase.js';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
-import { Users, Building2, KeyRound } from 'lucide-react';
+import { Users, Building2, KeyRound, ArrowLeft } from 'lucide-react';
 
 const AdminDashboard = ({ onBackToCustomer, initialUser }) => {
   // Only 2 Main Features: 'leads' and 'bank-policy'
@@ -23,6 +23,52 @@ const AdminDashboard = ({ onBackToCustomer, initialUser }) => {
     }
   });
   const [loading, setLoading] = useState(false);
+
+  // Sync activeMenu with browser history & URL hash so Back button switches tabs
+  const handleTabChange = (tabId, pushHistory = true) => {
+    if (tabId === activeMenu) return;
+    setActiveMenu(tabId);
+    if (pushHistory) {
+      window.history.pushState({ tab: tabId }, '', `#${tabId}`);
+    }
+  };
+
+  // Browser Back Button (popstate listener)
+  useEffect(() => {
+    const initialHash = window.location.hash.replace('#', '');
+    if (initialHash === 'bank-policy' || initialHash === 'leads') {
+      setActiveMenu(initialHash);
+    } else {
+      window.history.replaceState({ tab: 'leads' }, '', '#leads');
+    }
+
+    const handlePopState = (event) => {
+      if (event.state && event.state.tab) {
+        setActiveMenu(event.state.tab);
+      } else {
+        const hash = window.location.hash.replace('#', '');
+        if (hash === 'bank-policy' || hash === 'leads') {
+          setActiveMenu(hash);
+        } else {
+          setActiveMenu('leads');
+        }
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // UI Back Button Click Handler
+  const handleGoBack = () => {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      // Toggle to previous tab if no history stack exists
+      const target = activeMenu === 'bank-policy' ? 'leads' : 'bank-policy';
+      handleTabChange(target);
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -102,13 +148,22 @@ const AdminDashboard = ({ onBackToCustomer, initialUser }) => {
             </div>
           </div>
 
-          {/* Top Header Navigation Buttons (Moved from Side Nav Bar) */}
+          {/* Top Header Navigation Buttons with Back Control */}
           <nav className="header-nav-buttons">
+            <button
+              className="header-back-btn"
+              onClick={handleGoBack}
+              title="Go back to previous tab"
+            >
+              <ArrowLeft size={16} />
+              <span>Back</span>
+            </button>
+            <div className="header-nav-divider"></div>
             {menuItems.map(item => (
               <button
                 key={item.id}
                 className={`header-nav-btn ${activeMenu === item.id ? 'active' : ''}`}
-                onClick={() => setActiveMenu(item.id)}
+                onClick={() => handleTabChange(item.id)}
               >
                 <span className="nav-btn-icon">{item.icon}</span>
                 <span className="nav-btn-label">{item.label}</span>
