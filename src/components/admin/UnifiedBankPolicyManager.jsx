@@ -126,7 +126,9 @@ const DEFAULT_DEMOGRAPHIC_RULES = {
   minSalary: 25000,
   minExperienceTotal: 12,
   minExperienceCurrent: 6,
-  minCibilScore: 650
+  minCibilScore: 650,
+  ccObligationPercent: 5,
+  ccBtAllowedCount: 3
 };
 
 const DEFAULT_UNIFIED_POLICY = {
@@ -159,6 +161,51 @@ const DEFAULT_UNIFIED_POLICY = {
     { category: 'Govt', maxFoir: 65, multiplier: 25, ccObligation: 3 }
   ],
   demographics: DEFAULT_DEMOGRAPHIC_RULES,
+  companies: INITIAL_COMPANY_DATABASE
+};
+
+// Exact Master Policy Configuration for AXIS BANK from Excel
+export const AXIS_BANK_EXCEL_POLICY = {
+  interestRates: [
+    { category: 'Super A', minRoi: 9.99, maxRoi: 10.35, defaultRoi: 9.99, minSalary: 40000 },
+    { category: 'A', minRoi: 9.99, maxRoi: 10.35, defaultRoi: 9.99, minSalary: 40000 },
+    { category: 'B', minRoi: 10.39, maxRoi: 10.45, defaultRoi: 10.39, minSalary: 35000 },
+    { category: 'C', minRoi: 10.59, maxRoi: 10.75, defaultRoi: 10.59, minSalary: 25000 },
+    { category: 'Govt', minRoi: 10.39, maxRoi: 10.45, defaultRoi: 10.39, minSalary: 25000 }
+  ],
+  loanCapping: [
+    { tier: 'Super A', minLoan: 50000, maxLoan: 5000000, bachelorCap: 3000000, minSalary: 175000 },
+    { tier: 'A', minLoan: 50000, maxLoan: 5000000, bachelorCap: 2500000, minSalary: 175000 },
+    { tier: 'B', minLoan: 50000, maxLoan: 5000000, bachelorCap: 2000000, minSalary: 175000 },
+    { tier: 'C', minLoan: 50000, maxLoan: 5000000, bachelorCap: 1500000, minSalary: 175000 },
+    { tier: 'Govt', minLoan: 50000, maxLoan: 5000000, bachelorCap: 2500000, minSalary: 175000 }
+  ],
+  tenureRules: [
+    { category: 'Super A', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years' },
+    { category: 'A', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years' },
+    { category: 'B', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years' },
+    { category: 'C', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years' },
+    { category: 'Govt', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years' }
+  ],
+  foirMultiplier: [
+    { category: 'Super A', maxFoir: 75, multiplier: 36, ccObligation: 4 },
+    { category: 'A', maxFoir: 75, multiplier: 36, ccObligation: 4 },
+    { category: 'B', maxFoir: 75, multiplier: 36, ccObligation: 4 },
+    { category: 'C', maxFoir: 75, multiplier: 36, ccObligation: 4 },
+    { category: 'Govt', maxFoir: 75, multiplier: 36, ccObligation: 4 }
+  ],
+  demographics: {
+    minAge: 21,
+    maxAge: 60,
+    retirementSalaried: 60,
+    retirementGovt: 60,
+    minSalary: 25000,
+    minExperienceTotal: 12,
+    minExperienceCurrent: 6,
+    minCibilScore: 650,
+    ccObligationPercent: 4,
+    ccBtAllowedCount: 5
+  },
   companies: INITIAL_COMPANY_DATABASE
 };
 
@@ -352,7 +399,7 @@ const UnifiedBankPolicyManager = () => {
 
     // Load any existing custom config from localStorage or cloud-synced service
     const locationKey = `${selectedState}-${selectedCity}`;
-    const stored = localStorage.getItem(`policy_config_${bank.id}_${locationKey}`);
+    const stored = localStorage.getItem(`policy_config_${bank.id}_${locationKey}`) || localStorage.getItem(`policy_config_${bank.id}`);
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
@@ -361,6 +408,12 @@ const UnifiedBankPolicyManager = () => {
       } catch (e) {
         console.error('Error parsing stored policy:', e);
       }
+    }
+
+    // Direct Master Policy from Excel for Axis Bank
+    if (bank.id === 'axis-bank' || bank.name === 'Axis Bank') {
+      setPolicyData(sanitizePolicyData(AXIS_BANK_EXCEL_POLICY));
+      return;
     }
 
     // Cloud Firestore Fallback: check bankConfigService (synced from Firestore)
@@ -1666,6 +1719,48 @@ const UnifiedBankPolicyManager = () => {
                       </td>
                       <td>650</td>
                       <td>Bureau credit score below which applications are rejected</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Credit Card Obligation Factor</strong></td>
+                      <td>
+                        <div className="table-input-cell">
+                          <input 
+                            type="number"
+                            value={policyData?.demographics?.ccObligationPercent ?? 5}
+                            onChange={(e) => {
+                              const val = Number(e.target.value);
+                              setPolicyData(prev => ({
+                                ...prev,
+                                demographics: { ...(prev?.demographics || DEFAULT_DEMOGRAPHIC_RULES), ccObligationPercent: val }
+                              }));
+                            }}
+                          />
+                          <span>%</span>
+                        </div>
+                      </td>
+                      <td>4% – 5%</td>
+                      <td>Percentage of credit card outstanding counted towards monthly obligations (Axis Bank: 4%)</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Max Credit Card BT Allowed</strong></td>
+                      <td>
+                        <div className="table-input-cell">
+                          <input 
+                            type="number"
+                            value={policyData?.demographics?.ccBtAllowedCount ?? 3}
+                            onChange={(e) => {
+                              const val = Number(e.target.value);
+                              setPolicyData(prev => ({
+                                ...prev,
+                                demographics: { ...(prev?.demographics || DEFAULT_DEMOGRAPHIC_RULES), ccBtAllowedCount: val }
+                              }));
+                            }}
+                          />
+                          <span>Cards</span>
+                        </div>
+                      </td>
+                      <td>3 to 5 Cards</td>
+                      <td>Maximum number of credit cards permitted for Balance Transfer (Axis Bank: 5 cards)</td>
                     </tr>
                   </tbody>
                 </table>

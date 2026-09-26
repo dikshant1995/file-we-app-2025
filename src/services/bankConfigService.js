@@ -37,16 +37,16 @@ const defaultConfigs = {
     incentivePolicy: { percentage: 0, months: 0 }
   },
   'Axis Bank': {
-    ageRules: { minAge: 21, maxAge: 60, retirementAge: { salaried: 60, selfEmployed: 65 }, maxAgeAtLoanEnd: 60 },
-    tenureRules: { minTenureMonths: 12, maxTenureMonths: 84, categoryBasedMaxTenure: { A: 84, B: 84, C: 72, D: 60 } },
-    foirSettings: { categoryBasedFOIR: { A: 65, B: 60, C: 55, D: 50 }, creditCardObligationPercentage: 5 },
-    multiplierRules: { categoryBasedMultiplier: { A: 35, B: 30, C: 25, D: 20 } },
+    ageRules: { minAge: 21, maxAge: 60, retirementAge: { salaried: 60, selfEmployed: 60 }, maxAgeAtLoanEnd: 60 },
+    tenureRules: { minTenureMonths: 12, maxTenureMonths: 84, categoryBasedMaxTenure: { A: 84, B: 84, C: 84, D: 84 } },
+    foirSettings: { categoryBasedFOIR: { 'Super A': 75, A: 75, B: 75, C: 75, D: 75, Govt: 75 }, creditCardObligationPercentage: 4 },
+    multiplierRules: { categoryBasedMultiplier: { 'Super A': 36, A: 36, B: 36, C: 36, D: 36, Govt: 36 } },
     creditScoreRules: { minCreditScore: 650, recommendedScore: 700, premiumScore: 750, autoRejectionThreshold: 600 },
-    interestRates: { defaultRate: 11.0, categoryRates: { A: 11.0, B: 11.0, C: 11.0, D: 11.0 } },
-    loanCapping: { absoluteMaxLoan: 5000000, minLoanAmount: 100000, bachelorCapping: { enabled: true, limits: { unmarried_bachelor: null, unmarried_family: null, married_bachelor: null, unmarried_self_owned: null } } },
-    employmentRules: { salariedMinSalary: 25000, selfEmployedMinIncome: 300000, itrYearsRequired: 2 },
-    btConfiguration: { enabled: true, maxLoansForBT: 3, creditCardBTSupported: true, processingFeePercentage: 1.5, maxCreditCardBTMultiplier: 6 },
-    feesAndCharges: { processingFeePercentage: 3.5, btChargesPercentage: 1.5, prepaymentChargesPercentage: 4 },
+    interestRates: { defaultRate: 9.99, categoryRates: { 'Super A': 9.99, A: 9.99, B: 10.39, C: 10.59, Govt: 10.39 } },
+    loanCapping: { absoluteMaxLoan: 5000000, minLoanAmount: 50000, bachelorCapping: { enabled: true, limits: { unmarried_bachelor: 2500000, unmarried_family: null, married_bachelor: null, unmarried_self_owned: null } } },
+    employmentRules: { salariedMinSalary: 25000, selfEmployedMinIncome: 300000, itrYearsRequired: 1 },
+    btConfiguration: { enabled: true, maxLoansForBT: 3, creditCardBTSupported: true, maxCreditCardBTCount: 5, processingFeePercentage: 1.5, maxCreditCardBTMultiplier: 6 },
+    feesAndCharges: { processingFeePercentage: 2.0, btChargesPercentage: 1.5, prepaymentChargesPercentage: 4 },
     incentivePolicy: { percentage: 100, months: 3 }
   },
   'Kotak Mahindra Bank': {
