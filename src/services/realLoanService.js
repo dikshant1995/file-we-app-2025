@@ -357,6 +357,19 @@ const matchCategory = (cat1, cat2) => {
         console.log(`   🏭 ${name}: Using default Category ${bankCategory} (no database)`);
       }
 
+      // 3.5 INDUSIND BANK CATEGORY D RESTRICTION (Not in Policy)
+      if (name === 'IndusInd Bank' || id === 'indusind') {
+        const catUpper = String(bankCategory || '').toUpperCase().trim();
+        if (catUpper === 'D' || catUpper === 'CATGD' || catUpper === 'CAT D' || catUpper === 'UNLISTED') {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: 'IndusInd Bank policy does not fund Category D companies (Policy covers Category Super A, A, B, C, and Govt only).',
+            category: bankCategory
+          };
+        }
+      }
+
       // -------------------------------------------------------------
       // Dynamic Bank Policy Specific Credit Card Obligation Percentage
       // -------------------------------------------------------------
@@ -461,7 +474,7 @@ const matchCategory = (cat1, cat2) => {
               // Cat C: Any salary -> 21x
               let indusMultiplier = 20;
               const catUpper = String(bankCategory || '').toUpperCase();
-              if (catUpper === 'C' || catUpper === 'CAT C' || catUpper === 'D') {
+              if (catUpper === 'C' || catUpper === 'CAT C') {
                 indusMultiplier = 21;
               } else {
                 if (income >= 125000) indusMultiplier = 30;
@@ -484,7 +497,7 @@ const matchCategory = (cat1, cat2) => {
                 (Array.isArray(calculatorInput.loansForBT) && 
                  calculatorInput.loansForBT.some(l => l.type === 'Home Loan' || l.type === 'LAP'));
 
-              if (catUpper === 'C' || catUpper === 'CAT C' || catUpper === 'D') {
+              if (catUpper === 'C' || catUpper === 'CAT C') {
                 if (income >= 35000) foirPct = 60;
                 else foirPct = 50;
               } else {

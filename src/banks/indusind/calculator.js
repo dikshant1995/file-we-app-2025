@@ -120,6 +120,15 @@ export const calculateIndusindEligibility = (userData) => {
   // Use actualMonthlyIncome for all subsequent calculations
   const monthlyIncomeForCalc = actualMonthlyIncome;
 
+  // IndusInd Bank policy check: Category D and Unlisted are not funded
+  const categoryNormalized = String(category || '').toUpperCase().trim();
+  if (categoryNormalized === 'D' || categoryNormalized === 'CATGD' || categoryNormalized === 'CAT D' || categoryNormalized === 'UNLISTED') {
+    return {
+      eligible: false,
+      reason: `IndusInd Bank policy does not fund Category ${category} companies. Only Category Super A, A, B, C, and Govt are eligible.`
+    };
+  }
+
   const isBT = isBTMode && loansForBT && loansForBT.length > 0;
   let adjustedIncome = monthlyIncomeForCalc;
   let nonBTLoansEMI = 0;
@@ -271,7 +280,7 @@ export const calculateIndusindEligibility = (userData) => {
 
   // Category loan capping from Excel: Cat C: 15L, Cat A/B/Govt: 75L
   const catUpper = String(category || '').toUpperCase();
-  const categoryMaxLoan = (catUpper === 'C' || catUpper === 'D') ? 1500000 : (indusindConfig.maxLoanAmount || 7500000);
+  const categoryMaxLoan = (catUpper === 'C') ? 1500000 : (indusindConfig.maxLoanAmount || 7500000);
   const preliminaryCappedLoan = Math.min(preliminaryLoanAmount, categoryMaxLoan);
 
   // ROI Calculation using Logic Bridge and Slabs

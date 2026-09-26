@@ -5,7 +5,6 @@ export const INDUSIND_BANK_EXCEL_POLICY = {
     { category: 'A', roiAbove15L: 9.99, roi10Lto15L: 9.99, roiBelow10L: 12.00, minRoi: 9.99, maxRoi: 12.00, defaultRoi: 9.99 },
     { category: 'B', roiAbove15L: 9.99, roi10Lto15L: 9.99, roiBelow10L: 12.00, minRoi: 9.99, maxRoi: 12.00, defaultRoi: 9.99 },
     { category: 'C', roiAbove15L: 10.60, roi10Lto15L: 13.00, roiBelow10L: 13.00, minRoi: 10.60, maxRoi: 13.00, defaultRoi: 10.60 },
-    { category: 'D', roiAbove15L: 10.60, roi10Lto15L: 13.00, roiBelow10L: 13.00, minRoi: 10.60, maxRoi: 13.00, defaultRoi: 10.60 },
     { category: 'Govt', roiAbove15L: 9.99, roi10Lto15L: 9.99, roiBelow10L: 12.00, minRoi: 9.99, maxRoi: 12.00, defaultRoi: 9.99 }
   ],
   loanCapping: [
@@ -13,7 +12,6 @@ export const INDUSIND_BANK_EXCEL_POLICY = {
     { tier: 'A', minLoan: 100000, maxLoan: 7500000, bachelorCap: null, minSalary: 25000 },
     { tier: 'B', minLoan: 100000, maxLoan: 7500000, bachelorCap: null, minSalary: 25000 },
     { tier: 'C', minLoan: 100000, maxLoan: 1500000, bachelorCap: null, minSalary: 25000 },
-    { tier: 'D', minLoan: 100000, maxLoan: 1500000, bachelorCap: null, minSalary: 25000 },
     { tier: 'Govt', minLoan: 100000, maxLoan: 7500000, bachelorCap: null, minSalary: 25000 }
   ],
   tenureRules: [
@@ -21,7 +19,6 @@ export const INDUSIND_BANK_EXCEL_POLICY = {
     { category: 'A', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years (CIBIL -1 capped to 48M)' },
     { category: 'B', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years (CIBIL -1 capped to 48M)' },
     { category: 'C', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years (CIBIL -1 capped to 48M)' },
-    { category: 'D', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years (CIBIL -1 capped to 48M)' },
     { category: 'Govt', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years (CIBIL -1 capped to 48M)' }
   ],
   foirMultiplier: [
@@ -29,7 +26,6 @@ export const INDUSIND_BANK_EXCEL_POLICY = {
     { category: 'A', slab1Foir: 50, slab2Foir: 60, maxFoir: 70, multiplier: 30, ccObligation: 5 },
     { category: 'B', slab1Foir: 50, slab2Foir: 60, maxFoir: 70, multiplier: 25, ccObligation: 5 },
     { category: 'C', slab1Foir: 50, slab2Foir: 60, maxFoir: 60, multiplier: 21, ccObligation: 5 },
-    { category: 'D', slab1Foir: 50, slab2Foir: 60, maxFoir: 60, multiplier: 21, ccObligation: 5 },
     { category: 'Govt', slab1Foir: 50, slab2Foir: 60, maxFoir: 70, multiplier: 30, ccObligation: 5 }
   ],
   demographics: {

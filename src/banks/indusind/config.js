@@ -45,14 +45,6 @@ export const indusindConfig = {
     'C': {
       '20000-35000': 0.50,
       '35001+': 0.60
-    },
-    'D': {
-      '20000-35000': 0.50,
-      '35001+': 0.60
-    },
-    'UNLISTED': {
-      '20000-35000': 0.50,
-      '35001+': 0.60
     }
   },
 
@@ -85,12 +77,6 @@ export const indusindConfig = {
     },
     'C': {
       '25000+': 21
-    },
-    'D': {
-      '25000+': 21
-    },
-    'UNLISTED': {
-      '25000+': 21
     }
   },
 
@@ -101,9 +87,7 @@ export const indusindConfig = {
     'A': 25000,
     'B': 25000,
     'GOVT': 25000,
-    'C': 25000,
-    'D': 25000,
-    'UNLISTED': 25000
+    'C': 25000
   },
 
   // Maximum tenure by category (Excel: up to 84 months, CIBIL -1 capped to 48 months)
@@ -113,9 +97,7 @@ export const indusindConfig = {
     'A': 84,
     'GOVT': 84,
     'B': 84,
-    'C': 84,
-    'D': 84,
-    'UNLISTED': 84
+    'C': 84
   },
 
   // Category descriptions
@@ -125,9 +107,7 @@ export const indusindConfig = {
     'A': { description: 'Category A - Top Tier Companies (Up to 30x Multiplier, ₹75L Max)' },
     'B': { description: 'Category B - Good Companies (Up to 30x Multiplier, ₹75L Max)' },
     'GOVT': { description: 'Government Employees (Up to 30x Multiplier, ₹75L Max)' },
-    'C': { description: 'Category C - Standard Companies (21x Multiplier, ₹15L Max)' },
-    'D': { description: 'Category D - Lower Tier Companies (21x Multiplier, ₹15L Max)' },
-    'UNLISTED': { description: 'Unlisted Companies' }
+    'C': { description: 'Category C - Standard Companies (21x Multiplier, ₹15L Max)' }
   },
 
   employmentTypes: ['salaried', 'government'],
