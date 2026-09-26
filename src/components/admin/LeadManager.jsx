@@ -34,15 +34,25 @@ const LeadManager = ({ userRole }) => {
     const [activeShareLead, setActiveShareLead] = useState(null);
     const [activeDetailLead, setActiveDetailLead] = useState(null);
 
-    // Prevent body scrolling when a modal is open
+    // Prevent body scrolling when a modal is open and handle Escape key
     useEffect(() => {
         if (activeShareLead || activeDetailLead) {
             document.body.style.overflow = 'hidden';
         } else {
             document.body.style.overflow = '';
         }
+
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                setActiveShareLead(null);
+                setActiveDetailLead(null);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+
         return () => {
             document.body.style.overflow = '';
+            window.removeEventListener('keydown', handleKeyDown);
         };
     }, [activeShareLead, activeDetailLead]);
 
@@ -792,24 +802,34 @@ const LeadManager = ({ userRole }) => {
             {activeShareLead && createPortal(
                 <div className="lead-dossier-overlay" onClick={() => setActiveShareLead(null)}>
                     <div className="lead-dossier-card" onClick={(e) => e.stopPropagation()}>
-                        {/* Dossier Header Banner */}
+                        {/* Prominent High-Visibility Floating Close Button */}
+                        <button 
+                            className="dossier-floating-close-btn" 
+                            onClick={() => setActiveShareLead(null)} 
+                            title="Close Dossier (Esc)"
+                            aria-label="Close Dossier"
+                        >
+                            <X size={20} strokeWidth={2.5} color="#ffffff" />
+                        </button>
+
+                        {/* Top Official Header Banner */}
                         <div className="dossier-card-top-banner">
-                            <div className="dossier-header-center">
-                                <div className="dossier-brand-title">🌟 LAXMICREDIT LOAN LEAD DOSSIER 🌟</div>
-                                <div className="dossier-brand-sub">Laxmi Omni Systems - Financial Services Division</div>
-                            </div>
-                            <button className="dossier-close-btn" onClick={() => setActiveShareLead(null)} title="Close Dossier">
-                                <X size={18} />
-                            </button>
+                            <div className="dossier-brand-title">🌟 LAXMICREDIT LOAN LEAD DOSSIER 🌟</div>
+                            <div className="dossier-brand-sub">Laxmi Omni Systems • Financial Services Division</div>
                         </div>
 
-                        {/* Applicant Identity Header */}
+                        {/* Applicant Identity Card */}
                         <div className="dossier-applicant-header">
                             <div className="applicant-avatar">
                                 {(activeShareLead?.name || 'A').trim().charAt(0).toUpperCase()}
                             </div>
                             <div className="applicant-meta">
-                                <div className="applicant-name">{activeShareLead?.name || 'Anonymous Applicant'}</div>
+                                <div className="applicant-name-row">
+                                    <span className="applicant-name">{activeShareLead?.name || 'Anonymous Applicant'}</span>
+                                    <span className={`lead-status-pill status-${(activeShareLead?.status || 'new').toLowerCase()}`}>
+                                        {activeShareLead?.status || 'New'}
+                                    </span>
+                                </div>
                                 <div className="applicant-contact">
                                     <span className="phone-badge">📱 {activeShareLead?.mobile || 'N/A'}</span>
                                     <span className="date-badge">📅 {activeShareLead?.timestamp || (activeShareLead?.createdAt ? new Date(activeShareLead?.createdAt).toLocaleString('en-IN') : 'N/A')}</span>
@@ -822,25 +842,33 @@ const LeadManager = ({ userRole }) => {
                             <div className="dossier-metric-item">
                                 <span className="metric-icon">🏢</span>
                                 <div className="metric-content">
-                                    <span className="metric-label">Company</span>
+                                    <span className="metric-label">Company & Category</span>
                                     <span className="metric-val">{activeShareLead?.company || activeShareLead?.employer || 'N/A'}</span>
-                                    {activeShareLead?.category && <span className="cat-chip" style={{ width: 'fit-content', marginTop: '2px' }}>Cat: {activeShareLead.category}</span>}
+                                    <span className="cat-chip" style={{ width: 'fit-content', marginTop: '2px' }}>
+                                        Cat: {activeShareLead?.category || 'General'}
+                                    </span>
                                 </div>
                             </div>
 
                             <div className="dossier-metric-item">
                                 <span className="metric-icon">💼</span>
                                 <div className="metric-content">
-                                    <span className="metric-label">Employment</span>
+                                    <span className="metric-label">Employment & Salary Mode</span>
                                     <span className="metric-val text-capitalize">{activeShareLead?.employment || 'Salaried'}</span>
+                                    <span className="salary-mode-chip">
+                                        🏦 {activeShareLead?.salaryMode || 'Bank Transfer'}
+                                    </span>
                                 </div>
                             </div>
 
                             <div className="dossier-metric-item highlight-cyan">
                                 <span className="metric-icon">💰</span>
                                 <div className="metric-content">
-                                    <span className="metric-label">Net Monthly Income</span>
-                                    <span className="metric-val cyan-bold">₹{Number(activeShareLead?.totalIncome || activeShareLead?.monthlyIncome || 0).toLocaleString('en-IN')} <span className="p-m">p.m.</span></span>
+                                    <span className="metric-label">Net In-Hand Monthly Income</span>
+                                    <span className="metric-val cyan-bold">
+                                        ₹{Number(activeShareLead?.totalIncome || activeShareLead?.monthlyIncome || 0).toLocaleString('en-IN')} 
+                                        <span className="p-m"> / month</span>
+                                    </span>
                                 </div>
                             </div>
 
@@ -848,15 +876,19 @@ const LeadManager = ({ userRole }) => {
                                 <span className="metric-icon">💵</span>
                                 <div className="metric-content">
                                     <span className="metric-label">Basic Salary</span>
-                                    <span className="metric-val">₹{Number(activeShareLead?.basicSalary || 0).toLocaleString('en-IN')}</span>
+                                    <span className="metric-val font-semibold">
+                                        ₹{Number(activeShareLead?.basicSalary || 0).toLocaleString('en-IN')}
+                                    </span>
                                 </div>
                             </div>
 
                             <div className="dossier-metric-item">
                                 <span className="metric-icon">💳</span>
                                 <div className="metric-content">
-                                    <span className="metric-label">Existing EMIs</span>
-                                    <span className="metric-val font-semibold">₹{Number(activeShareLead?.existingEMI || 0).toLocaleString('en-IN')}</span>
+                                    <span className="metric-label">Existing Monthly EMIs</span>
+                                    <span className="metric-val font-semibold">
+                                        ₹{Number(activeShareLead?.existingEMI || 0).toLocaleString('en-IN')}
+                                    </span>
                                 </div>
                             </div>
 
@@ -865,7 +897,7 @@ const LeadManager = ({ userRole }) => {
                                 <div className="metric-content">
                                     <span className="metric-label">Balance Transfer (BT)</span>
                                     <span className={`bt-pill ${activeShareLead?.wantsBT === 'Yes' ? 'bt-yes' : 'bt-no'}`}>
-                                        {activeShareLead?.wantsBT || 'No'}
+                                        {activeShareLead?.wantsBT === 'Yes' ? '🔄 BT Requested (Yes)' : '⚡ Fresh Loan (No BT)'}
                                     </span>
                                 </div>
                             </div>
@@ -873,16 +905,33 @@ const LeadManager = ({ userRole }) => {
                             <div className="dossier-metric-item col-span-2">
                                 <span className="metric-icon">📍</span>
                                 <div className="metric-content">
-                                    <span className="metric-label">Location</span>
-                                    <span className="metric-val">{activeShareLead?.city || 'N/A'}{activeShareLead?.state ? `, ${activeShareLead.state}` : ''}</span>
+                                    <span className="metric-label">Location (City & State)</span>
+                                    <span className="metric-val">
+                                        {activeShareLead?.city || 'N/A'}{activeShareLead?.state ? `, ${activeShareLead.state}` : ''}
+                                    </span>
                                 </div>
                             </div>
+
+                            {/* Additional Loan / Credit Card Obligations if recorded */}
+                            {(activeShareLead?.personalLoans || activeShareLead?.creditCards) && (
+                                <div className="dossier-metric-item col-span-2 obligations-row">
+                                    <span className="metric-icon">📑</span>
+                                    <div className="metric-content">
+                                        <span className="metric-label">Recorded Obligations</span>
+                                        <div className="obligations-text">
+                                            {activeShareLead?.personalLoans && <span><strong>PL:</strong> {activeShareLead.personalLoans}</span>}
+                                            {activeShareLead?.personalLoans && activeShareLead?.creditCards && <span> • </span>}
+                                            {activeShareLead?.creditCards && <span><strong>CC:</strong> {activeShareLead.creditCards}</span>}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Selected / Eligible Banks Section */}
                         <div className="dossier-banks-section">
                             <div className="dossier-banks-header">
-                                <span>🏛️ Selected / Eligible Banks:</span>
+                                <span>🏛️ Shortlisted / Eligible Banks:</span>
                             </div>
                             <div className="dossier-banks-chips">
                                 {formatBanksShortList(activeShareLead?.selectedBanks || activeShareLead?.eligibleBanks).split(',').map((bank, idx) => (
@@ -910,7 +959,7 @@ const LeadManager = ({ userRole }) => {
                             <button 
                                 className="dossier-action-btn btn-report"
                                 onClick={() => handleDownloadSingleLead(activeShareLead)}
-                                title="Download Excel dossier report"
+                                title="Download Excel dossier report (.xlsx)"
                             >
                                 <FileSpreadsheet size={17} />
                                 <span>Download Report</span>
@@ -941,6 +990,15 @@ const LeadManager = ({ userRole }) => {
                             >
                                 <Mail size={17} />
                                 <span>Email</span>
+                            </button>
+
+                            <button 
+                                className="dossier-action-btn btn-close-dossier"
+                                onClick={() => setActiveShareLead(null)}
+                                title="Close Dossier"
+                            >
+                                <X size={15} />
+                                <span>Close</span>
                             </button>
                         </div>
                     </div>
