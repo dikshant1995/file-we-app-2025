@@ -247,6 +247,40 @@ const UnifiedBankPolicyManager = () => {
     setSelectedCity(availableCities[0]);
   }, [selectedState]);
 
+  // Native Browser Back/Forward navigation between 12 Bank Cards and Bank Config Editor
+  useEffect(() => {
+    // Initial check if opened with a specific bank hash
+    const initialHash = window.location.hash.replace('#', '');
+    if (initialHash.startsWith('bank-policy-')) {
+      const targetBankId = initialHash.replace('bank-policy-', '');
+      const foundBank = banks.find(b => b.id === targetBankId);
+      if (foundBank) {
+        handleOpenConfig(foundBank, false);
+      }
+    }
+
+    const handlePopState = (event) => {
+      const currentHash = window.location.hash.replace('#', '');
+      const targetBankId = event.state?.bankId || (currentHash.startsWith('bank-policy-') ? currentHash.replace('bank-policy-', '') : null);
+
+      if (targetBankId) {
+        const foundBank = banks.find(b => b.id === targetBankId);
+        if (foundBank) {
+          handleOpenConfig(foundBank, false);
+          return;
+        }
+      }
+
+      // No bank ID found: user clicked browser Back (<-) to return to 12 Bank Cards
+      setActiveConfigBank(null);
+      setSaveAlert('');
+      setIsReplaceModalOpen(false);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [banks]);
+
   // Sync banks to localStorage
   const persistBanks = (updatedBanks) => {
     setBanks(updatedBanks);
@@ -277,10 +311,18 @@ const UnifiedBankPolicyManager = () => {
   };
 
   // 3. Open Config Policy
-  const handleOpenConfig = (bank) => {
+  const handleOpenConfig = (bank, pushHistory = true) => {
     setActiveConfigBank(bank);
     setActiveConfigTab('rates');
     setSaveAlert('');
+
+    if (pushHistory) {
+      window.history.pushState(
+        { tab: 'bank-policy', bankId: bank.id },
+        '',
+        `#bank-policy-${bank.id}`
+      );
+    }
 
     // Load any existing custom config from localStorage or cloud-synced service
     const locationKey = `${selectedState}-${selectedCity}`;
@@ -1010,14 +1052,6 @@ const UnifiedBankPolicyManager = () => {
           {/* Top Return & Save Header */}
           <div className="config-view-header">
             <div className="config-header-left">
-              <button 
-                className="btn-back-to-cards"
-                onClick={() => { setActiveConfigBank(null); setSaveAlert(''); }}
-              >
-                <ArrowLeft size={16} />
-                <span>Back to 12 Bank Cards</span>
-              </button>
-              
               <div className="config-bank-ident">
                 <div className="ident-avatar" style={{ backgroundColor: activeConfigBank.color }}>
                   {activeConfigBank.name.substring(0, 2).toUpperCase()}

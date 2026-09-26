@@ -36,8 +36,10 @@ const AdminDashboard = ({ onBackToCustomer, initialUser }) => {
   // Browser Native Back/Forward Button handler (popstate)
   useEffect(() => {
     const initialHash = window.location.hash.replace('#', '');
-    if (initialHash === 'bank-policy' || initialHash === 'leads') {
-      setActiveMenu(initialHash);
+    if (initialHash.startsWith('bank-policy')) {
+      setActiveMenu('bank-policy');
+    } else if (initialHash === 'leads') {
+      setActiveMenu('leads');
     } else {
       window.history.replaceState({ tab: 'leads' }, '', '#leads');
     }
@@ -47,8 +49,8 @@ const AdminDashboard = ({ onBackToCustomer, initialUser }) => {
         setActiveMenu(event.state.tab);
       } else {
         const hash = window.location.hash.replace('#', '');
-        if (hash === 'bank-policy' || hash === 'leads') {
-          setActiveMenu(hash);
+        if (hash.startsWith('bank-policy')) {
+          setActiveMenu('bank-policy');
         } else {
           setActiveMenu('leads');
         }
