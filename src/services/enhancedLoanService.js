@@ -14,6 +14,7 @@ import { calculatePiramalEligibility } from '../banks/piramal/calculator.js';
 
 // Import bank configuration service for logic bridge
 import { getBankConfig, getAllBankConfig } from './bankConfigService.js';
+import { calculateUnifiedBankEligibility } from './realLoanService.js';
 
 /**
  * Calculate EMI for a given loan amount, interest rate, and tenure
@@ -37,8 +38,9 @@ const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
   return Math.round(emi);
 };
 
-// Global bank list for internal mapping
+// Global bank list for internal mapping (20 Lending Institutions)
 const allBanks = [
+  // 12 Core Banks
   { id: 'kotak', name: 'Kotak Mahindra Bank', calculator: calculateKotakEligibility },
   { id: 'hdfc', name: 'HDFC Bank', calculator: calculateHdfcEligibility },
   { id: 'icici', name: 'ICICI Bank', calculator: calculateIciciEligibility },
@@ -50,7 +52,17 @@ const allBanks = [
   { id: 'indusind', name: 'IndusInd Bank', calculator: calculateIndusindEligibility },
   { id: 'idfc', name: 'IDFC First Bank', calculator: calculateIdfcEligibility },
   { id: 'shriram', name: 'Shri Ram Finance', calculator: calculateShriRamEligibility },
-  { id: 'piramal', name: 'Piramal Finance', calculator: calculatePiramalEligibility }
+  { id: 'piramal', name: 'Piramal Finance', calculator: calculatePiramalEligibility },
+
+  // 8 Additional Banks & NBFCs from Master Excel Policy
+  { id: 'axis-bank', name: 'Axis Bank', calculator: calculateUnifiedBankEligibility },
+  { id: 'lnt', name: 'L&T Finance', calculator: calculateUnifiedBankEligibility },
+  { id: 'smfg', name: 'SMFG India Credit', calculator: calculateUnifiedBankEligibility },
+  { id: 'bajaj', name: 'Bajaj Finance', calculator: calculateUnifiedBankEligibility },
+  { id: 'incred', name: 'Incred Finance', calculator: calculateUnifiedBankEligibility },
+  { id: 'au-bank', name: 'AU Small Finance Bank', calculator: calculateUnifiedBankEligibility },
+  { id: 'abfl', name: 'Aditya Birla Finance', calculator: calculateUnifiedBankEligibility },
+  { id: 'finnable', name: 'Finnable Finance', calculator: calculateUnifiedBankEligibility }
 ];
 
 /**

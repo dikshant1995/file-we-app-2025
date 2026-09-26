@@ -35,6 +35,44 @@ import { protectAgainstProcessingFee } from '../utils/processingFeeGuard.js';
 // Import bank configuration service for logic bridge
 import { getBankConfig, getAllBankConfig } from './bankConfigService.js';
 
+// Import Axis Bank Master Excel Policy
+import { AXIS_BANK_EXCEL_POLICY } from '../config/axisBankPolicy.js';
+
+/**
+ * Universal Bank Calculator for Institutional Banks without legacy hardcoded calculators
+ */
+export const calculateUnifiedBankEligibility = (bankInput) => {
+  const bankName = bankInput.bankName || 'Partner Institution';
+  // Check if customer already has a personal loan with this institution
+  if (bankInput.existingLoanBanks && Array.isArray(bankInput.existingLoanBanks)) {
+    const bankNameLower = bankName.toLowerCase().trim();
+    const hasExisting = bankInput.existingLoanBanks.some(b => {
+      const bLower = String(b).toLowerCase().trim();
+      return bankNameLower.includes(bLower) || bLower.includes(bankNameLower);
+    });
+    if (hasExisting && !bankInput.isBTMode) {
+      return {
+        bankName: bankName,
+        eligible: false,
+        reason: `Existing personal loan with ${bankName}. Policy restriction for new loan.`,
+        category: bankInput.category || 'B'
+      };
+    }
+  }
+
+  return {
+    bankName: bankName,
+    eligible: true,
+    loanAmount: 0,
+    monthlyEMI: 0,
+    interestRate: bankInput.interestRateOverride || 10.5,
+    loanTenure: bankInput.loanTenure || 5,
+    loanTenureMonths: (bankInput.loanTenure || 5) * 12,
+    multiplier: bankInput.multiplierOverride || 24,
+    foirPercentage: bankInput.foirOverride ? (bankInput.foirOverride / 100) : 0.60
+  };
+};
+
 /**
  * Calculate loan eligibility across all 12 banks
  * @param {Object} userData - User input data
@@ -97,15 +135,13 @@ export const calculateLoanEligibility = async (userData) => {
   console.log('🏭 Company Name:', calculatorInput.companyName);
   console.log('');
 
-  // Array of bank calculators with their names and configs
+  // Array of bank calculators with all 20 lending partner institutions
   const bankCalculators = [
-    // 4 NEW BANKS: With company database + dynamic rates
+    // 12 Core Banks
     { id: 'kotak', name: 'Kotak Mahindra Bank', calculator: calculateKotakEligibility, config: kotakConfig, hasDatabase: true },
     { id: 'tata', name: 'Tata Capital', calculator: calculateTataEligibility, config: tataConfig, hasDatabase: true },
     { id: 'poonawala', name: 'Poonawala Finance', calculator: calculatePoonawalaEligibility, config: poonawalaConfig, hasDatabase: true },
-    { id: 'idfc', name: 'IDFC Bank', calculator: calculateIdfcEligibility, config: idfcConfig, hasDatabase: true },
-
-    // 8 OLD BANKS: No database, default Category B + 11% rate
+    { id: 'idfc', name: 'IDFC First Bank', calculator: calculateIdfcEligibility, config: idfcConfig, hasDatabase: true },
     { id: 'hdfc', name: 'HDFC Bank', calculator: calculateHdfcEligibility, config: hdfcConfig, hasDatabase: true },
     { id: 'icici', name: 'ICICI Bank', calculator: calculateIciciEligibility, config: iciciConfig, hasDatabase: true },
     { id: 'bandhan', name: 'Bandhan Bank', calculator: calculateBandhanEligibility, config: bandhanConfig, hasDatabase: false },
@@ -113,11 +149,36 @@ export const calculateLoanEligibility = async (userData) => {
     { id: 'axis', name: 'Axis Finance', calculator: calculateAxisFinEligibility, config: axisFinConfig, hasDatabase: true },
     { id: 'indusind', name: 'IndusInd Bank', calculator: calculateIndusindEligibility, config: indusindConfig, hasDatabase: true },
     { id: 'shriram', name: 'Shri Ram Finance', calculator: calculateShriRamEligibility, config: shriRamConfig, hasDatabase: false },
-    { id: 'piramal', name: 'Piramal Finance', calculator: calculatePiramalEligibility, config: piramalConfig, hasDatabase: false }
+    { id: 'piramal', name: 'Piramal Finance', calculator: calculatePiramalEligibility, config: piramalConfig, hasDatabase: false },
+
+    // 8 Additional Banks & NBFCs from Master Excel Policy
+    { id: 'axis-bank', name: 'Axis Bank', calculator: calculateUnifiedBankEligibility, config: { name: 'Axis Bank', maxLoanCap: 5000000, defaultRate: 9.99 }, hasDatabase: true },
+    { id: 'lnt', name: 'L&T Finance', calculator: calculateUnifiedBankEligibility, config: { name: 'L&T Finance', maxLoanCap: 3000000, defaultRate: 11.5 }, hasDatabase: false },
+    { id: 'smfg', name: 'SMFG India Credit', calculator: calculateUnifiedBankEligibility, config: { name: 'SMFG India Credit', maxLoanCap: 3000000, defaultRate: 11.99 }, hasDatabase: false },
+    { id: 'bajaj', name: 'Bajaj Finance', calculator: calculateUnifiedBankEligibility, config: { name: 'Bajaj Finance', maxLoanCap: 4000000, defaultRate: 10.0 }, hasDatabase: true },
+    { id: 'incred', name: 'Incred Finance', calculator: calculateUnifiedBankEligibility, config: { name: 'Incred Finance', maxLoanCap: 1500000, defaultRate: 13.49 }, hasDatabase: false },
+    { id: 'au-bank', name: 'AU Small Finance Bank', calculator: calculateUnifiedBankEligibility, config: { name: 'AU Small Finance Bank', maxLoanCap: 3500000, defaultRate: 11.5 }, hasDatabase: false },
+    { id: 'abfl', name: 'Aditya Birla Finance', calculator: calculateUnifiedBankEligibility, config: { name: 'Aditya Birla Finance', maxLoanCap: 5000000, defaultRate: 11.25 }, hasDatabase: false },
+    { id: 'finnable', name: 'Finnable Finance', calculator: calculateUnifiedBankEligibility, config: { name: 'Finnable Finance', maxLoanCap: 1000000, defaultRate: 14.0 }, hasDatabase: false }
   ];
 
+  // Respect Admin Suspensions if configured in LocalStorage
+  let activeBankCalculators = bankCalculators;
+  try {
+    const stored = localStorage.getItem('laxmi_admin_12_banks');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const suspendedIds = new Set(parsed.filter(b => b.enabled === false).map(b => b.id));
+        activeBankCalculators = bankCalculators.filter(b => !suspendedIds.has(b.id));
+      }
+    }
+  } catch (e) {
+    console.warn('Bank suspension check notice:', e);
+  }
+
   // Calculate eligibility for each bank
-  console.log('🏛️  Calling 12 banks with Logic Bridge active...');
+  console.log(`🏛️  Calling ${activeBankCalculators.length} institutions with Unified Policy active...`);
   console.log('='.repeat(60));
 
 // Financial helper calculations for dynamic policy enforcement
@@ -180,9 +241,9 @@ const matchCategory = (cat1, cat2) => {
   return false;
 };
 
-  const results = bankCalculators.map(({ id, name, calculator, config, hasDatabase }, index) => {
+  const results = activeBankCalculators.map(({ id, name, calculator, config, hasDatabase }, index) => {
     const bankStartTime = performance.now();
-    console.log(`🏦 [${index + 1}/12] Calculating: ${name}...`);
+    console.log(`🏦 [${index + 1}/${activeBankCalculators.length}] Calculating: ${name}...`);
 
     try {
       // 🧊 LOGIC BRIDGE: Retrieve real-time Admin Panel settings
@@ -190,7 +251,12 @@ const matchCategory = (cat1, cat2) => {
         ? `${calculatorInput.city}, ${calculatorInput.state}` 
         : (calculatorInput.city || calculatorInput.state);
       const adminAllConfig = getAllBankConfig(name, location);
-      const uPolicy = adminAllConfig.unifiedPolicy;
+      let uPolicy = adminAllConfig.unifiedPolicy;
+
+      // Master Policy Fallback for Axis Bank from Excel
+      if (!uPolicy && (name === 'Axis Bank' || id === 'axis-bank')) {
+        uPolicy = AXIS_BANK_EXCEL_POLICY;
+      }
 
       // 1. SALARY MODE GATE
       if (calculatorInput.salaryMode === 'cash' && adminAllConfig.employmentRules?.allowCashSalary === false) {
@@ -267,7 +333,9 @@ const matchCategory = (cat1, cat2) => {
       // 🌉 INJECT ADMIN OVERRIDES INTO THE ENGINE
       const bankInput = {
         ...calculatorInput,
-        category: bankCategory
+        category: bankCategory,
+        bankName: name,
+        bankId: id
       };
 
       // Apply Govt Overrides if available
@@ -526,7 +594,7 @@ const matchCategory = (cat1, cat2) => {
   });
 
   console.log('='.repeat(60));
-  console.log('🏛️  === 12 BANKS CALCULATED ===');
+  console.log(`🏛️  === ${results.length} INSTITUTIONS CALCULATED ===`);
   console.log('');
 
   // 🛡️ APPLY 5-LAYER PROTECTION AGAINST PROCESSING FEES (temporarily disabled for debugging)

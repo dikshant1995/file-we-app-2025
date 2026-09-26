@@ -918,9 +918,17 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
                       <option value="poonawala finance">Poonawala Finance</option>
                       <option value="axis finance">Axis Finance</option>
                       <option value="indusind bank">IndusInd Bank</option>
-                      <option value="idfc bank">IDFC Bank</option>
+                      <option value="idfc bank">IDFC First Bank</option>
                       <option value="shri ram finance">Shri Ram Finance</option>
                       <option value="piramal finance">Piramal Finance</option>
+                      <option value="axis bank">Axis Bank</option>
+                      <option value="l&t finance">L&T Finance</option>
+                      <option value="smfg india credit">SMFG India Credit</option>
+                      <option value="bajaj finance">Bajaj Finance</option>
+                      <option value="incred finance">Incred Finance</option>
+                      <option value="au small finance bank">AU Small Finance Bank</option>
+                      <option value="aditya birla finance">Aditya Birla Finance</option>
+                      <option value="finnable finance">Finnable Finance</option>
                       <option value="other">Other Bank (Not Listed)</option>
                     </select>
                   </div>
