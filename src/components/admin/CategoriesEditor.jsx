@@ -136,22 +136,6 @@ const bankCategoryDefaults = {
       maxTenureMonths: 48,
       maxLoanAmount: null,
       description: 'C - Standard Companies'
-    },
-    'D': {
-      salaryRange: { min: 25000, max: null },
-      foir: 50,
-      multiplier: 18,
-      maxTenureMonths: 48,
-      maxLoanAmount: null,
-      description: 'D - Lower Tier'
-    },
-    'UNLISTED': {
-      salaryRange: { min: 25000, max: null },
-      foir: 50,
-      multiplier: 18,
-      maxTenureMonths: 48,
-      maxLoanAmount: null,
-      description: 'UNLISTED - Unlisted Companies'
     }
   },
   'Tata Capital': {
