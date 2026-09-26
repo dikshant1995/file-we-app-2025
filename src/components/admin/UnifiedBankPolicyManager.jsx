@@ -1426,6 +1426,7 @@ const UnifiedBankPolicyManager = () => {
                         )}
                         {isAxis && (
                           <>
+                            <th>15L Above Cases (% p.a.)</th>
                             <th>10L Above Cases (% p.a.)</th>
                           </>
                         )}
@@ -1584,7 +1585,7 @@ const UnifiedBankPolicyManager = () => {
                                   <input 
                                     type="number"
                                     step="0.01"
-                                    value={row.roiAbove15L ?? (row.category === 'C' ? 10.75 : (row.category === 'B' || row.category === 'Govt' ? 10.45 : 10.35))}
+                                    value={row.roiAbove15L ?? (row.category === 'C' ? 10.59 : (row.category === 'B' || row.category === 'Govt' ? 10.39 : 9.99))}
                                     onChange={(e) => {
                                       const val = Number(e.target.value);
                                       const updated = [...policyData.interestRates];
@@ -1592,6 +1593,25 @@ const UnifiedBankPolicyManager = () => {
                                       if (realIdx >= 0) {
                                         updated[realIdx].roiAbove15L = val;
                                         updated[realIdx].minRoi = val;
+                                        setPolicyData({ ...policyData, interestRates: updated });
+                                      }
+                                    }}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number"
+                                    step="0.01"
+                                    value={row.roi10Lto15L ?? (row.category === 'C' ? 10.75 : (row.category === 'B' || row.category === 'Govt' ? 10.45 : 10.35))}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.interestRates];
+                                      const realIdx = updated.findIndex(r => r.category === row.category);
+                                      if (realIdx >= 0) {
+                                        updated[realIdx].roi10Lto15L = val;
                                         setPolicyData({ ...policyData, interestRates: updated });
                                       }
                                     }}
