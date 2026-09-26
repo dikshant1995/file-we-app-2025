@@ -1478,6 +1478,24 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               </div>
 
+              {activeConfigBank?.id === 'indusind' && (
+                <div style={{
+                  background: 'rgba(239, 68, 68, 0.08)',
+                  border: '1.5px solid rgba(239, 68, 68, 0.35)',
+                  borderRadius: '8px',
+                  padding: '10px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  color: '#f87171',
+                  fontSize: '0.88rem'
+                }}>
+                  <AlertTriangle size={18} />
+                  <span><strong>IndusInd Master Policy (from Excel):</strong> CIBIL -1 H TO 48 TENURE — New-to-credit applicants with CIBIL score -1 are strictly capped to <strong>48 Months (4 Years)</strong>. Standard maximum tenure is <strong>84 Months (7 Years)</strong>.</span>
+                </div>
+              )}
+
               <div className="table-responsive">
                 <table className="policy-table">
                   <thead>
@@ -1534,7 +1552,16 @@ const UnifiedBankPolicyManager = () => {
                           </span>
                         </td>
                         <td>
-                          <span className="text-muted-sm">{row.description}</span>
+                          {activeConfigBank?.id === 'indusind' ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span className="cat-pill" style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.4)', fontWeight: 700, fontSize: '0.75rem', whiteSpace: 'nowrap' }}>
+                                CIBIL -1 H TO 48 TENURE
+                              </span>
+                              <span className="text-muted-sm">Up to 84M</span>
+                            </div>
+                          ) : (
+                            <span className="text-muted-sm">{row.description}</span>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -1554,19 +1581,54 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               </div>
 
+              {activeConfigBank?.id === 'indusind' && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(14, 165, 233, 0.1) 100%)',
+                  border: '1.5px solid rgba(16, 185, 129, 0.35)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#10b981', fontWeight: 700, fontSize: '0.95rem' }}>
+                    <CheckCircle2 size={18} />
+                    <span>IndusInd Bank Master Policy Rules (from Excel)</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 FOIR Salary Slabs (Cat A, B, Govt):</strong>
+                      <div style={{ marginTop: '5px' }}>• ₹20K – ₹35K Salary: <strong>50% FOIR</strong></div>
+                      <div style={{ marginTop: '3px' }}>• ₹35K – ₹50K Salary: <strong>60% FOIR</strong></div>
+                      <div style={{ marginTop: '3px', color: '#86efac' }}>• <strong>₹50K to ₹80K+ (Owned House)</strong>: <strong>70% FOIR</strong></div>
+                      <div style={{ marginTop: '3px', color: '#fde047' }}>• <strong>₹50K to ₹80K+ (Rented House)</strong>: <strong>65% FOIR</strong></div>
+                      <div style={{ marginTop: '3px', color: '#f472b6' }}>• <strong>Customer HL / LAP Running</strong>: <strong>Up to 75% FOIR</strong></div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
+                      <strong style={{ color: '#f59e0b', fontSize: '0.88rem' }}>📌 Multipliers & Special Policies:</strong>
+                      <div style={{ marginTop: '5px' }}>• Multiplier &lt; ₹75K: <strong>20x</strong> | ₹75K–₹1.25L: <strong>25x</strong> | ≥ ₹1.25L: <strong>30x</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Category C: <strong>21x Multiplier</strong> | ₹35K–₹80K: <strong>60% FOIR</strong> (Cap: ₹15L)</div>
+                      <div style={{ marginTop: '3px', color: '#fca5a5' }}>• <strong>CIBIL -1 Policy</strong>: Max tenure strictly capped to <strong>48 Months</strong></div>
+                      <div style={{ marginTop: '3px', color: '#fdba74' }}>• CC Obligation: <strong>5% of limit</strong> (CC BT Not Allowed)</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="table-responsive">
                 <table className="policy-table">
                   <thead>
                     <tr>
                       <th>Category Tier</th>
-                      <th>₹25K – ₹35K Salary FOIR</th>
-                      <th>₹35K – ₹40K Salary FOIR</th>
-                      <th>₹40K+ Salary Max FOIR</th>
+                      <th>{activeConfigBank?.id === 'indusind' ? '₹20K – ₹35K FOIR' : '₹25K – ₹35K Salary FOIR'}</th>
+                      <th>{activeConfigBank?.id === 'indusind' ? '₹35K – ₹50K FOIR' : '₹35K – ₹40K Salary FOIR'}</th>
+                      <th>{activeConfigBank?.id === 'indusind' ? '≥ ₹50K Max FOIR (Owned/HL)' : '₹40K+ Salary Max FOIR'}</th>
                       {activeConfigBank?.id === 'indusind' ? (
                         <>
-                          <th style={{ background: '#e0f2fe', color: '#0369a1', whiteSpace: 'nowrap' }}>&lt; ₹75K Multiplier</th>
-                          <th style={{ background: '#e0f2fe', color: '#0369a1', whiteSpace: 'nowrap' }}>₹75K–₹1.25L Multiplier</th>
-                          <th style={{ background: '#e0f2fe', color: '#0369a1', whiteSpace: 'nowrap' }}>≥ ₹1.25L Multiplier</th>
+                          <th style={{ color: '#38bdf8', whiteSpace: 'nowrap', borderBottom: '2px solid rgba(56, 189, 248, 0.5)' }}>&lt; ₹75K Multiplier</th>
+                          <th style={{ color: '#38bdf8', whiteSpace: 'nowrap', borderBottom: '2px solid rgba(56, 189, 248, 0.5)' }}>₹75K–₹1.25L Multiplier</th>
+                          <th style={{ color: '#38bdf8', whiteSpace: 'nowrap', borderBottom: '2px solid rgba(56, 189, 248, 0.5)' }}>≥ ₹1.25L Multiplier</th>
                         </>
                       ) : (
                         <th>Net Salary Multiplier</th>
@@ -1586,7 +1648,7 @@ const UnifiedBankPolicyManager = () => {
                           <div className="table-input-cell">
                             <input 
                               type="number"
-                              value={row.slab1Foir ?? 55}
+                              value={row.slab1Foir ?? 50}
                               onChange={(e) => {
                                 const val = Number(e.target.value);
                                 const updated = [...policyData.foirMultiplier];
@@ -1594,14 +1656,14 @@ const UnifiedBankPolicyManager = () => {
                                 setPolicyData({ ...policyData, foirMultiplier: updated });
                               }}
                             />
-                            <span>% (50–55%)</span>
+                            <span>% {activeConfigBank?.id === 'indusind' ? '(50%)' : '(50–55%)'}</span>
                           </div>
                         </td>
                         <td>
                           <div className="table-input-cell">
                             <input 
                               type="number"
-                              value={row.slab2Foir ?? 65}
+                              value={row.slab2Foir ?? 60}
                               onChange={(e) => {
                                 const val = Number(e.target.value);
                                 const updated = [...policyData.foirMultiplier];
@@ -1609,14 +1671,14 @@ const UnifiedBankPolicyManager = () => {
                                 setPolicyData({ ...policyData, foirMultiplier: updated });
                               }}
                             />
-                            <span>% (55–65%)</span>
+                            <span>% {activeConfigBank?.id === 'indusind' ? '(60%)' : '(55–65%)'}</span>
                           </div>
                         </td>
                         <td>
                           <div className="table-input-cell highlight">
                             <input 
                               type="number"
-                              value={row.maxFoir ?? 75}
+                              value={row.maxFoir ?? (activeConfigBank?.id === 'indusind' ? (row.category === 'C' ? 60 : 70) : 75)}
                               onChange={(e) => {
                                 const val = Number(e.target.value);
                                 const updated = [...policyData.foirMultiplier];
@@ -1624,15 +1686,16 @@ const UnifiedBankPolicyManager = () => {
                                 setPolicyData({ ...policyData, foirMultiplier: updated });
                               }}
                             />
-                            <span>% (Up to 75%)</span>
+                            <span>% {activeConfigBank?.id === 'indusind' ? '(70–75%)' : '(Up to 75%)'}</span>
                           </div>
                         </td>
                         {activeConfigBank?.id === 'indusind' ? (
                           <>
                             <td>
-                              <div className="table-input-cell highlight" style={{ background: '#f0f9ff' }}>
+                              <div className="table-input-cell" style={{ background: '#0b1329', border: '1.5px solid rgba(56, 189, 248, 0.45)', minWidth: '95px' }}>
                                 <input 
                                   type="number"
+                                  style={{ color: '#38bdf8', fontWeight: 800, fontSize: '0.92rem' }}
                                   value={row.multiplierBelow75k ?? (row.category === 'C' ? 21 : 20)}
                                   onChange={(e) => {
                                     const val = Number(e.target.value);
@@ -1641,13 +1704,14 @@ const UnifiedBankPolicyManager = () => {
                                     setPolicyData({ ...policyData, foirMultiplier: updated });
                                   }}
                                 />
-                                <span>x (&lt; 75K)</span>
+                                <span style={{ color: '#94a3b8', fontWeight: 600 }}>x (&lt;75K)</span>
                               </div>
                             </td>
                             <td>
-                              <div className="table-input-cell highlight" style={{ background: '#f0f9ff' }}>
+                              <div className="table-input-cell" style={{ background: '#0b1329', border: '1.5px solid rgba(56, 189, 248, 0.45)', minWidth: '105px' }}>
                                 <input 
                                   type="number"
+                                  style={{ color: '#38bdf8', fontWeight: 800, fontSize: '0.92rem' }}
                                   value={row.multiplier75kTo125k ?? (row.category === 'C' ? 21 : 25)}
                                   onChange={(e) => {
                                     const val = Number(e.target.value);
@@ -1656,13 +1720,14 @@ const UnifiedBankPolicyManager = () => {
                                     setPolicyData({ ...policyData, foirMultiplier: updated });
                                   }}
                                 />
-                                <span>x (75K–1.25L)</span>
+                                <span style={{ color: '#94a3b8', fontWeight: 600 }}>x (75-1.25L)</span>
                               </div>
                             </td>
                             <td>
-                              <div className="table-input-cell highlight" style={{ background: '#f0f9ff' }}>
+                              <div className="table-input-cell" style={{ background: '#0b1329', border: '1.5px solid rgba(56, 189, 248, 0.45)', minWidth: '100px' }}>
                                 <input 
                                   type="number"
+                                  style={{ color: '#38bdf8', fontWeight: 800, fontSize: '0.92rem' }}
                                   value={row.multiplierAbove125k ?? (row.category === 'C' ? 21 : 30)}
                                   onChange={(e) => {
                                     const val = Number(e.target.value);
@@ -1672,7 +1737,7 @@ const UnifiedBankPolicyManager = () => {
                                     setPolicyData({ ...policyData, foirMultiplier: updated });
                                   }}
                                 />
-                                <span>x (≥ 1.25L)</span>
+                                <span style={{ color: '#94a3b8', fontWeight: 600 }}>x (≥1.25L)</span>
                               </div>
                             </td>
                           </>

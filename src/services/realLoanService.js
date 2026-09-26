@@ -547,7 +547,16 @@ const matchCategory = (cat1, cat2) => {
         if (Array.isArray(uPolicy.tenureRules)) {
           const matchedTenure = uPolicy.tenureRules.find(t => matchCategory(t.category, bankCategory));
           if (matchedTenure && matchedTenure.maxMonths) {
-            bankInput.maxTenureOverride = Number(matchedTenure.maxMonths);
+            let maxM = Number(matchedTenure.maxMonths);
+            const isCibilMinusOne = calculatorInput.creditScore === -1 || 
+                                    calculatorInput.creditScore === '-1' || 
+                                    calculatorInput.cibilScore === -1 || 
+                                    calculatorInput.cibilScore === '-1';
+            const isIndusind = name === 'IndusInd Bank' || id === 'indusind';
+            if (isIndusind && isCibilMinusOne) {
+              maxM = Math.min(maxM, 48); // Excel Policy: CIBIL -1 H TO 48 TENURE
+            }
+            bankInput.maxTenureOverride = maxM;
           }
         }
       } else if (adminAllConfig.interestRates && !govtPolicy) {

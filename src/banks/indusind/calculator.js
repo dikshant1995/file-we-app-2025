@@ -259,7 +259,22 @@ export const calculateIndusindEligibility = (userData) => {
     if (String(category || '').toUpperCase().trim() === 'C') {
       foirPercentage = incomeForCalculation >= 35000 ? 0.60 : 0.50;
     } else {
-      foirPercentage = incomeForCalculation >= 50000 ? 0.70 : (incomeForCalculation >= 35000 ? 0.60 : 0.50);
+      if (incomeForCalculation >= 50000) {
+        const hasHlOrLap = (userData.existingLoanTypes && 
+          (userData.existingLoanTypes.includes('Home Loan') || 
+           userData.existingLoanTypes.includes('Loan Against Property') ||
+           userData.existingLoanTypes.includes('HL') ||
+           userData.existingLoanTypes.includes('LAP'))) ||
+          (Array.isArray(userData.loansForBT) && 
+           userData.loansForBT.some(l => l.type === 'Home Loan' || l.type === 'LAP'));
+        if (hasHlOrLap) foirPercentage = 0.75;
+        else if (userData.livingStatus === 'rented') foirPercentage = 0.65;
+        else foirPercentage = 0.70;
+      } else if (incomeForCalculation >= 35000) {
+        foirPercentage = 0.60;
+      } else {
+        foirPercentage = 0.50;
+      }
     }
   }
 
