@@ -410,64 +410,83 @@ const matchCategory = (cat1, cat2) => {
           };
         }
 
-        // Loan amount from FOIR
-        const foirLoanAmount = calculateLoanAmountFromEMI(availableEMI, effectiveRate, tenureYears);
-
-        // Loan amount from Multiplier
+        // -------------------------------------------------------------
+        // STEP 1: CALCULATE MAXIMUM ELIGIBLE CAPACITY (Independent of customer request)
+        // -------------------------------------------------------------
+        // Multiplier capacity:
         const availableSalary = calculatorInput.isBTMode ? monthlyIncome : (monthlyIncome - totalObligations);
         const multiplierLoanAmount = availableSalary * effectiveMultiplier;
 
-        // Take minimum of Multiplier, FOIR, and requested amount
-        let calculatedLoan = Math.min(
-          calculatorInput.desiredLoanAmount || Infinity,
-          multiplierLoanAmount,
-          foirLoanAmount
-        );
+        // Base FOIR loan capacity using provisional effectiveRate:
+        let provisionalFoirLoanAmount = calculateLoanAmountFromEMI(availableEMI, effectiveRate, tenureYears);
 
-        // Apply maximum loan cap from policy
+        // Sanction & bachelor limits:
         const maxLoanCap = bankInput.maxLoanOverride || result.maxLoanCap || 5000000;
-        calculatedLoan = Math.min(calculatedLoan, maxLoanCap);
-
-        // Apply bachelor cap if present
+        let maxEligibleLoan = Math.min(multiplierLoanAmount, provisionalFoirLoanAmount, maxLoanCap);
         if (bankInput.dynamicBachelorLimitOverride) {
-          calculatedLoan = Math.min(calculatedLoan, bankInput.dynamicBachelorLimitOverride);
+          maxEligibleLoan = Math.min(maxEligibleLoan, bankInput.dynamicBachelorLimitOverride);
         }
 
-        // Re-check loan amount bracket ROI if actual calculated loan differs
+        // -------------------------------------------------------------
+        // STEP 2: CROSS-VERIFY ROI SLAB ACCORDING TO THIS MAX ELIGIBLE LOAN
+        // -------------------------------------------------------------
+        let finalRate = effectiveRate;
+        let appliedRoiSlab = '< ₹10 Lakhs';
         if (bankInput.matchedRateConfig) {
           const mRate = bankInput.matchedRateConfig;
-          let tierRoi = effectiveRate;
-          if (calculatedLoan >= 1500000 && mRate.roiAbove15L) {
-            tierRoi = Number(mRate.roiAbove15L);
-          } else if (calculatedLoan >= 1000000 && mRate.roi10Lto15L) {
-            tierRoi = Number(mRate.roi10Lto15L);
+          if (maxEligibleLoan >= 1500000 && mRate.roiAbove15L) {
+            finalRate = Number(mRate.roiAbove15L);
+            appliedRoiSlab = '≥ ₹15 Lakhs';
+          } else if (maxEligibleLoan >= 1000000 && mRate.roi10Lto15L) {
+            finalRate = Number(mRate.roi10Lto15L);
+            appliedRoiSlab = '₹10 Lakhs - ₹15 Lakhs';
           } else if (mRate.roiBelow10L) {
-            tierRoi = Number(mRate.roiBelow10L);
+            finalRate = Number(mRate.roiBelow10L);
+            appliedRoiSlab = '< ₹10 Lakhs';
           }
-          if (tierRoi !== effectiveRate) {
-            effectiveRate = tierRoi;
-          }
+        }
+
+        // -------------------------------------------------------------
+        // STEP 3: RE-CROSS-VERIFY CAPACITY WITH FINAL SLAB ROI
+        // -------------------------------------------------------------
+        const finalFoirLoanAmount = (finalRate !== effectiveRate)
+          ? calculateLoanAmountFromEMI(availableEMI, finalRate, tenureYears)
+          : provisionalFoirLoanAmount;
+
+        maxEligibleLoan = Math.min(multiplierLoanAmount, finalFoirLoanAmount, maxLoanCap);
+        if (bankInput.dynamicBachelorLimitOverride) {
+          maxEligibleLoan = Math.min(maxEligibleLoan, bankInput.dynamicBachelorLimitOverride);
+        }
+
+        // If customer optionally requested an amount, cap to requested amount, else customer receives 100% max eligibility
+        let calculatedLoan = maxEligibleLoan;
+        if (calculatorInput.desiredLoanAmount && calculatorInput.desiredLoanAmount > 0) {
+          calculatedLoan = Math.min(calculatorInput.desiredLoanAmount, maxEligibleLoan);
         }
 
         const finalLoanAmount = Math.max(0, Math.round(calculatedLoan));
-        const finalMonthlyEMI = calculateEMI(finalLoanAmount, effectiveRate, tenureYears);
+        const finalMonthlyEMI = calculateEMI(finalLoanAmount, finalRate, tenureYears);
 
         // Update result object with exact policy values
         result.loanAmount = finalLoanAmount;
+        result.maxEligibleLoan = Math.round(maxEligibleLoan);
         result.monthlyEMI = finalMonthlyEMI;
-        result.interestRate = effectiveRate;
+        result.interestRate = finalRate;
         result.loanTenure = tenureYears;
         result.loanTenureMonths = tenureMonths;
         result.multiplier = effectiveMultiplier;
         result.foirPercentage = effectiveFOIR;
+        result.appliedRoiSlab = appliedRoiSlab;
 
         if (!result.details) result.details = {};
         result.details.foirPercentage = (effectiveFOIR * 100).toFixed(0) + '%';
         result.details.multiplier = effectiveMultiplier + 'x';
         result.details.foirCap = Math.round(foirCap);
         result.details.availableEMI = Math.round(availableEMI);
-        result.details.foirLoanAmount = Math.round(foirLoanAmount);
+        result.details.foirLoanAmount = Math.round(finalFoirLoanAmount);
         result.details.multiplierLoanAmount = Math.round(multiplierLoanAmount);
+        result.details.maxEligibleLoan = Math.round(maxEligibleLoan);
+        result.details.appliedRoiSlab = appliedRoiSlab;
       }
 
       const bankEndTime = performance.now();
