@@ -281,11 +281,21 @@ const matchCategory = (cat1, cat2) => {
 
       // 🎯 BIND DYNAMIC UNIFIED BANK POLICY (Rates, Caps, FOIR, Multipliers, Tenure)
       if (uPolicy && !govtPolicy) {
-        // 1. Dynamic Interest Rate match
+        // 1. Dynamic Interest Rate match (Support Loan Amount Slabs: >=15L, 10L-15L, <10L)
         if (Array.isArray(uPolicy.interestRates)) {
           const matchedRate = uPolicy.interestRates.find(r => matchCategory(r.category, bankCategory));
-          if (matchedRate && (matchedRate.defaultRoi || matchedRate.minRoi)) {
-            bankInput.interestRateOverride = Number(matchedRate.defaultRoi || matchedRate.minRoi);
+          if (matchedRate) {
+            const reqAmount = calculatorInput.desiredLoanAmount || 1000000;
+            let dynamicRoi = matchedRate.defaultRoi || matchedRate.minRoi || 10.5;
+            if (reqAmount >= 1500000 && matchedRate.roiAbove15L) {
+              dynamicRoi = matchedRate.roiAbove15L;
+            } else if (reqAmount >= 1000000 && matchedRate.roi10Lto15L) {
+              dynamicRoi = matchedRate.roi10Lto15L;
+            } else if (matchedRate.roiBelow10L) {
+              dynamicRoi = matchedRate.roiBelow10L;
+            }
+            bankInput.interestRateOverride = Number(dynamicRoi);
+            bankInput.matchedRateConfig = matchedRate;
           }
         }
 
@@ -300,12 +310,22 @@ const matchCategory = (cat1, cat2) => {
           }
         }
 
-        // 3. Dynamic FOIR & Multiplier match (Tab 4 in Admin)
+        // 3. Dynamic FOIR & Multiplier match (Tab 4 in Admin - Salary Slabs)
         if (Array.isArray(uPolicy.foirMultiplier)) {
           const matchedFoir = uPolicy.foirMultiplier.find(m => matchCategory(m.category, bankCategory));
           if (matchedFoir) {
             if (matchedFoir.multiplier) bankInput.multiplierOverride = Number(matchedFoir.multiplier);
-            if (matchedFoir.maxFoir) bankInput.foirOverride = Number(matchedFoir.maxFoir);
+            
+            const income = calculatorInput.monthlyIncome || calculatorInput.basicSalary || 0;
+            let foirPct = matchedFoir.maxFoir || 75;
+            if (matchedFoir.slab1Foir && income >= 25000 && income < 35000) {
+              foirPct = matchedFoir.slab1Foir;
+            } else if (matchedFoir.slab2Foir && income >= 35000 && income < 40000) {
+              foirPct = matchedFoir.slab2Foir;
+            } else if (matchedFoir.maxFoir && income >= 40000) {
+              foirPct = matchedFoir.maxFoir;
+            }
+            bankInput.foirOverride = Number(foirPct);
             if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
           }
         }
@@ -411,6 +431,22 @@ const matchCategory = (cat1, cat2) => {
         // Apply bachelor cap if present
         if (bankInput.dynamicBachelorLimitOverride) {
           calculatedLoan = Math.min(calculatedLoan, bankInput.dynamicBachelorLimitOverride);
+        }
+
+        // Re-check loan amount bracket ROI if actual calculated loan differs
+        if (bankInput.matchedRateConfig) {
+          const mRate = bankInput.matchedRateConfig;
+          let tierRoi = effectiveRate;
+          if (calculatedLoan >= 1500000 && mRate.roiAbove15L) {
+            tierRoi = Number(mRate.roiAbove15L);
+          } else if (calculatedLoan >= 1000000 && mRate.roi10Lto15L) {
+            tierRoi = Number(mRate.roi10Lto15L);
+          } else if (mRate.roiBelow10L) {
+            tierRoi = Number(mRate.roiBelow10L);
+          }
+          if (tierRoi !== effectiveRate) {
+            effectiveRate = tierRoi;
+          }
         }
 
         const finalLoanAmount = Math.max(0, Math.round(calculatedLoan));
