@@ -7,7 +7,7 @@ import ChangePasswordModal from './admin/ChangePasswordModal.jsx';
 import { auth, db } from '../config/firebase.js';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
-import { Users, Building2, KeyRound, ArrowLeft } from 'lucide-react';
+import { Users, Building2, KeyRound } from 'lucide-react';
 
 const AdminDashboard = ({ onBackToCustomer, initialUser }) => {
   // Only 2 Main Features: 'leads' and 'bank-policy'
@@ -24,7 +24,7 @@ const AdminDashboard = ({ onBackToCustomer, initialUser }) => {
   });
   const [loading, setLoading] = useState(false);
 
-  // Sync activeMenu with browser history & URL hash so Back button switches tabs
+  // Sync activeMenu with browser history & URL hash so browser Back/Forward (<- / ->) buttons seamlessly switch tabs
   const handleTabChange = (tabId, pushHistory = true) => {
     if (tabId === activeMenu) return;
     setActiveMenu(tabId);
@@ -33,7 +33,7 @@ const AdminDashboard = ({ onBackToCustomer, initialUser }) => {
     }
   };
 
-  // Browser Back Button (popstate listener)
+  // Browser Native Back/Forward Button handler (popstate)
   useEffect(() => {
     const initialHash = window.location.hash.replace('#', '');
     if (initialHash === 'bank-policy' || initialHash === 'leads') {
@@ -58,17 +58,6 @@ const AdminDashboard = ({ onBackToCustomer, initialUser }) => {
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
-
-  // UI Back Button Click Handler
-  const handleGoBack = () => {
-    if (window.history.length > 1) {
-      window.history.back();
-    } else {
-      // Toggle to previous tab if no history stack exists
-      const target = activeMenu === 'bank-policy' ? 'leads' : 'bank-policy';
-      handleTabChange(target);
-    }
-  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -148,17 +137,8 @@ const AdminDashboard = ({ onBackToCustomer, initialUser }) => {
             </div>
           </div>
 
-          {/* Top Header Navigation Buttons with Back Control */}
+          {/* Top Header Navigation Tabs */}
           <nav className="header-nav-buttons">
-            <button
-              className="header-back-btn"
-              onClick={handleGoBack}
-              title="Go back to previous tab"
-            >
-              <ArrowLeft size={16} />
-              <span>Back</span>
-            </button>
-            <div className="header-nav-divider"></div>
             {menuItems.map(item => (
               <button
                 key={item.id}
