@@ -596,10 +596,25 @@ const UnifiedBankPolicyManager = () => {
             Array.isArray(parsed.interestRates) &&
             parsed.interestRates.some(r => r.roiAbove50k_750 !== undefined);
 
+          const isBajajBank = bank.id === 'bajaj' || bank.name?.toLowerCase().includes('bajaj');
+          const isFreshBajaj = isBajajBank &&
+            parsed.demographics?.minAge === 23 &&
+            parsed.demographics?.minSalary === 27000 &&
+            Array.isArray(parsed.interestRates) &&
+            parsed.interestRates.some(r => r.roiAbove10L === 10.00);
+
+          const isAuBank = bank.id === 'au-bank' || bank.id === 'au' || bank.name?.toLowerCase().includes('au ');
+          const isFreshAu = isAuBank &&
+            parsed.demographics?.minAge === 21 &&
+            parsed.demographics?.maxAge === 57 &&
+            parsed.demographics?.minSalary === 20000 &&
+            Array.isArray(parsed.loanCapping) &&
+            parsed.loanCapping.some(r => r.maxLoan === 1500000);
+
           const isValidRates = Array.isArray(parsed.interestRates) && parsed.interestRates.length > 0 && parsed.interestRates.every(r => r && typeof r === 'object');
           const isValidCapping = !parsed.loanCapping || (Array.isArray(parsed.loanCapping) && parsed.loanCapping.every(r => r && typeof r === 'object'));
 
-          if (hasMatchingCategories && (!isLntBank || isFreshLnt) && (!isPiramalBank || isFreshPiramal) && (!isSmfgBank || isFreshSmfg) && (!isCholaBank || isFreshChola) && (!isKotakBank || isFreshKotak) && (!isBandhanBank || isFreshBandhan) && isValidRates && isValidCapping) {
+          if (hasMatchingCategories && (!isLntBank || isFreshLnt) && (!isPiramalBank || isFreshPiramal) && (!isSmfgBank || isFreshSmfg) && (!isCholaBank || isFreshChola) && (!isKotakBank || isFreshKotak) && (!isBandhanBank || isFreshBandhan) && (!isBajajBank || isFreshBajaj) && (!isAuBank || isFreshAu) && isValidRates && isValidCapping) {
             merged = { ...merged, ...parsed };
           } else {
             // Stale cache contains old categories or corrupted data - purge it so user sees pure Bank Policy Excel
@@ -1453,6 +1468,7 @@ const UnifiedBankPolicyManager = () => {
             const isIcici = bankId === 'icici' || activeConfigBank?.name?.toLowerCase().includes('icici');
             const isAbfl = bankId === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('birla') || activeConfigBank?.name?.toLowerCase().includes('abfl');
             const isSmfg = bankId === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg');
+            const isAu = bankId === 'au-bank' || bankId === 'au' || activeConfigBank?.name?.toLowerCase().includes('au ');
 
             const rawRates = policyData?.interestRates || [];
             // Banks that don't have Cat D in ROI: HDFC, IndusInd, Axis, Tata
@@ -1516,6 +1532,9 @@ const UnifiedBankPolicyManager = () => {
                     {isSmfg && (
                       <p>SMFG India Credit Master Policy Slabs (Excel Sheet: SMFG): <strong>Net Sal &gt; ₹1 Lakh</strong> (17.00% – 30.00%), <strong>₹75k – ₹1L</strong> (18.50% – 30.00%), <strong>₹50k – ₹75k</strong> (18.50% – 30.00%), <strong>₹40k – ₹50k</strong> (19.00% – 30.00%), <strong>₹35k – ₹40k</strong> (19.50% – 30.00%), <strong>₹30k – ₹35k</strong> (21.50% – 30.00%), <strong>₹25k – ₹30k</strong> (23.00% – 30.00%), and <strong>&lt; ₹25k (25001)</strong> (24.00% – 30.00%).</p>
                     )}
+                    {isAu && (
+                      <p>AU Small Finance Bank Master Policy Slabs (Sheet: AU BANK - Section 5): Structured by <strong>CIBIL Score (&ge;750, &lt;750, NTC)</strong>, <strong>Loan Bracket (&gt;₹1.50L, ₹50k–₹1.50L, &lt;₹50k)</strong> and Segment (&ge;₹2L vs &lt;₹2L). Rates span <strong>13.00% to 24.00% p.a.</strong> across Super A, A, B, C, D &amp; Others.</p>
+                    )}
                     {isHdfc && (
                       <p>HDFC Master Policy Slabs: <strong>20 LAKH +</strong> (9.99%), <strong>15 LAKH+</strong> (10.15%), <strong>10-15 LAKH</strong> (10.50%), and <strong>5-10 LAKH</strong> (11.50%).</p>
                     )}
@@ -1525,7 +1544,7 @@ const UnifiedBankPolicyManager = () => {
                     {isAxis && (
                       <p>Axis Bank Master Policy Slabs: <strong>10L ABOVE CASES</strong> (Super A/A: 10.35%, B: 10.45%, C: 10.75%, Govt: 10.45%).</p>
                     )}
-                    {!isKotak && !isTata && !isBajaj && !isBandhan && !isChola && !isAxisFin && !isLnt && !isPiramal && !isPoonawala && !isIcici && !isAbfl && !isSmfg && !isHdfc && !isIndusind && !isAxis && (
+                    {!isKotak && !isTata && !isBajaj && !isBandhan && !isChola && !isAxisFin && !isLnt && !isPiramal && !isPoonawala && !isIcici && !isAbfl && !isSmfg && !isHdfc && !isIndusind && !isAxis && !isAu && (
                       <p>Define minimum ROI strictly according to employer category and loan amount brackets.</p>
                     )}
                   </div>
@@ -1655,7 +1674,16 @@ const UnifiedBankPolicyManager = () => {
                             <th>Pricing Structure (Excel)</th>
                           </>
                         )}
-                        {!isHdfc && !isIndusind && !isAxis && !isKotak && !isTata && !isBajaj && !isBandhan && !isChola && !isAxisFin && !isLnt && !isPiramal && !isPoonawala && !isIcici && !isAbfl && !isSmfg && (
+                        {isAu && (
+                          <>
+                            <th style={{ color: '#c084fc' }}>&ge; 750 CIBIL (&ge; ₹2L Loan) (%)</th>
+                            <th style={{ color: '#c084fc' }}>&lt; 750 CIBIL (&ge; ₹2L Loan) (%)</th>
+                            <th style={{ color: '#c084fc' }}>Loan &lt; ₹2L Slabs (%)</th>
+                            <th style={{ color: '#c084fc' }}>NTC (-1 CIBIL) (%)</th>
+                            <th>Default Applied ROI (%)</th>
+                          </>
+                        )}
+                        {!isHdfc && !isIndusind && !isAxis && !isKotak && !isTata && !isBajaj && !isBandhan && !isChola && !isAxisFin && !isLnt && !isPiramal && !isPoonawala && !isIcici && !isAbfl && !isSmfg && !isAu && (
                           <>
                             <th>≥ ₹15 Lakh Loan ROI (% p.a.)</th>
                             <th>₹10L to &lt; ₹15L Loan ROI (% p.a.)</th>
@@ -2371,7 +2399,62 @@ const UnifiedBankPolicyManager = () => {
                             </>
                           )}
 
-                          {!isHdfc && !isIndusind && !isAxis && !isKotak && !isTata && !isBajaj && !isBandhan && !isChola && !isAxisFin && !isLnt && !isPiramal && !isPoonawala && !isIcici && !isAbfl && !isSmfg && (
+                          {isAu && (
+                            <>
+                              <td>
+                                <div className="table-input-cell highlight">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roiGte750Gte200k ?? row.minRoi ?? ''}
+                                    onChange={(e) => updateRate(row.category, 'roiGte750Gte200k', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roiLt750Gte200k ?? (row.minRoi ? row.minRoi + 1 : '')}
+                                    onChange={(e) => updateRate(row.category, 'roiLt750Gte200k', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roiLt200k ?? (row.minRoi ? row.minRoi + 2 : '')}
+                                    onChange={(e) => updateRate(row.category, 'roiLt200k', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roiNtc ?? (row.minRoi ? row.minRoi + 1 : '')}
+                                    onChange={(e) => updateRate(row.category, 'roiNtc', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.defaultRoi ?? row.minRoi ?? ''}
+                                    onChange={(e) => updateRate(row.category, 'defaultRoi', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                            </>
+                          )}
+
+                          {!isHdfc && !isIndusind && !isAxis && !isKotak && !isTata && !isBajaj && !isBandhan && !isChola && !isAxisFin && !isLnt && !isPiramal && !isPoonawala && !isIcici && !isAbfl && !isSmfg && !isAu && (
                             <>
                               <td>
                                 <div className="table-input-cell highlight">
@@ -3576,6 +3659,22 @@ const UnifiedBankPolicyManager = () => {
                           <th style={{ color: '#fb923c' }}>30k+ Multiplier (25x–35x)</th>
                           <th>Credit Card Obligation (Max 6 CC BT)</th>
                         </>
+                      ) : (activeConfigBank?.id === 'bajaj' || activeConfigBank?.name?.toLowerCase().includes('bajaj')) ? (
+                        <>
+                          <th style={{ color: '#38bdf8' }}>&lt; ₹50K FOIR (60% / +10% HL)</th>
+                          <th style={{ color: '#38bdf8' }}>&ge; ₹50K FOIR (65% / +5% HL)</th>
+                          <th style={{ color: '#38bdf8' }}>Profile Multipliers (10x–24x)</th>
+                          <th style={{ color: '#38bdf8' }}>Max FOIR (75%)</th>
+                          <th>Credit Card Obligation (Max 6x Sal)</th>
+                        </>
+                      ) : (activeConfigBank?.id === 'au-bank' || activeConfigBank?.id === 'au' || activeConfigBank?.name?.toLowerCase().includes('au ')) ? (
+                        <>
+                          <th style={{ color: '#c084fc' }}>₹20k – &lt;₹50k (FOIR / Mult)</th>
+                          <th style={{ color: '#c084fc' }}>₹50k – &lt;₹75k (FOIR / Mult)</th>
+                          <th style={{ color: '#c084fc' }}>₹75k – &lt;₹100k (FOIR / Mult)</th>
+                          <th style={{ color: '#c084fc' }}>&ge; ₹100k (FOIR / Mult)</th>
+                          <th>Credit Card Obligation (ONLY PL BT)</th>
+                        </>
                       ) : (
                         <>
                           <th>{activeConfigBank?.id === 'icici' ? 'Standard Base FOIR (45%)' : (activeConfigBank?.id === 'indusind' ? '₹20K – ₹35K FOIR' : (activeConfigBank?.id === 'bandhan' ? '≤ ₹30K Salary FOIR' : '₹25K – ₹35K Salary FOIR'))}</th>
@@ -3977,6 +4076,223 @@ const UnifiedBankPolicyManager = () => {
                               </div>
                             </td>
                           </>
+                        ) : (activeConfigBank?.id === 'bajaj' || activeConfigBank?.name?.toLowerCase().includes('bajaj')) ? (
+                          <>
+                            <td>
+                              <div className="table-input-cell">
+                                <input 
+                                  type="number"
+                                  value={row.slab1Foir ?? 60}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...policyData.foirMultiplier];
+                                    updated[idx].slab1Foir = val;
+                                    setPolicyData({ ...policyData, foirMultiplier: updated });
+                                  }}
+                                />
+                                <span>% (&lt;50k)</span>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="table-input-cell">
+                                <input 
+                                  type="number"
+                                  value={row.slab2Foir ?? 65}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...policyData.foirMultiplier];
+                                    updated[idx].slab2Foir = val;
+                                    setPolicyData({ ...policyData, foirMultiplier: updated });
+                                  }}
+                                />
+                                <span>% (&ge;50k)</span>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="table-input-cell highlight">
+                                <input 
+                                  type="number"
+                                  value={row.multiplier ?? 20}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...policyData.foirMultiplier];
+                                    updated[idx].multiplier = val;
+                                    setPolicyData({ ...policyData, foirMultiplier: updated });
+                                  }}
+                                />
+                                <span>x Salary</span>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="table-input-cell">
+                                <input 
+                                  type="number"
+                                  value={row.maxFoir ?? 75}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...policyData.foirMultiplier];
+                                    updated[idx].maxFoir = val;
+                                    setPolicyData({ ...policyData, foirMultiplier: updated });
+                                  }}
+                                />
+                                <span>% Max</span>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="table-input-cell">
+                                <input 
+                                  type="number"
+                                  value={row.ccObligation ?? 5}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...policyData.foirMultiplier];
+                                    updated[idx].ccObligation = val;
+                                    setPolicyData({ ...policyData, foirMultiplier: updated });
+                                  }}
+                                />
+                                <span>% (Max 6x Sal)</span>
+                              </div>
+                            </td>
+                          </>
+                        ) : (activeConfigBank?.id === 'au-bank' || activeConfigBank?.id === 'au' || activeConfigBank?.name?.toLowerCase().includes('au ')) ? (
+                          <>
+                            <td>
+                              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                <div className="table-input-cell" style={{ width: '80px' }}>
+                                  <input 
+                                    type="number"
+                                    value={row.slab1Foir ?? (row.priority === 0 ? 50 : 60)}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.foirMultiplier];
+                                      updated[idx].slab1Foir = val;
+                                      setPolicyData({ ...policyData, foirMultiplier: updated });
+                                    }}
+                                  />
+                                  <span>%</span>
+                                </div>
+                                <div className="table-input-cell" style={{ width: '70px' }}>
+                                  <input 
+                                    type="number"
+                                    value={row.multiplierBelow50k ?? (row.priority === 0 ? 11 : 18)}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.foirMultiplier];
+                                      updated[idx].multiplierBelow50k = val;
+                                      setPolicyData({ ...policyData, foirMultiplier: updated });
+                                    }}
+                                  />
+                                  <span>x</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                <div className="table-input-cell" style={{ width: '80px' }}>
+                                  <input 
+                                    type="number"
+                                    value={row.slab2Foir ?? (row.priority === 0 ? 60 : 65)}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.foirMultiplier];
+                                      updated[idx].slab2Foir = val;
+                                      setPolicyData({ ...policyData, foirMultiplier: updated });
+                                    }}
+                                  />
+                                  <span>%</span>
+                                </div>
+                                <div className="table-input-cell" style={{ width: '70px' }}>
+                                  <input 
+                                    type="number"
+                                    value={row.multiplier50kTo75k ?? (row.priority === 0 ? 15 : 20)}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.foirMultiplier];
+                                      updated[idx].multiplier50kTo75k = val;
+                                      setPolicyData({ ...policyData, foirMultiplier: updated });
+                                    }}
+                                  />
+                                  <span>x</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                <div className="table-input-cell" style={{ width: '80px' }}>
+                                  <input 
+                                    type="number"
+                                    value={row.slab3Foir ?? (row.priority === 0 ? 65 : 70)}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.foirMultiplier];
+                                      updated[idx].slab3Foir = val;
+                                      setPolicyData({ ...policyData, foirMultiplier: updated });
+                                    }}
+                                  />
+                                  <span>%</span>
+                                </div>
+                                <div className="table-input-cell" style={{ width: '70px' }}>
+                                  <input 
+                                    type="number"
+                                    value={row.multiplier75kTo100k ?? (row.priority === 0 ? 18 : 22)}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.foirMultiplier];
+                                      updated[idx].multiplier75kTo100k = val;
+                                      setPolicyData({ ...policyData, foirMultiplier: updated });
+                                    }}
+                                  />
+                                  <span>x</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                <div className="table-input-cell highlight" style={{ width: '80px' }}>
+                                  <input 
+                                    type="number"
+                                    value={row.maxFoir ?? (row.priority === 0 ? 70 : 75)}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.foirMultiplier];
+                                      updated[idx].maxFoir = val;
+                                      setPolicyData({ ...policyData, foirMultiplier: updated });
+                                    }}
+                                  />
+                                  <span>%</span>
+                                </div>
+                                <div className="table-input-cell highlight" style={{ width: '70px' }}>
+                                  <input 
+                                    type="number"
+                                    value={row.multiplierAbove100k ?? (row.priority === 0 ? 20 : 24)}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.foirMultiplier];
+                                      updated[idx].multiplierAbove100k = val;
+                                      updated[idx].multiplier = val;
+                                      setPolicyData({ ...policyData, foirMultiplier: updated });
+                                    }}
+                                  />
+                                  <span>x</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="table-input-cell">
+                                <input 
+                                  type="number"
+                                  value={row.ccObligation ?? 5}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...policyData.foirMultiplier];
+                                    updated[idx].ccObligation = val;
+                                    setPolicyData({ ...policyData, foirMultiplier: updated });
+                                  }}
+                                />
+                                <span>% (ONLY PL BT)</span>
+                              </div>
+                            </td>
+                          </>
                         ) : (
                           <>
                             <td>
@@ -4363,6 +4679,74 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               )}
 
+              {(activeConfigBank?.id === 'bajaj' || activeConfigBank?.name?.toLowerCase().includes('bajaj')) && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(0, 114, 187, 0.18) 0%, rgba(16, 185, 129, 0.12) 100%)',
+                  border: '1.5px solid rgba(0, 114, 187, 0.35)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38bdf8', fontWeight: 700, fontSize: '0.95rem' }}>
+                    <CheckCircle2 size={18} />
+                    <span>Bajaj Finance Demographics &amp; Eligibility Criteria (from Master Excel: Sheet BAJAJ)</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(0, 114, 187, 0.25)' }}>
+                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 Age &amp; Experience Requirements:</strong>
+                      <div style={{ marginTop: '5px' }}>• Min Applicant Age: <strong>23 Years</strong> (<code>MINIMUM APLICANT AGE: 23 YEARS</code>)</div>
+                      <div style={{ marginTop: '3px' }}>• Max Age at Loan Time: <strong>59 Years</strong> (<code>MAXIMUM AGE AT LOAN TIME: 59 YEARS</code>)</div>
+                      <div style={{ marginTop: '3px' }}>• Retirement Age: <strong>Retirement proof req for 65 Years</strong></div>
+                      <div style={{ marginTop: '3px', color: '#86efac' }}>• Work Experience: <strong>NO REQUIRED</strong> (0 Months)</div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(16, 185, 129, 0.25)' }}>
+                      <strong style={{ color: '#34d399', fontSize: '0.88rem' }}>📌 Financial &amp; CC Criteria:</strong>
+                      <div style={{ marginTop: '5px' }}>• Minimum Net Salary: <strong>Listed ₹27,000 / Unlisted ₹30,000</strong> (<code>LISTED 27K AND UNLISTED 30K</code>)</div>
+                      <div style={{ marginTop: '3px', color: '#38bdf8' }}>• Credit Card Obligation: <strong>5% of Outstanding</strong></div>
+                      <div style={{ marginTop: '3px', color: '#fde047' }}>• CC BT / POS Rule: <strong>More than 6x monthly salary NOT allowed</strong> (<code>5% OBLIGATE AND MORE THEN 6 TIME NOT ALLOW</code>)</div>
+                      <div style={{ marginTop: '3px' }}>• Address Proof: <strong>NOT REQUIRED</strong></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {(activeConfigBank?.id === 'au-bank' || activeConfigBank?.id === 'au' || activeConfigBank?.name?.toLowerCase().includes('au ')) && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(111, 44, 145, 0.18) 0%, rgba(245, 158, 11, 0.12) 100%)',
+                  border: '1.5px solid rgba(111, 44, 145, 0.35)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#c084fc', fontWeight: 700, fontSize: '0.95rem' }}>
+                    <CheckCircle2 size={18} />
+                    <span>AU Small Finance Bank Demographics &amp; Eligibility Criteria (from Master Excel: Sheet AU BANK)</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(111, 44, 145, 0.25)' }}>
+                      <strong style={{ color: '#c084fc', fontSize: '0.88rem' }}>📌 Age &amp; Experience Requirements:</strong>
+                      <div style={{ marginTop: '5px' }}>• Min Applicant Age: <strong>21 Years (Salaried) / 23 Years (Self-Employed)</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Max Age at Loan Maturity: <strong>Private: 57 Years / Govt: 59 Years</strong> (<code>GOVT 59YEARS/PVT 57YEARS</code>)</div>
+                      <div style={{ marginTop: '3px' }}>• Retirement Age: <strong>60 Years</strong></div>
+                      <div style={{ marginTop: '3px', color: '#86efac' }}>• Work Experience: <strong>Minimum 1 Year (12 Months)</strong> (<code>MINI WORK EXPRINCE: 1YEARS</code>)</div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(245, 158, 11, 0.25)' }}>
+                      <strong style={{ color: '#f59e0b', fontSize: '0.88rem' }}>📌 Financial &amp; BT Criteria:</strong>
+                      <div style={{ marginTop: '5px' }}>• Minimum Net Salary: <strong>Listed ₹20,000 / Unlisted ₹25,000 / NTC ₹30,000</strong> (Listed &amp; Govt only)</div>
+                      <div style={{ marginTop: '3px', color: '#38bdf8' }}>• Credit Card Obligation: <strong>5% of Limit</strong></div>
+                      <div style={{ marginTop: '3px', color: '#fca5a5' }}>• Balance Transfer (BT): <strong>ONLY PL BT</strong> (Credit Card BT Strictly NOT Allowed)</div>
+                      <div style={{ marginTop: '3px', color: '#fde047' }}>• Cappings: <strong>Overall ₹15L, NTC ₹3L, Thin CIBIL ₹7.5L, PG/Rented Bachelor ₹5L</strong></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="table-responsive">
                 <table className="policy-table">
                   <thead>
@@ -4392,8 +4776,8 @@ const UnifiedBankPolicyManager = () => {
                           <span>Years</span>
                         </div>
                       </td>
-                      <td>21 Years</td>
-                      <td>Minimum age required at loan application stage</td>
+                      <td>{(activeConfigBank?.id === 'bajaj' || activeConfigBank?.name?.toLowerCase().includes('bajaj')) ? '23 Years' : '21 Years'}</td>
+                      <td>{(activeConfigBank?.id === 'bajaj' || activeConfigBank?.name?.toLowerCase().includes('bajaj')) ? 'Excel Policy: MINIMUM APLICANT AGE: 23 YEARS' : 'Minimum age required at loan application stage'}</td>
                     </tr>
                     <tr>
                       <td><strong>Maximum Age at Loan Maturity (Private)</strong></td>
@@ -4413,17 +4797,24 @@ const UnifiedBankPolicyManager = () => {
                           <span>Years</span>
                         </div>
                       </td>
-                      <td>60 Years</td>
-                      <td>{(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) ? 'Excel Policy: PVT 60 (Private employee cutoff at loan time)' : 'Borrower must finish repayment before reaching this age'}</td>
+                      <td>
+                        {(activeConfigBank?.id === 'au-bank' || activeConfigBank?.name?.toLowerCase().includes('au '))
+                          ? 'Excel Policy: PVT 57YEARS (Private employer max age at maturity)'
+                          : (activeConfigBank?.id === 'bajaj' || activeConfigBank?.name?.toLowerCase().includes('bajaj'))
+                            ? 'Excel Policy: MAXIMUM AGE AT LOAN TIME: 59 YEARS'
+                            : (activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg'))
+                              ? 'Excel Policy: PVT 60 (Private employee cutoff at loan time)'
+                              : 'Borrower must finish repayment before reaching this age'}
+                      </td>
                     </tr>
-                    {(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) && (
+                    {(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg') || activeConfigBank?.id === 'au-bank' || activeConfigBank?.name?.toLowerCase().includes('au ')) && (
                       <tr style={{ background: 'rgba(56, 189, 248, 0.05)' }}>
                         <td><strong style={{ color: '#38bdf8' }}>Maximum Age at Loan Time (Govt / Pensioner)</strong></td>
                         <td>
                           <div className="table-input-cell highlight">
                             <input 
                               type="number"
-                              value={policyData?.demographics?.maxAgeGovt ?? 65}
+                              value={policyData?.demographics?.maxAgeGovt ?? ((activeConfigBank?.id === 'au-bank' || activeConfigBank?.name?.toLowerCase().includes('au ')) ? 59 : 65)}
                               onChange={(e) => {
                                 const val = Number(e.target.value);
                                 setPolicyData(prev => ({
@@ -4435,8 +4826,8 @@ const UnifiedBankPolicyManager = () => {
                             <span>Years</span>
                           </div>
                         </td>
-                        <td style={{ color: '#38bdf8', fontWeight: 600 }}>65 Years</td>
-                        <td>Excel Policy: GOVT 65 (PENSIONER PROFILE) — Govt employees and pensioners eligible up to 65 years</td>
+                        <td style={{ color: '#38bdf8', fontWeight: 600 }}>{(activeConfigBank?.id === 'au-bank' || activeConfigBank?.name?.toLowerCase().includes('au ')) ? '59 Years' : '65 Years'}</td>
+                        <td>{(activeConfigBank?.id === 'au-bank' || activeConfigBank?.name?.toLowerCase().includes('au ')) ? 'Excel Policy: GOVT 59YEARS (Govt personnel eligible up to 59 years maturity)' : 'Excel Policy: GOVT 65 (PENSIONER PROFILE) — Govt employees and pensioners eligible up to 65 years'}</td>
                       </tr>
                     )}
                     <tr>
@@ -4445,7 +4836,7 @@ const UnifiedBankPolicyManager = () => {
                         <div className="table-input-cell">
                           <input 
                             type="number"
-                            value={policyData?.demographics?.retirementSalaried ?? ((activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) ? 65 : 60)}
+                            value={policyData?.demographics?.retirementSalaried ?? ((activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) ? 65 : ((activeConfigBank?.id === 'bajaj' || activeConfigBank?.name?.toLowerCase().includes('bajaj')) ? 59 : 60))}
                             onChange={(e) => {
                               const val = Number(e.target.value);
                               setPolicyData(prev => ({
@@ -4457,8 +4848,20 @@ const UnifiedBankPolicyManager = () => {
                           <span>Years</span>
                         </div>
                       </td>
-                      <td>{(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) ? '65 Years' : '60 Years'}</td>
-                      <td>{(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) ? 'Excel Policy: RETIREMENT AGE: 65 for SMFG India Credit' : 'Superannuation age considered for private corporate employees'}</td>
+                      <td>
+                        {(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) 
+                          ? '65 Years' 
+                          : (activeConfigBank?.id === 'bajaj' || activeConfigBank?.name?.toLowerCase().includes('bajaj')) 
+                            ? '59 Years' 
+                            : '60 Years'}
+                      </td>
+                      <td>
+                        {(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) 
+                          ? 'Excel Policy: RETIREMENT AGE: 65 for SMFG India Credit' 
+                          : (activeConfigBank?.id === 'bajaj' || activeConfigBank?.name?.toLowerCase().includes('bajaj')) 
+                            ? 'Excel Policy: 59 Years (Retirement proof req for 65 years)' 
+                            : 'Superannuation age considered for private corporate employees'}
+                      </td>
                     </tr>
                     <tr>
                       <td><strong>Retirement Age (Government / Defense)</strong></td>
@@ -4466,7 +4869,7 @@ const UnifiedBankPolicyManager = () => {
                         <div className="table-input-cell">
                           <input 
                             type="number"
-                            value={policyData?.demographics?.retirementGovt ?? ((activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) ? 65 : 62)}
+                            value={policyData?.demographics?.retirementGovt ?? ((activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) ? 65 : ((activeConfigBank?.id === 'bajaj' || activeConfigBank?.name?.toLowerCase().includes('bajaj')) ? 65 : ((activeConfigBank?.id === 'au-bank' || activeConfigBank?.name?.toLowerCase().includes('au ')) ? 59 : 62)))}
                             onChange={(e) => {
                               const val = Number(e.target.value);
                               setPolicyData(prev => ({
@@ -4478,8 +4881,24 @@ const UnifiedBankPolicyManager = () => {
                           <span>Years</span>
                         </div>
                       </td>
-                      <td>{(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) ? '65 Years' : '62 Years'}</td>
-                      <td>{(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) ? 'Excel Policy: RETIREMENT AGE: 65 for SMFG India Credit' : 'Standard retirement threshold for state / central govt personnel'}</td>
+                      <td>
+                        {(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) 
+                          ? '65 Years' 
+                          : (activeConfigBank?.id === 'bajaj' || activeConfigBank?.name?.toLowerCase().includes('bajaj')) 
+                            ? '65 Years (Proof)' 
+                            : (activeConfigBank?.id === 'au-bank' || activeConfigBank?.name?.toLowerCase().includes('au ')) 
+                              ? '59 Years' 
+                              : '62 Years'}
+                      </td>
+                      <td>
+                        {(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) 
+                          ? 'Excel Policy: RETIREMENT AGE: 65 for SMFG India Credit' 
+                          : (activeConfigBank?.id === 'bajaj' || activeConfigBank?.name?.toLowerCase().includes('bajaj')) 
+                            ? 'Excel Policy: RETIREMENT PROOF REQ FOR 65 YEARS' 
+                            : (activeConfigBank?.id === 'au-bank' || activeConfigBank?.name?.toLowerCase().includes('au ')) 
+                              ? 'Excel Policy: GOVT 59YEARS' 
+                              : 'Standard retirement threshold for state / central govt personnel'}
+                      </td>
                     </tr>
                     <tr>
                       <td><strong>Minimum Monthly Salary Threshold</strong></td>
@@ -4499,8 +4918,22 @@ const UnifiedBankPolicyManager = () => {
                           />
                         </div>
                       </td>
-                      <td>₹25,000</td>
-                      <td>{(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) ? 'Excel Policy: 25K+ SALARY WITH 0 DEDUCTION' : 'Minimum verifiable monthly salary required for qualification'}</td>
+                      <td>
+                        {(activeConfigBank?.id === 'bajaj' || activeConfigBank?.name?.toLowerCase().includes('bajaj')) 
+                          ? '₹27,000 (Listed)' 
+                          : (activeConfigBank?.id === 'au-bank' || activeConfigBank?.id === 'au' || activeConfigBank?.name?.toLowerCase().includes('au ')) 
+                            ? '₹20,000 (Listed)' 
+                            : '₹25,000'}
+                      </td>
+                      <td>
+                        {(activeConfigBank?.id === 'bajaj' || activeConfigBank?.name?.toLowerCase().includes('bajaj'))
+                          ? 'Excel Policy: LISTED 27K AND UNLISTED 30K'
+                          : (activeConfigBank?.id === 'au-bank' || activeConfigBank?.id === 'au' || activeConfigBank?.name?.toLowerCase().includes('au '))
+                            ? 'Excel Policy: LISTED 20K / UNLISTED 25K / -1 CIBIL 30K'
+                            : (activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg'))
+                              ? 'Excel Policy: 25K+ SALARY WITH 0 DEDUCTION'
+                              : 'Minimum verifiable monthly salary required for qualification'}
+                      </td>
                     </tr>
                     <tr>
                       <td><strong>{(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) ? 'Minimum Work Experience (Current Company)' : ((activeConfigBank?.id === 'kotak' || activeConfigBank?.name?.toLowerCase().includes('kotak')) ? 'Minimum Work Experience (Current Company)' : ((activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('bandhan')) ? 'Minimum Total Work Experience (Overall)' : 'Minimum Total Work Experience'))}</strong></td>
@@ -4508,13 +4941,15 @@ const UnifiedBankPolicyManager = () => {
                         <div className="table-input-cell">
                           <input 
                             type="number"
-                            value={(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg'))
-                              ? (policyData?.demographics?.minExperienceCurrent ?? 24)
-                              : ((activeConfigBank?.id === 'kotak' || activeConfigBank?.name?.toLowerCase().includes('kotak'))
-                                ? (policyData?.demographics?.minExperienceCurrent ?? 1)
-                                : ((activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('bandhan'))
-                                  ? (policyData?.demographics?.minExperienceTotal ?? 12)
-                                  : (policyData?.demographics?.minExperienceTotal ?? 12)))}
+                            value={(activeConfigBank?.id === 'bajaj' || activeConfigBank?.name?.toLowerCase().includes('bajaj'))
+                              ? (policyData?.demographics?.minExperienceTotal ?? 0)
+                              : ((activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg'))
+                                ? (policyData?.demographics?.minExperienceCurrent ?? 24)
+                                : ((activeConfigBank?.id === 'kotak' || activeConfigBank?.name?.toLowerCase().includes('kotak'))
+                                  ? (policyData?.demographics?.minExperienceCurrent ?? 1)
+                                  : ((activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('bandhan'))
+                                    ? (policyData?.demographics?.minExperienceTotal ?? 12)
+                                    : (policyData?.demographics?.minExperienceTotal ?? 12))))}
                             onChange={(e) => {
                               const val = Number(e.target.value);
                               setPolicyData(prev => ({
@@ -4530,8 +4965,19 @@ const UnifiedBankPolicyManager = () => {
                           <span>Months</span>
                         </div>
                       </td>
-                      <td>{(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) ? '24 Months (2 Yrs)' : ((activeConfigBank?.id === 'kotak' || activeConfigBank?.name?.toLowerCase().includes('kotak')) ? '1 Month' : ((activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('bandhan')) ? '12 Months (1 Yr)' : '12 Months'))}</td>
-                      <td>{(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) ? 'Excel Policy: CURRENT COM 2 YEARS (Minimum 2 years experience in current employer)' : ((activeConfigBank?.id === 'kotak' || activeConfigBank?.name?.toLowerCase().includes('kotak')) ? 'Excel Policy: 1 Month current company experience' : ((activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('bandhan')) ? 'Excel Policy: 1 MONTHS CURRENT COM AND OVERALL 1YEARS' : 'Cumulative work experience across previous employers'))}</td>
+                      <td>
+                        {(activeConfigBank?.id === 'bajaj' || activeConfigBank?.name?.toLowerCase().includes('bajaj'))
+                          ? 'Excel Policy: MINI WORK EXPRINCE: NO REQUIRED'
+                          : (activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg'))
+                            ? 'Excel Policy: CURRENT COM 2 YEARS (Minimum 2 years experience in current employer)'
+                            : (activeConfigBank?.id === 'au-bank' || activeConfigBank?.name?.toLowerCase().includes('au ') || activeConfigBank?.id === 'au')
+                              ? 'Excel Policy: MINI WORK EXPRINCE: 1YEARS'
+                              : (activeConfigBank?.id === 'kotak' || activeConfigBank?.name?.toLowerCase().includes('kotak'))
+                                ? 'Excel Policy: 1 Month current company experience'
+                                : (activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('bandhan'))
+                                  ? 'Excel Policy: 1 MONTHS CURRENT COM AND OVERALL 1YEARS'
+                                  : 'Cumulative work experience across previous employers'}
+                      </td>
                     </tr>
                     <tr>
                       <td><strong>Minimum CIBIL Score Cutoff</strong></td>
@@ -4571,8 +5017,8 @@ const UnifiedBankPolicyManager = () => {
                           <span>%</span>
                         </div>
                       </td>
-                      <td>{(activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('bandhan')) ? '3% (0% if CC < 3x Sal)' : '5%'}</td>
-                      <td>{(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) ? 'Excel Policy: CC OBLIGATION: 0.05 (5% of credit card balance)' : ((activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('bandhan')) ? 'Excel Policy: 3% OBLIGATE, SALARY KA BELOW 3 TIME NO OBLIGATION. GL and KCC not obligated.' : ((activeConfigBank?.id === 'kotak' || activeConfigBank?.name?.toLowerCase().includes('kotak')) ? 'Excel Policy: 5% of CC outstanding as per CIBIL' : 'Percentage of credit card outstanding counted towards monthly obligations (Axis Bank: 4%)'))}</td>
+                      <td>{(activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('bandhan')) ? '3%' : '5%'}</td>
+                      <td>{(activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('bandhan')) ? 'Excel Policy: CC OBLIGATION: 3%' : 'Standard monthly obligation percentage applied against credit card outstanding balance'}</td>
                     </tr>
                     <tr>
                       <td><strong>Max Credit Card BT Allowed</strong></td>
@@ -4580,7 +5026,7 @@ const UnifiedBankPolicyManager = () => {
                         <div className="table-input-cell">
                           <input 
                             type="number"
-                            value={policyData?.demographics?.ccBtAllowedCount ?? ((activeConfigBank?.id === 'kotak' || activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('kotak') || activeConfigBank?.name?.toLowerCase().includes('bandhan')) ? 0 : ((activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) ? 2 : ((activeConfigBank?.id === 'cholamandalam' || activeConfigBank?.id === 'chola' || activeConfigBank?.name?.toLowerCase().includes('chola')) ? 6 : 3)))}
+                            value={policyData?.demographics?.ccBtAllowedCount ?? ((activeConfigBank?.id === 'kotak' || activeConfigBank?.id === 'bandhan' || activeConfigBank?.id === 'au-bank' || activeConfigBank?.id === 'au' || activeConfigBank?.name?.toLowerCase().includes('kotak') || activeConfigBank?.name?.toLowerCase().includes('bandhan') || activeConfigBank?.name?.toLowerCase().includes('au ')) ? 0 : ((activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) ? 2 : ((activeConfigBank?.id === 'cholamandalam' || activeConfigBank?.id === 'chola' || activeConfigBank?.name?.toLowerCase().includes('chola')) ? 6 : 3)))}
                             onChange={(e) => {
                               const val = Number(e.target.value);
                               setPolicyData(prev => ({
@@ -4592,8 +5038,22 @@ const UnifiedBankPolicyManager = () => {
                           <span>Cards</span>
                         </div>
                       </td>
-                      <td>{(activeConfigBank?.id === 'kotak' || activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('kotak') || activeConfigBank?.name?.toLowerCase().includes('bandhan')) ? '0 (Not Allowed)' : ((activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) ? '2 Cards' : ((activeConfigBank?.id === 'cholamandalam' || activeConfigBank?.id === 'chola' || activeConfigBank?.name?.toLowerCase().includes('chola')) ? '6 Cards' : '3 to 5 Cards'))}</td>
-                      <td>{(activeConfigBank?.id === 'kotak' || activeConfigBank?.name?.toLowerCase().includes('kotak')) ? 'Excel Policy: CC BT NOT ALLOW (Credit Card Balance Transfer is strictly prohibited)' : ((activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('bandhan')) ? 'Excel Policy: Credit Card Balance Transfer is not permitted' : ((activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) ? 'Excel Policy: MAX CC BT: 2 CC BT' : ((activeConfigBank?.id === 'cholamandalam' || activeConfigBank?.id === 'chola' || activeConfigBank?.name?.toLowerCase().includes('chola')) ? 'Excel Policy: 6 CCBT ALLOW (Up to 6 credit cards allowed for Balance Transfer, POS capped to 6x salary)' : 'Maximum number of credit cards permitted for Balance Transfer')))}</td>
+                      <td>{(activeConfigBank?.id === 'au-bank' || activeConfigBank?.id === 'au' || activeConfigBank?.name?.toLowerCase().includes('au ')) ? '0 (Not Allowed)' : ((activeConfigBank?.id === 'kotak' || activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('kotak') || activeConfigBank?.name?.toLowerCase().includes('bandhan')) ? '0 (Not Allowed)' : ((activeConfigBank?.id === 'bajaj' || activeConfigBank?.name?.toLowerCase().includes('bajaj')) ? 'POS <= 6x Salary' : ((activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) ? '2 Cards' : ((activeConfigBank?.id === 'cholamandalam' || activeConfigBank?.id === 'chola' || activeConfigBank?.name?.toLowerCase().includes('chola')) ? '6 Cards' : '3 to 5 Cards'))))}</td>
+                      <td>
+                        {(activeConfigBank?.id === 'au-bank' || activeConfigBank?.id === 'au' || activeConfigBank?.name?.toLowerCase().includes('au '))
+                          ? 'Excel Policy: ONLY PL BT (Credit Card Balance Transfer is strictly prohibited)'
+                          : (activeConfigBank?.id === 'kotak' || activeConfigBank?.name?.toLowerCase().includes('kotak'))
+                            ? 'Excel Policy: CC BT NOT ALLOW (Credit Card Balance Transfer is strictly prohibited)'
+                            : (activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('bandhan'))
+                              ? 'Excel Policy: Credit Card Balance Transfer is not permitted'
+                              : (activeConfigBank?.id === 'bajaj' || activeConfigBank?.name?.toLowerCase().includes('bajaj'))
+                                ? 'Excel Policy: MORE THEN 6 TIME NOT ALLOW (CC POS > 6x monthly salary not allowed, 5% obligation)'
+                                : (activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg'))
+                                  ? 'Excel Policy: MAX CC BT: 2 CC BT'
+                                  : (activeConfigBank?.id === 'cholamandalam' || activeConfigBank?.id === 'chola' || activeConfigBank?.name?.toLowerCase().includes('chola'))
+                                    ? 'Excel Policy: 6 CCBT ALLOW (Up to 6 credit cards allowed for Balance Transfer, POS capped to 6x salary)'
+                                    : 'Maximum number of credit cards permitted for Balance Transfer'}
+                      </td>
                     </tr>
                     {(activeConfigBank?.id === 'cholamandalam' || activeConfigBank?.id === 'chola' || activeConfigBank?.name?.toLowerCase().includes('chola')) && (
                       <tr>

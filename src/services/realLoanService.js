@@ -12,6 +12,8 @@ import { calculateIdfcEligibility } from '../banks/idfc/calculator.js';
 import { calculateShriRamEligibility } from '../banks/shri-ram/calculator.js';
 import { calculatePiramalEligibility } from '../banks/piramal/calculator.js';
 import { calculateSmfgEligibility } from '../banks/smfg/calculator.js';
+import { calculateBajajEligibility } from '../banks/bajaj/calculator.js';
+import { calculateAuEligibility, getAuROI } from '../banks/au/calculator.js';
 
 // Import bank configs for transparency
 import { kotakConfig } from '../banks/kotak/config.js';
@@ -27,6 +29,8 @@ import { idfcConfig } from '../banks/idfc/config.js';
 import { shriRamConfig } from '../banks/shri-ram/config.js';
 import { piramalConfig } from '../banks/piramal/config.js';
 import { smfgConfig } from '../banks/smfg/config.js';
+import { bajajConfig } from '../banks/bajaj/config.js';
+import { auConfig } from '../banks/au/config.js';
 
 // Import company database service
 import { getCompanyCategoryForBank } from './companyDatabaseService.js';
@@ -168,9 +172,9 @@ export const calculateLoanEligibility = async (userData) => {
     { id: 'axis-bank', name: 'Axis Bank', calculator: calculateUnifiedBankEligibility, config: { name: 'Axis Bank', maxLoanCap: 5000000, defaultRate: 9.99 }, hasDatabase: true },
     { id: 'lnt', name: 'L&T Finance', calculator: calculateUnifiedBankEligibility, config: { name: 'L&T Finance', maxLoanCap: 3000000, defaultRate: 11.5 }, hasDatabase: false },
     { id: 'smfg', name: 'SMFG India Credit', calculator: calculateSmfgEligibility, config: smfgConfig, hasDatabase: false },
-    { id: 'bajaj', name: 'Bajaj Finance', calculator: calculateUnifiedBankEligibility, config: { name: 'Bajaj Finance', maxLoanCap: 4000000, defaultRate: 10.0 }, hasDatabase: true },
+    { id: 'bajaj', name: 'Bajaj Finance', calculator: calculateBajajEligibility, config: bajajConfig, hasDatabase: true },
     { id: 'incred', name: 'Incred Finance', calculator: calculateUnifiedBankEligibility, config: { name: 'Incred Finance', maxLoanCap: 1500000, defaultRate: 13.49 }, hasDatabase: false },
-    { id: 'au-bank', name: 'AU Small Finance Bank', calculator: calculateUnifiedBankEligibility, config: { name: 'AU Small Finance Bank', maxLoanCap: 3500000, defaultRate: 11.5 }, hasDatabase: false },
+    { id: 'au-bank', name: 'AU Small Finance Bank', calculator: calculateAuEligibility, config: auConfig, hasDatabase: false },
     { id: 'abfl', name: 'Aditya Birla Finance', calculator: calculateUnifiedBankEligibility, config: { name: 'Aditya Birla Finance', maxLoanCap: 5000000, defaultRate: 11.25 }, hasDatabase: false },
     { id: 'finnable', name: 'Finnable Finance', calculator: calculateUnifiedBankEligibility, config: { name: 'Finnable Finance', maxLoanCap: 1000000, defaultRate: 14.0 }, hasDatabase: false }
   ];
@@ -838,6 +842,124 @@ const matchCategory = (cat1, cat2) => {
         }
       }
 
+      // 3.13 BAJAJ FINANCE EXCEL POLICY CHECKS (Sheet: BAJAJ)
+      const isBajajInst = name.toLowerCase().includes('bajaj') || id === 'bajaj';
+      if (isBajajInst) {
+        const income = Number(calculatorInput.monthlyIncome || calculatorInput.basicSalary || 0);
+        const compType = String(calculatorInput.companyType || '').toLowerCase();
+        const catUpper = String(bankCategory || '').toUpperCase();
+        const isUnlisted = compType === 'unlisted' || catUpper === 'D' || catUpper === 'UNLISTED';
+        const reqMinSalary = isUnlisted ? 30000 : 27000;
+
+        // Min Salary Check: Listed 27k, Unlisted 30k
+        if (income < reqMinSalary) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Bajaj Finance requires minimum monthly salary of ₹${reqMinSalary.toLocaleString()} for ${isUnlisted ? 'Unlisted' : 'Listed'} companies (Excel: LISTED 27K AND UNLISTED 30K). Current: ₹${income.toLocaleString()}`,
+            category: bankCategory
+          };
+        }
+
+        // Age Check: 23 to 59 Years (Govt/Retirement up to 65 with proof)
+        const age = calculatorInput.age ? Number(calculatorInput.age) : null;
+        if (age !== null) {
+          const isGovt = calculatorInput.employmentType === 'government' || catUpper === 'GOVT';
+          const maxAge = isGovt ? 65 : 59;
+          if (age < 23) {
+            return {
+              bankName: name,
+              eligible: false,
+              reason: `Applicant age must be at least 23 years for Bajaj Finance (Excel: MINIMUM APLICANT AGE: 23 YEARS). Current: ${age}`,
+              category: bankCategory
+            };
+          }
+          if (age > maxAge) {
+            return {
+              bankName: name,
+              eligible: false,
+              reason: `Maximum age at loan time is ${maxAge} years for Bajaj Finance (${isGovt ? 'Govt / 65 with proof' : 'Private'}). Current: ${age}`,
+              category: bankCategory
+            };
+          }
+        }
+      }
+
+      // 3.14 AU SMALL FINANCE BANK EXCEL POLICY CHECKS (Sheet: AU BANK)
+      const isAuInst = name.toLowerCase().includes('au ') || id === 'au-bank' || id === 'au';
+      if (isAuInst) {
+        const income = Number(calculatorInput.monthlyIncome || calculatorInput.basicSalary || 0);
+        const compType = String(calculatorInput.companyType || '').toLowerCase();
+        const catUpper = String(bankCategory || '').toUpperCase();
+        const isPriority1 = catUpper.includes('SUPER') || catUpper === 'A' || catUpper === 'B' || catUpper === 'GOVT' || catUpper === 'D';
+        const isNtc = calculatorInput.cibilScore === -1 || calculatorInput.cibilScore === 0 || !calculatorInput.cibilScore;
+
+        // Age Check: Salaried 21, Self-employed 23; Pvt 57, Govt 59
+        const age = calculatorInput.age ? Number(calculatorInput.age) : null;
+        if (age !== null) {
+          const isGovt = calculatorInput.employmentType === 'government' || catUpper === 'GOVT';
+          const maxAge = isGovt ? 59 : 57;
+          if (age < 21) {
+            return {
+              bankName: name,
+              eligible: false,
+              reason: `Applicant age must be at least 21 years for AU Small Finance Bank (Excel: MINIMUM APLICANT AGE: 21YEARS). Current: ${age}`,
+              category: bankCategory
+            };
+          }
+          if (age > maxAge) {
+            return {
+              bankName: name,
+              eligible: false,
+              reason: `Maximum age at loan maturity is ${maxAge} years for AU Small Finance Bank (${isGovt ? 'Government' : 'Private'}). Current: ${age}`,
+              category: bankCategory
+            };
+          }
+        }
+
+        // Work Experience Check: 1 Year (12M)
+        const totalExp = Number(calculatorInput.totalWorkExperience || calculatorInput.workExperience || calculatorInput.currentCompanyExperience || 0);
+        if (totalExp > 0 && totalExp < 12) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `AU Small Finance Bank requires minimum 1 year (12 months) work experience (Excel: MINI WORK EXPRINCE: 1YEARS). Found: ${totalExp} months.`,
+            category: bankCategory
+          };
+        }
+
+        // Min Salary Check: Listed 20k, Unlisted 25k, NTC 30k (Listed/Govt only)
+        if (isNtc) {
+          if (!isPriority1) {
+            return {
+              bankName: name,
+              eligible: false,
+              reason: 'AU Small Finance Bank permits New to Credit (-1 CIBIL) only for Super A, Cat A, Cat B, and Govt categories (Excel: Lending to NTC allowed for Super A, CAT A, CAT B and CAT D only).',
+              category: bankCategory
+            };
+          }
+          if (income < 30000) {
+            return {
+              bankName: name,
+              eligible: false,
+              reason: `AU Small Finance Bank requires minimum ₹30,000 net salary for New to Credit (-1 CIBIL) applicants (Excel: -1 CIBIL 30K). Current: ₹${income.toLocaleString()}`,
+              category: bankCategory
+            };
+          }
+        } else {
+          const isUnlisted = compType === 'unlisted' || catUpper === 'C' || catUpper === 'OTHERS' || catUpper === 'UNLISTED';
+          const reqSalary = isUnlisted ? 25000 : 20000;
+          if (income < reqSalary) {
+            return {
+              bankName: name,
+              eligible: false,
+              reason: `AU Small Finance Bank requires minimum monthly salary of ₹${reqSalary.toLocaleString()} for ${isUnlisted ? 'Unlisted' : 'Listed'} companies (Excel: LISTED 20K/UNLISTED 25K). Current: ₹${income.toLocaleString()}`,
+              category: bankCategory
+            };
+          }
+        }
+      }
+
       // -------------------------------------------------------------
       // Dynamic Bank Policy Specific Credit Card Obligation Percentage
       // -------------------------------------------------------------
@@ -988,6 +1110,22 @@ const matchCategory = (cat1, cat2) => {
                 else if (matchedRate.roiBelow25k_650) dynamicRoi = matchedRate.roiBelow25k_650;
                 else dynamicRoi = matchedRate.maxRoi || 15.49;
               }
+            } else if (name.toLowerCase().includes('bajaj') || id === 'bajaj') {
+              // Bajaj Finance (Sheet: BAJAJ - Section 2)
+              // 10L Above: 10%, 1 to 12 Lac (Sal Lite): 16%, Default case: 14%
+              const amt = reqAmount || 1000000;
+              if (amt >= 1000000 && matchedRate.roiAbove10L) {
+                dynamicRoi = matchedRate.roiAbove10L; // 10.00%
+              } else if (amt <= 1200000 && matchedRate.roi1Lto12L) {
+                dynamicRoi = matchedRate.roi1Lto12L; // 16.00%
+              } else {
+                dynamicRoi = matchedRate.defaultRoi || 14.00;
+              }
+            } else if (name.toLowerCase().includes('au ') || id === 'au-bank' || id === 'au') {
+              // AU Small Finance Bank (Sheet: AU BANK - Section 5)
+              const amt = reqAmount || 1000000;
+              const cibil = Number(calculatorInput.cibilScore || 750);
+              dynamicRoi = getAuROI(amt, cibil, bankCategory);
             } else if (reqAmount && reqAmount > 0) {
               if (reqAmount >= 5000000 && matchedRate.roiAbove50L) {
                 dynamicRoi = matchedRate.roiAbove50L;
@@ -1133,13 +1271,30 @@ const matchCategory = (cat1, cat2) => {
               bankInput.foirOverride = matchedFoir.maxFoir || 70;
               if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
             } else if (name.toLowerCase().includes('bajaj') || id === 'bajaj') {
-              // Bajaj Finance Excel Policy
+              // Bajaj Finance Excel Policy (Sheet: BAJAJ - Sections 3 & 6)
               const hasHl = (calculatorInput.existingLoanTypes && (calculatorInput.existingLoanTypes.includes('Home Loan') || calculatorInput.existingLoanTypes.includes('HL'))) ||
                 (Array.isArray(calculatorInput.loansForBT) && calculatorInput.loansForBT.some(l => l.type === 'Home Loan'));
               let bajajFoir = income < 50000 ? 60 : 65;
               if (hasHl) bajajFoir += (income < 50000 ? 10 : 5);
               bankInput.foirOverride = Math.min(75, bajajFoir);
-              bankInput.multiplierOverride = matchedFoir.multiplier || 28;
+
+              // Multipliers from Section 6
+              const catUpper = String(bankCategory || '').toUpperCase();
+              let bajajMult = 16;
+              if (catUpper.includes('SUPER') || catUpper.includes('DIAMOND')) {
+                bajajMult = income < 50000 ? 18 : (income < 75000 ? 20 : (income <= 200000 ? 22 : 24));
+              } else if (catUpper === 'A' || catUpper.includes('GOVT')) {
+                bajajMult = income < 50000 ? 16 : (income < 75000 ? 16 : (income <= 200000 ? 22 : 24));
+              } else if (catUpper === 'B') {
+                bajajMult = income < 50000 ? 12 : (income < 75000 ? 12 : 16);
+              } else if (catUpper === 'C') {
+                bajajMult = 10;
+              } else {
+                // Dark Red / D / Unlisted
+                const isUnlisted = String(calculatorInput.companyType || '').toLowerCase() === 'unlisted' || catUpper === 'UNLISTED';
+                bajajMult = isUnlisted ? 12 : 14;
+              }
+              bankInput.multiplierOverride = bajajMult;
               if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
             } else if (name.toLowerCase().includes('bandhan') || id === 'bandhan') {
               // Bandhan Bank Excel Policy (Sheet: BANDHAN BANK)
@@ -1204,7 +1359,7 @@ const matchCategory = (cat1, cat2) => {
                 bankInput.ccObligationPercentOverride = 3;
               }
             } else if (name.toLowerCase().includes('au ') || id === 'au-bank' || id === 'au') {
-              // AU Small Finance Bank Excel Policy
+              // AU Small Finance Bank Excel Policy (Sheet: AU BANK - Section 4)
               const catUpper = String(bankCategory || '').toUpperCase();
               const isPriority1 = catUpper.includes('SUPER') || catUpper === 'A' || catUpper === 'B' || catUpper === 'GOVT' || catUpper === 'D';
               let auFoir = 60;
@@ -1217,10 +1372,10 @@ const matchCategory = (cat1, cat2) => {
                 auMult = isPriority1 ? 22 : 18;
               } else if (income >= 50000) {
                 auFoir = isPriority1 ? 65 : 60;
-                auMult = isPriority1 ? 20 : 16;
+                auMult = isPriority1 ? 20 : 15;
               } else {
                 auFoir = isPriority1 ? 60 : 50;
-                auMult = isPriority1 ? 18 : 15;
+                auMult = isPriority1 ? 18 : 11;
               }
               bankInput.foirOverride = auFoir;
               bankInput.multiplierOverride = auMult;
