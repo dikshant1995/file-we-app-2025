@@ -1,105 +1,110 @@
-// Tata Capital Configuration
+// Tata Capital Configuration according to BANKS POLICYS.xlsx (Sheet: TATA)
 export const tataConfig = {
   id: 'tata',
   name: 'Tata Capital',
-  minAge: 21, // Minimum age requirement
-  maxAge: 60, // Maximum age at loan maturity
-  minCreditScore: 720,
-  maxLoanTenure: 25,
-  maxLoanAmount: 3500000, // ₹35 Lakhs (Moderate-Cap Lender)
-  bachelorMaxLoanAmount: 2000000, // ₹20 Lakhs maximum for unmarried individuals
-  interestRate: 11.0, // Fixed at 11% for all banks as per policy
-  processingFee: 0.006,
+  minAge: 21, // Minimum age requirement (Excel: 21 Years)
+  maxAgePvt: 58, // 58 in pvt
+  maxAgeGovt: 60, // 60 in govt
+  maxAge: 58, // Default max age
+  minCreditScore: 0,
+  minLoanAmount: 75000, // 75K
+  maxLoanAmount: 5000000, // 50 LAC
+  interestRate: 12.00, // Standard base rate
 
-  // Incentive policy
-  incentivePercentage: 1.0, // 100% of average incentive
-  incentivePeriodMonths: 3, // Last 3 months
-
-  // FOIR table based on salary only (no category distinction)
+  // FOIR table based on salary band (Excel Section 3 Rows 56-60)
   foirTable: {
-    '25000-50000': 0.60,
-    '50001-75000': 0.65,
-    '75001+': 0.75
+    'below-25k': 0.50, // <= 25k (Unsecured 40%)
+    '25000-50000': 0.60, // 25k-50k (Unsecured 50%)
+    '50001-75000': 0.65, // 50k-75k (Unsecured 55%)
+    '75001+': 0.75 // > 75k (Unsecured 65%)
   },
 
-  // Multiplier table based on salary bands and categories
+  // Multiplier table based on salary bands and categories (Excel Section 3 Rows 24-31)
   multiplierTable: {
-    '25000-50000': {
-      'A+': 21,
-      'SUPER-A': 21,
+    'below-50k': {
+      'SUPER-A': 20,
+      'SUPER A': 20,
       'A': 20,
       'GOVT': 20,
       'B': 19,
       'C': 15,
-      'UNLISTED': 13
+      'D': 9,
+      'UNLISTED': 9
     },
     '50001-75000': {
-      'A+': 24,
-      'SUPER-A': 24,
-      'A': 23,
-      'GOVT': 23,
+      'SUPER-A': 23.5,
+      'SUPER A': 23.5,
+      'A': 23.5,
+      'GOVT': 23.5,
       'B': 22,
       'C': 18,
+      'D': 15,
       'UNLISTED': 15
     },
     '75001+': {
-      'A+': 27,
       'SUPER-A': 27,
+      'SUPER A': 27,
       'A': 27,
       'GOVT': 27,
       'B': 25,
       'C': 18,
+      'D': 15,
       'UNLISTED': 15
     }
   },
 
-  // Minimum salary requirement (overall)
-  minSalary: 25000,
-
-  // Minimum salary requirements by category
-  minSalaryByCategory: {
-    'A+': 25000,
-    'SUPER-A': 25000,
-    'A': 25000,
-    'GOVT': 25000,
-    'B': 25000,
-    'C': 25000,
-    'D': 25000,
-    'UNLISTED': 40000  // Higher minimum salary for UNLISTED category
+  // Loan Amount based ROI Grid (Excel Section 2 Rows 15-20)
+  roiGrid: {
+    'SUPER-A': { above50L: 10.99, above20L: 12.00, below20L: 14.00 },
+    'SUPER A': { above50L: 10.99, above20L: 12.00, below20L: 14.00 },
+    'A': { above50L: 10.99, above20L: 12.00, below20L: 14.00 },
+    'GOVT': { above50L: 10.99, above20L: 12.00, below20L: 14.00 },
+    'B': { above40L: 10.99, above20L: 12.00, below20L: 14.00 },
+    'C': { above30L: 12.00, above20L: 13.00, below20L: 15.00 },
+    'D': { above20L: 13.50, below20L: 16.00 },
+    'UNLISTED': { above20L: 13.50, below20L: 16.00 }
   },
 
-  // Maximum tenure by category (in months)
+  // Minimum salary requirement
+  minSalary: 25000, // 25k across the board
+
+  // Maximum loan amounts by category (Excel Section 5)
+  maxLoanByCategory: {
+    'SUPER-A': 5000000,
+    'SUPER A': 5000000,
+    'A': 5000000,
+    'GOVT': 5000000,
+    'B': 2500000, // 25 LAC
+    'C': 2500000, // 25 LAC
+    'D': 1000000, // 10 LAC
+    'UNLISTED': 1000000
+  },
+
+  // Maximum tenure by category in months (Excel Section 4)
+  // Min tenure: 24 Months
+  minTenureMonths: 24,
   maxTenureByCategory: {
-    'A+': 72,          // 6 years - CAT A+
-    'SUPER-A': 72,     // 6 years - CAT SUPER A
-    'A': 72,         // 6 years - CAT A
-    'GOVT': 72,      // 6 years - CAT GOVT
-    'B': 60,         // 5 years - CAT B
-    'C': 60,         // 5 years - CAT C
-    'D': 48,         // 4 years - CAT D
-    'UNLISTED': 48   // 4 years - UNLISTED
+    'SUPER-A': 84, // 84-96 months
+    'SUPER A': 84,
+    'A': 84,
+    'GOVT': 84,
+    'B': 72,       // 72 months (84 if income > 75k)
+    'C': 60,       // 60 months
+    'D': 60,       // 60 months
+    'UNLISTED': 60
   },
 
-  // Company categories
-  companyCategories: {
-    'A+': { minIncome: 25000, description: 'Superior A+ - Premium Companies/Profiles' },
-    'SUPER-A': { minIncome: 25000, description: 'Superior A - Premium Companies/Profiles' },
-    'A': { minIncome: 25000, description: 'Category A - Top Tier Companies' },
-    'GOVT': { minIncome: 25000, description: 'Government Employees' },
-    'B': { minIncome: 25000, description: 'Category B - Good Companies' },
-    'C': { minIncome: 25000, description: 'Category C - Average Companies' },
-    'D': { minIncome: 25000, description: 'Category D - Standard Companies' },
-    'UNLISTED': { minIncome: 40000, description: 'Unlisted/Lower Category Companies - Higher minimum required' }
-  },
+  // Demographics and obligations (Excel Section 1)
+  minWorkExperienceMonths: 12, // 12 months stability
+  ccObligationPercent: 5, // 5% OBLIGATE
+  maxCreditCardsForBT: 5, // Max 5 Credit card BT allowed
 
   employmentTypes: ['salaried', 'government'],
-  specialPrograms: ['tata-employee', 'mnc-professional', 'high-net-worth'],
 
-  // Balance Transfer (BT) Configuration
   btConfig: {
-    isAvailable: true, // BT facility is available
-    maxLoansForBT: 6, // Maximum number of existing personal loans that can be consolidated
-    acceptsFintechLoans: false, // Does NOT accept BT for Fintech/digital platform loans
-    description: 'Tata Capital allows balance transfer for up to 6 existing personal loans (excluding Fintech loans)'
+    isAvailable: true,
+    maxCreditCardsForBT: 5,
+    maxLoansForBT: 5,
+    description: 'Tata Capital allows BT for personal loans and up to 5 Credit Cards (no late fee allowed)'
   }
 };

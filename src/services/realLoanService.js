@@ -415,14 +415,47 @@ const matchCategory = (cat1, cat2) => {
             category: 'REJECTED'
           };
         }
-        // Poonawalla Fincorp: Max 6 CC BT allowed
-        if (numCcBt > 6 && (name.toLowerCase().includes('poonawala') || name.toLowerCase().includes('poonawalla') || id === 'poonawala')) {
-          return {
-            bankName: name,
-            eligible: false,
-            reason: `Poonawalla Fincorp allows maximum 6 Credit Card BTs (${numCcBt} selected).`,
-            category: 'REJECTED'
-          };
+        // Poonawalla Fincorp: Max total 8 BTs (Combination of 3 APP LOAN / 3 CC / 2 PL or OD) - Excel Row 96
+        if (name.toLowerCase().includes('poonawala') || name.toLowerCase().includes('poonawalla') || id === 'poonawala') {
+          const totalBtCount = (calculatorInput.loansForBT || []).length;
+          const appLoanCount = (calculatorInput.loansForBT || []).filter(l => String(l.type || l.loanType || '').toLowerCase().includes('app')).length;
+          const plBtCount = (calculatorInput.loansForBT || []).filter(l => {
+            const t = String(l.type || l.loanType || '').toLowerCase();
+            return !t.includes('card') && !t.includes('app');
+          }).length;
+
+          if (totalBtCount > 8) {
+            return {
+              bankName: name,
+              eligible: false,
+              reason: `Poonawalla Fincorp allows maximum 8 total loans for Balance Transfer (${totalBtCount} selected). Excel Row 96: MAX TOTAL 8.`,
+              category: 'REJECTED'
+            };
+          }
+          if (numCcBt > 3) {
+            return {
+              bankName: name,
+              eligible: false,
+              reason: `Poonawalla Fincorp allows maximum 3 Credit Card BTs (${numCcBt} selected). Excel Row 96: MAX 3 CC.`,
+              category: 'REJECTED'
+            };
+          }
+          if (appLoanCount > 3) {
+            return {
+              bankName: name,
+              eligible: false,
+              reason: `Poonawalla Fincorp allows maximum 3 App Loan BTs (${appLoanCount} selected). Excel Row 96: MAX 3 APP LOAN.`,
+              category: 'REJECTED'
+            };
+          }
+          if (plBtCount > 2) {
+            return {
+              bankName: name,
+              eligible: false,
+              reason: `Poonawalla Fincorp allows maximum 2 Personal Loan or OD BTs (${plBtCount} selected). Excel Row 96: MAX 2 PL OR OD.`,
+              category: 'REJECTED'
+            };
+          }
         }
         // Chola Finance: Max 6 CC BT allowed
         if (numCcBt > 6 && (name.toLowerCase().includes('chola') || id === 'chola')) {
@@ -563,8 +596,8 @@ const matchCategory = (cat1, cat2) => {
         }
       }
 
-      // 3.6 AXIS BANK & AXIS FINANCE CATEGORY D RESTRICTION (Not in Policy)
-      if (name === 'Axis Bank' || id === 'axis-bank' || name === 'Axis Finance' || id === 'axis') {
+      // 3.6 AXIS BANK CATEGORY D RESTRICTION (Not in Policy; Axis Finance supports Cat D up to 10L)
+      if (name === 'Axis Bank' || id === 'axis-bank') {
         const catUpper = String(bankCategory || '').toUpperCase().trim();
         if (catUpper === 'D' || catUpper === 'CATGD' || catUpper === 'CAT D' || catUpper === 'UNLISTED') {
           return {
@@ -960,6 +993,136 @@ const matchCategory = (cat1, cat2) => {
         }
       }
 
+      // 3.15 AXIS FINANCE EXCEL POLICY CHECKS (Sheet: AXIS FINANCE)
+      const isAxisFinInst = (name.toLowerCase().includes('axis') && name.toLowerCase().includes('fin')) || id === 'axis' || id === 'axis_fin';
+      if (isAxisFinInst) {
+        const income = Number(calculatorInput.monthlyIncome || calculatorInput.basicSalary || 0);
+        if (income < 25000) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Axis Finance requires minimum monthly salary of ₹25,000 (Excel: MINIMUM SALARY: 25K). Current: ₹${income.toLocaleString()}`,
+            category: bankCategory
+          };
+        }
+
+        const age = calculatorInput.age ? Number(calculatorInput.age) : null;
+        if (age !== null && (age < 21 || age > 60)) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Applicant age must be between 21 and 60 years for Axis Finance (Excel: 21 to 60 Years). Current: ${age}`,
+            category: bankCategory
+          };
+        }
+
+        const totalExp = Number(calculatorInput.totalWorkExperience || calculatorInput.workExperience || 0);
+        if (totalExp > 0 && totalExp < 12) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Axis Finance requires minimum 1 year (12 months) total work experience (Excel: TOTAL 1 YEARS). Found: ${totalExp} months.`,
+            category: bankCategory
+          };
+        }
+
+        if (rawCibil !== null && rawCibil !== undefined && rawCibil !== '') {
+          const numCibil = Number(rawCibil);
+          if (numCibil > 0 && numCibil < 700) {
+            return {
+              bankName: name,
+              eligible: false,
+              reason: `Axis Finance policy requires CIBIL score 700+ (Excel: CIBIL: 700). Current CIBIL: ${numCibil}.`,
+              category: bankCategory
+            };
+          }
+        }
+      }
+
+      // 3.16 TATA CAPITAL EXCEL POLICY CHECKS (Sheet: TATA)
+      const isTataInst = name.toLowerCase().includes('tata') || id === 'tata';
+      if (isTataInst) {
+        const income = Number(calculatorInput.monthlyIncome || calculatorInput.basicSalary || 0);
+        if (income < 25000) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Tata Capital requires minimum monthly salary of ₹25,000 (Excel: MINIMUM SALARY AT LOAN TIME: 25k). Current: ₹${income.toLocaleString()}`,
+            category: bankCategory
+          };
+        }
+
+        const age = calculatorInput.age ? Number(calculatorInput.age) : null;
+        if (age !== null) {
+          const isGovt = calculatorInput.employmentType === 'government' || String(bankCategory).toUpperCase() === 'GOVT';
+          const maxAge = isGovt ? 60 : 58;
+          if (age < 21) {
+            return {
+              bankName: name,
+              eligible: false,
+              reason: `Applicant age must be at least 21 years for Tata Capital (Excel: MINIMUM APPLICANT AGE: 21). Current: ${age}`,
+              category: bankCategory
+            };
+          }
+          if (age > maxAge) {
+            return {
+              bankName: name,
+              eligible: false,
+              reason: `Maximum age at loan maturity is ${maxAge} years for Tata Capital (${isGovt ? 'Government' : 'Private'} - Excel: 58 IN PVT AND 60 IN GOVT). Current: ${age}`,
+              category: bankCategory
+            };
+          }
+        }
+
+        const currExp = Number(calculatorInput.currentCompanyExperience || calculatorInput.workExperience || 0);
+        const cibil = Number(rawCibil || 700);
+        const hasStabilityWaiver = (age >= 26) && (cibil > 750) && (income > 50000);
+        if (!hasStabilityWaiver && currExp > 0 && currExp < 12) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Tata Capital requires minimum 12 months current employment stability (Excel: Current employment Stability Minimum 12 months). Current: ${currExp} months.`,
+            category: bankCategory
+          };
+        }
+      }
+
+      // 3.17 POONAWALLA FINCORP EXCEL POLICY CHECKS (Sheet: POONAWALA)
+      const isPoonawalaInst = name.toLowerCase().includes('poonawala') || name.toLowerCase().includes('poonawalla') || id === 'poonawala';
+      if (isPoonawalaInst) {
+        const income = Number(calculatorInput.monthlyIncome || calculatorInput.basicSalary || 0);
+        if (income < 30000) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Poonawalla Fincorp requires minimum monthly salary of ₹30,000 (Excel Row 89: MIN 30K). Current: ₹${income.toLocaleString()}`,
+            category: bankCategory
+          };
+        }
+
+        const age = calculatorInput.age ? Number(calculatorInput.age) : null;
+        if (age !== null && (age < 21 || age > 60)) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Applicant age must be between 21 and 60 years for Poonawalla Fincorp (Excel Row 90: MIN 21 YRS / MAX 60 YRS). Current: ${age}`,
+            category: bankCategory
+          };
+        }
+
+        if (rawCibil !== null && rawCibil !== undefined && rawCibil !== '') {
+          const numCibil = Number(rawCibil);
+          if (numCibil > 0 && numCibil < 700) {
+            return {
+              bankName: name,
+              eligible: false,
+              reason: `Poonawalla Fincorp requires minimum CIBIL score of 700 (Excel Row 93: 700 MINIMUM, 0 and -1 allowed for Tier 1, 2 cities & Cat A). Current CIBIL: ${numCibil}.`,
+              category: bankCategory
+            };
+          }
+        }
+      }
+
       // -------------------------------------------------------------
       // Dynamic Bank Policy Specific Credit Card Obligation Percentage
       // -------------------------------------------------------------
@@ -1126,6 +1289,38 @@ const matchCategory = (cat1, cat2) => {
               const amt = reqAmount || 1000000;
               const cibil = Number(calculatorInput.cibilScore || 750);
               dynamicRoi = getAuROI(amt, cibil, bankCategory);
+            } else if ((name.toLowerCase().includes('axis') && name.toLowerCase().includes('fin')) || id === 'axis' || id === 'axis_fin') {
+              // Axis Finance (Sheet: AXIS FINANCE - Section 2)
+              const amt = reqAmount || 1000000;
+              if (amt > 2000000 && matchedRate.roiAbove20L) {
+                dynamicRoi = matchedRate.roiAbove20L;
+              } else if (matchedRate.roiUpTo20L) {
+                dynamicRoi = matchedRate.roiUpTo20L;
+              } else {
+                dynamicRoi = matchedRate.defaultRoi || 13.00;
+              }
+            } else if (name.toLowerCase().includes('tata') || id === 'tata') {
+              // Tata Capital (Sheet: TATA - Section 2)
+              const amt = reqAmount || 1000000;
+              if (amt >= 5000000 && matchedRate.roiAbove50L) {
+                dynamicRoi = matchedRate.roiAbove50L;
+              } else if (amt >= 4000000 && matchedRate.roiAbove40L) {
+                dynamicRoi = matchedRate.roiAbove40L;
+              } else if (amt >= 3000000 && matchedRate.roiAbove30L) {
+                dynamicRoi = matchedRate.roiAbove30L;
+              } else if (amt > 2000000 && matchedRate.roiAbove20L) {
+                dynamicRoi = matchedRate.roiAbove20L;
+              } else if (matchedRate.roiUpTo20L) {
+                dynamicRoi = matchedRate.roiUpTo20L;
+              } else {
+                dynamicRoi = matchedRate.defaultRoi || 12.00;
+              }
+            } else if (name.toLowerCase().includes('poonawala') || name.toLowerCase().includes('poonawalla') || id === 'poonawala') {
+              // Poonawalla Fincorp (Sheet: POONAWALA - Section 4)
+              const income = calculatorInput.monthlyIncome || calculatorInput.basicSalary || 0;
+              const amt = reqAmount || 1000000;
+              const cibil = Number(calculatorInput.creditScore || calculatorInput.cibilScore || 750);
+              dynamicRoi = poonawalaConfig.getPoonawalaRate(bankCategory, income, amt, cibil);
             } else if (reqAmount && reqAmount > 0) {
               if (reqAmount >= 5000000 && matchedRate.roiAbove50L) {
                 dynamicRoi = matchedRate.roiAbove50L;
@@ -1257,18 +1452,35 @@ const matchCategory = (cat1, cat2) => {
               bankInput.foirOverride = kotakFoir;
               if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
             } else if (name.toLowerCase().includes('tata') || id === 'tata') {
-              // Tata Capital Excel Policy
+              // Tata Capital Excel Policy (Sheet: TATA - Section 3 FOIR & Section 5 Multipliers)
               const catUpper = String(bankCategory || '').toUpperCase();
-              let tataMult = 24;
-              if (income >= 75000) {
-                tataMult = (catUpper === 'C' ? 18 : (catUpper === 'B' ? 25 : 27));
-              } else if (income >= 50000) {
-                tataMult = (catUpper === 'C' ? 18 : (catUpper === 'B' ? 22 : 24));
+              let tataFoir = 50;
+              if (income > 75000) tataFoir = 75;
+              else if (income >= 50000) tataFoir = 65;
+              else if (income >= 25000) tataFoir = 60;
+              else tataFoir = 50;
+
+              let tataMult = 20;
+              if (catUpper.includes('SUPER') || catUpper === 'A' || catUpper === 'GOVT') {
+                if (income >= 75000) tataMult = 27;
+                else if (income >= 50000) tataMult = 23.5;
+                else tataMult = 20;
+              } else if (catUpper === 'B') {
+                if (income >= 75000) tataMult = 25;
+                else if (income >= 50000) tataMult = 22;
+                else tataMult = 19;
+              } else if (catUpper === 'C') {
+                if (income >= 75000) tataMult = 18;
+                else if (income >= 50000) tataMult = 18;
+                else tataMult = 15;
               } else {
-                tataMult = (catUpper === 'C' ? 15 : (catUpper === 'B' ? 19 : 20));
+                // Category D / Unlisted
+                if (income >= 75000) tataMult = 15;
+                else if (income >= 50000) tataMult = 15;
+                else tataMult = 9;
               }
-              bankInput.multiplierOverride = tataMult;
-              bankInput.foirOverride = matchedFoir.maxFoir || 70;
+              bankInput.multiplierOverride = matchedFoir.multiplier || tataMult;
+              bankInput.foirOverride = matchedFoir.maxFoir || tataFoir;
               if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
             } else if (name.toLowerCase().includes('bajaj') || id === 'bajaj') {
               // Bajaj Finance Excel Policy (Sheet: BAJAJ - Sections 3 & 6)
@@ -1389,22 +1601,51 @@ const matchCategory = (cat1, cat2) => {
               bankInput.foirOverride = auFoir;
               bankInput.multiplierOverride = auMult;
               if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
-            } else if (name === 'Axis Finance' || id === 'axis') {
-              // Axis Finance Excel Policy
+            } else if ((name.toLowerCase().includes('axis') && name.toLowerCase().includes('fin')) || id === 'axis' || id === 'axis_fin') {
+              // Axis Finance Excel Policy (Sheet: AXIS FINANCE - Section 3 Rows 24-28)
               const catUpper = String(bankCategory || '').toUpperCase();
-              let axFoir = 70;
-              if (catUpper === 'B') axFoir = 65;
-              else if (catUpper === 'C') axFoir = 60;
-              else if (catUpper === 'D') axFoir = 50;
+              let axFoir = 60;
+              let axMult = 20;
 
-              let axMult = 24;
-              if (income >= 100000) axMult = 30;
-              else if (income >= 75000) axMult = 28;
-              else if (income >= 50000) axMult = 26;
-              else axMult = 24;
-              if (catUpper === 'D') axMult = 15;
-              bankInput.foirOverride = axFoir;
-              bankInput.multiplierOverride = axMult;
+              if (catUpper.includes('SUPER') || catUpper === 'A' || catUpper === 'GOVT') {
+                if (income > 75000) { axFoir = 70; axMult = 23; }
+                else if (income >= 50000) { axFoir = 65; axMult = 21; }
+                else { axFoir = 60; axMult = 19; }
+              } else if (catUpper === 'B') {
+                if (income > 75000) { axFoir = 65; axMult = 21; }
+                else if (income >= 50000) { axFoir = 65; axMult = 19; }
+                else { axFoir = 60; axMult = 17; }
+              } else if (catUpper === 'C') {
+                if (income > 75000) { axFoir = 60; axMult = 17; }
+                else if (income >= 50000) { axFoir = 60; axMult = 15; }
+                else { axFoir = 55; axMult = 13; }
+              } else {
+                // Category D: 60% FOIR, no multiplier applicable
+                axFoir = 60;
+                axMult = null;
+              }
+
+              bankInput.foirOverride = matchedFoir.maxFoir || axFoir;
+              bankInput.multiplierOverride = matchedFoir.multiplier || axMult;
+              if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
+            } else if (name.toLowerCase().includes('poonawala') || name.toLowerCase().includes('poonawalla') || id === 'poonawala') {
+              // Poonawalla Fincorp Excel Policy (Sheet: POONAWALA - Section 5 Rows 77-82)
+              const catUpper = String(bankCategory || '').toUpperCase();
+              let seg = 'A';
+              if (catUpper.includes('SUPER')) seg = 'SUPER-A';
+              else if (catUpper === 'B') seg = 'B';
+              else if (catUpper === 'C') seg = 'C';
+              else if (catUpper === 'D') seg = 'D';
+              else if (catUpper === 'GOVT') seg = 'GOVT';
+
+              let pFoir = 60;
+              if (income > 250000) pFoir = (seg === 'A' || seg === 'SUPER-A') ? 75 : ((seg === 'B' || seg === 'GOVT') ? 70 : 65);
+              else if (income >= 150000) pFoir = (seg === 'A' || seg === 'SUPER-A') ? 75 : ((seg === 'B' || seg === 'GOVT') ? 70 : 60);
+              else if (income >= 75000) pFoir = (seg === 'A' || seg === 'SUPER-A') ? 70 : ((seg === 'B' || seg === 'GOVT') ? 65 : 55);
+              else if (income >= 50000) pFoir = (seg === 'A' || seg === 'SUPER-A') ? 65 : ((seg === 'B' || seg === 'GOVT') ? 60 : 55);
+              else pFoir = (seg === 'A' || seg === 'SUPER-A') ? 60 : 50;
+
+              bankInput.foirOverride = matchedFoir.maxFoir || pFoir;
               if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
             } else if (name.toLowerCase().includes('chola') || id === 'chola') {
               // Chola Finance Excel Policy (Sheet: CHOLA - Section 3)

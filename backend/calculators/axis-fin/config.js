@@ -1,97 +1,86 @@
-// Axis Finance Configuration
-// Multiplier-Based System (No FOIR)
-// Uses category-based multipliers combined with salary bands
+// Axis Finance Configuration according to BANKS POLICYS.xlsx (Sheet: AXIS FINANCE)
 export const axisFinConfig = {
   id: 'axis-fin',
   name: 'Axis Finance',
-  minAge: 23, // Minimum age requirement
-  maxAge: 60, // Maximum age at loan maturity
-  minCreditScore: 660,
-  maxLoanTenure: 25,
-  maxLoanAmount: 5000000, // ₹50 Lakhs (Mid-Cap Lender)
-  bachelorMaxLoanAmount: 2000000, // ₹20 Lakhs maximum for unmarried individuals
-  interestRate: 11.0, // Fixed at 11% for all banks as per policy
-  processingFee: 0.009,
+  minAge: 21, // Minimum age requirement (Excel: MINIMUM APLICANT AGE: 21)
+  maxAge: 60, // Maximum age at loan maturity (Excel: MAXIMUM AGE AT LOAN TIME: 60)
+  minCreditScore: 0, // No hard cutoff (score based program)
+  minSalaryUrban: 30000,
+  minSalaryRural: 25000,
+  minSalary: 25000, // Universal minimum salary requirement
+  minWorkExperienceMonths: 6, // 6 MONTHS
+  interestRate: 13.50, // Base Super A / Govt ROI
 
-  // Incentive policy
-  incentivePercentage: 1.0, // 100% of average incentive
-  incentivePeriodMonths: 6, // Last 6 months (unique to Axis)
+  // Category-specific interest rates (Excel Section 2)
+  roiByCategory: {
+    'SUPER-A': 13.50,
+    'SUPER A': 13.50,
+    'A': 14.50,
+    'B': 15.00,
+    'C': 16.00,
+    'D': 16.00,
+    'GOVT': 13.50
+  },
+  btInterestRate: 18.00, // CC BT and App Loan BT ROI 18% applicable
 
-  // Multiplier table based on salary bands and categories
-  // Formula: Loan Amount = Monthly Salary × Multiplier
-  multiplierTable: {
-    '25000-50000': {
-      'A': 24,
-      'B': 24,
-      'GOVT': 24,
-      'C': 20,
-      'D': 11  // Significantly lower for Category D
-    },
-    '50001-75000': {
-      'A': 26,
-      'B': 26,
-      'GOVT': 26,
-      'C': 22,
-      'D': 15  // Still constrained despite higher income
-    },
-    '75001+': {
-      'A': 28,
-      'B': 28,
-      'GOVT': 28,
-      'C': 24,
-      'D': 18  // Lower than A/B/GOVT's lowest multiplier (24)
-    }
+  // FOIR limits by company category (Excel Section 3)
+  foirByCategory: {
+    'SUPER-A': 0.70,
+    'SUPER A': 0.70,
+    'A': 0.70,
+    'B': 0.65,
+    'C': 0.60,
+    'D': 0.50,
+    'GOVT': 0.70
   },
 
-  // Universal minimum salary requirement
-  minSalary: 25000,
+  // Multiplier table based on salary slabs (Excel Section 3: "COM CAT NOT REQ FOR FOIR AND MULTIPLIER")
+  // Category D has no multiplier (processed via FOIR)
+  multiplierSlabs: [
+    { minSalary: 0, maxSalary: 49999, multiplier: 24, label: '< 50K' },
+    { minSalary: 50000, maxSalary: 74999, multiplier: 26, label: '50K TO 75K' },
+    { minSalary: 75000, maxSalary: 99999, multiplier: 28, label: '75K TO 1 LAC' },
+    { minSalary: 100000, maxSalary: Infinity, multiplier: 30, label: '1 LAC ABOVE' }
+  ],
 
-  // Minimum salary requirements by category (all same)
-  minSalaryByCategory: {
-    'A': 25000,
-    'B': 25000,
-    'GOVT': 25000,
-    'C': 25000,
-    'D': 25000
+  // Maximum loan amounts by category (Excel Section 5: MINIMUM LOAN AMOUNT AND MAX LOAN AMOUNT)
+  maxLoanByCategory: {
+    'SUPER-A': 5000000,
+    'SUPER A': 5000000,
+    'A': 5000000,
+    'B': 2500000,
+    'C': 2000000,
+    'D': 1000000,
+    'GOVT': 5000000
   },
+  minLoanAmount: 100000, // 1 LAC
+  maxLoanAmount: 5000000, // 50 LAC
 
-  // Maximum tenure by category (in months)
+  // Maximum tenure by category in months (Excel Section 4)
   maxTenureByCategory: {
-    'A': 84,        // 7 years - CAT A
-    'GOVT': 84,     // 7 years - CAT GOVT
-    'B': 84,        // 7 years - CAT B
-    'C': 60,        // 5 years - CAT C
-    'D': 48         // 4 years - CAT D
+    'SUPER-A': 84, // 7 years
+    'SUPER A': 84,
+    'A': 72,       // 6 years
+    'B': 72,       // 6 years
+    'C': 60,       // 5 years
+    'D': 60,       // 5 years
+    'GOVT': 84     // 7 years
   },
 
-  // Category descriptions
-  categories: {
-    'A': { description: 'Category A - Top Tier Companies (Highest Multipliers)' },
-    'B': { description: 'Category B - Good Companies (Highest Multipliers)' },
-    'GOVT': { description: 'Government Employees (Highest Multipliers, Stable)' },
-    'C': { description: 'Category C - Mid-Tier Companies (Moderate Multipliers)' },
-    'D': { description: 'Category D - Lower-Tier Companies (Constrained Multipliers)' }
-  },
+  // Demographics and obligations (Excel Section 1)
+  ccObligationPercent: 5, // 5% OBLIGATE
+  maxCreditCardsForBT: 5, // 5 CC BT ALLOW
+  goldLoanObligationPercent: 1, // GOLD LOAN OBLIGATION 1% COUNT
+  kccExemptionLimit: 1500000, // KCC OBLIGATION UPTO 15LAC = 0 OBLIGATE
 
   employmentTypes: ['salaried', 'government'],
-  specialPrograms: ['axis-select', 'government-special', 'premium-lending'],
-
-  // Calculation method
-  calculationMethod: 'Multiplier-Only',
-  approach: 'Universal Minimum Salary + Category-Based Multipliers',
-  keyFeatures: [
-    'Universal ₹25,000 minimum across all categories',
-    'Category-based multiplier system',
-    'A, B, GOVT grouped together with highest multipliers',
-    'Category D significantly constrained even at high income',
-    'Risk-adjusted lending through multipliers'
-  ],
 
   // Balance Transfer (BT) Configuration
   btConfig: {
-    isAvailable: true, // BT facility is available
-    maxLoansForBT: 6, // Maximum number of existing personal loans that can be consolidated
-    acceptsFintechLoans: true, // ✅ ACCEPTS BT for Fintech/digital platform loans
-    description: 'Axis Finance allows balance transfer for up to 6 existing personal loans (INCLUDES Fintech loans)'
+    isAvailable: true,
+    maxLoansForBT: 5,
+    maxCreditCardsForBT: 5,
+    btInterestRate: 18.00,
+    description: 'Axis Finance allows BT for personal loans and up to 5 Credit Cards at 18% p.a.'
   }
 };

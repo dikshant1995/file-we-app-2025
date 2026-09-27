@@ -1,149 +1,186 @@
-// Poonawala Finance Configuration
-// FOIR-Based Only (No Multiplier Method)
-// Uses sophisticated two-dimensional matrix: Customer Segment × NTH (Net Take-Home) Salary
+// Poonawala Finance Configuration according to BANKS POLICYS.xlsx (Sheet: POONAWALA)
 export const poonawalaConfig = {
   id: 'poonawala',
   name: 'Poonawala Finance',
-  minAge: 21, // Minimum age requirement
-  maxAge: 60, // Maximum age at loan maturity
-  minCreditScore: 630,
-  maxLoanTenure: 15,
-  maxLoanAmount: 3000000, // ₹30 Lakhs (Moderate-Cap Lender)
-  bachelorMaxLoanAmount: 2000000, // ₹20 Lakhs maximum for unmarried individuals
-  interestRate: 11.0, // Fixed at 11% for all banks as per policy
-  processingFee: 0.013,
+  minAge: 21, // Minimum age requirement (Excel Row 90: MIN 21 YRS)
+  maxAge: 60, // Maximum age at loan maturity (Excel Row 90: MAX 60 YRS)
+  minCreditScore: 700, // Excel Row 93: 700 MINIMUM (0, -1 allowed in Tier 1, 2 cities & Cat A)
+  minSalary: 30000, // Excel Row 89: MIN 30K
+  maxLoanAmount: 6000000, // ₹60 Lakhs (Excel Section 5 Row 85: CAT A 60 LAC)
+  interestRate: 12.50, // Standard default rate
 
   // Incentive policy
   incentivePercentage: 0.25, // 25% of average incentive
   incentivePeriodMonths: 3, // Last 3 months
 
-  // Two-Dimensional FOIR Matrix
+  // Category Loan Caps (Excel Section 5 Rows 84-85)
+  maxLoanByCategory: {
+    'SUPER-A': 6000000,
+    'SUPER A': 6000000,
+    'A': 6000000,
+    'B': 4000000,
+    'GOVT': 4000000,
+    'C': 3000000,
+    'D': 1000000,
+    'E': 1000000
+  },
+
+  // Maximum tenure by category in months (Excel Row 91: CAT A 84 MONTH, CAT B, C, D 72 MONTH)
+  maxTenureByCategory: {
+    'SUPER-A': 84, // 7 years
+    'SUPER A': 84,
+    'A': 84,
+    'GOVT': 84,
+    'B': 72,       // 6 years
+    'C': 72,       // 6 years
+    'D': 72,       // 6 years
+    'E': 72
+  },
+
+  // Two-Dimensional FOIR Matrix (Excel Section 5 Rows 77-82)
   // Rows: Customer Segment (SUP-A/A, B/GOVT, C/D, E)
-  // Columns: NTH (Net Take-Home) Salary Bands
+  // Columns: NTH Salary Bands: 30-50k, >50k-75k, >75k-1.5L, >1.5L-2.5L, >2.5L
   foirMatrix: {
-    // SUP A and A (Top Customer Segment - Lowest Risk)
     'SUPER-A': {
-      'SUP-HNI': { minNTH: 250000, maxNTH: null, foir: 0.75 },        // >2.5L NTH
-      'HNI': { minNTH: 150000, maxNTH: 250000, foir: 0.75 },          // 1.5L-2.5L NTH
-      'AFFLUENT': { minNTH: 75000, maxNTH: 150000, foir: 0.70 },      // 75K-1.5L NTH
-      'PRIME': { minNTH: 50000, maxNTH: 75000, foir: 0.65 },          // 50K-75K NTH
-      'OTHERS': { minNTH: 30000, maxNTH: 50000, foir: 0.60 }          // 30K-50K NTH
+      'SUP-HNI': { minNTH: 250001, maxNTH: null, foir: 0.75 },        // >2.5L
+      'HNI': { minNTH: 150001, maxNTH: 250000, foir: 0.75 },          // >1.5L-2.5L
+      'AFFLUENT': { minNTH: 75001, maxNTH: 150000, foir: 0.70 },      // >75k-1.5L
+      'PRIME': { minNTH: 50001, maxNTH: 75000, foir: 0.65 },          // >50k-75k
+      'OTHERS': { minNTH: 30000, maxNTH: 50000, foir: 0.60 }          // 30k-50k
     },
     'A': {
-      'SUP-HNI': { minNTH: 250000, maxNTH: null, foir: 0.75 },
-      'HNI': { minNTH: 150000, maxNTH: 250000, foir: 0.75 },
-      'AFFLUENT': { minNTH: 75000, maxNTH: 150000, foir: 0.70 },
-      'PRIME': { minNTH: 50000, maxNTH: 75000, foir: 0.65 },
+      'SUP-HNI': { minNTH: 250001, maxNTH: null, foir: 0.75 },
+      'HNI': { minNTH: 150001, maxNTH: 250000, foir: 0.75 },
+      'AFFLUENT': { minNTH: 75001, maxNTH: 150000, foir: 0.70 },
+      'PRIME': { minNTH: 50001, maxNTH: 75000, foir: 0.65 },
       'OTHERS': { minNTH: 30000, maxNTH: 50000, foir: 0.60 }
     },
-
-    // B and Government (Mid-High Customer Segment)
     'B': {
-      'SUP-HNI': { minNTH: 250000, maxNTH: null, foir: 0.70 },
-      'HNI': { minNTH: 150000, maxNTH: 250000, foir: 0.70 },
-      'AFFLUENT': { minNTH: 75000, maxNTH: 150000, foir: 0.65 },
-      'PRIME': { minNTH: 50000, maxNTH: 75000, foir: 0.60 },
+      'SUP-HNI': { minNTH: 250001, maxNTH: null, foir: 0.70 },
+      'HNI': { minNTH: 150001, maxNTH: 250000, foir: 0.70 },
+      'AFFLUENT': { minNTH: 75001, maxNTH: 150000, foir: 0.65 },
+      'PRIME': { minNTH: 50001, maxNTH: 75000, foir: 0.60 },
       'OTHERS': { minNTH: 30000, maxNTH: 50000, foir: 0.50 }
     },
     'GOVT': {
-      'SUP-HNI': { minNTH: 250000, maxNTH: null, foir: 0.70 },
-      'HNI': { minNTH: 150000, maxNTH: 250000, foir: 0.70 },
-      'AFFLUENT': { minNTH: 75000, maxNTH: 150000, foir: 0.65 },
-      'PRIME': { minNTH: 50000, maxNTH: 75000, foir: 0.60 },
+      'SUP-HNI': { minNTH: 250001, maxNTH: null, foir: 0.70 },
+      'HNI': { minNTH: 150001, maxNTH: 250000, foir: 0.70 },
+      'AFFLUENT': { minNTH: 75001, maxNTH: 150000, foir: 0.65 },
+      'PRIME': { minNTH: 50001, maxNTH: 75000, foir: 0.60 },
       'OTHERS': { minNTH: 30000, maxNTH: 50000, foir: 0.50 }
     },
-
-    // C/D (Mid-Low Customer Segment)
     'C': {
-      'SUP-HNI': { minNTH: 250000, maxNTH: null, foir: 0.65 },
-      'HNI': { minNTH: 150000, maxNTH: 250000, foir: 0.60 },
-      'AFFLUENT': { minNTH: 75000, maxNTH: 150000, foir: 0.55 },
-      'PRIME': { minNTH: 50000, maxNTH: 75000, foir: 0.55 },
+      'SUP-HNI': { minNTH: 250001, maxNTH: null, foir: 0.65 },
+      'HNI': { minNTH: 150001, maxNTH: 250000, foir: 0.60 },
+      'AFFLUENT': { minNTH: 75001, maxNTH: 150000, foir: 0.55 },
+      'PRIME': { minNTH: 50001, maxNTH: 75000, foir: 0.55 },
       'OTHERS': { minNTH: 30000, maxNTH: 50000, foir: 0.50 }
     },
     'D': {
-      'SUP-HNI': { minNTH: 250000, maxNTH: null, foir: 0.65 },
-      'HNI': { minNTH: 150000, maxNTH: 250000, foir: 0.60 },
-      'AFFLUENT': { minNTH: 75000, maxNTH: 150000, foir: 0.55 },
-      'PRIME': { minNTH: 50000, maxNTH: 75000, foir: 0.55 },
+      'SUP-HNI': { minNTH: 250001, maxNTH: null, foir: 0.65 },
+      'HNI': { minNTH: 150001, maxNTH: 250000, foir: 0.60 },
+      'AFFLUENT': { minNTH: 75001, maxNTH: 150000, foir: 0.55 },
+      'PRIME': { minNTH: 50001, maxNTH: 75000, foir: 0.55 },
       'OTHERS': { minNTH: 30000, maxNTH: 50000, foir: 0.50 }
     },
-
-    // E (Lowest Customer Segment - Highest Risk)
     'E': {
-      'SUP-HNI': { minNTH: 250000, maxNTH: null, foir: 0.60 },
-      'HNI': { minNTH: 150000, maxNTH: 250000, foir: 0.55 },
-      'AFFLUENT': { minNTH: 75000, maxNTH: 150000, foir: 0.50 },
-      'PRIME': { minNTH: 50000, maxNTH: 75000, foir: 0.45 },          // 45% FOIR for UNLISTED at 50K-75K
-      'OTHERS': { minNTH: 30000, maxNTH: 50000, foir: null }          // NA - Not Eligible
+      'SUP-HNI': { minNTH: 250001, maxNTH: null, foir: 0.60 },
+      'HNI': { minNTH: 150001, maxNTH: 250000, foir: 0.55 },
+      'AFFLUENT': { minNTH: 75001, maxNTH: 150000, foir: 0.50 },
+      'PRIME': { minNTH: 50001, maxNTH: 75000, foir: 0.45 },
+      'OTHERS': { minNTH: 30000, maxNTH: 50000, foir: null } // NA
     }
   },
 
+  // Excel Section 4 Rows 34-52: Detailed Rate Grid Lookup Function
+  getPoonawalaRate: (category, income, loanAmount, cibilScore) => {
+    const cibil = Number(cibilScore || 750);
+    const cat = String(category || 'A').toUpperCase().trim();
+    const isSuperA = cat.includes('SUPER') || cat === 'A';
+    const isGovtOrB = cat === 'GOVT' || cat === 'B';
+    const isC = cat === 'C';
+    const isD = cat === 'D';
 
-  // Minimum NTH (Net Take-Home) salary by segment
-  minNTHBySegment: {
-    'SUPER-A': 30000,
-    'A': 30000,
-    'B': 30000,
-    'GOVT': 30000,
-    'C': 30000,
-    'D': 30000,
-    'E': 30000  // E segment (UNLISTED) minimum NTH same as others, but lower FOIR
-  },
+    // Handle NTC (0 / -1)
+    if (cibil === 0 || cibil === -1) {
+      return 14.50; // Excel Row 65: For Cibil 0 and -1 min 14.50%
+    }
 
-  // Maximum tenure by category (in months)
-  maxTenureByCategory: {
-    'SUPER-A': 84,     // 7 years - CAT SUPER A
-    'A': 84,         // 7 years - CAT A
-    'B': 72,         // 6 years - CAT B
-    'GOVT': 72,      // 6 years - CAT GOVT
-    'C': 72,         // 6 years - CAT C
-    'D': 60,         // 5 years - CAT D
-    'E': 60          // 5 years - UNLISTED (mapped to E)
-  },
+    if (isSuperA) {
+      if (income > 100000 && loanAmount >= 3500000) {
+        return cibil >= 780 ? 11.99 : (cibil >= 730 ? 12.50 : 13.00);
+      }
+      if (income > 100000 && loanAmount >= 2000000) {
+        return cibil >= 780 ? 12.25 : (cibil >= 730 ? 13.25 : 13.75);
+      }
+      if (income > 75000) {
+        return cibil >= 780 ? 12.50 : (cibil >= 730 ? 13.50 : 14.00);
+      }
+      if (income > 50000) {
+        return cibil >= 780 ? 13.50 : (cibil >= 730 ? 14.50 : 14.74);
+      }
+      // up to 50k
+      return cibil >= 780 ? 13.75 : (cibil >= 730 ? 14.74 : 15.00);
+    }
 
-  // Overall minimum NTH salary
-  minNTH: 30000,
+    if (isGovtOrB) {
+      if (income > 100000 && loanAmount >= 2000000) {
+        return cibil >= 780 ? 13.50 : (cibil >= 750 ? 14.25 : (cibil >= 730 ? 14.50 : 14.75));
+      }
+      if (income > 75000) {
+        return cibil >= 780 ? 13.75 : (cibil >= 750 ? 14.50 : (cibil >= 730 ? 14.75 : 15.00));
+      }
+      if (income > 50000) {
+        return cibil >= 780 ? 14.00 : (cibil >= 750 ? 14.75 : (cibil >= 730 ? 15.00 : 15.24));
+      }
+      // up to 50k
+      return cibil >= 780 ? 14.25 : (cibil >= 750 ? 15.00 : (cibil >= 730 ? 15.24 : 15.50));
+    }
 
-  // Customer segment categories
-  customerSegments: {
-    'SUPER-A': { description: 'Superior A - Premium Companies/Profiles (Lowest Risk)' },
-    'A': { description: 'Category A - Top Tier Companies (Lowest Risk)' },
-    'B': { description: 'Category B - Good Companies (Mid-High Risk)' },
-    'GOVT': { description: 'Government Employees (Mid-High Risk, Stable)' },
-    'C': { description: 'Category C - Average Companies (Mid-Low Risk)' },
-    'D': { description: 'Category D - Standard Companies (Mid-Low Risk)' },
-    'E': { description: 'Category E - Lower Companies (Highest Risk)' }
-  },
+    if (isC) {
+      if (income > 100000 && loanAmount >= 2000000) {
+        return cibil >= 780 ? 14.00 : (cibil >= 750 ? 14.25 : (cibil >= 730 ? 14.50 : 14.74));
+      }
+      if (income > 75000) {
+        return cibil >= 780 ? 14.00 : (cibil >= 750 ? 14.50 : (cibil >= 730 ? 15.00 : 15.25));
+      }
+      if (income > 50000) {
+        return cibil >= 780 ? 14.50 : (cibil >= 750 ? 15.00 : (cibil >= 730 ? 15.25 : 15.50));
+      }
+      // up to 50k
+      return cibil >= 780 ? 15.24 : (cibil >= 750 ? 15.50 : (cibil >= 730 ? 15.75 : 16.00));
+    }
 
-  // NTH Salary bands description
-  nthBands: {
-    'SUP-HNI': { minNTH: 250000, description: 'Super High Net-Worth Individuals (>₹2.5L NTH)' },
-    'HNI': { minNTH: 150000, description: 'High Net-Worth Individuals (₹1.5L-2.5L NTH)' },
-    'AFFLUENT': { minNTH: 75000, description: 'Affluent (₹75K-1.5L NTH)' },
-    'PRIME': { minNTH: 50000, description: 'Prime (₹50K-75K NTH)' },
-    'OTHERS': { minNTH: 30000, description: 'Others (₹30K-50K NTH)' }
+    if (isD) {
+      if (income > 75000) {
+        return cibil >= 780 ? 14.74 : (cibil >= 750 ? 15.00 : (cibil >= 730 ? 15.24 : 15.75));
+      }
+      if (income > 50000) {
+        return cibil >= 780 ? 15.24 : (cibil >= 750 ? 15.50 : (cibil >= 730 ? 15.75 : 16.24));
+      }
+      // up to 50k
+      return cibil >= 780 ? 15.50 : (cibil >= 750 ? 15.75 : (cibil >= 730 ? 16.24 : 17.24));
+    }
+
+    // Cat E / Unlisted
+    if (income > 75000) {
+      return cibil >= 780 ? 16.75 : (cibil >= 750 ? 17.00 : (cibil >= 730 ? 17.24 : 17.74));
+    }
+    if (income > 50000) {
+      return cibil >= 780 ? 17.25 : (cibil >= 750 ? 17.50 : (cibil >= 730 ? 17.74 : 18.24));
+    }
+    return cibil >= 780 ? 18.25 : (cibil >= 750 ? 18.50 : (cibil >= 730 ? 18.74 : 19.75));
   },
 
   employmentTypes: ['salaried', 'government', 'self-employed'],
-  specialPrograms: ['premium-lending', 'government-special', 'hni-program'],
 
-  // Special notes
-  calculationMethod: 'FOIR-Only',
-  foirApproach: 'Two-Dimensional Matrix (Segment × NTH Salary)',
-  keyFeatures: [
-    'Uses Net Take-Home (NTH) salary instead of gross',
-    'Two-dimensional risk assessment',
-    'Segment E with PRIME/OTHERS NTH is ineligible',
-    'Higher FOIR for premium segments and high earners',
-    'Granular risk-based lending'
-  ],
-
-  // Balance Transfer (BT) Configuration
+  // Balance Transfer (BT) Configuration (Excel Row 96)
   btConfig: {
-    isAvailable: true, // BT facility is available
-    maxLoansForBT: 9, // Maximum number of existing personal loans that can be consolidated
-    acceptsFintechLoans: true, // ✅ ACCEPTS BT for Fintech/digital platform loans - More flexible policy
-    description: 'Poonawala Finance allows balance transfer for up to 9 existing personal loans - one of the most flexible policies (INCLUDES Fintech loans)'
+    isAvailable: true,
+    maxBtCountTotal: 8, // Combination of 3 App loans / 3 CC / 2 PL
+    maxAppLoanBt: 3,
+    maxCreditCardsForBT: 3,
+    maxPlBt: 2,
+    description: 'Poonawala allows up to 8 total balance transfers (Max 3 App loans, 3 Credit Cards, 2 Personal loans)'
   }
 };

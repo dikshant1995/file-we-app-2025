@@ -28,6 +28,7 @@ const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
 const getCustomerSegment = (category) => {
   const segmentMapping = {
     'SUPER-A': 'SUPER-A',
+    'SUPER A': 'SUPER-A',
     'A': 'A',
     'B': 'B',
     'C': 'C',
@@ -35,7 +36,7 @@ const getCustomerSegment = (category) => {
     'GOVT': 'GOVT',
     'UNLISTED': 'E'
   };
-  return segmentMapping[category] || 'E';
+  return segmentMapping[category] || 'A';
 };
 
 // Helper function to find NTH band in FOIR matrix
@@ -156,6 +157,15 @@ export const calculatePoonawalaEligibility = (userData) => {
     }
   }
 
+  // Check CIBIL eligibility (Excel Row 93: 700 MINIMUM, 0 and -1 allowed)
+  const cibilScoreVal = Number(creditScore || userData.cibilScore || 750);
+  if (cibilScoreVal > 0 && cibilScoreVal < poonawalaConfig.minCreditScore) {
+    return {
+      eligible: false,
+      reason: `Poonawala Finance requires minimum CIBIL score of ${poonawalaConfig.minCreditScore} (0 and -1 allowed for Tier 1, 2 cities & Cat A). Current CIBIL: ${cibilScoreVal}`
+    };
+  }
+
   // Check age eligibility
   if (age && (age < poonawalaConfig.minAge || age > poonawalaConfig.maxAge)) {
     return {
@@ -175,46 +185,26 @@ export const calculatePoonawalaEligibility = (userData) => {
   // Determine customer segment
   const customerSegment = getCustomerSegment(category);
 
-  // Apply tenure capping based on category (tenure is in months)
-  // Logic Bridge: Support govtMaxTenure override
-  let lookupSegment = customerSegment === 'GOVT' ? 'SUP-A' : customerSegment;
-  if (category === 'GOVT') lookupSegment = 'SUP-A'; // Double check for Govt
+  // Apply tenure capping based on category (Excel Row 91: CAT A 84 MONTH, CAT B, C, D 72 MONTH)
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure 
+    ? govtMaxTenure 
+    : (poonawalaConfig.maxTenureByCategory[customerSegment] || 72);
 
-  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : poonawalaConfig.maxTenureByCategory[lookupSegment];
-
-  if (!maxTenureForCategory || maxTenureForCategory === 0) {
-    return {
-      eligible: false,
-      reason: `No loans available for Category ${customerSegment}`
-    };
-  }
-
-  // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
-  // This shows the maximum loan amount the bank can offer for this category
   const cappedTenureMonths = maxTenureForCategory;
   const cappedTenureYears = cappedTenureMonths / 12;
 
-  // Store user's request for display purposes
-  const requestedTenureMonths = loanTenure * 12;
+  const requestedTenureMonths = (loanTenure || 5) * 12;
   const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
 
-  // Check loan tenure
-  if (loanTenure > poonawalaConfig.maxLoanTenure) {
-    return {
-      eligible: false,
-      reason: `Maximum loan tenure is ${poonawalaConfig.maxLoanTenure} years`
-    };
-  }
-
-  const minNTHRequired = poonawalaConfig.minNTHBySegment[customerSegment];
+  const minNTHRequired = poonawalaConfig.minSalary; // 30,000 NTH
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncomeForCalc;
   if (incomeToCheck < minNTHRequired) {
-    return { eligible: false, reason: `Minimum NTH salary of ₹${minNTHRequired.toLocaleString()} required for ${customerSegment} segment${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+    return { eligible: false, reason: `Minimum NTH salary of ₹${minNTHRequired.toLocaleString()} required for Poonawala Finance (Excel Row 89: MIN 30K)${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncomeForCalc;
 
-  // Logic Bridge: Support govtFOIR override
+  // Logic Bridge: Support govtFOIR override or lookup in FOIR Matrix (Excel Section 5 Rows 77-82)
   let foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : getNTHBandFOIR(customerSegment, incomeForCalculation);
 
   if (foirPercentage === null) {
@@ -233,9 +223,7 @@ export const calculatePoonawalaEligibility = (userData) => {
   }
 
   // Pass 1: Calculate preliminary loan with base rate
-  // Logic Bridge: Support interestRateOverride or govtROI
-  let baseRate = interestRateOverride || poonawalaConfig.interestRate;
-  if (isGovtEmployee && govtROI) baseRate = govtROI;
+  let baseRate = interestRateOverride || (isGovtEmployee && govtROI ? govtROI : poonawalaConfig.getPoonawalaRate(customerSegment, incomeForCalculation, desiredLoanAmount || 1000000, cibilScoreVal));
 
   const calculatedLoanAmountPass1 = calculatePrincipalFromEMI(
     availableEMI,
@@ -248,13 +236,15 @@ export const calculatePoonawalaEligibility = (userData) => {
     desiredLoanAmount || Infinity
   );
 
-  const preliminaryCappedLoan = Math.min(preliminaryLoanAmount, poonawalaConfig.maxLoanAmount);
+  const categoryMaxCap = poonawalaConfig.maxLoanByCategory[customerSegment] || poonawalaConfig.maxLoanAmount;
+  const preliminaryCappedLoan = Math.min(preliminaryLoanAmount, categoryMaxCap);
 
-  // Pass 2: Get correct rate based on preliminary loan amount
-  // Logic Bridge: Support ROI overrides
+  // Pass 2: Get correct rate based on preliminary loan amount (Excel Section 4 Rows 34-52)
   let finalInterestRate = interestRateOverride;
   if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
-  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(customerSegment, preliminaryCappedLoan, userData.city || userData.state);
+  if (!finalInterestRate) {
+    finalInterestRate = poonawalaConfig.getPoonawalaRate(customerSegment, incomeForCalculation, preliminaryCappedLoan, cibilScoreVal);
+  }
 
   // Recalculate loan with final rate
   const calculatedLoanAmount = calculatePrincipalFromEMI(
@@ -269,8 +259,8 @@ export const calculatePoonawalaEligibility = (userData) => {
     desiredLoanAmount || Infinity
   );
 
-  const maxLoanCapAmount = Math.min(finalLoanAmount, poonawalaConfig.maxLoanAmount);
-  const loanCapped = finalLoanAmount > poonawalaConfig.maxLoanAmount;
+  const maxLoanCapAmount = Math.min(finalLoanAmount, categoryMaxCap);
+  const loanCapped = finalLoanAmount > categoryMaxCap;
 
   // Apply Dynamic Bachelor Capping
   let appliedBachelorCap = false;
@@ -322,7 +312,7 @@ export const calculatePoonawalaEligibility = (userData) => {
     bankId: poonawalaConfig.id,
     bankName: poonawalaConfig.name,
     loanAmount: Math.round(cappedFinalLoan),
-    maxLoanCap: poonawalaConfig.maxLoanAmount,
+    maxLoanCap: categoryMaxCap,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
     bachelorCapped: appliedBachelorCap,

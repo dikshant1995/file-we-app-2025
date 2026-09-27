@@ -130,75 +130,106 @@ export const calculateAxisFinEligibility = (userData) => {
     };
   }
 
-  // 2. Apply tenure capping based on category (tenure is in months)
-  // Logic Bridge: Support govtMaxTenure override
-  let lookupCategory = category === 'Govt' ? 'A' : category;
-  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : axisFinConfig.maxTenureByCategory[lookupCategory];
+  // 2. Apply tenure capping based on category (Excel Section 4)
+  const normCategory = String(category || 'C').toUpperCase().trim();
+  const isSuperA = normCategory.includes('SUPER');
+  const isGovt = isGovtEmployee || normCategory === 'GOVT';
+  const effectiveCategoryKey = isSuperA ? 'SUPER-A' : (isGovt ? 'GOVT' : (normCategory === 'A' ? 'A' : (normCategory === 'B' ? 'B' : (normCategory === 'D' ? 'D' : 'C'))));
 
-  if (!maxTenureForCategory || maxTenureForCategory === 0) {
-    return {
-      eligible: false,
-      reason: `No loans available for Category ${category}`
-    };
-  }
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure 
+    ? govtMaxTenure 
+    : (axisFinConfig.maxTenureByCategory[effectiveCategoryKey] || 60);
 
-  // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
-  // This shows the maximum loan amount the bank can offer for this category
   const cappedTenureMonths = maxTenureForCategory;
   const cappedTenureYears = cappedTenureMonths / 12;
 
-  // Store user's request for display purposes
-  const requestedTenureMonths = loanTenure * 12;
+  const requestedTenureMonths = (loanTenure || 5) * 12;
   const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
 
-  // Check loan tenure
-  if (loanTenure > axisFinConfig.maxLoanTenure) {
-    return {
-      eligible: false,
-      reason: `Maximum loan tenure is ${axisFinConfig.maxLoanTenure} years`
-    };
-  }
-
-  // Check if category is supported
-  if (category === 'UNLISTED') {
-    return {
-      eligible: false,
-      reason: 'Axis Finance does not provide loans to UNLISTED company employees'
-    };
-  }
-
+  // Minimum salary check (Excel Section 1: Urban 30k, Rural 25k)
+  const isRural = userData.locationType === 'rural' || userData.isRural === true;
+  const reqMinSalary = isRural ? axisFinConfig.minSalaryRural : axisFinConfig.minSalaryUrban;
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncomeForCalc;
-  if (incomeToCheck < axisFinConfig.minSalary) {
-    return { eligible: false, reason: `Minimum salary of ₹${axisFinConfig.minSalary.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+  if (incomeToCheck < reqMinSalary && incomeToCheck < axisFinConfig.minSalary) {
+    return { 
+      eligible: false, 
+      reason: `Minimum salary of ₹${reqMinSalary.toLocaleString()} required for Axis Finance (${isRural ? 'Rural' : 'Urban'}). Current: ₹${incomeToCheck.toLocaleString()}`, 
+      isBTMode: isBT 
+    };
   }
 
-  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncomeForCalc;
-  const salaryBand = getSalaryBand(incomeForCalculation, axisFinConfig.multiplierTable);
-
-  if (!salaryBand) {
-    return { eligible: false, reason: 'Salary does not fall within any eligible band', isBTMode: isBT };
+  // Work experience check (Excel Section 1: 6 Months)
+  const totalExp = Number(userData.totalWorkExperience || userData.workExperience || userData.currentCompanyExperience || 0);
+  if (totalExp > 0 && totalExp < axisFinConfig.minWorkExperienceMonths) {
+    return {
+      eligible: false,
+      reason: `Axis Finance requires minimum ${axisFinConfig.minWorkExperienceMonths} months work experience (Excel: MINI WORK EXPRINCE: 6 MONTHS). Current: ${totalExp} months.`
+    };
   }
 
-  // Logic Bridge: Support govtMultiplier override
-  let multiplier = isGovtEmployee && govtMultiplier ? govtMultiplier : axisFinConfig.multiplierTable[salaryBand]?.[category];
+  // Category specific FOIR and Multipliers (Excel Section 3)
+  const maxFoir = axisFinConfig.foirByCategory[effectiveCategoryKey] || 0.60;
+  let multiplier = 0;
+  let calculationMethod = 'Multiplier';
 
-  if (!multiplier) {
-    return { eligible: false, reason: `No multiplier available for category ${category} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
+  if (effectiveCategoryKey === 'D') {
+    // Cat D: Excel says "NO MULTIPLIER APLICABLE, AFTER DEVIATION CASE WILL BE PROCESS IN FOIR"
+    multiplier = 0;
+    calculationMethod = 'FOIR (Deviation)';
+  } else {
+    // Multiplier from salary slabs (Excel Section 3: <50k: 24, 50k-75k: 26, 75k-1L: 28, >1L: 30)
+    if (isGovtEmployee && govtMultiplier) {
+      multiplier = govtMultiplier;
+    } else {
+      const slab = axisFinConfig.multiplierSlabs.find(s => incomeToCheck >= s.minSalary && incomeToCheck <= s.maxSalary);
+      multiplier = slab ? slab.multiplier : 24;
+    }
   }
 
-  // IMPORTANT: For multiplier, use salary after deducting existing EMI and credit card obligation (non-BT mode)
+  // Determine ROI (Excel Section 2 & BT Note)
+  let effectiveInterestRate = interestRateOverride;
+  if (isGovtEmployee && govtROI) {
+    effectiveInterestRate = govtROI;
+  } else if (!effectiveInterestRate) {
+    if (isBT) {
+      effectiveInterestRate = axisFinConfig.btInterestRate || 18.00; // 18% for BT
+    } else {
+      effectiveInterestRate = axisFinConfig.roiByCategory[effectiveCategoryKey] || 15.00;
+    }
+  }
+
+  // Calculate Loan Amount:
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
-  const availableSalary = isBT ? incomeForCalculation : (monthlyIncomeForCalc - totalObligations);
-  const calculatedLoanAmount = availableSalary * multiplier;
+  let calculatedLoanAmount = 0;
 
-  // Final loan amount is minimum of calculated and desired
-  const finalLoanAmount = Math.min(
-    calculatedLoanAmount,
-    desiredLoanAmount || Infinity
-  );
+  if (effectiveCategoryKey === 'D') {
+    // Pure FOIR capacity for Category D
+    const foirCap = (monthlyIncomeForCalc * maxFoir) - totalObligations;
+    if (foirCap <= 0) {
+      return { eligible: false, reason: `Obligations exceed max FOIR of ${(maxFoir * 100)}% for Category D`, isBTMode: isBT };
+    }
+    const r = (effectiveInterestRate / 12) / 100;
+    const n = cappedTenureMonths;
+    calculatedLoanAmount = foirCap * (Math.pow(1 + r, n) - 1) / (r * Math.pow(1 + r, n));
+  } else {
+    // Multiplier-based with FOIR cap
+    const availableSalary = isBT ? incomeToCheck : (monthlyIncomeForCalc - totalObligations);
+    if (availableSalary <= 0) {
+      return { eligible: false, reason: `Total obligations (₹${totalObligations.toLocaleString()}) exceed monthly income`, isBTMode: isBT };
+    }
+    const multLoan = availableSalary * multiplier;
+    // Check against FOIR
+    const maxAllowedEmi = (monthlyIncomeForCalc * maxFoir) - totalObligations;
+    const r = (effectiveInterestRate / 12) / 100;
+    const n = cappedTenureMonths;
+    const foirMaxLoan = maxAllowedEmi > 0 ? (maxAllowedEmi * (Math.pow(1 + r, n) - 1) / (r * Math.pow(1 + r, n))) : 0;
+    calculatedLoanAmount = foirMaxLoan > 0 ? Math.min(multLoan, foirMaxLoan) : multLoan;
+  }
 
-  const maxLoanCapAmount = Math.min(finalLoanAmount, axisFinConfig.maxLoanAmount);
-  const loanCapped = finalLoanAmount > axisFinConfig.maxLoanAmount;
+  const categoryMaxCap = axisFinConfig.maxLoanByCategory[effectiveCategoryKey] || axisFinConfig.maxLoanAmount;
+  const finalLoanAmount = Math.min(calculatedLoanAmount, desiredLoanAmount || Infinity);
+  const maxLoanCapAmount = Math.min(finalLoanAmount, categoryMaxCap);
+  const loanCapped = finalLoanAmount > categoryMaxCap;
 
   // Apply Dynamic Bachelor Capping
   let appliedBachelorCap = false;
@@ -212,13 +243,6 @@ export const calculateAxisFinEligibility = (userData) => {
       cappedFinalLoan = bachelorLimitAmount;
       appliedBachelorCap = true;
       bachelorCapReasonStr = userData.dynamicBachelorCapReason || 'Dynamic Bachelor Capping limit applied';
-    }
-  } else if (axisFinConfig.bachelorMaxLoanAmount !== undefined && userData.maritalStatus === 'single' && userData.livingStatus === 'rented') {
-    bachelorLimitAmount = axisFinConfig.bachelorMaxLoanAmount;
-    if (cappedFinalLoan > bachelorLimitAmount) {
-      cappedFinalLoan = bachelorLimitAmount;
-      appliedBachelorCap = true;
-      bachelorCapReasonStr = 'Rented Bachelor Limit Applied (Bank Default)';
     }
   }
 
@@ -236,20 +260,11 @@ export const calculateAxisFinEligibility = (userData) => {
       freshAmountDisbursed: Math.round(btFreshAmount),
       nonBTLoansEMI: Math.round(nonBTLoansEMI),
       creditCardObligation: Math.round(creditCardObligation || 0),
-      creditCardObligationNote: creditCardObligation > 0 ? '5% of non-BT credit card outstanding' : 'No credit card obligation (either no CC or CC in BT)',
+      creditCardObligationNote: creditCardObligation > 0 ? '5% of non-BT credit card outstanding' : 'No credit card obligation',
       totalNonBTObligations: Math.round(nonBTLoansEMI + (creditCardObligation || 0)),
       originalIncome: monthlyIncomeForCalc,
       adjustedIncome: Math.round(adjustedIncome)
     };
-  }
-
-  // ROI Calculation using Logic Bridge and Slabs
-  let effectiveInterestRate = interestRateOverride;
-  if (isGovtEmployee && govtROI) {
-    effectiveInterestRate = govtROI;
-  } else if (!effectiveInterestRate) {
-    // Check dynamic slabs in Admin Matrix
-    effectiveInterestRate = getSlabRate('Axis Finance', lookupCategory, cappedFinalLoan, userData.city || userData.state, axisFinConfig.interestRate);
   }
 
   const monthlyEMI = calculateEMI(cappedFinalLoan, effectiveInterestRate, cappedTenureYears);
@@ -259,7 +274,7 @@ export const calculateAxisFinEligibility = (userData) => {
     bankId: axisFinConfig.id,
     bankName: axisFinConfig.name,
     loanAmount: Math.round(cappedFinalLoan),
-    maxLoanCap: axisFinConfig.maxLoanAmount,
+    maxLoanCap: categoryMaxCap,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
     bachelorCapped: appliedBachelorCap,
@@ -275,15 +290,15 @@ export const calculateAxisFinEligibility = (userData) => {
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
     multiplier: multiplier,
-    salaryBand: salaryBand,
-    category: category,
-    calculationMethod: 'Multiplier Only',
+    salaryBand: incomeToCheck >= 100000 ? '1 LAC ABOVE' : (incomeToCheck >= 75000 ? '75K TO 1 LAC' : (incomeToCheck >= 50000 ? '50K TO 75K' : '< 50K')),
+    category: effectiveCategoryKey,
+    calculationMethod: calculationMethod,
     incentivePercentage: effectiveIncentivePercentage, // Dynamically reflect override
     incentiveMonths: effectiveIncentiveMonths,
     incentiveConsidered: bankIncentiveConsidered,
     details: {
-      multiplier: multiplier + 'x',
-      salaryBand: salaryBand,
+      multiplier: multiplier > 0 ? (multiplier + 'x') : 'None (FOIR based)',
+      salaryBand: incomeToCheck >= 100000 ? '1 LAC ABOVE' : (incomeToCheck >= 75000 ? '75K TO 1 LAC' : (incomeToCheck >= 50000 ? '50K TO 75K' : '< 50K')),
       multiplierLoanAmount: Math.round(calculatedLoanAmount),
       existingEMI: Math.round(existingEMI || 0),
       creditCardObligation: Math.round(creditCardObligation || 0),
