@@ -167,6 +167,37 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
         };
       }
 
+      // Piramal Finance Excel Policy: 2 CC BT ALLOW WITH 1 PL BT
+      if (id === 'piramal' || name?.toLowerCase().includes('piramal')) {
+        const plBt = activeLiabilities.filter(l => l.type !== 'Credit Card' && l.type !== 'credit_card');
+        const ccBt = activeLiabilities.filter(l => l.type === 'Credit Card' || l.type === 'credit_card');
+
+        if (plBt.length > 1) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Piramal Finance permits maximum 1 Personal Loan for Balance Transfer (found ${plBt.length}). Policy: 2 CC BT ALLOW WITH 1 PL BT`,
+            isBTMode: true
+          };
+        }
+        if (ccBt.length > 2) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Piramal Finance permits maximum 2 Credit Cards for Balance Transfer (found ${ccBt.length}). Policy: 2 CC BT ALLOW WITH 1 PL BT`,
+            isBTMode: true
+          };
+        }
+        if (ccBt.length > 0 && plBt.length === 0) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: 'Piramal Finance requires 1 Personal Loan BT along with Credit Card BT. Standalone Credit Card BT is not allowed (Policy: 2 CC BT ALLOW WITH 1 PL BT).',
+            isBTMode: true
+          };
+        }
+      }
+
       // Fallback to local config if Admin hasn't specified
       if (btConfig.enabled === undefined && config.btConfig && !config.btConfig.isAvailable) {
         return { bankName: name, eligible: false, reason: `${name} does not offer Balance Transfer facility for personal loans` };

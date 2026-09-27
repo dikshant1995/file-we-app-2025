@@ -1427,6 +1427,39 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
                           .reduce((sum, card) => sum + (parseFloat(card.creditLimitUsed) || 0), 0)
                       ).toLocaleString('en-IN')}
                     </div>
+
+                    {/* Piramal Finance BT Indicator */}
+                    {(() => {
+                      const selLoans = (formData.hasExistingLoans ? formData.existingLoans : []).filter(l => formData.selectedLoansForBT.includes(l.id));
+                      const selCards = (formData.hasCreditCards && formData.creditCards ? formData.creditCards : []).filter(c => formData.selectedLoansForBT.includes(c.id));
+                      const isPiramalBtCompliant = selLoans.length <= 1 && selCards.length <= 2 && (selCards.length === 0 || selLoans.length === 1);
+
+                      return (
+                        <div style={{
+                          marginTop: '12px',
+                          padding: '10px 14px',
+                          borderRadius: '6px',
+                          background: isPiramalBtCompliant ? 'rgba(31, 78, 120, 0.08)' : 'rgba(239, 68, 68, 0.08)',
+                          border: `1px solid ${isPiramalBtCompliant ? '#1F4E78' : '#ef4444'}`,
+                          fontSize: '0.84rem'
+                        }}>
+                          <div style={{ fontWeight: 600, color: isPiramalBtCompliant ? '#1F4E78' : '#dc2626', marginBottom: '3px' }}>
+                            🏦 Piramal Finance BT Policy: 2 CC BT ALLOW WITH 1 PL BT
+                          </div>
+                          {isPiramalBtCompliant ? (
+                            <div style={{ color: '#047857' }}>
+                              ✓ Current selection complies with Piramal Finance ({selLoans.length} PL BT + {selCards.length} CC BT).
+                            </div>
+                          ) : (
+                            <div style={{ color: '#b91c1c' }}>
+                              {selLoans.length > 1 && <div>⚠️ Piramal allows max 1 Personal Loan for BT (selected: {selLoans.length}).</div>}
+                              {selCards.length > 2 && <div>⚠️ Piramal allows max 2 Credit Cards for BT (selected: {selCards.length}).</div>}
+                              {selCards.length > 0 && selLoans.length === 0 && <div>⚠️ Piramal requires 1 Personal Loan BT along with Credit Card BT (standalone CC BT not permitted).</div>}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
                 )}
 

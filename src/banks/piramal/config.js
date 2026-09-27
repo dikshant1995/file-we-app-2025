@@ -82,10 +82,10 @@ export const piramalConfig = {
   // Balance Transfer (BT) Configuration (Excel: 2 CC BT ALLOW WITH 1 PL BT)
   btConfig: {
     isAvailable: true,
-    maxLoansForBT: 5,
+    maxPersonalLoansForBT: 1,
     maxCreditCardsForBT: 2,
     requirePersonalLoanWithCcBt: true,
     acceptsFintechLoans: false,
-    description: 'Piramal Finance allows BT for up to 2 Credit Cards when consolidated with 1 Personal Loan BT'
+    description: 'Piramal Finance allows BT for up to 2 Credit Cards when consolidated with 1 Personal Loan BT (2 CC BT ALLOW WITH 1 PL BT)'
   }
 };

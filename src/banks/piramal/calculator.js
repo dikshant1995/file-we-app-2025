@@ -138,6 +138,14 @@ export const calculatePiramalEligibility = (userData) => {
       };
     }
 
+    if (ccLoans.length > 0 && plLoans.length === 0) {
+      return {
+        eligible: false,
+        reason: 'Piramal Finance requires 1 Personal Loan BT along with Credit Card BT. Standalone Credit Card BT is not allowed (Policy: 2 CC BT ALLOW WITH 1 PL BT).',
+        isBTMode: true
+      };
+    }
+
     nonBTLoansEMI = existingEMI - btTotalEMI;
     // NEW: Also deduct credit card obligations from adjusted income
     const creditCardDeduction = creditCardObligation || 0;

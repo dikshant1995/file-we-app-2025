@@ -336,14 +336,33 @@ const matchCategory = (cat1, cat2) => {
             category: 'REJECTED'
           };
         }
-        // Piramal Finance: Max 2 CC BT allowed
-        if (numCcBt > 2 && (name.toLowerCase().includes('piramal') || id === 'piramal')) {
-          return {
-            bankName: name,
-            eligible: false,
-            reason: `Piramal Finance allows maximum 2 Credit Card BTs (${numCcBt} selected).`,
-            category: 'REJECTED'
-          };
+        // Piramal Finance: 2 CC BT ALLOW WITH 1 PL BT
+        if (name.toLowerCase().includes('piramal') || id === 'piramal') {
+          const plBtLoans = (calculatorInput.loansForBT || []).filter(l => l.type !== 'Credit Card' && l.type !== 'credit_card' && l.loanType !== 'credit_card');
+          if (plBtLoans.length > 1) {
+            return {
+              bankName: name,
+              eligible: false,
+              reason: `Piramal Finance allows maximum 1 Personal Loan for Balance Transfer (${plBtLoans.length} selected). Policy: 2 CC BT ALLOW WITH 1 PL BT.`,
+              category: 'REJECTED'
+            };
+          }
+          if (numCcBt > 2) {
+            return {
+              bankName: name,
+              eligible: false,
+              reason: `Piramal Finance allows maximum 2 Credit Card BTs with 1 Personal Loan BT (${numCcBt} selected). Policy: 2 CC BT ALLOW WITH 1 PL BT.`,
+              category: 'REJECTED'
+            };
+          }
+          if (numCcBt > 0 && plBtLoans.length === 0) {
+            return {
+              bankName: name,
+              eligible: false,
+              reason: 'Piramal Finance allows Credit Card Balance Transfer only WITH 1 Personal Loan BT (Policy: 2 CC BT ALLOW WITH 1 PL BT). Standalone Credit Card BT is not allowed.',
+              category: 'REJECTED'
+            };
+          }
         }
         // SMFG India Credit: Max 2 CC BT allowed
         if (numCcBt > 2 && (name.toLowerCase().includes('smfg') || id === 'smfg')) {
