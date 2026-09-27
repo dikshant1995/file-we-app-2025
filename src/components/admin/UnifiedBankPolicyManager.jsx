@@ -564,11 +564,13 @@ const UnifiedBankPolicyManager = () => {
             : true;
           const isLntBank = bank.id === 'lnt' || bank.name?.toLowerCase().includes('lnt') || bank.name?.toLowerCase().includes('l&t');
           const isFreshLnt = isLntBank && Array.isArray(parsed.interestRates) && parsed.interestRates.some(r => r.specialRate === 10.99);
+          const isPiramalBank = bank.id === 'piramal' || bank.name?.toLowerCase().includes('piramal');
+          const isFreshPiramal = isPiramalBank && Array.isArray(parsed.interestRates) && parsed.interestRates.some(r => r.minRoi === 11.99 && r.maxRoi === 28.00);
 
           const isValidRates = Array.isArray(parsed.interestRates) && parsed.interestRates.length > 0 && parsed.interestRates.every(r => r && typeof r === 'object');
           const isValidCapping = !parsed.loanCapping || (Array.isArray(parsed.loanCapping) && parsed.loanCapping.every(r => r && typeof r === 'object'));
 
-          if (hasMatchingCategories && (!isLntBank || isFreshLnt) && isValidRates && isValidCapping) {
+          if (hasMatchingCategories && (!isLntBank || isFreshLnt) && (!isPiramalBank || isFreshPiramal) && isValidRates && isValidCapping) {
             merged = { ...merged, ...parsed };
           } else {
             // Stale cache contains old categories or corrupted data - purge it so user sees pure Bank Policy Excel
@@ -1417,6 +1419,7 @@ const UnifiedBankPolicyManager = () => {
             const isChola = bankId === 'cholamandalam' || activeConfigBank?.name?.toLowerCase().includes('chola');
             const isAxisFin = bankId === 'axis-fin' || activeConfigBank?.name?.toLowerCase().includes('axis fin');
             const isLnt = bankId === 'lnt' || activeConfigBank?.name?.toLowerCase().includes('l&t') || activeConfigBank?.name?.toLowerCase().includes('lnt');
+            const isPiramal = bankId === 'piramal' || activeConfigBank?.name?.toLowerCase().includes('piramal');
             const isPoonawala = bankId === 'poonawala' || activeConfigBank?.name?.toLowerCase().includes('poonawala');
             const isIcici = bankId === 'icici' || activeConfigBank?.name?.toLowerCase().includes('icici');
             const isAbfl = bankId === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('birla') || activeConfigBank?.name?.toLowerCase().includes('abfl');
@@ -1469,6 +1472,9 @@ const UnifiedBankPolicyManager = () => {
                     {isLnt && (
                       <p>L&T Finance Master Policy Slabs: <strong>₹20L – ₹30L</strong> (11.50% – 12.50%), <strong>₹10L – ₹20L</strong> (14.00%), and <strong>&lt; ₹10L</strong> (13.00% – 15.00%). Special Rate: <strong>10.99%</strong> for Super A & A with Owned House, ₹1.75L+ Salary & 775+ CIBIL.</p>
                     )}
+                    {isPiramal && (
+                      <p>Piramal Finance Master Policy Slabs (from Excel: BANKS POLICYS.xlsx): <strong>11.99% to 28.00% p.a.</strong> across all categories (Super A, A, B, C, D, Govt) — <strong>AS PER VENTILE SCORE</strong>.</p>
+                    )}
                     {isPoonawala && (
                       <p>Poonawala Master Policy Slabs: <strong>≥ ₹35 Lakh</strong> (11.99%), <strong>₹20L – ₹35L</strong> (12.25%), and <strong>&lt; ₹20 Lakh</strong> (12.50% – 14.25%).</p>
                     )}
@@ -1490,7 +1496,7 @@ const UnifiedBankPolicyManager = () => {
                     {isAxis && (
                       <p>Axis Bank Master Policy Slabs: <strong>10L ABOVE CASES</strong> (Super A/A: 10.35%, B: 10.45%, C: 10.75%, Govt: 10.45%).</p>
                     )}
-                    {!isKotak && !isTata && !isBajaj && !isBandhan && !isChola && !isAxisFin && !isLnt && !isPoonawala && !isIcici && !isAbfl && !isSmfg && !isHdfc && !isIndusind && !isAxis && (
+                    {!isKotak && !isTata && !isBajaj && !isBandhan && !isChola && !isAxisFin && !isLnt && !isPiramal && !isPoonawala && !isIcici && !isAbfl && !isSmfg && !isHdfc && !isIndusind && !isAxis && (
                       <p>Define minimum ROI strictly according to employer category and loan amount brackets.</p>
                     )}
                   </div>
@@ -1601,7 +1607,15 @@ const UnifiedBankPolicyManager = () => {
                             <th>Net Sal &lt; ₹50k (% p.a.)</th>
                           </>
                         )}
-                        {!isHdfc && !isIndusind && !isAxis && !isKotak && !isTata && !isBajaj && !isBandhan && !isChola && !isAxisFin && !isLnt && !isPoonawala && !isIcici && !isAbfl && !isSmfg && (
+                        {isPiramal && (
+                          <>
+                            <th>Minimum ROI (% p.a.)</th>
+                            <th>Maximum ROI (% p.a.)</th>
+                            <th>Applied / Default ROI (% p.a.)</th>
+                            <th>Pricing Structure (Excel)</th>
+                          </>
+                        )}
+                        {!isHdfc && !isIndusind && !isAxis && !isKotak && !isTata && !isBajaj && !isBandhan && !isChola && !isAxisFin && !isLnt && !isPiramal && !isPoonawala && !isIcici && !isAbfl && !isSmfg && (
                           <>
                             <th>≥ ₹15 Lakh Loan ROI (% p.a.)</th>
                             <th>₹10L to &lt; ₹15L Loan ROI (% p.a.)</th>
@@ -2133,7 +2147,47 @@ const UnifiedBankPolicyManager = () => {
                             </>
                           )}
 
-                          {!isHdfc && !isIndusind && !isAxis && !isKotak && !isTata && !isBajaj && !isBandhan && !isChola && !isAxisFin && !isLnt && !isPoonawala && !isIcici && !isAbfl && !isSmfg && (
+                          {isPiramal && (
+                            <>
+                              <td>
+                                <div className="table-input-cell highlight">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.minRoi ?? 11.99}
+                                    onChange={(e) => updateRate(row.category, 'minRoi', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.maxRoi ?? 28.00}
+                                    onChange={(e) => updateRate(row.category, 'maxRoi', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.defaultRoi ?? 11.99}
+                                    onChange={(e) => updateRate(row.category, 'defaultRoi', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <span style={{ fontSize: '0.84rem', color: '#38bdf8', fontWeight: 600 }}>
+                                  AS PER VENTILE SCORE
+                                </span>
+                              </td>
+                            </>
+                          )}
+
+                          {!isHdfc && !isIndusind && !isAxis && !isKotak && !isTata && !isBajaj && !isBandhan && !isChola && !isAxisFin && !isLnt && !isPiramal && !isPoonawala && !isIcici && !isAbfl && !isSmfg && (
                             <>
                               <td>
                                 <div className="table-input-cell highlight">
@@ -2222,6 +2276,24 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               )}
 
+              {(activeConfigBank?.id === 'piramal' || activeConfigBank?.name?.toLowerCase().includes('piramal')) && (
+                <div style={{
+                  background: 'rgba(31, 78, 120, 0.12)',
+                  border: '1.5px solid rgba(56, 189, 248, 0.35)',
+                  borderRadius: '8px',
+                  padding: '10px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  color: '#93c5fd',
+                  fontSize: '0.88rem'
+                }}>
+                  <AlertTriangle size={18} />
+                  <span><strong>Piramal Finance Master Policy (from Excel: Sheet PIRAMAL):</strong> Super A & Category A maximum sanction is <strong>₹50 Lakhs</strong> (Requires ₹2 Lakhs monthly salary & 750+ CIBIL score). Govt Category is capped at <strong>₹30 Lakhs</strong>. Category B, C, and D are evaluated on a <strong>CASE TO CASE</strong> basis (Min loan: ₹1 Lakh across all).</span>
+                </div>
+              )}
+
               <div className="table-responsive">
                 <table className="policy-table">
                   <thead>
@@ -2296,6 +2368,7 @@ const UnifiedBankPolicyManager = () => {
                         <td>
                           <span className="tag-lakhs">
                             Up to ₹{(row.maxLoan / 100000).toFixed(1)} Lakhs
+                            {row.condition ? ` (${row.condition})` : ''}
                             {row.rentedCap ? ` (Rented: ₹${(row.rentedCap / 100000).toFixed(0)}L)` : ''}
                           </span>
                         </td>
@@ -2368,6 +2441,24 @@ const UnifiedBankPolicyManager = () => {
                 }}>
                   <CheckCircle2 size={18} />
                   <span><strong>L&T Finance Policy (from Bank Policy Excel: BANKS POLICYS.xlsx):</strong> Repayment tenure is flat <strong>12 to 72 Months (Up to 6 Years)</strong> across all categories (Super A, A, B, C, D, and Govt).</span>
+                </div>
+              )}
+
+              {(activeConfigBank?.id === 'piramal' || activeConfigBank?.name?.toLowerCase().includes('piramal')) && (
+                <div style={{
+                  background: 'rgba(31, 78, 120, 0.12)',
+                  border: '1.5px solid rgba(56, 189, 248, 0.35)',
+                  borderRadius: '8px',
+                  padding: '10px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  color: '#93c5fd',
+                  fontSize: '0.88rem'
+                }}>
+                  <CheckCircle2 size={18} />
+                  <span><strong>Piramal Finance Tenure Windows (from Excel: BANKS POLICYS.xlsx):</strong> Standard Personal Loan tenure is <strong>12 to 72 Months (Up to 6 Years)</strong> across all categories. <strong>OD Program:</strong> Max tenure extends to <strong>84 Months (7 Years)</strong>. For Super A & A with &gt;₹1 Lakh Net Monthly Salary under OD+, tenure extends up to <strong>96 Months (8 Years)</strong>!</span>
                 </div>
               )}
 
@@ -2874,6 +2965,84 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               )}
 
+              {(activeConfigBank?.id === 'piramal' || activeConfigBank?.name?.toLowerCase().includes('piramal')) && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(31, 78, 120, 0.18) 0%, rgba(14, 165, 233, 0.12) 100%)',
+                  border: '1.5px solid rgba(56, 189, 248, 0.4)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38bdf8', fontWeight: 700, fontSize: '0.95rem' }}>
+                    <CheckCircle2 size={18} />
+                    <span>Piramal Finance Ventile Band FOIR & Multiplier Matrix (from Excel: BANKS POLICYS.xlsx - Sheet: PIRAMAL)</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
+                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 FOIR Slabs by Ventile Band:</strong>
+                      <div style={{ marginTop: '5px' }}>• <strong>V13–V20 & V8–V12:</strong> Low: <strong>50%</strong> | Med: <strong>65%</strong> | High: <strong>70%</strong></div>
+                      <div style={{ marginTop: '3px' }}>• <strong>V6–V7:</strong> Low: <strong>40%</strong> | Med: <strong>55%</strong> | High: <strong>60%</strong></div>
+                      <div style={{ marginTop: '3px' }}>• <strong>NTC & V4–V5:</strong> Low: <strong>40%</strong> | Med: <strong>50%</strong> | High: <strong>50%–55%</strong></div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(249, 115, 22, 0.25)' }}>
+                      <strong style={{ color: '#fdba74', fontSize: '0.88rem' }}>📌 Salary Multipliers by Profile:</strong>
+                      <div style={{ marginTop: '5px' }}>• <strong>Elite / Cat A:</strong> Up to <strong>30x</strong> (V13–V20), 24x (V10–12), 15x (V8–V9)</div>
+                      <div style={{ marginTop: '3px' }}>• <strong>Cat B / C:</strong> Up to <strong>22x</strong> (V13–V20), 15x (V10–12), 10x (V8–V9)</div>
+                      <div style={{ marginTop: '3px' }}>• <strong>Govt (NMI ≥ ₹60k):</strong> <strong>20x</strong> | BT Govt: <strong>24x</strong></div>
+                      <div style={{ marginTop: '3px', color: '#86efac' }}>• <strong>CC BT Policy:</strong> <strong>2 Credit Cards BT Allowed with 1 Personal Loan BT</strong></div>
+                    </div>
+                  </div>
+
+                  <div style={{ marginTop: '6px' }}>
+                    <div style={{ color: '#93c5fd', fontSize: '0.86rem', marginBottom: '6px', fontWeight: 600 }}>Master Ventile Matrix Table (Excel Sheet: PIRAMAL)</div>
+                    <div className="table-responsive">
+                      <table className="policy-table" style={{ fontSize: '0.80rem' }}>
+                        <thead>
+                          <tr>
+                            <th>Ventile Band</th>
+                            <th>Low FOIR</th>
+                            <th>Medium FOIR</th>
+                            <th>High FOIR</th>
+                            <th>Elite / Cat A Mult</th>
+                            <th>Cat B/C Mult</th>
+                            <th>Govt (≥ 60K)</th>
+                            <th>Govt (&lt; 60K)</th>
+                            <th>BT Govt (≥ 60K)</th>
+                            <th>Others</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {[
+                            { band: 'NTC', low: '40%', med: '50%', high: '50%', elite: '7.5x', bc: '6x', gHigh: '5x', gLow: '5x', btG: '5x', oth: '5x' },
+                            { band: 'V4-V5', low: '40%', med: '50%', high: '55%', elite: '7.5x', bc: '6x', gHigh: '5x', gLow: '5x', btG: '5x', oth: '5x' },
+                            { band: 'V6-V7', low: '40%', med: '55%', high: '60%', elite: '9x', bc: '7.5x', gHigh: '6x', gLow: '6x', btG: '7x', oth: '6x' },
+                            { band: 'V8-V9', low: '50%', med: '65%', high: '70%', elite: '15x', bc: '10x', gHigh: '8x', gLow: '8x', btG: '10x', oth: '8x' },
+                            { band: 'V10-12', low: '50%', med: '65%', high: '70%', elite: '24x', bc: '15x', gHigh: '15x', gLow: '12x', btG: '18x', oth: '12x' },
+                            { band: 'V13-V20', low: '50%', med: '65%', high: '70%', elite: '30x', bc: '22x', gHigh: '20x', gLow: '15x', btG: '24x', oth: '18x' }
+                          ].map((vb, vidx) => (
+                            <tr key={vidx}>
+                              <td><strong style={{ color: '#38bdf8' }}>{vb.band}</strong></td>
+                              <td>{vb.low}</td>
+                              <td>{vb.med}</td>
+                              <td><strong style={{ color: '#4ade80' }}>{vb.high}</strong></td>
+                              <td><span style={{ color: '#f59e0b', fontWeight: 700 }}>{vb.elite}</span></td>
+                              <td>{vb.bc}</td>
+                              <td>{vb.gHigh}</td>
+                              <td>{vb.gLow}</td>
+                              <td>{vb.btG}</td>
+                              <td>{vb.oth}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {activeConfigBank?.id === 'poonawala' && (
                 <div style={{
                   background: 'linear-gradient(135deg, rgba(0, 85, 150, 0.15) 0%, rgba(16, 185, 129, 0.12) 100%)',
@@ -2951,6 +3120,14 @@ const UnifiedBankPolicyManager = () => {
                           <th style={{ color: '#38bdf8' }}>₹50K – ₹1L (FOIR / Mult)</th>
                           <th style={{ color: '#38bdf8' }}>₹1L – ₹2L (FOIR / Mult)</th>
                           <th style={{ color: '#38bdf8' }}>≥ ₹2 Lakhs (FOIR / Mult)</th>
+                          <th>Credit Card Obligation</th>
+                        </>
+                      ) : (activeConfigBank?.id === 'piramal' || activeConfigBank?.name?.toLowerCase().includes('piramal')) ? (
+                        <>
+                          <th style={{ color: '#38bdf8' }}>Low FOIR %</th>
+                          <th style={{ color: '#38bdf8' }}>Medium FOIR %</th>
+                          <th style={{ color: '#38bdf8' }}>High FOIR % (Max)</th>
+                          <th style={{ color: '#38bdf8' }}>Profile Multiplier</th>
                           <th>Credit Card Obligation</th>
                         </>
                       ) : (
@@ -3116,6 +3293,84 @@ const UnifiedBankPolicyManager = () => {
                                   }}
                                 />
                                 <span>% (BT Not Allowed)</span>
+                              </div>
+                            </td>
+                          </>
+                        ) : (activeConfigBank?.id === 'piramal' || activeConfigBank?.name?.toLowerCase().includes('piramal')) ? (
+                          <>
+                            <td>
+                              <div className="table-input-cell">
+                                <input 
+                                  type="number"
+                                  value={row.slab1Foir ?? 40}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...policyData.foirMultiplier];
+                                    updated[idx].slab1Foir = val;
+                                    setPolicyData({ ...policyData, foirMultiplier: updated });
+                                  }}
+                                />
+                                <span>%</span>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="table-input-cell">
+                                <input 
+                                  type="number"
+                                  value={row.slab2Foir ?? 50}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...policyData.foirMultiplier];
+                                    updated[idx].slab2Foir = val;
+                                    setPolicyData({ ...policyData, foirMultiplier: updated });
+                                  }}
+                                />
+                                <span>%</span>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="table-input-cell highlight">
+                                <input 
+                                  type="number"
+                                  value={row.maxFoir ?? 70}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...policyData.foirMultiplier];
+                                    updated[idx].maxFoir = val;
+                                    setPolicyData({ ...policyData, foirMultiplier: updated });
+                                  }}
+                                />
+                                <span>%</span>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="table-input-cell highlight">
+                                <input 
+                                  type="number"
+                                  value={row.multiplier ?? 24}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...policyData.foirMultiplier];
+                                    updated[idx].multiplier = val;
+                                    setPolicyData({ ...policyData, foirMultiplier: updated });
+                                  }}
+                                />
+                                <span>x Salary</span>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="table-input-cell">
+                                <input 
+                                  type="number"
+                                  value={row.ccObligation ?? 5}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...policyData.foirMultiplier];
+                                    updated[idx].ccObligation = val;
+                                    setPolicyData({ ...policyData, foirMultiplier: updated });
+                                  }}
+                                />
+                                <span>% (2 CC BT w/ 1 PL)</span>
                               </div>
                             </td>
                           </>
@@ -3338,6 +3593,39 @@ const UnifiedBankPolicyManager = () => {
                       <div style={{ marginTop: '3px', color: '#f87171' }}>• Minimum CIBIL Score: <strong>720+ Strictly Required</strong> (`CIBIL 720PLUS`)</div>
                       <div style={{ marginTop: '3px', color: '#fca5a5' }}>• Credit Card BT: <strong>Strictly NOT ALLOWED</strong> (`CC BT NOT ALLOW`)</div>
                       <div style={{ marginTop: '3px', color: '#38bdf8' }}>• Credit Card Obligation: <strong>5%</strong> (`0.05`)</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {(activeConfigBank?.id === 'piramal' || activeConfigBank?.name?.toLowerCase().includes('piramal')) && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(31, 78, 120, 0.15) 0%, rgba(14, 165, 233, 0.12) 100%)',
+                  border: '1.5px solid rgba(56, 189, 248, 0.35)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38bdf8', fontWeight: 700, fontSize: '0.95rem' }}>
+                    <CheckCircle2 size={18} />
+                    <span>Piramal Finance Demographics & Eligibility Criteria (from Master Excel: Sheet PIRAMAL)</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
+                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 Age & Experience Requirements:</strong>
+                      <div style={{ marginTop: '5px' }}>• Min Applicant Age: <strong>21 Years</strong> (`21 YEARS`)</div>
+                      <div style={{ marginTop: '3px' }}>• Max Age at Loan Time: <strong>63 Years</strong> (`63 YEARS`)</div>
+                      <div style={{ marginTop: '3px' }}>• Retirement Age: <strong>60 Years (Salaried) / 63 Years (Govt)</strong> (`60 YEARS AND GOVT 63`)</div>
+                      <div style={{ marginTop: '3px', color: '#86efac' }}>• Work Experience: <strong>1 Year</strong> (`MINI WORK EXPRINCE: 1 YEARS`)</div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(249, 115, 22, 0.25)' }}>
+                      <strong style={{ color: '#fdba74', fontSize: '0.88rem' }}>📌 Financial & Credit Criteria:</strong>
+                      <div style={{ marginTop: '5px' }}>• Minimum Net Monthly Salary: <strong>₹22,000 + Mandatory PF Deduction</strong> (`22+PF DEDUCT REQ`)</div>
+                      <div style={{ marginTop: '3px', color: '#38bdf8' }}>• Credit Card Obligation: <strong>5% of Total CC Limit</strong> (`0.05`)</div>
+                      <div style={{ marginTop: '3px', color: '#86efac' }}>• Balance Transfer (BT): <strong>2 CC BT Allowed with 1 PL BT</strong> (`2 CC BT ALLOW WITH 1 PL BT`)</div>
                     </div>
                   </div>
                 </div>

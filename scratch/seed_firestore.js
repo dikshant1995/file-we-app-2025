@@ -104,6 +104,15 @@ const defaultConfigs = {
     multiplierRules: { categoryBasedMultiplier: { 'Super A': 24, 'A': 24, 'B': 24, 'C': 20, 'D': 16, 'Govt': 24 } },
     creditScoreRules: { minCreditScore: 720, recommendedScore: 750, premiumScore: 775, autoRejectionThreshold: 720 },
     demographics: { minAge: 21, maxAge: 60, retirementAge: 60, minSalary: 25000, minWorkExperience: 6, ccObligation: 5, allowCcBt: false }
+  },
+  'Piramal Finance': {
+    interestRates: { defaultRate: 11.99, minRoi: 11.99, maxRoi: 28.00, categoryRates: { 'Super A': 11.99, 'A': 11.99, 'B': 12.99, 'C': 13.99, 'D': 14.99, 'Govt': 11.99 } },
+    loanCapping: { absoluteMaxLoan: 5000000, minLoanAmount: 100000, bachelorCap: null },
+    tenureRules: { minTenureMonths: 12, maxTenureMonths: 72, maxTenureOdMonths: 84, maxTenureHighIncomeOdMonths: 96 },
+    foirSettings: { categoryBasedFOIR: { 'Super A': 70, 'A': 70, 'B': 65, 'C': 60, 'D': 55, 'Govt': 70 } },
+    multiplierRules: { categoryBasedMultiplier: { 'Super A': 30, 'A': 24, 'B': 22, 'C': 18, 'D': 15, 'Govt': 24 } },
+    creditScoreRules: { minCreditScore: 680, recommendedScore: 750, premiumScore: 750 },
+    demographics: { minAge: 21, maxAge: 63, retirementAge: 60, retirementAgeGovt: 63, minSalary: 22000, pfMandatory: true, minWorkExperience: 12, ccObligation: 5, allowCcBt: true, ccBtAllowedCount: 2 }
   }
 };
 

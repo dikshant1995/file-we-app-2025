@@ -1,28 +1,32 @@
 // Piramal Finance Configuration
-// FOIR-Only System (No Multiplier)
-// Ultra-simple: Two NTH bands, No category distinction
+// Configured strictly according to Master Excel Policy (BANKS POLICYS.xlsx - Sheet: PIRAMAL)
 export const piramalConfig = {
   id: 'piramal',
   name: 'Piramal Finance',
-  minAge: 22, // Minimum age requirement
-  maxAge: 63, // Maximum age at loan maturity (Highest among all banks)
+  minAge: 21, // Minimum age requirement (Excel: 21 YEARS)
+  maxAge: 63, // Maximum age at loan maturity (Excel: 63 YEARS)
+  retirementAgeSalaried: 60, // Excel: 60 YEARS
+  retirementAgeGovt: 63, // Excel: GOVT 63
   minCreditScore: 680,
-  maxLoanTenure: 30,
-  maxLoanAmount: 1200000, // ₹12 Lakhs (Lower-Cap Lender - Lowest)
-  bachelorMaxLoanAmount: 1200000, // ₹12 Lakhs maximum for unmarried individuals (same as overall cap - most conservative)
-  interestRate: 11.0, // Fixed at 11% for all banks as per policy
+  maxLoanTenure: 72, // 72 Months standard (Excel: 72M, OD: 84M, OD+ >1L Sal: 96M)
+  maxLoanAmount: 5000000, // ₹50 Lakhs (Super A & A with 2L salary, 750+ CIBIL)
+  bachelorMaxLoanAmount: 5000000,
+  interestRate: 11.99, // Excel: 11.99% to 28% AS PER VENTILE SCORE
   processingFee: 0.0075,
 
   // Incentive policy
   incentivePercentage: 1.0, // 100% of average incentive
   incentivePeriodMonths: 3, // Last 3 months
 
-  // Ultra-simple FOIR table based ONLY on NTH (Net Take-Home) salary
-  // Only TWO bands - simplest among all banks!
+  // Universal minimum NTH salary (Excel: 22+PF DEDUCT REQ)
+  minNTH: 22000,
+  pfDeductionRequired: true,
+
+  // FOIR table based on NTH (Net Take-Home) salary
   nthFoirTable: {
-    '20000-35000': {
+    '22000-35000': {
       foir: 0.65,
-      description: 'Entry to Mid-range NTH (₹20K-35K)'
+      description: 'Entry to Mid-range NTH (₹22K-35K)'
     },
     '35001+': {
       foir: 0.70,
@@ -30,52 +34,58 @@ export const piramalConfig = {
     }
   },
 
-
-  // Universal minimum NTH salary (lowest among all banks!)
-  minNTH: 20000,
-
-  // No category-specific minimums - everyone treated equally
   minNTHByCategory: {
-    'ALL': 20000  // Universal for everyone
+    'SUPER A': 22000,
+    'A': 22000,
+    'B': 22000,
+    'C': 22000,
+    'D': 22000,
+    'GOVT': 22000,
+    'ALL': 22000
   },
 
-  // Maximum tenure by category (in months)
+  // Maximum tenure by category (in months) (Excel: Standard 72M, OD 84M, OD+ >1L 96M)
   maxTenureByCategory: {
-    'A': 60,        // 5 years - CAT A
-    'GOVT': 60,     // 5 years - CAT GOVT
-    'B': 60,        // 5 years - CAT B
-    'C': 60,        // 5 years - CAT C
-    'D': 60,        // 5 years - CAT D
-    'UNLISTED': 60  // 5 years - UNLISTED
+    'SUPER A': 72,
+    'A': 72,
+    'GOVT': 72,
+    'B': 72,
+    'C': 72,
+    'D': 72,
+    'UNLISTED': 72
   },
 
-  // Note: Piramal doesn't use traditional categories (A/B/C/D/UNLISTED)
-  // for minimum salary or FOIR calculations
   categories: {
-    'ALL': { description: 'All applicants (no category distinction)' }
+    'SUPER A': { description: 'Super A corporate profile' },
+    'A': { description: 'Category A corporate profile' },
+    'B': { description: 'Category B corporate profile' },
+    'C': { description: 'Category C corporate profile' },
+    'D': { description: 'Category D corporate profile' },
+    'GOVT': { description: 'Government & Public Sector' },
+    'ALL': { description: 'All applicants' }
   },
 
   employmentTypes: ['salaried', 'self-employed', 'all'],
-  specialPrograms: ['accessible-lending', 'income-focused', 'simplified-approval'],
+  specialPrograms: ['accessible-lending', 'income-focused', 'simplified-approval', 'od-program-96m'],
 
-  // Calculation method
   calculationMethod: 'FOIR-Only',
-  approach: 'Ultra-Simple NTH-Based (2 bands only)',
+  approach: 'Ventile Score & NTH-Based Matrix',
   keyFeatures: [
-    'Lowest minimum NTH: ₹20,000 (most accessible)',
-    'Only TWO NTH bands (simplest system)',
-    'No category distinction for FOIR',
-    'Generous FOIR: 65% and 70%',
-    'Uses Net Take-Home (NTH) instead of gross',
-    'Quick, clear decision-making process',
-    'Focus on income, not employer category'
+    'Minimum NTH: ₹22,000 + Mandatory PF Deduction (Excel: 22+PF DEDUCT REQ)',
+    'Applicant Age: 21 to 63 Years (Govt Retirement: 63 Years)',
+    'ROI: 11.99% to 28.00% as per Ventile Score',
+    'Standard Tenure: 12 to 72 Months (OD: 84 Months, OD+ >1L Sal: 96 Months)',
+    'Max Loan: ₹50L (Cat A/Super A), ₹30L (Govt), Case to Case (B/C/D)',
+    'Balance Transfer: 2 Credit Cards BT allowed with 1 Personal Loan BT'
   ],
 
-  // Balance Transfer (BT) Configuration
+  // Balance Transfer (BT) Configuration (Excel: 2 CC BT ALLOW WITH 1 PL BT)
   btConfig: {
-    isAvailable: true, // BT facility is available
-    maxLoansForBT: 5, // Maximum number of existing personal loans that can be consolidated
-    acceptsFintechLoans: false, // Does NOT accept BT for Fintech/digital platform loans
-    description: 'Piramal Finance allows balance transfer for up to 5 existing personal loans (excluding Fintech loans)'
+    isAvailable: true,
+    maxLoansForBT: 5,
+    maxCreditCardsForBT: 2,
+    requirePersonalLoanWithCcBt: true,
+    acceptsFintechLoans: false,
+    description: 'Piramal Finance allows BT for up to 2 Credit Cards when consolidated with 1 Personal Loan BT'
   }
 };
