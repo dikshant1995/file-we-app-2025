@@ -1,20 +1,5 @@
 import { bandhanConfig } from './config.js';
 
-// Helper function to get interest rate based on category and loan amount
-const getInterestRateForLoan = (category, loanAmount) => {
-  const catUpper = String(category || 'B').toUpperCase().trim();
-  if (catUpper === 'SUPER A' || catUpper === 'AA' || catUpper === 'A' || catUpper === 'GOVT') {
-    return 10.50;
-  } else if (catUpper === 'B') {
-    return 11.25;
-  } else if (catUpper === 'C') {
-    return 12.25;
-  } else if (catUpper === 'D') {
-    return 13.25;
-  }
-  return 10.50;
-};
-
 // Function to calculate EMI using standard amortization formula
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
   if (!principal || principal <= 0) return 0;
@@ -49,15 +34,43 @@ const calculateLoanAmountFromEMI = (emi, annualInterestRate, tenureInYears) => {
 };
 
 // Function to get FOIR percentage based on net monthly salary (Excel Sheet: BANDHAN BANK - Section 2)
-const getFoirPercentage = (salary) => {
+export const getBandhanFoir = (salary) => {
   if (salary > 75000) return 0.70;
   if (salary >= 50001) return 0.65;
   if (salary >= 30001) return 0.60;
   return 0.50;
 };
 
+// Function to get ROI based on Location, Category, Salary Slab, and CIBIL / QC Score (Excel Section 5)
+export const getBandhanROI = (category, monthlyIncome, cibilScore = 750, location = 'Metro') => {
+  const isNonMetro = location && String(location).toLowerCase().includes('non');
+  const locKey = isNonMetro ? 'NonMetro' : 'Metro';
+
+  const catUpper = String(category || 'B').toUpperCase().trim();
+  let catKey = 'B';
+  if (catUpper.includes('SUPER') || catUpper === 'A' || catUpper === 'GOVT') catKey = 'A';
+  else if (catUpper === 'C') catKey = 'C';
+  else if (catUpper === 'D') catKey = 'D';
+
+  let incomeKey = '<25000';
+  if (monthlyIncome > 50000) incomeKey = '>50000';
+  else if (monthlyIncome >= 25000) incomeKey = '25000-50000';
+
+  const cibil = Number(cibilScore) || 750;
+  let cibilKey = 'cibilGt750';
+  if (cibil >= 750) cibilKey = 'cibilGt750';
+  else if (cibil >= 700) cibilKey = 'cibil700to749';
+  else cibilKey = 'cibil650to699';
+
+  const locMatrix = bandhanConfig.roiMatrix?.[locKey] || bandhanConfig.roiMatrix?.Metro;
+  const catMatrix = locMatrix?.[catKey] || locMatrix?.A;
+  const rateRow = catMatrix?.[incomeKey] || catMatrix?.['>50000'];
+
+  return rateRow?.[cibilKey] || bandhanConfig.interestRate;
+};
+
 // Function to get multiplier based on category, income, and tenure (Excel Sheet: BANDHAN BANK - Section 6)
-const getBandhanMultiplier = (category, salary, tenureMonths = 60) => {
+export const getBandhanMultiplier = (category, salary, tenureMonths = 60) => {
   const catUpper = String(category || 'B').toUpperCase().trim();
   let matrixKey = 'AB_GOVT';
   if (catUpper === 'C') matrixKey = 'C';
@@ -76,7 +89,15 @@ const getBandhanMultiplier = (category, salary, tenureMonths = 60) => {
   else tenureBucket = 60;
 
   const row = bandhanConfig.multiplierMatrix[matrixKey]?.[incomeKey];
-  return row ? (row[tenureBucket] || row[60] || 20) : 20;
+  if (!row) return 20;
+
+  // Handle NA tenure cases (e.g. Cat D at 60M or Cat C <=50k at 60M)
+  if (row[tenureBucket] !== null && row[tenureBucket] !== undefined) {
+    return row[tenureBucket];
+  }
+
+  // Fallback to highest permissible tenure bucket for that category
+  return row[48] || row[36] || 18;
 };
 
 // Bandhan Bank specific eligibility calculation
@@ -110,7 +131,6 @@ export const calculateBandhanEligibility = (userData) => {
     isBTMode,
     loansForBT,
     btTotalEMI,
-    btTotalOutstanding,
     // Incentive Overrides
     incentivePercentageOverride
   } = userData;
@@ -205,9 +225,20 @@ export const calculateBandhanEligibility = (userData) => {
     };
   }
 
-  // Tenure handling (flat 60 Months cap across all categories)
-  const cappedTenureMonths = isGovtEmployee && govtMaxTenure ? govtMaxTenure : 60;
-  const cappedTenureYears = cappedTenureMonths / 12;
+  // Tenure handling (Section 3 & Section 6: Cat D is strictly max 48M; Cat C with <=50k is max 48M; others 60M)
+  let maxPermissibleTenure = 60;
+  if (catUpper === 'D') {
+    maxPermissibleTenure = 48; // Section 6: 49-60m is NA for Cat D
+  } else if (catUpper === 'C' && incomeToCheck <= 50000) {
+    maxPermissibleTenure = 48; // Section 6: 49-60m is NA for Cat C <= 50k
+  }
+
+  const requestedTenureMonths = loanTenure ? (loanTenure * 12) : 60;
+  let effectiveTenureMonths = Math.min(requestedTenureMonths, maxPermissibleTenure);
+  if (isGovtEmployee && govtMaxTenure) {
+    effectiveTenureMonths = Math.min(effectiveTenureMonths, govtMaxTenure);
+  }
+  const effectiveTenureYears = effectiveTenureMonths / 12;
 
   // Credit Card Obligation: Excel Policy (3% of limit, BUT if total limit < 3x salary -> 0% obligation)
   let effectiveCcObligation = creditCardObligation || 0;
@@ -223,7 +254,7 @@ export const calculateBandhanEligibility = (userData) => {
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncomeForCalc;
   const foirPercentage = foirOverride 
     ? (foirOverride / 100) 
-    : (isGovtEmployee && govtFOIR ? (govtFOIR / 100) : getFoirPercentage(incomeForCalculation));
+    : (isGovtEmployee && govtFOIR ? (govtFOIR / 100) : getBandhanFoir(incomeForCalculation));
 
   const totalObligations = (existingEMI || 0) + effectiveCcObligation;
   const foirCap = isBT ? (adjustedIncome * foirPercentage) : (monthlyIncomeForCalc * foirPercentage);
@@ -237,36 +268,29 @@ export const calculateBandhanEligibility = (userData) => {
     };
   }
 
-  // Multiplier method
-  const multiplier = multiplierOverride || (isGovtEmployee && govtMultiplier ? govtMultiplier : getBandhanMultiplier(companyCategory, incomeForCalculation, cappedTenureMonths));
+  // Section 6: Multiplier method
+  const multiplier = multiplierOverride || (isGovtEmployee && govtMultiplier ? govtMultiplier : getBandhanMultiplier(companyCategory, incomeForCalculation, effectiveTenureMonths));
   const availableSalary = isBT ? incomeForCalculation : Math.max(0, monthlyIncomeForCalc - totalObligations);
   const multiplierLoanAmount = availableSalary * multiplier;
 
-  // PASS 1: Preliminary Loan Amount
-  const baseRate = bandhanConfig.interestRate;
-  const preliminaryFoirLoanAmount = calculateLoanAmountFromEMI(availableEMI, baseRate, cappedTenureYears);
-  const bankMaxLoanCap = maxLoanOverride || bandhanConfig.maxLoanAmount; // ₹25 Lakhs flat
-
-  const preliminaryMaxLoanAmount = Math.min(
-    desiredLoanAmount || Infinity,
-    multiplierLoanAmount,
-    preliminaryFoirLoanAmount
-  );
-  const preliminaryLoanAmount = Math.min(preliminaryMaxLoanAmount, bankMaxLoanCap);
-
-  // PASS 2: Effective Interest Rate
+  // Section 5: Interest Rate Resolution
   let finalInterestRate = interestRateOverride || interestRate;
   if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
-  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(companyCategory, preliminaryLoanAmount);
+  if (!finalInterestRate) {
+    finalInterestRate = getBandhanROI(companyCategory, incomeForCalculation, creditScore, userData.city || userData.location);
+  }
 
-  const foirLoanAmount = calculateLoanAmountFromEMI(availableEMI, finalInterestRate, cappedTenureYears);
+  // FOIR Loan Calculation
+  const foirLoanAmount = calculateLoanAmountFromEMI(availableEMI, finalInterestRate, effectiveTenureYears);
+  const bankMaxLoanCap = maxLoanOverride || bandhanConfig.maxLoanAmount; // ₹25 Lakhs flat (Excel Section 4)
+
   const calculatedLoanAmount = Math.min(
     desiredLoanAmount || Infinity,
     multiplierLoanAmount,
     foirLoanAmount
   );
   const finalLoanAmount = Math.min(calculatedLoanAmount, bankMaxLoanCap);
-  const emi = calculateEMI(finalLoanAmount, finalInterestRate, cappedTenureYears);
+  const emi = calculateEMI(finalLoanAmount, finalInterestRate, effectiveTenureYears);
 
   // Check minimum loan threshold (₹1 Lakh)
   if (finalLoanAmount < bandhanConfig.minLoanAmount) {
@@ -282,8 +306,8 @@ export const calculateBandhanEligibility = (userData) => {
     maxLoanAmount: Math.round(finalLoanAmount),
     calculatedLoanAmount: Math.round(finalLoanAmount),
     interestRate: Number(finalInterestRate),
-    tenure: cappedTenureYears,
-    tenureMonths: cappedTenureMonths,
+    tenure: effectiveTenureYears,
+    tenureMonths: effectiveTenureMonths,
     emi: Math.round(emi),
     foir: Number((foirPercentage * 100).toFixed(1)),
     multiplier: multiplier,
@@ -295,7 +319,8 @@ export const calculateBandhanEligibility = (userData) => {
       foirLoanAmount: Math.round(foirLoanAmount),
       availableEMI: Math.round(availableEMI),
       zeroCcObligationApplied: totalCreditCardLimit > 0 && totalCreditCardLimit < (monthlyIncomeForCalc * 3),
-      maxCapApplied: finalLoanAmount >= bankMaxLoanCap
+      maxCapApplied: finalLoanAmount >= bankMaxLoanCap,
+      tenureCappedForProfile: effectiveTenureMonths < requestedTenureMonths
     }
   };
 };

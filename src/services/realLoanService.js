@@ -964,6 +964,30 @@ const matchCategory = (cat1, cat2) => {
               } else {
                 dynamicRoi = matchedRate.roiAbove5L || matchedRate.defaultRoi || 15.00;
               }
+            } else if (name.toLowerCase().includes('bandhan') || id === 'bandhan') {
+              // Bandhan Bank (Sheet: BANDHAN BANK - Section 5)
+              // Rates determined by Category, Monthly Income (>50k, 25k-50k, <25k), and CIBIL (>750, 700-749, 650-699)
+              const income = calculatorInput.monthlyIncome || calculatorInput.basicSalary || 0;
+              const cibil = Number(calculatorInput.creditScore) || 750;
+              const is750Plus = cibil >= 750;
+              const is700Plus = cibil >= 700 && cibil < 750;
+
+              if (income > 50000) {
+                if (is750Plus && matchedRate.roiAbove50k_750) dynamicRoi = matchedRate.roiAbove50k_750;
+                else if (is700Plus && matchedRate.roiAbove50k_700) dynamicRoi = matchedRate.roiAbove50k_700;
+                else if (matchedRate.roiAbove50k_650) dynamicRoi = matchedRate.roiAbove50k_650;
+                else dynamicRoi = matchedRate.minRoi || 12.15;
+              } else if (income >= 25000) {
+                if (is750Plus && matchedRate.roi25kTo50k_750) dynamicRoi = matchedRate.roi25kTo50k_750;
+                else if (is700Plus && matchedRate.roi25kTo50k_700) dynamicRoi = matchedRate.roi25kTo50k_700;
+                else if (matchedRate.roi25kTo50k_650) dynamicRoi = matchedRate.roi25kTo50k_650;
+                else dynamicRoi = matchedRate.defaultRoi || 13.49;
+              } else {
+                if (is750Plus && matchedRate.roiBelow25k_750) dynamicRoi = matchedRate.roiBelow25k_750;
+                else if (is700Plus && matchedRate.roiBelow25k_700) dynamicRoi = matchedRate.roiBelow25k_700;
+                else if (matchedRate.roiBelow25k_650) dynamicRoi = matchedRate.roiBelow25k_650;
+                else dynamicRoi = matchedRate.maxRoi || 15.49;
+              }
             } else if (reqAmount && reqAmount > 0) {
               if (reqAmount >= 5000000 && matchedRate.roiAbove50L) {
                 dynamicRoi = matchedRate.roiAbove50L;
@@ -1119,7 +1143,7 @@ const matchCategory = (cat1, cat2) => {
               if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
             } else if (name.toLowerCase().includes('bandhan') || id === 'bandhan') {
               // Bandhan Bank Excel Policy (Sheet: BANDHAN BANK)
-              // FOIR Slabs: <=30k: 50%, 30k-50k: 60%, 50k-75k: 65%, >75k: 70%
+              // Section 2: FOIR Slabs: <=30k: 50%, 30k-50k: 60%, 50k-75k: 65%, >75k: 70%
               let bFoir = 50;
               if (income >= 75001) bFoir = 70;
               else if (income >= 50001) bFoir = 65;
@@ -1127,25 +1151,48 @@ const matchCategory = (cat1, cat2) => {
               else bFoir = 50;
               bankInput.foirOverride = bFoir;
 
-              // Multiplier from Section 6
+              // Section 6: Multiplier from Tenure and Income Matrix
               const catUpper = String(bankCategory || '').toUpperCase();
+              const reqTenureMonths = calculatorInput.loanTenure ? (calculatorInput.loanTenure * 12) : 60;
+              let tenureBucket = 60;
+              if (reqTenureMonths <= 12) tenureBucket = 12;
+              else if (reqTenureMonths <= 24) tenureBucket = 24;
+              else if (reqTenureMonths <= 36) tenureBucket = 36;
+              else if (reqTenureMonths <= 48) tenureBucket = 48;
+              else tenureBucket = 60;
+
               let bMult = 20;
               if (catUpper === 'C') {
-                if (income > 75000) bMult = 22;
-                else if (income >= 50001) bMult = 18;
-                else if (income >= 30001) bMult = 14;
-                else bMult = 12;
+                if (income > 75000) {
+                  bMult = tenureBucket === 12 ? 9 : (tenureBucket === 24 ? 11 : (tenureBucket === 36 ? 17 : (tenureBucket === 48 ? 18 : 22)));
+                } else if (income >= 50001) {
+                  bMult = tenureBucket === 12 ? 7 : (tenureBucket === 24 ? 10 : (tenureBucket === 36 ? 16 : (tenureBucket === 48 ? 17 : 18)));
+                } else if (income >= 30001) {
+                  bMult = tenureBucket === 12 ? 7 : (tenureBucket === 24 ? 9 : (tenureBucket === 36 ? 12 : 14)); // 60M is NA
+                } else {
+                  bMult = tenureBucket === 12 ? 5 : (tenureBucket === 24 ? 7 : (tenureBucket === 36 ? 10 : 12)); // 60M is NA
+                }
               } else if (catUpper === 'D') {
-                if (income > 75000) bMult = 18;
-                else if (income >= 50001) bMult = 17;
-                else if (income >= 30001) bMult = 14;
-                else bMult = 12;
+                if (income > 75000) {
+                  bMult = tenureBucket === 12 ? 9 : (tenureBucket === 24 ? 11 : (tenureBucket === 36 ? 17 : 18)); // 60M is NA (Max 48M)
+                } else if (income >= 50001) {
+                  bMult = tenureBucket === 12 ? 7 : (tenureBucket === 24 ? 10 : (tenureBucket === 36 ? 16 : 17)); // 60M is NA (Max 48M)
+                } else if (income >= 30001) {
+                  bMult = tenureBucket === 12 ? 7 : (tenureBucket === 24 ? 9 : (tenureBucket === 36 ? 12 : 14)); // 60M is NA (Max 48M)
+                } else {
+                  bMult = tenureBucket === 12 ? 5 : (tenureBucket === 24 ? 7 : (tenureBucket === 36 ? 10 : 12)); // 60M is NA (Max 48M)
+                }
               } else {
                 // Super A, A, B, Govt
-                if (income > 75000) bMult = 25;
-                else if (income >= 50001) bMult = 24;
-                else if (income >= 30001) bMult = 22;
-                else bMult = 20;
+                if (income > 75000) {
+                  bMult = tenureBucket === 12 ? 9 : (tenureBucket === 24 ? 14 : (tenureBucket === 36 ? 18 : (tenureBucket === 48 ? 23 : 25)));
+                } else if (income >= 50001) {
+                  bMult = tenureBucket === 12 ? 8 : (tenureBucket === 24 ? 13 : (tenureBucket === 36 ? 16 : (tenureBucket === 48 ? 22 : 24)));
+                } else if (income >= 30001) {
+                  bMult = tenureBucket === 12 ? 7 : (tenureBucket === 24 ? 13 : (tenureBucket === 36 ? 15 : (tenureBucket === 48 ? 21 : 22)));
+                } else {
+                  bMult = tenureBucket === 12 ? 6 : (tenureBucket === 24 ? 10 : (tenureBucket === 36 ? 14 : (tenureBucket === 48 ? 17 : 20)));
+                }
               }
               bankInput.multiplierOverride = matchedFoir.multiplier || bMult;
 

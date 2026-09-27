@@ -592,7 +592,9 @@ const UnifiedBankPolicyManager = () => {
           const isBandhanBank = bank.id === 'bandhan' || bank.name?.toLowerCase().includes('bandhan');
           const isFreshBandhan = isBandhanBank &&
             parsed.demographics?.minSalaryCatD === 40000 &&
-            parsed.demographics?.ccObligationPercent === 3;
+            parsed.demographics?.ccObligationPercent === 3 &&
+            Array.isArray(parsed.interestRates) &&
+            parsed.interestRates.some(r => r.roiAbove50k_750 !== undefined);
 
           const isValidRates = Array.isArray(parsed.interestRates) && parsed.interestRates.length > 0 && parsed.interestRates.every(r => r && typeof r === 'object');
           const isValidCapping = !parsed.loanCapping || (Array.isArray(parsed.loanCapping) && parsed.loanCapping.every(r => r && typeof r === 'object'));
@@ -1488,7 +1490,7 @@ const UnifiedBankPolicyManager = () => {
                       <p>Bajaj Finance Master Policy Slabs: <strong>≥ ₹10 Lakh</strong> (10.00% Cat A/B), <strong>₹1L – ₹12L Sal Lite</strong> (16.00%), and <strong>Default ROI</strong> (14.00%).</p>
                     )}
                     {isBandhan && (
-                      <p>Bandhan Bank Master Policy (Sheet: BANDHAN BANK): Base ROI is <strong>10.50%</strong> (Cat A &amp; Govt), <strong>11.25%</strong> (Cat B), <strong>12.25%</strong> (Cat C), and <strong>13.25%</strong> (Cat D). Max sanction limit: ₹25 Lakhs flat.</p>
+                      <p>Bandhan Bank Master Policy (Sheet: BANDHAN BANK - Section 5): Slabs structured by <strong>Net Monthly Income (&gt; ₹50k, ₹25k – ₹50k, &lt; ₹25k)</strong> and <strong>QC / CIBIL Score (&gt; 750, 700–749, 650–699)</strong>. Rates span <strong>12.15% to 16.90% p.a.</strong> across categories.</p>
                     )}
                     {isChola && (
                       <p>Cholamandalam Finance Master Policy Slabs (Excel Sheet: CHOLA): <strong>≥ ₹10L & 75K+ Sal</strong> (13.75%), <strong>≥ ₹7.50L & 50K+ Sal</strong> (14.50%), <strong>≥ ₹5L Loan Cases / Cat B</strong> (14.50% – 15.00%), and <strong>Standard / Cat C & D</strong> (15.00%).</p>
@@ -1577,9 +1579,15 @@ const UnifiedBankPolicyManager = () => {
                         )}
                         {isBandhan && (
                           <>
-                            <th>All Loan Slabs (Flat ROI % p.a.)</th>
-                            <th>Min Salary Requirement</th>
-                            <th>Max Sanction Limit</th>
+                            <th style={{ color: '#38bdf8' }}>&gt; ₹50K (&gt;750)</th>
+                            <th style={{ color: '#38bdf8' }}>&gt; ₹50K (700-749)</th>
+                            <th style={{ color: '#38bdf8' }}>&gt; ₹50K (650-699)</th>
+                            <th style={{ color: '#4ade80' }}>25K–50K (&gt;750)</th>
+                            <th style={{ color: '#4ade80' }}>25K–50K (700-749)</th>
+                            <th style={{ color: '#4ade80' }}>25K–50K (650-699)</th>
+                            <th style={{ color: '#f59e0b' }}>&lt; 25K (&gt;750)</th>
+                            <th style={{ color: '#f59e0b' }}>&lt; 25K (700-749)</th>
+                            <th style={{ color: '#f59e0b' }}>&lt; 25K (650-699)</th>
                           </>
                         )}
                         {isChola && (
@@ -1871,19 +1879,93 @@ const UnifiedBankPolicyManager = () => {
                                 <div className="table-input-cell highlight">
                                   <input 
                                     type="number" step="0.01"
-                                    value={row.defaultRoi ?? 10.50}
-                                    onChange={(e) => updateRate(row.category, 'defaultRoi', Number(e.target.value))}
+                                    value={row.roiAbove50k_750 ?? (row.category === 'Super A' || row.category === 'A' || row.category === 'Govt' ? 12.15 : (row.category === 'B' ? 12.25 : (row.category === 'C' ? 13.49 : 13.69)))}
+                                    onChange={(e) => updateRate(row.category, 'roiAbove50k_750', Number(e.target.value))}
                                   />
                                   <span>%</span>
                                 </div>
                               </td>
                               <td>
-                                <span className="cat-pill" style={{ background: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
-                                  ₹{row.minSalary ? row.minSalary.toLocaleString() : '25,000'}
-                                </span>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roiAbove50k_700 ?? (row.category === 'Super A' || row.category === 'A' || row.category === 'Govt' ? 12.25 : (row.category === 'B' ? 12.49 : (row.category === 'C' ? 14.49 : 14.49)))}
+                                    onChange={(e) => updateRate(row.category, 'roiAbove50k_700', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
                               </td>
                               <td>
-                                <span className="tag-lakhs">Up to ₹25.0 Lakhs</span>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roiAbove50k_650 ?? (row.category === 'Super A' || row.category === 'A' || row.category === 'Govt' ? 13.49 : (row.category === 'B' ? 14.49 : (row.category === 'C' ? 15.99 : 16.00)))}
+                                    onChange={(e) => updateRate(row.category, 'roiAbove50k_650', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+
+                              <td>
+                                <div className="table-input-cell highlight">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roi25kTo50k_750 ?? (row.category === 'Super A' || row.category === 'A' || row.category === 'Govt' ? 13.25 : (row.category === 'B' ? 13.49 : (row.category === 'C' ? 14.49 : 15.49)))}
+                                    onChange={(e) => updateRate(row.category, 'roi25kTo50k_750', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roi25kTo50k_700 ?? (row.category === 'Super A' || row.category === 'A' || row.category === 'Govt' ? 13.99 : (row.category === 'B' ? 14.49 : (row.category === 'C' ? 15.99 : 15.99)))}
+                                    onChange={(e) => updateRate(row.category, 'roi25kTo50k_700', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roi25kTo50k_650 ?? (row.category === 'Super A' || row.category === 'A' || row.category === 'Govt' ? 14.99 : (row.category === 'B' ? 15.99 : (row.category === 'C' ? 16.49 : 16.90)))}
+                                    onChange={(e) => updateRate(row.category, 'roi25kTo50k_650', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+
+                              <td>
+                                <div className="table-input-cell highlight">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roiBelow25k_750 ?? (row.category === 'Super A' || row.category === 'A' || row.category === 'Govt' ? 13.99 : (row.category === 'B' ? 14.25 : (row.category === 'C' ? 15.99 : 16.49)))}
+                                    onChange={(e) => updateRate(row.category, 'roiBelow25k_750', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roiBelow25k_700 ?? (row.category === 'Super A' || row.category === 'A' || row.category === 'Govt' ? 14.99 : (row.category === 'B' ? 14.99 : (row.category === 'C' ? 16.49 : 16.90)))}
+                                    onChange={(e) => updateRate(row.category, 'roiBelow25k_700', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roiBelow25k_650 ?? (row.category === 'Super A' || row.category === 'A' || row.category === 'Govt' ? 15.49 : (row.category === 'B' ? 15.99 : (row.category === 'C' ? 16.90 : 16.90)))}
+                                    onChange={(e) => updateRate(row.category, 'roiBelow25k_650', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
                               </td>
                             </>
                           )}
@@ -3281,6 +3363,111 @@ const UnifiedBankPolicyManager = () => {
                       <div style={{ marginTop: '3px' }}>• <strong>₹30k – ₹35k:</strong> <strong>15x to 16x</strong> | <strong>₹35k – ₹40k:</strong> <strong>16x to 18x</strong></div>
                       <div style={{ marginTop: '3px' }}>• <strong>₹40k – ₹50k:</strong> <strong>18x to 20x</strong> | <strong>₹50k – ₹75k:</strong> <strong>22x to 25x</strong></div>
                       <div style={{ marginTop: '3px', color: '#86efac' }}>• <strong>₹75k – ₹100k+:</strong> <strong>23x to 30x</strong> (as per company cat and profile base)</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {(activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('bandhan')) && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(14, 165, 233, 0.12) 100%)',
+                  border: '1.5px solid rgba(16, 185, 129, 0.4)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#10b981', fontWeight: 700, fontSize: '0.95rem' }}>
+                    <CheckCircle2 size={18} />
+                    <span>Bandhan Bank Master Policy: Net Salary FOIR & Tenure Multiplier Matrix (Excel Sheet: BANDHAN BANK)</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
+                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 Section 2: FOIR Slabs by Net Income:</strong>
+                      <div style={{ marginTop: '5px' }}>• <strong>≤ ₹30,000:</strong> Max FOIR <strong>50%</strong></div>
+                      <div style={{ marginTop: '3px' }}>• <strong>₹30,001 – ₹50,000:</strong> Max FOIR <strong>60%</strong></div>
+                      <div style={{ marginTop: '3px' }}>• <strong>₹50,001 – ₹75,000:</strong> Max FOIR <strong>65%</strong></div>
+                      <div style={{ marginTop: '3px' }}>• <strong>≥ ₹75,001:</strong> Max FOIR <strong>70%</strong></div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(249, 115, 22, 0.25)' }}>
+                      <strong style={{ color: '#fdba74', fontSize: '0.88rem' }}>📌 Section 1: Special Obligations & BT Rules:</strong>
+                      <div style={{ marginTop: '5px' }}>• <strong>Credit Card Obligation:</strong> <strong>3% of Limit</strong></div>
+                      <div style={{ marginTop: '3px', color: '#86efac' }}>• <strong>Zero CC Obligation Rule:</strong> If total CC limit &lt; 3x monthly salary → <strong>0% obligation</strong> (<code>SALARY KA BELOW 3 TIME NO OBLIGATION</code>)</div>
+                      <div style={{ marginTop: '3px' }}>• <strong>Exemptions:</strong> Gold Loan (GL) & KCC are <strong>NOT obligated</strong> (<code>GL AND KCC NOT OBLIGATE</code>)</div>
+                      <div style={{ marginTop: '3px', color: '#fca5a5' }}>• <strong>Credit Card BT:</strong> Strictly <strong>NOT ALLOWED</strong></div>
+                    </div>
+                  </div>
+
+                  <div style={{ marginTop: '6px' }}>
+                    <div style={{ color: '#93c5fd', fontSize: '0.86rem', marginBottom: '6px', fontWeight: 600 }}>Section 6: Multiplier based Eligibility Tables (Excel Sheet: BANDHAN BANK)</div>
+                    <div className="table-responsive" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div>
+                        <div style={{ fontSize: '0.80rem', fontWeight: 700, color: '#38bdf8', marginBottom: '4px' }}>Table 1: CAT A & CAT B - Salaried (Super A, A, B, Govt)</div>
+                        <table className="policy-table" style={{ fontSize: '0.80rem' }}>
+                          <thead>
+                            <tr>
+                              <th>Monthly Net Income</th>
+                              <th>12m</th>
+                              <th>13-24m</th>
+                              <th>25-36m</th>
+                              <th>37-48m</th>
+                              <th>49-60m</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr><td>&lt; 30,000</td><td>6x</td><td>10x</td><td>14x</td><td>17x</td><td><strong style={{ color: '#4ade80' }}>20x</strong></td></tr>
+                            <tr><td>30,001 to 50,000</td><td>7x</td><td>13x</td><td>15x</td><td>21x</td><td><strong style={{ color: '#4ade80' }}>22x</strong></td></tr>
+                            <tr><td>50,001 to 75,000</td><td>8x</td><td>13x</td><td>16x</td><td>22x</td><td><strong style={{ color: '#4ade80' }}>24x</strong></td></tr>
+                            <tr><td>&gt;= 75,001</td><td>9x</td><td>14x</td><td>18x</td><td>23x</td><td><strong style={{ color: '#4ade80' }}>25x</strong></td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <div>
+                        <div style={{ fontSize: '0.80rem', fontWeight: 700, color: '#fbbf24', marginBottom: '4px' }}>Table 2: Cat C - Salaried (&le;50k Salary max tenure 48 Months)</div>
+                        <table className="policy-table" style={{ fontSize: '0.80rem' }}>
+                          <thead>
+                            <tr>
+                              <th>Monthly Net Income</th>
+                              <th>12m</th>
+                              <th>13-24m</th>
+                              <th>25-36m</th>
+                              <th>37-48m</th>
+                              <th>49-60m</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr><td>&lt; 30,000</td><td>5x</td><td>7x</td><td>10x</td><td>12x</td><td><span style={{ color: '#f87171' }}>NA (Max 48M)</span></td></tr>
+                            <tr><td>30,001 to 50,000</td><td>7x</td><td>9x</td><td>12x</td><td>14x</td><td><span style={{ color: '#f87171' }}>NA (Max 48M)</span></td></tr>
+                            <tr><td>50,001 to 75,000</td><td>7x</td><td>10x</td><td>16x</td><td>17x</td><td><strong style={{ color: '#4ade80' }}>18x</strong></td></tr>
+                            <tr><td>&gt;= 75,001</td><td>9x</td><td>11x</td><td>17x</td><td>18x</td><td><strong style={{ color: '#4ade80' }}>22x</strong></td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <div>
+                        <div style={{ fontSize: '0.80rem', fontWeight: 700, color: '#f87171', marginBottom: '4px' }}>Table 3: CAT D - Salaried (Maximum Tenure Strictly 48 Months)</div>
+                        <table className="policy-table" style={{ fontSize: '0.80rem' }}>
+                          <thead>
+                            <tr>
+                              <th>Monthly Net Income</th>
+                              <th>12m</th>
+                              <th>13-24m</th>
+                              <th>25-36m</th>
+                              <th>37-48m</th>
+                              <th>49-60m</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr><td>&lt; 30,000 (Min ₹40k)</td><td>5x</td><td>7x</td><td>10x</td><td>12x</td><td><span style={{ color: '#f87171' }}>NA</span></td></tr>
+                            <tr><td>30,001 to 50,000</td><td>7x</td><td>9x</td><td>12x</td><td>14x</td><td><span style={{ color: '#f87171' }}>NA (Max 48M)</span></td></tr>
+                            <tr><td>50,001 to 75,000</td><td>7x</td><td>10x</td><td>16x</td><td>17x</td><td><span style={{ color: '#f87171' }}>NA (Max 48M)</span></td></tr>
+                            <tr><td>&gt;= 75,001</td><td>9x</td><td>11x</td><td>17x</td><td>18x</td><td><span style={{ color: '#f87171' }}>NA (Max 48M)</span></td></tr>
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
                 </div>
