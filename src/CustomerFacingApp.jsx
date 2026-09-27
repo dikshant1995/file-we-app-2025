@@ -66,6 +66,8 @@ function CustomerFacingApp() {
       maritalStatus: rawFormData?.maritalStatus || submissionData?.maritalStatus || '',
       livingStatus: rawFormData?.livingStatus || submissionData?.livingStatus || '',
       salaryMode: rawFormData?.salaryMode || submissionData?.salaryMode || 'bank',
+      hasPpfDeduction: rawFormData?.hasPpfDeduction !== undefined ? rawFormData.hasPpfDeduction : (submissionData?.hasPpfDeduction !== undefined ? submissionData.hasPpfDeduction : true),
+      hasPfDeduction: rawFormData?.hasPfDeduction !== undefined ? rawFormData.hasPfDeduction : (submissionData?.hasPfDeduction !== undefined ? submissionData.hasPfDeduction : true),
       existingLoans: rawFormData?.existingLoans || submissionData?.existingLoans || submissionData?._metadata?.existingLoans || []
     };
 
@@ -118,6 +120,8 @@ function CustomerFacingApp() {
           employmentType: submissionData.employmentType || 'salaried',
           existingEMI: parseFloat(submissionData.existingEMI || 0),
           creditCardObligation: parseFloat(submissionData.creditCardObligation || 0),
+          hasPpfDeduction: submissionData.hasPpfDeduction !== undefined ? submissionData.hasPpfDeduction : true,
+          hasPfDeduction: submissionData.hasPpfDeduction !== undefined ? submissionData.hasPpfDeduction : true,
           existingLoans: existingLoans,
           creditCards: creditCards
         };

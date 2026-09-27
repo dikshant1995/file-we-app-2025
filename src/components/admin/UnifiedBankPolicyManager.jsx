@@ -2992,7 +2992,7 @@ const UnifiedBankPolicyManager = () => {
                       <div style={{ marginTop: '5px' }}>• <strong>Elite / Cat A:</strong> Up to <strong>30x</strong> (V13–V20), 24x (V10–12), 15x (V8–V9)</div>
                       <div style={{ marginTop: '3px' }}>• <strong>Cat B / C:</strong> Up to <strong>22x</strong> (V13–V20), 15x (V10–12), 10x (V8–V9)</div>
                       <div style={{ marginTop: '3px' }}>• <strong>Govt (NMI ≥ ₹60k):</strong> <strong>20x</strong> | BT Govt: <strong>24x</strong></div>
-                      <div style={{ marginTop: '3px', color: '#86efac' }}>• <strong>CC BT Policy:</strong> <strong>2 Credit Cards BT Allowed with 1 Personal Loan BT</strong></div>
+                      <div style={{ marginTop: '3px', color: '#86efac' }}>• <strong>BT Policy:</strong> <strong>1 Personal Loan BT (1 PL BT) allowed along with up to 2 Credit Cards BT (2 CC BT)</strong> (Excel: <code>2 CC BT ALLOW WITH 1 PL BT</code>)</div>
                     </div>
                   </div>
 
@@ -3623,9 +3623,9 @@ const UnifiedBankPolicyManager = () => {
                     </div>
                     <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(249, 115, 22, 0.25)' }}>
                       <strong style={{ color: '#fdba74', fontSize: '0.88rem' }}>📌 Financial & Credit Criteria:</strong>
-                      <div style={{ marginTop: '5px' }}>• Minimum Net Monthly Salary: <strong>₹22,000 + Mandatory PF Deduction</strong> (`22+PF DEDUCT REQ`)</div>
+                      <div style={{ marginTop: '5px' }}>• Minimum Net Monthly Salary: <strong>₹22,000 + Mandatory PF/PPF Deduction</strong> (Excel: <code>22+PF DEDUCT REQ</code> — PPF Toggle active in application form)</div>
                       <div style={{ marginTop: '3px', color: '#38bdf8' }}>• Credit Card Obligation: <strong>5% of Total CC Limit</strong> (`0.05`)</div>
-                      <div style={{ marginTop: '3px', color: '#86efac' }}>• Balance Transfer (BT): <strong>2 CC BT Allowed with 1 PL BT</strong> (`2 CC BT ALLOW WITH 1 PL BT`)</div>
+                      <div style={{ marginTop: '3px', color: '#86efac' }}>• Balance Transfer (BT): <strong>1 PL BT Allowed with up to 2 CC BT</strong> (`2 CC BT ALLOW WITH 1 PL BT`)</div>
                     </div>
                   </div>
                 </div>

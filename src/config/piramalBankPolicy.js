@@ -52,7 +52,9 @@ export const PIRAMAL_BANK_EXCEL_POLICY = {
     minCibilScore: 0,
     ccObligationPercent: 5,
     allowCcBt: true,
+    maxPlBtAllowed: 1,
     ccBtAllowedCount: 2,
-    requirePlBtWithCcBt: true
+    requirePlBtWithCcBt: true,
+    btPolicyDescription: '2 CC BT ALLOW WITH 1 PL BT (1 PL BT + 2 CC BT Allowed)'
   }
 };

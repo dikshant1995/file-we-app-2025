@@ -82,6 +82,8 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
       category: saved?.category || 'B',
       employmentType: saved?.employmentType || 'salaried',
       salaryMode: saved?.salaryMode || 'bank',
+      hasPpfDeduction: saved?.hasPpfDeduction !== undefined ? saved.hasPpfDeduction : (saved?.hasPfDeduction !== undefined ? saved.hasPfDeduction : true),
+      hasPfDeduction: saved?.hasPfDeduction !== undefined ? saved.hasPfDeduction : (saved?.hasPpfDeduction !== undefined ? saved.hasPpfDeduction : true),
       companyName: saved?.companyName || '',
       hasExistingLoans: saved?.hasExistingLoans !== undefined ? saved.hasExistingLoans : (initialLoans.length > 0),
       existingLoans: initialLoans,
@@ -131,7 +133,9 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
         hasExistingLoans: initialData.hasExistingLoans !== undefined ? initialData.hasExistingLoans : (initialLoans.length > 0 || prev.hasExistingLoans),
         existingLoans: initialLoans.length > 0 ? initialLoans : prev.existingLoans,
         hasCreditCards: initialData.hasCreditCards !== undefined ? initialData.hasCreditCards : (initialCards.length > 0 || prev.hasCreditCards),
-        creditCards: initialCards.length > 0 ? initialCards : prev.creditCards
+        creditCards: initialCards.length > 0 ? initialCards : prev.creditCards,
+        hasPpfDeduction: initialData.hasPpfDeduction !== undefined ? initialData.hasPpfDeduction : (initialData.hasPfDeduction !== undefined ? initialData.hasPfDeduction : (prev.hasPpfDeduction !== undefined ? prev.hasPpfDeduction : true)),
+        hasPfDeduction: initialData.hasPfDeduction !== undefined ? initialData.hasPfDeduction : (initialData.hasPpfDeduction !== undefined ? initialData.hasPpfDeduction : (prev.hasPfDeduction !== undefined ? prev.hasPfDeduction : true))
       }));
     }
   }, [initialData]);
@@ -212,6 +216,15 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
       ...prev,
       isNewToCredit: checked,
       creditScore: checked ? '-1' : (prev.creditScore === '-1' ? '750' : prev.creditScore)
+    }));
+  };
+
+  const handleTogglePpfDeduction = (e) => {
+    const checked = e.target.checked;
+    setFormData(prev => ({
+      ...prev,
+      hasPpfDeduction: checked,
+      hasPfDeduction: checked
     }));
   };
 
@@ -483,6 +496,8 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
       state: formData.state,
       city: formData.city,
       salaryMode: formData.salaryMode || 'bank',
+      hasPpfDeduction: Boolean(formData.hasPpfDeduction),
+      hasPfDeduction: Boolean(formData.hasPpfDeduction),
       maritalStatus: formData.maritalStatus,
       livingStatus: formData.livingStatus,
 
@@ -513,6 +528,8 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
         isNewToCredit: Boolean(formData.isNewToCredit || formData.creditScore === '-1' || formData.creditScore === -1),
         employmentType: formData.employmentType,
         salaryMode: formData.salaryMode,
+        hasPpfDeduction: Boolean(formData.hasPpfDeduction),
+        hasPfDeduction: Boolean(formData.hasPpfDeduction),
         maritalStatus: formData.maritalStatus,
         livingStatus: formData.livingStatus
       }
@@ -674,9 +691,35 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
         <h3>Financial Compensation</h3>
 
         <div className="form-group">
-          <label htmlFor="basicSalary">
-            Monthly Basic Salary <span className="required">*</span>
-          </label>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px', flexWrap: 'wrap', gap: '8px' }}>
+            <label htmlFor="basicSalary" style={{ margin: 0, fontWeight: 700, color: '#1f2937' }}>
+              Monthly Basic / In-Hand Salary <span className="required">*</span>
+            </label>
+            <label style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              cursor: 'pointer',
+              fontSize: '12.5px',
+              fontWeight: 700,
+              color: formData.hasPpfDeduction ? '#047857' : '#4b5563',
+              margin: 0,
+              backgroundColor: formData.hasPpfDeduction ? '#ecfdf5' : '#f3f4f6',
+              padding: '4px 10px',
+              borderRadius: '6px',
+              border: formData.hasPpfDeduction ? '1.5px solid #10b981' : '1px solid #d1d5db',
+              transition: 'all 0.2s ease'
+            }}>
+              <input
+                type="checkbox"
+                id="hasPpfDeductionToggle"
+                checked={Boolean(formData.hasPpfDeduction)}
+                onChange={handleTogglePpfDeduction}
+                style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#10b981' }}
+              />
+              PF / PPF Deducted in Salary
+            </label>
+          </div>
           <input
             type="text"
             id="basicSalary"
@@ -691,11 +734,22 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
             autoComplete="off"
             style={{ color: '#111827', WebkitTextFillColor: '#111827', backgroundColor: '#ffffff', fontWeight: 600 }}
           />
-          {formData.basicSalary && (
-            <small className="help-text" style={{ color: '#27ae60', fontWeight: '600' }}>
-              Value stored: ₹{parseFloat(formData.basicSalary).toLocaleString('en-IN')}
-            </small>
-          )}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px', flexWrap: 'wrap', gap: '6px' }}>
+            {formData.basicSalary && (
+              <small className="help-text" style={{ color: '#27ae60', fontWeight: '600' }}>
+                Value stored: ₹{parseFloat(formData.basicSalary).toLocaleString('en-IN')}
+              </small>
+            )}
+            {formData.hasPpfDeduction ? (
+              <small className="help-text" style={{ color: '#059669', fontWeight: '600' }}>
+                ✓ PF/PPF deduction included (Eligible for Piramal Finance &amp; PF-mandated lenders)
+              </small>
+            ) : (
+              <small className="help-text" style={{ color: '#d97706', fontWeight: '600' }}>
+                ⚠️ No PF/PPF deduction (Note: Piramal Finance requires mandatory PF deduction: 22+PF DEDUCT REQ)
+              </small>
+            )}
+          </div>
         </div>
 
         <div className="form-group">

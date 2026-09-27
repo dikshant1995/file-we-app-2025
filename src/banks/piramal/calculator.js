@@ -119,6 +119,25 @@ export const calculatePiramalEligibility = (userData) => {
   let nonBTLoansEMI = 0;
 
   if (isBT) {
+    const plLoans = (loansForBT || []).filter(l => l.loanType !== 'credit_card' && l.type !== 'Credit Card');
+    const ccLoans = (loansForBT || []).filter(l => l.loanType === 'credit_card' || l.type === 'Credit Card');
+
+    if (plLoans.length > 1) {
+      return {
+        eligible: false,
+        reason: `Piramal Finance permits maximum 1 Personal Loan for Balance Transfer (found ${plLoans.length}). Policy: 2 CC BT ALLOW WITH 1 PL BT`,
+        isBTMode: true
+      };
+    }
+
+    if (ccLoans.length > 2) {
+      return {
+        eligible: false,
+        reason: `Piramal Finance permits maximum 2 Credit Cards for Balance Transfer (found ${ccLoans.length}). Policy: 2 CC BT ALLOW WITH 1 PL BT`,
+        isBTMode: true
+      };
+    }
+
     nonBTLoansEMI = existingEMI - btTotalEMI;
     // NEW: Also deduct credit card obligations from adjusted income
     const creditCardDeduction = creditCardObligation || 0;
@@ -126,6 +145,18 @@ export const calculatePiramalEligibility = (userData) => {
     if (adjustedIncome <= 0) {
       return { eligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains`, isBTMode: true };
     }
+  }
+
+  // Check PF / PPF deduction requirement (Excel: 22+PF DEDUCT REQ)
+  const isPfDeducted = userData.hasPpfDeduction !== undefined 
+    ? userData.hasPpfDeduction 
+    : (userData.hasPfDeduction !== undefined ? userData.hasPfDeduction : true);
+
+  if (!isPfDeducted) {
+    return {
+      eligible: false,
+      reason: 'Piramal Finance strictly requires salary with PF/PPF deduction (Excel: 22+PF DEDUCT REQ)'
+    };
   }
 
   // CHECK: If customer already has a personal loan from Piramal Finance

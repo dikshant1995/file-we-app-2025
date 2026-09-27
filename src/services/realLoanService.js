@@ -134,7 +134,10 @@ export const calculateLoanEligibility = async (userData) => {
     isBTMode: isBTMode,
     loansForBT: isBTMode ? (userData.loansForBT || []) : [],
     btTotalEMI: isBTMode ? (userData.loansForBT || []).reduce((sum, loan) => sum + (parseFloat(loan.monthlyEMI) || 0), 0) : 0,
-    btTotalOutstanding: isBTMode ? (userData.loansForBT || []).reduce((sum, loan) => sum + (parseFloat(loan.outstandingAmount) || 0), 0) : 0
+    btTotalOutstanding: isBTMode ? (userData.loansForBT || []).reduce((sum, loan) => sum + (parseFloat(loan.outstandingAmount) || 0), 0) : 0,
+    // PF / PPF Salary Deduction toggle
+    hasPpfDeduction: userData.hasPpfDeduction !== undefined ? userData.hasPpfDeduction : (userData.hasPfDeduction !== undefined ? userData.hasPfDeduction : true),
+    hasPfDeduction: userData.hasPfDeduction !== undefined ? userData.hasPfDeduction : (userData.hasPpfDeduction !== undefined ? userData.hasPpfDeduction : true)
     // Note: Interest rate will be pulled dynamically from Admin Config in the loop below
   };
 
