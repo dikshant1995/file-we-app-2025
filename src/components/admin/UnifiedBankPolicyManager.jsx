@@ -541,10 +541,13 @@ const UnifiedBankPolicyManager = () => {
           const hasMatchingCategories = isIciciBank
             ? Array.isArray(parsed.interestRates) && parsed.interestRates.some(r => r.category === 'Super Prime' || r.category === 'Army Profile')
             : true;
-          if (hasMatchingCategories) {
+          const isLntBank = bank.id === 'lnt' || bank.name?.toLowerCase().includes('lnt') || bank.name?.toLowerCase().includes('l&t');
+          const isStaleLnt = isLntBank && Array.isArray(parsed.loanCapping) && parsed.loanCapping.some(c => (c.tier === 'D' || c.category === 'D') && c.maxLoan === 1500000);
+
+          if (hasMatchingCategories && !isStaleLnt) {
             merged = { ...merged, ...parsed };
-          } else if (isIciciBank) {
-            // Stale cache contains old categories (e.g. Super A, B, C) - purge it so user sees pure Excel policy
+          } else {
+            // Stale cache contains old categories or outdated capping - purge it so user sees pure Excel policy
             try {
               localStorage.removeItem(`policy_config_${bank.id}_${locationKey}`);
               localStorage.removeItem(`policy_config_${bank.id}`);
@@ -1435,7 +1438,7 @@ const UnifiedBankPolicyManager = () => {
                       <p>Axis Finance Master Policy Slabs: <strong>₹5L – ₹25L Loan Cases</strong> (13.50% – 16.00%), and <strong>Credit Card BT / App BT</strong> (18.00%).</p>
                     )}
                     {isLnt && (
-                      <p>L&T Finance Master Policy Slabs: <strong>₹20L – ₹30L</strong> (11.50% – 12.50%), <strong>₹10L – ₹20L</strong> (14.00%), and <strong>&lt; ₹10L</strong> (13.00% – 15.00%).</p>
+                      <p>L&T Finance Master Policy Slabs: <strong>₹20L – ₹30L</strong> (11.50% – 12.50%), <strong>₹10L – ₹20L</strong> (14.00%), and <strong>&lt; ₹10L</strong> (13.00% – 15.00%). Special Rate: <strong>10.99%</strong> for Super A & A with Owned House, ₹1.75L+ Salary & 775+ CIBIL.</p>
                     )}
                     {isPoonawala && (
                       <p>Poonawala Master Policy Slabs: <strong>≥ ₹35 Lakh</strong> (11.99%), <strong>₹20L – ₹35L</strong> (12.25%), and <strong>&lt; ₹20 Lakh</strong> (12.50% – 14.25%).</p>
@@ -2140,6 +2143,24 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               )}
 
+              {(activeConfigBank?.id === 'lnt' || activeConfigBank?.name?.toLowerCase().includes('l&t') || activeConfigBank?.name?.toLowerCase().includes('lnt')) && (
+                <div style={{
+                  background: 'rgba(0, 79, 158, 0.08)',
+                  border: '1.5px solid rgba(0, 79, 158, 0.35)',
+                  borderRadius: '8px',
+                  padding: '10px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  color: '#93c5fd',
+                  fontSize: '0.88rem'
+                }}>
+                  <AlertTriangle size={18} />
+                  <span><strong>L&T Finance Master Policy (from Excel):</strong> Maximum loan amount is <strong>₹30 Lakhs</strong> across all tiers (Min: ₹1 Lakh). <strong>Category D Rented Limit:</strong> If residing in rented accommodation, Category D is strictly capped at <strong>₹20 Lakhs</strong> (`30LAC/ RENTED -20LAC`).</span>
+                </div>
+              )}
+
               <div className="table-responsive">
                 <table className="policy-table">
                   <thead>
@@ -2214,6 +2235,7 @@ const UnifiedBankPolicyManager = () => {
                         <td>
                           <span className="tag-lakhs">
                             Up to ₹{(row.maxLoan / 100000).toFixed(1)} Lakhs
+                            {row.rentedCap ? ` (Rented: ₹${(row.rentedCap / 100000).toFixed(0)}L)` : ''}
                           </span>
                         </td>
                       </tr>
@@ -2267,6 +2289,24 @@ const UnifiedBankPolicyManager = () => {
                 }}>
                   <CheckCircle2 size={18} />
                   <span><strong>Bandhan Bank Master Policy (from Excel):</strong> Strictly <strong>60 Months (5 Years)</strong> flat tenure across all employment categories. Maximum sanction limit is <strong>₹25 Lakhs</strong>.</span>
+                </div>
+              )}
+
+              {(activeConfigBank?.id === 'lnt' || activeConfigBank?.name?.toLowerCase().includes('l&t') || activeConfigBank?.name?.toLowerCase().includes('lnt')) && (
+                <div style={{
+                  background: 'rgba(0, 79, 158, 0.08)',
+                  border: '1.5px solid rgba(0, 79, 158, 0.35)',
+                  borderRadius: '8px',
+                  padding: '10px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  color: '#93c5fd',
+                  fontSize: '0.88rem'
+                }}>
+                  <CheckCircle2 size={18} />
+                  <span><strong>L&T Finance Master Policy (from Excel):</strong> Repayment tenure is flat <strong>12 to 72 Months (Up to 6 Years)</strong> across all categories (Super A, A, B, C, D, and Govt).</span>
                 </div>
               )}
 
@@ -2739,7 +2779,7 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               )}
 
-              {activeConfigBank?.id === 'lnt' && (
+              {(activeConfigBank?.id === 'lnt' || activeConfigBank?.name?.toLowerCase().includes('l&t') || activeConfigBank?.name?.toLowerCase().includes('lnt')) && (
                 <div style={{
                   background: 'linear-gradient(135deg, rgba(0, 79, 158, 0.15) 0%, rgba(239, 68, 68, 0.12) 100%)',
                   border: '1.5px solid rgba(0, 79, 158, 0.4)',
@@ -2752,20 +2792,22 @@ const UnifiedBankPolicyManager = () => {
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38bdf8', fontWeight: 700, fontSize: '0.95rem' }}>
                     <CheckCircle2 size={18} />
-                    <span>L&T Finance Master Policy Rules (from Excel)</span>
+                    <span>L&T Finance Master Policy Rules (from Excel - Sheet: LNT)</span>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
                     <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
-                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 FOIR & Loan Slabs:</strong>
-                      <div style={{ marginTop: '5px' }}>• FOIR Slabs: <strong>55% to 80%</strong> based on net income</div>
-                      <div style={{ marginTop: '3px' }}>• ₹20L – ₹30L Slabs: <strong>11.50% – 12.50%</strong></div>
-                      <div style={{ marginTop: '3px' }}>• ₹10L – ₹20L Slabs: <strong>14.00%</strong></div>
+                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 FOIR & Multipliers by Salary Tier (CIBIL 720+):</strong>
+                      <div style={{ marginTop: '5px' }}>• <strong>≥ ₹2L Sal:</strong> Super A/A/B/Govt: <strong>80% FOIR (24x)</strong> | C: <strong>75% (20x)</strong> | D: <strong>70% (16x)</strong></div>
+                      <div style={{ marginTop: '3px' }}>• <strong>₹1L–₹2L:</strong> Super A/A/B/Govt: <strong>75% FOIR (24x)</strong> | C: <strong>70% (20x)</strong> | D: <strong>65% (16x)</strong></div>
+                      <div style={{ marginTop: '3px' }}>• <strong>₹50K–₹1L:</strong> Super A/A/B/Govt: <strong>70% FOIR (20x)</strong> | C: <strong>60% (18x)</strong> | D: <strong>55% (15x)</strong></div>
+                      <div style={{ marginTop: '3px' }}>• <strong>₹25K–₹50K:</strong> Super A/A/B/Govt: <strong>55% FOIR (18x)</strong> | C: <strong>50% (16x)</strong> | D: <strong>50% (14x)</strong></div>
                     </div>
                     <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
-                      <strong style={{ color: '#f87171', fontSize: '0.88rem' }}>📌 BT & Restrictions:</strong>
-                      <div style={{ marginTop: '5px', color: '#fca5a5' }}>• Balance Transfer: <strong>Credit Card BT strictly NOT ALLOWED</strong></div>
-                      <div style={{ marginTop: '3px' }}>• Max Tenure: <strong>72 Months (6 Years)</strong></div>
-                      <div style={{ marginTop: '3px' }}>• Max Sanction: <strong>₹30 Lakhs</strong></div>
+                      <strong style={{ color: '#f87171', fontSize: '0.88rem' }}>📌 Eligibility, ROI & Capping:</strong>
+                      <div style={{ marginTop: '5px', color: '#86efac' }}>• <strong>Special 10.99% ROI:</strong> Super A / A with Owned House, ₹1.75L+ Sal & 775+ CIBIL</div>
+                      <div style={{ marginTop: '3px' }}>• <strong>CIBIL & Work Exp:</strong> <strong>720+ CIBIL</strong> | Min <strong>6 Months</strong> Salary Credit</div>
+                      <div style={{ marginTop: '3px' }}>• <strong>Loan Capping:</strong> ₹1L to ₹30L (<strong>Category D Rented Capped at ₹20L</strong>)</div>
+                      <div style={{ marginTop: '3px', color: '#fca5a5' }}>• <strong>BT Restriction:</strong> Credit Card BT <strong>STRICTLY NOT ALLOWED</strong> (5% CC Obligation)</div>
                     </div>
                   </div>
                 </div>

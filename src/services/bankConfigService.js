@@ -87,6 +87,19 @@ const defaultConfigs = {
     btConfiguration: { enabled: true, maxLoansForBT: 3, creditCardBTSupported: true, processingFeePercentage: 1.5, maxCreditCardBTMultiplier: 6 },
     feesAndCharges: { processingFeePercentage: 3.5, btChargesPercentage: 1.5, prepaymentChargesPercentage: 4 },
     incentivePolicy: { percentage: 100, months: 3 }
+  },
+  'L&T Finance': {
+    ageRules: { minAge: 21, maxAge: 60, retirementAge: { salaried: 60, selfEmployed: 60 }, maxAgeAtLoanEnd: 60 },
+    tenureRules: { minTenureMonths: 12, maxTenureMonths: 72, categoryBasedMaxTenure: { 'Super A': 72, A: 72, B: 72, C: 72, D: 72, Govt: 72 } },
+    foirSettings: { categoryBasedFOIR: { 'Super A': 80, A: 80, B: 80, C: 75, D: 70, Govt: 80 }, creditCardObligationPercentage: 5 },
+    multiplierRules: { categoryBasedMultiplier: { 'Super A': 24, A: 24, B: 24, C: 20, D: 16, Govt: 24 } },
+    creditScoreRules: { minCreditScore: 720, recommendedScore: 750, premiumScore: 775, autoRejectionThreshold: 720 },
+    interestRates: { defaultRate: 12.50, categoryRates: { 'Super A': 11.50, A: 11.50, B: 11.50, C: 13.50, D: 14.50, Govt: 11.50 } },
+    loanCapping: { absoluteMaxLoan: 3000000, minLoanAmount: 100000, bachelorCapping: { enabled: false }, rentedCapping: { D: 2000000 } },
+    employmentRules: { salariedMinSalary: 25000, selfEmployedMinIncome: 300000, itrYearsRequired: 1, minWorkExperienceMonths: 6 },
+    btConfiguration: { enabled: true, maxLoansForBT: 3, creditCardBTSupported: false, processingFeePercentage: 1.5, maxCreditCardBTMultiplier: 0 },
+    feesAndCharges: { processingFeePercentage: 2.0, btChargesPercentage: 1.5, prepaymentChargesPercentage: 4 },
+    incentivePolicy: { percentage: 0, months: 0 }
   }
 };
 

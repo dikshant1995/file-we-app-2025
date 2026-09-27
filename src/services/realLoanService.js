@@ -233,10 +233,20 @@ const matchCategory = (cat1, cat2) => {
   const isElite2 = s2 === 'ELITE' || s2 === 'B' || s2 === 'CATB' || s2 === 'CATGB' || s2 === 'CATEGORYB';
   if (isElite1 && isElite2) return true;
 
-  // Open Market / Category C / Category D / Unlisted
-  const isOpenMarket1 = s1 === 'OPENMARKET' || s1 === 'C' || s1 === 'CATC' || s1 === 'CATGC' || s1 === 'CATEGORYC' || s1 === 'D' || s1 === 'CATD' || s1 === 'CATGD' || s1 === 'CATEGORYD' || s1 === 'UNLISTED';
-  const isOpenMarket2 = s2 === 'OPENMARKET' || s2 === 'C' || s2 === 'CATC' || s2 === 'CATGC' || s2 === 'CATEGORYC' || s2 === 'D' || s2 === 'CATD' || s2 === 'CATGD' || s2 === 'CATEGORYD' || s2 === 'UNLISTED';
-  if (isOpenMarket1 && isOpenMarket2) return true;
+  // Category C
+  const isC1 = s1 === 'C' || s1 === 'CATC' || s1 === 'CATGC' || s1 === 'CATEGORYC';
+  const isC2 = s2 === 'C' || s2 === 'CATC' || s2 === 'CATGC' || s2 === 'CATEGORYC';
+  if (isC1 && isC2) return true;
+
+  // Category D
+  const isD1 = s1 === 'D' || s1 === 'CATD' || s1 === 'CATGD' || s1 === 'CATEGORYD';
+  const isD2 = s2 === 'D' || s2 === 'CATD' || s2 === 'CATGD' || s2 === 'CATEGORYD';
+  if (isD1 && isD2) return true;
+
+  // Open Market / Unlisted (matches C or D or Open Market if one is Open Market / Unlisted)
+  const isOpenMarket1 = s1 === 'OPENMARKET' || s1 === 'UNLISTED';
+  const isOpenMarket2 = s2 === 'OPENMARKET' || s2 === 'UNLISTED';
+  if ((isOpenMarket1 && (isOpenMarket2 || isC2 || isD2)) || (isOpenMarket2 && (isOpenMarket1 || isC1 || isD1))) return true;
 
   // Army Profile / Defense
   const isArmy1 = s1 === 'ARMYPROFILE' || s1 === 'ARMY' || s1 === 'DEFENSE';
@@ -583,6 +593,47 @@ const matchCategory = (cat1, cat2) => {
         }
       }
 
+      // 3.8 L&T FINANCE EXCEL POLICY CHECKS (CIBIL 720+, Min Salary 25k, Min 6 Months Salary Credit Work Exp)
+      const isLntInst = name.toLowerCase().includes('l&t') || name.toLowerCase().includes('lnt') || id === 'lnt';
+      if (isLntInst) {
+        // CIBIL Check: 720+ Required (Sheet: CIBIL 720PLUS)
+        if (rawCibil !== null && rawCibil !== undefined && rawCibil !== '') {
+          const numCibil = Number(rawCibil);
+          if (numCibil < 720) {
+            return {
+              bankName: name,
+              eligible: false,
+              reason: `L&T Finance policy strictly requires CIBIL score 720+ (Current CIBIL: ${numCibil}).`,
+              category: bankCategory
+            };
+          }
+        }
+
+        // Min Salary Check: 25k
+        const income = calculatorInput.monthlyIncome || calculatorInput.basicSalary || 0;
+        if (income < 25000) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `L&T Finance policy requires minimum monthly salary of ₹25,000 (Current: ₹${income.toLocaleString()}).`,
+            category: bankCategory
+          };
+        }
+
+        // Work Experience Check: 6 Months Salary Credit Required
+        const totalExp = Number(calculatorInput.totalWorkExperience || calculatorInput.workExperience || 0);
+        const currExp = Number(calculatorInput.currentCompanyExperience || calculatorInput.currentJobExperience || 0);
+        if ((calculatorInput.totalWorkExperience !== undefined && totalExp > 0 && totalExp < 6) ||
+            (calculatorInput.currentCompanyExperience !== undefined && currExp > 0 && currExp < 6)) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: 'L&T Finance policy requires minimum 6 months salary credit work experience.',
+            category: bankCategory
+          };
+        }
+      }
+
       // -------------------------------------------------------------
       // Dynamic Bank Policy Specific Credit Card Obligation Percentage
       // -------------------------------------------------------------
@@ -691,6 +742,14 @@ const matchCategory = (cat1, cat2) => {
           const matchedCap = uPolicy.loanCapping.find(c => matchCategory(c.tier || c.category, bankCategory));
           if (matchedCap) {
             if (matchedCap.maxLoan) bankInput.maxLoanOverride = Number(matchedCap.maxLoan);
+
+            // L&T Finance: Category D Rented Capping (₹20 Lakhs vs ₹30 Lakhs owned)
+            const isLnt = name.toLowerCase().includes('l&t') || name.toLowerCase().includes('lnt') || id === 'lnt';
+            const isRentedUser = calculatorInput.livingStatus === 'rented' || calculatorInput.residenceType === 'rented';
+            if (isLnt && matchedCap.rentedCap && isRentedUser) {
+              bankInput.maxLoanOverride = Number(matchedCap.rentedCap);
+            }
+
             // Bachelor Capping ONLY applies to AU Small Finance Bank (Max 5L for PG / Rented Bachelor)
             const isAu = name.toLowerCase().includes('au ') || id === 'au-bank' || id === 'au';
             const isBachelorUser = calculatorInput.isBachelor || calculatorInput.maritalStatus === 'single' || calculatorInput.livingStatus === 'bachelor' || calculatorInput.livingStatus === 'rented';
@@ -924,6 +983,61 @@ const matchCategory = (cat1, cat2) => {
               bankInput.foirOverride = iciciFoir;
               bankInput.multiplierOverride = matchedFoir.multiplier || (catUpper.includes('OPEN') ? 20 : 27);
               bankInput.ccObligationPercentOverride = 5;
+            } else if (name.toLowerCase().includes('l&t') || name.toLowerCase().includes('lnt') || id === 'lnt') {
+              // L&T Finance Master Excel Policy (CIBIL 720+)
+              // Salary Slabs: 2L+ Salary, 1L to 2L, 50k to 1L, 25k to 50k
+              const catUpper = String(bankCategory || '').toUpperCase();
+              let lntFoir = 55;
+              let lntMult = 18;
+
+              if (catUpper.includes('SUPER') || catUpper === 'A' || catUpper === 'B' || catUpper.includes('GOVT')) {
+                if (income >= 200000) {
+                  lntFoir = 80;
+                  lntMult = 24;
+                } else if (income >= 100000) {
+                  lntFoir = 75;
+                  lntMult = 24;
+                } else if (income >= 50000) {
+                  lntFoir = 70;
+                  lntMult = 20;
+                } else {
+                  lntFoir = 55;
+                  lntMult = 18;
+                }
+              } else if (catUpper === 'C') {
+                if (income >= 200000) {
+                  lntFoir = 75;
+                  lntMult = 20;
+                } else if (income >= 100000) {
+                  lntFoir = 70;
+                  lntMult = 20;
+                } else if (income >= 50000) {
+                  lntFoir = 60;
+                  lntMult = 18;
+                } else {
+                  lntFoir = 50;
+                  lntMult = 16;
+                }
+              } else {
+                // Category D
+                if (income >= 200000) {
+                  lntFoir = 70;
+                  lntMult = 16;
+                } else if (income >= 100000) {
+                  lntFoir = 65;
+                  lntMult = 16;
+                } else if (income >= 50000) {
+                  lntFoir = 55;
+                  lntMult = 15;
+                } else {
+                  lntFoir = 50;
+                  lntMult = 14;
+                }
+              }
+
+              bankInput.foirOverride = lntFoir;
+              bankInput.multiplierOverride = lntMult;
+              bankInput.ccObligationPercentOverride = 5;
             } else {
               // Standard Bank FOIR logic
               if (matchedFoir.multiplier) bankInput.multiplierOverride = Number(matchedFoir.multiplier);
@@ -1111,6 +1225,42 @@ const matchCategory = (cat1, cat2) => {
             } else if (numCibil >= 750) {
               finalRate = 10.30;
               appliedRoiSlab = 'CIBIL 750–774 & ₹75k+ Sal (≥₹20L)';
+            }
+          }
+
+          // L&T Finance Excel Special Rates:
+          // Super A & A: 10.99% if Owned House + Salary >= 1.75 Lakhs + CIBIL >= 775
+          if (isLntInst) {
+            const catUpper = String(bankCategory || '').toUpperCase();
+            const numCibil = rawCibil !== null && rawCibil !== undefined && rawCibil !== '' ? Number(rawCibil) : 750;
+            const isOwnedHouse = calculatorInput.livingStatus === 'owned' || calculatorInput.residenceType === 'owned';
+
+            if ((catUpper.includes('SUPER') || catUpper === 'A') && isOwnedHouse && monthlyIncome >= 175000 && numCibil >= 775) {
+              finalRate = 10.99;
+              appliedRoiSlab = 'Owned House & ₹1.75L+ Sal & 775+ CIBIL (10.99%)';
+            } else if (maxEligibleLoan >= 2000000) {
+              if (catUpper.includes('SUPER') || catUpper === 'A' || catUpper === 'B' || catUpper.includes('GOVT')) {
+                finalRate = 11.50;
+              } else if (catUpper === 'C') {
+                finalRate = 13.50;
+              } else {
+                finalRate = 14.00;
+              }
+              appliedRoiSlab = '₹20L – ₹30L Slabs (11.5%–12.5%)';
+            } else if (maxEligibleLoan >= 1000000) {
+              finalRate = 14.00;
+              appliedRoiSlab = '₹10L – ₹20L Slabs (14.00%)';
+            } else {
+              if (catUpper.includes('SUPER') || catUpper === 'A') {
+                finalRate = 13.00;
+              } else if (catUpper === 'B' || catUpper.includes('GOVT')) {
+                finalRate = 13.50;
+              } else if (catUpper === 'C') {
+                finalRate = 14.00;
+              } else {
+                finalRate = 15.00;
+              }
+              appliedRoiSlab = '₹1L – ₹10L Slabs (13%–15%)';
             }
           }
         }
