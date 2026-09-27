@@ -198,6 +198,19 @@ export const calculateFullBT = async (customerInfo, existingLiabilities) => {
         }
       }
 
+      // SMFG India Credit Excel Policy: MAX CC BT: 2 CC BT
+      if (id === 'smfg' || name?.toLowerCase().includes('smfg')) {
+        const ccBt = activeLiabilities.filter(l => l.type === 'Credit Card' || l.type === 'credit_card');
+        if (ccBt.length > 2) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `SMFG India Credit allows maximum 2 Credit Cards for Balance Transfer (found ${ccBt.length}). Policy: 2 CC BT`,
+            isBTMode: true
+          };
+        }
+      }
+
       // Fallback to local config if Admin hasn't specified
       if (btConfig.enabled === undefined && config.btConfig && !config.btConfig.isAvailable) {
         return { bankName: name, eligible: false, reason: `${name} does not offer Balance Transfer facility for personal loans` };

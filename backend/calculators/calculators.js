@@ -11,6 +11,7 @@ import { calculateShriRamEligibility } from './shri-ram/calculator.js';
 import { calculatePiramalEligibility } from './piramal/calculator.js';
 import { calculateIndusindEligibility } from './indusind/calculator.js';
 import { calculateIdfcEligibility } from './idfc/calculator.js';
+import { calculateSmfgEligibility } from './smfg/calculator.js';
 // import { calculateBajajFinanceEligibility } from './bajaj-finance/calculator.js';
 // import { calculateLntFinanceEligibility } from './lnt-finance/calculator.js';
 
@@ -28,6 +29,23 @@ export const bankCalculators = [
   calculatePiramalEligibility,
   calculateIndusindEligibility,
   calculateIdfcEligibility,
+  calculateSmfgEligibility,
   // calculateBajajFinanceEligibility,
   // calculateLntFinanceEligibility
 ];
+
+export {
+  calculateKotakEligibility,
+  calculateHdfcEligibility,
+  calculateIciciEligibility,
+  calculateBandhanEligibility,
+  calculateCholaEligibility,
+  calculateTataEligibility,
+  calculatePoonawalaEligibility,
+  calculateAxisFinEligibility,
+  calculateShriRamEligibility,
+  calculatePiramalEligibility,
+  calculateIndusindEligibility,
+  calculateIdfcEligibility,
+  calculateSmfgEligibility
+};

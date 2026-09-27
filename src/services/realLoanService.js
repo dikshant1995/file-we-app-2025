@@ -11,6 +11,7 @@ import { calculateIndusindEligibility } from '../banks/indusind/calculator.js';
 import { calculateIdfcEligibility } from '../banks/idfc/calculator.js';
 import { calculateShriRamEligibility } from '../banks/shri-ram/calculator.js';
 import { calculatePiramalEligibility } from '../banks/piramal/calculator.js';
+import { calculateSmfgEligibility } from '../banks/smfg/calculator.js';
 
 // Import bank configs for transparency
 import { kotakConfig } from '../banks/kotak/config.js';
@@ -25,6 +26,7 @@ import { indusindConfig } from '../banks/indusind/config.js';
 import { idfcConfig } from '../banks/idfc/config.js';
 import { shriRamConfig } from '../banks/shri-ram/config.js';
 import { piramalConfig } from '../banks/piramal/config.js';
+import { smfgConfig } from '../banks/smfg/config.js';
 
 // Import company database service
 import { getCompanyCategoryForBank } from './companyDatabaseService.js';
@@ -165,7 +167,7 @@ export const calculateLoanEligibility = async (userData) => {
     // 8 Additional Banks & NBFCs from Master Excel Policy
     { id: 'axis-bank', name: 'Axis Bank', calculator: calculateUnifiedBankEligibility, config: { name: 'Axis Bank', maxLoanCap: 5000000, defaultRate: 9.99 }, hasDatabase: true },
     { id: 'lnt', name: 'L&T Finance', calculator: calculateUnifiedBankEligibility, config: { name: 'L&T Finance', maxLoanCap: 3000000, defaultRate: 11.5 }, hasDatabase: false },
-    { id: 'smfg', name: 'SMFG India Credit', calculator: calculateUnifiedBankEligibility, config: { name: 'SMFG India Credit', maxLoanCap: 3000000, defaultRate: 11.99 }, hasDatabase: false },
+    { id: 'smfg', name: 'SMFG India Credit', calculator: calculateSmfgEligibility, config: smfgConfig, hasDatabase: false },
     { id: 'bajaj', name: 'Bajaj Finance', calculator: calculateUnifiedBankEligibility, config: { name: 'Bajaj Finance', maxLoanCap: 4000000, defaultRate: 10.0 }, hasDatabase: true },
     { id: 'incred', name: 'Incred Finance', calculator: calculateUnifiedBankEligibility, config: { name: 'Incred Finance', maxLoanCap: 1500000, defaultRate: 13.49 }, hasDatabase: false },
     { id: 'au-bank', name: 'AU Small Finance Bank', calculator: calculateUnifiedBankEligibility, config: { name: 'AU Small Finance Bank', maxLoanCap: 3500000, defaultRate: 11.5 }, hasDatabase: false },
@@ -656,6 +658,55 @@ const matchCategory = (cat1, cat2) => {
         }
       }
 
+      // 3.9 SMFG INDIA CREDIT EXCEL POLICY CHECKS (Sheet: SMFG)
+      const isSmfgInst = name.toLowerCase().includes('smfg') || id === 'smfg';
+      if (isSmfgInst) {
+        // Min Salary Check: 25k+ with 0 deduction
+        const income = calculatorInput.monthlyIncome || calculatorInput.basicSalary || 0;
+        if (income < 25000) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `SMFG India Credit requires minimum monthly salary of ₹25,000 with 0 deduction (Excel: 25K+ SALARY WITH 0 DEDUCTION). Current: ₹${income.toLocaleString()}`,
+            category: bankCategory
+          };
+        }
+
+        // Age Check: 21 to Pvt 60 / Govt 65
+        const age = calculatorInput.age ? Number(calculatorInput.age) : null;
+        if (age !== null) {
+          const isGovt = calculatorInput.employmentType === 'government';
+          const maxAge = isGovt ? 65 : 60;
+          if (age < 21) {
+            return {
+              bankName: name,
+              eligible: false,
+              reason: `Applicant age must be at least 21 years for SMFG India Credit (Current: ${age}).`,
+              category: bankCategory
+            };
+          }
+          if (age > maxAge) {
+            return {
+              bankName: name,
+              eligible: false,
+              reason: `Maximum age at loan time is ${maxAge} years for SMFG India Credit (${isGovt ? 'Govt/Pensioner' : 'Private'}). Current: ${age}`,
+              category: bankCategory
+            };
+          }
+        }
+
+        // Current Company Experience Check: 2 Years (24 Months)
+        const currExp = Number(calculatorInput.currentCompanyExperience || calculatorInput.currentJobExperience || 0);
+        if (currExp > 0 && currExp < 24) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `SMFG India Credit requires minimum 2 years (24 months) experience in current company (Excel: CURRENT COM 2 YEARS). Found: ${currExp} months.`,
+            category: bankCategory
+          };
+        }
+      }
+
       // -------------------------------------------------------------
       // Dynamic Bank Policy Specific Credit Card Obligation Percentage
       // -------------------------------------------------------------
@@ -1059,6 +1110,44 @@ const matchCategory = (cat1, cat2) => {
 
               bankInput.foirOverride = lntFoir;
               bankInput.multiplierOverride = lntMult;
+              bankInput.ccObligationPercentOverride = 5;
+            } else if (name.toLowerCase().includes('smfg') || id === 'smfg') {
+              // SMFG India Credit Master Excel Policy (BANKS POLICYS.xlsx - Sheet: SMFG)
+              // 25k-30k: 60% FOIR (12-13x) | 30k-35k: 65% FOIR (15-16x) | 35k-40k: 70% (16-18x)
+              // 40k-50k: 70% (18-20x) | 50k-75k: 70% (22-25x) | 75k-100k: 70% (23-30x) | 100k+: 70% (30x)
+              let smfgFoir = 70;
+              let smfgMult = 25;
+              if (income >= 100000) {
+                smfgFoir = 70;
+                smfgMult = 30;
+              } else if (income >= 75000) {
+                smfgFoir = 70;
+                smfgMult = 30;
+              } else if (income >= 50000) {
+                smfgFoir = 70;
+                smfgMult = 25;
+              } else if (income >= 40000) {
+                smfgFoir = 70;
+                smfgMult = 20;
+              } else if (income >= 35000) {
+                smfgFoir = 70;
+                smfgMult = 18;
+              } else if (income >= 30000) {
+                smfgFoir = 65;
+                smfgMult = 16;
+              } else if (income >= 25000) {
+                smfgFoir = 60;
+                smfgMult = 13;
+              }
+
+              // Special Company Type Check (Excel: PROP/PART/LLP FIRM: 55% FOIR)
+              const compType = String(calculatorInput.companyType || calculatorInput.companyName || '').toUpperCase();
+              if (compType.includes('PROP') || compType.includes('PARTNERSHIP') || compType.includes('LLP') || compType.includes('PARTNER')) {
+                smfgFoir = Math.min(smfgFoir, 55);
+              }
+
+              bankInput.foirOverride = smfgFoir;
+              bankInput.multiplierOverride = smfgMult;
               bankInput.ccObligationPercentOverride = 5;
             } else {
               // Standard Bank FOIR logic

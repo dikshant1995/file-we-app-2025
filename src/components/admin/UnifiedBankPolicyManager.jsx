@@ -36,7 +36,7 @@ const INITIAL_12_BANKS = [
   // Additional Banks & NBFCs from Master Policy
   { id: 'axis-bank', name: 'Axis Bank', color: '#97144D', minRate: 9.99, maxLoan: 5000000, maxTenure: 84, enabled: true },
   { id: 'lnt', name: 'L&T Finance', color: '#004F9E', minRate: 10.99, maxLoan: 3000000, maxTenure: 72, enabled: true },
-  { id: 'smfg', name: 'SMFG India Credit', color: '#002D62', minRate: 17.00, maxLoan: 4000000, maxTenure: 72, enabled: true },
+  { id: 'smfg', name: 'SMFG India Credit', color: '#002D62', minRate: 17.00, maxLoan: 3000000, maxTenure: 60, enabled: true },
   { id: 'bajaj', name: 'Bajaj Finance', color: '#0072BB', minRate: 10.0, maxLoan: 5000000, maxTenure: 96, enabled: true },
   { id: 'incred', name: 'Incred Finance', color: '#F37023', minRate: 13.49, maxLoan: 1500000, maxTenure: 60, enabled: true },
   { id: 'au-bank', name: 'AU Small Finance Bank', color: '#6F2C91', minRate: 11.5, maxLoan: 1500000, maxTenure: 60, enabled: true },
@@ -566,11 +566,13 @@ const UnifiedBankPolicyManager = () => {
           const isFreshLnt = isLntBank && Array.isArray(parsed.interestRates) && parsed.interestRates.some(r => r.specialRate === 10.99);
           const isPiramalBank = bank.id === 'piramal' || bank.name?.toLowerCase().includes('piramal');
           const isFreshPiramal = isPiramalBank && Array.isArray(parsed.interestRates) && parsed.interestRates.some(r => r.minRoi === 11.99 && r.maxRoi === 28.00);
+          const isSmfgBank = bank.id === 'smfg' || bank.name?.toLowerCase().includes('smfg');
+          const isFreshSmfg = isSmfgBank && Array.isArray(parsed.loanCapping) && parsed.loanCapping.some(r => r.maxLoan === 3000000);
 
           const isValidRates = Array.isArray(parsed.interestRates) && parsed.interestRates.length > 0 && parsed.interestRates.every(r => r && typeof r === 'object');
           const isValidCapping = !parsed.loanCapping || (Array.isArray(parsed.loanCapping) && parsed.loanCapping.every(r => r && typeof r === 'object'));
 
-          if (hasMatchingCategories && (!isLntBank || isFreshLnt) && (!isPiramalBank || isFreshPiramal) && isValidRates && isValidCapping) {
+          if (hasMatchingCategories && (!isLntBank || isFreshLnt) && (!isPiramalBank || isFreshPiramal) && (!isSmfgBank || isFreshSmfg) && isValidRates && isValidCapping) {
             merged = { ...merged, ...parsed };
           } else {
             // Stale cache contains old categories or corrupted data - purge it so user sees pure Bank Policy Excel
@@ -2294,6 +2296,24 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               )}
 
+              {(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) && (
+                <div style={{
+                  background: 'rgba(0, 45, 98, 0.15)',
+                  border: '1.5px solid rgba(56, 189, 248, 0.35)',
+                  borderRadius: '8px',
+                  padding: '10px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  color: '#93c5fd',
+                  fontSize: '0.88rem'
+                }}>
+                  <AlertTriangle size={18} />
+                  <span><strong>SMFG India Credit Policy (from Excel: BANKS POLICYS.xlsx - Sheet: SMFG):</strong> Maximum loan amount is strictly capped at <strong>₹30 Lakhs</strong> across all categories (Super A, A, B, C, D, Govt). Minimum loan amount is <strong>₹1 Lakh</strong> (1LAC).</span>
+                </div>
+              )}
+
               <div className="table-responsive">
                 <table className="policy-table">
                   <thead>
@@ -2459,6 +2479,24 @@ const UnifiedBankPolicyManager = () => {
                 }}>
                   <CheckCircle2 size={18} />
                   <span><strong>Piramal Finance Tenure Windows (from Excel: BANKS POLICYS.xlsx):</strong> Standard Personal Loan tenure is <strong>12 to 72 Months (Up to 6 Years)</strong> across all categories. <strong>OD Program:</strong> Max tenure extends to <strong>84 Months (7 Years)</strong>. For Super A & A with &gt;₹1 Lakh Net Monthly Salary under OD+, tenure extends up to <strong>96 Months (8 Years)</strong>!</span>
+                </div>
+              )}
+
+              {(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) && (
+                <div style={{
+                  background: 'rgba(0, 45, 98, 0.15)',
+                  border: '1.5px solid rgba(56, 189, 248, 0.35)',
+                  borderRadius: '8px',
+                  padding: '10px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  color: '#93c5fd',
+                  fontSize: '0.88rem'
+                }}>
+                  <CheckCircle2 size={18} />
+                  <span><strong>SMFG India Credit Tenure Windows (from Excel Sheet: SMFG):</strong> Repayment tenure is flat <strong>12 to 60 Months (Up to 5 Years)</strong> across all categories (Super A, A, B, C, D, Govt).</span>
                 </div>
               )}
 
@@ -3038,6 +3076,40 @@ const UnifiedBankPolicyManager = () => {
                           ))}
                         </tbody>
                       </table>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(0, 45, 98, 0.20) 0%, rgba(14, 165, 233, 0.15) 100%)',
+                  border: '1.5px solid rgba(56, 189, 248, 0.4)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38bdf8', fontWeight: 700, fontSize: '0.95rem' }}>
+                    <CheckCircle2 size={18} />
+                    <span>SMFG India Credit Net Salary Band FOIR & Multiplier Matrix (from Excel Sheet: SMFG)</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
+                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 FOIR Slabs by Salary:</strong>
+                      <div style={{ marginTop: '5px' }}>• <strong>₹25k – ₹30k:</strong> Max FOIR <strong>60%</strong></div>
+                      <div style={{ marginTop: '3px' }}>• <strong>₹30k – ₹35k:</strong> Max FOIR <strong>65%</strong></div>
+                      <div style={{ marginTop: '3px' }}>• <strong>₹35k and Above:</strong> Max FOIR <strong>70%</strong></div>
+                      <div style={{ marginTop: '3px', color: '#fca5a5' }}>• <strong>Prop / Part / LLP Firm:</strong> Max FOIR strictly capped at <strong>55%</strong> (`PROP/PART/LLP FIRM: 55% FOIR`)</div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(249, 115, 22, 0.25)' }}>
+                      <strong style={{ color: '#fdba74', fontSize: '0.88rem' }}>📌 Multipliers by Salary:</strong>
+                      <div style={{ marginTop: '5px' }}>• <strong>₹25k – ₹30k:</strong> <strong>12x to 13x</strong></div>
+                      <div style={{ marginTop: '3px' }}>• <strong>₹30k – ₹35k:</strong> <strong>15x to 16x</strong> | <strong>₹35k – ₹40k:</strong> <strong>16x to 18x</strong></div>
+                      <div style={{ marginTop: '3px' }}>• <strong>₹40k – ₹50k:</strong> <strong>18x to 20x</strong> | <strong>₹50k – ₹75k:</strong> <strong>22x to 25x</strong></div>
+                      <div style={{ marginTop: '3px', color: '#86efac' }}>• <strong>₹75k – ₹100k+:</strong> <strong>23x to 30x</strong> (as per company cat and profile base)</div>
                     </div>
                   </div>
                 </div>
@@ -3626,6 +3698,40 @@ const UnifiedBankPolicyManager = () => {
                       <div style={{ marginTop: '5px' }}>• Minimum Net Monthly Salary: <strong>₹22,000 + Mandatory PF/PPF Deduction</strong> (Excel: <code>22+PF DEDUCT REQ</code> — PPF Toggle active in application form)</div>
                       <div style={{ marginTop: '3px', color: '#38bdf8' }}>• Credit Card Obligation: <strong>5% of Total CC Limit</strong> (`0.05`)</div>
                       <div style={{ marginTop: '3px', color: '#86efac' }}>• Balance Transfer (BT): <strong>1 PL BT Allowed with up to 2 CC BT</strong> (`2 CC BT ALLOW WITH 1 PL BT`)</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(0, 45, 98, 0.18) 0%, rgba(14, 165, 233, 0.12) 100%)',
+                  border: '1.5px solid rgba(56, 189, 248, 0.35)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38bdf8', fontWeight: 700, fontSize: '0.95rem' }}>
+                    <CheckCircle2 size={18} />
+                    <span>SMFG India Credit Demographics & Eligibility Criteria (from Master Excel: Sheet SMFG)</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
+                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 Age & Experience Requirements:</strong>
+                      <div style={{ marginTop: '5px' }}>• Min Applicant Age: <strong>21 Years</strong> (`21`)</div>
+                      <div style={{ marginTop: '3px' }}>• Max Age at Loan Time: <strong>Private: 60 Years / Govt: 65 Years (Pensioner Profile)</strong> (`PVT 60 AND GOVT 65(PENSIONER PROFILE)`)</div>
+                      <div style={{ marginTop: '3px' }}>• Retirement Age: <strong>65 Years</strong> (`65`)</div>
+                      <div style={{ marginTop: '3px', color: '#86efac' }}>• Work Experience: <strong>Current Company 2 Years</strong> (`CURRENT COM 2 YEARS`)</div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(249, 115, 22, 0.25)' }}>
+                      <strong style={{ color: '#fdba74', fontSize: '0.88rem' }}>📌 Financial & Credit Criteria:</strong>
+                      <div style={{ marginTop: '5px' }}>• Minimum Net Monthly Salary: <strong>₹25,000+ with 0 Deduction</strong> (`25K+ SALARY WITH 0 DEDUCTION`)</div>
+                      <div style={{ marginTop: '3px', color: '#38bdf8' }}>• Credit Card Obligation: <strong>5% of Outstanding</strong> (`0.05`)</div>
+                      <div style={{ marginTop: '3px', color: '#86efac' }}>• Balance Transfer (BT): <strong>Max 2 Credit Cards BT Allowed</strong> (`2 CC BT`)</div>
+                      <div style={{ marginTop: '3px', color: '#93c5fd' }}>• Processing Fee: <strong>&lt; ₹3 Lakh: 3.50% + GST</strong> | <strong>≥ ₹3 Lakh: 2.50% + GST</strong></div>
                     </div>
                   </div>
                 </div>
