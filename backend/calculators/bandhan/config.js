@@ -1,52 +1,82 @@
-// Bandhan Bank Configuration
+// Bandhan Bank Configuration (from BANKS POLICYS.xlsx - Sheet: BANDHAN BANK)
 export const bandhanConfig = {
   id: 'bandhan',
   name: 'Bandhan Bank',
-  minAge: 22, // Minimum age requirement
-  maxAge: 60, // Maximum age at loan maturity
-  minCreditScore: 600,
-  maxLoanTenure: 25,
-  maxLoanAmount: 5000000, // ₹50 Lakhs (Mid-Cap Lender)
-  bachelorMaxLoanAmount: 2000000, // ₹20 Lakhs maximum for unmarried individuals
-  interestRate: 11.0, // Fixed at 11% for all banks as per policy
-  processingFee: 0.012,
+  minAge: 21,
+  maxAge: 60,
+  retirementAge: 60,
+  minCreditScore: 650,
+  minLoanAmount: 100000,   // ₹1 Lakh (1LAC)
+  maxLoanAmount: 2500000,  // ₹25 Lakhs (25LAC flat cap for all categories)
+  minTenureMonths: 12,     // 12 Months
+  maxLoanTenure: 60,       // 60 Months (5 Years flat cap)
+  interestRate: 10.50,
 
-  // Incentive policy
-  incentivePercentage: 0.25, // 25% of average incentive
-  incentivePeriodMonths: 3, // Last 3 months
-
-  // FOIR table based on salary bands
-  foirTable: {
-    '<75000': 0.60,
-    '>=75000': 0.70
-  },
-
-  // Minimum salary requirements by category
+  // Minimum salary requirements by category (Excel: 25K / CATD 40K)
   minSalary: {
-    'A': 20000,
-    'GOVT': 20000,
+    'Super A': 25000,
+    'A': 25000,
+    'GOVT': 25000,
     'B': 25000,
-    'C': 30000,
-    'D': 30000,
-    'UNLISTED': null  // No loans for unlisted companies
+    'C': 25000,
+    'D': 40000
   },
-  // Maximum tenure by category (in months)
+
+  // Maximum tenure by category (in months - flat 60M across all)
   maxTenureByCategory: {
-    'A': 60,        // 5 years - CAT A
-    'GOVT': 60,     // 5 years - CAT GOVT
-    'B': 60,        // 5 years - CAT B
-    'C': 48,        // 4 years - CAT C
-    'D': 48,        // 4 years - CAT D
-    'UNLISTED': 0   // No loans for unlisted companies
+    'Super A': 60,
+    'A': 60,
+    'GOVT': 60,
+    'B': 60,
+    'C': 60,
+    'D': 60
   },
-  employmentTypes: ['salaried', 'self-employed', 'agriculture', 'government'],
-  specialPrograms: ['rural-development', 'agriculture-finance', 'msme-support'],
+
+  // FOIR table based on net monthly income (Excel Section 2)
+  foirTable: {
+    '<=30000': 0.50,
+    '30001-50000': 0.60,
+    '50001-75000': 0.65,
+    '>75000': 0.70
+  },
+
+  // Multiplier matrix by tenure and income range (Excel Section 6)
+  multiplierMatrix: {
+    'AB_GOVT': {
+      '<=30000': { 12: 6, 24: 10, 36: 14, 48: 17, 60: 20 },
+      '30001-50000': { 12: 7, 24: 13, 36: 15, 48: 21, 60: 22 },
+      '50001-75000': { 12: 8, 24: 13, 36: 16, 48: 22, 60: 24 },
+      '>75000': { 12: 9, 24: 14, 36: 18, 48: 23, 60: 25 }
+    },
+    'C': {
+      '<=30000': { 12: 5, 24: 7, 36: 10, 48: 12, 60: 12 },
+      '30001-50000': { 12: 7, 24: 9, 36: 12, 48: 14, 60: 14 },
+      '50001-75000': { 12: 7, 24: 10, 36: 16, 48: 17, 60: 18 },
+      '>75000': { 12: 9, 24: 11, 36: 17, 48: 18, 60: 22 }
+    },
+    'D': {
+      '<=30000': { 12: 5, 24: 7, 36: 10, 48: 12, 60: 12 },
+      '30001-50000': { 12: 7, 24: 9, 36: 12, 48: 14, 60: 14 },
+      '50001-75000': { 12: 7, 24: 10, 36: 16, 48: 17, 60: 17 },
+      '>75000': { 12: 9, 24: 11, 36: 17, 48: 18, 60: 18 }
+    }
+  },
+
+  // Credit Card & Special obligations (Excel Section 1)
+  ccObligationPercent: 0.03, // 3% of CC limit
+  ccExemptionSalaryMultiplier: 3, // Salary ka below 3 time no obligation (0% if CC limit < 3x salary)
+  exemptGlAndKcc: true, // GL and KCC not obligate
+
+  // Work experience
+  minTotalExperienceMonths: 12, // Overall 1 Year
+  minCurrentCompanyExperienceMonths: 1, // 1 Month current company
+  employmentTypes: ['salaried', 'government'],
 
   // Balance Transfer (BT) Configuration
   btConfig: {
-    isAvailable: false, // BT facility is NOT available for Bandhan Bank
-    maxLoansForBT: 0, // Does not offer balance transfer for personal loans
-    acceptsFintechLoans: false, // Does NOT accept BT for Fintech loans (BT not offered at all)
-    description: 'Bandhan Bank does not offer balance transfer facility for personal loans'
+    isAvailable: false,
+    allowCcBt: false,
+    maxLoansForBT: 0,
+    description: 'Bandhan Bank does not offer Credit Card Balance Transfer.'
   }
 };

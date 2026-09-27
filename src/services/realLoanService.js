@@ -320,6 +320,15 @@ const matchCategory = (cat1, cat2) => {
             category: 'REJECTED'
           };
         }
+        // Bandhan Bank: CC BT NOT ALLOW
+        if (hasCcInBt && (name.toLowerCase().includes('bandhan') || id === 'bandhan')) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: 'Credit Card Balance Transfer is not permitted for Bandhan Bank (CC BT Not Allowed as per policy).',
+            category: 'REJECTED'
+          };
+        }
         // L&T Finance: CC BT NOT ALLOW
         if (hasCcInBt && (name.toLowerCase().includes('l&t') || name.toLowerCase().includes('lnt') || id === 'lnt')) {
           return {
@@ -760,6 +769,75 @@ const matchCategory = (cat1, cat2) => {
         }
       }
 
+      // 3.11 KOTAK MAHINDRA BANK EXCEL POLICY CHECKS (Sheet: KOTAK)
+      const isKotakInst = name.toLowerCase().includes('kotak') || id === 'kotak';
+      if (isKotakInst) {
+        // Min Salary Check: 25k (Cat C & D: 35k)
+        const catUpper = String(bankCategory || '').toUpperCase();
+        const reqMinSalary = (catUpper === 'C' || catUpper === 'D') ? 35000 : 25000;
+        const income = Number(calculatorInput.monthlyIncome || calculatorInput.basicSalary || 0);
+
+        if (income < reqMinSalary) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Kotak Mahindra Bank requires minimum monthly salary of ₹${reqMinSalary.toLocaleString()} for Category ${bankCategory} (Excel: 25K / Cat C & D: 35K). Current: ₹${income.toLocaleString()}`,
+            category: bankCategory
+          };
+        }
+
+        // Age Check: 21 to 60 Years
+        const age = calculatorInput.age ? Number(calculatorInput.age) : null;
+        if (age !== null && (age < 21 || age > 60)) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Applicant age must be between 21 and 60 years for Kotak Mahindra Bank (Excel: 21 Years to 60 Years). Current: ${age}`,
+            category: bankCategory
+          };
+        }
+      }
+
+      // 3.12 BANDHAN BANK EXCEL POLICY CHECKS (Sheet: BANDHAN BANK)
+      const isBandhanInst = name.toLowerCase().includes('bandhan') || id === 'bandhan';
+      if (isBandhanInst) {
+        // Min Salary Check: 25k (Cat D: 40k)
+        const catUpper = String(bankCategory || '').toUpperCase();
+        const reqMinSalary = catUpper === 'D' ? 40000 : 25000;
+        const income = Number(calculatorInput.monthlyIncome || calculatorInput.basicSalary || 0);
+
+        if (income < reqMinSalary) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Bandhan Bank requires minimum monthly salary of ₹${reqMinSalary.toLocaleString()} for Category ${bankCategory} (Excel: 25K / CAT D 40K). Current: ₹${income.toLocaleString()}`,
+            category: bankCategory
+          };
+        }
+
+        // Age Check: 21 to 60 Years
+        const age = calculatorInput.age ? Number(calculatorInput.age) : null;
+        if (age !== null && (age < 21 || age > 60)) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Applicant age must be between 21 and 60 years for Bandhan Bank (Excel: 21 YEARS to 60 YEARS). Current: ${age}`,
+            category: bankCategory
+          };
+        }
+
+        // Work Experience Check: Overall 1 Year (12M)
+        const totalExp = Number(calculatorInput.totalWorkExperience || calculatorInput.workExperience || 0);
+        if (totalExp > 0 && totalExp < 12) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Bandhan Bank requires minimum 1 year (12 months) overall work experience (Excel: OVERALL 1YEARS). Found: ${totalExp} months.`,
+            category: bankCategory
+          };
+        }
+      }
+
       // -------------------------------------------------------------
       // Dynamic Bank Policy Specific Credit Card Obligation Percentage
       // -------------------------------------------------------------
@@ -1040,15 +1118,44 @@ const matchCategory = (cat1, cat2) => {
               bankInput.multiplierOverride = matchedFoir.multiplier || 28;
               if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
             } else if (name.toLowerCase().includes('bandhan') || id === 'bandhan') {
-              // Bandhan Bank Excel Policy
+              // Bandhan Bank Excel Policy (Sheet: BANDHAN BANK)
+              // FOIR Slabs: <=30k: 50%, 30k-50k: 60%, 50k-75k: 65%, >75k: 70%
               let bFoir = 50;
               if (income >= 75001) bFoir = 70;
               else if (income >= 50001) bFoir = 65;
               else if (income >= 30001) bFoir = 60;
               else bFoir = 50;
               bankInput.foirOverride = bFoir;
-              bankInput.multiplierOverride = matchedFoir.multiplier || 24;
-              bankInput.ccObligationPercentOverride = 3;
+
+              // Multiplier from Section 6
+              const catUpper = String(bankCategory || '').toUpperCase();
+              let bMult = 20;
+              if (catUpper === 'C') {
+                if (income > 75000) bMult = 22;
+                else if (income >= 50001) bMult = 18;
+                else if (income >= 30001) bMult = 14;
+                else bMult = 12;
+              } else if (catUpper === 'D') {
+                if (income > 75000) bMult = 18;
+                else if (income >= 50001) bMult = 17;
+                else if (income >= 30001) bMult = 14;
+                else bMult = 12;
+              } else {
+                // Super A, A, B, Govt
+                if (income > 75000) bMult = 25;
+                else if (income >= 50001) bMult = 24;
+                else if (income >= 30001) bMult = 22;
+                else bMult = 20;
+              }
+              bankInput.multiplierOverride = matchedFoir.multiplier || bMult;
+
+              // CC Obligation: 3% (0% if CC limit < 3x monthly salary)
+              const ccLimit = calculatorInput.totalCreditCardLimit || 0;
+              if (ccLimit > 0 && ccLimit < (income * 3)) {
+                bankInput.ccObligationPercentOverride = 0;
+              } else {
+                bankInput.ccObligationPercentOverride = 3;
+              }
             } else if (name.toLowerCase().includes('au ') || id === 'au-bank' || id === 'au') {
               // AU Small Finance Bank Excel Policy
               const catUpper = String(bankCategory || '').toUpperCase();

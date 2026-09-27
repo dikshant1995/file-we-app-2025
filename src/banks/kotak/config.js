@@ -1,104 +1,86 @@
-// Kotak Mahindra Bank Configuration
+// Kotak Mahindra Bank Configuration (from BANKS POLICYS.xlsx - Sheet: KOTAK)
 export const kotakConfig = {
   id: 'kotak',
   name: 'Kotak Mahindra Bank',
-  minAge: 21, // Minimum age requirement
-  maxAge: 60, // Maximum age at loan maturity
-  minCreditScore: 700,
-  maxLoanTenure: 30,
-  maxLoanAmount: 5000000, // ₹50 Lakhs (Mid-Cap Lender)
-  bachelorMaxLoanAmount: 2000000, // ₹20 Lakhs maximum for unmarried individuals
-  interestRate: 11.0, // Fixed at 11% for all banks as per policy
-  processingFee: 0.007,
-  // Incentive policy
-  incentivePercentage: 1.0, // 100% of average incentive
-  incentivePeriodMonths: 3, // Last 3 months
-  employmentTypes: ['salaried', 'government'],
-  specialPrograms: ['kotak-premium', 'women-empowerment', 'salaried-plus'],
-
-  // Balance Transfer (BT) Configuration
-  btConfig: {
-    isAvailable: true, // BT facility is available
-    maxLoansForBT: 6, // Maximum number of existing personal loans that can be consolidated
-    acceptsFintechLoans: false, // Does NOT accept BT for Fintech/digital platform loans
-    description: 'Kotak allows balance transfer for up to 6 existing personal loans (excluding Fintech loans)'
+  minAge: 21,
+  maxAge: 60,
+  retirementAge: 60,
+  minCreditScore: 650,
+  minTenureMonths: 24, // 2 Years minimum tenure
+  maxLoanTenure: 72,   // 6 Years maximum tenure (in months)
+  minLoanAmount: 100000, // ₹1 Lakh
+  maxLoanAmount: 10000000, // ₹1 Crore
+  maxLoanAmountByCategory: {
+    'Super A': 10000000,
+    'AA': 10000000,
+    'A': 10000000,
+    'GOVT': 10000000,
+    'B': 10000000,
+    'C': 3500000,
+    'D': 2000000
   },
-  // Multiplier table based on salary bands and categories
-  multiplierTable: {
-    '25000-35000': {
-      'AA': 19,
-      'A': 19,
-      'GOVT': 19,
-      'B': 15,
-      'C': 9,
-      'D': 8
-    },
-    '35001-50000': {
-      'AA': 22,
-      'A': 22,
-      'GOVT': 22,
-      'B': 18,
-      'C': 12,
-      'D': 10
-    },
-    '50001-75000': {
-      'AA': 30,
-      'A': 26,
-      'GOVT': 26,
-      'B': 24,
-      'C': 18,
-      'D': 16
-    },
-    '75000+': {
-      'AA': 31,
-      'A': 30,
-      'GOVT': 30,
-      'B': 26,
-      'C': 20,
-      'D': 18
-    }
-  },
-  // FOIR table based on salary bands and categories
-  foirTable: {
-    '25000-34999': {
-      'AA': 0.60,
-      'A': 0.60,
-      'B': 0.60,
-      'C': 0.60,
-      'GOVT': 0.60,
-      'D': 0.50
-    },
-    '35000-49999': {
-      'AA': 0.60,
-      'A': 0.60,
-      'B': 0.60,
-      'C': 0.60,
-      'GOVT': 0.60,
-      'D': 0.55
-    },
-    '50000+': {
-      'AA': 0.70,
-      'A': 0.70,
-      'B': 0.70,
-      'C': 0.70,
-      'GOVT': 0.70,
-      'D': 0.60
-    }
+  interestRate: 9.95,
+  roiMatrix: {
+    'Super A': { above15L: 9.95, '10Lto15L': 10.50, below10L: 10.99 },
+    'AA': { above15L: 9.95, '10Lto15L': 10.50, below10L: 10.99 },
+    'A': { above15L: 9.95, '10Lto15L': 10.50, below10L: 10.99 },
+    'GOVT': { above15L: 9.95, '10Lto15L': 10.50, below10L: 10.99 },
+    'B': { above15L: 9.95, '10Lto15L': 10.50, below10L: 10.99 },
+    'C': { above15L: 11.00, '10Lto15L': 11.50, below10L: 12.00 },
+    'D': { above15L: 12.00, '10Lto15L': 12.50, below10L: 13.00 }
   },
   // Minimum salary requirements by category
   minSalary: {
+    'Super A': 25000,
+    'AA': 25000,
     'A': 25000,
+    'GOVT': 25000,
     'B': 25000,
-    'C': 25000,
+    'C': 35000,
     'D': 35000
   },
   // Maximum tenure by category (in months)
   maxTenureByCategory: {
-    'AA': 72,    // 6 years - Premium category
-    'A': 72,     // 6 years - Premium category
-    'GOVT': 72,  // 6 years - Government employees
-    'B': 72,     // 6 years - Standard category
-    'C': 60,     // 5 years - Lower-rated companies
-    'D': 60      // 5 years - Lowest-rated companies
+    'Super A': 72,
+    'AA': 72,
+    'A': 72,
+    'GOVT': 72,
+    'B': 72,
+    'C': 72,
+    'D': 60
+  },
+  // Multipliers by category
+  multipliers: {
+    'Super A': 31,
+    'AA': 31,
+    'A': 27,
+    'GOVT': 27,
+    'B': 25,
+    'C': 20,
+    'D': 18
+  },
+  // FOIR percentages by category
+  foirByCategory: {
+    'Super A': 0.70,
+    'AA': 0.70,
+    'A': 0.70,
+    'GOVT': 0.70,
+    'B': 0.70,
+    'C': 0.70,
+    'D': 0.60
+  },
+  liveHlBonusFoir: 0.05, // +5% if Home Loan is live and >= 10 Lakhs
+  ccObligationPercent: 0.05, // 5% of CC outstanding
+  minWorkExperienceMonths: 1, // 1 Month
+  minCurrentCompanyExperienceMonths: 1,
+  employmentTypes: ['salaried', 'government'],
+
+  // Balance Transfer (BT) Configuration
+  btConfig: {
+    isAvailable: true,
+    allowCcBt: false, // CC BT NOT ALLOW
+    maxLoansForBT: 6,
+    acceptsFintechLoans: false,
+    description: 'Kotak allows balance transfer for Personal Loans only. Credit Card Balance Transfer is strictly NOT allowed.'
   }
 };
