@@ -82,3 +82,6 @@ venv/
 backend-bl/
 *.wav
 Laxmi_AI_Voice_Backup/
+*.docx
+*.pdf
+generate_word.py

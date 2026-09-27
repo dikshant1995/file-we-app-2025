@@ -8,6 +8,7 @@ import {
   ChevronLeft, ChevronRight, CheckCircle, HelpCircle, FileText, ArrowRight
 } from 'lucide-react';
 import { getBankConfig, saveBankConfig } from '../../services/bankConfigService.js';
+import { getExcelPolicyForBank, BANK_EXCEL_POLICIES } from '../../config/bankPolicyRegistry.js';
 import { 
   loadBankDatabase, 
   setBankDatabaseInMemory, 
@@ -18,29 +19,29 @@ import {
 } from '../../services/companyDatabaseService.js';
 import './UnifiedBankPolicyManager.css';
 
-// Partner Lending Institutions (Banks & NBFCs)
+// Partner Lending Institutions (Banks & NBFCs) configured according to BANKS POLICYS.xlsx
 const INITIAL_12_BANKS = [
-  { id: 'kotak', name: 'Kotak Mahindra Bank', color: '#ED1C24', minRate: 10.5, maxLoan: 5000000, maxTenure: 84, enabled: true },
-  { id: 'tata', name: 'Tata Capital', color: '#1F4E78', minRate: 10.99, maxLoan: 4000000, maxTenure: 72, enabled: true },
-  { id: 'poonawala', name: 'Poonawala Finance', color: '#005596', minRate: 11.25, maxLoan: 3500000, maxTenure: 60, enabled: true },
-  { id: 'idfc', name: 'IDFC First Bank', color: '#8B1538', minRate: 10.49, maxLoan: 5000000, maxTenure: 84, enabled: true },
+  { id: 'kotak', name: 'Kotak Mahindra Bank', color: '#ED1C24', minRate: 9.95, maxLoan: 10000000, maxTenure: 72, enabled: true },
+  { id: 'tata', name: 'Tata Capital', color: '#1F4E78', minRate: 10.99, maxLoan: 5000000, maxTenure: 84, enabled: true },
+  { id: 'poonawala', name: 'Poonawala Finance', color: '#005596', minRate: 11.99, maxLoan: 6000000, maxTenure: 84, enabled: true },
+  { id: 'idfc', name: 'IDFC First Bank', color: '#8B1538', minRate: 10.25, maxLoan: 10000000, maxTenure: 84, enabled: true },
   { id: 'hdfc', name: 'HDFC Bank', color: '#004C8F', minRate: 9.99, maxLoan: 7500000, maxTenure: 84, enabled: true },
-  { id: 'icici', name: 'ICICI Bank', color: '#ED1C24', minRate: 10.75, maxLoan: 5000000, maxTenure: 84, enabled: true },
-  { id: 'bandhan', name: 'Bandhan Bank', color: '#DC0028', minRate: 11.5, maxLoan: 2500000, maxTenure: 60, enabled: true },
-  { id: 'cholamandalam', name: 'Cholamandalam Finance', color: '#F37021', minRate: 12.0, maxLoan: 3000000, maxTenure: 60, enabled: true },
-  { id: 'axis-fin', name: 'Axis Finance', color: '#800000', minRate: 10.75, maxLoan: 5000000, maxTenure: 84, enabled: true },
+  { id: 'icici', name: 'ICICI Bank', color: '#ED1C24', minRate: 9.99, maxLoan: 10000000, maxTenure: 72, enabled: true },
+  { id: 'bandhan', name: 'Bandhan Bank', color: '#DC0028', minRate: 10.50, maxLoan: 2500000, maxTenure: 60, enabled: true },
+  { id: 'cholamandalam', name: 'Cholamandalam Finance', color: '#F37021', minRate: 13.75, maxLoan: 5000000, maxTenure: 84, enabled: true },
+  { id: 'axis-fin', name: 'Axis Finance', color: '#800000', minRate: 13.50, maxLoan: 2500000, maxTenure: 84, enabled: true },
   { id: 'indusind', name: 'IndusInd Bank', color: '#005596', minRate: 9.99, maxLoan: 7500000, maxTenure: 84, enabled: true },
   { id: 'shri-ram', name: 'Shri Ram Finance', color: '#1F4E78', minRate: 12.5, maxLoan: 2000000, maxTenure: 48, enabled: true },
-  { id: 'piramal', name: 'Piramal Finance', color: '#1F4E78', minRate: 11.75, maxLoan: 3000000, maxTenure: 60, enabled: true },
+  { id: 'piramal', name: 'Piramal Finance', color: '#1F4E78', minRate: 11.99, maxLoan: 5000000, maxTenure: 72, enabled: true },
   // Additional Banks & NBFCs from Master Policy
   { id: 'axis-bank', name: 'Axis Bank', color: '#97144D', minRate: 9.99, maxLoan: 5000000, maxTenure: 84, enabled: true },
-  { id: 'lnt', name: 'L&T Finance', color: '#004F9E', minRate: 11.5, maxLoan: 3000000, maxTenure: 60, enabled: true },
-  { id: 'smfg', name: 'SMFG India Credit', color: '#002D62', minRate: 11.99, maxLoan: 3000000, maxTenure: 60, enabled: true },
-  { id: 'bajaj', name: 'Bajaj Finance', color: '#0072BB', minRate: 10.0, maxLoan: 4000000, maxTenure: 84, enabled: true },
+  { id: 'lnt', name: 'L&T Finance', color: '#004F9E', minRate: 10.99, maxLoan: 3000000, maxTenure: 72, enabled: true },
+  { id: 'smfg', name: 'SMFG India Credit', color: '#002D62', minRate: 17.00, maxLoan: 4000000, maxTenure: 72, enabled: true },
+  { id: 'bajaj', name: 'Bajaj Finance', color: '#0072BB', minRate: 10.0, maxLoan: 5000000, maxTenure: 96, enabled: true },
   { id: 'incred', name: 'Incred Finance', color: '#F37023', minRate: 13.49, maxLoan: 1500000, maxTenure: 60, enabled: true },
-  { id: 'au-bank', name: 'AU Small Finance Bank', color: '#6F2C91', minRate: 11.5, maxLoan: 3500000, maxTenure: 60, enabled: true },
-  { id: 'abfl', name: 'Aditya Birla Finance', color: '#A6192E', minRate: 11.25, maxLoan: 5000000, maxTenure: 84, enabled: true },
-  { id: 'finnable', name: 'Finnable Finance', color: '#10B981', minRate: 14.0, maxLoan: 1000000, maxTenure: 60, enabled: true }
+  { id: 'au-bank', name: 'AU Small Finance Bank', color: '#6F2C91', minRate: 11.5, maxLoan: 1500000, maxTenure: 60, enabled: true },
+  { id: 'abfl', name: 'Aditya Birla Finance', color: '#A6192E', minRate: 11.50, maxLoan: 5000000, maxTenure: 84, enabled: true },
+  { id: 'finnable', name: 'Finnable Finance', color: '#10B981', minRate: 22.0, maxLoan: 1000000, maxTenure: 60, enabled: true }
 ];
 
 const getBankDbKey = (bankId) => {
@@ -312,13 +313,14 @@ const sanitizePolicyData = (raw) => {
     ...raw,
     interestRates: Array.isArray(raw.interestRates) && raw.interestRates.length > 0 
       ? raw.interestRates.map(row => ({
+          ...row,
           category: row.category,
           roiAbove15L: row.roiAbove15L ?? row.minRoi ?? 9.99,
           roi10Lto15L: row.roi10Lto15L ?? row.maxRoi ?? 10.35,
           roiBelow10L: row.roiBelow10L ?? row.defaultRoi ?? 10.75,
-          minRoi: row.roiAbove15L ?? row.minRoi ?? 9.99,
-          maxRoi: row.roi10Lto15L ?? row.maxRoi ?? 10.35,
-          defaultRoi: row.roiBelow10L ?? row.defaultRoi ?? 10.75,
+          minRoi: row.minRoi ?? row.roiAbove15L ?? 9.99,
+          maxRoi: row.maxRoi ?? row.roi10Lto15L ?? 10.35,
+          defaultRoi: row.defaultRoi ?? row.roiBelow10L ?? 10.75,
           minSalary: row.minSalary ?? 25000
         }))
       : DEFAULT_UNIFIED_POLICY.interestRates,
@@ -330,6 +332,7 @@ const sanitizePolicyData = (raw) => {
       : DEFAULT_UNIFIED_POLICY.tenureRules,
     foirMultiplier: Array.isArray(raw.foirMultiplier) && raw.foirMultiplier.length > 0 
       ? raw.foirMultiplier.map(row => ({
+          ...row,
           category: row.category,
           slab1Foir: row.slab1Foir ?? (row.maxFoir ? Math.max(40, row.maxFoir - 20) : 55),
           slab2Foir: row.slab2Foir ?? (row.maxFoir ? Math.max(50, row.maxFoir - 10) : 65),
@@ -356,23 +359,34 @@ const UnifiedBankPolicyManager = () => {
   const [selectedState, setSelectedState] = useState('All India');
   const [selectedCity, setSelectedCity] = useState('All Cities (National Default)');
 
-  // Institutional Banks State (stored in localStorage with auto-sync for newly added institutions)
+  // Institutional Banks State (stored in localStorage with auto-sync for newly updated master policies)
   const [banks, setBanks] = useState(() => {
     try {
       const stored = localStorage.getItem('laxmi_admin_12_banks');
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          const existingIds = new Set(parsed.map(b => b.id));
-          const missingBanks = INITIAL_12_BANKS.filter(b => !existingIds.has(b.id));
-          if (missingBanks.length > 0) {
-            const merged = [...parsed, ...missingBanks];
-            try {
-              localStorage.setItem('laxmi_admin_12_banks', JSON.stringify(merged));
-            } catch (e) {}
-            return merged;
-          }
-          return parsed;
+          // Merge latest master parameters from INITIAL_12_BANKS (e.g. ICICI minRate 9.99, maxLoan 1 Cr, maxTenure 72)
+          const updatedList = INITIAL_12_BANKS.map(initBank => {
+            const existing = parsed.find(b => b.id === initBank.id);
+            if (existing) {
+              return {
+                ...initBank,
+                enabled: existing.enabled !== undefined ? existing.enabled : initBank.enabled,
+                minRate: initBank.minRate,
+                maxLoan: initBank.maxLoan,
+                maxTenure: initBank.maxTenure
+              };
+            }
+            return initBank;
+          });
+          const initIds = new Set(INITIAL_12_BANKS.map(b => b.id));
+          const customBanks = parsed.filter(b => !initIds.has(b.id));
+          const finalBanks = [...updatedList, ...customBanks];
+          try {
+            localStorage.setItem('laxmi_admin_12_banks', JSON.stringify(finalBanks));
+          } catch (e) {}
+          return finalBanks;
         }
       }
       return INITIAL_12_BANKS;
@@ -516,44 +530,29 @@ const UnifiedBankPolicyManager = () => {
     const locationKey = `${selectedState}-${selectedCity}`;
     const stored = localStorage.getItem(`policy_config_${bank.id}_${locationKey}`) || localStorage.getItem(`policy_config_${bank.id}`);
 
-    // Direct Master Policy from Excel for Axis Bank
-    if (bank.id === 'axis-bank' || bank.name === 'Axis Bank') {
-      let axisBase = AXIS_BANK_EXCEL_POLICY;
+    // Direct Master Policy from Excel for ALL institutions (registered in bankPolicyRegistry.js)
+    const masterBase = getExcelPolicyForBank(bank.id, bank.name);
+    if (masterBase) {
+      let merged = { ...masterBase };
       if (stored) {
         try {
           const parsed = JSON.parse(stored);
-          axisBase = { ...axisBase, ...parsed };
-        } catch (e) {}
-      }
-      setPolicyData(sanitizePolicyData(axisBase));
-      return;
-    }
-
-    // Direct Master Policy from Excel for IndusInd Bank
-    if (bank.id === 'indusind' || bank.name === 'IndusInd Bank') {
-      let indusBase = INDUSIND_BANK_EXCEL_POLICY;
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          indusBase = { ...indusBase, ...parsed };
-        } catch (e) {}
-      }
-      setPolicyData(sanitizePolicyData(indusBase));
-      return;
-    }
-
-    // Direct Master Policy from Excel for HDFC Bank
-    if (bank.id === 'hdfc' || bank.name === 'HDFC Bank') {
-      let hdfcBase = HDFC_BANK_EXCEL_POLICY;
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (parsed?.interestRates?.some(r => r.roiAbove20L !== undefined)) {
-            hdfcBase = { ...hdfcBase, ...parsed };
+          const isIciciBank = bank.id === 'icici' || bank.name?.toLowerCase().includes('icici');
+          const hasMatchingCategories = isIciciBank
+            ? Array.isArray(parsed.interestRates) && parsed.interestRates.some(r => r.category === 'Super Prime' || r.category === 'Army Profile')
+            : true;
+          if (hasMatchingCategories) {
+            merged = { ...merged, ...parsed };
+          } else if (isIciciBank) {
+            // Stale cache contains old categories (e.g. Super A, B, C) - purge it so user sees pure Excel policy
+            try {
+              localStorage.removeItem(`policy_config_${bank.id}_${locationKey}`);
+              localStorage.removeItem(`policy_config_${bank.id}`);
+            } catch (err) {}
           }
         } catch (e) {}
       }
-      setPolicyData(sanitizePolicyData(hdfcBase));
+      setPolicyData(sanitizePolicyData(merged));
       return;
     }
 
@@ -1375,21 +1374,81 @@ const UnifiedBankPolicyManager = () => {
 
           {/* TAB 1: INTEREST RATES TABULAR VIEW */}
           {activeConfigTab === 'rates' && (() => {
-            const isHdfc = activeConfigBank?.id === 'hdfc' || activeConfigBank?.name?.toLowerCase().includes('hdfc');
-            const isIndusind = activeConfigBank?.id === 'indusind' || activeConfigBank?.name?.toLowerCase().includes('indusind');
-            const isAxis = activeConfigBank?.id === 'axis-bank' || activeConfigBank?.name?.toLowerCase().includes('axis');
+            const bankId = activeConfigBank?.id || '';
+            const isHdfc = bankId === 'hdfc' || activeConfigBank?.name?.toLowerCase().includes('hdfc');
+            const isIndusind = bankId === 'indusind' || activeConfigBank?.name?.toLowerCase().includes('indusind');
+            const isAxis = bankId === 'axis-bank' || (activeConfigBank?.name?.toLowerCase().includes('axis') && !bankId.includes('fin'));
+            const isKotak = bankId === 'kotak' || activeConfigBank?.name?.toLowerCase().includes('kotak');
+            const isTata = bankId === 'tata' || activeConfigBank?.name?.toLowerCase().includes('tata');
+            const isBajaj = bankId === 'bajaj' || activeConfigBank?.name?.toLowerCase().includes('bajaj');
+            const isBandhan = bankId === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('bandhan');
+            const isChola = bankId === 'cholamandalam' || activeConfigBank?.name?.toLowerCase().includes('chola');
+            const isAxisFin = bankId === 'axis-fin' || activeConfigBank?.name?.toLowerCase().includes('axis fin');
+            const isLnt = bankId === 'lnt' || activeConfigBank?.name?.toLowerCase().includes('l&t') || activeConfigBank?.name?.toLowerCase().includes('lnt');
+            const isPoonawala = bankId === 'poonawala' || activeConfigBank?.name?.toLowerCase().includes('poonawala');
+            const isIcici = bankId === 'icici' || activeConfigBank?.name?.toLowerCase().includes('icici');
+            const isAbfl = bankId === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('birla') || activeConfigBank?.name?.toLowerCase().includes('abfl');
+            const isSmfg = bankId === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg');
 
-            // For banks whose Excel policy only has Super A, A, B, C, Govt in ROI (HDFC, IndusInd, Axis), exclude Category D from ROI table
             const rawRates = policyData?.interestRates || [];
-            const displayRates = (isHdfc || isIndusind || isAxis)
+            // Banks that don't have Cat D in ROI: HDFC, IndusInd, Axis, Bandhan, Tata
+            const displayRates = (isHdfc || isIndusind || isAxis || isBandhan || isTata)
               ? rawRates.filter(r => r.category !== 'D')
               : rawRates;
+
+            const updateRate = (cat, field, val) => {
+              const updated = [...policyData.interestRates];
+              const realIdx = updated.findIndex(r => r.category === cat);
+              if (realIdx >= 0) {
+                updated[realIdx][field] = val;
+                if (field === 'roiAbove15L' || field === 'roiAbove20L' || field === 'roi50L' || field === 'roiAbove35L' || field === 'roiAbove10L') {
+                  updated[realIdx].minRoi = val;
+                }
+                if (field === 'roiBelow10L' || field === 'roiBelow20L' || field === 'roiBelow5L') {
+                  updated[realIdx].defaultRoi = val;
+                }
+                setPolicyData({ ...policyData, interestRates: updated });
+              }
+            };
 
             return (
               <div className="tabular-policy-card">
                 <div className="table-card-header">
                   <div>
                     <h3>Interest Rate Structures & Slabs (By Loan Amount)</h3>
+                    {isKotak && (
+                      <p>Kotak Master Policy Slabs: <strong>≥ ₹15 Lakh</strong> (9.95%), <strong>₹10L – ₹15L</strong> (10.50%), and <strong>&lt; ₹10 Lakh</strong> (11.00% – 12.00%).</p>
+                    )}
+                    {isTata && (
+                      <p>Tata Capital Master Policy Slabs: <strong>₹50 Lakh Special</strong> (10.99%), <strong>₹20L – ₹50L</strong> (12.00%), and <strong>&lt; ₹20 Lakh</strong> (14.00%).</p>
+                    )}
+                    {isBajaj && (
+                      <p>Bajaj Finance Master Policy Slabs: <strong>≥ ₹10 Lakh</strong> (10.00% Cat A/B), <strong>₹1L – ₹12L Sal Lite</strong> (16.00%), and <strong>Default ROI</strong> (14.00%).</p>
+                    )}
+                    {isBandhan && (
+                      <p>Bandhan Bank Master Policy: <strong>Flat 10.50% p.a.</strong> across all loan brackets up to ₹25 Lakhs sanction limit.</p>
+                    )}
+                    {isChola && (
+                      <p>Cholamandalam Master Policy Slabs: <strong>≥ ₹10L (₹75k+ Sal)</strong> (13.75%), <strong>₹7.5L – ₹10L (₹50k+ Sal)</strong> (14.50%), <strong>₹5L+ Cases</strong> (15.00%), and <strong>&lt; ₹5L Cases</strong> (16.00%).</p>
+                    )}
+                    {isAxisFin && (
+                      <p>Axis Finance Master Policy Slabs: <strong>₹5L – ₹25L Loan Cases</strong> (13.50% – 16.00%), and <strong>Credit Card BT / App BT</strong> (18.00%).</p>
+                    )}
+                    {isLnt && (
+                      <p>L&T Finance Master Policy Slabs: <strong>₹20L – ₹30L</strong> (11.50% – 12.50%), <strong>₹10L – ₹20L</strong> (14.00%), and <strong>&lt; ₹10L</strong> (13.00% – 15.00%).</p>
+                    )}
+                    {isPoonawala && (
+                      <p>Poonawala Master Policy Slabs: <strong>≥ ₹35 Lakh</strong> (11.99%), <strong>₹20L – ₹35L</strong> (12.25%), and <strong>&lt; ₹20 Lakh</strong> (12.50% – 14.25%).</p>
+                    )}
+                    {isIcici && (
+                      <p>ICICI Bank Master Policy (from Excel): <strong>CIBIL 775+ & ₹75k+ Sal (≥₹20L)</strong> (9.99%), <strong>CIBIL 750–774 & ₹75k+ Sal</strong> (10.30%), and <strong>Standard ROI</strong> (12.00% to 9.99% / Open Market: 11.00% to 12.80%). Min Ticket in Rajasthan: <strong>₹6.10 Lakhs</strong>.</p>
+                    )}
+                    {isAbfl && (
+                      <p>ABFL Master Policy Slabs: <strong>≥ ₹15 Lakh</strong> (11.50% – 13.00%), and <strong>&lt; ₹15 Lakh</strong> (12.50% – 14.00%).</p>
+                    )}
+                    {isSmfg && (
+                      <p>SMFG India Credit Slabs: <strong>Net Sal &gt; ₹1 Lakh</strong> (17.00%), <strong>Net Sal ₹50k – ₹1L</strong> (18.00%), and <strong>Net Sal &lt; ₹50k</strong> (21.00% – 28.00%).</p>
+                    )}
                     {isHdfc && (
                       <p>HDFC Master Policy Slabs: <strong>20 LAKH +</strong> (9.99%), <strong>15 LAKH+</strong> (10.15%), <strong>10-15 LAKH</strong> (10.50%), and <strong>5-10 LAKH</strong> (11.50%).</p>
                     )}
@@ -1399,7 +1458,7 @@ const UnifiedBankPolicyManager = () => {
                     {isAxis && (
                       <p>Axis Bank Master Policy Slabs: <strong>10L ABOVE CASES</strong> (Super A/A: 10.35%, B: 10.45%, C: 10.75%, Govt: 10.45%).</p>
                     )}
-                    {!isHdfc && !isIndusind && !isAxis && (
+                    {!isKotak && !isTata && !isBajaj && !isBandhan && !isChola && !isAxisFin && !isLnt && !isPoonawala && !isIcici && !isAbfl && !isSmfg && !isHdfc && !isIndusind && !isAxis && (
                       <p>Define minimum ROI strictly according to employer category and loan amount brackets.</p>
                     )}
                   </div>
@@ -1430,7 +1489,85 @@ const UnifiedBankPolicyManager = () => {
                             <th>10L Above Cases (% p.a.)</th>
                           </>
                         )}
-                        {!isHdfc && !isIndusind && !isAxis && (
+                        {isKotak && (
+                          <>
+                            <th>≥ ₹15 Lakh Loan ROI (% p.a.)</th>
+                            <th>₹10L – ₹15L Loan ROI (% p.a.)</th>
+                            <th>&lt; ₹10 Lakh Loan ROI (% p.a.)</th>
+                          </>
+                        )}
+                        {isTata && (
+                          <>
+                            <th>₹50 Lakh Special Slabs (% p.a.)</th>
+                            <th>₹20L – ₹50L Cases (% p.a.)</th>
+                            <th>&lt; ₹20 Lakh Cases (% p.a.)</th>
+                          </>
+                        )}
+                        {isBajaj && (
+                          <>
+                            <th>≥ ₹10 Lakh ROI (% p.a.)</th>
+                            <th>₹1L – ₹12L Sal Lite (% p.a.)</th>
+                            <th>Default Standard ROI (% p.a.)</th>
+                          </>
+                        )}
+                        {isBandhan && (
+                          <>
+                            <th>All Loan Slabs (Flat ROI % p.a.)</th>
+                            <th>Min Salary Requirement</th>
+                            <th>Max Sanction Limit</th>
+                          </>
+                        )}
+                        {isChola && (
+                          <>
+                            <th>≥ ₹10L & 75K+ Sal (% p.a.)</th>
+                            <th>₹7.5L–₹10L & 50K+ Sal (% p.a.)</th>
+                            <th>₹5L+ Cases (% p.a.)</th>
+                            <th>&lt; ₹5L Cases (% p.a.)</th>
+                          </>
+                        )}
+                        {isAxisFin && (
+                          <>
+                            <th>₹5L – ₹25L Loan Cases (% p.a.)</th>
+                            <th>Credit Card BT / App BT (% p.a.)</th>
+                          </>
+                        )}
+                        {isLnt && (
+                          <>
+                            <th>₹20L – ₹30L Slabs (% p.a.)</th>
+                            <th>₹10L – ₹20L Slabs (% p.a.)</th>
+                            <th>&lt; ₹10L Slabs (% p.a.)</th>
+                          </>
+                        )}
+                        {isPoonawala && (
+                          <>
+                            <th>≥ ₹35 Lakh ROI (% p.a.)</th>
+                            <th>₹20L to &lt; ₹35L ROI (% p.a.)</th>
+                            <th>&lt; ₹20 Lakh ROI (% p.a.)</th>
+                          </>
+                        )}
+                        {isIcici && (
+                          <>
+                            <th>CIBIL & Salary Criteria (Excel)</th>
+                            <th>CIBIL 775+ & ₹75k+ (≥20L) (%)</th>
+                            <th>CIBIL 750–774 & ₹75k+ (≥20L) (%)</th>
+                            <th>Standard ROI (Min – Max)</th>
+                            <th>Default Applied ROI</th>
+                          </>
+                        )}
+                        {isAbfl && (
+                          <>
+                            <th>≥ ₹15 Lakh Loan ROI (% p.a.)</th>
+                            <th>&lt; ₹15 Lakh Loan ROI (% p.a.)</th>
+                          </>
+                        )}
+                        {isSmfg && (
+                          <>
+                            <th>Net Sal &gt; ₹1 Lakh (% p.a.)</th>
+                            <th>Net Sal ₹50k – ₹1L (% p.a.)</th>
+                            <th>Net Sal &lt; ₹50k (% p.a.)</th>
+                          </>
+                        )}
+                        {!isHdfc && !isIndusind && !isAxis && !isKotak && !isTata && !isBajaj && !isBandhan && !isChola && !isAxisFin && !isLnt && !isPoonawala && !isIcici && !isAbfl && !isSmfg && (
                           <>
                             <th>≥ ₹15 Lakh Loan ROI (% p.a.)</th>
                             <th>₹10L to &lt; ₹15L Loan ROI (% p.a.)</th>
@@ -1453,19 +1590,9 @@ const UnifiedBankPolicyManager = () => {
                               <td>
                                 <div className="table-input-cell highlight">
                                   <input 
-                                    type="number"
-                                    step="0.01"
+                                    type="number" step="0.01"
                                     value={row.roiAbove20L ?? (row.category === 'C' ? 10.25 : 9.99)}
-                                    onChange={(e) => {
-                                      const val = Number(e.target.value);
-                                      const updated = [...policyData.interestRates];
-                                      const realIdx = updated.findIndex(r => r.category === row.category);
-                                      if (realIdx >= 0) {
-                                        updated[realIdx].roiAbove20L = val;
-                                        updated[realIdx].minRoi = val;
-                                        setPolicyData({ ...policyData, interestRates: updated });
-                                      }
-                                    }}
+                                    onChange={(e) => updateRate(row.category, 'roiAbove20L', Number(e.target.value))}
                                   />
                                   <span>%</span>
                                 </div>
@@ -1473,19 +1600,9 @@ const UnifiedBankPolicyManager = () => {
                               <td>
                                 <div className="table-input-cell">
                                   <input 
-                                    type="number"
-                                    step="0.01"
+                                    type="number" step="0.01"
                                     value={row.roi15Lto20L ?? (row.category === 'C' ? 10.50 : 10.15)}
-                                    onChange={(e) => {
-                                      const val = Number(e.target.value);
-                                      const updated = [...policyData.interestRates];
-                                      const realIdx = updated.findIndex(r => r.category === row.category);
-                                      if (realIdx >= 0) {
-                                        updated[realIdx].roi15Lto20L = val;
-                                        updated[realIdx].roiAbove15L = val;
-                                        setPolicyData({ ...policyData, interestRates: updated });
-                                      }
-                                    }}
+                                    onChange={(e) => updateRate(row.category, 'roi15Lto20L', Number(e.target.value))}
                                   />
                                   <span>%</span>
                                 </div>
@@ -1493,18 +1610,9 @@ const UnifiedBankPolicyManager = () => {
                               <td>
                                 <div className="table-input-cell">
                                   <input 
-                                    type="number"
-                                    step="0.01"
+                                    type="number" step="0.01"
                                     value={row.roi10Lto15L ?? (row.category === 'C' ? 11.00 : 10.50)}
-                                    onChange={(e) => {
-                                      const val = Number(e.target.value);
-                                      const updated = [...policyData.interestRates];
-                                      const realIdx = updated.findIndex(r => r.category === row.category);
-                                      if (realIdx >= 0) {
-                                        updated[realIdx].roi10Lto15L = val;
-                                        setPolicyData({ ...policyData, interestRates: updated });
-                                      }
-                                    }}
+                                    onChange={(e) => updateRate(row.category, 'roi10Lto15L', Number(e.target.value))}
                                   />
                                   <span>%</span>
                                 </div>
@@ -1512,20 +1620,9 @@ const UnifiedBankPolicyManager = () => {
                               <td>
                                 <div className="table-input-cell">
                                   <input 
-                                    type="number"
-                                    step="0.01"
+                                    type="number" step="0.01"
                                     value={row.roi5Lto10L ?? 11.50}
-                                    onChange={(e) => {
-                                      const val = Number(e.target.value);
-                                      const updated = [...policyData.interestRates];
-                                      const realIdx = updated.findIndex(r => r.category === row.category);
-                                      if (realIdx >= 0) {
-                                        updated[realIdx].roi5Lto10L = val;
-                                        updated[realIdx].roiBelow10L = val;
-                                        updated[realIdx].defaultRoi = val;
-                                        setPolicyData({ ...policyData, interestRates: updated });
-                                      }
-                                    }}
+                                    onChange={(e) => updateRate(row.category, 'roi5Lto10L', Number(e.target.value))}
                                   />
                                   <span>%</span>
                                 </div>
@@ -1538,19 +1635,9 @@ const UnifiedBankPolicyManager = () => {
                               <td>
                                 <div className="table-input-cell highlight">
                                   <input 
-                                    type="number"
-                                    step="0.01"
+                                    type="number" step="0.01"
                                     value={row.roiAbove15L ?? (row.category === 'C' ? 10.60 : 9.99)}
-                                    onChange={(e) => {
-                                      const val = Number(e.target.value);
-                                      const updated = [...policyData.interestRates];
-                                      const realIdx = updated.findIndex(r => r.category === row.category);
-                                      if (realIdx >= 0) {
-                                        updated[realIdx].roiAbove15L = val;
-                                        updated[realIdx].minRoi = val;
-                                        setPolicyData({ ...policyData, interestRates: updated });
-                                      }
-                                    }}
+                                    onChange={(e) => updateRate(row.category, 'roiAbove15L', Number(e.target.value))}
                                   />
                                   <span>%</span>
                                 </div>
@@ -1558,19 +1645,9 @@ const UnifiedBankPolicyManager = () => {
                               <td>
                                 <div className="table-input-cell">
                                   <input 
-                                    type="number"
-                                    step="0.01"
+                                    type="number" step="0.01"
                                     value={row.roiBelow10L ?? (row.category === 'C' ? 13.00 : 12.00)}
-                                    onChange={(e) => {
-                                      const val = Number(e.target.value);
-                                      const updated = [...policyData.interestRates];
-                                      const realIdx = updated.findIndex(r => r.category === row.category);
-                                      if (realIdx >= 0) {
-                                        updated[realIdx].roiBelow10L = val;
-                                        updated[realIdx].defaultRoi = val;
-                                        setPolicyData({ ...policyData, interestRates: updated });
-                                      }
-                                    }}
+                                    onChange={(e) => updateRate(row.category, 'roiBelow10L', Number(e.target.value))}
                                   />
                                   <span>%</span>
                                 </div>
@@ -1583,19 +1660,9 @@ const UnifiedBankPolicyManager = () => {
                               <td>
                                 <div className="table-input-cell highlight">
                                   <input 
-                                    type="number"
-                                    step="0.01"
+                                    type="number" step="0.01"
                                     value={row.roiAbove15L ?? (row.category === 'C' ? 10.59 : (row.category === 'B' || row.category === 'Govt' ? 10.39 : 9.99))}
-                                    onChange={(e) => {
-                                      const val = Number(e.target.value);
-                                      const updated = [...policyData.interestRates];
-                                      const realIdx = updated.findIndex(r => r.category === row.category);
-                                      if (realIdx >= 0) {
-                                        updated[realIdx].roiAbove15L = val;
-                                        updated[realIdx].minRoi = val;
-                                        setPolicyData({ ...policyData, interestRates: updated });
-                                      }
-                                    }}
+                                    onChange={(e) => updateRate(row.category, 'roiAbove15L', Number(e.target.value))}
                                   />
                                   <span>%</span>
                                 </div>
@@ -1603,18 +1670,9 @@ const UnifiedBankPolicyManager = () => {
                               <td>
                                 <div className="table-input-cell">
                                   <input 
-                                    type="number"
-                                    step="0.01"
+                                    type="number" step="0.01"
                                     value={row.roi10Lto15L ?? (row.category === 'C' ? 10.75 : (row.category === 'B' || row.category === 'Govt' ? 10.45 : 10.35))}
-                                    onChange={(e) => {
-                                      const val = Number(e.target.value);
-                                      const updated = [...policyData.interestRates];
-                                      const realIdx = updated.findIndex(r => r.category === row.category);
-                                      if (realIdx >= 0) {
-                                        updated[realIdx].roi10Lto15L = val;
-                                        setPolicyData({ ...policyData, interestRates: updated });
-                                      }
-                                    }}
+                                    onChange={(e) => updateRate(row.category, 'roi10Lto15L', Number(e.target.value))}
                                   />
                                   <span>%</span>
                                 </div>
@@ -1622,24 +1680,403 @@ const UnifiedBankPolicyManager = () => {
                             </>
                           )}
 
-                          {!isHdfc && !isIndusind && !isAxis && (
+                          {isKotak && (
                             <>
                               <td>
                                 <div className="table-input-cell highlight">
                                   <input 
-                                    type="number"
-                                    step="0.01"
+                                    type="number" step="0.01"
+                                    value={row.roiAbove15L ?? (row.category === 'Super A' || row.category === 'A' || row.category === 'Govt' ? 9.95 : (row.category === 'B' ? 10.05 : 10.35))}
+                                    onChange={(e) => updateRate(row.category, 'roiAbove15L', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roi10Lto15L ?? (row.category === 'Super A' || row.category === 'A' || row.category === 'Govt' ? 10.50 : 10.75)}
+                                    onChange={(e) => updateRate(row.category, 'roi10Lto15L', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roiBelow10L ?? (row.category === 'Super A' || row.category === 'A' || row.category === 'Govt' ? 11.00 : 11.25)}
+                                    onChange={(e) => updateRate(row.category, 'roiBelow10L', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                            </>
+                          )}
+
+                          {isTata && (
+                            <>
+                              <td>
+                                <div className="table-input-cell highlight">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roi50L ?? 10.99}
+                                    onChange={(e) => updateRate(row.category, 'roi50L', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roi20Lto50L ?? (row.category === 'Cat 3' || row.category === 'C' ? 12.50 : 12.00)}
+                                    onChange={(e) => updateRate(row.category, 'roi20Lto50L', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roiBelow20L ?? (row.category === 'Cat 3' || row.category === 'C' ? 14.50 : 14.00)}
+                                    onChange={(e) => updateRate(row.category, 'roiBelow20L', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                            </>
+                          )}
+
+                          {isBajaj && (
+                            <>
+                              <td>
+                                <div className="table-input-cell highlight">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roiAbove10L ?? (row.category === 'C' ? 11.00 : 10.00)}
+                                    onChange={(e) => updateRate(row.category, 'roiAbove10L', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roiSalLite ?? 16.00}
+                                    onChange={(e) => updateRate(row.category, 'roiSalLite', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.defaultRoi ?? 14.00}
+                                    onChange={(e) => updateRate(row.category, 'defaultRoi', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                            </>
+                          )}
+
+                          {isBandhan && (
+                            <>
+                              <td>
+                                <div className="table-input-cell highlight">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.defaultRoi ?? 10.50}
+                                    onChange={(e) => updateRate(row.category, 'defaultRoi', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <span className="cat-pill" style={{ background: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+                                  ₹{row.minSalary ? row.minSalary.toLocaleString() : '25,000'}
+                                </span>
+                              </td>
+                              <td>
+                                <span className="tag-lakhs">Up to ₹25.0 Lakhs</span>
+                              </td>
+                            </>
+                          )}
+
+                          {isChola && (
+                            <>
+                              <td>
+                                <div className="table-input-cell highlight">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roiAbove10L ?? 13.75}
+                                    onChange={(e) => updateRate(row.category, 'roiAbove10L', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roi7_5Lto10L ?? 14.50}
+                                    onChange={(e) => updateRate(row.category, 'roi7_5Lto10L', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roi5Lto7_5L ?? 15.00}
+                                    onChange={(e) => updateRate(row.category, 'roi5Lto7_5L', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roiBelow5L ?? (row.category === 'C' || row.category === 'D' ? 17.50 : 16.00)}
+                                    onChange={(e) => updateRate(row.category, 'roiBelow5L', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                            </>
+                          )}
+
+                          {isAxisFin && (
+                            <>
+                              <td>
+                                <div className="table-input-cell highlight">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roi5Lto25L ?? (row.category === 'Super A' || row.category === 'Govt' ? 13.50 : 14.50)}
+                                    onChange={(e) => updateRate(row.category, 'roi5Lto25L', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roiCcBt ?? 18.00}
+                                    onChange={(e) => updateRate(row.category, 'roiCcBt', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                            </>
+                          )}
+
+                          {isLnt && (
+                            <>
+                              <td>
+                                <div className="table-input-cell highlight">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roi20Lto30L ?? (row.category === 'Super A' || row.category === 'A' ? 11.50 : 12.50)}
+                                    onChange={(e) => updateRate(row.category, 'roi20Lto30L', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roi10Lto20L ?? 14.00}
+                                    onChange={(e) => updateRate(row.category, 'roi10Lto20L', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roiBelow10L ?? (row.category === 'Super A' || row.category === 'A' ? 13.00 : 15.00)}
+                                    onChange={(e) => updateRate(row.category, 'roiBelow10L', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                            </>
+                          )}
+
+                          {isPoonawala && (
+                            <>
+                              <td>
+                                <div className="table-input-cell highlight">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roiAbove35L ?? 11.99}
+                                    onChange={(e) => updateRate(row.category, 'roiAbove35L', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roi20Lto35L ?? 12.25}
+                                    onChange={(e) => updateRate(row.category, 'roi20Lto35L', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roiBelow20L ?? (row.category === 'Super A' || row.category === 'A' ? 12.50 : 13.50)}
+                                    onChange={(e) => updateRate(row.category, 'roiBelow20L', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                            </>
+                          )}
+
+                          {isIcici && (
+                            <>
+                              <td>
+                                <span className="cat-pill" style={{ background: 'rgba(237, 28, 36, 0.12)', color: '#fca5a5', border: '1px solid rgba(237, 28, 36, 0.3)', fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
+                                  {row.criteria || (row.category === 'Open Market' ? 'CIBIL 750 + Sal 50k+' : (row.category === 'Govt' ? 'CIBIL 725-775 + Sal 25k+' : (row.category === 'NRI Case' ? 'CIBIL 725+ + Sal 2L+' : 'CIBIL 725-775 + Sal 30k+')))}
+                                </span>
+                              </td>
+                              <td>
+                                <div className="table-input-cell highlight">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roiCibil775 ?? 9.99}
+                                    onChange={(e) => updateRate(row.category, 'roiCibil775', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roiCibil750 ?? 10.30}
+                                    onChange={(e) => updateRate(row.category, 'roiCibil750', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                  <div className="table-input-cell" style={{ minWidth: '70px' }}>
+                                    <input 
+                                      type="number" step="0.01"
+                                      value={row.minRoi ?? (row.category === 'Open Market' ? 11.00 : 9.99)}
+                                      onChange={(e) => updateRate(row.category, 'minRoi', Number(e.target.value))}
+                                    />
+                                    <span>%</span>
+                                  </div>
+                                  <span style={{ color: '#94a3b8' }}>–</span>
+                                  <div className="table-input-cell" style={{ minWidth: '70px' }}>
+                                    <input 
+                                      type="number" step="0.01"
+                                      value={row.maxRoi ?? (row.category === 'Open Market' ? 12.80 : 12.00)}
+                                      onChange={(e) => updateRate(row.category, 'maxRoi', Number(e.target.value))}
+                                    />
+                                    <span>%</span>
+                                  </div>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell highlight">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.defaultRoi ?? (row.category === 'Open Market' ? 11.50 : 9.99)}
+                                    onChange={(e) => updateRate(row.category, 'defaultRoi', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                            </>
+                          )}
+
+                          {isAbfl && (
+                            <>
+                              <td>
+                                <div className="table-input-cell highlight">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roiAbove15L ?? (row.category === 'Super A' || row.category === 'A' ? 11.50 : 12.00)}
+                                    onChange={(e) => updateRate(row.category, 'roiAbove15L', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roiBelow15L ?? (row.category === 'Super A' || row.category === 'A' ? 12.50 : 13.00)}
+                                    onChange={(e) => updateRate(row.category, 'roiBelow15L', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                            </>
+                          )}
+
+                          {isSmfg && (
+                            <>
+                              <td>
+                                <div className="table-input-cell highlight">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roiNetAbove1L ?? 17.00}
+                                    onChange={(e) => updateRate(row.category, 'roiNetAbove1L', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roiNet50kTo1L ?? 18.00}
+                                    onChange={(e) => updateRate(row.category, 'roiNet50kTo1L', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number" step="0.01"
+                                    value={row.roiNetBelow50k ?? (row.category === 'Super A' || row.category === 'A' ? 21.00 : 24.00)}
+                                    onChange={(e) => updateRate(row.category, 'roiNetBelow50k', Number(e.target.value))}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                            </>
+                          )}
+
+                          {!isHdfc && !isIndusind && !isAxis && !isKotak && !isTata && !isBajaj && !isBandhan && !isChola && !isAxisFin && !isLnt && !isPoonawala && !isIcici && !isAbfl && !isSmfg && (
+                            <>
+                              <td>
+                                <div className="table-input-cell highlight">
+                                  <input 
+                                    type="number" step="0.01"
                                     value={row.roiAbove15L ?? row.minRoi ?? ''}
-                                    onChange={(e) => {
-                                      const val = Number(e.target.value);
-                                      const updated = [...policyData.interestRates];
-                                      const realIdx = updated.findIndex(r => r.category === row.category);
-                                      if (realIdx >= 0) {
-                                        updated[realIdx].roiAbove15L = val;
-                                        updated[realIdx].minRoi = val;
-                                        setPolicyData({ ...policyData, interestRates: updated });
-                                      }
-                                    }}
+                                    onChange={(e) => updateRate(row.category, 'roiAbove15L', Number(e.target.value))}
                                   />
                                   <span>%</span>
                                 </div>
@@ -1647,19 +2084,9 @@ const UnifiedBankPolicyManager = () => {
                               <td>
                                 <div className="table-input-cell">
                                   <input 
-                                    type="number"
-                                    step="0.01"
+                                    type="number" step="0.01"
                                     value={row.roi10Lto15L ?? row.maxRoi ?? ''}
-                                    onChange={(e) => {
-                                      const val = Number(e.target.value);
-                                      const updated = [...policyData.interestRates];
-                                      const realIdx = updated.findIndex(r => r.category === row.category);
-                                      if (realIdx >= 0) {
-                                        updated[realIdx].roi10Lto15L = val;
-                                        updated[realIdx].maxRoi = val;
-                                        setPolicyData({ ...policyData, interestRates: updated });
-                                      }
-                                    }}
+                                    onChange={(e) => updateRate(row.category, 'roi10Lto15L', Number(e.target.value))}
                                   />
                                   <span>%</span>
                                 </div>
@@ -1667,19 +2094,9 @@ const UnifiedBankPolicyManager = () => {
                               <td>
                                 <div className="table-input-cell">
                                   <input 
-                                    type="number"
-                                    step="0.01"
+                                    type="number" step="0.01"
                                     value={row.roiBelow10L ?? row.defaultRoi ?? ''}
-                                    onChange={(e) => {
-                                      const val = Number(e.target.value);
-                                      const updated = [...policyData.interestRates];
-                                      const realIdx = updated.findIndex(r => r.category === row.category);
-                                      if (realIdx >= 0) {
-                                        updated[realIdx].roiBelow10L = val;
-                                        updated[realIdx].defaultRoi = val;
-                                        setPolicyData({ ...policyData, interestRates: updated });
-                                      }
-                                    }}
+                                    onChange={(e) => updateRate(row.category, 'roiBelow10L', Number(e.target.value))}
                                   />
                                   <span>%</span>
                                 </div>
@@ -1704,6 +2121,24 @@ const UnifiedBankPolicyManager = () => {
                   <p>Specify minimum and maximum loan limits, along with bachelor residence restrictions.</p>
                 </div>
               </div>
+
+              {(activeConfigBank?.id === 'icici' || activeConfigBank?.name?.toLowerCase().includes('icici')) && (
+                <div style={{
+                  background: 'rgba(237, 28, 36, 0.08)',
+                  border: '1.5px solid rgba(237, 28, 36, 0.35)',
+                  borderRadius: '8px',
+                  padding: '10px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  color: '#fca5a5',
+                  fontSize: '0.88rem'
+                }}>
+                  <AlertTriangle size={18} />
+                  <span><strong>ICICI Bank Master Policy (from Excel):</strong> In Rajasthan, minimum loan amount is strictly <strong>₹6.10 Lakhs</strong> across all domestic categories (`IN RAJASTHAN 6.10 LAC`). Standard minimum ticket in other states is ₹1 Lakh. NRI Cases require minimum <strong>₹6 Lakhs</strong>. Maximum loan is <strong>₹1 Crore</strong> (Open Market: ₹15 Lakhs, Army & NRI: ₹10 Lakhs).</span>
+                </div>
+              )}
 
               <div className="table-responsive">
                 <table className="policy-table">
@@ -1755,20 +2190,26 @@ const UnifiedBankPolicyManager = () => {
                           </div>
                         </td>
                         <td>
-                          <div className="table-input-cell">
-                            <span>₹</span>
-                            <input 
-                              type="number"
-                              value={row.bachelorCap ?? ''}
-                              placeholder="No Limit"
-                              onChange={(e) => {
-                                const val = e.target.value === '' ? null : Number(e.target.value);
-                                const updated = [...policyData.loanCapping];
-                                updated[idx].bachelorCap = val;
-                                setPolicyData({ ...policyData, loanCapping: updated });
-                              }}
-                            />
-                          </div>
+                          {(activeConfigBank?.id === 'au-bank' || activeConfigBank?.name?.toLowerCase().includes('au ')) ? (
+                            <div className="table-input-cell">
+                              <span>₹</span>
+                              <input 
+                                type="number"
+                                value={row.bachelorCap ?? 500000}
+                                placeholder="₹5,00,000"
+                                onChange={(e) => {
+                                  const val = e.target.value === '' ? null : Number(e.target.value);
+                                  const updated = [...policyData.loanCapping];
+                                  updated[idx].bachelorCap = val;
+                                  setPolicyData({ ...policyData, loanCapping: updated });
+                                }}
+                              />
+                            </div>
+                          ) : (
+                            <span className="cat-pill" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.3)', fontSize: '0.78rem' }}>
+                              No Restriction
+                            </span>
+                          )}
                         </td>
                         <td>
                           <span className="tag-lakhs">
@@ -1808,6 +2249,114 @@ const UnifiedBankPolicyManager = () => {
                 }}>
                   <AlertTriangle size={18} />
                   <span><strong>IndusInd Master Policy (from Excel):</strong> CIBIL -1 H TO 48 TENURE — New-to-credit applicants with CIBIL score -1 are strictly capped to <strong>48 Months (4 Years)</strong>. Standard maximum tenure is <strong>84 Months (7 Years)</strong>.</span>
+                </div>
+              )}
+
+              {activeConfigBank?.id === 'bandhan' && (
+                <div style={{
+                  background: 'rgba(220, 0, 40, 0.08)',
+                  border: '1.5px solid rgba(220, 0, 40, 0.35)',
+                  borderRadius: '8px',
+                  padding: '10px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  color: '#f87171',
+                  fontSize: '0.88rem'
+                }}>
+                  <CheckCircle2 size={18} />
+                  <span><strong>Bandhan Bank Master Policy (from Excel):</strong> Strictly <strong>60 Months (5 Years)</strong> flat tenure across all employment categories. Maximum sanction limit is <strong>₹25 Lakhs</strong>.</span>
+                </div>
+              )}
+
+              {activeConfigBank?.id === 'kotak' && (
+                <div style={{
+                  background: 'rgba(237, 28, 36, 0.08)',
+                  border: '1.5px solid rgba(237, 28, 36, 0.35)',
+                  borderRadius: '8px',
+                  padding: '10px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  color: '#f87171',
+                  fontSize: '0.88rem'
+                }}>
+                  <CheckCircle2 size={18} />
+                  <span><strong>Kotak Master Policy (from Excel):</strong> Up to <strong>72 Months (6 Years)</strong> for Super A, A, B, C & Govt. Category D is capped to <strong>60 Months (5 Years)</strong>.</span>
+                </div>
+              )}
+
+              {activeConfigBank?.id === 'bajaj' && (
+                <div style={{
+                  background: 'rgba(0, 114, 187, 0.08)',
+                  border: '1.5px solid rgba(0, 114, 187, 0.35)',
+                  borderRadius: '8px',
+                  padding: '10px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  color: '#38bdf8',
+                  fontSize: '0.88rem'
+                }}>
+                  <CheckCircle2 size={18} />
+                  <span><strong>Bajaj Finance Master Policy (from Excel):</strong> Up to <strong>96 Months (8 Years)</strong> standard tenure. High-income applicants (Net salary ≥ ₹1 Lakh) qualify for extended <strong>108 Months (9 Years)</strong> tenure.</span>
+                </div>
+              )}
+
+              {activeConfigBank?.id === 'au-bank' && (
+                <div style={{
+                  background: 'rgba(111, 44, 145, 0.08)',
+                  border: '1.5px solid rgba(111, 44, 145, 0.35)',
+                  borderRadius: '8px',
+                  padding: '10px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  color: '#c084fc',
+                  fontSize: '0.88rem'
+                }}>
+                  <AlertTriangle size={18} />
+                  <span><strong>AU Bank Master Policy (from Excel):</strong> Maximum tenure is <strong>60 Months (5 Years)</strong>. NTC applicants (CIBIL score -1) require minimum ₹30,000 salary and are capped to <strong>₹3 Lakhs</strong>.</span>
+                </div>
+              )}
+
+              {activeConfigBank?.id === 'finnable' && (
+                <div style={{
+                  background: 'rgba(16, 185, 129, 0.08)',
+                  border: '1.5px solid rgba(16, 185, 129, 0.35)',
+                  borderRadius: '8px',
+                  padding: '10px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  color: '#34d399',
+                  fontSize: '0.88rem'
+                }}>
+                  <AlertTriangle size={18} />
+                  <span><strong>Finnable Master Policy (from Excel):</strong> Standard tenure up to <strong>60 Months</strong>. CIBIL -1 (NTC) cases are capped to <strong>36 Months</strong> and ₹4 Lakhs maximum sanction.</span>
+                </div>
+              )}
+
+              {(activeConfigBank?.id === 'icici' || activeConfigBank?.name?.toLowerCase().includes('icici')) && (
+                <div style={{
+                  background: 'rgba(237, 28, 36, 0.08)',
+                  border: '1.5px solid rgba(237, 28, 36, 0.35)',
+                  borderRadius: '8px',
+                  padding: '10px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  color: '#fca5a5',
+                  fontSize: '0.88rem'
+                }}>
+                  <CheckCircle2 size={18} />
+                  <span><strong>ICICI Bank Master Policy (from Excel):</strong> Permitted tenure is up to <strong>72 Months (6 Years)</strong> flat across all categories (`TENURE UPTO 6 YEARS`). Minimum tenure is <strong>12 Months</strong>. Maximum age at loan time is <strong>60 Years</strong> (Pensioner: <strong>65 Years</strong>).</span>
                 </div>
               )}
 
@@ -1965,14 +2514,337 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               )}
 
+              {activeConfigBank?.id === 'bandhan' && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(220, 0, 40, 0.12) 0%, rgba(245, 158, 11, 0.12) 100%)',
+                  border: '1.5px solid rgba(220, 0, 40, 0.35)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#f87171', fontWeight: 700, fontSize: '0.95rem' }}>
+                    <CheckCircle2 size={18} />
+                    <span>Bandhan Bank Master Policy Rules (from Excel)</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                      <strong style={{ color: '#f87171', fontSize: '0.88rem' }}>📌 Net Salary FOIR Slabs:</strong>
+                      <div style={{ marginTop: '5px' }}>• ≤ ₹30,000 Salary: <strong>50% FOIR</strong></div>
+                      <div style={{ marginTop: '3px' }}>• ₹30,000 – ₹50,000: <strong>60% FOIR</strong></div>
+                      <div style={{ marginTop: '3px' }}>• ₹50,000 – ₹75,000: <strong>65% FOIR</strong></div>
+                      <div style={{ marginTop: '3px', color: '#86efac' }}>• &gt; ₹75,000 Salary: <strong>70% Max FOIR</strong></div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
+                      <strong style={{ color: '#f59e0b', fontSize: '0.88rem' }}>📌 Special CC & Capping Rules:</strong>
+                      <div style={{ marginTop: '5px', color: '#fde047' }}>• <strong>CC Zero-Obligation Rule:</strong> If active CC POS is ≤ 3x Net Salary, <strong>OBLIGATION IS ₹0</strong>! Otherwise 3%.</div>
+                      <div style={{ marginTop: '3px' }}>• Maximum Sanction: <strong>₹25 Lakhs flat cap</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Tenure: Strictly <strong>60 Months (5 Years)</strong></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeConfigBank?.id === 'kotak' && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(237, 28, 36, 0.12) 0%, rgba(59, 130, 246, 0.12) 100%)',
+                  border: '1.5px solid rgba(237, 28, 36, 0.35)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#f87171', fontWeight: 700, fontSize: '0.95rem' }}>
+                    <CheckCircle2 size={18} />
+                    <span>Kotak Mahindra Bank Master Policy Rules (from Excel)</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                      <strong style={{ color: '#f87171', fontSize: '0.88rem' }}>📌 FOIR & HL Bonus:</strong>
+                      <div style={{ marginTop: '5px' }}>• Standard FOIR: <strong>70% Max FOIR</strong> across categories</div>
+                      <div style={{ marginTop: '3px', color: '#86efac' }}>• <strong>Live HL &gt;= ₹10L:</strong> <strong>+5% Bonus FOIR (Up to 75%)</strong></div>
+                      <div style={{ marginTop: '3px', color: '#fca5a5' }}>• Balance Transfer: <strong>Credit Card BT NOT ALLOWED</strong></div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 Net Salary Multipliers:</strong>
+                      <div style={{ marginTop: '5px' }}>• Super A: <strong>31x</strong> | Cat A & Govt: <strong>27x</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Cat B: <strong>25x</strong> | Cat C: <strong>20x</strong> | Cat D: <strong>18x</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Max Tenure: <strong>72 Months</strong> (Cat D: 60 Months)</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeConfigBank?.id === 'tata' && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(31, 78, 120, 0.15) 0%, rgba(14, 165, 233, 0.12) 100%)',
+                  border: '1.5px solid rgba(31, 78, 120, 0.4)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38bdf8', fontWeight: 700, fontSize: '0.95rem' }}>
+                    <CheckCircle2 size={18} />
+                    <span>Tata Capital Master Policy Rules (from Excel)</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 Multipliers (By Net Salary Slab):</strong>
+                      <div style={{ marginTop: '5px' }}>• &gt; ₹75K Salary: <strong>27x (Cat 1) / 25x (Cat 2) / 18x (Cat 3)</strong></div>
+                      <div style={{ marginTop: '3px' }}>• ₹50K–₹75K: <strong>24x (Cat 1) / 22x (Cat 2) / 18x (Cat 3)</strong></div>
+                      <div style={{ marginTop: '3px' }}>• &lt; ₹50K Salary: <strong>20x (Cat 1) / 19x (Cat 2) / 15x (Cat 3)</strong></div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
+                      <strong style={{ color: '#f59e0b', fontSize: '0.88rem' }}>📌 Sanction & BT Rules:</strong>
+                      <div style={{ marginTop: '5px' }}>• Special ₹50L Slab: <strong>10.99% flat ROI</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Balance Transfer: <strong>Up to 5 Credit Cards allowed</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Tenure: <strong>Up to 84 Months (8 Years)</strong></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeConfigBank?.id === 'bajaj' && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(0, 114, 187, 0.15) 0%, rgba(16, 185, 129, 0.12) 100%)',
+                  border: '1.5px solid rgba(0, 114, 187, 0.4)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38bdf8', fontWeight: 700, fontSize: '0.95rem' }}>
+                    <CheckCircle2 size={18} />
+                    <span>Bajaj Finance Master Policy Rules (from Excel)</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 FOIR & HL Bonus Slabs:</strong>
+                      <div style={{ marginTop: '5px' }}>• &lt; ₹50K Salary: <strong>60% FOIR</strong> (+10% if HL live: <strong>70%</strong>)</div>
+                      <div style={{ marginTop: '3px' }}>• ≥ ₹50K Salary: <strong>65% FOIR</strong> (+5% if HL live: <strong>70%</strong>)</div>
+                      <div style={{ marginTop: '3px' }}>• Multipliers: <strong>20x to 28x Net Salary</strong></div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                      <strong style={{ color: '#34d399', fontSize: '0.88rem' }}>📌 High Sanction & CC BT:</strong>
+                      <div style={{ marginTop: '5px' }}>• ₹10L+ Loan ROI: <strong>10.00% (Cat A/B)</strong></div>
+                      <div style={{ marginTop: '3px' }}>• CC BT Allowed: <strong>Max 6x Net Monthly Salary</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Max Tenure: <strong>96M</strong> (108M for ₹1L+ salary)</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeConfigBank?.id === 'au-bank' && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(111, 44, 145, 0.15) 0%, rgba(245, 158, 11, 0.12) 100%)',
+                  border: '1.5px solid rgba(111, 44, 145, 0.4)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#c084fc', fontWeight: 700, fontSize: '0.95rem' }}>
+                    <CheckCircle2 size={18} />
+                    <span>AU Small Finance Bank Master Policy Rules (from Excel)</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(192, 132, 252, 0.2)' }}>
+                      <strong style={{ color: '#c084fc', fontSize: '0.88rem' }}>📌 Capping & Restrictions:</strong>
+                      <div style={{ marginTop: '5px' }}>• Max Sanction: <strong>₹15 Lakhs flat cap</strong></div>
+                      <div style={{ marginTop: '3px' }}>• NTC (CIBIL -1): <strong>Max ₹3 Lakhs cap</strong>, Min ₹30k Salary required</div>
+                      <div style={{ marginTop: '3px', color: '#fde047' }}>• PG / Rented Bachelor: <strong>Strictly capped to ₹5 Lakhs</strong></div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
+                      <strong style={{ color: '#f59e0b', fontSize: '0.88rem' }}>📌 FOIR & Balance Transfer:</strong>
+                      <div style={{ marginTop: '5px' }}>• Permitted FOIR: <strong>50% to 65%</strong> based on income</div>
+                      <div style={{ marginTop: '3px', color: '#fca5a5' }}>• Balance Transfer: <strong>ONLY PL BT ALLOWED</strong> (CC BT Not Allowed)</div>
+                      <div style={{ marginTop: '3px' }}>• Tenure: Strictly <strong>60 Months (5 Years)</strong></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeConfigBank?.id === 'axis-fin' && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(128, 0, 0, 0.15) 0%, rgba(245, 158, 11, 0.12) 100%)',
+                  border: '1.5px solid rgba(128, 0, 0, 0.4)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#fca5a5', fontWeight: 700, fontSize: '0.95rem' }}>
+                    <CheckCircle2 size={18} />
+                    <span>Axis Finance Master Policy Rules (from Excel)</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                      <strong style={{ color: '#fca5a5', fontSize: '0.88rem' }}>📌 Specialized Loan Obligations:</strong>
+                      <div style={{ marginTop: '5px' }}>• Gold Loan: <strong>1% obligation</strong> (standard is full EMI)</div>
+                      <div style={{ marginTop: '3px', color: '#86efac' }}>• KCC Loan ≤ ₹15 Lakhs: <strong>0% Obligation (Zero deduction)</strong></div>
+                      <div style={{ marginTop: '3px' }}>• CC BT / App BT ROI: <strong>18.00%</strong></div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 Tenure by Category:</strong>
+                      <div style={{ marginTop: '5px' }}>• Super A & Govt: <strong>84 Months (7 Years)</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Category A & B: <strong>72 Months (6 Years)</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Category C & D: <strong>60 Months (5 Years)</strong></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeConfigBank?.id === 'cholamandalam' && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(243, 112, 33, 0.15) 0%, rgba(59, 130, 246, 0.12) 100%)',
+                  border: '1.5px solid rgba(243, 112, 33, 0.4)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#fb923c', fontWeight: 700, fontSize: '0.95rem' }}>
+                    <CheckCircle2 size={18} />
+                    <span>Cholamandalam Master Policy Rules (from Excel)</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(243, 112, 33, 0.2)' }}>
+                      <strong style={{ color: '#fb923c', fontSize: '0.88rem' }}>📌 Multipliers:</strong>
+                      <div style={{ marginTop: '5px' }}>• Super A & Govt: <strong>35x Net Salary</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Category A & B: <strong>28x Net Salary</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Category C & D: <strong>25x Net Salary</strong></div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 Credit Card BT:</strong>
+                      <div style={{ marginTop: '5px' }}>• Max Cards Allowed: <strong>Up to 6 Credit Cards</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Outstanding POS Cap: <strong>≤ 6x Net Monthly Salary</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Max Tenure: <strong>84 Months (7 Years)</strong></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeConfigBank?.id === 'lnt' && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(0, 79, 158, 0.15) 0%, rgba(239, 68, 68, 0.12) 100%)',
+                  border: '1.5px solid rgba(0, 79, 158, 0.4)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38bdf8', fontWeight: 700, fontSize: '0.95rem' }}>
+                    <CheckCircle2 size={18} />
+                    <span>L&T Finance Master Policy Rules (from Excel)</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 FOIR & Loan Slabs:</strong>
+                      <div style={{ marginTop: '5px' }}>• FOIR Slabs: <strong>55% to 80%</strong> based on net income</div>
+                      <div style={{ marginTop: '3px' }}>• ₹20L – ₹30L Slabs: <strong>11.50% – 12.50%</strong></div>
+                      <div style={{ marginTop: '3px' }}>• ₹10L – ₹20L Slabs: <strong>14.00%</strong></div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                      <strong style={{ color: '#f87171', fontSize: '0.88rem' }}>📌 BT & Restrictions:</strong>
+                      <div style={{ marginTop: '5px', color: '#fca5a5' }}>• Balance Transfer: <strong>Credit Card BT strictly NOT ALLOWED</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Max Tenure: <strong>72 Months (6 Years)</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Max Sanction: <strong>₹30 Lakhs</strong></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeConfigBank?.id === 'poonawala' && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(0, 85, 150, 0.15) 0%, rgba(16, 185, 129, 0.12) 100%)',
+                  border: '1.5px solid rgba(0, 85, 150, 0.4)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38bdf8', fontWeight: 700, fontSize: '0.95rem' }}>
+                    <CheckCircle2 size={18} />
+                    <span>Poonawala Finance Master Policy Rules (from Excel)</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 Sanction & Rates:</strong>
+                      <div style={{ marginTop: '5px' }}>• Maximum Sanction: <strong>₹60 Lakhs</strong></div>
+                      <div style={{ marginTop: '3px' }}>• ≥ ₹35 Lakh: <strong>11.99%</strong> | ≥ ₹20L: <strong>12.25%</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Max Tenure: <strong>84 Months (Cat A/B)</strong> | 72M (Cat C)</div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                      <strong style={{ color: '#34d399', fontSize: '0.88rem' }}>📌 Credit Card BT Policy:</strong>
+                      <div style={{ marginTop: '5px' }}>• Max CC BT Allowed: <strong>Up to 6 Credit Cards</strong></div>
+                      <div style={{ marginTop: '3px' }}>• CC POS Cap: <strong>≤ 4x Net Monthly Salary</strong></div>
+                      <div style={{ marginTop: '3px' }}>• FOIR: <strong>60% to 70%</strong></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {(activeConfigBank?.id === 'icici' || activeConfigBank?.name?.toLowerCase().includes('icici')) && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(237, 28, 36, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%)',
+                  border: '1.5px solid rgba(237, 28, 36, 0.35)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#f87171', fontWeight: 700, fontSize: '0.95rem' }}>
+                    <CheckCircle2 size={18} />
+                    <span>ICICI Bank Master Policy Rules (from Excel — ICICI Sheet)</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(237, 28, 36, 0.25)' }}>
+                      <strong style={{ color: '#fca5a5', fontSize: '0.88rem' }}>📌 FOIR & Live Home Loan Bonus:</strong>
+                      <div style={{ marginTop: '5px' }}>• Standard FOIR: <strong>45% to 65%</strong> based on salary</div>
+                      <div style={{ marginTop: '3px', color: '#4ade80' }}>• <strong>Live Home Loan Running</strong>: FOIR extends to <strong>70%</strong> (`HL RUNING - 70%`)</div>
+                      <div style={{ marginTop: '3px' }}>• Open Market FOIR: <strong>45% to 55%</strong></div>
+                      <div style={{ marginTop: '3px', color: '#38bdf8' }}>• Credit Card Obligation: <strong>5% of limit</strong> (`5% CC OBLIGATE`)</div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(249, 115, 22, 0.25)' }}>
+                      <strong style={{ color: '#fdba74', fontSize: '0.88rem' }}>📌 Minimum Salary Thresholds:</strong>
+                      <div style={{ marginTop: '5px' }}>• <strong>Government Employees</strong>: <strong>₹25,000</strong> (`GOVT - 25K`)</div>
+                      <div style={{ marginTop: '3px' }}>• <strong>Private Employees</strong>: <strong>₹30,000</strong> (`PVT - 30K`)</div>
+                      <div style={{ marginTop: '3px' }}>• <strong>Open Market</strong>: <strong>₹75,000</strong> (`OPEN MARKET - 75K`)</div>
+                      <div style={{ marginTop: '3px', color: '#fca5a5' }}>• <strong>NRI Case</strong>: <strong>₹2,00,000 (2 Lacs)</strong></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="table-responsive">
                 <table className="policy-table">
                   <thead>
                     <tr>
                       <th>Category Tier</th>
-                      <th>{activeConfigBank?.id === 'indusind' ? '₹20K – ₹35K FOIR' : '₹25K – ₹35K Salary FOIR'}</th>
-                      <th>{activeConfigBank?.id === 'indusind' ? '₹35K – ₹50K FOIR' : '₹35K – ₹40K Salary FOIR'}</th>
-                      <th>{activeConfigBank?.id === 'indusind' ? '≥ ₹50K Max FOIR (Owned/HL)' : '₹40K+ Salary Max FOIR'}</th>
+                      <th>{activeConfigBank?.id === 'icici' ? 'Standard Base FOIR (45%)' : (activeConfigBank?.id === 'indusind' ? '₹20K – ₹35K FOIR' : (activeConfigBank?.id === 'bandhan' ? '≤ ₹30K Salary FOIR' : '₹25K – ₹35K Salary FOIR'))}</th>
+                      <th>{activeConfigBank?.id === 'icici' ? 'Standard Max FOIR (55%–65%)' : (activeConfigBank?.id === 'indusind' ? '₹35K – ₹50K FOIR' : (activeConfigBank?.id === 'bandhan' ? '₹30K – ₹50K FOIR' : '₹35K – ₹40K Salary FOIR'))}</th>
+                      <th>{activeConfigBank?.id === 'icici' ? 'HL Running FOIR (70%)' : (activeConfigBank?.id === 'indusind' ? '≥ ₹50K Max FOIR (Owned/HL)' : (activeConfigBank?.id === 'bandhan' ? '> ₹75K Max FOIR' : '₹40K+ Salary Max FOIR'))}</th>
                       {activeConfigBank?.id === 'indusind' ? (
                         <>
                           <th style={{ color: '#38bdf8', whiteSpace: 'nowrap', borderBottom: '2px solid rgba(56, 189, 248, 0.5)' }}>&lt; ₹75K Multiplier</th>
@@ -1997,7 +2869,7 @@ const UnifiedBankPolicyManager = () => {
                           <div className="table-input-cell">
                             <input 
                               type="number"
-                              value={row.slab1Foir ?? 50}
+                              value={row.slab1Foir ?? 45}
                               onChange={(e) => {
                                 const val = Number(e.target.value);
                                 const updated = [...policyData.foirMultiplier];
@@ -2005,14 +2877,14 @@ const UnifiedBankPolicyManager = () => {
                                 setPolicyData({ ...policyData, foirMultiplier: updated });
                               }}
                             />
-                            <span>% {activeConfigBank?.id === 'indusind' ? '(50%)' : '(50–55%)'}</span>
+                            <span>% {activeConfigBank?.id === 'icici' ? '(45%)' : (activeConfigBank?.id === 'indusind' ? '(50%)' : '(50–55%)')}</span>
                           </div>
                         </td>
                         <td>
                           <div className="table-input-cell">
                             <input 
                               type="number"
-                              value={row.slab2Foir ?? 60}
+                              value={row.slab2Foir ?? (activeConfigBank?.id === 'icici' ? (row.category === 'Open Market' ? 50 : 55) : (row.maxFoir ?? 60))}
                               onChange={(e) => {
                                 const val = Number(e.target.value);
                                 const updated = [...policyData.foirMultiplier];
@@ -2020,22 +2892,26 @@ const UnifiedBankPolicyManager = () => {
                                 setPolicyData({ ...policyData, foirMultiplier: updated });
                               }}
                             />
-                            <span>% {activeConfigBank?.id === 'indusind' ? '(60%)' : '(55–65%)'}</span>
+                            <span>% {activeConfigBank?.id === 'icici' ? '(50–55%)' : (activeConfigBank?.id === 'indusind' ? '(60%)' : '(55–65%)')}</span>
                           </div>
                         </td>
                         <td>
                           <div className="table-input-cell highlight">
                             <input 
                               type="number"
-                              value={row.maxFoir ?? (activeConfigBank?.id === 'indusind' ? (row.category === 'C' ? 60 : 70) : 75)}
+                              value={activeConfigBank?.id === 'icici' ? (row.hlFoir ?? 70) : (row.maxFoir ?? (activeConfigBank?.id === 'indusind' ? (row.category === 'C' ? 60 : 70) : 75))}
                               onChange={(e) => {
                                 const val = Number(e.target.value);
                                 const updated = [...policyData.foirMultiplier];
-                                updated[idx].maxFoir = val;
+                                if (activeConfigBank?.id === 'icici') {
+                                  updated[idx].hlFoir = val;
+                                } else {
+                                  updated[idx].maxFoir = val;
+                                }
                                 setPolicyData({ ...policyData, foirMultiplier: updated });
                               }}
                             />
-                            <span>% {activeConfigBank?.id === 'indusind' ? '(70–75%)' : '(Up to 75%)'}</span>
+                            <span>% {activeConfigBank?.id === 'icici' ? '(HL: 70%)' : (activeConfigBank?.id === 'indusind' ? '(70–75%)' : '(Up to 75%)')}</span>
                           </div>
                         </td>
                         {activeConfigBank?.id === 'indusind' ? (
@@ -2119,7 +2995,7 @@ const UnifiedBankPolicyManager = () => {
                                 setPolicyData({ ...policyData, foirMultiplier: updated });
                               }}
                             />
-                            <span>% CC Limit</span>
+                            <span>% {activeConfigBank?.id === 'bandhan' ? '(3% or 0%)' : (activeConfigBank?.id === 'axis-bank' ? '(4%)' : 'CC Limit')}</span>
                           </div>
                         </td>
                       </tr>
@@ -2139,6 +3015,41 @@ const UnifiedBankPolicyManager = () => {
                   <p>Configure age boundaries, retirement thresholds, and minimum stability requirements.</p>
                 </div>
               </div>
+
+              {(activeConfigBank?.id === 'icici' || activeConfigBank?.name?.toLowerCase().includes('icici')) && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(237, 28, 36, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%)',
+                  border: '1.5px solid rgba(237, 28, 36, 0.35)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#f87171', fontWeight: 700, fontSize: '0.95rem' }}>
+                    <CheckCircle2 size={18} />
+                    <span>ICICI Bank Demographics & Eligibility Criteria (from Excel — ICICI Sheet)</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(237, 28, 36, 0.25)' }}>
+                      <strong style={{ color: '#fca5a5', fontSize: '0.88rem' }}>📌 Age & Credit Profile:</strong>
+                      <div style={{ marginTop: '5px' }}>• Min Applicant Age: <strong>21 Years</strong> (`21 YEAR`)</div>
+                      <div style={{ marginTop: '3px' }}>• Max Age at Loan Time: <strong>60 Years</strong> (Pensioner: <strong>65 Years</strong>)</div>
+                      <div style={{ marginTop: '3px' }}>• Retirement Age: <strong>60 Years</strong></div>
+                      <div style={{ marginTop: '3px', color: '#4ade80' }}>• Required CIBIL: <strong>725+</strong> | <strong>CIBIL -1 is DOABLE</strong> (NTC)</div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(249, 115, 22, 0.25)' }}>
+                      <strong style={{ color: '#fdba74', fontSize: '0.88rem' }}>📌 Minimum Salary by Profile:</strong>
+                      <div style={{ marginTop: '5px' }}>• <strong>Govt Employees</strong>: <strong>₹25,000</strong> (`GOVT - 25K`)</div>
+                      <div style={{ marginTop: '3px' }}>• <strong>Private Employees</strong>: <strong>₹30,000</strong> (`PVT - 30K`)</div>
+                      <div style={{ marginTop: '3px' }}>• <strong>Open Market</strong>: <strong>₹75,000</strong> (`OPEN MARKET - 75K`)</div>
+                      <div style={{ marginTop: '3px', color: '#fca5a5' }}>• <strong>NRI Profile</strong>: <strong>₹2,00,000</strong> (`NRI CASE - 2LAC`)</div>
+                      <div style={{ marginTop: '3px', color: '#38bdf8' }}>• Credit Card Obligation: <strong>5% of limit</strong> (`5% CC OBLIGATE`)</div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="table-responsive">
                 <table className="policy-table">

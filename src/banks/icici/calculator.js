@@ -199,8 +199,9 @@ export const calculateIciciEligibility = (userData) => {
 
   // Apply tenure capping based on category (tenure is in months)
   // Logic Bridge: Support govtMaxTenure override
-  let lookupCategory = companyCategory === 'Govt' ? 'A' : companyCategory;
-  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : iciciConfig.maxTenureByCategory[lookupCategory];
+  let maxTenureForCategory = isGovtEmployee && govtMaxTenure 
+    ? govtMaxTenure 
+    : (iciciConfig.maxTenureByCategory[companyCategory] || iciciConfig.maxTenureByCategory['Super Prime'] || 72);
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
@@ -218,9 +219,8 @@ export const calculateIciciEligibility = (userData) => {
   const requestedTenureMonths = loanTenure * 12;
   const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
 
-  // Check minimum salary requirement based on category
-  let lookupCategorySalary = companyCategory === 'Govt' ? 'A' : companyCategory;
-  const categoryMinSalary = iciciConfig.minSalary[lookupCategorySalary];
+  // Check minimum salary requirement based on category (Govt 25k, Pvt 30k, Open Market 75k, NRI 2L)
+  const categoryMinSalary = iciciConfig.minSalary[companyCategory] || (companyCategory.toUpperCase().includes('GOVT') ? 25000 : 30000);
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncomeForCalc;
   if (incomeToCheck < categoryMinSalary) {
     return {

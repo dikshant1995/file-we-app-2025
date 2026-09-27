@@ -6,6 +6,7 @@ import './MainMasterPortal.css';
 import './FuturisticLanding.css'; // Reuse components styled earlier like founder and testimonials
 import eligibilityDocIcon from '../assets/eligibility-doc-icon.png';
 import documentsFolderIcon from '../assets/documents-folder-icon.png';
+import laxmiLogo from '../assets/laxmi-logo.png';
 import PersonalLoanEmiCalculator from './PersonalLoanEmiCalculator';
 import CustomerSuccessStories from './CustomerSuccessStories';
 import PortalFaqSection from './PortalFaqSection';
@@ -70,7 +71,12 @@ const MainMasterPortal = ({ onAdminClick }) => {
         {/* Header - InCred Elevated Sticky Header */}
         <header className="portal-header-wrapper">
           <div className="portal-header">
-            <div className="portal-logo" style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
+            <div className="portal-logo" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }} onClick={() => window.location.href = '/'}>
+              <img 
+                src={laxmiLogo} 
+                alt="Laxmi Credit Icon" 
+                style={{ height: '38px', width: 'auto', objectFit: 'contain' }} 
+              />
               <span 
                 style={{ 
                   fontSize: '1.9rem', 
@@ -87,7 +93,29 @@ const MainMasterPortal = ({ onAdminClick }) => {
                 Laxmi credit
               </span>
             </div>
-            {/* Clean consumer header without admin triggers */}
+            <div className="portal-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <Link
+                to="/admin"
+                className="portal-admin-btn"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  color: '#475569',
+                  textDecoration: 'none',
+                  padding: '7px 16px',
+                  borderRadius: '20px',
+                  background: '#f1f5f9',
+                  border: '1px solid #e2e8f0',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <Lock size={13} style={{ color: '#f58220' }} />
+                <span>Admin Dashboard</span>
+              </Link>
+            </div>
           </div>
         </header>
 

@@ -3,6 +3,7 @@ import { auth, db } from '../../config/firebase.js';
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Lock, Mail, Eye, EyeOff, ArrowLeft, CheckCircle, AlertCircle, Loader2, Shield, X } from 'lucide-react';
+import laxmiLogo from '../../assets/laxmi-logo.png';
 import './AdminLogin.css';
 
 const AdminLogin = ({ onLoginSuccess, onBack }) => {
@@ -139,8 +140,9 @@ const AdminLogin = ({ onLoginSuccess, onBack }) => {
                 <div className="simple-login-body">
                     {/* Brand Header */}
                     <div className="simple-login-brand">
-                        <div className="simple-brand-name">
-                            Laxmi<span>Credit</span>
+                        <div className="simple-brand-name" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                            <img src={laxmiLogo} alt="Laxmi Credit Icon" style={{ height: '36px', width: 'auto', objectFit: 'contain' }} />
+                            <span>Laxmi<span>Credit</span></span>
                         </div>
                         <p className="simple-brand-subtitle">
                             {isForgotView ? 'Reset your administrator password' : 'Enter your credentials to access the admin portal'}

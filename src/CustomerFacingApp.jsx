@@ -15,6 +15,7 @@ import Navbar from './components/Navbar.jsx';
 import BlogHome from './components/BlogHome.jsx';
 import BlogArticle from './components/BlogArticle.jsx';
 import MainMasterPortal from './components/MainMasterPortal.jsx';
+import AdminPortalApp from './AdminPortalApp.jsx';
 import './CustomerFacingApp.css';
 import { useLocation } from 'react-router-dom';
 
@@ -292,6 +293,8 @@ function CustomerFacingApp() {
         } />
         <Route path="/blog" element={<BlogHome />} />
         <Route path="/blog/:slug" element={<BlogArticle />} />
+        <Route path="/admin/*" element={<AdminPortalApp />} />
+        <Route path="/dashboard/*" element={<AdminPortalApp />} />
       </Routes>
 
     </div>

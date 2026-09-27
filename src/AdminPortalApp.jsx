@@ -5,6 +5,7 @@ import { auth, db } from './config/firebase.js';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { ShieldCheck, LogOut, ExternalLink, Lock } from 'lucide-react';
+import laxmiLogo from './assets/laxmi-logo.png';
 import './AdminPortalApp.css';
 
 /**
@@ -89,7 +90,8 @@ export default function AdminPortalApp() {
     return (
       <div className="admin-portal-login-wrapper">
         <div className="admin-portal-login-topbar">
-          <div className="admin-portal-brand">
+          <div className="admin-portal-brand" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <img src={laxmiLogo} alt="Laxmi Credit Icon" style={{ height: '30px', width: 'auto', objectFit: 'contain' }} />
             <span className="brand-orange">Laxmi</span>
             <span className="brand-blue">Credit</span>
             <span className="brand-domain-badge">Enterprise Console</span>
@@ -118,8 +120,8 @@ export default function AdminPortalApp() {
     <div className="admin-portal-container">
       {/* Top Bar with Security Badge, Domain indicator, and Logout */}
       <div className="admin-portal-system-banner">
-        <div className="system-banner-left">
-          <ShieldCheck size={16} style={{ color: '#10b981' }} />
+        <div className="system-banner-left" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <img src={laxmiLogo} alt="Laxmi Credit Icon" style={{ height: '22px', width: 'auto', objectFit: 'contain' }} />
           <span className="system-badge">Laxmi Credit Core Admin</span>
           <span className="system-domain-pill">laxmicredit.in</span>
           <span className="system-status-indicator">

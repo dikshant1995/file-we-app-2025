@@ -25,15 +25,15 @@ const defaultConfigs = {
   },
   'ICICI Bank': {
     ageRules: { minAge: 21, maxAge: 60, retirementAge: { salaried: 60, selfEmployed: 65 }, maxAgeAtLoanEnd: 60 },
-    tenureRules: { minTenureMonths: 12, maxTenureMonths: 84, categoryBasedMaxTenure: { A: 84, B: 84, C: 72, D: 60 } },
-    foirSettings: { categoryBasedFOIR: { A: 65, B: 60, C: 55, D: 50 }, creditCardObligationPercentage: 5 },
-    multiplierRules: { categoryBasedMultiplier: { A: 35, B: 30, C: 25, D: 20 } },
-    creditScoreRules: { minCreditScore: 650, recommendedScore: 700, premiumScore: 750, autoRejectionThreshold: 600 },
-    interestRates: { defaultRate: 11.0, categoryRates: { A: 11.0, B: 11.0, C: 11.0, D: 11.0 } },
-    loanCapping: { absoluteMaxLoan: 5000000, minLoanAmount: 100000, bachelorCapping: { enabled: true, limits: { unmarried_bachelor: null, unmarried_family: null, married_bachelor: null, unmarried_self_owned: null } } },
-    employmentRules: { salariedMinSalary: 25000, selfEmployedMinIncome: 300000, itrYearsRequired: 2 },
-    btConfiguration: { enabled: true, maxLoansForBT: 3, creditCardBTSupported: true, processingFeePercentage: 1.5, maxCreditCardBTMultiplier: 6 },
-    feesAndCharges: { processingFeePercentage: 3.5, btChargesPercentage: 1.5, prepaymentChargesPercentage: 4 },
+    tenureRules: { minTenureMonths: 12, maxTenureMonths: 72, categoryBasedMaxTenure: { 'Super Prime': 72, 'Preferred': 72, 'Elite': 72, 'Open Market': 72, 'Govt': 72, 'Army Profile': 72, 'NRI Case': 72, A: 72, B: 72, C: 72, D: 72 } },
+    foirSettings: { categoryBasedFOIR: { 'Super Prime': 65, 'Preferred': 65, 'Elite': 65, 'Open Market': 55, 'Govt': 65, 'Army Profile': 65, 'NRI Case': 60, A: 65, B: 65, C: 55, D: 55 }, creditCardObligationPercentage: 5 },
+    multiplierRules: { categoryBasedMultiplier: { 'Super Prime': 28, 'Preferred': 27, 'Elite': 25, 'Open Market': 20, 'Govt': 27, 'Army Profile': 25, 'NRI Case': 20, A: 27, B: 25, C: 20, D: 20 } },
+    creditScoreRules: { minCreditScore: 725, recommendedScore: 750, premiumScore: 775, autoRejectionThreshold: 725 },
+    interestRates: { defaultRate: 9.99, categoryRates: { 'Super Prime': 9.99, 'Preferred': 9.99, 'Elite': 10.50, 'Open Market': 11.50, 'Govt': 9.99, 'Army Profile': 10.50, 'NRI Case': 11.00, A: 9.99, B: 10.50, C: 11.50, D: 11.50 } },
+    loanCapping: { absoluteMaxLoan: 10000000, minLoanAmount: 610000, bachelorCapping: { enabled: false, limits: { unmarried_bachelor: null, unmarried_family: null, married_bachelor: null, unmarried_self_owned: null } } },
+    employmentRules: { salariedMinSalary: 30000, selfEmployedMinIncome: 300000, itrYearsRequired: 1 },
+    btConfiguration: { enabled: true, maxLoansForBT: 5, creditCardBTSupported: true, processingFeePercentage: 0.8, maxCreditCardBTMultiplier: 5 },
+    feesAndCharges: { processingFeePercentage: 0.8, btChargesPercentage: 0.8, prepaymentChargesPercentage: 3 },
     incentivePolicy: { percentage: 0, months: 0 }
   },
   'Axis Bank': {
@@ -176,7 +176,8 @@ export const saveBankConfig = (bankName, sectionName, config, location = null) =
 // Get configuration for a specific bank, section, and optional location (State/City)
 export const getBankConfig = (bankName, sectionName, location = null) => {
   try {
-    const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    const rawStorage = typeof localStorage !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null;
+    const allConfigs = JSON.parse(rawStorage || '{}');
 
     // 1. Try to get City-Specific Override first
     if (location && allConfigs[bankName]?.cityOverrides?.[location]?.[sectionName]) {
@@ -208,7 +209,8 @@ export const getBankConfig = (bankName, sectionName, location = null) => {
 // Get all configuration for a bank at a specific location
 export const getAllBankConfig = (bankName, location = null) => {
   try {
-    const allConfigs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    const rawStorage = typeof localStorage !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null;
+    const allConfigs = JSON.parse(rawStorage || '{}');
     const baseConfig = { ...(defaultConfigs[bankName] || {}), ...(allConfigs[bankName] || {}) };
 
     // Resolve unifiedPolicy fallback if missing from baseConfig root

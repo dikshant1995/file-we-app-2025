@@ -4,6 +4,7 @@ import { Sparkles, ArrowRight, ArrowLeft, ShieldCheck, Zap, Globe, Lock, Instagr
 import './FuturisticLanding.css';
 import eligibilityDocIcon from '../assets/eligibility-doc-icon.png';
 import documentsFolderIcon from '../assets/documents-folder-icon.png';
+import laxmiLogo from '../assets/laxmi-logo.png';
 import PersonalLoanEmiCalculator from './PersonalLoanEmiCalculator';
 import CustomerSuccessStories from './CustomerSuccessStories';
 import PortalFaqSection from './PortalFaqSection';
@@ -140,7 +141,12 @@ const FuturisticLanding = ({ onGetStarted, onAdminClick, onBlogClick }) => {
       <header className="holo-header">
         <div className="header-inner-nav">
           <div className="nav-left" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div className="neural-logo-small" style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
+            <div className="neural-logo-small" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }} onClick={() => window.location.href = '/'}>
+              <img 
+                src={laxmiLogo} 
+                alt="Laxmi Credit Icon" 
+                style={{ height: '38px', width: 'auto', objectFit: 'contain' }} 
+              />
               <span 
                 style={{ 
                   fontSize: '1.9rem', 

@@ -8,6 +8,7 @@ import { auth, db } from '../config/firebase.js';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { Users, Building2, KeyRound } from 'lucide-react';
+import laxmiLogo from '../assets/laxmi-logo.png';
 
 const AdminDashboard = ({ onBackToCustomer, initialUser }) => {
   // Only 2 Main Features: 'leads' and 'bank-policy'
@@ -133,7 +134,9 @@ const AdminDashboard = ({ onBackToCustomer, initialUser }) => {
               className="admin-brand-logo" 
               onClick={onBackToCustomer} 
               title="Return to LaxmiCredit Home Page"
+              style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
             >
+              <img src={laxmiLogo} alt="Laxmi Credit Icon" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
               <span className="brand-laxmi">Laxmi</span><span className="brand-credit">Credit</span>
               <span className="brand-portal-tag">Admin Console</span>
             </div>

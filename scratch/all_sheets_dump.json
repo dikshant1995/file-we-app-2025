@@ -1,0 +1,4258 @@
+{
+  "ICICI": [
+    {
+      "row": 4,
+      "cells": {
+        "C15": "ICICI BANK "
+      }
+    },
+    {
+      "row": 6,
+      "cells": {
+        "C13": 1,
+        "C14": "DEMOGRAPHIC AND AGE ELIGIBILITY CRITERIA",
+        "C15": "CONFIGURED THRESHOLD"
+      }
+    },
+    {
+      "row": 7,
+      "cells": {
+        "C14": "ELIGIBILTY PARAMETER"
+      }
+    },
+    {
+      "row": 8,
+      "cells": {
+        "C14": "MINIMUM  APLICANT AGE",
+        "C15": "21 YEAR"
+      }
+    },
+    {
+      "row": 9,
+      "cells": {
+        "C14": "MAXIMUM AGE AT LOAN TIME",
+        "C15": 60,
+        "C16": "PENSIONER - 65"
+      }
+    },
+    {
+      "row": 10,
+      "cells": {
+        "C14": "RETIREMENT AGE",
+        "C15": 60
+      }
+    },
+    {
+      "row": 11,
+      "cells": {
+        "C14": "MINIMUM SALARY AT LOAN TIME",
+        "C15": "GOVT - 25K",
+        "C16": "PVT - 30K",
+        "C17": "OPEN MARKET - 75K",
+        "C18": "NRI CASE - 2LAC"
+      }
+    },
+    {
+      "row": 12,
+      "cells": {
+        "C14": "MINI WORK EXPRINCE",
+        "C15": "1 YEAR"
+      }
+    },
+    {
+      "row": 13,
+      "cells": {
+        "C14": "CC OBLIGATION",
+        "C15": "5% CC OBLIGATE"
+      }
+    },
+    {
+      "row": 14,
+      "cells": {
+        "C14": "REQ. CIBIL ",
+        "C15": "CIBIL 725+",
+        "C16": "CIBIL -1 DUABLE"
+      }
+    },
+    {
+      "row": 16,
+      "cells": {
+        "C13": 2,
+        "C14": "ROI STRUCTURES AND SLABS",
+        "C15": "CIBIL BASED AND LOAN AMOUNT BASED BASIS PRICING "
+      }
+    },
+    {
+      "row": 17,
+      "cells": {
+        "C14": "COM CATEGORY",
+        "C15": "CIBIL AND SALARY ",
+        "C16": " ROI",
+        "C17": "FOIR",
+        "C18": "LOANAMOUNT"
+      }
+    },
+    {
+      "row": 18,
+      "cells": {
+        "C14": "SUPER PRIME",
+        "C15": "CIBIL 725 TO 775  + SALARY 30K+ TO MAX",
+        "C16": "12% TO 9.99%",
+        "C17": "45% TO 65%    (HL RUNING - 70%)",
+        "C18": "MAX"
+      }
+    },
+    {
+      "row": 19,
+      "cells": {
+        "C14": "PREFERRED",
+        "C15": "CIBIL 725 TO 775  + SALARY 30K+ TO MAX",
+        "C16": "12% TO 9.99%",
+        "C17": "45% TO 65%    (HL RUNING - 70%)",
+        "C18": "MAX"
+      }
+    },
+    {
+      "row": 20,
+      "cells": {
+        "C14": "ELITE",
+        "C15": "CIBIL 725 TO 775  + SALARY 30K+ TO MAX",
+        "C16": "12% TO 9.99%",
+        "C17": "45% TO 65%    (HL RUNING - 70%)",
+        "C18": "6LAC TO 9LAC"
+      }
+    },
+    {
+      "row": 21,
+      "cells": {
+        "C14": "OPEN MARKET",
+        "C15": "CIBIL 750 + SALARY 50K+",
+        "C16": "11% TO 12.80",
+        "C17": "45% TO 55%",
+        "C18": "6LAC TO 15LAC"
+      }
+    },
+    {
+      "row": 22,
+      "cells": {
+        "C14": "GOVT",
+        "C15": "CIBIL 725 TO 775  + SALARY 30K+ TO MAX",
+        "C16": "12% TO 9.99%",
+        "C17": "45% TO 65%    (HL RUNING - 70%)",
+        "C18": "MAX "
+      }
+    },
+    {
+      "row": 24,
+      "cells": {
+        "C14": "NOTES",
+        "C15": "CIBIL 750 TO 774 + SALARY 75K+ LOAN MOUNT  20LAC =  RATE - 10.30%"
+      }
+    },
+    {
+      "row": 25,
+      "cells": {
+        "C15": "CIBIL 775+ SALARY 75K+ LOAN AMOUNT 20LAC= RATE 9.99%"
+      }
+    },
+    {
+      "row": 27,
+      "cells": {
+        "C13": 3,
+        "C14": "MINIMUM LOAN AMOUNT AND MAX LOAN AMOUNT"
+      }
+    },
+    {
+      "row": 28,
+      "cells": {
+        "C14": "COM CATEGORY",
+        "C15": "MINIMUM LOAN AMOUNT",
+        "C16": "MAX LOAN AMOUNT"
+      }
+    },
+    {
+      "row": 29,
+      "cells": {
+        "C14": "SUPER PRIME",
+        "C15": "IN RAJASTHAN  6.10 LAC ",
+        "C16": "1 CR"
+      }
+    },
+    {
+      "row": 30,
+      "cells": {
+        "C14": "PREFERRED",
+        "C15": "IN RAJASTHAN  6.10 LAC ",
+        "C16": "1CR"
+      }
+    },
+    {
+      "row": 31,
+      "cells": {
+        "C14": "ELITE",
+        "C15": "IN RAJASTHAN  6.10 LAC ",
+        "C16": "1 CR"
+      }
+    },
+    {
+      "row": 32,
+      "cells": {
+        "C14": "OPEN MARKET",
+        "C15": "IN RAJASTHAN  6.10 LAC ",
+        "C16": "15 LAC"
+      }
+    },
+    {
+      "row": 33,
+      "cells": {
+        "C14": "GOVT",
+        "C15": "IN RAJASTHAN  6.10 LAC ",
+        "C16": "1CR"
+      }
+    },
+    {
+      "row": 34,
+      "cells": {
+        "C14": "ARMY PROFILE",
+        "C15": "IN RAJASTHAN  6.10 LAC ",
+        "C16": "10 LAC"
+      }
+    },
+    {
+      "row": 35,
+      "cells": {
+        "C14": "NRI CASE ",
+        "C15": "6LAC",
+        "C16": "10 LAC"
+      }
+    },
+    {
+      "row": 37,
+      "cells": {
+        "C13": 4,
+        "C14": "TENURE AND REPAYMENT WINDOWS"
+      }
+    },
+    {
+      "row": 38,
+      "cells": {
+        "C14": "COM CATEGORY",
+        "C15": "MINIMUM TENURE",
+        "C16": "MAX TENURE",
+        "C17": "POLICY NOTES"
+      }
+    },
+    {
+      "row": 39,
+      "cells": {
+        "C14": "SUPER PRIME",
+        "C15": 12,
+        "C16": 72,
+        "C17": "TENURE UPTO 6 YEARS"
+      }
+    },
+    {
+      "row": 40,
+      "cells": {
+        "C14": "PREFERRED",
+        "C15": 12,
+        "C16": 72
+      }
+    },
+    {
+      "row": 41,
+      "cells": {
+        "C14": "ELITE",
+        "C15": 12,
+        "C16": 72
+      }
+    },
+    {
+      "row": 42,
+      "cells": {
+        "C14": "OPEN MARKET",
+        "C15": 12,
+        "C16": 72
+      }
+    },
+    {
+      "row": 43,
+      "cells": {
+        "C14": "GOVT",
+        "C15": 12,
+        "C16": 72
+      }
+    },
+    {
+      "row": 44,
+      "cells": {
+        "C14": "ARMY PROFILE",
+        "C15": 12,
+        "C16": 72
+      }
+    }
+  ],
+  "IDFC": [
+    {
+      "row": 6,
+      "cells": {
+        "C14": "IDFC FIRST BANK LTD"
+      }
+    },
+    {
+      "row": 8,
+      "cells": {
+        "C14": 1,
+        "C15": "DEMOGRAPHIC AND AGE ELIGIBILITY CRITERIA",
+        "C16": "CONFIGURED THRESHOLD"
+      }
+    },
+    {
+      "row": 9,
+      "cells": {
+        "C15": "ELIGIBILTY PARAMETER"
+      }
+    },
+    {
+      "row": 10,
+      "cells": {
+        "C15": "MINIMUM  APLICANT AGE",
+        "C16": "23 YEARS"
+      }
+    },
+    {
+      "row": 11,
+      "cells": {
+        "C15": "MAXIMUM AGE AT LOAN TIME",
+        "C16": "60 YEARS"
+      }
+    },
+    {
+      "row": 12,
+      "cells": {
+        "C15": "RETIREMENT AGE",
+        "C16": "60 YEARS"
+      }
+    },
+    {
+      "row": 13,
+      "cells": {
+        "C15": "MINIMUM SALARY AT LOAN TIME",
+        "C16": "20K "
+      }
+    },
+    {
+      "row": 14,
+      "cells": {
+        "C15": "MINI WORK EXPRINCE",
+        "C16": "3 MONTH FOR UP TO 15L AND 15L ABOVE  2YEARS "
+      }
+    },
+    {
+      "row": 15,
+      "cells": {
+        "C15": "CC OBLIGATION"
+      }
+    },
+    {
+      "row": 18,
+      "cells": {
+        "C14": 2,
+        "C15": "FOIR AND MULTIPLIER"
+      }
+    },
+    {
+      "row": 19,
+      "cells": {
+        "C15": "COM CATEGORY",
+        "C16": "FOIR",
+        "C17": "FOIR",
+        "C19": "MULTIPLIER",
+        "C20": "MULTIPLIER",
+        "C21": "MULTIPLIER"
+      }
+    },
+    {
+      "row": 20,
+      "cells": {
+        "C15": "NTH Band",
+        "C16": "CAT SA / A/ B",
+        "C17": "CAT C/D",
+        "C18": "Category",
+        "C19": "NTH <50K",
+        "C20": "NTH 50-75K",
+        "C21": "NTH >75K"
+      }
+    },
+    {
+      "row": 21,
+      "cells": {
+        "C15": "INR 20K - 40K",
+        "C16": 60,
+        "C17": 50,
+        "C18": "CAT SA & CAT A",
+        "C19": 23,
+        "C20": 25,
+        "C21": 27
+      }
+    },
+    {
+      "row": 22,
+      "cells": {
+        "C15": "INR 40K - 50K",
+        "C16": 60,
+        "C17": 60,
+        "C18": "CAT B",
+        "C19": 16,
+        "C20": 20,
+        "C21": 22
+      }
+    },
+    {
+      "row": 23,
+      "cells": {
+        "C15": "INR 50K - 75K",
+        "C16": 65,
+        "C17": 65,
+        "C18": "CAT C",
+        "C19": 11,
+        "C20": 13,
+        "C21": 15
+      }
+    },
+    {
+      "row": 24,
+      "cells": {
+        "C15": "INR >75K",
+        "C16": 70,
+        "C17": 70,
+        "C18": "CAT D",
+        "C19": 11,
+        "C20": 13,
+        "C21": 15
+      }
+    },
+    {
+      "row": 25,
+      "cells": {
+        "C15": "GOVT"
+      }
+    },
+    {
+      "row": 29,
+      "cells": {
+        "C14": 3,
+        "C15": "TENURE AND REPAYMENT WINDOWS"
+      }
+    },
+    {
+      "row": 30,
+      "cells": {
+        "C15": "COM CATEGORY",
+        "C16": "MINIMUM TENURE",
+        "C17": "MAX TENURE",
+        "C18": "POLICY NOTES"
+      }
+    },
+    {
+      "row": 31,
+      "cells": {
+        "C15": "SUPER A",
+        "C16": "12 MONTHS",
+        "C17": "84 MONTHS",
+        "C18": "TENURE UP TO  84 MONTHS"
+      }
+    },
+    {
+      "row": 32,
+      "cells": {
+        "C15": "A",
+        "C16": "12 MONTHS",
+        "C17": "84 MONTHS"
+      }
+    },
+    {
+      "row": 33,
+      "cells": {
+        "C15": "B",
+        "C16": "12 MONTHS",
+        "C17": "84 MONTHS"
+      }
+    },
+    {
+      "row": 34,
+      "cells": {
+        "C15": "C",
+        "C16": "12 MONTHS",
+        "C17": "84 MONTHS"
+      }
+    },
+    {
+      "row": 35,
+      "cells": {
+        "C15": "D",
+        "C16": "12 MONTHS",
+        "C17": "84 MONTHS"
+      }
+    },
+    {
+      "row": 36,
+      "cells": {
+        "C15": "GOVT",
+        "C16": "12 MONTHS",
+        "C17": "84 MONTHS"
+      }
+    },
+    {
+      "row": 39,
+      "cells": {
+        "C14": 4,
+        "C15": "MINIMUM LOAN AMOUNT AND MAX LOAN AMOUNT"
+      }
+    },
+    {
+      "row": 40,
+      "cells": {
+        "C15": "COM CATEGORY",
+        "C16": "MINIMUM LOAN AMOUNT",
+        "C17": "MAX LOAN AMOUNT"
+      }
+    },
+    {
+      "row": 41,
+      "cells": {
+        "C15": "SUPER A",
+        "C16": "1LAC",
+        "C17": "1CR"
+      }
+    },
+    {
+      "row": 42,
+      "cells": {
+        "C15": "A",
+        "C16": "1LAC",
+        "C17": "1CR"
+      }
+    },
+    {
+      "row": 43,
+      "cells": {
+        "C15": "B",
+        "C16": "1LAC",
+        "C17": "1CR"
+      }
+    },
+    {
+      "row": 44,
+      "cells": {
+        "C15": "C",
+        "C16": "1LAC",
+        "C17": "1CR"
+      }
+    }
+  ],
+  "LNT": [
+    {
+      "row": 2,
+      "cells": {
+        "C9": "LNT FINANCE"
+      }
+    },
+    {
+      "row": 4,
+      "cells": {
+        "C9": 1,
+        "C10": "DEMOGRAPHIC AND AGE ELIGIBILITY CRITERIA",
+        "C11": "CONFIGURED THRESHOLD"
+      }
+    },
+    {
+      "row": 5,
+      "cells": {
+        "C10": "ELIGIBILTY PARAMETER"
+      }
+    },
+    {
+      "row": 6,
+      "cells": {
+        "C10": "MINIMUM  APLICANT AGE",
+        "C11": "21 YEARS",
+        "C12": "LOAN AMOUNT",
+        "C13": "MINIMUM ROI"
+      }
+    },
+    {
+      "row": 7,
+      "cells": {
+        "C10": "MAXIMUM AGE AT LOAN TIME",
+        "C11": "60 YEARS",
+        "C12": "1 TO 10LAC",
+        "C13": "13 TO 15%ROI"
+      }
+    },
+    {
+      "row": 8,
+      "cells": {
+        "C10": "RETIREMENT AGE",
+        "C11": "60 YEARS",
+        "C12": "10 TO 20LAC",
+        "C13": "14% ROI"
+      }
+    },
+    {
+      "row": 9,
+      "cells": {
+        "C10": "MINIMUM SALARY AT LOAN TIME",
+        "C11": "25K SALARY",
+        "C12": "20 TO 30 LAC",
+        "C13": "11.5 TO 12.5% ROI "
+      }
+    },
+    {
+      "row": 10,
+      "cells": {
+        "C10": "MINI WORK EXPRINCE",
+        "C11": "6 MONTHS SALARY CR REQ"
+      }
+    },
+    {
+      "row": 11,
+      "cells": {
+        "C10": "CC OBLIGATION  ",
+        "C11": 0.05,
+        "C12": "CC BT NOT ALLOW"
+      }
+    },
+    {
+      "row": 14,
+      "cells": {
+        "C9": 2,
+        "C10": "ROI STRUCTURES AND SLABS"
+      }
+    },
+    {
+      "row": 15,
+      "cells": {
+        "C10": "COM CATEGORY",
+        "C11": "LOAN AMOUNT",
+        "C12": "MINI ROI"
+      }
+    },
+    {
+      "row": 16,
+      "cells": {
+        "C10": "SUPER A",
+        "C11": "30LAC",
+        "C12": "10.99(OWNED HOUSE)1.75K SALARY/775 CIBIL"
+      }
+    },
+    {
+      "row": 17,
+      "cells": {
+        "C10": "A",
+        "C11": "30LAC",
+        "C12": "10.99(OWNED HOUSE)1.75K SALARY/775 CIBIL"
+      }
+    },
+    {
+      "row": 18,
+      "cells": {
+        "C10": "B",
+        "C11": "30LAC",
+        "C12": 11.5
+      }
+    },
+    {
+      "row": 19,
+      "cells": {
+        "C10": "C",
+        "C11": "30LAC",
+        "C12": 13.5
+      }
+    },
+    {
+      "row": 20,
+      "cells": {
+        "C10": "GOVT",
+        "C11": "30LAC",
+        "C12": 11.5
+      }
+    },
+    {
+      "row": 24,
+      "cells": {
+        "C9": 3,
+        "C10": "FOIR AND MULTIPLIER( CIBIL 720PLUS)"
+      }
+    },
+    {
+      "row": 25,
+      "cells": {
+        "C10": "COM CATEGORY",
+        "C11": "SALARY FOR FOIR AND MULTIPLIER",
+        "C12": "MAX FOIR",
+        "C13": "SALARY",
+        "C14": "MAX FOIR",
+        "C15": "SALARY",
+        "C16": "FOIR",
+        "C17": "SALARY",
+        "C18": "FOIR"
+      }
+    },
+    {
+      "row": 26,
+      "cells": {
+        "C10": "SUPER A GOVT",
+        "C11": "2LAC+SALARY",
+        "C12": 0.8,
+        "C13": "1 TO 2LAC",
+        "C14": 0.75,
+        "C15": "50 TO 1L",
+        "C16": 0.7,
+        "C17": "25 TO 50",
+        "C18": "55%/18%MULTIPLIER"
+      }
+    },
+    {
+      "row": 27,
+      "cells": {
+        "C10": "A",
+        "C11": "2LAC+SALARY",
+        "C12": 0.8,
+        "C13": "1 TO 2LAC",
+        "C14": 0.75,
+        "C15": "50 TO 1L",
+        "C16": 0.7,
+        "C17": "25 TO 50",
+        "C18": "55%/18%MULTIPLIER"
+      }
+    },
+    {
+      "row": 28,
+      "cells": {
+        "C10": "B",
+        "C11": "2LAC+SALARY",
+        "C12": 0.8,
+        "C13": "1 TO 2LAC",
+        "C14": 0.75,
+        "C15": "50 TO 1L",
+        "C16": 0.7,
+        "C17": "25 TO 50",
+        "C18": "55%/18%MULTIPLIER"
+      }
+    },
+    {
+      "row": 29,
+      "cells": {
+        "C10": "C",
+        "C11": "2LAC+SALARY",
+        "C12": "75%/20  MULTIPLIER",
+        "C13": "1 TO 2LAC",
+        "C14": "70%FOIR/20 MULTIPLIER",
+        "C15": "50 TO 1L",
+        "C16": "60%/18 MULTIPLIER",
+        "C17": "25 TO 50",
+        "C18": "50%/16%MULTIPLIER"
+      }
+    },
+    {
+      "row": 30,
+      "cells": {
+        "C10": "D",
+        "C11": "2LAC+SALARY",
+        "C12": "70%/16 MULTIPLIER",
+        "C13": "1 TO 2LAC",
+        "C14": "65%FOIR/16 MULTIPLIER",
+        "C15": "50 TO 1L",
+        "C16": "55%/15 MULTIPLIER",
+        "C17": "25 TO 50",
+        "C18": "50%/14%MULTIPLIER"
+      }
+    },
+    {
+      "row": 31,
+      "cells": {
+        "C10": "GOVT"
+      }
+    },
+    {
+      "row": 34,
+      "cells": {
+        "C9": 4,
+        "C10": "TENURE AND REPAYMENT WINDOWS"
+      }
+    },
+    {
+      "row": 35,
+      "cells": {
+        "C10": "COM CATEGORY",
+        "C11": "MINIMUM TENURE",
+        "C12": "MAX TENURE",
+        "C13": "POLICY NOTES"
+      }
+    },
+    {
+      "row": 36,
+      "cells": {
+        "C10": "SUPER A",
+        "C11": "12 MONTHS",
+        "C12": "72  MONTHS",
+        "C13": "TENURE UP TO 72 MONTHS"
+      }
+    },
+    {
+      "row": 37,
+      "cells": {
+        "C10": "A",
+        "C11": "12 MONTHS",
+        "C12": "72  MONTHS",
+        "C13": "TENURE UP TO 72 MONTHS"
+      }
+    },
+    {
+      "row": 38,
+      "cells": {
+        "C10": "B",
+        "C11": "12 MONTHS",
+        "C12": "72  MONTHS",
+        "C13": "TENURE UP TO 72 MONTHS"
+      }
+    },
+    {
+      "row": 39,
+      "cells": {
+        "C10": "C",
+        "C11": "12 MONTHS",
+        "C12": "72  MONTHS",
+        "C13": "TENURE UP TO 72 MONTHS"
+      }
+    },
+    {
+      "row": 40,
+      "cells": {
+        "C10": "D",
+        "C11": "12 MONTHS",
+        "C12": "72  MONTHS",
+        "C13": "TENURE UP TO 72 MONTHS"
+      }
+    },
+    {
+      "row": 41,
+      "cells": {
+        "C10": "GOVT",
+        "C11": "12 MONTHS",
+        "C12": "72  MONTHS",
+        "C13": "TENURE UP TO 72 MONTHS"
+      }
+    },
+    {
+      "row": 44,
+      "cells": {
+        "C9": 5,
+        "C10": "MINIMUM LOAN AMOUNT AND MAX LOAN AMOUNT"
+      }
+    }
+  ],
+  "PIRAMAL": [
+    {
+      "row": 2,
+      "cells": {
+        "C9": "PIRAMAL FINANCE LTD"
+      }
+    },
+    {
+      "row": 4,
+      "cells": {
+        "C9": 1,
+        "C10": "DEMOGRAPHIC AND AGE ELIGIBILITY CRITERIA",
+        "C11": "CONFIGURED THRESHOLD"
+      }
+    },
+    {
+      "row": 5,
+      "cells": {
+        "C10": "ELIGIBILTY PARAMETER"
+      }
+    },
+    {
+      "row": 6,
+      "cells": {
+        "C10": "MINIMUM  APLICANT AGE",
+        "C11": "21 YEARS"
+      }
+    },
+    {
+      "row": 7,
+      "cells": {
+        "C10": "MAXIMUM AGE AT LOAN TIME",
+        "C11": "63 YEARS"
+      }
+    },
+    {
+      "row": 8,
+      "cells": {
+        "C10": "RETIREMENT AGE",
+        "C11": "60 YEARS AND GOVT  63"
+      }
+    },
+    {
+      "row": 9,
+      "cells": {
+        "C10": "MINIMUM SALARY AT LOAN TIME",
+        "C11": "22+PF DEDUCT REQ "
+      }
+    },
+    {
+      "row": 10,
+      "cells": {
+        "C10": "MINI WORK EXPRINCE",
+        "C11": "1 YEARS"
+      }
+    },
+    {
+      "row": 11,
+      "cells": {
+        "C10": "CC OBLIGATION  ",
+        "C11": 0.05,
+        "C12": "2 CC BT ALLOW WITH 1 PL BT"
+      }
+    },
+    {
+      "row": 14,
+      "cells": {
+        "C9": 2,
+        "C10": "ROI STRUCTURES AND SLABS"
+      }
+    },
+    {
+      "row": 15,
+      "cells": {
+        "C10": "COM CATEGORY",
+        "C11": "MINI ROI",
+        "C12": "MAX ROI"
+      }
+    },
+    {
+      "row": 16,
+      "cells": {
+        "C10": "SUPER A",
+        "C11": 11.99,
+        "C12": 0.28,
+        "C13": "AS PER VANTEL SCORE"
+      }
+    },
+    {
+      "row": 17,
+      "cells": {
+        "C10": "A",
+        "C11": 11.99,
+        "C12": 0.28,
+        "C13": "AS PER VANTEL SCORE"
+      }
+    },
+    {
+      "row": 18,
+      "cells": {
+        "C10": "B",
+        "C11": 11.99,
+        "C12": 0.28,
+        "C13": "AS PER VANTEL SCORE"
+      }
+    },
+    {
+      "row": 19,
+      "cells": {
+        "C10": "C",
+        "C11": 11.99,
+        "C12": 0.28,
+        "C13": "AS PER VANTEL SCORE"
+      }
+    },
+    {
+      "row": 20,
+      "cells": {
+        "C10": "GOVT",
+        "C11": 11.99,
+        "C12": 0.28,
+        "C13": "AS PER VANTEL SCORE"
+      }
+    },
+    {
+      "row": 23,
+      "cells": {
+        "C10": "FOIR AND MULTIPLIER"
+      }
+    },
+    {
+      "row": 24,
+      "cells": {
+        "C9": 3,
+        "C10": "Ventile band",
+        "C11": "Low #",
+        "C12": "Medium",
+        "C13": "High",
+        "C14": "Elite/CAT A MULTIPLIER",
+        "C15": "CAT B/C(MULTIPLIER)",
+        "C16": "Govt. with NMI >= INR 60K ",
+        "C17": "Govt. with NMI < INR 60K",
+        "C18": "BT of Govt. with NMI >= INR 60K",
+        "C19": "Others"
+      }
+    },
+    {
+      "row": 25,
+      "cells": {
+        "C10": "NTC",
+        "C11": 40,
+        "C12": 50,
+        "C13": 50,
+        "C14": 7.5,
+        "C15": 6,
+        "C16": 5,
+        "C17": 5,
+        "C18": 5,
+        "C19": 5
+      }
+    },
+    {
+      "row": 26,
+      "cells": {
+        "C10": "V4-V5",
+        "C11": 40,
+        "C12": 50,
+        "C13": 55,
+        "C14": 7.5,
+        "C15": 6,
+        "C16": 5,
+        "C17": 5,
+        "C18": 5,
+        "C19": 5
+      }
+    },
+    {
+      "row": 27,
+      "cells": {
+        "C10": "V6-V7",
+        "C11": 40,
+        "C12": 55,
+        "C13": 60,
+        "C14": 9,
+        "C15": 7.5,
+        "C16": 6,
+        "C17": 6,
+        "C18": 7,
+        "C19": 6
+      }
+    },
+    {
+      "row": 28,
+      "cells": {
+        "C10": "V8-V9",
+        "C11": 50,
+        "C12": 65,
+        "C13": 70,
+        "C14": 15,
+        "C15": 10,
+        "C16": 8,
+        "C17": 8,
+        "C18": 10,
+        "C19": 8
+      }
+    },
+    {
+      "row": 29,
+      "cells": {
+        "C10": "V10-12",
+        "C11": 50,
+        "C12": 65,
+        "C13": 70,
+        "C14": 24,
+        "C15": 15,
+        "C16": 15,
+        "C17": 12,
+        "C18": 18,
+        "C19": 12
+      }
+    },
+    {
+      "row": 30,
+      "cells": {
+        "C10": "V13-V20",
+        "C11": 50,
+        "C12": 65,
+        "C13": 70,
+        "C14": 30,
+        "C15": 22,
+        "C16": 20,
+        "C17": 15,
+        "C18": 24,
+        "C19": 18
+      }
+    },
+    {
+      "row": 34,
+      "cells": {
+        "C9": 4,
+        "C10": "TENURE AND REPAYMENT WINDOWS"
+      }
+    },
+    {
+      "row": 35,
+      "cells": {
+        "C10": "COM CATEGORY",
+        "C11": "MINIMUM TENURE",
+        "C12": "MAX TENURE",
+        "C13": "MAX TENURE OD PROGRAM",
+        "C14": "MAX TENURE OD+_1LA SALARY"
+      }
+    },
+    {
+      "row": 36,
+      "cells": {
+        "C10": "SUPER A",
+        "C11": 12,
+        "C12": 72,
+        "C13": 84,
+        "C14": 96
+      }
+    },
+    {
+      "row": 37,
+      "cells": {
+        "C10": "A",
+        "C11": 12,
+        "C12": 72,
+        "C13": 84,
+        "C14": 96
+      }
+    },
+    {
+      "row": 38,
+      "cells": {
+        "C10": "B",
+        "C11": 12,
+        "C12": 72,
+        "C13": 84
+      }
+    },
+    {
+      "row": 39,
+      "cells": {
+        "C10": "C",
+        "C11": 12,
+        "C12": 72,
+        "C13": 84
+      }
+    },
+    {
+      "row": 40,
+      "cells": {
+        "C10": "D",
+        "C11": 12,
+        "C12": 72,
+        "C13": 84
+      }
+    },
+    {
+      "row": 41,
+      "cells": {
+        "C10": "GOVT",
+        "C11": 12,
+        "C12": 72,
+        "C13": 84
+      }
+    },
+    {
+      "row": 44,
+      "cells": {
+        "C9": 5,
+        "C10": "MINIMUM LOAN AMOUNT AND MAX LOAN AMOUNT"
+      }
+    }
+  ],
+  "SMFG": [
+    {
+      "row": 2,
+      "cells": {
+        "C9": "SMFG"
+      }
+    },
+    {
+      "row": 4,
+      "cells": {
+        "C9": 1,
+        "C10": "DEMOGRAPHIC AND AGE ELIGIBILITY CRITERIA",
+        "C11": "CONFIGURED THRESHOLD"
+      }
+    },
+    {
+      "row": 5,
+      "cells": {
+        "C10": "ELIGIBILTY PARAMETER"
+      }
+    },
+    {
+      "row": 6,
+      "cells": {
+        "C10": "MINIMUM  APLICANT AGE",
+        "C11": 21
+      }
+    },
+    {
+      "row": 7,
+      "cells": {
+        "C10": "MAXIMUM AGE AT LOAN TIME",
+        "C11": "PVT 60 AND GOVT 65(PENSIONER PROFILE)"
+      }
+    },
+    {
+      "row": 8,
+      "cells": {
+        "C10": "RETIREMENT AGE",
+        "C11": 65
+      }
+    },
+    {
+      "row": 9,
+      "cells": {
+        "C10": "MINIMUM SALARY AT LOAN TIME",
+        "C11": "25K+ SALARY WITH 0 DEDUCTION"
+      }
+    },
+    {
+      "row": 10,
+      "cells": {
+        "C10": "MINI WORK EXPRINCE",
+        "C11": "CURRENT COM 2 YEARS "
+      }
+    },
+    {
+      "row": 11,
+      "cells": {
+        "C10": "CC OBLIGATION  ",
+        "C11": 0.05
+      }
+    },
+    {
+      "row": 12,
+      "cells": {
+        "C10": "MAX CC BT",
+        "C11": "2 CC BT"
+      }
+    },
+    {
+      "row": 15,
+      "cells": {
+        "C9": 2,
+        "C10": "ROI   Net Income Band",
+        "C11": "A",
+        "C12": "B",
+        "C13": "C",
+        "C14": "D",
+        "C15": "E"
+      }
+    },
+    {
+      "row": 16,
+      "cells": {
+        "C10": 25001,
+        "C11": 24,
+        "C12": 25.5,
+        "C13": 27.5,
+        "C14": 30,
+        "C15": 30
+      }
+    },
+    {
+      "row": 17,
+      "cells": {
+        "C10": "25K-30K",
+        "C11": 23,
+        "C12": 24,
+        "C13": 25,
+        "C14": 28,
+        "C15": 30
+      }
+    },
+    {
+      "row": 18,
+      "cells": {
+        "C10": "30K-35K",
+        "C11": 21.5,
+        "C12": 22,
+        "C13": 23.5,
+        "C14": 25,
+        "C15": 30
+      }
+    },
+    {
+      "row": 19,
+      "cells": {
+        "C10": "35K-40K",
+        "C11": 19.5,
+        "C12": 21,
+        "C13": 23,
+        "C14": 24,
+        "C15": 30
+      }
+    },
+    {
+      "row": 20,
+      "cells": {
+        "C10": "40K-50K",
+        "C11": 19,
+        "C12": 20,
+        "C13": 21.5,
+        "C14": 24,
+        "C15": 30
+      }
+    },
+    {
+      "row": 21,
+      "cells": {
+        "C10": "50K-75K",
+        "C11": 18.5,
+        "C12": 18.5,
+        "C13": 21.5,
+        "C14": 22,
+        "C15": 30
+      }
+    },
+    {
+      "row": 22,
+      "cells": {
+        "C10": "75K-100K",
+        "C11": 18.5,
+        "C12": 18.5,
+        "C13": 19.5,
+        "C14": 20,
+        "C15": 30
+      }
+    },
+    {
+      "row": 23,
+      "cells": {
+        "C10": "100K and Above",
+        "C11": 17,
+        "C12": 17,
+        "C13": 19,
+        "C14": 20,
+        "C15": 30
+      }
+    },
+    {
+      "row": 27,
+      "cells": {
+        "C10": "Loan Amount",
+        "C11": "Processing Fee % - Current"
+      }
+    },
+    {
+      "row": 28,
+      "cells": {
+        "C10": "BELOW 3LAC",
+        "C11": "3.50+GST"
+      }
+    },
+    {
+      "row": 29,
+      "cells": {
+        "C10": "ABOVE 3LAC",
+        "C11": "2.50+GST"
+      }
+    },
+    {
+      "row": 34,
+      "cells": {
+        "C9": 3,
+        "C10": "FOIR AND MULTIPLIER"
+      }
+    },
+    {
+      "row": 35,
+      "cells": {
+        "C10": "Income Less Than 25K",
+        "C11": "MAX FOIR",
+        "C12": "SALARY BAND",
+        "C13": "MULTIPLIER"
+      }
+    },
+    {
+      "row": 36,
+      "cells": {
+        "C10": "25K-30K",
+        "C11": 0.6,
+        "C12": "Income Less Than 25K"
+      }
+    },
+    {
+      "row": 37,
+      "cells": {
+        "C10": "30K-35K",
+        "C11": 0.65,
+        "C12": "25K-30K",
+        "C13": "12 TO 13",
+        "C14": "AS PER COM CAT AND PROFILE BASE"
+      }
+    },
+    {
+      "row": 38,
+      "cells": {
+        "C10": "35K-40K",
+        "C11": 0.7,
+        "C12": "30K-35K",
+        "C13": "15 TO 16"
+      }
+    },
+    {
+      "row": 39,
+      "cells": {
+        "C10": "40K-50K",
+        "C11": 0.7,
+        "C12": "35K-40K",
+        "C13": "16 TO 18",
+        "C14": "COM TYPE",
+        "C15": "MAX FOIR"
+      }
+    },
+    {
+      "row": 40,
+      "cells": {
+        "C10": "50K-75K",
+        "C11": 0.7,
+        "C12": "40K-50K",
+        "C13": "18 TO 20",
+        "C14": "PROP/PART/LLP FIRM",
+        "C15": "55% FOIR"
+      }
+    },
+    {
+      "row": 41,
+      "cells": {
+        "C10": "75K-100K",
+        "C11": 0.7,
+        "C12": "50K-75K",
+        "C13": "22 TO 25"
+      }
+    },
+    {
+      "row": 42,
+      "cells": {
+        "C10": "100K and Above",
+        "C11": 0.7,
+        "C12": "75K-100K",
+        "C13": "23 TO 30"
+      }
+    },
+    {
+      "row": 43,
+      "cells": {
+        "C12": "100K and Above"
+      }
+    },
+    {
+      "row": 44,
+      "cells": {
+        "C9": 4,
+        "C10": "TENURE AND REPAYMENT WINDOWS"
+      }
+    }
+  ],
+  "CHOLA": [
+    {
+      "row": 2,
+      "cells": {
+        "C9": "CHOLA FINANCE"
+      }
+    },
+    {
+      "row": 4,
+      "cells": {
+        "C9": 1,
+        "C10": "DEMOGRAPHIC AND AGE ELIGIBILITY CRITERIA",
+        "C11": "CONFIGURED THRESHOLD"
+      }
+    },
+    {
+      "row": 5,
+      "cells": {
+        "C10": "ELIGIBILTY PARAMETER"
+      }
+    },
+    {
+      "row": 6,
+      "cells": {
+        "C10": "MINIMUM  APLICANT AGE",
+        "C11": "21 YEARS/ 21 TO 23 AGE GROUP CO APP REQ"
+      }
+    },
+    {
+      "row": 7,
+      "cells": {
+        "C10": "MAXIMUM AGE AT LOAN TIME",
+        "C11": "60 YEARS"
+      }
+    },
+    {
+      "row": 8,
+      "cells": {
+        "C10": "RETIREMENT AGE",
+        "C11": "60 YEARS"
+      }
+    },
+    {
+      "row": 9,
+      "cells": {
+        "C10": "MINIMUM SALARY AT LOAN TIME",
+        "C11": "25K AND BANKS AND NBFCS 30K WITHOUT INSENTIVE ",
+        "C12": "RM SM SO SFE NOT ALLOW"
+      }
+    },
+    {
+      "row": 10,
+      "cells": {
+        "C10": "MINI WORK EXPRINCE",
+        "C11": "GOVT 3 MONTHS/ PVT 1 YEARS FOR CATA "
+      }
+    },
+    {
+      "row": 11,
+      "cells": {
+        "C10": "CC OBLIGATION// CC BT",
+        "C11": "5% OBLIGATION AND 6 TIME NOT ALLOW FOR BT/6 CCBT ALLOW"
+      }
+    },
+    {
+      "row": 14,
+      "cells": {
+        "C9": 2,
+        "C10": "ROI STRUCTURES AND SLABS"
+      }
+    },
+    {
+      "row": 15,
+      "cells": {
+        "C10": "COM CATEGORY",
+        "C11": "LOAN AMOUNT",
+        "C12": "SALARY ",
+        "C13": "MINIMUM ROI",
+        "C14": "LOAN AMOUNT",
+        "C15": "SALARY ",
+        "C16": "MINIMUM ROI"
+      }
+    },
+    {
+      "row": 16,
+      "cells": {
+        "C10": "SUPER A",
+        "C11": "7.50L+",
+        "C12": "50K +",
+        "C13": 14.5,
+        "C14": "10L+",
+        "C15": "75K+",
+        "C16": 0.1375
+      }
+    },
+    {
+      "row": 17,
+      "cells": {
+        "C10": "A",
+        "C11": "7.50L+",
+        "C12": "50K +",
+        "C13": 14.5,
+        "C14": "10L+",
+        "C15": "75K+",
+        "C16": 0.1375
+      }
+    },
+    {
+      "row": 18,
+      "cells": {
+        "C10": "B",
+        "C11": "5L+",
+        "C12": "CASE TO CASE DEPEND",
+        "C13": 15,
+        "C14": "5L+",
+        "C15": "CASE TO CASE DEPEND",
+        "C16": "14.50 TO 15"
+      }
+    },
+    {
+      "row": 19,
+      "cells": {
+        "C10": "C",
+        "C11": "5L+",
+        "C12": "CASE TO CASE DEPEND",
+        "C13": 15,
+        "C14": "5L+",
+        "C15": "CASE TO CASE DEPEND",
+        "C16": 15
+      }
+    },
+    {
+      "row": 20,
+      "cells": {
+        "C10": "D",
+        "C11": "5L+",
+        "C12": "CASE TO CASE DEPEND",
+        "C13": 15,
+        "C14": "5L+",
+        "C15": "CASE TO CASE DEPEND",
+        "C16": 15
+      }
+    },
+    {
+      "row": 21,
+      "cells": {
+        "C10": "GOVT",
+        "C11": "7.50L+",
+        "C12": "50K +",
+        "C13": 14.5,
+        "C14": "10L+",
+        "C15": "75K+",
+        "C16": 0.1375
+      }
+    },
+    {
+      "row": 24,
+      "cells": {
+        "C9": 3,
+        "C10": "FOIR AND MULTIPLIER"
+      }
+    },
+    {
+      "row": 25,
+      "cells": {
+        "C10": "COM CATEGORY",
+        "C11": "SALARY FOR FOIR AND MULTIPLIER",
+        "C12": "MAX FOIR",
+        "C13": "MAX MULTIPLIER",
+        "C14": "SALARY",
+        "C15": "MAX FOIR"
+      }
+    },
+    {
+      "row": 26,
+      "cells": {
+        "C10": "SUPER A",
+        "C11": "30K+SALARY",
+        "C12": "70%FOIR",
+        "C13": 35,
+        "C14": "25K-30K",
+        "C15": 0.65
+      }
+    },
+    {
+      "row": 27,
+      "cells": {
+        "C10": "A",
+        "C11": "30K+SALARY",
+        "C12": "70%FOIR",
+        "C13": 28,
+        "C14": "25K-30K",
+        "C15": 0.65
+      }
+    },
+    {
+      "row": 28,
+      "cells": {
+        "C10": "B",
+        "C11": "30K+SALARY",
+        "C12": "70%FOIR",
+        "C13": 28,
+        "C14": "25K-30K",
+        "C15": 0.65
+      }
+    },
+    {
+      "row": 29,
+      "cells": {
+        "C10": "C",
+        "C11": "30K+SALARY",
+        "C12": "65%FOIR",
+        "C13": 25,
+        "C14": "25K-30K",
+        "C15": 0.55
+      }
+    },
+    {
+      "row": 30,
+      "cells": {
+        "C10": "D",
+        "C11": "30K+SALARY",
+        "C12": "65%FOIR",
+        "C13": 25,
+        "C14": "25K-30K",
+        "C15": 0.55
+      }
+    },
+    {
+      "row": 31,
+      "cells": {
+        "C10": "GOVT",
+        "C11": "30K+SALARY",
+        "C12": "70%FOIR",
+        "C13": 35,
+        "C14": "25K-30K",
+        "C15": 0.65
+      }
+    },
+    {
+      "row": 34,
+      "cells": {
+        "C9": 4,
+        "C10": "TENURE AND REPAYMENT WINDOWS"
+      }
+    },
+    {
+      "row": 35,
+      "cells": {
+        "C10": "COM CATEGORY",
+        "C11": "MINIMUM TENURE",
+        "C12": "MAX TENURE",
+        "C13": "POLICY NOTES"
+      }
+    },
+    {
+      "row": 36,
+      "cells": {
+        "C10": "SUPER A",
+        "C11": "12 MONTHS",
+        "C12": "84 MONTHS",
+        "C13": "TENURE UPTO 7 YEARS"
+      }
+    },
+    {
+      "row": 37,
+      "cells": {
+        "C10": "A",
+        "C11": "12 MONTHS",
+        "C12": "84 MONTHS",
+        "C13": "TENURE UPTO 7 YEARS"
+      }
+    },
+    {
+      "row": 38,
+      "cells": {
+        "C10": "B",
+        "C11": "12 MONTHS",
+        "C12": "84 MONTHS",
+        "C13": "TENURE UPTO 7 YEARS"
+      }
+    },
+    {
+      "row": 39,
+      "cells": {
+        "C10": "C",
+        "C11": "12 MONTHS",
+        "C12": "60 MONTHS",
+        "C13": "TENURE UPTO 5 YEARS"
+      }
+    },
+    {
+      "row": 40,
+      "cells": {
+        "C10": "D",
+        "C11": "12 MONTHS",
+        "C12": "60 MONTHS",
+        "C13": "TENURE UPTO 5 YEARS"
+      }
+    },
+    {
+      "row": 41,
+      "cells": {
+        "C10": "GOVT",
+        "C11": "12 MONTHS",
+        "C12": "84 MONTHS",
+        "C13": "TENURE UPTO 7 YEARS"
+      }
+    },
+    {
+      "row": 44,
+      "cells": {
+        "C9": 5,
+        "C10": "MINIMUM LOAN AMOUNT AND MAX LOAN AMOUNT"
+      }
+    }
+  ],
+  "KOTAK": [
+    {
+      "row": 1,
+      "cells": {
+        "C3": "KOTAK MAHINDRA BANK LTD"
+      }
+    },
+    {
+      "row": 2,
+      "cells": {
+        "C2": 1,
+        "C3": "DEMOGRAPHIC AND AGE ELIGIBILITY CRITERIA",
+        "C4": "CONFIGURED THRESHOLD"
+      }
+    },
+    {
+      "row": 3,
+      "cells": {
+        "C3": "ELIGIBILTY PARAMETER"
+      }
+    },
+    {
+      "row": 4,
+      "cells": {
+        "C3": "MINIMUM\u00a0 APLICANT AGE",
+        "C4": "21 Years"
+      }
+    },
+    {
+      "row": 5,
+      "cells": {
+        "C3": "MAXIMUM AGE AT LOAN TIME",
+        "C4": "60 Years"
+      }
+    },
+    {
+      "row": 6,
+      "cells": {
+        "C3": "RETIREMENT AGE",
+        "C4": "60 Years"
+      }
+    },
+    {
+      "row": 7,
+      "cells": {
+        "C3": "MINIMUM SALARY AT LOAN TIME",
+        "C4": "25K"
+      }
+    },
+    {
+      "row": 8,
+      "cells": {
+        "C3": "MINI WORK EXPRINCE",
+        "C4": "1 Month"
+      }
+    },
+    {
+      "row": 9,
+      "cells": {
+        "C3": "CC OBLIGATION\u00a0\u00a0",
+        "C4": "5% of CC outstanding as per CIBIL",
+        "C5": "CC BT NOT ALLOW"
+      }
+    },
+    {
+      "row": 12,
+      "cells": {
+        "C2": 2,
+        "C3": "ROI STRUCTURES AND SLABS"
+      }
+    },
+    {
+      "row": 13,
+      "cells": {
+        "C3": "COM CATEGORY",
+        "C4": "LOAN AMOUNT",
+        "C5": "MINI ROI",
+        "C6": "LOAN AMOUNT",
+        "C7": "MINIMUM ROI"
+      }
+    },
+    {
+      "row": 14,
+      "cells": {
+        "C3": "SUPER A",
+        "C4": "15 Lakhs Plus",
+        "C5": 0.0995,
+        "C6": "10 to 15 lakhs",
+        "C7": 0.105
+      }
+    },
+    {
+      "row": 15,
+      "cells": {
+        "C3": "A",
+        "C4": "15 Lakhs Plus",
+        "C5": 0.0995,
+        "C6": "10 to 15 lakhs",
+        "C7": 0.105
+      }
+    },
+    {
+      "row": 16,
+      "cells": {
+        "C3": "B",
+        "C4": "15 Lakhs Plus",
+        "C5": 0.0995,
+        "C6": "10 to 15 lakhs",
+        "C7": 0.105
+      }
+    },
+    {
+      "row": 17,
+      "cells": {
+        "C3": "C",
+        "C4": "15 Lakhs Plus",
+        "C5": 0.11,
+        "C6": "10 to 15 lakhs",
+        "C7": 0.115
+      }
+    },
+    {
+      "row": 18,
+      "cells": {
+        "C3": "GOVT",
+        "C4": "15 Lakhs Plus",
+        "C5": 0.0995,
+        "C6": "10 to 15 lakhs",
+        "C7": 0.105
+      }
+    },
+    {
+      "row": 22,
+      "cells": {
+        "C2": 3,
+        "C3": "FOIR AND MULTIPLIER"
+      }
+    },
+    {
+      "row": 23,
+      "cells": {
+        "C3": "COM CATEGORY",
+        "C4": "SALARY FOR FOIR AND MULTIPLIER",
+        "C5": "MAX FOIR",
+        "C6": "MAX MULTIPLIER"
+      }
+    },
+    {
+      "row": 24,
+      "cells": {
+        "C3": "SUPER A",
+        "C4": "25K\u00a0",
+        "C5": "70% + 5% IF HL LIVE 10 LAKHS & ABOVE",
+        "C6": 31
+      }
+    },
+    {
+      "row": 25,
+      "cells": {
+        "C3": "A",
+        "C4": "25K\u00a0",
+        "C5": "70% + 5% IF HL LIVE 10 LAKHS & ABOVE",
+        "C6": 27
+      }
+    },
+    {
+      "row": 26,
+      "cells": {
+        "C3": "B",
+        "C4": "25K\u00a0",
+        "C5": "70% + 5% IF HL LIVE 10 LAKHS & ABOVE",
+        "C6": 25
+      }
+    },
+    {
+      "row": 27,
+      "cells": {
+        "C3": "C",
+        "C4": "35K",
+        "C5": "70% + 5% IF HL LIVE 10 LAKHS & ABOVE",
+        "C6": 20
+      }
+    },
+    {
+      "row": 28,
+      "cells": {
+        "C3": "D",
+        "C4": "35K",
+        "C5": 0.6,
+        "C6": 18
+      }
+    },
+    {
+      "row": 29,
+      "cells": {
+        "C3": "GOVT",
+        "C4": "25K\u00a0",
+        "C5": "70% + 5% IF HL LIVE 10 LAKHS & ABOVE",
+        "C6": 27
+      }
+    },
+    {
+      "row": 32,
+      "cells": {
+        "C2": 4,
+        "C3": "TENURE AND REPAYMENT WINDOWS"
+      }
+    },
+    {
+      "row": 33,
+      "cells": {
+        "C3": "COM CATEGORY",
+        "C4": "MINIMUM TENURE",
+        "C5": "MAX TENURE",
+        "C6": "POLICY NOTES"
+      }
+    },
+    {
+      "row": 34,
+      "cells": {
+        "C3": "SUPER A",
+        "C4": "2 Years",
+        "C5": "6 Years\u00a0"
+      }
+    },
+    {
+      "row": 35,
+      "cells": {
+        "C3": "A",
+        "C4": "2 Years",
+        "C5": "6 Years\u00a0"
+      }
+    },
+    {
+      "row": 36,
+      "cells": {
+        "C3": "B",
+        "C4": "2 Years",
+        "C5": "6 Years\u00a0"
+      }
+    },
+    {
+      "row": 37,
+      "cells": {
+        "C3": "C",
+        "C4": "2 Years",
+        "C5": "6 Years\u00a0"
+      }
+    },
+    {
+      "row": 38,
+      "cells": {
+        "C3": "D",
+        "C4": "2 Years",
+        "C5": "5 Years\u00a0"
+      }
+    },
+    {
+      "row": 39,
+      "cells": {
+        "C3": "GOVT",
+        "C4": "2 Years",
+        "C5": "6 Years\u00a0"
+      }
+    },
+    {
+      "row": 42,
+      "cells": {
+        "C2": 5,
+        "C3": "MINIMUM LOAN AMOUNT AND MAX LOAN AMOUNT"
+      }
+    },
+    {
+      "row": 43,
+      "cells": {
+        "C3": "COM CATEGORY",
+        "C4": "MINIMUM LOAN AMOUNT",
+        "C5": "MAX LOAN AMOUNT"
+      }
+    },
+    {
+      "row": 44,
+      "cells": {
+        "C3": "SUPER A",
+        "C4": "1 Lakh\u00a0",
+        "C5": "1 Cr"
+      }
+    }
+  ],
+  "BANDHAN BANK": [
+    {
+      "row": 2,
+      "cells": {
+        "C9": "BANDHAN BANK LTD"
+      }
+    },
+    {
+      "row": 4,
+      "cells": {
+        "C9": 1,
+        "C10": "DEMOGRAPHIC AND AGE ELIGIBILITY CRITERIA",
+        "C11": "CONFIGURED THRESHOLD"
+      }
+    },
+    {
+      "row": 5,
+      "cells": {
+        "C10": "ELIGIBILTY PARAMETER"
+      }
+    },
+    {
+      "row": 6,
+      "cells": {
+        "C10": "MINIMUM  APLICANT AGE",
+        "C11": "21 YEARS"
+      }
+    },
+    {
+      "row": 7,
+      "cells": {
+        "C10": "MAXIMUM AGE AT LOAN TIME",
+        "C11": "60 YEARS"
+      }
+    },
+    {
+      "row": 8,
+      "cells": {
+        "C10": "RETIREMENT AGE",
+        "C11": "60 YEARS"
+      }
+    },
+    {
+      "row": 9,
+      "cells": {
+        "C10": "MINIMUM SALARY AT LOAN TIME",
+        "C11": "25K / CATD 40K"
+      }
+    },
+    {
+      "row": 10,
+      "cells": {
+        "C10": "MINI WORK EXPRINCE",
+        "C11": "1 MONTHS CURRENT COM AND OVERALL 1YEARS"
+      }
+    },
+    {
+      "row": 11,
+      "cells": {
+        "C10": "CC OBLIGATION  ",
+        "C11": "3% OBLIGATE",
+        "C12": "SALARY KA BELOW 3 TIME NO OBLIGATION"
+      }
+    },
+    {
+      "row": 12,
+      "cells": {
+        "C11": "GL AND KCC NOT OBLIGATE"
+      }
+    },
+    {
+      "row": 14,
+      "cells": {
+        "C9": 2,
+        "C10": "FOIR "
+      }
+    },
+    {
+      "row": 15,
+      "cells": {
+        "C10": "Monthly Net Income Range",
+        "C11": "FOIR"
+      }
+    },
+    {
+      "row": 16,
+      "cells": {
+        "C10": "<= 30000",
+        "C11": 50
+      }
+    },
+    {
+      "row": 17,
+      "cells": {
+        "C10": ">= 30001 to 50000",
+        "C11": 60
+      }
+    },
+    {
+      "row": 18,
+      "cells": {
+        "C10": ">= 50001 to 75000",
+        "C11": 65
+      }
+    },
+    {
+      "row": 19,
+      "cells": {
+        "C10": ">= 75001",
+        "C11": 70
+      }
+    },
+    {
+      "row": 24,
+      "cells": {
+        "C9": 3,
+        "C10": "TENURE AND REPAYMENT WINDOWS"
+      }
+    },
+    {
+      "row": 25,
+      "cells": {
+        "C10": "COM CATEGORY",
+        "C11": "MINIMUM TENURE",
+        "C12": "MAX TENURE",
+        "C13": "POLICY NOTES"
+      }
+    },
+    {
+      "row": 26,
+      "cells": {
+        "C10": "SUPER A",
+        "C11": "12 MONTHS/RATE WAIVER NOT ALLOW",
+        "C12": "60 MONTHS"
+      }
+    },
+    {
+      "row": 27,
+      "cells": {
+        "C10": "A",
+        "C11": "12 MONTHS/RATE WAIVER NOT ALLOW",
+        "C12": "60 MONTHS"
+      }
+    },
+    {
+      "row": 28,
+      "cells": {
+        "C10": "B",
+        "C11": "12 MONTHS/RATE WAIVER NOT ALLOW",
+        "C12": "60 MONTHS"
+      }
+    },
+    {
+      "row": 29,
+      "cells": {
+        "C10": "C",
+        "C11": "12 MONTHS/RATE WAIVER NOT ALLOW",
+        "C12": "60 MONTHS"
+      }
+    },
+    {
+      "row": 30,
+      "cells": {
+        "C10": "D",
+        "C11": "12 MONTHS/RATE WAIVER NOT ALLOW",
+        "C12": "60 MONTHS"
+      }
+    },
+    {
+      "row": 31,
+      "cells": {
+        "C10": "GOVT",
+        "C11": "12 MONTHS/RATE WAIVER NOT ALLOW",
+        "C12": "60 MONTHS"
+      }
+    },
+    {
+      "row": 34,
+      "cells": {
+        "C9": 4,
+        "C10": "MINIMUM LOAN AMOUNT AND MAX LOAN AMOUNT"
+      }
+    },
+    {
+      "row": 35,
+      "cells": {
+        "C10": "COM CATEGORY",
+        "C11": "MINIMUM LOAN AMOUNT",
+        "C12": "MAX LOAN AMOUNT"
+      }
+    },
+    {
+      "row": 36,
+      "cells": {
+        "C10": "SUPER A",
+        "C11": "1LAC",
+        "C12": "25LAC"
+      }
+    },
+    {
+      "row": 37,
+      "cells": {
+        "C10": "A",
+        "C11": "1LAC",
+        "C12": "25LAC"
+      }
+    },
+    {
+      "row": 38,
+      "cells": {
+        "C10": "B",
+        "C11": "1LAC",
+        "C12": "25LAC"
+      }
+    },
+    {
+      "row": 39,
+      "cells": {
+        "C10": "C",
+        "C11": "1LAC",
+        "C12": "25LAC"
+      }
+    },
+    {
+      "row": 40,
+      "cells": {
+        "C10": "D",
+        "C11": "1LAC",
+        "C12": "25LAC"
+      }
+    },
+    {
+      "row": 41,
+      "cells": {
+        "C10": "GOVT",
+        "C11": "1LAC",
+        "C12": "25LAC"
+      }
+    }
+  ],
+  "BAJAJ": [
+    {
+      "row": 2,
+      "cells": {
+        "C9": "BAJAJ FINANCE LTD"
+      }
+    },
+    {
+      "row": 4,
+      "cells": {
+        "C9": 1,
+        "C10": "DEMOGRAPHIC AND AGE ELIGIBILITY CRITERIA",
+        "C11": "CONFIGURED THRESHOLD"
+      }
+    },
+    {
+      "row": 5,
+      "cells": {
+        "C10": "ELIGIBILTY PARAMETER"
+      }
+    },
+    {
+      "row": 6,
+      "cells": {
+        "C10": "MINIMUM  APLICANT AGE",
+        "C11": "23 YEARS "
+      }
+    },
+    {
+      "row": 7,
+      "cells": {
+        "C10": "MAXIMUM AGE AT LOAN TIME",
+        "C11": "59 YEARS"
+      }
+    },
+    {
+      "row": 8,
+      "cells": {
+        "C10": "RETIREMENT AGE",
+        "C11": "RETIREMENT PROOF REQ FOR  65 YEARS"
+      }
+    },
+    {
+      "row": 9,
+      "cells": {
+        "C10": "MINIMUM SALARY AT LOAN TIME",
+        "C11": "LISTED 27K AND UNLISTED 30K"
+      }
+    },
+    {
+      "row": 10,
+      "cells": {
+        "C10": "MINI WORK EXPRINCE",
+        "C11": "NO REQUIRED"
+      }
+    },
+    {
+      "row": 11,
+      "cells": {
+        "C10": "CC OBLIGATION  ",
+        "C11": "5% OBLIGATE AND MORE THEN 6 TIME NOT ALLOW"
+      }
+    },
+    {
+      "row": 12,
+      "cells": {
+        "C10": "ADDRESS PROOF NOT REQ"
+      }
+    },
+    {
+      "row": 15,
+      "cells": {
+        "C9": 2,
+        "C10": "ROI STRUCTURES AND SLABS"
+      }
+    },
+    {
+      "row": 16,
+      "cells": {
+        "C10": "COM CATEGORY",
+        "C11": "LOAN AMOUNT",
+        "C12": "MINI ROI",
+        "C13": "LOAN AMOUNT",
+        "C14": "MAXI ROI",
+        "C16": "CASE CALCULATION FOR  14%"
+      }
+    },
+    {
+      "row": 17,
+      "cells": {
+        "C10": "SUPER A",
+        "C11": "10L ABOVE",
+        "C12": 10,
+        "C13": "1 TO 12 LAC(SAL LITE PRORGAM)",
+        "C14": 16,
+        "C16": "CASE DEPEND ON DAY OFFER ROI"
+      }
+    },
+    {
+      "row": 18,
+      "cells": {
+        "C10": "A",
+        "C11": "10L ABOVE",
+        "C12": 10,
+        "C13": "1 TO 12 LAC(SAL LITE PRORGAM)",
+        "C14": 16
+      }
+    },
+    {
+      "row": 19,
+      "cells": {
+        "C10": "B",
+        "C11": "10L ABOVE",
+        "C12": 10,
+        "C13": "1 TO 12 LAC(SAL LITE PRORGAM)",
+        "C14": 16
+      }
+    },
+    {
+      "row": 20,
+      "cells": {
+        "C10": "C",
+        "C11": "10L ABOVE",
+        "C12": 10,
+        "C13": "1 TO 12 LAC(SAL LITE PRORGAM)",
+        "C14": 16
+      }
+    },
+    {
+      "row": 21,
+      "cells": {
+        "C10": "GOVT",
+        "C11": "10L ABOVE",
+        "C12": 10,
+        "C13": "1 TO 12 LAC(SAL LITE PRORGAM)",
+        "C14": 16
+      }
+    },
+    {
+      "row": 25,
+      "cells": {
+        "C9": 3,
+        "C10": "FOIR AND MULTIPLIER"
+      }
+    },
+    {
+      "row": 26,
+      "cells": {
+        "C10": "COM CATEGORY",
+        "C11": "SALARY FOR FOIR ",
+        "C12": "MAX FOIR",
+        "C13": "SALARY FOR FOIR",
+        "C14": "MAX FOIR",
+        "C15": "MAX FOIR 75 CASE TO CASE DEPEND"
+      }
+    },
+    {
+      "row": 27,
+      "cells": {
+        "C10": "SUPER A",
+        "C11": "50K BELOW ",
+        "C12": "60%+HL RUNNING 10%EXTRA",
+        "C13": "50K ABOVE",
+        "C14": "65%+HL RUNNING 5%EXTRA"
+      }
+    },
+    {
+      "row": 28,
+      "cells": {
+        "C10": "A",
+        "C11": "50K BELOW ",
+        "C12": "60%+HL RUNNING 10%EXTRA",
+        "C13": "50K ABOVE",
+        "C14": "65%+HL RUNNING 5%EXTRA"
+      }
+    },
+    {
+      "row": 29,
+      "cells": {
+        "C10": "B",
+        "C11": "50K BELOW ",
+        "C12": "60%+HL RUNNING 10%EXTRA",
+        "C13": "50K ABOVE",
+        "C14": "65%+HL RUNNING 5%EXTRA"
+      }
+    },
+    {
+      "row": 30,
+      "cells": {
+        "C10": "C",
+        "C11": "50K BELOW ",
+        "C12": "60%+HL RUNNING 10%EXTRA",
+        "C13": "50K ABOVE",
+        "C14": "65%+HL RUNNING 5%EXTRA"
+      }
+    },
+    {
+      "row": 31,
+      "cells": {
+        "C10": "D",
+        "C11": "50K BELOW ",
+        "C12": "60%+HL RUNNING 10%EXTRA",
+        "C13": "50K ABOVE",
+        "C14": "65%+HL RUNNING 5%EXTRA"
+      }
+    },
+    {
+      "row": 32,
+      "cells": {
+        "C10": "GOVT",
+        "C11": "50K BELOW ",
+        "C12": "60%+HL RUNNING 10%EXTRA",
+        "C13": "50K ABOVE",
+        "C14": "65%+HL RUNNING 5%EXTRA"
+      }
+    },
+    {
+      "row": 35,
+      "cells": {
+        "C9": 4,
+        "C10": "TENURE AND REPAYMENT WINDOWS"
+      }
+    },
+    {
+      "row": 36,
+      "cells": {
+        "C10": "COM CATEGORY",
+        "C11": "MINIMUM TENURE",
+        "C12": "MAX TENURE",
+        "C13": "POLICY NOTES"
+      }
+    },
+    {
+      "row": 37,
+      "cells": {
+        "C10": "SUPER A",
+        "C11": "12 MONTHS",
+        "C12": "96 MONTHS"
+      }
+    },
+    {
+      "row": 38,
+      "cells": {
+        "C10": "A",
+        "C11": "12 MONTHS",
+        "C12": "96 MONTHS",
+        "C14": "108 TENURE FOR 1LAC+ SALARY "
+      }
+    },
+    {
+      "row": 39,
+      "cells": {
+        "C10": "B",
+        "C11": "12 MONTHS",
+        "C12": "96 MONTHS"
+      }
+    },
+    {
+      "row": 40,
+      "cells": {
+        "C10": "C",
+        "C11": "12 MONTHS",
+        "C12": "96 MONTHS"
+      }
+    },
+    {
+      "row": 41,
+      "cells": {
+        "C10": "D",
+        "C11": "12 MONTHS",
+        "C12": "96 MONTHS"
+      }
+    },
+    {
+      "row": 42,
+      "cells": {
+        "C10": "GOVT",
+        "C11": "12 MONTHS",
+        "C12": "96 MONTHS"
+      }
+    }
+  ],
+  "INCRED": [
+    {
+      "row": 2,
+      "cells": {
+        "C9": "Incred Finance "
+      }
+    },
+    {
+      "row": 4,
+      "cells": {
+        "C9": 1,
+        "C10": "Loan Amount ",
+        "C11": "50 k To 15 Lac"
+      }
+    },
+    {
+      "row": 5,
+      "cells": {
+        "C10": "ROI ",
+        "C11": "13.49 % To 33 %"
+      }
+    },
+    {
+      "row": 6,
+      "cells": {
+        "C10": "PF",
+        "C11": "2% To 5 % "
+      }
+    },
+    {
+      "row": 7,
+      "cells": {
+        "C10": "Tenure ",
+        "C11": "24 Months to 60 Months "
+      }
+    },
+    {
+      "row": 8,
+      "cells": {
+        "C10": "FOIR ",
+        "C11": "40 % to 70 % as per salary"
+      }
+    },
+    {
+      "row": 9,
+      "cells": {
+        "C10": "Age ",
+        "C11": "21 yr to 55 yr "
+      }
+    },
+    {
+      "row": 10,
+      "cells": {
+        "C10": "CC/ GOLD LOAN / KCC Obligation ",
+        "C11": 0.05
+      }
+    },
+    {
+      "row": 11,
+      "cells": {
+        "C10": "Minimum salary ",
+        "C11": "15k "
+      }
+    },
+    {
+      "row": 12,
+      "cells": {
+        "C10": "Minimum  work experience ",
+        "C11": "3 Months "
+      }
+    },
+    {
+      "row": 14,
+      "cells": {
+        "C9": 2,
+        "C10": "Foir as per salary"
+      }
+    },
+    {
+      "row": 15,
+      "cells": {
+        "C10": "15-20k = 40%+5% basis on account aggregator "
+      }
+    },
+    {
+      "row": 16,
+      "cells": {
+        "C10": "20-30k= 50%+5% basis on account aggregator"
+      }
+    },
+    {
+      "row": 17,
+      "cells": {
+        "C10": "30-40k = 60%+5% basis on account aggregator"
+      }
+    },
+    {
+      "row": 18,
+      "cells": {
+        "C10": ">40k = 65%+5% basis on account aggregator"
+      }
+    },
+    {
+      "row": 24,
+      "cells": {
+        "C9": 3
+      }
+    },
+    {
+      "row": 34,
+      "cells": {
+        "C9": 4
+      }
+    },
+    {
+      "row": 44,
+      "cells": {
+        "C9": 5
+      }
+    }
+  ],
+  "AU BANK": [
+    {
+      "row": 5,
+      "cells": {
+        "C9": 1,
+        "C10": "DEMOGRAPHIC AND AGE ELIGIBILITY CRITERIA",
+        "C11": "CONFIGURED THRESHOLD"
+      }
+    },
+    {
+      "row": 6,
+      "cells": {
+        "C10": "ELIGIBILTY PARAMETER"
+      }
+    },
+    {
+      "row": 7,
+      "cells": {
+        "C10": "MINIMUM  APLICANT AGE",
+        "C11": "21YEARS"
+      }
+    },
+    {
+      "row": 8,
+      "cells": {
+        "C10": "MAXIMUM AGE AT LOAN TIME",
+        "C11": "GOVT 59YEARS/PVT 57YEARS"
+      }
+    },
+    {
+      "row": 9,
+      "cells": {
+        "C10": "RETIREMENT AGE",
+        "C11": "60 YEARS"
+      }
+    },
+    {
+      "row": 10,
+      "cells": {
+        "C10": "MINIMUM SALARY AT LOAN TIME",
+        "C11": "LISTED 20K/UNLISTED 25K /-1 CIBIL 30K(LISTD AND GOVT)",
+        "C16": "Min AGE NORMS 21 years for Salaried 23 years for Self Employed  Max age at maturity: Private employer: 59 years MAX AGE NORMS Govern ment emplo yer: 57 years Self Emplo yed: 65 years"
+      }
+    },
+    {
+      "row": 11,
+      "cells": {
+        "C10": "MINI WORK EXPRINCE",
+        "C11": "1YEARS",
+        "C16": "NET MONTHLY INCOME Company Super Cat A, Cat A, Cat B, Cat D(Govt) Metro: INR 30K Non-metro: INR 20K Company cat c/ others :-  Metro: INR 35K Non-metro: INR 25K  NTC: INR 30K for Metro and Non-Metro  Lending to NTC, New to customer (-1,0) customer is allowed for Super A, CAT A, CAT B and CAT D only.  Cash Salary not to be considered  Net salary considers after all deductions Variable pay( Incentive, bonus, one time allowances to be deducted. "
+      }
+    },
+    {
+      "row": 12,
+      "cells": {
+        "C10": "CC OBLIGATION  ",
+        "C11": "5% OBLIGATE/ ONLY PL BT"
+      }
+    },
+    {
+      "row": 18,
+      "cells": {
+        "C9": 2,
+        "C10": "TENURE AND REPAYMENT WINDOWS"
+      }
+    },
+    {
+      "row": 19,
+      "cells": {
+        "C10": "COM CATEGORY",
+        "C11": "MINIMUM TENURE",
+        "C12": "MAX TENURE"
+      }
+    },
+    {
+      "row": 20,
+      "cells": {
+        "C10": "SUPER A",
+        "C11": "12MONTHS",
+        "C12": "60 MONTHS"
+      }
+    },
+    {
+      "row": 21,
+      "cells": {
+        "C10": "A",
+        "C11": "12MONTHS",
+        "C12": "60 MONTHS"
+      }
+    },
+    {
+      "row": 22,
+      "cells": {
+        "C10": "B",
+        "C11": "12MONTHS",
+        "C12": "60 MONTHS"
+      }
+    },
+    {
+      "row": 23,
+      "cells": {
+        "C10": "C",
+        "C11": "12MONTHS",
+        "C12": "60 MONTHS"
+      }
+    },
+    {
+      "row": 24,
+      "cells": {
+        "C10": "D",
+        "C11": "12MONTHS",
+        "C12": "60 MONTHS"
+      }
+    },
+    {
+      "row": 25,
+      "cells": {
+        "C10": "GOVT",
+        "C11": "12MONTHS",
+        "C12": "60 MONTHS"
+      }
+    },
+    {
+      "row": 28,
+      "cells": {
+        "C9": 3,
+        "C10": "MINIMUM LOAN AMOUNT AND MAX LOAN AMOUNT"
+      }
+    },
+    {
+      "row": 29,
+      "cells": {
+        "C10": "COM CATEGORY",
+        "C11": "MINIMUM LOAN AMOUNT",
+        "C12": "MAX LOAN AMOUNT"
+      }
+    },
+    {
+      "row": 30,
+      "cells": {
+        "C10": "SUPER A",
+        "C11": "50K",
+        "C12": "15LAC"
+      }
+    },
+    {
+      "row": 31,
+      "cells": {
+        "C10": "A",
+        "C11": "50K",
+        "C12": "15LAC"
+      }
+    },
+    {
+      "row": 32,
+      "cells": {
+        "C10": "B",
+        "C11": "50K",
+        "C12": "15LAC"
+      }
+    },
+    {
+      "row": 33,
+      "cells": {
+        "C10": "C",
+        "C11": "50K",
+        "C12": "15LAC"
+      }
+    },
+    {
+      "row": 34,
+      "cells": {
+        "C10": "D",
+        "C11": "50K",
+        "C12": "15LAC"
+      }
+    },
+    {
+      "row": 35,
+      "cells": {
+        "C10": "GOVT",
+        "C11": "50K",
+        "C12": "15LAC"
+      }
+    },
+    {
+      "row": 36,
+      "cells": {
+        "C16": "Capping    Overall Capping                                    15 lac NTC (-1)                                               3 lac Thin Cibil Cat C/ Others                      7.5 lac PG/ Rented Bachelor                      Max 5 Lac ( Company Super Cat A, Cat A, Cat B, Cat "
+      }
+    },
+    {
+      "row": 39,
+      "cells": {
+        "C9": 4,
+        "C11": "ETC Customer"
+      }
+    },
+    {
+      "row": 40,
+      "cells": {
+        "C11": "NMI",
+        "C12": "(20K - <50K)",
+        "C13": "(>=50K- <75K)",
+        "C14": "(>75k- <100k)",
+        "C15": "(>=100K)"
+      }
+    },
+    {
+      "row": 41,
+      "cells": {
+        "C10": "CAT Super A, A,\nB, D",
+        "C11": "FOIR- Priority 1",
+        "C12": "60%",
+        "C13": "65%",
+        "C14": "70%",
+        "C15": "75%"
+      }
+    },
+    {
+      "row": 42,
+      "cells": {
+        "C11": "Multiplier on NTH- Priority 1",
+        "C12": "18",
+        "C13": "20",
+        "C14": "22",
+        "C15": "24"
+      }
+    },
+    {
+      "row": 43,
+      "cells": {
+        "C11": "Exposure Capping (Lakhs)- Priority 1",
+        "C12": "5",
+        "C13": "15",
+        "C14": "15",
+        "C15": "15"
+      }
+    },
+    {
+      "row": 44,
+      "cells": {
+        "C10": "CAT C,\nOthers,\nUnlisted",
+        "C11": "FOIR- Priority 0",
+        "C12": "50%",
+        "C13": "60%",
+        "C14": "65%",
+        "C15": "70%"
+      }
+    }
+  ],
+  "AXIS FINANCE": [
+    {
+      "row": 2,
+      "cells": {
+        "C9": "AXIS FINANCE LTD"
+      }
+    },
+    {
+      "row": 4,
+      "cells": {
+        "C9": 1,
+        "C10": "DEMOGRAPHIC AND AGE ELIGIBILITY CRITERIA",
+        "C11": "CONFIGURED THRESHOLD"
+      }
+    },
+    {
+      "row": 5,
+      "cells": {
+        "C10": "ELIGIBILTY PARAMETER"
+      }
+    },
+    {
+      "row": 6,
+      "cells": {
+        "C10": "MINIMUM  APLICANT AGE",
+        "C11": 21
+      }
+    },
+    {
+      "row": 7,
+      "cells": {
+        "C10": "MAXIMUM AGE AT LOAN TIME",
+        "C11": 60
+      }
+    },
+    {
+      "row": 8,
+      "cells": {
+        "C10": "RETIREMENT AGE",
+        "C11": 60
+      }
+    },
+    {
+      "row": 9,
+      "cells": {
+        "C10": "MINIMUM SALARY AT LOAN TIME",
+        "C11": "URBAN 30K",
+        "C12": "RURAL 25"
+      }
+    },
+    {
+      "row": 10,
+      "cells": {
+        "C10": "MINI WORK EXPRINCE",
+        "C11": "6 MONTHS"
+      }
+    },
+    {
+      "row": 11,
+      "cells": {
+        "C10": "CC OBLIGATION  ",
+        "C11": "5%OBLIGATE/5 CC BT ALLOW",
+        "C12": "GOLD LOAN OBLIGATION 1% COUNT",
+        "C13": "KCC OBLIGATION UPTO 15LAC = 0 OBLIGATE"
+      }
+    },
+    {
+      "row": 14,
+      "cells": {
+        "C9": 2,
+        "C10": "ROI STRUCTURES AND SLABS"
+      }
+    },
+    {
+      "row": 15,
+      "cells": {
+        "C10": "COM CATEGORY",
+        "C11": "LOAN AMOUNT",
+        "C12": "MINI ROI"
+      }
+    },
+    {
+      "row": 16,
+      "cells": {
+        "C10": "SUPER A",
+        "C11": "5L TO 25LAC",
+        "C12": 13.5,
+        "C13": "ROI WILL BE CHANGE AS PER BAND SCORE AND PROGRAM"
+      }
+    },
+    {
+      "row": 17,
+      "cells": {
+        "C10": "A",
+        "C11": "5L TO 25LAC",
+        "C12": 14.5,
+        "C13": "CC BT AND APP LOAN BT ROI 18% APLICABLE"
+      }
+    },
+    {
+      "row": 18,
+      "cells": {
+        "C10": "B",
+        "C11": "5L TO 25LAC",
+        "C12": 15
+      }
+    },
+    {
+      "row": 19,
+      "cells": {
+        "C10": "C",
+        "C11": "5L TO 25LAC",
+        "C12": 16
+      }
+    },
+    {
+      "row": 20,
+      "cells": {
+        "C10": "D",
+        "C11": "5L TO 25LAC",
+        "C12": 16
+      }
+    },
+    {
+      "row": 21,
+      "cells": {
+        "C10": "GOVT",
+        "C11": "5L TO 25LAC",
+        "C12": 13.5
+      }
+    },
+    {
+      "row": 24,
+      "cells": {
+        "C9": 3,
+        "C10": "FOIR AND MULTIPLIER"
+      }
+    },
+    {
+      "row": 25,
+      "cells": {
+        "C10": "COM CATEGORY",
+        "C11": "MAX FOIR",
+        "C12": "SALARY FOR FOIR AND MULTIPLIER",
+        "C13": "COM CAT NOT REQ FOR FOIR AND MULTIPLIER"
+      }
+    },
+    {
+      "row": 26,
+      "cells": {
+        "C10": "SUPER A",
+        "C11": 0.7,
+        "C12": "50K BELOW SALARY 24"
+      }
+    },
+    {
+      "row": 27,
+      "cells": {
+        "C10": "A",
+        "C11": 0.7,
+        "C12": "50K TO 75K SALARY 26"
+      }
+    },
+    {
+      "row": 28,
+      "cells": {
+        "C10": "B",
+        "C11": 0.65,
+        "C12": "75K SALARY ABOVE 28"
+      }
+    },
+    {
+      "row": 29,
+      "cells": {
+        "C10": "C",
+        "C11": 0.6,
+        "C12": "1LAC SALARY ABOVE 30"
+      }
+    },
+    {
+      "row": 30,
+      "cells": {
+        "C10": "D",
+        "C11": 0.5,
+        "C12": "NO MULTIPLIER APLICABLE",
+        "C13": "AFTER DEVIATION CASE WILL BE PROCESS IN FOIR"
+      }
+    },
+    {
+      "row": 31,
+      "cells": {
+        "C10": "GOVT",
+        "C11": 0.7,
+        "C12": "50K BELOW SALARY 24"
+      }
+    },
+    {
+      "row": 34,
+      "cells": {
+        "C9": 4,
+        "C10": "TENURE AND REPAYMENT WINDOWS"
+      }
+    },
+    {
+      "row": 35,
+      "cells": {
+        "C10": "COM CATEGORY",
+        "C11": "MINIMUM TENURE",
+        "C12": "MAX TENURE"
+      }
+    },
+    {
+      "row": 36,
+      "cells": {
+        "C10": "SUPER A",
+        "C11": "12 MONTHS",
+        "C12": 84
+      }
+    },
+    {
+      "row": 37,
+      "cells": {
+        "C10": "A",
+        "C11": "12 MONTHS",
+        "C12": 72
+      }
+    },
+    {
+      "row": 38,
+      "cells": {
+        "C10": "B",
+        "C11": "12 MONTHS",
+        "C12": 72
+      }
+    },
+    {
+      "row": 39,
+      "cells": {
+        "C10": "C",
+        "C11": "12 MONTHS",
+        "C12": 60
+      }
+    },
+    {
+      "row": 40,
+      "cells": {
+        "C10": "D",
+        "C11": "12 MONTHS",
+        "C12": 60
+      }
+    },
+    {
+      "row": 41,
+      "cells": {
+        "C10": "GOVT",
+        "C11": "12 MONTHS",
+        "C12": 84
+      }
+    },
+    {
+      "row": 44,
+      "cells": {
+        "C9": 5,
+        "C10": "MINIMUM LOAN AMOUNT AND MAX LOAN AMOUNT"
+      }
+    }
+  ],
+  "TATA": [
+    {
+      "row": 2,
+      "cells": {
+        "C9": "TCL"
+      }
+    },
+    {
+      "row": 4,
+      "cells": {
+        "C9": 1,
+        "C10": "DEMOGRAPHIC AND AGE ELIGIBILITY CRITERIA",
+        "C11": "CONFIGURED THRESHOLD"
+      }
+    },
+    {
+      "row": 5,
+      "cells": {
+        "C10": "ELIGIBILTY PARAMETER",
+        "C11": "as per FOIR and multipler "
+      }
+    },
+    {
+      "row": 6,
+      "cells": {
+        "C10": "MINIMUM  APLICANT AGE",
+        "C11": "21 Years "
+      }
+    },
+    {
+      "row": 7,
+      "cells": {
+        "C10": "MAXIMUM AGE AT LOAN TIME",
+        "C11": "58 in pvt and 60 in govt "
+      }
+    },
+    {
+      "row": 8,
+      "cells": {
+        "C10": "RETIREMENT AGE",
+        "C11": "58 in pvt and 60 in govt "
+      }
+    },
+    {
+      "row": 9,
+      "cells": {
+        "C10": "MINIMUM SALARY AT LOAN TIME",
+        "C11": "25k"
+      }
+    },
+    {
+      "row": 10,
+      "cells": {
+        "C10": "MINI WORK EXPRINCE",
+        "C11": "Current employment\nStability\n1. Minimum 12 months.\n2. For applicants whose age is >=26 years, CIBIL Score >750 & income >50k & any\ntradeline (Live/Closed) in individual capacity with LA>Rs 2Lacs with open date more\nthan 2-year-old, documented proof of one-year current stability is not required"
+      }
+    },
+    {
+      "row": 11,
+      "cells": {
+        "C10": "CC OBLIGATION  ",
+        "C11": "5% OBLIGATE",
+        "C12": "Max 5 Credit card BT allowed. No late Fee to be reported in CC statement"
+      }
+    },
+    {
+      "row": 14,
+      "cells": {
+        "C9": 2,
+        "C10": "ROI STRUCTURES AND SLABS",
+        "C11": "10.99 TO 22%"
+      }
+    },
+    {
+      "row": 15,
+      "cells": {
+        "C10": "COM CATEGORY",
+        "C11": "LOAN AMOUNT",
+        "C12": "MINI ROI",
+        "C13": "LOAN AMOUNT",
+        "C14": "MINIMUM ROI",
+        "C15": "LOAN AMOUNT",
+        "C16": "MINI ROI"
+      }
+    },
+    {
+      "row": 16,
+      "cells": {
+        "C10": "SUPER A",
+        "C11": "50 LAC ",
+        "C12": 10.99,
+        "C13": "20lac above",
+        "C14": 12,
+        "C15": "20LAC BELOW",
+        "C16": 14
+      }
+    },
+    {
+      "row": 17,
+      "cells": {
+        "C10": "A",
+        "C11": "50 LAC ",
+        "C12": 10.99,
+        "C13": "20lac above",
+        "C14": 12,
+        "C15": "20LAC BELOW",
+        "C16": 14
+      }
+    },
+    {
+      "row": 18,
+      "cells": {
+        "C10": "B",
+        "C11": "40 LAC ",
+        "C12": 10.99,
+        "C13": "20lac above",
+        "C14": 12,
+        "C15": "20LAC BELOW",
+        "C16": 14
+      }
+    },
+    {
+      "row": 19,
+      "cells": {
+        "C10": "C",
+        "C11": "30 LAC ",
+        "C12": 12,
+        "C13": "20lac above",
+        "C14": 13,
+        "C15": "20LAC BELOW",
+        "C16": 15
+      }
+    },
+    {
+      "row": 20,
+      "cells": {
+        "C10": "GOVT",
+        "C11": "50 LAC ",
+        "C12": 10.99,
+        "C13": "20lac above",
+        "C14": 12,
+        "C15": "20LAC BELOW",
+        "C16": 14
+      }
+    },
+    {
+      "row": 24,
+      "cells": {
+        "C9": 3,
+        "C10": "MULTIPLIER"
+      }
+    },
+    {
+      "row": 25,
+      "cells": {
+        "C10": "COM CATEGORY",
+        "C11": "SALARY FOR FOIR AND MULTIPLIER",
+        "C12": "MULTIPLIER",
+        "C13": "SALARY FOR FOIR AND MULTIPLIER",
+        "C14": "MULTIPLIER",
+        "C15": "SALARY FOR FOIR AND MULTIPLIER",
+        "C16": "MULTIPLIER"
+      }
+    },
+    {
+      "row": 26,
+      "cells": {
+        "C10": "SUPER A",
+        "C11": "75K ABOVE",
+        "C12": 27,
+        "C13": "50K TO 75K",
+        "C14": "23 TO 24",
+        "C15": "50K BELOW",
+        "C16": 20
+      }
+    },
+    {
+      "row": 27,
+      "cells": {
+        "C10": "A",
+        "C11": "75K ABOVE",
+        "C12": 27,
+        "C13": "50K TO 75K",
+        "C14": "23 TO 24",
+        "C15": "50K BELOW",
+        "C16": 20
+      }
+    },
+    {
+      "row": 28,
+      "cells": {
+        "C10": "B",
+        "C11": "75K ABOVE",
+        "C12": 25,
+        "C13": "50K TO 75K",
+        "C14": 22,
+        "C15": "50K BELOW",
+        "C16": 19
+      }
+    },
+    {
+      "row": 29,
+      "cells": {
+        "C10": "C",
+        "C11": "75K ABOVE",
+        "C12": 18,
+        "C13": "50K TO 75K",
+        "C14": 18,
+        "C15": "50K BELOW",
+        "C16": 15
+      }
+    },
+    {
+      "row": 30,
+      "cells": {
+        "C10": "UNLISTED",
+        "C11": "75K ABOVE",
+        "C12": 15,
+        "C13": "50K TO 75K",
+        "C14": 15,
+        "C15": "50K BELOW",
+        "C16": 9
+      }
+    },
+    {
+      "row": 31,
+      "cells": {
+        "C10": "GOVT",
+        "C11": "75K ABOVE",
+        "C12": 27,
+        "C13": "50K TO 75K",
+        "C14": "23 TO 24",
+        "C15": "50K BELOW",
+        "C16": 20
+      }
+    },
+    {
+      "row": 34,
+      "cells": {
+        "C9": 4,
+        "C10": "TENURE AND REPAYMENT WINDOWS"
+      }
+    },
+    {
+      "row": 35,
+      "cells": {
+        "C10": "COM CATEGORY",
+        "C11": "MINIMUM TENURE",
+        "C12": "MAX TENURE"
+      }
+    },
+    {
+      "row": 36,
+      "cells": {
+        "C10": "SUPER A",
+        "C11": "24 MONTHS",
+        "C12": "TGE / Super CATA / CAT A / CAT G Not Applicable 84 months & 96 months"
+      }
+    },
+    {
+      "row": 37,
+      "cells": {
+        "C10": "A",
+        "C11": "24 MONTHS",
+        "C12": "TGE / Super CATA / CAT A / CAT G Not Applicable 84 months & 96 months"
+      }
+    },
+    {
+      "row": 38,
+      "cells": {
+        "C10": "B",
+        "C11": "24 MONTHS",
+        "C12": "CAT B Income > \u20b975,000 84 months"
+      }
+    },
+    {
+      "row": 39,
+      "cells": {
+        "C10": "C",
+        "C11": "24 MONTHS",
+        "C12": "CAT C / Unlisted Not Applicable 60 months"
+      }
+    },
+    {
+      "row": 40,
+      "cells": {
+        "C10": "D",
+        "C11": "24 MONTHS",
+        "C12": "CAT C / Unlisted Not Applicable 60 months"
+      }
+    },
+    {
+      "row": 41,
+      "cells": {
+        "C10": "GOVT",
+        "C11": "24 MONTHS",
+        "C12": "TGE / Super CATA / CAT A / CAT G Not Applicable 84 months & 96 months"
+      }
+    },
+    {
+      "row": 44,
+      "cells": {
+        "C9": 5,
+        "C10": "MINIMUM LOAN AMOUNT AND MAX LOAN AMOUNT"
+      }
+    }
+  ],
+  "POONAWALA": [
+    {
+      "row": 2,
+      "cells": {
+        "C9": "POONAWALLA FINCORP"
+      }
+    },
+    {
+      "row": 4,
+      "cells": {
+        "C9": 1,
+        "C10": "DEMOGRAPHIC AND AGE ELIGIBILITY CRITERIA",
+        "C11": "CONFIGURED THRESHOLD"
+      }
+    },
+    {
+      "row": 5,
+      "cells": {
+        "C10": "ELIGIBILTY PARAMETER"
+      }
+    },
+    {
+      "row": 6,
+      "cells": {
+        "C10": "MINIMUM  APLICANT AGE",
+        "C11": 21
+      }
+    },
+    {
+      "row": 7,
+      "cells": {
+        "C10": "MAXIMUM AGE AT LOAN TIME",
+        "C11": 60
+      }
+    },
+    {
+      "row": 8,
+      "cells": {
+        "C10": "RETIREMENT AGE",
+        "C11": 60
+      }
+    },
+    {
+      "row": 9,
+      "cells": {
+        "C10": "MINIMUM SALARY AT LOAN TIME",
+        "C11": "30K"
+      }
+    },
+    {
+      "row": 10,
+      "cells": {
+        "C10": "MINI WORK EXPRINCE",
+        "C11": "2YEARS"
+      }
+    },
+    {
+      "row": 11,
+      "cells": {
+        "C10": "CC OBLIGATION  ",
+        "C11": "5%OBLIGATE/6 CC BT ALLOW",
+        "C12": "CC POS MORE THEN 4 TIME NOT ALLOW",
+        "C13": "1 KCC OBLIGATE",
+        "C14": "1 GL OBLIGATE"
+      }
+    },
+    {
+      "row": 14,
+      "cells": {
+        "C9": 2,
+        "C10": "TENURE AND REPAYMENT WINDOWS"
+      }
+    },
+    {
+      "row": 15,
+      "cells": {
+        "C10": "COM CATEGORY",
+        "C11": "MINIMUM TENURE",
+        "C12": "MAX TENURE"
+      }
+    },
+    {
+      "row": 16,
+      "cells": {
+        "C10": "SUPER A",
+        "C11": 12,
+        "C12": 84
+      }
+    },
+    {
+      "row": 17,
+      "cells": {
+        "C10": "A",
+        "C11": 12,
+        "C12": 84
+      }
+    },
+    {
+      "row": 18,
+      "cells": {
+        "C10": "B",
+        "C11": 12,
+        "C12": 72
+      }
+    },
+    {
+      "row": 19,
+      "cells": {
+        "C10": "C",
+        "C11": 12,
+        "C12": 72
+      }
+    },
+    {
+      "row": 20,
+      "cells": {
+        "C10": "D",
+        "C11": 12,
+        "C12": 72
+      }
+    },
+    {
+      "row": 21,
+      "cells": {
+        "C10": "GOVT",
+        "C11": 12,
+        "C12": 84
+      }
+    },
+    {
+      "row": 24,
+      "cells": {
+        "C9": 3,
+        "C10": "MINIMUM LOAN AMOUNT AND MAX LOAN AMOUNT"
+      }
+    },
+    {
+      "row": 25,
+      "cells": {
+        "C10": "COM CATEGORY",
+        "C11": "MINIMUM LOAN AMOUNT",
+        "C12": "MAX LOAN AMOUNT"
+      }
+    },
+    {
+      "row": 26,
+      "cells": {
+        "C10": "SUPER A",
+        "C11": "1LAC",
+        "C12": "60LAC"
+      }
+    },
+    {
+      "row": 27,
+      "cells": {
+        "C10": "A",
+        "C11": "1LAC",
+        "C12": "60LAC"
+      }
+    },
+    {
+      "row": 28,
+      "cells": {
+        "C10": "B",
+        "C11": "1LAC",
+        "C12": "40LAC"
+      }
+    },
+    {
+      "row": 29,
+      "cells": {
+        "C10": "C",
+        "C11": "1LAC",
+        "C12": "30LAC"
+      }
+    },
+    {
+      "row": 30,
+      "cells": {
+        "C10": "D",
+        "C11": "1LAC",
+        "C12": "10LAC"
+      }
+    },
+    {
+      "row": 31,
+      "cells": {
+        "C10": "GOVT",
+        "C11": "1LAC",
+        "C12": "40LAC"
+      }
+    },
+    {
+      "row": 34,
+      "cells": {
+        "C9": 4,
+        "C10": "ROI STRUCTURES AND SLABS"
+      }
+    },
+    {
+      "row": 35,
+      "cells": {
+        "C10": "RATE GRID"
+      }
+    },
+    {
+      "row": 37,
+      "cells": {
+        "C10": "New Rate Grid",
+        "C11": "Super CAT / ACAT A / Govt Ratna",
+        "C16": "Govt / Cat B / CAT EDU / CAT DEFENCE"
+      }
+    },
+    {
+      "row": 38,
+      "cells": {
+        "C10": "Cibil TU Score",
+        "C11": ">=700",
+        "C12": ">=730",
+        "C13": ">=780",
+        "C15": ">=700",
+        "C16": ">=730",
+        "C17": ">=750",
+        "C18": ">=780"
+      }
+    },
+    {
+      "row": 39,
+      "cells": {
+        "C10": "NTH up to 50K",
+        "C11": 0.15,
+        "C12": 0.1474,
+        "C13": 0.1375,
+        "C15": 0.155,
+        "C16": 0.1524,
+        "C17": 0.15,
+        "C18": 0.1425
+      }
+    },
+    {
+      "row": 40,
+      "cells": {
+        "C10": "NTH >50K-75K",
+        "C11": 0.1474,
+        "C12": 0.145,
+        "C13": 0.135,
+        "C15": 0.1524,
+        "C16": 0.15,
+        "C17": 0.1475,
+        "C18": 0.14
+      }
+    },
+    {
+      "row": 41,
+      "cells": {
+        "C10": "NTH >75K",
+        "C11": 0.14,
+        "C12": 0.135,
+        "C13": 0.125,
+        "C15": 0.15,
+        "C16": 0.1475,
+        "C17": 0.145,
+        "C18": 0.1375
+      }
+    },
+    {
+      "row": 42,
+      "cells": {
+        "C10": "NTH >100K & LA >= 20 Lakh",
+        "C11": 0.1375,
+        "C12": 0.1325,
+        "C13": 0.1225,
+        "C15": 0.1475,
+        "C16": 0.145,
+        "C17": 0.1425,
+        "C18": 0.135
+      }
+    },
+    {
+      "row": 43,
+      "cells": {
+        "C10": "NTH >100K & LA >= 35 Lakh",
+        "C11": 0.13,
+        "C12": 0.125,
+        "C13": 0.1199,
+        "C15": "NA",
+        "C16": "NA",
+        "C17": "NA",
+        "C18": "NA"
+      }
+    }
+  ],
+  "ABFL": [
+    {
+      "row": 2,
+      "cells": {
+        "C9": "ADITYA BIRLA FINANCE LTD"
+      }
+    },
+    {
+      "row": 4,
+      "cells": {
+        "C9": 1,
+        "C10": "DEMOGRAPHIC AND AGE ELIGIBILITY CRITERIA",
+        "C11": "CONFIGURED THRESHOLD"
+      }
+    },
+    {
+      "row": 5,
+      "cells": {
+        "C10": "ELIGIBILTY PARAMETER"
+      }
+    },
+    {
+      "row": 6,
+      "cells": {
+        "C10": "MINIMUM  APLICANT AGE",
+        "C11": "21YEARS"
+      }
+    },
+    {
+      "row": 7,
+      "cells": {
+        "C10": "MAXIMUM AGE AT LOAN TIME",
+        "C11": "60 YEARS"
+      }
+    },
+    {
+      "row": 8,
+      "cells": {
+        "C10": "RETIREMENT AGE",
+        "C11": "60 YEARS"
+      }
+    },
+    {
+      "row": 9,
+      "cells": {
+        "C10": "MINIMUM SALARY AT LOAN TIME",
+        "C11": "TIER 4 =20K SALARY",
+        "C12": "TIER 3 = 25K SALARY",
+        "C13": "TIER 2 = 35K SALARY",
+        "C14": "TIER 1= 40K SALARY"
+      }
+    },
+    {
+      "row": 10,
+      "cells": {
+        "C10": "MINI WORK EXPRINCE",
+        "C11": "1YEARS"
+      }
+    },
+    {
+      "row": 11,
+      "cells": {
+        "C10": "CC OBLIGATION  ",
+        "C11": "5% OBLIGATE/ 5 CC BT ALLOW",
+        "C12": "SALARY 6 TIME BT ALLOW",
+        "C13": " KKC NOT OBLIGATE"
+      }
+    },
+    {
+      "row": 16,
+      "cells": {
+        "C9": 2,
+        "C10": "FOIR"
+      }
+    },
+    {
+      "row": 17,
+      "cells": {
+        "C10": "Income band (Eligible income Prior Annual bonus)",
+        "C11": "NO HL",
+        "C12": "EVER HL/LAP"
+      }
+    },
+    {
+      "row": 18,
+      "cells": {
+        "C10": "UPTO 25K",
+        "C11": 0.5,
+        "C12": 0.5
+      }
+    },
+    {
+      "row": 19,
+      "cells": {
+        "C10": "25K TO 50K ",
+        "C11": 0.6,
+        "C12": 0.6
+      }
+    },
+    {
+      "row": 20,
+      "cells": {
+        "C10": "50K TO 75K",
+        "C11": 0.65,
+        "C12": 0.7
+      }
+    },
+    {
+      "row": 21,
+      "cells": {
+        "C10": "75K TO 1LAC",
+        "C11": 0.65,
+        "C12": 0.7
+      }
+    },
+    {
+      "row": 22,
+      "cells": {
+        "C10": "1LAC ABOVE ",
+        "C11": 0.7,
+        "C12": 0.75
+      }
+    },
+    {
+      "row": 26,
+      "cells": {
+        "C9": 3,
+        "C10": "TENURE AND REPAYMENT WINDOWS"
+      }
+    },
+    {
+      "row": 27,
+      "cells": {
+        "C10": "CATEGORISATION",
+        "C11": "LOAN TENURE",
+        "C12": "TENURE FOR ELIGIBILITY CALCULATION",
+        "C13": "MINIMUM TENURE",
+        "C14": "MAX TENURE "
+      }
+    },
+    {
+      "row": 28,
+      "cells": {
+        "C10": "EMERGING/ELITE",
+        "C11": "<=60MONTHS",
+        "C12": "AS PER ACTUAL 60 MONTHS TENURE MINUS 12 MONTHS",
+        "C13": "12 MONTHS",
+        "C14": "84 MONTHS(TL)"
+      }
+    },
+    {
+      "row": 29,
+      "cells": {
+        "C10": "ELITE",
+        "C11": "61-72 MONTHS",
+        "C14": "96MONTHS(OD)"
+      }
+    },
+    {
+      "row": 30,
+      "cells": {
+        "C10": "ELITE",
+        "C11": "73-84MONTHS"
+      }
+    },
+    {
+      "row": 31,
+      "cells": {
+        "C12": "OWN TENURE 84MONTS CASE IS ELIGIBLE FOR 72 MONTHS"
+      }
+    },
+    {
+      "row": 36,
+      "cells": {
+        "C9": 4,
+        "C10": "MINIMUM LOAN AMOUNT AND MAX LOAN AMOUNT"
+      }
+    },
+    {
+      "row": 37,
+      "cells": {
+        "C10": "COMPANY CAT",
+        "C11": "VLR",
+        "C12": "LR",
+        "C13": "MR",
+        "C14": "HR"
+      }
+    },
+    {
+      "row": 38,
+      "cells": {
+        "C10": "A",
+        "C11": "50LAC",
+        "C12": "50LAC",
+        "C13": "40LAC",
+        "C14": "40LAC"
+      }
+    },
+    {
+      "row": 39,
+      "cells": {
+        "C10": "B",
+        "C11": "40LAC",
+        "C12": "40LAC",
+        "C13": "40LAC",
+        "C14": "40LAC"
+      }
+    },
+    {
+      "row": 40,
+      "cells": {
+        "C10": "C",
+        "C11": "40LAC",
+        "C12": "40LAC",
+        "C13": "35LAC",
+        "C14": "30LAC"
+      }
+    },
+    {
+      "row": 41,
+      "cells": {
+        "C10": "D",
+        "C11": "30LAC",
+        "C12": "25LAC",
+        "C13": "15LAC",
+        "C14": "10LAC"
+      }
+    },
+    {
+      "row": 42,
+      "cells": {
+        "C10": "NC",
+        "C11": "8LAC",
+        "C12": "8LAC",
+        "C13": "5LAC",
+        "C14": "5LAC"
+      }
+    },
+    {
+      "row": 43,
+      "cells": {
+        "C10": "Up to 65L allowed if below all conditions met:\n1. Company cat A and VLR or LR segment\n2. CIBIL >=755 and Ever HL = True\n3. Income >=2.5 Lacs\n4. No DPD in 36M on loans & in 12M on Card",
+        "C11": "Employer Cat A, B \u2013 Rs 10 Lacs\nEmployer Cat C, D / NC / Proprietorship /\nPartnership / LLP - Rs 5 Lacs",
+        "C12": "MINI LOAN AMOUNT 1LAC AND MAX 65LAC"
+      }
+    }
+  ],
+  "FINNABLE": [
+    {
+      "row": 2,
+      "cells": {
+        "C9": "FINNABLE FINANCE LTD"
+      }
+    },
+    {
+      "row": 4,
+      "cells": {
+        "C9": 1
+      }
+    },
+    {
+      "row": 5,
+      "cells": {
+        "C10": "Loan Amount ",
+        "C11": "50 k To 10 Lac"
+      }
+    },
+    {
+      "row": 6,
+      "cells": {
+        "C10": "ROI ",
+        "C11": "22% TO 36%"
+      }
+    },
+    {
+      "row": 7,
+      "cells": {
+        "C10": "PF",
+        "C11": "2% To 6% "
+      }
+    },
+    {
+      "row": 8,
+      "cells": {
+        "C10": "Tenure ",
+        "C11": "12 MONTHS TO 60 MONTHS"
+      }
+    },
+    {
+      "row": 9,
+      "cells": {
+        "C10": "FOIR ",
+        "C11": "AS PER SYSTEM ELIGIBLITY"
+      }
+    },
+    {
+      "row": 10,
+      "cells": {
+        "C10": "Age ",
+        "C11": "21 yr to 55 yr "
+      }
+    },
+    {
+      "row": 11,
+      "cells": {
+        "C10": "CC/ GOLD LOAN / KCC Obligation ",
+        "C11": 0.05
+      }
+    },
+    {
+      "row": 12,
+      "cells": {
+        "C10": "Minimum salary ",
+        "C11": "15k "
+      }
+    },
+    {
+      "row": 13,
+      "cells": {
+        "C10": "Minimum  work experience ",
+        "C11": "6 MONTHS"
+      }
+    },
+    {
+      "row": 14,
+      "cells": {
+        "C9": 2
+      }
+    },
+    {
+      "row": 16,
+      "cells": {
+        "C10": "Cibil Score",
+        "C11": "700 +",
+        "C12": "NTC (-1)"
+      }
+    },
+    {
+      "row": 17,
+      "cells": {
+        "C10": "Finnable Score",
+        "C11": "NA",
+        "C12": ">=600"
+      }
+    },
+    {
+      "row": 18,
+      "cells": {
+        "C10": "Min. Loan Amount",
+        "C11": "50,000",
+        "C12": "50,000"
+      }
+    },
+    {
+      "row": 19,
+      "cells": {
+        "C10": "Max loan amount",
+        "C11": "10,00,000",
+        "C12": "4,00,000"
+      }
+    },
+    {
+      "row": 20,
+      "cells": {
+        "C10": "Min. Tenor",
+        "C11": "6",
+        "C12": "6"
+      }
+    },
+    {
+      "row": 21,
+      "cells": {
+        "C10": "Max Tenor",
+        "C11": "60",
+        "C12": "36"
+      }
+    },
+    {
+      "row": 22,
+      "cells": {
+        "C10": "Min. age",
+        "C11": "21",
+        "C12": "21"
+      }
+    },
+    {
+      "row": 23,
+      "cells": {
+        "C10": "Max Age",
+        "C11": "55 at login60 till loan maturity",
+        "C12": "55 at login60 till loan maturity"
+      }
+    },
+    {
+      "row": 24,
+      "cells": {
+        "C10": "Salary Requirement",
+        "C11": "20,000 for Tier 1, 15,000 for Tier 2",
+        "C12": "Net Salary credit"
+      }
+    },
+    {
+      "row": 25,
+      "cells": {
+        "C10": "Documents",
+        "C11": "Latest 3 Payslip ya Latter Head, Adhaar Card, PAN Card, 3/6 month Banking (till date)"
+      }
+    },
+    {
+      "row": 26,
+      "cells": {
+        "C10": "Note",
+        "C11": "If the Loan Amount is more than or equal to 5 Lakhs, Form 16 is to be verified."
+      }
+    },
+    {
+      "row": 30,
+      "cells": {
+        "C9": 3,
+        "C10": "Negative Profiles\n\nArmy, Bar Manager, Bishop, Border Security Force, Court Assistant, CRPF, Delivery Boy, Delivery\nExecutive, Delivery Partner, Diamond Cutter, Fitness Coach, Fitness Manager, Fitness Trainee,\nFreelancer, Granthi, Gurudwara Manager, Gym Owner, Gym Trainer, Helper, Imam, Indian Navy,\nJeweler, Jewelry Consultant, Labor, Lawyer, Lineman, Majdoor, Media, Missionary, Mufti, OWN\nBUSINESS, OWNER, Pandit, Pastor, Police, Political Parties, Porter, Priest, PROPRIETOR, Purohit, Self\nEmployed, Trackman, Security Guard, Safai KaramChari, PEON & other 4th grade designations.",
+        "C11": "TIER 1 CITIES  =====Delhi, Delhi NCR, East Delhi, Gauttam Budhnagar, Gurugram, New Delhi, Noida\nDombivli, Kalyan, Karjat, Mira Bhayandar, Mumbai, Navi Mumbai, Navi Mumbai Panvel, Panvel,\nBangalore, Bangalore Rural, Bengaluru\nChennai\nHyderabad, Secunderabad",
+        "C12": "Employment checks(Type of companies allowed)\nNegative industry\nIf working on payroll of different\ncompany\nEmployment stability check\n\nAllowed with PF deduction\n* Public Ltd, Pvt Ltd, LLP, Partnership, Sole Proprietorship, Schools, Colleges and Hospital.\n* NGO and HUF-Hindu Undivided Family(with PF).\n* Sole propreitorship is only allowed in West and South zones\nPvt Ltd/Public ltd/LLP - With PF: 3 salary credits from 2 different companies allowed with PF.\nPF to be validated for both the companies\nPvt Ltd/Public ltd/LLP - Without PF: 3 salary credits from same company mandatory\nSole prop, Partnership and HUF (with PF) - 3 salary credits from same company mandatory\nSole prop and partnership (without PF) - 6 salary credits from same company mandatory\nBars, Event management company, SPA & saloon (SPA and Saloon listed companies are allowed),\nMedia Industry (Digital marketing is allowed)"
+      }
+    },
+    {
+      "row": 40,
+      "cells": {
+        "C9": 4
+      }
+    }
+  ]
+}

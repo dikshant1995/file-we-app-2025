@@ -35,7 +35,8 @@ import { protectAgainstProcessingFee } from '../utils/processingFeeGuard.js';
 // Import bank configuration service for logic bridge
 import { getBankConfig, getAllBankConfig } from './bankConfigService.js';
 
-// Import Axis Bank, IndusInd Bank, and HDFC Bank Master Excel Policies
+// Import Bank Master Excel Policies from Registry
+import { getExcelPolicyForBank } from '../config/bankPolicyRegistry.js';
 import { AXIS_BANK_EXCEL_POLICY } from '../config/axisBankPolicy.js';
 import { INDUSIND_BANK_EXCEL_POLICY } from '../config/indusindBankPolicy.js';
 import { HDFC_BANK_EXCEL_POLICY } from '../config/hdfcBankPolicy.js';
@@ -106,9 +107,9 @@ export const calculateLoanEligibility = async (userData) => {
   const calculatorInput = {
     desiredLoanAmount: userData.desiredLoanAmount ? parseFloat(userData.desiredLoanAmount) : null,
     loanTenure: userData.loanTenure ? parseInt(userData.loanTenure) : 5, // Default to 5 years
-    basicSalary: userData.basicSalary !== undefined ? parseFloat(userData.basicSalary) : (userData.monthlyIncome ? parseFloat(userData.monthlyIncome) : 0),
+    basicSalary: userData.basicSalary !== undefined ? parseFloat(userData.basicSalary) : (userData.monthlyIncome ? parseFloat(userData.monthlyIncome) : (userData.monthlySalary ? parseFloat(userData.monthlySalary) : 0)),
     averageIncentive: userData.averageIncentive ? parseFloat(userData.averageIncentive) : 0,
-    monthlyIncome: userData.monthlyIncome ? parseFloat(userData.monthlyIncome) : (userData.basicSalary ? parseFloat(userData.basicSalary) : 0),
+    monthlyIncome: userData.monthlyIncome ? parseFloat(userData.monthlyIncome) : (userData.monthlySalary ? parseFloat(userData.monthlySalary) : (userData.basicSalary ? parseFloat(userData.basicSalary) : 0)),
     existingEMI: userData.existingEMI ? parseFloat(userData.existingEMI) : 0,
     companyName: userData.companyName || '',
     category: userData.category || 'A', // Fallback category if company not found
@@ -172,12 +173,14 @@ export const calculateLoanEligibility = async (userData) => {
   // Respect Admin Suspensions if configured in LocalStorage
   let activeBankCalculators = bankCalculators;
   try {
-    const stored = localStorage.getItem('laxmi_admin_12_banks');
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        const suspendedIds = new Set(parsed.filter(b => b.enabled === false).map(b => b.id));
-        activeBankCalculators = bankCalculators.filter(b => !suspendedIds.has(b.id));
+    if (typeof localStorage !== 'undefined') {
+      const stored = localStorage.getItem('laxmi_admin_12_banks');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const suspendedIds = new Set(parsed.filter(b => b.enabled === false).map(b => b.id));
+          activeBankCalculators = bankCalculators.filter(b => !suspendedIds.has(b.id));
+        }
       }
     }
   } catch (e) {
@@ -215,30 +218,35 @@ const matchCategory = (cat1, cat2) => {
 
   if (s1 === s2) return true;
 
-  // Super A / A+
-  const isSuperA1 = s1 === 'SUPERA' || s1 === 'A+' || s1 === 'SCATA' || s1 === 'PLUS' || s1 === 'APLUS';
-  const isSuperA2 = s2 === 'SUPERA' || s2 === 'A+' || s2 === 'SCATA' || s2 === 'PLUS' || s2 === 'APLUS';
-  if (isSuperA1 && isSuperA2) return true;
+  // Super Prime / Super A / A+
+  const isSuperPrime1 = s1 === 'SUPERPRIME' || s1 === 'SUPERA' || s1 === 'A+' || s1 === 'SCATA' || s1 === 'PLUS' || s1 === 'APLUS';
+  const isSuperPrime2 = s2 === 'SUPERPRIME' || s2 === 'SUPERA' || s2 === 'A+' || s2 === 'SCATA' || s2 === 'PLUS' || s2 === 'APLUS';
+  if (isSuperPrime1 && isSuperPrime2) return true;
 
-  // Category A
-  const isCatA1 = s1 === 'A' || s1 === 'CATA' || s1 === 'CATGA' || s1 === 'CATEGORYA';
-  const isCatA2 = s2 === 'A' || s2 === 'CATA' || s2 === 'CATGA' || s2 === 'CATEGORYA';
-  if (isCatA1 && isCatA2) return true;
+  // Preferred / Category A
+  const isPreferred1 = s1 === 'PREFERRED' || s1 === 'A' || s1 === 'CATA' || s1 === 'CATGA' || s1 === 'CATEGORYA';
+  const isPreferred2 = s2 === 'PREFERRED' || s2 === 'A' || s2 === 'CATA' || s2 === 'CATGA' || s2 === 'CATEGORYA';
+  if (isPreferred1 && isPreferred2) return true;
 
-  // Category B
-  const isCatB1 = s1 === 'B' || s1 === 'CATB' || s1 === 'CATGB' || s1 === 'CATEGORYB';
-  const isCatB2 = s2 === 'B' || s2 === 'CATB' || s2 === 'CATGB' || s2 === 'CATEGORYB';
-  if (isCatB1 && isCatB2) return true;
+  // Elite / Category B
+  const isElite1 = s1 === 'ELITE' || s1 === 'B' || s1 === 'CATB' || s1 === 'CATGB' || s1 === 'CATEGORYB';
+  const isElite2 = s2 === 'ELITE' || s2 === 'B' || s2 === 'CATB' || s2 === 'CATGB' || s2 === 'CATEGORYB';
+  if (isElite1 && isElite2) return true;
 
-  // Category C
-  const isCatC1 = s1 === 'C' || s1 === 'CATC' || s1 === 'CATGC' || s1 === 'CATEGORYC';
-  const isCatC2 = s2 === 'C' || s2 === 'CATC' || s2 === 'CATGC' || s2 === 'CATEGORYC';
-  if (isCatC1 && isCatC2) return true;
+  // Open Market / Category C / Category D / Unlisted
+  const isOpenMarket1 = s1 === 'OPENMARKET' || s1 === 'C' || s1 === 'CATC' || s1 === 'CATGC' || s1 === 'CATEGORYC' || s1 === 'D' || s1 === 'CATD' || s1 === 'CATGD' || s1 === 'CATEGORYD' || s1 === 'UNLISTED';
+  const isOpenMarket2 = s2 === 'OPENMARKET' || s2 === 'C' || s2 === 'CATC' || s2 === 'CATGC' || s2 === 'CATEGORYC' || s2 === 'D' || s2 === 'CATD' || s2 === 'CATGD' || s2 === 'CATEGORYD' || s2 === 'UNLISTED';
+  if (isOpenMarket1 && isOpenMarket2) return true;
 
-  // Category D
-  const isCatD1 = s1 === 'D' || s1 === 'CATD' || s1 === 'CATGD' || s1 === 'CATEGORYD';
-  const isCatD2 = s2 === 'D' || s2 === 'CATD' || s2 === 'CATGD' || s2 === 'CATEGORYD';
-  if (isCatD1 && isCatD2) return true;
+  // Army Profile / Defense
+  const isArmy1 = s1 === 'ARMYPROFILE' || s1 === 'ARMY' || s1 === 'DEFENSE';
+  const isArmy2 = s2 === 'ARMYPROFILE' || s2 === 'ARMY' || s2 === 'DEFENSE';
+  if (isArmy1 && isArmy2) return true;
+
+  // NRI Case / NRI
+  const isNri1 = s1 === 'NRICASE' || s1 === 'NRI';
+  const isNri2 = s2 === 'NRICASE' || s2 === 'NRI';
+  if (isNri1 && isNri2) return true;
 
   // Govt
   const isGovt1 = s1 === 'GOVT' || s1 === 'PSU' || s1 === 'GOVERNMENT';
@@ -260,17 +268,9 @@ const matchCategory = (cat1, cat2) => {
       const adminAllConfig = getAllBankConfig(name, location);
       let uPolicy = adminAllConfig.unifiedPolicy;
 
-      // Master Policy Fallback for Axis Bank from Excel
-      if (!uPolicy && (name === 'Axis Bank' || id === 'axis-bank')) {
-        uPolicy = AXIS_BANK_EXCEL_POLICY;
-      }
-      // Master Policy Fallback for IndusInd Bank from Excel
-      if (!uPolicy && (name === 'IndusInd Bank' || id === 'indusind')) {
-        uPolicy = INDUSIND_BANK_EXCEL_POLICY;
-      }
-      // Master Policy Fallback for HDFC Bank from Excel
-      if (!uPolicy && (name === 'HDFC Bank' || id === 'hdfc')) {
-        uPolicy = HDFC_BANK_EXCEL_POLICY;
+      // Master Policy Fallback from Excel Registry for ALL institutions
+      if (!uPolicy) {
+        uPolicy = getExcelPolicyForBank(id, name);
       }
 
       // 1. SALARY MODE GATE
@@ -281,14 +281,135 @@ const matchCategory = (cat1, cat2) => {
         return { bankName: name, eligible: false, reason: 'Cheque salaries not accepted by this institution.', category: 'REJECTED' };
       }
 
-      // 1.5 CC BT RESTRICTION GATE (IndusInd Bank Excel Policy: CC BT NOT ALLOW)
-      if (calculatorInput.isBTMode && (name === 'IndusInd Bank' || id === 'indusind')) {
-        const hasCcInBt = (calculatorInput.loansForBT || []).some(l => l.type === 'Credit Card' || l.type === 'credit_card');
-        if (hasCcInBt) {
+      // 1.5 CC BT RESTRICTION GATES from Excel Policies:
+      if (calculatorInput.isBTMode) {
+        const ccBtLoans = (calculatorInput.loansForBT || []).filter(l => l.type === 'Credit Card' || l.type === 'credit_card');
+        const hasCcInBt = ccBtLoans.length > 0;
+        const numCcBt = ccBtLoans.length;
+
+        // IndusInd Bank: CC BT NOT ALLOW
+        if (hasCcInBt && (name === 'IndusInd Bank' || id === 'indusind')) {
           return {
             bankName: name,
             eligible: false,
             reason: 'Credit Card Balance Transfer is not permitted for IndusInd Bank (CC BT Not Allowed as per policy).',
+            category: 'REJECTED'
+          };
+        }
+        // Kotak Mahindra Bank: CC BT NOT ALLOW
+        if (hasCcInBt && (name.toLowerCase().includes('kotak') || id === 'kotak')) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: 'Credit Card Balance Transfer is not permitted for Kotak Mahindra Bank (CC BT Not Allowed as per policy).',
+            category: 'REJECTED'
+          };
+        }
+        // L&T Finance: CC BT NOT ALLOW
+        if (hasCcInBt && (name.toLowerCase().includes('l&t') || name.toLowerCase().includes('lnt') || id === 'lnt')) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: 'Credit Card Balance Transfer is not permitted for L&T Finance (CC BT Not Allowed as per policy).',
+            category: 'REJECTED'
+          };
+        }
+        // AU Small Finance Bank: ONLY PL BT ALLOWED
+        if (hasCcInBt && (name.toLowerCase().includes('au ') || id === 'au-bank' || id === 'au')) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: 'Credit Card Balance Transfer is not permitted for AU Small Finance Bank (Only Personal Loan BT Allowed).',
+            category: 'REJECTED'
+          };
+        }
+        // Piramal Finance: Max 2 CC BT allowed
+        if (numCcBt > 2 && (name.toLowerCase().includes('piramal') || id === 'piramal')) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Piramal Finance allows maximum 2 Credit Card BTs (${numCcBt} selected).`,
+            category: 'REJECTED'
+          };
+        }
+        // SMFG India Credit: Max 2 CC BT allowed
+        if (numCcBt > 2 && (name.toLowerCase().includes('smfg') || id === 'smfg')) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `SMFG India Credit allows maximum 2 Credit Card BTs (${numCcBt} selected).`,
+            category: 'REJECTED'
+          };
+        }
+        // Tata Capital: Max 5 CC BT allowed
+        if (numCcBt > 5 && (name.toLowerCase().includes('tata') || id === 'tata')) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Tata Capital allows maximum 5 Credit Card BTs (${numCcBt} selected).`,
+            category: 'REJECTED'
+          };
+        }
+        // Axis Bank & Axis Finance: Max 5 CC BT allowed
+        if (numCcBt > 5 && (name.toLowerCase().includes('axis') || id.includes('axis'))) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `${name} allows maximum 5 Credit Card BTs (${numCcBt} selected).`,
+            category: 'REJECTED'
+          };
+        }
+        // Aditya Birla Finance: Max 5 CC BT allowed
+        if (numCcBt > 5 && (name.toLowerCase().includes('aditya') || name.toLowerCase().includes('abfl') || id === 'abfl')) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Aditya Birla Finance allows maximum 5 Credit Card BTs (${numCcBt} selected).`,
+            category: 'REJECTED'
+          };
+        }
+        // Poonawalla Fincorp: Max 6 CC BT allowed
+        if (numCcBt > 6 && (name.toLowerCase().includes('poonawala') || name.toLowerCase().includes('poonawalla') || id === 'poonawala')) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Poonawalla Fincorp allows maximum 6 Credit Card BTs (${numCcBt} selected).`,
+            category: 'REJECTED'
+          };
+        }
+        // Chola Finance: Max 6 CC BT allowed
+        if (numCcBt > 6 && (name.toLowerCase().includes('chola') || id === 'chola')) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Chola Finance allows maximum 6 Credit Card BTs (${numCcBt} selected).`,
+            category: 'REJECTED'
+          };
+        }
+
+        // CC BT POS limits:
+        const btCreditCardPOS = ccBtLoans.reduce((sum, loan) => sum + (parseFloat(loan.creditLimitUsed) || parseFloat(loan.outstandingAmount) || 0), 0);
+        if ((name.toLowerCase().includes('poonawala') || name.toLowerCase().includes('poonawalla') || id === 'poonawala') && btCreditCardPOS > (calculatorInput.monthlyIncome * 4)) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Poonawalla policy restricts Credit Card Outstanding exceeding 4x monthly income.`,
+            category: 'REJECTED'
+          };
+        }
+        if ((name.toLowerCase().includes('bajaj') || id === 'bajaj') && btCreditCardPOS > (calculatorInput.monthlyIncome * 6)) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Bajaj Finance restricts Credit Card Outstanding exceeding 6x monthly income.`,
+            category: 'REJECTED'
+          };
+        }
+        if ((name.toLowerCase().includes('chola') || id === 'chola') && btCreditCardPOS > (calculatorInput.monthlyIncome * 6)) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Chola Finance restricts Credit Card Outstanding exceeding 6x monthly income.`,
             category: 'REJECTED'
           };
         }
@@ -308,13 +429,33 @@ const matchCategory = (cat1, cat2) => {
           }
         }
 
-        const minSalaryReq = demoRules.minSalary || adminAllConfig.employmentRules?.salariedMinSalary || 25000;
+        const minSalaryReq = demoRules.minSalary || adminAllConfig.employmentRules?.salariedMinSalary || 20000;
         if (calculatorInput.monthlyIncome < minSalaryReq) {
           return { bankName: name, eligible: false, reason: `Income below policy threshold (Min: ₹${minSalaryReq.toLocaleString()})`, category: 'REJECTED' };
         }
+      }
 
-        // CIBIL score gate bypassed across platform as per business policy
-        // No applicant is rejected based on CIBIL score
+      // NTC (-1 CIBIL) Rule for AU Bank
+      const rawCibil = calculatorInput.cibilScore ?? calculatorInput.customerReportedCreditScore;
+      const isNtc = rawCibil === -1 || rawCibil === '-1' || Number(rawCibil) === -1;
+      if (isNtc && (name.toLowerCase().includes('au ') || id === 'au-bank' || id === 'au')) {
+        const catUpper = String(calculatorInput.category || '').toUpperCase().trim();
+        if (catUpper === 'C' || catUpper === 'D' || catUpper === 'UNLISTED') {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: 'AU Small Finance Bank only permits New to Credit (-1 CIBIL) for Super A, A, B, and Govt categories.',
+            category: 'REJECTED'
+          };
+        }
+        if (calculatorInput.monthlyIncome < 30000) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: 'AU Small Finance Bank requires minimum ₹30,000 net salary for New to Credit (-1 CIBIL) applicants.',
+            category: 'REJECTED'
+          };
+        }
       }
 
       // 2.5 BT CREDIT CARD MULTIPLIER GATE
@@ -388,6 +529,60 @@ const matchCategory = (cat1, cat2) => {
         }
       }
 
+      // 3.7 ICICI BANK EXCEL POLICY CHECKS (CIBIL 725+ or -1, Min Salary Govt 25k/Pvt 30k/Open 75k/NRI 2L, RJ Min Ticket 6.10L)
+      const isIciciBankInst = name.toLowerCase().includes('icici') || id === 'icici';
+      if (isIciciBankInst) {
+        // CIBIL Check: 725+ or -1 (NTC) Doable
+        if (rawCibil !== null && rawCibil !== undefined && rawCibil !== '') {
+          const numCibil = Number(rawCibil);
+          if (numCibil !== -1 && numCibil < 725) {
+            return {
+              bankName: name,
+              eligible: false,
+              reason: `ICICI Bank policy requires CIBIL score 725+ (Current CIBIL: ${numCibil}). CIBIL -1 is doable for new-to-credit applicants.`,
+              category: bankCategory
+            };
+          }
+        }
+
+        // Min Salary Check
+        const income = calculatorInput.monthlyIncome || calculatorInput.basicSalary || 0;
+        const catStr = String(bankCategory || '').toUpperCase();
+        let requiredSalary = 30000; // Pvt default (Super Prime, Preferred, Elite, A, B)
+        if (catStr.includes('GOVT') || catStr.includes('PSU') || catStr.includes('ARMY')) {
+          requiredSalary = 25000;
+        } else if (catStr.includes('OPEN') || catStr.includes('UNLISTED') || catStr === 'C' || catStr === 'D') {
+          requiredSalary = 75000;
+        } else if (catStr.includes('NRI')) {
+          requiredSalary = 200000;
+        }
+        if (income < requiredSalary) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `ICICI Bank policy requires minimum monthly salary of ₹${requiredSalary.toLocaleString()} for ${bankCategory} (Current: ₹${income.toLocaleString()}).`,
+            category: bankCategory
+          };
+        }
+
+        // Rajasthan Ticket Size Check
+        const isRajasthanLoc = String(calculatorInput.state || '').toLowerCase().includes('rajasthan') ||
+                               String(calculatorInput.city || '').toLowerCase().includes('jaipur') ||
+                               String(calculatorInput.city || '').toLowerCase().includes('jodhpur') ||
+                               String(calculatorInput.city || '').toLowerCase().includes('kota') ||
+                               String(calculatorInput.city || '').toLowerCase().includes('udaipur') ||
+                               String(calculatorInput.city || '').toLowerCase().includes('bikaner') ||
+                               String(calculatorInput.city || '').toLowerCase().includes('ajmer');
+        if (isRajasthanLoc && calculatorInput.desiredLoanAmount && calculatorInput.desiredLoanAmount > 0 && calculatorInput.desiredLoanAmount < 610000) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `ICICI Bank policy strictly requires a minimum loan amount of ₹6.10 Lakhs in Rajasthan (Requested: ₹${calculatorInput.desiredLoanAmount.toLocaleString()}).`,
+            category: bankCategory
+          };
+        }
+      }
+
       // -------------------------------------------------------------
       // Dynamic Bank Policy Specific Credit Card Obligation Percentage
       // -------------------------------------------------------------
@@ -415,7 +610,16 @@ const matchCategory = (cat1, cat2) => {
         .reduce((sum, card) => sum + (parseFloat(card.outstandingAmount || card.creditLimitUsed || 0)), 0);
 
       let bankCreditCardObligation = 0;
-      if (activeCcOutstanding > 0) {
+      // Bandhan Bank: 3% obligation, and if active CC POS < 3x monthly income, 0 obligation!
+      if (name.toLowerCase().includes('bandhan') || id === 'bandhan') {
+        bankCcObligationPercent = 3;
+        const income = calculatorInput.monthlyIncome || calculatorInput.basicSalary || 0;
+        if (activeCcOutstanding <= (income * 3)) {
+          bankCreditCardObligation = 0; // Below 3x salary, no obligation as per Excel policy!
+        } else {
+          bankCreditCardObligation = Math.round(activeCcOutstanding * 0.03);
+        }
+      } else if (activeCcOutstanding > 0) {
         // Use exact bank policy percentage (e.g., 4% for Axis Bank, 5% for IndusInd Bank)
         bankCreditCardObligation = Math.round(activeCcOutstanding * (bankCcObligationPercent / 100));
       } else if (calculatorInput.creditCardObligation > 0) {
@@ -423,9 +627,9 @@ const matchCategory = (cat1, cat2) => {
         bankCreditCardObligation = Math.round(calculatorInput.creditCardObligation * (bankCcObligationPercent / 5));
       }
 
+
       // 🌉 INJECT ADMIN OVERRIDES INTO THE ENGINE
       // Only apply customer's reported CIBIL score if the bank has an active CIBIL policy (e.g., IndusInd Bank for -1 capping)
-      const rawCibil = calculatorInput.cibilScore ?? calculatorInput.customerReportedCreditScore;
       const bankHasCibilPolicy = (name === 'IndusInd Bank' || id === 'indusind');
       const effectiveCreditScore = bankHasCibilPolicy
         ? (rawCibil !== null && rawCibil !== undefined ? Number(rawCibil) : 750)
@@ -453,25 +657,29 @@ const matchCategory = (cat1, cat2) => {
 
       // 🎯 BIND DYNAMIC UNIFIED BANK POLICY (Rates, Caps, FOIR, Multipliers, Tenure)
       if (uPolicy && !govtPolicy) {
-        // 1. Dynamic Interest Rate match (Support Loan Amount Slabs: >=15L, 10L-15L, <10L)
+        // 1. Dynamic Interest Rate match (Support All Loan Amount Slabs: >=50L, >=35L, >=20L, >=15L, >=10L, <10L)
         if (Array.isArray(uPolicy.interestRates)) {
           const matchedRate = uPolicy.interestRates.find(r => matchCategory(r.category, bankCategory));
           if (matchedRate) {
             let dynamicRoi = matchedRate.defaultRoi || matchedRate.minRoi || 10.5;
-            if (calculatorInput.desiredLoanAmount && calculatorInput.desiredLoanAmount > 0) {
-              const reqAmount = calculatorInput.desiredLoanAmount;
-              if (reqAmount >= 2000000 && matchedRate.roiAbove20L) {
-                dynamicRoi = matchedRate.roiAbove20L;
+            const reqAmount = calculatorInput.desiredLoanAmount;
+            if (reqAmount && reqAmount > 0) {
+              if (reqAmount >= 5000000 && matchedRate.roiAbove50L) {
+                dynamicRoi = matchedRate.roiAbove50L;
+              } else if (reqAmount >= 3500000 && matchedRate.roiAbove35L) {
+                dynamicRoi = matchedRate.roiAbove35L;
+              } else if (reqAmount >= 2000000 && (matchedRate.roiAbove20L || matchedRate.roi20Lto30L)) {
+                dynamicRoi = matchedRate.roiAbove20L || matchedRate.roi20Lto30L;
               } else if (reqAmount >= 1500000 && (matchedRate.roi15Lto20L || matchedRate.roiAbove15L)) {
                 dynamicRoi = matchedRate.roi15Lto20L || matchedRate.roiAbove15L;
-              } else if (reqAmount >= 1000000 && matchedRate.roi10Lto15L) {
-                dynamicRoi = matchedRate.roi10Lto15L;
-              } else if (matchedRate.roi5Lto10L || matchedRate.roiBelow10L) {
-                dynamicRoi = matchedRate.roi5Lto10L || matchedRate.roiBelow10L;
+              } else if (reqAmount >= 1000000 && (matchedRate.roi10Lto15L || matchedRate.roiAbove10L || matchedRate.roi10Lto20L || matchedRate.roiAbove10L75kSal)) {
+                dynamicRoi = matchedRate.roi10Lto15L || matchedRate.roiAbove10L || matchedRate.roi10Lto20L || matchedRate.roiAbove10L75kSal;
+              } else if (matchedRate.roi5Lto10L || matchedRate.roiBelow10L || matchedRate.roi1Lto10L || matchedRate.roiBelow20L || matchedRate.roi1Lto12L || matchedRate.roiAbove5L || matchedRate.roi5Lto25L) {
+                dynamicRoi = matchedRate.roi5Lto10L || matchedRate.roiBelow10L || matchedRate.roi1Lto10L || matchedRate.roiBelow20L || matchedRate.roi1Lto12L || matchedRate.roiAbove5L || matchedRate.roi5Lto25L;
               }
             } else {
-              // Customer entered NO loan amount: use best provisional base rate (e.g. 9.99%) to determine max capacity
-              dynamicRoi = matchedRate.roiAbove20L || matchedRate.roiAbove15L || matchedRate.defaultRoi || matchedRate.minRoi || 9.99;
+              // Customer entered NO loan amount: use best provisional base rate
+              dynamicRoi = matchedRate.roiAbove50L || matchedRate.roiAbove35L || matchedRate.roiAbove20L || matchedRate.roiAbove15L || matchedRate.defaultRoi || matchedRate.minRoi || 9.99;
             }
             bankInput.interestRateOverride = Number(dynamicRoi);
             bankInput.matchedRateConfig = matchedRate;
@@ -483,9 +691,12 @@ const matchCategory = (cat1, cat2) => {
           const matchedCap = uPolicy.loanCapping.find(c => matchCategory(c.tier || c.category, bankCategory));
           if (matchedCap) {
             if (matchedCap.maxLoan) bankInput.maxLoanOverride = Number(matchedCap.maxLoan);
-            const isBypassBachelor = name === 'Axis Bank' || id === 'axis-bank' || name === 'IndusInd Bank' || id === 'indusind';
-            if (!isBypassBachelor && matchedCap.bachelorCap && calculatorInput.maritalStatus === 'single' && calculatorInput.livingStatus === 'rented') {
+            // Bachelor Capping ONLY applies to AU Small Finance Bank (Max 5L for PG / Rented Bachelor)
+            const isAu = name.toLowerCase().includes('au ') || id === 'au-bank' || id === 'au';
+            const isBachelorUser = calculatorInput.isBachelor || calculatorInput.maritalStatus === 'single' || calculatorInput.livingStatus === 'bachelor' || calculatorInput.livingStatus === 'rented';
+            if (isAu && matchedCap.bachelorCap && isBachelorUser) {
               bankInput.dynamicBachelorLimitOverride = Number(matchedCap.bachelorCap);
+              bankInput.dynamicBachelorCapReason = 'AU Bank PG/Rented Bachelor Policy Cap (Max ₹5 Lakhs)';
             }
           }
         }
@@ -499,8 +710,6 @@ const matchCategory = (cat1, cat2) => {
 
             if (isIndusind) {
               // IndusInd Multipliers from Excel & Policy Config:
-              // Cat Super A, A, B, Govt: >= 1.25L -> 30x, 75k to 1.25L -> 25x, < 75k -> 20x
-              // Cat C: Any salary -> 21x
               let indusMultiplier = 20;
               const catUpper = String(bankCategory || '').toUpperCase();
               if (catUpper === 'C' || catUpper === 'CAT C') {
@@ -512,11 +721,6 @@ const matchCategory = (cat1, cat2) => {
               }
               bankInput.multiplierOverride = indusMultiplier;
 
-              // IndusInd FOIR from Excel:
-              // Cat A, B, C, Govt: 20k to 35k -> 50% FOIR
-              // Cat A, B, Govt: 35k to 50k -> 60% FOIR
-              // Cat A, B, Govt: >= 50k -> Owned: 70%, Rented: 65%, HL/LAP running: up to 75%
-              // Cat C: 35k to 80k -> 60% FOIR
               let foirPct = 50;
               const hasHlOrLap = (calculatorInput.existingLoanTypes && 
                 (calculatorInput.existingLoanTypes.includes('Home Loan') || 
@@ -543,10 +747,7 @@ const matchCategory = (cat1, cat2) => {
               bankInput.foirOverride = Number(foirPct);
               if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
             } else if (name === 'HDFC Bank' || id === 'hdfc') {
-              // HDFC Bank Master Excel Policy:
-              // Salary 75,000+: Super A/A/Govt: 70% FOIR, 27x Multiplier | B: 65% FOIR, 25x Multiplier | C/D: 50% FOIR, 20x Multiplier
-              // Salary 50k-75k: Super A/A/Govt: 60% FOIR, 25x | B: 55% FOIR, 22x | C/D: 45% FOIR, 18x
-              // Salary 25k-50k: Super A/A/Govt: 50% FOIR, 20x | B: 50% FOIR, 18x | C/D: 40% FOIR, 15x
+              // HDFC Bank Master Excel Policy
               const catUpper = String(bankCategory || '').toUpperCase();
               let hdfcMultiplier = matchedFoir.multiplier || 27;
               let hdfcFoir = matchedFoir.maxFoir || 70;
@@ -565,6 +766,164 @@ const matchCategory = (cat1, cat2) => {
               bankInput.multiplierOverride = hdfcMultiplier;
               bankInput.foirOverride = hdfcFoir;
               if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
+            } else if (name.toLowerCase().includes('kotak') || id === 'kotak') {
+              // Kotak Mahindra Bank Excel Policy
+              const catUpper = String(bankCategory || '').toUpperCase();
+              let kotakMult = matchedFoir.multiplier || 27;
+              if (catUpper === 'SUPER A') kotakMult = 31;
+              else if (catUpper === 'A' || catUpper === 'GOVT') kotakMult = 27;
+              else if (catUpper === 'B') kotakMult = 25;
+              else if (catUpper === 'C') kotakMult = 20;
+              else if (catUpper === 'D') kotakMult = 18;
+
+              let kotakFoir = catUpper === 'D' ? 60 : 70;
+              const hasLiveHl = (calculatorInput.existingLoanTypes && (calculatorInput.existingLoanTypes.includes('Home Loan') || calculatorInput.existingLoanTypes.includes('HL'))) ||
+                (Array.isArray(calculatorInput.loansForBT) && calculatorInput.loansForBT.some(l => l.type === 'Home Loan'));
+              if (hasLiveHl && catUpper !== 'D') {
+                kotakFoir += 5; // 70% + 5% IF HL LIVE >= 10 LAKHS
+              }
+              bankInput.multiplierOverride = kotakMult;
+              bankInput.foirOverride = kotakFoir;
+              if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
+            } else if (name.toLowerCase().includes('tata') || id === 'tata') {
+              // Tata Capital Excel Policy
+              const catUpper = String(bankCategory || '').toUpperCase();
+              let tataMult = 24;
+              if (income >= 75000) {
+                tataMult = (catUpper === 'C' ? 18 : (catUpper === 'B' ? 25 : 27));
+              } else if (income >= 50000) {
+                tataMult = (catUpper === 'C' ? 18 : (catUpper === 'B' ? 22 : 24));
+              } else {
+                tataMult = (catUpper === 'C' ? 15 : (catUpper === 'B' ? 19 : 20));
+              }
+              bankInput.multiplierOverride = tataMult;
+              bankInput.foirOverride = matchedFoir.maxFoir || 70;
+              if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
+            } else if (name.toLowerCase().includes('bajaj') || id === 'bajaj') {
+              // Bajaj Finance Excel Policy
+              const hasHl = (calculatorInput.existingLoanTypes && (calculatorInput.existingLoanTypes.includes('Home Loan') || calculatorInput.existingLoanTypes.includes('HL'))) ||
+                (Array.isArray(calculatorInput.loansForBT) && calculatorInput.loansForBT.some(l => l.type === 'Home Loan'));
+              let bajajFoir = income < 50000 ? 60 : 65;
+              if (hasHl) bajajFoir += (income < 50000 ? 10 : 5);
+              bankInput.foirOverride = Math.min(75, bajajFoir);
+              bankInput.multiplierOverride = matchedFoir.multiplier || 28;
+              if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
+            } else if (name.toLowerCase().includes('bandhan') || id === 'bandhan') {
+              // Bandhan Bank Excel Policy
+              let bFoir = 50;
+              if (income >= 75001) bFoir = 70;
+              else if (income >= 50001) bFoir = 65;
+              else if (income >= 30001) bFoir = 60;
+              else bFoir = 50;
+              bankInput.foirOverride = bFoir;
+              bankInput.multiplierOverride = matchedFoir.multiplier || 24;
+              bankInput.ccObligationPercentOverride = 3;
+            } else if (name.toLowerCase().includes('au ') || id === 'au-bank' || id === 'au') {
+              // AU Small Finance Bank Excel Policy
+              const catUpper = String(bankCategory || '').toUpperCase();
+              const isPriority1 = catUpper.includes('SUPER') || catUpper === 'A' || catUpper === 'B' || catUpper === 'GOVT' || catUpper === 'D';
+              let auFoir = 60;
+              let auMult = 18;
+              if (income >= 100000) {
+                auFoir = isPriority1 ? 75 : 70;
+                auMult = isPriority1 ? 24 : 20;
+              } else if (income >= 75000) {
+                auFoir = isPriority1 ? 70 : 65;
+                auMult = isPriority1 ? 22 : 18;
+              } else if (income >= 50000) {
+                auFoir = isPriority1 ? 65 : 60;
+                auMult = isPriority1 ? 20 : 16;
+              } else {
+                auFoir = isPriority1 ? 60 : 50;
+                auMult = isPriority1 ? 18 : 15;
+              }
+              bankInput.foirOverride = auFoir;
+              bankInput.multiplierOverride = auMult;
+              if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
+            } else if (name === 'Axis Finance' || id === 'axis') {
+              // Axis Finance Excel Policy
+              const catUpper = String(bankCategory || '').toUpperCase();
+              let axFoir = 70;
+              if (catUpper === 'B') axFoir = 65;
+              else if (catUpper === 'C') axFoir = 60;
+              else if (catUpper === 'D') axFoir = 50;
+
+              let axMult = 24;
+              if (income >= 100000) axMult = 30;
+              else if (income >= 75000) axMult = 28;
+              else if (income >= 50000) axMult = 26;
+              else axMult = 24;
+              if (catUpper === 'D') axMult = 15;
+              bankInput.foirOverride = axFoir;
+              bankInput.multiplierOverride = axMult;
+              if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
+            } else if (name.toLowerCase().includes('chola') || id === 'chola') {
+              // Chola Finance Excel Policy
+              const catUpper = String(bankCategory || '').toUpperCase();
+              const isPriority = catUpper.includes('SUPER') || catUpper === 'A' || catUpper === 'B' || catUpper === 'GOVT';
+              let cholaFoir = income >= 30000 ? (isPriority ? 70 : 65) : (isPriority ? 65 : 55);
+              let cholaMult = (catUpper.includes('SUPER') || catUpper === 'GOVT') ? 35 : (isPriority ? 28 : 25);
+              bankInput.foirOverride = cholaFoir;
+              bankInput.multiplierOverride = cholaMult;
+              if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
+            } else if (name.toLowerCase().includes('idfc') || id === 'idfc') {
+              // IDFC First Bank Excel Policy
+              const catUpper = String(bankCategory || '').toUpperCase();
+              let idfcMult = 23;
+              if (catUpper.includes('SUPER') || catUpper === 'A' || catUpper === 'GOVT') {
+                idfcMult = income > 75000 ? 27 : (income >= 50000 ? 25 : 23);
+              } else if (catUpper === 'B') {
+                idfcMult = income > 75000 ? 22 : (income >= 50000 ? 20 : 16);
+              } else {
+                idfcMult = income > 75000 ? 15 : (income >= 50000 ? 13 : 11);
+              }
+              let idfcFoir = income > 75000 ? 70 : (income >= 50000 ? 65 : 60);
+              bankInput.foirOverride = idfcFoir;
+              bankInput.multiplierOverride = idfcMult;
+              if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
+            } else if (name.toLowerCase().includes('incred') || id === 'incred') {
+              // Incred Finance Excel Policy
+              let incFoir = 40;
+              if (income > 40000) incFoir = 65;
+              else if (income >= 30000) incFoir = 60;
+              else if (income >= 20000) incFoir = 50;
+              else incFoir = 40;
+              bankInput.foirOverride = incFoir + 5; // +5% for account aggregator
+              bankInput.multiplierOverride = matchedFoir.multiplier || 22;
+              if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
+            } else if (name.toLowerCase().includes('aditya') || name.toLowerCase().includes('abfl') || id === 'abfl') {
+              // Aditya Birla Finance Excel Policy
+              let abflFoir = 50;
+              if (income > 100000) abflFoir = 70;
+              else if (income >= 50000) abflFoir = 65;
+              else if (income >= 25000) abflFoir = 60;
+              else abflFoir = 50;
+              bankInput.foirOverride = abflFoir;
+              bankInput.multiplierOverride = matchedFoir.multiplier || 26;
+              if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
+            } else if (name.toLowerCase().includes('icici') || id === 'icici') {
+              // ICICI Bank Master Excel Policy
+              // FOIR: 45% to 65% (HL RUNNING - 70%) | Open Market: 45% to 55%
+              const hasLiveHl = (calculatorInput.existingLoanTypes && (calculatorInput.existingLoanTypes.includes('Home Loan') || calculatorInput.existingLoanTypes.includes('HL'))) ||
+                (Array.isArray(calculatorInput.loansForBT) && calculatorInput.loansForBT.some(l => l.type === 'Home Loan'));
+              const catUpper = String(bankCategory || '').toUpperCase();
+              let iciciFoir = 65;
+              if (catUpper.includes('OPEN') || catUpper === 'C' || catUpper === 'D' || catUpper.includes('UNLISTED')) {
+                iciciFoir = income >= 50000 ? 55 : 45;
+              } else {
+                if (hasLiveHl) {
+                  iciciFoir = 70; // Excel Policy: HL RUNING - 70%
+                } else if (income >= 50000) {
+                  iciciFoir = 65;
+                } else if (income >= 30000) {
+                  iciciFoir = 55;
+                } else {
+                  iciciFoir = 45;
+                }
+              }
+              bankInput.foirOverride = iciciFoir;
+              bankInput.multiplierOverride = matchedFoir.multiplier || (catUpper.includes('OPEN') ? 20 : 27);
+              bankInput.ccObligationPercentOverride = 5;
             } else {
               // Standard Bank FOIR logic
               if (matchedFoir.multiplier) bankInput.multiplierOverride = Number(matchedFoir.multiplier);
@@ -595,6 +954,15 @@ const matchCategory = (cat1, cat2) => {
             if (isIndusind && isCibilMinusOne) {
               maxM = Math.min(maxM, 48); // Excel Policy: CIBIL -1 H TO 48 TENURE
             }
+            // Finnable CIBIL -1 capped to 36 months
+            if ((name.toLowerCase().includes('finnable') || id === 'finnable') && isCibilMinusOne) {
+              maxM = Math.min(maxM, 36);
+            }
+            // Bajaj ₹1L+ salary: up to 108 months
+            const income = calculatorInput.monthlyIncome || calculatorInput.basicSalary || 0;
+            if ((name.toLowerCase().includes('bajaj') || id === 'bajaj') && income >= 100000) {
+              maxM = Math.max(maxM, 108);
+            }
             bankInput.maxTenureOverride = maxM;
           }
         }
@@ -614,16 +982,16 @@ const matchCategory = (cat1, cat2) => {
       }
 
       // 👨 INJECT DYNAMIC BACHELOR CAPPING OVERRIDES
-      const isBypassBachelor = name === 'Axis Bank' || id === 'axis-bank' || name === 'IndusInd Bank' || id === 'indusind' || name === 'HDFC Bank' || id === 'hdfc';
-      if (!isBypassBachelor && adminAllConfig.bachelorCapping?.enabled && adminAllConfig.bachelorCapping?.limits) {
+      // Only apply if the bank's policy specifies bachelor capping (AU Small Finance Bank)
+      const bankHasBachelorCap = (name.toLowerCase().includes('au ') || id === 'au-bank' || id === 'au');
+      if (bankHasBachelorCap && adminAllConfig.bachelorCapping?.enabled && adminAllConfig.bachelorCapping?.limits) {
         if (calculatorInput.maritalStatus === 'single' && calculatorInput.livingStatus === 'rented') {
-          const rentedLimit = adminAllConfig.bachelorCapping.limits['rented_bachelor'];
-          if (rentedLimit !== null && rentedLimit !== undefined && rentedLimit !== '') {
-             bankInput.dynamicBachelorLimitOverride = rentedLimit;
-             bankInput.dynamicBachelorCapReason = 'Rented / Living Alone Bachelor Limit Applied';
-          }
+          const rentedLimit = adminAllConfig.bachelorCapping.limits['rented_bachelor'] || 500000;
+          bankInput.dynamicBachelorLimitOverride = rentedLimit;
+          bankInput.dynamicBachelorCapReason = 'AU Bank PG/Rented Bachelor Policy Cap (Max ₹5 Lakhs)';
         }
       }
+
 
       // Execute base calculator
       const result = calculator(bankInput);
@@ -650,10 +1018,12 @@ const matchCategory = (cat1, cat2) => {
           tenureMonths = Math.min(tenureMonths, result.loanTenureMonths);
         }
 
-        // IndusInd Bank Excel Policy: If CIBIL = -1 (New to Credit), tenure capped to 48 months
-        const rawCibil = calculatorInput.cibilScore ?? calculatorInput.customerReportedCreditScore;
-        if ((name === 'IndusInd Bank' || id === 'indusind') && (rawCibil === -1 || rawCibil === '-1' || Number(rawCibil) === -1)) {
-          tenureMonths = Math.min(tenureMonths, 48);
+        // IndusInd Bank & Finnable Excel Policy: CIBIL = -1 (New to Credit) tenure capping
+        if ((name === 'IndusInd Bank' || id === 'indusind') && isNtc) {
+          tenureMonths = Math.min(tenureMonths, 48); // IndusInd -1 capped to 48 months
+        }
+        if ((name.toLowerCase().includes('finnable') || id === 'finnable') && isNtc) {
+          tenureMonths = Math.min(tenureMonths, 36); // Finnable -1 capped to 36 months
         }
         const tenureYears = tenureMonths / 12;
 
@@ -689,7 +1059,15 @@ const matchCategory = (cat1, cat2) => {
         let provisionalFoirLoanAmount = calculateLoanAmountFromEMI(availableEMI, effectiveRate, tenureYears);
 
         // Sanction & bachelor limits:
-        const maxLoanCap = bankInput.maxLoanOverride || result.maxLoanCap || 5000000;
+        let maxLoanCap = bankInput.maxLoanOverride || result.maxLoanCap || 5000000;
+        // AU Bank NTC (-1) capped to 3 Lakhs
+        if ((name.toLowerCase().includes('au ') || id === 'au-bank' || id === 'au') && isNtc) {
+          maxLoanCap = Math.min(maxLoanCap, 300000);
+        }
+        // Finnable NTC (-1) capped to 4 Lakhs
+        if ((name.toLowerCase().includes('finnable') || id === 'finnable') && isNtc) {
+          maxLoanCap = Math.min(maxLoanCap, 400000);
+        }
         let maxEligibleLoan = Math.min(multiplierLoanAmount, provisionalFoirLoanAmount, maxLoanCap);
         if (bankInput.dynamicBachelorLimitOverride) {
           maxEligibleLoan = Math.min(maxEligibleLoan, bankInput.dynamicBachelorLimitOverride);
@@ -702,20 +1080,41 @@ const matchCategory = (cat1, cat2) => {
         let appliedRoiSlab = '< ₹10 Lakhs';
         if (bankInput.matchedRateConfig) {
           const mRate = bankInput.matchedRateConfig;
-          if (maxEligibleLoan >= 2000000 && mRate.roiAbove20L) {
-            finalRate = Number(mRate.roiAbove20L);
+          if (maxEligibleLoan >= 5000000 && mRate.roiAbove50L) {
+            finalRate = Number(mRate.roiAbove50L);
+            appliedRoiSlab = '≥ ₹50 Lakhs';
+          } else if (maxEligibleLoan >= 3500000 && mRate.roiAbove35L) {
+            finalRate = Number(mRate.roiAbove35L);
+            appliedRoiSlab = '≥ ₹35 Lakhs';
+          } else if (maxEligibleLoan >= 2000000 && (mRate.roiAbove20L || mRate.roi20Lto30L)) {
+            finalRate = Number(mRate.roiAbove20L || mRate.roi20Lto30L);
             appliedRoiSlab = '≥ ₹20 Lakhs';
           } else if (maxEligibleLoan >= 1500000 && (mRate.roi15Lto20L || mRate.roiAbove15L)) {
             finalRate = Number(mRate.roi15Lto20L || mRate.roiAbove15L);
             appliedRoiSlab = '₹15 Lakhs - ₹20 Lakhs';
-          } else if (maxEligibleLoan >= 1000000 && mRate.roi10Lto15L) {
-            finalRate = Number(mRate.roi10Lto15L);
+          } else if (maxEligibleLoan >= 1000000 && (mRate.roi10Lto15L || mRate.roiAbove10L || mRate.roi10Lto20L || mRate.roiAbove10L75kSal)) {
+            finalRate = Number(mRate.roi10Lto15L || mRate.roiAbove10L || mRate.roi10Lto20L || mRate.roiAbove10L75kSal);
             appliedRoiSlab = '₹10 Lakhs - ₹15 Lakhs';
-          } else if (mRate.roi5Lto10L || mRate.roiBelow10L) {
-            finalRate = Number(mRate.roi5Lto10L || mRate.roiBelow10L);
+          } else if (mRate.roi5Lto10L || mRate.roiBelow10L || mRate.roi1Lto10L || mRate.roiBelow20L || mRate.roi1Lto12L || mRate.roiAbove5L || mRate.roi5Lto25L) {
+            finalRate = Number(mRate.roi5Lto10L || mRate.roiBelow10L || mRate.roi1Lto10L || mRate.roiBelow20L || mRate.roi1Lto12L || mRate.roiAbove5L || mRate.roi5Lto25L);
             appliedRoiSlab = '< ₹10 Lakhs';
           }
+
+          // ICICI Bank Excel Special Notes:
+          // CIBIL 775+ & SALARY 75K+ & LOAN AMOUNT ≥ 20 LAC = 9.99%
+          // CIBIL 750 TO 774 + SALARY 75K+ & LOAN AMOUNT ≥ 20 LAC = 10.30%
+          if (isIciciBankInst && maxEligibleLoan >= 2000000 && monthlyIncome >= 75000) {
+            const numCibil = rawCibil !== null && rawCibil !== undefined && rawCibil !== '' ? Number(rawCibil) : 750;
+            if (numCibil >= 775) {
+              finalRate = 9.99;
+              appliedRoiSlab = 'CIBIL 775+ & ₹75k+ Sal (≥₹20L)';
+            } else if (numCibil >= 750) {
+              finalRate = 10.30;
+              appliedRoiSlab = 'CIBIL 750–774 & ₹75k+ Sal (≥₹20L)';
+            }
+          }
         }
+
 
         // -------------------------------------------------------------
         // STEP 3: RE-CROSS-VERIFY CAPACITY WITH FINAL SLAB ROI
@@ -727,6 +1126,25 @@ const matchCategory = (cat1, cat2) => {
         maxEligibleLoan = Math.min(multiplierLoanAmount, finalFoirLoanAmount, maxLoanCap);
         if (bankInput.dynamicBachelorLimitOverride) {
           maxEligibleLoan = Math.min(maxEligibleLoan, bankInput.dynamicBachelorLimitOverride);
+        }
+
+        // ICICI Bank Rajasthan Minimum Ticket Size Verification: ₹6.10 Lakhs
+        if (isIciciBankInst) {
+          const isRajasthanUser = String(calculatorInput.state || '').toLowerCase().includes('rajasthan') ||
+                                  String(calculatorInput.city || '').toLowerCase().includes('jaipur') ||
+                                  String(calculatorInput.city || '').toLowerCase().includes('jodhpur') ||
+                                  String(calculatorInput.city || '').toLowerCase().includes('kota') ||
+                                  String(calculatorInput.city || '').toLowerCase().includes('udaipur') ||
+                                  String(calculatorInput.city || '').toLowerCase().includes('bikaner') ||
+                                  String(calculatorInput.city || '').toLowerCase().includes('ajmer');
+          if (isRajasthanUser && maxEligibleLoan < 610000) {
+            return {
+              bankName: name,
+              eligible: false,
+              reason: `Maximum eligible capacity (₹${Math.round(maxEligibleLoan).toLocaleString()}) is below ICICI Bank minimum ticket size of ₹6.10 Lakhs in Rajasthan.`,
+              category: bankCategory
+            };
+          }
         }
 
         // If customer optionally requested an amount, cap to requested amount, else customer receives 100% max eligibility
@@ -749,9 +1167,13 @@ const matchCategory = (cat1, cat2) => {
         result.foirPercentage = effectiveFOIR;
         result.appliedRoiSlab = appliedRoiSlab;
 
+        const isBypassBachelor = id !== 'au-bank' && id !== 'au_bank';
         if (isBypassBachelor) {
           result.bachelorCapped = false;
           result.bachelorCapReason = null;
+        } else if (bankInput.dynamicBachelorLimitOverride && finalLoanAmount <= bankInput.dynamicBachelorLimitOverride) {
+          result.bachelorCapped = true;
+          result.bachelorCapReason = bankInput.dynamicBachelorCapReason || 'AU Bank PG/Rented Bachelor Policy Cap (Max ₹5 Lakhs)';
         }
 
         if (!result.details) result.details = {};
