@@ -95,6 +95,15 @@ const defaultConfigs = {
     loanCapping: { absoluteMaxLoan: 5000000, minLoanAmount: 50000, bachelorCap: 2500000 },
     tenureRules: { minTenureMonths: 12, maxTenureMonths: 84 },
     foirSettings: { categoryBasedFOIR: { 'Super A': 75, 'A': 75, 'B': 75, 'C': 75, 'Govt': 75 } }
+  },
+  'L&T Finance': {
+    interestRates: { defaultRate: 12.50, categoryRates: { 'Super A': 11.50, 'A': 11.50, 'B': 11.50, 'C': 13.50, 'D': 14.50, 'Govt': 11.50 } },
+    loanCapping: { absoluteMaxLoan: 3000000, minLoanAmount: 100000, bachelorCap: null, rentedCap: 2000000 },
+    tenureRules: { minTenureMonths: 12, maxTenureMonths: 72 },
+    foirSettings: { categoryBasedFOIR: { 'Super A': 80, 'A': 80, 'B': 80, 'C': 75, 'D': 70, 'Govt': 80 } },
+    multiplierRules: { categoryBasedMultiplier: { 'Super A': 24, 'A': 24, 'B': 24, 'C': 20, 'D': 16, 'Govt': 24 } },
+    creditScoreRules: { minCreditScore: 720, recommendedScore: 750, premiumScore: 775, autoRejectionThreshold: 720 },
+    demographics: { minAge: 21, maxAge: 60, retirementAge: 60, minSalary: 25000, minWorkExperience: 6, ccObligation: 5, allowCcBt: false }
   }
 };
 
