@@ -5191,6 +5191,146 @@ const UnifiedBankPolicyManager = () => {
                         <td>Excel Policy: CO APPLICANT AGE: 23 (Mandatory for loans above ₹20 Lakhs in Cat A)</td>
                       </tr>
                     )}
+                    {(activeConfigBank?.id === 'finnable' || activeConfigBank?.name?.toLowerCase().includes('finnable')) && (
+                      <>
+                        <tr>
+                          <td><strong>Tier 1 Cities Minimum Salary</strong></td>
+                          <td>
+                            <div className="table-input-cell highlight">
+                              <span>₹</span>
+                              <input 
+                                type="number"
+                                value={policyData?.demographics?.minSalaryTier1 ?? 20000}
+                                onChange={(e) => {
+                                  const val = Number(e.target.value);
+                                  setPolicyData(prev => ({
+                                    ...prev,
+                                    demographics: { ...(prev?.demographics || {}), minSalaryTier1: val }
+                                  }));
+                                }}
+                              />
+                            </div>
+                          </td>
+                          <td style={{ color: '#10B981', fontWeight: 600 }}>₹20,000</td>
+                          <td>Excel Row 24: Delhi NCR, Mumbai MMR, Bangalore, Chennai, Hyderabad</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Tier 2 / Other Cities Minimum Salary</strong></td>
+                          <td>
+                            <div className="table-input-cell highlight">
+                              <span>₹</span>
+                              <input 
+                                type="number"
+                                value={policyData?.demographics?.minSalaryTier2 ?? 15000}
+                                onChange={(e) => {
+                                  const val = Number(e.target.value);
+                                  setPolicyData(prev => ({
+                                    ...prev,
+                                    demographics: { ...(prev?.demographics || {}), minSalaryTier2: val }
+                                  }));
+                                }}
+                              />
+                            </div>
+                          </td>
+                          <td style={{ color: '#10B981', fontWeight: 600 }}>₹15,000</td>
+                          <td>Excel Row 24: All other locations outside Tier 1 list</td>
+                        </tr>
+                        <tr>
+                          <td><strong>New to Credit (NTC -1) Maximum Loan Cap</strong></td>
+                          <td>
+                            <div className="table-input-cell highlight">
+                              <span>₹</span>
+                              <input 
+                                type="number"
+                                value={policyData?.demographics?.ntcMaxLoan ?? 400000}
+                                onChange={(e) => {
+                                  const val = Number(e.target.value);
+                                  setPolicyData(prev => ({
+                                    ...prev,
+                                    demographics: { ...(prev?.demographics || {}), ntcMaxLoan: val }
+                                  }));
+                                }}
+                              />
+                            </div>
+                          </td>
+                          <td style={{ color: '#10B981', fontWeight: 600 }}>₹4,00,000</td>
+                          <td>Excel Row 19: NTC score cases capped to ₹4 Lakhs</td>
+                        </tr>
+                        <tr>
+                          <td><strong>New to Credit (NTC -1) Maximum Tenure</strong></td>
+                          <td>
+                            <div className="table-input-cell highlight">
+                              <input 
+                                type="number"
+                                value={policyData?.demographics?.ntcMaxTenure ?? 36}
+                                onChange={(e) => {
+                                  const val = Number(e.target.value);
+                                  setPolicyData(prev => ({
+                                    ...prev,
+                                    demographics: { ...(prev?.demographics || {}), ntcMaxTenure: val }
+                                  }));
+                                }}
+                              />
+                              <span>Months</span>
+                            </div>
+                          </td>
+                          <td style={{ color: '#10B981', fontWeight: 600 }}>36 Months</td>
+                          <td>Excel Row 21: NTC score cases capped to 36 Months</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Gold Loan & KCC Obligation Factor</strong></td>
+                          <td>
+                            <div className="table-input-cell">
+                              <input 
+                                type="number"
+                                value={policyData?.demographics?.goldLoanObligationPercent ?? 5}
+                                onChange={(e) => {
+                                  const val = Number(e.target.value);
+                                  setPolicyData(prev => ({
+                                    ...prev,
+                                    demographics: { ...(prev?.demographics || {}), goldLoanObligationPercent: val, kccObligationPercent: val }
+                                  }));
+                                }}
+                              />
+                              <span>%</span>
+                            </div>
+                          </td>
+                          <td style={{ color: '#10B981', fontWeight: 600 }}>5%</td>
+                          <td>Excel Row 11: CC - 5% / GOLD LOAN - 5% / KCC - 5%</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Form 16 Mandate Threshold</strong></td>
+                          <td>
+                            <div className="table-input-cell highlight">
+                              <span>₹</span>
+                              <input 
+                                type="number"
+                                value={policyData?.demographics?.form16Threshold ?? 500000}
+                                onChange={(e) => {
+                                  const val = Number(e.target.value);
+                                  setPolicyData(prev => ({
+                                    ...prev,
+                                    demographics: { ...(prev?.demographics || {}), form16Threshold: val }
+                                  }));
+                                }}
+                              />
+                            </div>
+                          </td>
+                          <td style={{ color: '#10B981', fontWeight: 600 }}>₹5,00,000</td>
+                          <td>Excel Row 26: If loan amount ≥ ₹5 Lakhs, Form 16 verification is mandatory</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Processing Fee (PF) Range</strong></td>
+                          <td>
+                            <div className="table-input-cell">
+                              <span style={{ fontSize: '0.85rem', color: '#10B981', fontWeight: 600 }}>2% to 6%</span>
+                            </div>
+                          </td>
+                          <td style={{ color: '#10B981', fontWeight: 600 }}>2% – 6%</td>
+                          <td>Excel Row 7: PF 2% To 6%</td>
+                        </tr>
+                      </>
+                    )}
                   </tbody>
                 </table>
               </div>

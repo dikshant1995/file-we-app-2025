@@ -48,7 +48,7 @@ import { INDUSIND_BANK_EXCEL_POLICY } from '../config/indusindBankPolicy.js';
 import { HDFC_BANK_EXCEL_POLICY } from '../config/hdfcBankPolicy.js';
 import { getCityTier } from '../utils/policyUtils.js';
 import { getAbflROI } from '../config/abflBankPolicy.js';
-import { isFinnableTier1City, FINNABLE_NEGATIVE_PROFILES } from '../config/finnableBankPolicy.js';
+import { isFinnableTier1City, FINNABLE_NEGATIVE_PROFILES, isFinnableNegativeIndustry, isSolePropAllowedZone } from '../config/finnableBankPolicy.js';
 
 /**
  * Universal Bank Calculator for Institutional Banks without legacy hardcoded calculators
@@ -1328,6 +1328,30 @@ const matchCategory = (cat1, cat2) => {
               bankName: name,
               eligible: false,
               reason: `Applicant profile '${designation}' is on Finnable Finance negative profile list (Excel Row 29).`,
+              category: bankCategory
+            };
+          }
+        }
+
+        // Negative Industry Check (Excel Row 30: Bars, Event management, Spa & saloon, Media)
+        const companyOrIndustry = String(calculatorInput.industry || calculatorInput.companyType || calculatorInput.companyName || '').toLowerCase().trim();
+        if (companyOrIndustry && isFinnableNegativeIndustry(companyOrIndustry)) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Company/Industry '${companyOrIndustry}' is in Finnable Finance negative industry list (Excel Row 30: Bars, Event management, Spa & Saloon, Media).`,
+            category: bankCategory
+          };
+        }
+
+        // Sole Proprietorship Geographic check (Excel Row 30: Sole proprietorship is only allowed in West and South zones)
+        const compType = String(calculatorInput.companyType || '').toLowerCase().trim();
+        if (compType.includes('proprietor') || compType === 'proprietorship' || compType === 'sole prop') {
+          if (calculatorInput.state && !isSolePropAllowedZone(calculatorInput.state)) {
+            return {
+              bankName: name,
+              eligible: false,
+              reason: `Finnable Finance policy: Sole Proprietorship firms are allowed only in West and South zones (Excel Row 30). Current State: ${calculatorInput.state}.`,
               category: bankCategory
             };
           }
@@ -2819,6 +2843,16 @@ const matchCategory = (cat1, cat2) => {
         result.details.bankCreditCardObligation = bankInput.creditCardObligation || 0;
         result.details.creditCardObligationPercentage = (bankInput.creditCardObligationPercentage || 5) + '%';
         result.details.totalObligations = totalObligations;
+
+        if (isFinnableInst && maxEligibleLoan >= 500000) {
+          result.form16Required = true;
+          result.form16Note = 'Form 16 verification is required for loan amounts ≥ ₹5 Lakhs (Excel Row 26).';
+          result.details.specialRequirement = 'Form 16 verification mandatory (Loan ≥ ₹5 Lakhs)';
+        }
+        if (isFinnableInst) {
+          result.processingFee = 2.5; // Excel: 2% To 6%
+          result.details.processingFeeRange = '2% - 6% (Excel: 2% To 6%)';
+        }
       }
 
       const bankEndTime = performance.now();
@@ -2832,7 +2866,7 @@ const matchCategory = (cat1, cat2) => {
         salaryMode: calculatorInput.salaryMode,
         adminApplied: true,
         btConfig: adminAllConfig.btConfig || config.btConfig,
-        processingFee: adminAllConfig.feesAndCharges?.processingFeePercentage,
+        processingFee: isFinnableInst ? (adminAllConfig.feesAndCharges?.processingFeePercentage || 2.5) : adminAllConfig.feesAndCharges?.processingFeePercentage,
       };
 
       if (result.eligible) {

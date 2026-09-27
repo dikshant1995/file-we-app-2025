@@ -874,6 +874,26 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
                           </div>
                         )}
 
+                        {/* SPECIAL POLICY NOTES (E.G. FORM 16 VERIFICATION FOR FINNABLE) */}
+                        {bank.form16Note && (
+                          <div className="policy-note-box" style={{
+                            background: '#F0FDF4',
+                            border: '1px solid #BBF7D0',
+                            padding: '10px 14px',
+                            borderRadius: '10px',
+                            marginBottom: '15px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            color: '#166534',
+                            fontSize: '0.8rem',
+                            fontWeight: 500
+                          }}>
+                            <span style={{ fontSize: '1.1rem' }}>📋</span>
+                            <span>{bank.form16Note}</span>
+                          </div>
+                        )}
+
                         {/* BT MODE DISPLAY */}
                         {(bank.isBTMode || bank.btType?.includes('BT') || bank.calculationMethod?.includes('BT')) ? (
                           <div className="bt-mode-display" style={{ background: '#EEF3FA', border: '1px solid #BFDBFE', padding: '14px 16px', borderRadius: '10px', marginBottom: '16px' }}>
