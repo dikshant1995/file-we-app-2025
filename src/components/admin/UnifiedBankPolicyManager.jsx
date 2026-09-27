@@ -2633,6 +2633,42 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               )}
 
+              {(activeConfigBank?.id === 'bajaj' || activeConfigBank?.name?.toLowerCase().includes('bajaj')) && (
+                <div style={{
+                  background: 'rgba(0, 114, 187, 0.10)',
+                  border: '1.5px solid rgba(0, 114, 187, 0.35)',
+                  borderRadius: '8px',
+                  padding: '10px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  color: '#38bdf8',
+                  fontSize: '0.88rem'
+                }}>
+                  <AlertTriangle size={18} />
+                  <span><strong>Bajaj Finance Policy (Excel Sheet: BAJAJ - Section 5):</strong> Absolute maximum loan sanction is <strong>₹50 Lakhs (50LAC)</strong> across all categories (Super A, A, B, C, D, Govt; Min loan ₹1 Lakh). <strong>Unlisted Company Cap:</strong> Strictly capped at <strong>₹28 Lakhs</strong> (<code>UNLISTED M 28LAC</code>). <strong>Sal Lite Program:</strong> Maximum loan capped at <strong>₹14 Lakhs</strong> (<code>SAL LITE 14LAC</code>).</span>
+                </div>
+              )}
+
+              {(activeConfigBank?.id === 'au-bank' || activeConfigBank?.id === 'au' || activeConfigBank?.name?.toLowerCase().includes('au ')) && (
+                <div style={{
+                  background: 'rgba(111, 44, 145, 0.12)',
+                  border: '1.5px solid rgba(192, 132, 252, 0.35)',
+                  borderRadius: '8px',
+                  padding: '10px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  color: '#c084fc',
+                  fontSize: '0.88rem'
+                }}>
+                  <AlertTriangle size={18} />
+                  <span><strong>AU Small Finance Bank Policy (Excel Sheet: AU BANK - Section 3 & Row 36):</strong> Overall maximum loan capping is <strong>₹15 Lakhs (15LAC)</strong> across all categories (Super A, A, B, C, D, Govt; Min loan ₹50,000). <strong>Special Capping Limits:</strong> NTC (-1 CIBIL): <strong>₹3 Lakhs</strong> | Thin CIBIL Cat C/Others: <strong>₹7.50 Lakhs</strong> | PG / Rented Bachelor: <strong>₹5 Lakhs</strong>.</span>
+                </div>
+              )}
+
               <div className="table-responsive">
                 <table className="policy-table">
                   <thead>

@@ -1690,6 +1690,15 @@ const matchCategory = (cat1, cat2) => {
         if ((name.toLowerCase().includes('finnable') || id === 'finnable') && isNtc) {
           tenureMonths = Math.min(tenureMonths, 36); // Finnable -1 capped to 36 months
         }
+        // Bajaj Finance Excel Policy: 108 Months for ₹1L+ Salary, else 96 Months
+        if (name.toLowerCase().includes('bajaj') || id === 'bajaj') {
+          const maxBajajTenure = monthlyIncome >= 100000 ? 108 : 96;
+          tenureMonths = Math.min(tenureMonths, maxBajajTenure);
+        }
+        // AU Small Finance Bank Excel Policy: Max 60 Months (5 Years)
+        if (name.toLowerCase().includes('au ') || id === 'au-bank' || id === 'au') {
+          tenureMonths = Math.min(tenureMonths, 60);
+        }
         const tenureYears = tenureMonths / 12;
 
         const totalObligations = (calculatorInput.existingEMI || 0) + (bankInput.creditCardObligation || 0);
@@ -1725,10 +1734,39 @@ const matchCategory = (cat1, cat2) => {
 
         // Sanction & bachelor limits:
         let maxLoanCap = bankInput.maxLoanOverride || result.maxLoanCap || 5000000;
-        // AU Bank NTC (-1) capped to 3 Lakhs
-        if ((name.toLowerCase().includes('au ') || id === 'au-bank' || id === 'au') && isNtc) {
-          maxLoanCap = Math.min(maxLoanCap, 300000);
+        
+        // AU Small Finance Bank Excel Policy Cappings (Sheet: AU BANK):
+        if (name.toLowerCase().includes('au ') || id === 'au-bank' || id === 'au') {
+          maxLoanCap = Math.min(maxLoanCap, 1500000); // Excel: 15 lac overall capping
+          if (isNtc) {
+            maxLoanCap = Math.min(maxLoanCap, 300000); // Excel: NTC (-1) 3 lac
+          }
+          const catUpper = String(bankCategory || '').toUpperCase();
+          const isPriority1 = catUpper.includes('SUPER') || catUpper === 'A' || catUpper === 'B' || catUpper === 'GOVT' || catUpper === 'D';
+          // Exposure Capping from Section 4:
+          if (monthlyIncome < 50000) {
+            maxLoanCap = Math.min(maxLoanCap, 500000); // 5 Lac for <50k
+          } else if (!isPriority1) {
+            if (monthlyIncome < 75000) maxLoanCap = Math.min(maxLoanCap, 750000); // 7.5 Lac
+            else maxLoanCap = Math.min(maxLoanCap, 1000000); // 10 Lac
+          }
+          // Thin Cibil Cat C/ Others 7.5 lac
+          const numCibil = rawCibil !== null && rawCibil !== undefined && rawCibil !== '' ? Number(rawCibil) : 750;
+          if (!isPriority1 && numCibil < 700) {
+            maxLoanCap = Math.min(maxLoanCap, 750000);
+          }
         }
+
+        // Bajaj Finance Excel Policy Cappings (Sheet: BAJAJ):
+        if (name.toLowerCase().includes('bajaj') || id === 'bajaj') {
+          maxLoanCap = Math.min(maxLoanCap, 5000000); // 50LAC
+          const compType = String(calculatorInput.companyType || '').toLowerCase();
+          const catUpper = String(bankCategory || '').toUpperCase();
+          if (compType === 'unlisted' || catUpper === 'UNLISTED') {
+            maxLoanCap = Math.min(maxLoanCap, 2800000); // UNLISTED M 28LAC
+          }
+        }
+
         // Finnable NTC (-1) capped to 4 Lakhs
         if ((name.toLowerCase().includes('finnable') || id === 'finnable') && isNtc) {
           maxLoanCap = Math.min(maxLoanCap, 400000);
@@ -1813,6 +1851,34 @@ const matchCategory = (cat1, cat2) => {
               }
               appliedRoiSlab = '₹1L – ₹10L Slabs (13%–15%)';
             }
+          }
+
+          // SMFG India Credit Excel Rate preservation:
+          if (name.toLowerCase().includes('smfg') || id === 'smfg') {
+            finalRate = effectiveRate;
+            appliedRoiSlab = `Net Salary ${monthlyIncome >= 100000 ? '≥ ₹1 Lakh' : monthlyIncome >= 75000 ? '₹75k–₹1L' : monthlyIncome >= 50000 ? '₹50k–₹75k' : monthlyIncome >= 40000 ? '₹40k–₹50k' : monthlyIncome >= 35000 ? '₹35k–₹40k' : monthlyIncome >= 30000 ? '₹30k–₹35k' : '₹25k–₹30k'}`;
+          }
+
+          // Bajaj Finance Excel Rate (Sheet: BAJAJ - Section 2):
+          // 10L Above: 10%, 1 to 12 Lac (Sal Lite): 16%, Default case: 14%
+          if (name.toLowerCase().includes('bajaj') || id === 'bajaj') {
+            if (maxEligibleLoan >= 1000000) {
+              finalRate = 10.00;
+              appliedRoiSlab = '≥ ₹10 Lakhs (10.00%)';
+            } else if (maxEligibleLoan <= 1200000 && mRate.roi1Lto12L) {
+              finalRate = Number(mRate.roi1Lto12L);
+              appliedRoiSlab = '₹1L – ₹12L Sal Lite (16.00%)';
+            } else {
+              finalRate = Number(mRate.defaultRoi || 14.00);
+              appliedRoiSlab = 'Default Case (14.00%)';
+            }
+          }
+
+          // AU Small Finance Bank Excel Rate calculation (Sheet: AU BANK - Section 5):
+          if (name.toLowerCase().includes('au ') || id === 'au-bank' || id === 'au') {
+            const numCibil = rawCibil !== null && rawCibil !== undefined && rawCibil !== '' ? Number(rawCibil) : 750;
+            finalRate = getAuROI(maxEligibleLoan, numCibil, bankCategory);
+            appliedRoiSlab = `AU Matrix (CIBIL ${numCibil}, ₹${(maxEligibleLoan / 100000).toFixed(1)}L)`;
           }
         }
 
