@@ -1,4 +1,4 @@
-// Exact Master Policy Configuration for L&T FINANCE from Excel (Sheet: LNT)
+// Exact Bank Policy Configuration for L&T FINANCE from Bank Policy Excel: BANKS POLICYS.xlsx (Sheet: LNT)
 export const LNT_BANK_EXCEL_POLICY = {
   institutionName: 'L&T Finance',
   interestRates: [

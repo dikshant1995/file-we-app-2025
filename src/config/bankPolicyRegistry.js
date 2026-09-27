@@ -1,4 +1,4 @@
-// Central Master Registry of all 19 Institution Policies from BANKS POLICYS.xlsx
+// Central Bank Policy Registry of all 19 Institution Policies from BANKS POLICYS.xlsx
 import { AXIS_BANK_EXCEL_POLICY } from './axisBankPolicy.js';
 import { INDUSIND_BANK_EXCEL_POLICY } from './indusindBankPolicy.js';
 import { HDFC_BANK_EXCEL_POLICY } from './hdfcBankPolicy.js';

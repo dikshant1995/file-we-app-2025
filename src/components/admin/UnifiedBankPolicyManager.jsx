@@ -2157,7 +2157,7 @@ const UnifiedBankPolicyManager = () => {
                   fontSize: '0.88rem'
                 }}>
                   <AlertTriangle size={18} />
-                  <span><strong>L&T Finance Master Policy (from Excel):</strong> Maximum loan amount is <strong>₹30 Lakhs</strong> across all tiers (Min: ₹1 Lakh). <strong>Category D Rented Limit:</strong> If residing in rented accommodation, Category D is strictly capped at <strong>₹20 Lakhs</strong> (`30LAC/ RENTED -20LAC`).</span>
+                  <span><strong>L&T Finance Policy (from Bank Policy Excel: BANKS POLICYS.xlsx):</strong> Maximum loan amount is <strong>₹30 Lakhs</strong> across all tiers (Min: ₹1 Lakh). <strong>Category D Rented Limit:</strong> If residing in rented accommodation, Category D is strictly capped at <strong>₹20 Lakhs</strong> (`30LAC/ RENTED -20LAC`).</span>
                 </div>
               )}
 
@@ -2306,7 +2306,7 @@ const UnifiedBankPolicyManager = () => {
                   fontSize: '0.88rem'
                 }}>
                   <CheckCircle2 size={18} />
-                  <span><strong>L&T Finance Master Policy (from Excel):</strong> Repayment tenure is flat <strong>12 to 72 Months (Up to 6 Years)</strong> across all categories (Super A, A, B, C, D, and Govt).</span>
+                  <span><strong>L&T Finance Policy (from Bank Policy Excel: BANKS POLICYS.xlsx):</strong> Repayment tenure is flat <strong>12 to 72 Months (Up to 6 Years)</strong> across all categories (Super A, A, B, C, D, and Govt).</span>
                 </div>
               )}
 
@@ -2792,7 +2792,7 @@ const UnifiedBankPolicyManager = () => {
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38bdf8', fontWeight: 700, fontSize: '0.95rem' }}>
                     <CheckCircle2 size={18} />
-                    <span>L&T Finance Master Policy Rules (from Excel - Sheet: LNT)</span>
+                    <span>L&T Finance Policy Rules (from Bank Policy Excel: BANKS POLICYS.xlsx - Sheet: LNT)</span>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
                     <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>

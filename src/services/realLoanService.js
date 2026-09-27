@@ -35,7 +35,7 @@ import { protectAgainstProcessingFee } from '../utils/processingFeeGuard.js';
 // Import bank configuration service for logic bridge
 import { getBankConfig, getAllBankConfig } from './bankConfigService.js';
 
-// Import Bank Master Excel Policies from Registry
+// Import Bank Policies from Bank Policy Excel (BANKS POLICYS.xlsx) via Registry
 import { getExcelPolicyForBank } from '../config/bankPolicyRegistry.js';
 import { AXIS_BANK_EXCEL_POLICY } from '../config/axisBankPolicy.js';
 import { INDUSIND_BANK_EXCEL_POLICY } from '../config/indusindBankPolicy.js';
@@ -278,7 +278,7 @@ const matchCategory = (cat1, cat2) => {
       const adminAllConfig = getAllBankConfig(name, location);
       let uPolicy = adminAllConfig.unifiedPolicy;
 
-      // Master Policy Fallback from Excel Registry for ALL institutions
+      // Bank Policy Fallback from Bank Policy Excel (BANKS POLICYS.xlsx) for ALL institutions
       if (!uPolicy) {
         uPolicy = getExcelPolicyForBank(id, name);
       }
@@ -984,7 +984,7 @@ const matchCategory = (cat1, cat2) => {
               bankInput.multiplierOverride = matchedFoir.multiplier || (catUpper.includes('OPEN') ? 20 : 27);
               bankInput.ccObligationPercentOverride = 5;
             } else if (name.toLowerCase().includes('l&t') || name.toLowerCase().includes('lnt') || id === 'lnt') {
-              // L&T Finance Master Excel Policy (CIBIL 720+)
+              // L&T Finance Policy from Bank Policy Excel (BANKS POLICYS.xlsx - Sheet: LNT) (CIBIL 720+)
               // Salary Slabs: 2L+ Salary, 1L to 2L, 50k to 1L, 25k to 50k
               const catUpper = String(bankCategory || '').toUpperCase();
               let lntFoir = 55;
