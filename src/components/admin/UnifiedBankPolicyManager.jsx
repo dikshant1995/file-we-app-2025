@@ -615,24 +615,35 @@ const UnifiedBankPolicyManager = () => {
           const isFreshTata = isTataBank &&
             parsed.demographics?.maxAgeGovt === 60 &&
             parsed.demographics?.maxAgePvt === 58 &&
-            parsed.demographics?.minSalary === 25000;
+            parsed.demographics?.minLoanAmount === 75000;
 
           const isAxisFinBank = bank.id === 'axis-fin' || bank.id === 'axis' || bank.id === 'axis_fin' || (bank.name?.toLowerCase().includes('axis') && bank.name?.toLowerCase().includes('fin'));
           const isFreshAxisFin = isAxisFinBank &&
-            parsed.demographics?.minSalary === 25000 &&
-            Array.isArray(parsed.interestRates) &&
-            parsed.interestRates.some(r => r.roiAbove20L !== undefined);
+            parsed.demographics?.minTotalExperienceMonths === 6 &&
+            parsed.demographics?.minLoanAmount === 100000;
 
           const isPoonawalaBank = bank.id === 'poonawala' || bank.name?.toLowerCase().includes('poonawala') || bank.name?.toLowerCase().includes('poonawalla');
           const isFreshPoonawala = isPoonawalaBank &&
-            parsed.demographics?.minSalary === 30000 &&
-            parsed.demographics?.minAge === 21 &&
-            parsed.demographics?.maxAge === 60;
+            parsed.isFoirOnly === true &&
+            parsed.demographics?.minTotalExperienceMonths === 24 &&
+            parsed.demographics?.minLoanAmount === 100000;
+
+          const isAbflBank = bank.id === 'abfl' || bank.name?.toLowerCase().includes('abfl') || bank.name?.toLowerCase().includes('aditya');
+          const isFreshAbfl = isAbflBank &&
+            parsed.demographics?.minLoanAmount === 100000 &&
+            parsed.demographics?.minSalaryTier1 === 40000 &&
+            parsed.demographics?.maxTenureMonths === 84;
+
+          const isFinnableBank = bank.id === 'finnable' || bank.name?.toLowerCase().includes('finnable');
+          const isFreshFinnable = isFinnableBank &&
+            parsed.demographics?.minLoanAmount === 50000 &&
+            parsed.demographics?.minSalaryTier1 === 20000 &&
+            parsed.demographics?.maxTenureMonths === 60;
 
           const isValidRates = Array.isArray(parsed.interestRates) && parsed.interestRates.length > 0 && parsed.interestRates.every(r => r && typeof r === 'object');
           const isValidCapping = !parsed.loanCapping || (Array.isArray(parsed.loanCapping) && parsed.loanCapping.every(r => r && typeof r === 'object'));
 
-          if (hasMatchingCategories && (!isLntBank || isFreshLnt) && (!isPiramalBank || isFreshPiramal) && (!isSmfgBank || isFreshSmfg) && (!isCholaBank || isFreshChola) && (!isKotakBank || isFreshKotak) && (!isBandhanBank || isFreshBandhan) && (!isBajajBank || isFreshBajaj) && (!isAuBank || isFreshAu) && (!isTataBank || isFreshTata) && (!isAxisFinBank || isFreshAxisFin) && (!isPoonawalaBank || isFreshPoonawala) && isValidRates && isValidCapping) {
+          if (hasMatchingCategories && (!isLntBank || isFreshLnt) && (!isPiramalBank || isFreshPiramal) && (!isSmfgBank || isFreshSmfg) && (!isCholaBank || isFreshChola) && (!isKotakBank || isFreshKotak) && (!isBandhanBank || isFreshBandhan) && (!isBajajBank || isFreshBajaj) && (!isAuBank || isFreshAu) && (!isTataBank || isFreshTata) && (!isAxisFinBank || isFreshAxisFin) && (!isPoonawalaBank || isFreshPoonawala) && (!isAbflBank || isFreshAbfl) && (!isFinnableBank || isFreshFinnable) && isValidRates && isValidCapping) {
             merged = { ...merged, ...parsed };
           } else {
             // Stale cache contains old categories or corrupted data - purge it so user sees pure Bank Policy Excel

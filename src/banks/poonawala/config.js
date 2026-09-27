@@ -2,18 +2,30 @@
 export const poonawalaConfig = {
   id: 'poonawala',
   name: 'Poonawala Finance',
+  isFoirOnly: true, // Excel Sheet POONAWALA: FOIR-only institution (no multiplier)
   minAge: 21, // Minimum age requirement (Excel Row 90: MIN 21 YRS)
   maxAge: 60, // Maximum age at loan maturity (Excel Row 90: MAX 60 YRS)
   minCreditScore: 700, // Excel Row 93: 700 MINIMUM (0, -1 allowed in Tier 1, 2 cities & Cat A)
   minSalary: 30000, // Excel Row 89: MIN 30K
+  minExperienceMonths: 24, // Excel Row 10: 2YEARS (24 Months)
+  minLoanAmount: 100000, // Excel Row 26: 1 LAC
   maxLoanAmount: 6000000, // ₹60 Lakhs (Excel Section 5 Row 85: CAT A 60 LAC)
   interestRate: 12.50, // Standard default rate
+
+  // City-wise Loan Capping (Excel Section 5 Rows 86-87)
+  cityLoanCapping: {
+    'METRO': 6000000,
+    'TIER 1': 5000000,
+    'TIER 2': 4000000,
+    'OTHERS': 2500000
+  },
 
   // Incentive policy
   incentivePercentage: 0.25, // 25% of average incentive
   incentivePeriodMonths: 3, // Last 3 months
 
   // Category Loan Caps (Excel Section 5 Rows 84-85)
+
   maxLoanByCategory: {
     'SUPER-A': 6000000,
     'SUPER A': 6000000,

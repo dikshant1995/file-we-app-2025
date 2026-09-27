@@ -1,4 +1,30 @@
-// Exact Master Policy Configuration for FINNABLE FINANCE LTD from Excel
+// Exact Master Policy Configuration for FINNABLE FINANCE LTD from BANKS POLICYS.xlsx (Sheet: FINNABLE)
+
+export const FINNABLE_NEGATIVE_PROFILES = [
+  'army', 'bar manager', 'bishop', 'border security force', 'court assistant', 'crpf',
+  'delivery boy', 'delivery executive', 'delivery partner', 'diamond cutter', 'fitness coach',
+  'fitness manager', 'fitness trainee', 'freelancer', 'granthi', 'gurudwara manager', 'gym owner',
+  'gym trainer', 'helper', 'imam', 'indian navy', 'jeweler', 'jewelry consultant', 'labor',
+  'lawyer', 'lineman', 'majdoor', 'media', 'missionary', 'mufti', 'own business', 'owner',
+  'pandit', 'pastor', 'police', 'political parties', 'porter', 'priest', 'proprietor',
+  'purohit', 'self employed', 'trackman', 'security guard', 'safai karamchari', 'peon', 'driver'
+];
+
+export const FINNABLE_TIER1_CITIES = [
+  'delhi', 'new delhi', 'east delhi', 'delhi ncr', 'noida', 'greater noida', 'gurgaon', 'gurugram',
+  'gautam budh nagar', 'gauttam budhnagar', 'ghaziabad', 'faridabad',
+  'mumbai', 'navi mumbai', 'thane', 'dombivli', 'kalyan', 'karjat', 'mira bhayandar', 'panvel', 'navi mumbai panvel',
+  'bangalore', 'bengaluru', 'bangalore rural',
+  'chennai',
+  'hyderabad', 'secunderabad'
+];
+
+export const isFinnableTier1City = (city = '', state = '') => {
+  const normCity = String(city || '').toLowerCase().trim();
+  const normState = String(state || '').toLowerCase().trim();
+  return FINNABLE_TIER1_CITIES.some(c => normCity.includes(c) || c.includes(normCity));
+};
+
 export const FINNABLE_BANK_EXCEL_POLICY = {
   interestRates: [
     { category: 'Super A', minRoi: 22.00, maxRoi: 36.00, defaultRoi: 22.00 },
@@ -17,12 +43,12 @@ export const FINNABLE_BANK_EXCEL_POLICY = {
     { tier: 'Govt', minLoan: 50000, maxLoan: 1000000, bachelorCap: null, minSalary: 15000, ntcMaxLoan: 400000 }
   ],
   tenureRules: [
-    { category: 'Super A', minMonths: 12, maxMonths: 60, ntcMaxMonths: 36, description: '12 to 60 Months (NTC capped to 36 Months)' },
-    { category: 'A', minMonths: 12, maxMonths: 60, ntcMaxMonths: 36, description: '12 to 60 Months (NTC capped to 36 Months)' },
-    { category: 'B', minMonths: 12, maxMonths: 60, ntcMaxMonths: 36, description: '12 to 60 Months (NTC capped to 36 Months)' },
-    { category: 'C', minMonths: 12, maxMonths: 60, ntcMaxMonths: 36, description: '12 to 60 Months (NTC capped to 36 Months)' },
-    { category: 'D', minMonths: 12, maxMonths: 60, ntcMaxMonths: 36, description: '12 to 60 Months (NTC capped to 36 Months)' },
-    { category: 'Govt', minMonths: 12, maxMonths: 60, ntcMaxMonths: 36, description: '12 to 60 Months (NTC capped to 36 Months)' }
+    { category: 'Super A', minMonths: 6, maxMonths: 60, ntcMaxMonths: 36, description: '6 to 60 Months (NTC capped to 36 Months)' },
+    { category: 'A', minMonths: 6, maxMonths: 60, ntcMaxMonths: 36, description: '6 to 60 Months (NTC capped to 36 Months)' },
+    { category: 'B', minMonths: 6, maxMonths: 60, ntcMaxMonths: 36, description: '6 to 60 Months (NTC capped to 36 Months)' },
+    { category: 'C', minMonths: 6, maxMonths: 60, ntcMaxMonths: 36, description: '6 to 60 Months (NTC capped to 36 Months)' },
+    { category: 'D', minMonths: 6, maxMonths: 60, ntcMaxMonths: 36, description: '6 to 60 Months (NTC capped to 36 Months)' },
+    { category: 'Govt', minMonths: 6, maxMonths: 60, ntcMaxMonths: 36, description: '6 to 60 Months (NTC capped to 36 Months)' }
   ],
   foirMultiplier: [
     { category: 'Super A', slab1Foir: 50, slab2Foir: 60, maxFoir: 65, multiplier: 20, ccObligation: 5 },
@@ -35,19 +61,24 @@ export const FINNABLE_BANK_EXCEL_POLICY = {
   demographics: {
     minAge: 21,
     maxAge: 55,
+    maxAgeMaturity: 60,
     retirementSalaried: 60,
     retirementGovt: 60,
     minSalaryTier1: 20000,
     minSalaryTier2: 15000,
     minSalary: 15000,
+    minLoanAmount: 50000,
+    maxLoanAmount: 1000000,
+    ntcMaxLoan: 400000,
     minExperienceTotal: 6,
     minExperienceCurrent: 6,
     minCibilScore: 700,
     allowNtc: true,
-    ntcMaxLoan: 400000,
     ntcMaxTenure: 36,
     ccObligationPercent: 5,
     goldLoanObligationPercent: 5,
-    kccObligationPercent: 5
+    kccObligationPercent: 5,
+    negativeDesignations: FINNABLE_NEGATIVE_PROFILES,
+    tier1Cities: FINNABLE_TIER1_CITIES
   }
 };

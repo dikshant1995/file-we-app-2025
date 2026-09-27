@@ -146,6 +146,14 @@ export const calculateAxisFinEligibility = (userData) => {
   const requestedTenureMonths = (loanTenure || 5) * 12;
   const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
 
+  // Check minimum requested loan amount (Excel: MINIMUM LOAN AMOUNT: 1 LAC)
+  if (desiredLoanAmount && desiredLoanAmount < (axisFinConfig.minLoanAmount || 100000)) {
+    return {
+      eligible: false,
+      reason: `Requested loan amount (₹${desiredLoanAmount.toLocaleString()}) is below Axis Finance minimum loan limit of ₹${(axisFinConfig.minLoanAmount || 100000).toLocaleString()}`
+    };
+  }
+
   // Minimum salary check (Excel Section 1: Urban 30k, Rural 25k)
   const isRural = userData.locationType === 'rural' || userData.isRural === true;
   const reqMinSalary = isRural ? axisFinConfig.minSalaryRural : axisFinConfig.minSalaryUrban;
@@ -166,6 +174,7 @@ export const calculateAxisFinEligibility = (userData) => {
       reason: `Axis Finance requires minimum ${axisFinConfig.minWorkExperienceMonths} months work experience (Excel: MINI WORK EXPRINCE: 6 MONTHS). Current: ${totalExp} months.`
     };
   }
+
 
   // Category specific FOIR and Multipliers (Excel Section 3)
   const maxFoir = axisFinConfig.foirByCategory[effectiveCategoryKey] || 0.60;
@@ -200,6 +209,7 @@ export const calculateAxisFinEligibility = (userData) => {
 
   // Calculate Loan Amount:
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
+  const availableSalary = isBT ? incomeToCheck : (monthlyIncomeForCalc - totalObligations);
   let calculatedLoanAmount = 0;
 
   if (effectiveCategoryKey === 'D') {
@@ -213,7 +223,6 @@ export const calculateAxisFinEligibility = (userData) => {
     calculatedLoanAmount = foirCap * (Math.pow(1 + r, n) - 1) / (r * Math.pow(1 + r, n));
   } else {
     // Multiplier-based with FOIR cap
-    const availableSalary = isBT ? incomeToCheck : (monthlyIncomeForCalc - totalObligations);
     if (availableSalary <= 0) {
       return { eligible: false, reason: `Total obligations (₹${totalObligations.toLocaleString()}) exceed monthly income`, isBTMode: isBT };
     }
@@ -267,9 +276,17 @@ export const calculateAxisFinEligibility = (userData) => {
     };
   }
 
+  if (cappedFinalLoan < (axisFinConfig.minLoanAmount || 100000)) {
+    return {
+      eligible: false,
+      reason: `Calculated loan capacity (₹${Math.round(cappedFinalLoan).toLocaleString()}) is below Axis Finance minimum loan threshold of ₹${(axisFinConfig.minLoanAmount || 100000).toLocaleString()}`
+    };
+  }
+
   const monthlyEMI = calculateEMI(cappedFinalLoan, effectiveInterestRate, cappedTenureYears);
 
   return {
+
     eligible: true,
     bankId: axisFinConfig.id,
     bankName: axisFinConfig.name,

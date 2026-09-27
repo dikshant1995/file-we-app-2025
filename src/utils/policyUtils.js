@@ -131,3 +131,39 @@ export const getSlabRate = (bankName, category, loanAmount, location = null, def
         return defaultRate;
     }
 };
+
+/**
+ * Categorize Indian cities into Metro, Tier 1, Tier 2, or Others
+ * for Bank Policy loan capping and CIBIL NTC (-1/0) eligibility rules.
+ */
+export const getCityTier = (city = '', state = '') => {
+    const normCity = String(city || '').toLowerCase().trim();
+    const normState = String(state || '').toLowerCase().trim();
+
+    const metroCities = [
+        'mumbai', 'delhi', 'new delhi', 'bengaluru', 'bangalore', 'hyderabad',
+        'chennai', 'kolkata', 'pune', 'ahmedabad', 'gurgaon', 'gurugram', 'noida'
+    ];
+    if (metroCities.some(m => normCity.includes(m))) return 'METRO';
+
+    const tier1Cities = [
+        'jaipur', 'lucknow', 'chandigarh', 'surat', 'indore', 'nagpur', 'coimbatore',
+        'kochi', 'patna', 'bhopal', 'vadodara', 'visakhapatnam', 'kanpur', 'thane',
+        'navi mumbai', 'faridabad', 'ghaziabad', 'ludhiana', 'agra', 'nashik'
+    ];
+    if (tier1Cities.some(t => normCity.includes(t))) return 'TIER 1';
+
+    const tier2Cities = [
+        'varanasi', 'meerut', 'rajkot', 'aurangabad', 'mysore', 'mysuru', 'jodhpur',
+        'ranchi', 'raipur', 'dehradun', 'amritsar', 'allahabad', 'prayagraj', 'jabalpur',
+        'gwalior', 'vijayawada', 'madurai', 'hubli', 'salem', 'aligarh', 'bareilly',
+        'moradabad', 'gorakhpur', 'jalandhar', 'udaipur', 'kota', 'bikaner', 'ajmer',
+        'warangal', 'tiruchirappalli', 'bhubaneswar', 'cuttack', 'jammu', 'srinagar',
+        'mangalore', 'belgaum', 'gulbarga', 'solapur', 'kolhapur', 'amravati', 'dhanbad',
+        'siliguri', 'guntur', 'nellore', 'rohtak', 'panipat', 'karnal', 'bathinda'
+    ];
+    if (tier2Cities.some(t => normCity.includes(t))) return 'TIER 2';
+
+    return 'OTHERS';
+};
+

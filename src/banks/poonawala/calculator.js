@@ -1,8 +1,9 @@
 import { poonawalaConfig } from './config.js';
 import { getBankConfig } from '../../services/bankConfigService.js';
-import { getSlabRate } from '../../utils/policyUtils.js';
+import { getSlabRate, getCityTier } from '../../utils/policyUtils.js';
 
 // Helper: Get interest rate based on category and loan amount
+
 const getInterestRateForLoan = (category, loanAmount, location = null) => {
   let lookupCategory = category === 'Govt' ? 'A' : category;
   return getSlabRate('Poonawala Finance', lookupCategory, loanAmount, location, poonawalaConfig.interestRate);
@@ -157,20 +158,61 @@ export const calculatePoonawalaEligibility = (userData) => {
     }
   }
 
-  // Check CIBIL eligibility (Excel Row 93: 700 MINIMUM, 0 and -1 allowed)
-  const cibilScoreVal = Number(creditScore || userData.cibilScore || 750);
-  if (cibilScoreVal > 0 && cibilScoreVal < poonawalaConfig.minCreditScore) {
+  // Determine customer segment and city tier
+  const customerSegment = getCustomerSegment(category);
+  const cityTier = getCityTier(userData.city || userData.location, userData.state);
+
+  // Check CIBIL eligibility (Excel Row 93: 700 MINIMUM, 0 and -1 allowed for Tier 1, 2 cities & Cat A)
+  const cibilScoreVal = Number(creditScore ?? userData.cibilScore ?? 750);
+  const isNtc = cibilScoreVal === -1 || cibilScoreVal === 0 || String(creditScore) === '-1' || String(userData.cibilScore) === '-1';
+  if (isNtc) {
+    const isEligibleForNtc = customerSegment === 'SUPER-A' || customerSegment === 'A' || cityTier === 'METRO' || cityTier === 'TIER 1' || cityTier === 'TIER 2';
+    if (!isEligibleForNtc) {
+      return {
+        eligible: false,
+        reason: 'Poonawalla Fincorp permits New to Credit (0 or -1 CIBIL) only for Category Super A / A or Tier 1 & Tier 2 cities (Excel Row 93: 0,-1 ALLOWED IN TIER 1, 2 CITIES & CAT A CATEGORY).'
+      };
+    }
+  } else if (cibilScoreVal > 0 && cibilScoreVal < (poonawalaConfig.minCreditScore || 700)) {
     return {
       eligible: false,
-      reason: `Poonawala Finance requires minimum CIBIL score of ${poonawalaConfig.minCreditScore} (0 and -1 allowed for Tier 1, 2 cities & Cat A). Current CIBIL: ${cibilScoreVal}`
+      reason: `Poonawalla Fincorp requires minimum CIBIL score of ${poonawalaConfig.minCreditScore || 700} (Excel Row 93: 700 MINIMUM). Current CIBIL: ${cibilScoreVal}`
     };
   }
 
-  // Check age eligibility
+  // Check work experience (Excel Row 10: 2YEARS)
+  const totalExp = Number(userData.totalWorkExperience || userData.workExperience || userData.currentCompanyExperience || 0);
+  if (totalExp > 0 && totalExp < (poonawalaConfig.minExperienceMonths || 24)) {
+    return {
+      eligible: false,
+      reason: `Poonawalla Fincorp requires minimum 2 years (24 months) total work experience (Excel Row 10: MINI WORK EXPRINCE: 2YEARS). Found: ${totalExp} months.`
+    };
+  }
+
+  // Check active Credit Card POS limit (Excel Row 11: CC POS MORE THEN 4 TIME NOT ALLOW)
+  const activeCcOutstanding = (userData.creditCards || [])
+    .filter(c => !c.isBT)
+    .reduce((sum, c) => sum + (parseFloat(c.outstandingAmount || c.creditLimitUsed || 0)), 0);
+  if (activeCcOutstanding > (monthlyIncomeForCalc * 4)) {
+    return {
+      eligible: false,
+      reason: `Poonawalla policy restricts Credit Card Outstanding exceeding 4x monthly income (Excel Row 11: CC POS MORE THEN 4 TIME NOT ALLOW). Active CC POS: ₹${activeCcOutstanding.toLocaleString()}, 4x Income: ₹${(monthlyIncomeForCalc * 4).toLocaleString()}`
+    };
+  }
+
+  // Check minimum requested loan amount (Excel Row 26: MINIMUM LOAN AMOUNT: 1LAC)
+  if (desiredLoanAmount && desiredLoanAmount < (poonawalaConfig.minLoanAmount || 100000)) {
+    return {
+      eligible: false,
+      reason: `Requested loan amount (₹${desiredLoanAmount.toLocaleString()}) is below Poonawalla Fincorp minimum loan limit of ₹${(poonawalaConfig.minLoanAmount || 100000).toLocaleString()}`
+    };
+  }
+
+  // Check age eligibility (Excel Row 90: MIN 21 YRS / MAX 60 YRS)
   if (age && (age < poonawalaConfig.minAge || age > poonawalaConfig.maxAge)) {
     return {
       eligible: false,
-      reason: `Age must be between ${poonawalaConfig.minAge} and ${poonawalaConfig.maxAge} years. Current age: ${age}`
+      reason: `Age must be between ${poonawalaConfig.minAge} and ${poonawalaConfig.maxAge} years for Poonawalla Fincorp. Current age: ${age}`
     };
   }
 
@@ -181,9 +223,6 @@ export const calculatePoonawalaEligibility = (userData) => {
       reason: `Employment type ${employmentType} not supported by Poonawala Finance`
     };
   }
-
-  // Determine customer segment
-  const customerSegment = getCustomerSegment(category);
 
   // Apply tenure capping based on category (Excel Row 91: CAT A 84 MONTH, CAT B, C, D 72 MONTH)
   let maxTenureForCategory = isGovtEmployee && govtMaxTenure 
@@ -222,6 +261,11 @@ export const calculatePoonawalaEligibility = (userData) => {
     };
   }
 
+  // Combined Category Cap and City Cap (Excel Section 5 Rows 84-87)
+  const categoryMaxCap = poonawalaConfig.maxLoanByCategory[customerSegment] || poonawalaConfig.maxLoanAmount;
+  const cityMaxCap = poonawalaConfig.cityLoanCapping?.[cityTier] || 2500000;
+  const overallMaxCap = Math.min(categoryMaxCap, cityMaxCap);
+
   // Pass 1: Calculate preliminary loan with base rate
   let baseRate = interestRateOverride || (isGovtEmployee && govtROI ? govtROI : poonawalaConfig.getPoonawalaRate(customerSegment, incomeForCalculation, desiredLoanAmount || 1000000, cibilScoreVal));
 
@@ -236,8 +280,7 @@ export const calculatePoonawalaEligibility = (userData) => {
     desiredLoanAmount || Infinity
   );
 
-  const categoryMaxCap = poonawalaConfig.maxLoanByCategory[customerSegment] || poonawalaConfig.maxLoanAmount;
-  const preliminaryCappedLoan = Math.min(preliminaryLoanAmount, categoryMaxCap);
+  const preliminaryCappedLoan = Math.min(preliminaryLoanAmount, overallMaxCap);
 
   // Pass 2: Get correct rate based on preliminary loan amount (Excel Section 4 Rows 34-52)
   let finalInterestRate = interestRateOverride;
@@ -259,8 +302,9 @@ export const calculatePoonawalaEligibility = (userData) => {
     desiredLoanAmount || Infinity
   );
 
-  const maxLoanCapAmount = Math.min(finalLoanAmount, categoryMaxCap);
-  const loanCapped = finalLoanAmount > categoryMaxCap;
+  const maxLoanCapAmount = Math.min(finalLoanAmount, overallMaxCap);
+  const loanCapped = finalLoanAmount > overallMaxCap;
+
 
   // Apply Dynamic Bachelor Capping
   let appliedBachelorCap = false;
@@ -305,9 +349,17 @@ export const calculatePoonawalaEligibility = (userData) => {
     };
   }
 
+  if (cappedFinalLoan < (poonawalaConfig.minLoanAmount || 100000)) {
+    return {
+      eligible: false,
+      reason: `Calculated loan capacity (₹${Math.round(cappedFinalLoan).toLocaleString()}) is below Poonawalla Fincorp minimum loan threshold of ₹${(poonawalaConfig.minLoanAmount || 100000).toLocaleString()}`
+    };
+  }
+
   const monthlyEMI = calculateEMI(cappedFinalLoan, finalInterestRate, cappedTenureYears);
 
   return {
+
     eligible: true,
     bankId: poonawalaConfig.id,
     bankName: poonawalaConfig.name,

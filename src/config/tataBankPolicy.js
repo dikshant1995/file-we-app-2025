@@ -60,13 +60,16 @@ export const TATA_BANK_EXCEL_POLICY = {
     maxAge: 58,
     retirementSalaried: 58,
     retirementGovt: 60,
-    minSalary: 25000,
+    minSalary: 25000, // Excel Row 9: 25k
     minExperienceTotal: 12,
     minExperienceCurrent: 12,
     minCibilScore: 0,
-    ccObligationPercent: 5,
+    minLoanAmount: 75000, // Excel Row 45: 75K
+    minTenureMonths: 24, // Excel Row 35: 24 MONTHS
+    ccObligationPercent: 5, // Excel Row 11: 5% OBLIGATE
     allowCcBt: true,
-    ccBtAllowedCount: 5,
-    stabilityWaiverRule: 'Stability waived if age >=26, CIBIL >750, salary >50k, and 2-year-old loan tradeline >2L'
+    ccBtAllowedCount: 5, // Excel Row 11: Max 5 Credit card BT allowed
+    stabilityWaiverRule: 'Current stability waived if age >=26, CIBIL >750, salary >50k, and 2-year-old loan tradeline >2L'
   }
 };
+

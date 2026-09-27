@@ -167,7 +167,15 @@ export const calculateTataEligibility = (userData) => {
     };
   }
 
-  // 2. Apply tenure capping based on category (Excel Section 4)
+  // Check minimum requested loan amount (Excel: MINIMUM LOAN AMOUNT: 75K)
+  if (desiredLoanAmount && desiredLoanAmount < (tataConfig.minLoanAmount || 75000)) {
+    return {
+      eligible: false,
+      reason: `Requested loan amount (₹${desiredLoanAmount.toLocaleString()}) is below Tata Capital minimum loan limit of ₹${(tataConfig.minLoanAmount || 75000).toLocaleString()}`
+    };
+  }
+
+  // 2. Apply tenure capping based on category (Excel Section 4: Min 24 Months)
   let maxTenureForCategory = isGovtEmployee && govtMaxTenure 
     ? govtMaxTenure 
     : (tataConfig.maxTenureByCategory[effectiveCategoryKey] || 60);
@@ -176,11 +184,10 @@ export const calculateTataEligibility = (userData) => {
     maxTenureForCategory = 84; // CAT B Income > 75,000: 84 months
   }
 
-  const cappedTenureMonths = maxTenureForCategory;
+  const requestedTenureMonths = Math.max(24, (loanTenure || 5) * 12); // Min 24 Months
+  const cappedTenureMonths = Math.min(requestedTenureMonths, maxTenureForCategory);
   const cappedTenureYears = cappedTenureMonths / 12;
-
-  const requestedTenureMonths = (loanTenure || 5) * 12;
-  const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
+  const tenureCapped = requestedTenureMonths > maxTenureForCategory;
 
   // Minimum salary check (Excel Section 1: 25k)
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncomeForCalc;
@@ -192,15 +199,32 @@ export const calculateTataEligibility = (userData) => {
     };
   }
 
+  // Check if applicant has secured loan (HL / LAP)
+  const hasSecuredLoan = (userData.existingLoanTypes && (
+    userData.existingLoanTypes.includes('Home Loan') ||
+    userData.existingLoanTypes.includes('Loan Against Property') ||
+    userData.existingLoanTypes.includes('HL') ||
+    userData.existingLoanTypes.includes('LAP')
+  )) || (Array.isArray(loansForBT) && loansForBT.some(l => l.type === 'Home Loan' || l.type === 'LAP'));
+
   // FOIR Band (Excel Section 3 Rows 56-60)
-  // <=25k: 50%, 25k-50k: 60%, 50k-75k: 65%, >75k: 75%
+  // Max FOIR: <=25k: 50%, 25k-50k: 60%, 50k-75k: 65%, >75k: 75%
+  // Max Unsecured FOIR: <=25k: 40%, 25k-50k: 50%, 50k-75k: 55%, >75k: 65%
   let foirPercentage = 0.60;
-  if (incomeToCheck <= 25000) foirPercentage = 0.50;
-  else if (incomeToCheck <= 50000) foirPercentage = 0.60;
-  else if (incomeToCheck <= 75000) foirPercentage = 0.65;
-  else foirPercentage = 0.75;
+  if (hasSecuredLoan) {
+    if (incomeToCheck <= 25000) foirPercentage = 0.50;
+    else if (incomeToCheck <= 50000) foirPercentage = 0.60;
+    else if (incomeToCheck <= 75000) foirPercentage = 0.65;
+    else foirPercentage = 0.75;
+  } else {
+    if (incomeToCheck <= 25000) foirPercentage = 0.40;
+    else if (incomeToCheck <= 50000) foirPercentage = 0.50;
+    else if (incomeToCheck <= 75000) foirPercentage = 0.55;
+    else foirPercentage = 0.65;
+  }
 
   if (govtFOIR && isGovtEmployee) foirPercentage = govtFOIR / 100;
+
 
   // Multiplier by category and salary slab (Excel Section 3 Rows 24-31)
   let multiplier = 20;
@@ -325,9 +349,17 @@ export const calculateTataEligibility = (userData) => {
     };
   }
 
+  if (cappedFinalLoan < (tataConfig.minLoanAmount || 75000)) {
+    return {
+      eligible: false,
+      reason: `Calculated loan capacity (₹${Math.round(cappedFinalLoan).toLocaleString()}) is below Tata Capital minimum loan threshold of ₹${(tataConfig.minLoanAmount || 75000).toLocaleString()}`
+    };
+  }
+
   const finalEMI = calculateEMI(cappedFinalLoan, finalInterestRate, cappedTenureYears);
 
   return {
+
     eligible: true,
     bankId: tataConfig.id,
     bankName: tataConfig.name,
