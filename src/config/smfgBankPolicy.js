@@ -1,13 +1,13 @@
 // Exact Master Policy Configuration for SMFG INDIA CREDIT from BANKS POLICYS.xlsx (Sheet: SMFG)
 export const SMFG_BANK_EXCEL_POLICY = {
   interestRates: [
-    { category: 'Super A', roiAbove100k: 17.00, roi75kTo100k: 18.50, roi50kTo75k: 18.50, roi40kTo50k: 19.00, roi35kTo40k: 19.50, roi30kTo35k: 21.50, roi25kTo30k: 23.00, roi25001: 24.00, minRoi: 17.00, maxRoi: 24.00, defaultRoi: 18.50 },
-    { category: 'A', roiAbove100k: 17.00, roi75kTo100k: 18.50, roi50kTo75k: 18.50, roi40kTo50k: 19.00, roi35kTo40k: 19.50, roi30kTo35k: 21.50, roi25kTo30k: 23.00, roi25001: 24.00, minRoi: 17.00, maxRoi: 24.00, defaultRoi: 18.50 },
-    { category: 'B', roiAbove100k: 17.00, roi75kTo100k: 18.50, roi50kTo75k: 18.50, roi40kTo50k: 20.00, roi35kTo40k: 21.00, roi30kTo35k: 22.00, roi25kTo30k: 24.00, roi25001: 25.50, minRoi: 17.00, maxRoi: 25.50, defaultRoi: 18.50 },
-    { category: 'C', roiAbove100k: 19.00, roi75kTo100k: 19.50, roi50kTo75k: 21.50, roi40kTo50k: 21.50, roi35kTo40k: 23.00, roi30kTo35k: 23.50, roi25kTo30k: 25.00, roi25001: 27.50, minRoi: 19.00, maxRoi: 27.50, defaultRoi: 21.50 },
-    { category: 'D', roiAbove100k: 20.00, roi75kTo100k: 20.00, roi50kTo75k: 22.00, roi40kTo50k: 24.00, roi35kTo40k: 24.00, roi30kTo35k: 25.00, roi25kTo30k: 28.00, roi25001: 30.00, minRoi: 20.00, maxRoi: 30.00, defaultRoi: 24.00 },
-    { category: 'E', roiAbove100k: 30.00, roi75kTo100k: 30.00, roi50kTo75k: 30.00, roi40kTo50k: 30.00, roi35kTo40k: 30.00, roi30kTo35k: 30.00, roi25kTo30k: 30.00, roi25001: 30.00, minRoi: 30.00, maxRoi: 30.00, defaultRoi: 30.00 },
-    { category: 'Govt', roiAbove100k: 17.00, roi75kTo100k: 18.50, roi50kTo75k: 18.50, roi40kTo50k: 19.00, roi35kTo40k: 19.50, roi30kTo35k: 21.50, roi25kTo30k: 23.00, roi25001: 24.00, minRoi: 17.00, maxRoi: 24.00, defaultRoi: 18.50 }
+    { category: 'Super A', roiAbove100k: 17.00, roi75kTo100k: 18.50, roi50kTo75k: 18.50, roi40kTo50k: 19.00, roi35kTo40k: 19.50, roi30kTo35k: 21.50, roi25kTo30k: 23.00, roiBelow25k: 24.00, roi25001: 24.00, minRoi: 17.00, maxRoi: 24.00, defaultRoi: 18.50 },
+    { category: 'A', roiAbove100k: 17.00, roi75kTo100k: 18.50, roi50kTo75k: 18.50, roi40kTo50k: 19.00, roi35kTo40k: 19.50, roi30kTo35k: 21.50, roi25kTo30k: 23.00, roiBelow25k: 24.00, roi25001: 24.00, minRoi: 17.00, maxRoi: 24.00, defaultRoi: 18.50 },
+    { category: 'B', roiAbove100k: 17.00, roi75kTo100k: 18.50, roi50kTo75k: 18.50, roi40kTo50k: 20.00, roi35kTo40k: 21.00, roi30kTo35k: 22.00, roi25kTo30k: 24.00, roiBelow25k: 25.50, roi25001: 25.50, minRoi: 17.00, maxRoi: 25.50, defaultRoi: 18.50 },
+    { category: 'C', roiAbove100k: 19.00, roi75kTo100k: 19.50, roi50kTo75k: 21.50, roi40kTo50k: 21.50, roi35kTo40k: 23.00, roi30kTo35k: 23.50, roi25kTo30k: 25.00, roiBelow25k: 27.50, roi25001: 27.50, minRoi: 19.00, maxRoi: 27.50, defaultRoi: 21.50 },
+    { category: 'D', roiAbove100k: 20.00, roi75kTo100k: 20.00, roi50kTo75k: 22.00, roi40kTo50k: 24.00, roi35kTo40k: 24.00, roi30kTo35k: 25.00, roi25kTo30k: 28.00, roiBelow25k: 30.00, roi25001: 30.00, minRoi: 20.00, maxRoi: 30.00, defaultRoi: 24.00 },
+    { category: 'E', roiAbove100k: 30.00, roi75kTo100k: 30.00, roi50kTo75k: 30.00, roi40kTo50k: 30.00, roi35kTo40k: 30.00, roi30kTo35k: 30.00, roi25kTo30k: 30.00, roiBelow25k: 30.00, roi25001: 30.00, minRoi: 30.00, maxRoi: 30.00, defaultRoi: 30.00 },
+    { category: 'Govt', roiAbove100k: 17.00, roi75kTo100k: 18.50, roi50kTo75k: 18.50, roi40kTo50k: 19.00, roi35kTo40k: 19.50, roi30kTo35k: 21.50, roi25kTo30k: 23.00, roiBelow25k: 24.00, roi25001: 24.00, minRoi: 17.00, maxRoi: 24.00, defaultRoi: 18.50 }
   ],
   loanCapping: [
     { tier: 'Super A', minLoan: 100000, maxLoan: 3000000, bachelorCap: null, minSalary: 25000 },
@@ -34,27 +34,33 @@ export const SMFG_BANK_EXCEL_POLICY = {
     { category: 'Govt', slab1Foir: 60, slab2Foir: 65, maxFoir: 70, multiplier: 30, ccObligation: 5 }
   ],
   salaryBandsFoirAndMultiplier: [
-    { band: 'Below 25k', minSalary: 0, maxSalary: 24999, foir: 0, multiplier: 'Not Eligible', eligible: false },
-    { band: '25k-30k', minSalary: 25000, maxSalary: 30000, foir: 60, multiplierMin: 12, multiplierMax: 13, eligible: true },
-    { band: '30k-35k', minSalary: 30001, maxSalary: 35000, foir: 65, multiplierMin: 15, multiplierMax: 16, eligible: true },
-    { band: '35k-40k', minSalary: 35001, maxSalary: 40000, foir: 70, multiplierMin: 16, multiplierMax: 18, eligible: true },
-    { band: '40k-50k', minSalary: 40001, maxSalary: 50000, foir: 70, multiplierMin: 18, multiplierMax: 20, eligible: true },
-    { band: '50k-75k', minSalary: 50001, maxSalary: 75000, foir: 70, multiplierMin: 22, multiplierMax: 25, eligible: true },
-    { band: '75k-100k', minSalary: 75001, maxSalary: 100000, foir: 70, multiplierMin: 23, multiplierMax: 30, eligible: true },
-    { band: '100k and Above', minSalary: 100001, maxSalary: Infinity, foir: 70, multiplierMin: 30, multiplierMax: 30, eligible: true }
+    { band: 'Income Less Than 25K', minSalary: 0, maxSalary: 24999, foir: 0, multiplier: 'Not Eligible', multiplierMin: 0, multiplierMax: 0, eligible: false, notes: 'Min ₹25K+ Salary required with 0 deduction' },
+    { band: '25K-30K', minSalary: 25000, maxSalary: 30000, foir: 60, multiplier: '12 to 13', multiplierMin: 12, multiplierMax: 13, eligible: true, notes: 'As per com cat and profile base (Cat A/Govt: 13x, Cat C/D: 12x)' },
+    { band: '30K-35K', minSalary: 30001, maxSalary: 35000, foir: 65, multiplier: '15 to 16', multiplierMin: 15, multiplierMax: 16, eligible: true, notes: 'As per com cat and profile base (Cat A/Govt: 16x, Cat C/D: 15x)' },
+    { band: '35K-40K', minSalary: 35001, maxSalary: 40000, foir: 70, multiplier: '16 to 18', multiplierMin: 16, multiplierMax: 18, eligible: true, notes: 'As per com cat and profile base (Cat A/Govt: 18x, Cat C/D: 16x)' },
+    { band: '40K-50K', minSalary: 40001, maxSalary: 50000, foir: 70, multiplier: '18 to 20', multiplierMin: 18, multiplierMax: 20, eligible: true, notes: 'As per com cat and profile base (Cat A/Govt: 20x, Cat C/D: 18x)' },
+    { band: '50K-75K', minSalary: 50001, maxSalary: 75000, foir: 70, multiplier: '22 to 25', multiplierMin: 22, multiplierMax: 25, eligible: true, notes: 'As per com cat and profile base (Cat A/Govt: 25x, Cat C/D: 22x)' },
+    { band: '75K-100K', minSalary: 75001, maxSalary: 100000, foir: 70, multiplier: '23 to 30', multiplierMin: 23, multiplierMax: 30, eligible: true, notes: 'As per com cat and profile base (Cat A/Govt: 30x, Cat C/D: 23x)' },
+    { band: '100K and Above', minSalary: 100001, maxSalary: Infinity, foir: 70, multiplier: '23 to 30', multiplierMin: 23, multiplierMax: 30, eligible: true, notes: 'Maximum multiplier up to 30x for high-tier profiles' }
   ],
   specialCompanyFoir: {
     propPartLlpFirmMaxFoir: 55 // PROP/PART/LLP FIRM: 55% FOIR
   },
   demographics: {
-    minAge: 21,
+    minAge: 21, // MINIMUM APPLICANT AGE: 21
+    maxAge: 60, // MAXIMUM AGE AT LOAN TIME: PVT 60
     maxAgePvt: 60,
-    maxAgeGovt: 65, // Pensioner profile
-    retirementAge: 65,
+    maxAgeGovt: 65, // GOVT 65(PENSIONER PROFILE)
+    retirementAge: 65, // RETIREMENT AGE: 65
+    retirementSalaried: 65,
+    retirementGovt: 65,
     minSalary: 25000, // 25K+ SALARY WITH 0 DEDUCTION
-    minCurrentCompanyExperienceMonths: 24, // CURRENT COM 2 YEARS
-    ccObligationPercent: 5, // 0.05
-    maxCcBt: 2, // 2 CC BT
+    minExperienceTotal: 24, // CURRENT COM 2 YEARS
+    minExperienceCurrent: 24, // CURRENT COM 2 YEARS
+    minCurrentCompanyExperienceMonths: 24,
+    minCibilScore: 0,
+    ccObligationPercent: 5, // CC OBLIGATION: 0.05
+    maxCcBt: 2, // MAX CC BT: 2 CC BT
     allowCcBt: true,
     ccBtAllowedCount: 2
   }

@@ -29,7 +29,7 @@ const calculatePrincipalFromEMI = (emi, annualInterestRate, tenureInYears) => {
   return Math.round(principal);
 };
 
-// Helper: Determine ROI from Excel Sheet: SMFG based on Net Income Band & Category
+// Helper: Determine ROI from Excel Sheet: SMFG based on Net Income Band & Category (Section 2)
 const getSmfgROI = (monthlyIncome, category) => {
   let catKey = 'A';
   const c = String(category || '').toUpperCase();
@@ -40,30 +40,36 @@ const getSmfgROI = (monthlyIncome, category) => {
   else if (c === 'E') catKey = 'E';
 
   const roundedSal = Math.round(monthlyIncome);
-  if (roundedSal === 25001) {
-    const row = smfgConfig.roiMatrix.find(r => r.band === '25001');
-    return row ? row[catKey] : 24.0;
-  }
-
   for (const row of smfgConfig.roiMatrix) {
-    if (row.band !== '25001' && roundedSal >= row.minSalary && roundedSal <= row.maxSalary) {
-      return row[catKey];
+    if (roundedSal >= row.minSalary && roundedSal <= row.maxSalary) {
+      return row[catKey] ?? 17.0;
     }
   }
 
   return 17.0; // Default lowest rate for high salary (>100k)
 };
 
-// Helper: Determine FOIR & Multiplier from Excel Sheet: SMFG
-const getSmfgFoirAndMultiplier = (monthlyIncome, companyType = '') => {
+// Helper: Determine FOIR & Multiplier from Excel Sheet: SMFG (Section 3: FOIR & Multiplier)
+// Excel: As per com cat and profile base (Cat A/Govt gets maxMult, Cat B gets mid, Cat C/D gets minMult)
+const getSmfgFoirAndMultiplier = (monthlyIncome, category = 'B', companyType = '') => {
   const roundedSal = Math.round(monthlyIncome);
   let baseFoir = 0.70;
   let multiplier = 25;
 
+  const c = String(category || '').toUpperCase();
+  const isHighTier = c.includes('SUPER') || c === 'A' || c.includes('GOVT');
+  const isMidTier = c === 'B';
+
   for (const slab of smfgConfig.salaryFoirSlabs) {
     if (roundedSal >= slab.minSalary && roundedSal <= slab.maxSalary) {
       baseFoir = slab.foir;
-      multiplier = slab.maxMult;
+      if (isHighTier) {
+        multiplier = slab.maxMult;
+      } else if (isMidTier) {
+        multiplier = Math.round((slab.minMult + slab.maxMult) / 2);
+      } else {
+        multiplier = slab.minMult;
+      }
       break;
     }
   }
@@ -188,7 +194,7 @@ export const calculateSmfgEligibility = (userData, adminBankConfig) => {
 
   // 6. FOIR & MULTIPLIER (Excel: Band based + PROP/PART/LLP 55%)
   const incomeForCalc = isBT ? adjustedIncome : actualMonthlyIncome;
-  const { foir: defaultFoir, multiplier: defaultMultiplier, isPropOrLlp } = getSmfgFoirAndMultiplier(incomeForCalc, companyType || companyName);
+  const { foir: defaultFoir, multiplier: defaultMultiplier, isPropOrLlp } = getSmfgFoirAndMultiplier(incomeForCalc, category, companyType || companyName);
   const effectiveFOIR = foirOverride ? (foirOverride / 100) : defaultFoir;
   const effectiveMultiplier = multiplierOverride ? Number(multiplierOverride) : defaultMultiplier;
 

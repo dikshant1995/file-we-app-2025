@@ -787,7 +787,27 @@ const matchCategory = (cat1, cat2) => {
           if (matchedRate) {
             let dynamicRoi = matchedRate.defaultRoi || matchedRate.minRoi || 10.5;
             const reqAmount = calculatorInput.desiredLoanAmount;
-            if (reqAmount && reqAmount > 0) {
+            const isSmfg = name.toLowerCase().includes('smfg') || id === 'smfg';
+            if (isSmfg) {
+              const income = calculatorInput.monthlyIncome || calculatorInput.basicSalary || 0;
+              if (income >= 100000 && matchedRate.roiAbove100k) {
+                dynamicRoi = matchedRate.roiAbove100k;
+              } else if (income >= 75000 && matchedRate.roi75kTo100k) {
+                dynamicRoi = matchedRate.roi75kTo100k;
+              } else if (income >= 50000 && matchedRate.roi50kTo75k) {
+                dynamicRoi = matchedRate.roi50kTo75k;
+              } else if (income >= 40000 && matchedRate.roi40kTo50k) {
+                dynamicRoi = matchedRate.roi40kTo50k;
+              } else if (income >= 35000 && matchedRate.roi35kTo40k) {
+                dynamicRoi = matchedRate.roi35kTo40k;
+              } else if (income >= 30000 && matchedRate.roi30kTo35k) {
+                dynamicRoi = matchedRate.roi30kTo35k;
+              } else if (income >= 25000 && matchedRate.roi25kTo30k) {
+                dynamicRoi = matchedRate.roi25kTo30k;
+              } else if (matchedRate.roiBelow25k || matchedRate.roi25001) {
+                dynamicRoi = matchedRate.roiBelow25k || matchedRate.roi25001;
+              }
+            } else if (reqAmount && reqAmount > 0) {
               if (reqAmount >= 5000000 && matchedRate.roiAbove50L) {
                 dynamicRoi = matchedRate.roiAbove50L;
               } else if (reqAmount >= 3500000 && matchedRate.roiAbove35L) {
@@ -1115,29 +1135,34 @@ const matchCategory = (cat1, cat2) => {
               // SMFG India Credit Master Excel Policy (BANKS POLICYS.xlsx - Sheet: SMFG)
               // 25k-30k: 60% FOIR (12-13x) | 30k-35k: 65% FOIR (15-16x) | 35k-40k: 70% (16-18x)
               // 40k-50k: 70% (18-20x) | 50k-75k: 70% (22-25x) | 75k-100k: 70% (23-30x) | 100k+: 70% (30x)
+              // Multipliers scaled as per Category and Profile Base (Row 37: AS PER COM CAT AND PROFILE BASE)
+              const catUpper = String(bankCategory || '').toUpperCase();
+              const isHighTier = catUpper.includes('SUPER') || catUpper === 'A' || catUpper.includes('GOVT');
+              const isMidTier = catUpper === 'B';
+
               let smfgFoir = 70;
-              let smfgMult = 25;
+              let smfgMult = isHighTier ? 30 : (isMidTier ? 26 : 23);
               if (income >= 100000) {
                 smfgFoir = 70;
-                smfgMult = 30;
+                smfgMult = isHighTier ? 30 : (isMidTier ? 26 : 23);
               } else if (income >= 75000) {
                 smfgFoir = 70;
-                smfgMult = 30;
+                smfgMult = isHighTier ? 30 : (isMidTier ? 26 : 23);
               } else if (income >= 50000) {
                 smfgFoir = 70;
-                smfgMult = 25;
+                smfgMult = isHighTier ? 25 : (isMidTier ? 23.5 : 22);
               } else if (income >= 40000) {
                 smfgFoir = 70;
-                smfgMult = 20;
+                smfgMult = isHighTier ? 20 : (isMidTier ? 19 : 18);
               } else if (income >= 35000) {
                 smfgFoir = 70;
-                smfgMult = 18;
+                smfgMult = isHighTier ? 18 : (isMidTier ? 17 : 16);
               } else if (income >= 30000) {
                 smfgFoir = 65;
-                smfgMult = 16;
+                smfgMult = isHighTier ? 16 : (isMidTier ? 15.5 : 15);
               } else if (income >= 25000) {
                 smfgFoir = 60;
-                smfgMult = 13;
+                smfgMult = isHighTier ? 13 : (isMidTier ? 12.5 : 12);
               }
 
               // Special Company Type Check (Excel: PROP/PART/LLP FIRM: 55% FOIR)
