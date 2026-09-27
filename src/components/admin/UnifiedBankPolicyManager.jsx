@@ -3731,7 +3731,6 @@ const UnifiedBankPolicyManager = () => {
                       <div style={{ marginTop: '5px' }}>• Minimum Net Monthly Salary: <strong>₹25,000+ with 0 Deduction</strong> (`25K+ SALARY WITH 0 DEDUCTION`)</div>
                       <div style={{ marginTop: '3px', color: '#38bdf8' }}>• Credit Card Obligation: <strong>5% of Outstanding</strong> (`0.05`)</div>
                       <div style={{ marginTop: '3px', color: '#86efac' }}>• Balance Transfer (BT): <strong>Max 2 Credit Cards BT Allowed</strong> (`2 CC BT`)</div>
-                      <div style={{ marginTop: '3px', color: '#93c5fd' }}>• Processing Fee: <strong>&lt; ₹3 Lakh: 3.50% + GST</strong> | <strong>≥ ₹3 Lakh: 2.50% + GST</strong></div>
                     </div>
                   </div>
                 </div>

@@ -20,10 +20,6 @@ export const smfgConfig = {
   interestRate: 17.00, // Starting ROI: 17.00% to 30.00% as per Net Income Band & Category
   creditCardObligationPercent: 0.05, // Excel: 0.05 (5%)
 
-  // Processing Fee Structure (Excel: Below 3L: 3.50%+GST, Above 3L: 2.50%+GST)
-  processingFeeBelow3L: 0.035,
-  processingFeeAbove3L: 0.025,
-
   // Balance Transfer (BT) Configuration (Excel: MAX CC BT: 2 CC BT)
   btConfig: {
     isAvailable: true,

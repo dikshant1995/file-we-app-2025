@@ -43,10 +43,6 @@ export const SMFG_BANK_EXCEL_POLICY = {
     { band: '75k-100k', minSalary: 75001, maxSalary: 100000, foir: 70, multiplierMin: 23, multiplierMax: 30, eligible: true },
     { band: '100k and Above', minSalary: 100001, maxSalary: Infinity, foir: 70, multiplierMin: 30, multiplierMax: 30, eligible: true }
   ],
-  processingFees: {
-    below3Lakh: '3.50% + GST',
-    above3Lakh: '2.50% + GST'
-  },
   specialCompanyFoir: {
     propPartLlpFirmMaxFoir: 55 // PROP/PART/LLP FIRM: 55% FOIR
   },

@@ -231,11 +231,7 @@ export const calculateSmfgEligibility = (userData, adminBankConfig) => {
     };
   }
 
-  // 11. PROCESSING FEES (Excel: Below 3L: 3.50%+GST, Above 3L: 2.50%+GST)
-  const pfRate = finalLoanAmount < 300000 ? smfgConfig.processingFeeBelow3L : smfgConfig.processingFeeAbove3L;
-  const processingFeeAmount = Math.round(finalLoanAmount * pfRate * 1.18); // Including 18% GST
-
-  // 12. BT POST-PROCESSING
+  // 11. BT POST-PROCESSING
   let btDetails = null;
   if (isBT) {
     const btFreshAmount = finalLoanAmount - (btTotalOutstanding || 0);
@@ -272,8 +268,6 @@ export const calculateSmfgEligibility = (userData, adminBankConfig) => {
     loanTenureMonths: tenureMonths,
     foirPercentage: effectiveFOIR,
     multiplier: effectiveMultiplier,
-    processingFee: `${(pfRate * 100).toFixed(2)}% + GST`,
-    processingFeeAmount: processingFeeAmount,
     maxLoanCap: maxCap,
     isPropOrLlp: isPropOrLlp,
     btDetails: btDetails,
