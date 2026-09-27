@@ -306,6 +306,11 @@ export const HDFC_BANK_EXCEL_POLICY = {
   companies: INITIAL_COMPANY_DATABASE
 };
 
+const getSafeCatClass = (cat) => {
+  if (!cat) return 'standard';
+  return String(cat).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+};
+
 const sanitizePolicyData = (raw) => {
   if (!raw || typeof raw !== 'object') return { ...DEFAULT_UNIFIED_POLICY };
   return {
@@ -314,7 +319,8 @@ const sanitizePolicyData = (raw) => {
     interestRates: Array.isArray(raw.interestRates) && raw.interestRates.length > 0 
       ? raw.interestRates.map(row => ({
           ...row,
-          category: row.category,
+          category: String(row.category || row.tier || 'Standard').trim(),
+          tier: String(row.tier || row.category || 'Standard').trim(),
           roiAbove15L: row.roiAbove15L ?? row.minRoi ?? 9.99,
           roi10Lto15L: row.roi10Lto15L ?? row.maxRoi ?? 10.35,
           roiBelow10L: row.roiBelow10L ?? row.defaultRoi ?? 10.75,
@@ -325,15 +331,30 @@ const sanitizePolicyData = (raw) => {
         }))
       : DEFAULT_UNIFIED_POLICY.interestRates,
     loanCapping: Array.isArray(raw.loanCapping) && raw.loanCapping.length > 0 
-      ? raw.loanCapping 
+      ? raw.loanCapping.map(row => ({
+          ...row,
+          tier: String(row.tier || row.category || 'Standard').trim(),
+          category: String(row.category || row.tier || 'Standard').trim(),
+          minLoan: row.minLoan ?? 100000,
+          maxLoan: row.maxLoan ?? 5000000,
+          bachelorCap: row.bachelorCap ?? null
+        }))
       : DEFAULT_UNIFIED_POLICY.loanCapping,
     tenureRules: Array.isArray(raw.tenureRules) && raw.tenureRules.length > 0 
-      ? raw.tenureRules 
+      ? raw.tenureRules.map(row => ({
+          ...row,
+          category: String(row.category || row.tier || 'Standard').trim(),
+          tier: String(row.tier || row.category || 'Standard').trim(),
+          minMonths: row.minMonths ?? 12,
+          maxMonths: row.maxMonths ?? 84,
+          description: row.description || `Up to ${((row.maxMonths ?? 84) / 12).toFixed(1)} Years`
+        }))
       : DEFAULT_UNIFIED_POLICY.tenureRules,
     foirMultiplier: Array.isArray(raw.foirMultiplier) && raw.foirMultiplier.length > 0 
       ? raw.foirMultiplier.map(row => ({
           ...row,
-          category: row.category,
+          category: String(row.category || row.tier || 'Standard').trim(),
+          tier: String(row.tier || row.category || 'Standard').trim(),
           slab1Foir: row.slab1Foir ?? (row.maxFoir ? Math.max(40, row.maxFoir - 20) : 55),
           slab2Foir: row.slab2Foir ?? (row.maxFoir ? Math.max(50, row.maxFoir - 10) : 65),
           maxFoir: row.maxFoir ?? 75,
@@ -544,16 +565,24 @@ const UnifiedBankPolicyManager = () => {
           const isLntBank = bank.id === 'lnt' || bank.name?.toLowerCase().includes('lnt') || bank.name?.toLowerCase().includes('l&t');
           const isFreshLnt = isLntBank && Array.isArray(parsed.interestRates) && parsed.interestRates.some(r => r.specialRate === 10.99);
 
-          if (hasMatchingCategories && (!isLntBank || isFreshLnt)) {
+          const isValidRates = Array.isArray(parsed.interestRates) && parsed.interestRates.length > 0 && parsed.interestRates.every(r => r && typeof r === 'object');
+          const isValidCapping = !parsed.loanCapping || (Array.isArray(parsed.loanCapping) && parsed.loanCapping.every(r => r && typeof r === 'object'));
+
+          if (hasMatchingCategories && (!isLntBank || isFreshLnt) && isValidRates && isValidCapping) {
             merged = { ...merged, ...parsed };
           } else {
-            // Stale cache contains old categories or outdated policy - purge it so user sees pure Bank Policy Excel
+            // Stale cache contains old categories or corrupted data - purge it so user sees pure Bank Policy Excel
             try {
               localStorage.removeItem(`policy_config_${bank.id}_${locationKey}`);
               localStorage.removeItem(`policy_config_${bank.id}`);
             } catch (err) {}
           }
-        } catch (e) {}
+        } catch (e) {
+          try {
+            localStorage.removeItem(`policy_config_${bank.id}_${locationKey}`);
+            localStorage.removeItem(`policy_config_${bank.id}`);
+          } catch (err) {}
+        }
       }
       setPolicyData(sanitizePolicyData(merged));
       return;
@@ -1585,8 +1614,8 @@ const UnifiedBankPolicyManager = () => {
                       {displayRates.map((row, idx) => (
                         <tr key={idx}>
                           <td>
-                            <span className={`cat-pill cat-${row.category.toLowerCase().replace(/\s+/g, '-')}`}>
-                              {row.category}
+                            <span className={`cat-pill cat-${getSafeCatClass(row.category || row.tier)}`}>
+                              {row.category || row.tier || 'Standard'}
                             </span>
                           </td>
 
@@ -2208,8 +2237,8 @@ const UnifiedBankPolicyManager = () => {
                     {(policyData?.loanCapping || []).map((row, idx) => (
                       <tr key={idx}>
                         <td>
-                          <span className={`cat-pill cat-${row.tier.toLowerCase().replace(/\s+/g, '-')}`}>
-                            {row.tier}
+                          <span className={`cat-pill cat-${getSafeCatClass(row.tier || row.category)}`}>
+                            {row.tier || row.category || 'Standard'}
                           </span>
                         </td>
                         <td>
@@ -2447,8 +2476,8 @@ const UnifiedBankPolicyManager = () => {
                     {(policyData?.tenureRules || []).map((row, idx) => (
                       <tr key={idx}>
                         <td>
-                          <span className={`cat-pill cat-${row.category.toLowerCase().replace(/\s+/g, '-')}`}>
-                            {row.category}
+                          <span className={`cat-pill cat-${getSafeCatClass(row.category || row.tier)}`}>
+                            {row.category || row.tier || 'Standard'}
                           </span>
                         </td>
                         <td>
@@ -2947,8 +2976,8 @@ const UnifiedBankPolicyManager = () => {
                     {(policyData?.foirMultiplier || []).map((row, idx) => (
                       <tr key={idx}>
                         <td>
-                          <span className={`cat-pill cat-${row.category.toLowerCase().replace(/\s+/g, '-')}`}>
-                            {row.category}
+                          <span className={`cat-pill cat-${getSafeCatClass(row.category || row.tier)}`}>
+                            {row.category || row.tier || 'Standard'}
                           </span>
                         </td>
                         {(activeConfigBank?.id === 'lnt' || activeConfigBank?.name?.toLowerCase().includes('l&t') || activeConfigBank?.name?.toLowerCase().includes('lnt')) ? (
