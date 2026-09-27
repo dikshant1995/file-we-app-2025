@@ -1,93 +1,109 @@
-// Cholamandalam Finance Configuration
+// Cholamandalam Finance (Chola Finance) Configuration
+// Strictly configured from Master Excel Policy (BANKS POLICYS.xlsx - Sheet: CHOLA)
+
 export const cholaConfig = {
   id: 'chola',
   name: 'Cholamandalam Finance',
-  minAge: 23, // Minimum age requirement
-  maxAge: 60, // Maximum age at loan maturity
+  shortName: 'Chola',
+
+  // Demographics (Section 1)
+  minAge: 21,
+  maxAge: 60,
+  retirementAge: 60,
+  coAppAgeLimit: 23, // 21 to 23 age group requires co-applicant (Excel: 21 TO 23 AGE GROUP CO APP REQ)
+  minSalary: 25000, // 25K WITHOUT INCENTIVE
+  minSalaryBankNbfc: 30000, // BANKS AND NBFCS 30K WITHOUT INCENTIVE
+  restrictedDesignations: ['RM', 'SM', 'SO', 'SFE', 'RELATIONSHIP MANAGER', 'SALES MANAGER', 'SALES OFFICER', 'SALES FINANCE EXECUTIVE'],
+  minExperienceGovtMonths: 3, // GOVT 3 MONTHS
+  minExperiencePvtMonths: 12, // PVT 1 YEARS (12 MONTHS)
   minCreditScore: 620,
-  maxLoanTenure: 20,
-  maxLoanAmount: 2000000, // ₹20 Lakhs (Lower-Cap Lender)
-  bachelorMaxLoanAmount: 2000000, // ₹20 Lakhs maximum for unmarried individuals (same as overall cap)
-  interestRate: 11.0, // Fixed at 11% for all banks as per policy
-  processingFee: 0.01,
 
-  // Incentive policy
-  incentivePercentage: 0.60, // 60% of average incentive
-  incentivePeriodMonths: 3, // Last 3 months
+  // Loan Amount Limits (Section 5)
+  minLoanAmount: 100000, // 1 LAC
+  maxLoanAmount: 3000000, // 30 LACS
+  loanAmountCaps: {
+    'SUPER A': 3000000,
+    'A': 3000000,
+    'B': 2000000,
+    'C': 2000000,
+    'D': 2000000,
+    'GOVT': 3000000
+  },
+  coAppAboveLoanAmountCatA: 2000000, // Co-applicant required above 20L for Category A
 
+  // Tenure Windows (Section 4)
+  minLoanTenureMonths: 12,
+  maxLoanTenureMonths: 84,
+  maxTenureByCategory: {
+    'SUPER A': 84, // 7 Years (84 Months)
+    'A': 84,       // 7 Years (84 Months)
+    'B': 84,       // 7 Years (84 Months)
+    'C': 60,       // 5 Years (60 Months)
+    'D': 60,       // 5 Years (60 Months)
+    'GOVT': 84     // 7 Years (84 Months)
+  },
 
-  // FOIR table based on salary bands and categories
-  foirTable: {
-    '20000-30000': {
-      'A': 0.65,
-      'GOVT': 0.65,
-      'B': 0.65,
-      'C': 0.55,
-      'D': 0.55
+  // FOIR & Multiplier (Section 3)
+  creditCardObligationPercent: 0.05, // 5%
+  foirAndMultipliers: {
+    above30k: {
+      'SUPER A': { foir: 0.70, multiplier: 35 },
+      'A': { foir: 0.70, multiplier: 28 },
+      'B': { foir: 0.70, multiplier: 28 },
+      'C': { foir: 0.65, multiplier: 25 },
+      'D': { foir: 0.65, multiplier: 25 },
+      'GOVT': { foir: 0.70, multiplier: 35 }
     },
-    '30001-50000': {
-      'A': 0.65,
-      'GOVT': 0.65,
-      'B': 0.65,
-      'C': 0.55,
-      'D': 0.55
-    },
-    '50001-75000': {
-      'A': 0.70,
-      'GOVT': 0.70,
-      'B': 0.70,
-      'C': 0.65,
-      'D': 0.65
-    },
-    '75001+': {
-      'A': 0.70,
-      'GOVT': 0.70,
-      'B': 0.70,
-      'C': 0.65,
-      'D': 0.65
+    band25kTo30k: {
+      'SUPER A': { foir: 0.65, multiplier: 30 },
+      'A': { foir: 0.65, multiplier: 24 },
+      'B': { foir: 0.65, multiplier: 24 },
+      'C': { foir: 0.55, multiplier: 20 },
+      'D': { foir: 0.55, multiplier: 20 },
+      'GOVT': { foir: 0.65, multiplier: 30 }
     }
   },
 
-  // Minimum salary requirements by category
-  minSalary: {
-    'A': 20000,
-    'B': 25000,      // Higher minimum for Category B
-    'C': 20000,
-    'D': 25000,      // Higher minimum for Category D
-    'GOVT': 20000,
-    'UNLISTED': null  // UNLISTED companies are NOT ELIGIBLE
-  },
+  // ROI Structure & Slabs (Section 2)
+  roiSlabs: [
+    {
+      category: 'SUPER A',
+      slab1: { minLoan: 1000000, minSalary: 75000, roi: 13.75 },
+      slab2: { minLoan: 750000, minSalary: 50000, roi: 14.50 },
+      defaultRoi: 15.00
+    },
+    {
+      category: 'A',
+      slab1: { minLoan: 1000000, minSalary: 75000, roi: 13.75 },
+      slab2: { minLoan: 750000, minSalary: 50000, roi: 14.50 },
+      defaultRoi: 15.00
+    },
+    {
+      category: 'B',
+      slab1: { minLoan: 500000, minSalary: 0, roi: 14.50 },
+      defaultRoi: 15.00
+    },
+    {
+      category: 'C',
+      defaultRoi: 15.00
+    },
+    {
+      category: 'D',
+      defaultRoi: 15.00
+    },
+    {
+      category: 'GOVT',
+      slab1: { minLoan: 1000000, minSalary: 75000, roi: 13.75 },
+      slab2: { minLoan: 750000, minSalary: 50000, roi: 14.50 },
+      defaultRoi: 15.00
+    }
+  ],
 
-  // Maximum tenure by category (in months)
-  maxTenureByCategory: {
-    'A': 84,        // 7 years - CAT A
-    'GOVT': 84,     // 7 years - CAT GOVT
-    'B': 84,        // 7 years - CAT B
-    'C': 84,        // 7 years - CAT C
-    'D': 60         // 5 years - CAT D
-  },
-
-  // Company categories
-  companyCategories: {
-    'A': { minIncome: 20000, description: 'Category A Companies' },
-    'B': { minIncome: 25000, description: 'Category B Companies' },
-    'C': { minIncome: 20000, description: 'Category C Companies' },
-    'D': { minIncome: 25000, description: 'Category D Companies' },
-    'GOVT': { minIncome: 20000, description: 'Government Employees' },
-    'UNLISTED': { minIncome: null, description: 'UNLISTED Companies - NOT ELIGIBLE' }
-  },
-
-  employmentTypes: ['salaried', 'government', 'self-employed'],
-  specialPrograms: ['auto-finance', 'retail-loan', 'service-sector'],
-
-  // Special note: UNLISTED companies are not eligible for loans
-  unlistedEligible: false,
-
-  // Balance Transfer (BT) Configuration
+  // Balance Transfer (BT) Configuration (Section 1)
   btConfig: {
-    isAvailable: true, // BT facility is available
-    maxLoansForBT: 6, // Maximum number of existing personal loans that can be consolidated
-    acceptsFintechLoans: false, // Does NOT accept BT for Fintech/digital platform loans
-    description: 'Cholamandalam allows balance transfer for up to 6 existing personal loans (excluding Fintech loans)'
+    isAvailable: true,
+    maxCreditCardsForBT: 6, // 6 CCBT ALLOW
+    maxCcBtSalaryMultiplier: 6, // 6 TIME NOT ALLOW FOR BT (CC BT POS > 6x monthly salary not allowed)
+    description: 'Chola allows up to 6 Credit Card BTs with total card outstanding capped at 6x monthly income'
   }
 };

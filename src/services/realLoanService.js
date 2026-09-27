@@ -707,6 +707,59 @@ const matchCategory = (cat1, cat2) => {
         }
       }
 
+      // 3.10 CHOLAMANDALAM FINANCE (CHOLA) EXCEL POLICY CHECKS (Sheet: CHOLA)
+      const isCholaInst = name.toLowerCase().includes('chola') || id === 'chola';
+      if (isCholaInst) {
+        // Min Salary Check: 25k general, 30k for Banks & NBFCs employees without incentive
+        const compStr = String(calculatorInput.companyName || '').toLowerCase();
+        const typeStr = String(calculatorInput.companyType || '').toLowerCase();
+        const isBankOrNbfc = compStr.includes('bank') || compStr.includes('nbfc') || compStr.includes('finance') || 
+                             compStr.includes('capital') || compStr.includes('credit') || compStr.includes('lending') ||
+                             typeStr.includes('bank') || typeStr.includes('nbfc');
+        const reqMinSalary = isBankOrNbfc ? 30000 : 25000;
+        const incomeNoIncentive = Number(calculatorInput.basicSalary || calculatorInput.monthlyIncome || 0);
+
+        if (incomeNoIncentive < reqMinSalary) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Chola Finance requires minimum ₹${reqMinSalary.toLocaleString()} monthly salary without incentive for ${isBankOrNbfc ? 'Bank/NBFC employees' : 'salaried applicants'} (Excel: 25K AND BANKS AND NBFCS 30K WITHOUT INSENTIVE). Current: ₹${incomeNoIncentive.toLocaleString()}`,
+            category: bankCategory
+          };
+        }
+
+        // Designation Check: RM, SM, SO, SFE NOT ALLOW
+        if (calculatorInput.designation) {
+          const desigUpper = String(calculatorInput.designation).toUpperCase().trim();
+          const restricted = ['RM', 'SM', 'SO', 'SFE', 'RELATIONSHIP MANAGER', 'SALES MANAGER', 'SALES OFFICER', 'SALES FINANCE EXECUTIVE'];
+          const isRestricted = restricted.some(d => {
+            const regex = new RegExp(`\\b${d}\\b`, 'i');
+            return regex.test(desigUpper);
+          });
+          if (isRestricted) {
+            return {
+              bankName: name,
+              eligible: false,
+              reason: `Chola Finance policy does not allow designation "${calculatorInput.designation}" (Excel: RM SM SO SFE NOT ALLOW).`,
+              category: bankCategory
+            };
+          }
+        }
+
+        // Work Experience Check: Govt 3 months, Pvt 12 months (1 year)
+        const isGovt = calculatorInput.employmentType === 'government' || String(bankCategory).toUpperCase() === 'GOVT';
+        const reqExpMonths = isGovt ? 3 : 12;
+        const totalExp = Number(calculatorInput.totalWorkExperience || calculatorInput.workExperience || 0);
+        if (totalExp > 0 && totalExp < reqExpMonths) {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: `Chola Finance requires minimum ${reqExpMonths} months work experience for ${isGovt ? 'Govt employees' : 'private sector employees'} (Excel: GOVT 3 MONTHS/ PVT 1 YEARS). Found: ${totalExp} months.`,
+            category: bankCategory
+          };
+        }
+      }
+
       // -------------------------------------------------------------
       // Dynamic Bank Policy Specific Credit Card Obligation Percentage
       // -------------------------------------------------------------
@@ -788,6 +841,7 @@ const matchCategory = (cat1, cat2) => {
             let dynamicRoi = matchedRate.defaultRoi || matchedRate.minRoi || 10.5;
             const reqAmount = calculatorInput.desiredLoanAmount;
             const isSmfg = name.toLowerCase().includes('smfg') || id === 'smfg';
+            const isChola = name.toLowerCase().includes('chola') || id === 'chola';
             if (isSmfg) {
               const income = calculatorInput.monthlyIncome || calculatorInput.basicSalary || 0;
               if (income >= 100000 && matchedRate.roiAbove100k) {
@@ -806,6 +860,31 @@ const matchCategory = (cat1, cat2) => {
                 dynamicRoi = matchedRate.roi25kTo30k;
               } else if (matchedRate.roiBelow25k || matchedRate.roi25001) {
                 dynamicRoi = matchedRate.roiBelow25k || matchedRate.roi25001;
+              }
+            } else if (isChola) {
+              // Chola Finance (Sheet: CHOLA - Section 2)
+              // Super A / A / Govt: >=10L & >=75k Sal -> 13.75%, >=7.5L & >=50k Sal -> 14.50%, Else -> 15.00%
+              // B: >=5L -> 14.50% (to 15.00%), Else -> 15.00%
+              // C / D: 15.00%
+              const income = calculatorInput.monthlyIncome || calculatorInput.basicSalary || 0;
+              const amt = reqAmount || 1000000;
+              const catUpper = String(bankCategory || '').toUpperCase();
+              if (catUpper.includes('SUPER') || catUpper === 'A' || catUpper === 'GOVT') {
+                if (amt >= 1000000 && income >= 75000 && matchedRate.roiAbove10L75kSal) {
+                  dynamicRoi = matchedRate.roiAbove10L75kSal;
+                } else if (amt >= 750000 && income >= 50000 && matchedRate.roiAbove75L50kSal) {
+                  dynamicRoi = matchedRate.roiAbove75L50kSal;
+                } else {
+                  dynamicRoi = matchedRate.roiAbove5L || matchedRate.defaultRoi || 15.00;
+                }
+              } else if (catUpper === 'B') {
+                if (amt >= 500000 && (matchedRate.roiAbove10L75kSal || matchedRate.roiAbove75L50kSal)) {
+                  dynamicRoi = matchedRate.roiAbove10L75kSal || 14.50;
+                } else {
+                  dynamicRoi = matchedRate.roiAbove5L || matchedRate.defaultRoi || 15.00;
+                }
+              } else {
+                dynamicRoi = matchedRate.roiAbove5L || matchedRate.defaultRoi || 15.00;
               }
             } else if (reqAmount && reqAmount > 0) {
               if (reqAmount >= 5000000 && matchedRate.roiAbove50L) {
@@ -1010,11 +1089,38 @@ const matchCategory = (cat1, cat2) => {
               bankInput.multiplierOverride = axMult;
               if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
             } else if (name.toLowerCase().includes('chola') || id === 'chola') {
-              // Chola Finance Excel Policy
+              // Chola Finance Excel Policy (Sheet: CHOLA - Section 3)
               const catUpper = String(bankCategory || '').toUpperCase();
-              const isPriority = catUpper.includes('SUPER') || catUpper === 'A' || catUpper === 'B' || catUpper === 'GOVT';
-              let cholaFoir = income >= 30000 ? (isPriority ? 70 : 65) : (isPriority ? 65 : 55);
-              let cholaMult = (catUpper.includes('SUPER') || catUpper === 'GOVT') ? 35 : (isPriority ? 28 : 25);
+              let cholaFoir = 70;
+              let cholaMult = 28;
+
+              if (catUpper.includes('SUPER') || catUpper === 'GOVT') {
+                if (income >= 30000) {
+                  cholaFoir = matchedFoir.slab2Foir || matchedFoir.maxFoir || 70;
+                  cholaMult = matchedFoir.multiplier || 35;
+                } else {
+                  cholaFoir = matchedFoir.slab1Foir || 65;
+                  cholaMult = matchedFoir.multiplierSlab1 || 30;
+                }
+              } else if (catUpper === 'A' || catUpper === 'B') {
+                if (income >= 30000) {
+                  cholaFoir = matchedFoir.slab2Foir || matchedFoir.maxFoir || 70;
+                  cholaMult = matchedFoir.multiplier || 28;
+                } else {
+                  cholaFoir = matchedFoir.slab1Foir || 65;
+                  cholaMult = matchedFoir.multiplierSlab1 || 24;
+                }
+              } else {
+                // Categories C and D
+                if (income >= 30000) {
+                  cholaFoir = matchedFoir.slab2Foir || matchedFoir.maxFoir || 65;
+                  cholaMult = matchedFoir.multiplier || 25;
+                } else {
+                  cholaFoir = matchedFoir.slab1Foir || 55;
+                  cholaMult = matchedFoir.multiplierSlab1 || 20;
+                }
+              }
+
               bankInput.foirOverride = cholaFoir;
               bankInput.multiplierOverride = cholaMult;
               if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
