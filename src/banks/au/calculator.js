@@ -29,17 +29,19 @@ const calculatePrincipalFromEMI = (emi, annualInterestRate, tenureInYears) => {
   return Math.round(principal);
 };
 
-// Determine ROI from Excel Section 5 Detailed Matrix
-export const getAuROI = (loanAmount, cibilScore, category = 'B') => {
+// Determine ROI from Excel Section 5 Detailed Matrix (Sheet: AU BANK)
+// Matrix is structured by: Segment (CIBIL & Loan Size) + Net Monthly Salary Slab (>1.5L, 50k-1.5L, <50k)
+export const getAuROI = (loanAmount, cibilScore, category = 'B', monthlyIncome = 50000, customMatrix = null) => {
   const c = String(category || '').toUpperCase().trim();
   let catKey = 'B';
-  if (c.includes('SUPER')) catKey = 'SUPER A';
-  else if (c === 'A') catKey = 'A';
-  else if (c === 'B') catKey = 'B';
-  else if (c === 'C') catKey = 'C';
-  else if (c === 'D') catKey = 'D';
-  else if (c.includes('GOVT')) catKey = 'GOVT';
-  else catKey = 'OTHER';
+  let catProp = 'catB';
+  if (c.includes('SUPER')) { catKey = 'SUPER A'; catProp = 'superA'; }
+  else if (c === 'A') { catKey = 'A'; catProp = 'catA'; }
+  else if (c === 'B') { catKey = 'B'; catProp = 'catB'; }
+  else if (c === 'C') { catKey = 'C'; catProp = 'catC'; }
+  else if (c === 'D') { catKey = 'D'; catProp = 'catD'; }
+  else if (c.includes('GOVT')) { catKey = 'GOVT'; catProp = 'govt'; }
+  else { catKey = 'OTHER'; catProp = 'other'; }
 
   const isNtc = cibilScore === -1 || cibilScore === 0 || !cibilScore;
   const isHighCibil = cibilScore >= 750;
@@ -54,19 +56,23 @@ export const getAuROI = (loanAmount, cibilScore, category = 'B') => {
     segmentKey = isHighLoan ? 'LT750_LA_GTE200K' : 'LT750_LA_LT200K';
   }
 
-  let tierKey = '50k-150k';
-  if (loanAmount > 150000) {
-    tierKey = '>150k';
-  } else if (loanAmount < 50000) {
-    tierKey = '<50k';
+  // Column 11: Net Monthly Salary (DOUBLE)
+  const sal = Number(monthlyIncome) || 0;
+  let salarySlabKey = '>=50K <=150K';
+  if (sal > 150000) {
+    salarySlabKey = '> 1,50K';
+  } else if (sal < 50000) {
+    salarySlabKey = '< 50K';
   }
 
-  const match = auConfig.roiMatrixDetailed.find(
-    m => m.segment === segmentKey && m.tier === tierKey
+  const matrix = customMatrix || auConfig.roiMatrixDetailed || [];
+  const match = matrix.find(
+    m => m.segment === segmentKey && (m.salarySlab === salarySlabKey || m.tier === salarySlabKey)
   );
 
-  if (match && match.rates && match.rates[catKey] !== undefined) {
-    return match.rates[catKey];
+  if (match && match.rates) {
+    const val = match.rates[catKey] ?? match.rates[catProp] ?? match.rates[catKey.toLowerCase()];
+    if (val !== undefined) return Number(val);
   }
 
   return 15.0; // fallback standard rate
@@ -238,11 +244,11 @@ export const calculateAuEligibility = (input) => {
   const multiplierCap = Math.round(monthlyIncome * multiplier);
 
   // 9. Initial Principal Loan from EMI using initial estimate
-  let estimatedRoi = getAuROI(1000000, cibilScore, companyCategory);
+  let estimatedRoi = getAuROI(1000000, cibilScore, companyCategory, monthlyIncome);
   let foirLoanAmount = calculatePrincipalFromEMI(maxAllowableEmi, estimatedRoi, tenureYears);
 
-  // Re-check exact ROI from matrix based on actual loan amount
-  const finalRoi = getAuROI(foirLoanAmount, cibilScore, companyCategory);
+  // Re-check exact ROI from matrix based on actual loan amount & monthly salary
+  const finalRoi = getAuROI(foirLoanAmount, cibilScore, companyCategory, monthlyIncome);
   if (finalRoi !== estimatedRoi) {
     foirLoanAmount = calculatePrincipalFromEMI(maxAllowableEmi, finalRoi, tenureYears);
   }

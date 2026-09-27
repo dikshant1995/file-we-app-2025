@@ -1278,22 +1278,31 @@ const matchCategory = (cat1, cat2) => {
               if (hasHl) bajajFoir += (income < 50000 ? 10 : 5);
               bankInput.foirOverride = Math.min(75, bajajFoir);
 
-              // Multipliers from Section 6
+              // Multipliers from Section 6 (Excel Sheet: BAJAJ)
               const catUpper = String(bankCategory || '').toUpperCase();
               let bajajMult = 16;
-              if (catUpper.includes('SUPER') || catUpper.includes('DIAMOND')) {
+              if (catUpper.includes('SUPER') || catUpper.includes('DIAMOND') || catUpper.includes('SUPER GREEN')) {
                 bajajMult = income < 50000 ? 18 : (income < 75000 ? 20 : (income <= 200000 ? 22 : 24));
-              } else if (catUpper === 'A' || catUpper.includes('GOVT')) {
+              } else if (catUpper === 'A' || catUpper.includes('GOVT') || catUpper.includes('GREEN')) {
                 bajajMult = income < 50000 ? 16 : (income < 75000 ? 16 : (income <= 200000 ? 22 : 24));
-              } else if (catUpper === 'B') {
+              } else if (catUpper === 'B' || catUpper.includes('AMBAR')) {
                 bajajMult = income < 50000 ? 12 : (income < 75000 ? 12 : 16);
-              } else if (catUpper === 'C') {
+              } else if (catUpper === 'C' || catUpper.includes('RED')) {
                 bajajMult = 10;
               } else {
                 // Dark Red / D / Unlisted
                 const isUnlisted = String(calculatorInput.companyType || '').toLowerCase() === 'unlisted' || catUpper === 'UNLISTED';
                 bajajMult = isUnlisted ? 12 : 14;
               }
+
+              // If configured/edited in Admin Policy Manager:
+              if (matchedFoir && (matchedFoir.multBelow50k !== undefined || matchedFoir.mult50kTo75k !== undefined)) {
+                if (income < 50000) bajajMult = Number(matchedFoir.multBelow50k ?? bajajMult);
+                else if (income < 75000) bajajMult = Number(matchedFoir.mult50kTo75k ?? bajajMult);
+                else if (income <= 200000) bajajMult = Number(matchedFoir.mult75kTo2L ?? bajajMult);
+                else bajajMult = Number(matchedFoir.multAbove2L ?? bajajMult);
+              }
+
               bankInput.multiplierOverride = bajajMult;
               if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
             } else if (name.toLowerCase().includes('bandhan') || id === 'bandhan') {
@@ -1877,8 +1886,8 @@ const matchCategory = (cat1, cat2) => {
           // AU Small Finance Bank Excel Rate calculation (Sheet: AU BANK - Section 5):
           if (name.toLowerCase().includes('au ') || id === 'au-bank' || id === 'au') {
             const numCibil = rawCibil !== null && rawCibil !== undefined && rawCibil !== '' ? Number(rawCibil) : 750;
-            finalRate = getAuROI(maxEligibleLoan, numCibil, bankCategory);
-            appliedRoiSlab = `AU Matrix (CIBIL ${numCibil}, ₹${(maxEligibleLoan / 100000).toFixed(1)}L)`;
+            finalRate = getAuROI(maxEligibleLoan, numCibil, bankCategory, monthlyIncome, policy?.roiMatrixDetailed);
+            appliedRoiSlab = `AU Matrix (CIBIL ${numCibil}, ₹${(maxEligibleLoan / 100000).toFixed(1)}L, Sal ₹${(monthlyIncome / 1000).toFixed(0)}k)`;
           }
         }
 

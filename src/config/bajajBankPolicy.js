@@ -41,12 +41,12 @@ export const BAJAJ_BANK_EXCEL_POLICY = {
   // Red (Cat C): <50k: 10x, 50k-75k: 10x, 75k-2L: 10x, >2L: 10x
   // Dark Red (Cat D/Unlisted): Listed 14x and Unlisted 12x
   foirMultiplier: [
-    { category: 'Super A', slab1Foir: 60, slab2Foir: 65, maxFoir: 75, hlBonusSlab1: 10, hlBonusSlab2: 5, multBelow50k: 18, mult50kTo75k: 20, mult75kTo2L: 22, multAbove2L: 24, multiplier: 24, ccObligation: 5 },
-    { category: 'A', slab1Foir: 60, slab2Foir: 65, maxFoir: 75, hlBonusSlab1: 10, hlBonusSlab2: 5, multBelow50k: 16, mult50kTo75k: 16, mult75kTo2L: 22, multAbove2L: 24, multiplier: 24, ccObligation: 5 },
-    { category: 'B', slab1Foir: 60, slab2Foir: 65, maxFoir: 75, hlBonusSlab1: 10, hlBonusSlab2: 5, multBelow50k: 12, mult50kTo75k: 12, mult75kTo2L: 16, multAbove2L: 16, multiplier: 16, ccObligation: 5 },
-    { category: 'C', slab1Foir: 60, slab2Foir: 65, maxFoir: 75, hlBonusSlab1: 10, hlBonusSlab2: 5, multBelow50k: 10, mult50kTo75k: 10, mult75kTo2L: 10, multAbove2L: 10, multiplier: 10, ccObligation: 5 },
-    { category: 'D', slab1Foir: 60, slab2Foir: 65, maxFoir: 75, hlBonusSlab1: 10, hlBonusSlab2: 5, multBelow50k: 12, mult50kTo75k: 12, mult75kTo2L: 14, multAbove2L: 14, multiplier: 14, ccObligation: 5 },
-    { category: 'Govt', slab1Foir: 60, slab2Foir: 65, maxFoir: 75, hlBonusSlab1: 10, hlBonusSlab2: 5, multBelow50k: 18, mult50kTo75k: 20, mult75kTo2L: 22, multAbove2L: 24, multiplier: 24, ccObligation: 5 }
+    { category: 'Super A', grade: 'SUPER GREEN', slab1Foir: 60, slab2Foir: 65, maxFoir: 75, hlBonusSlab1: 10, hlBonusSlab2: 5, multBelow50k: 18, mult50kTo75k: 20, mult75kTo2L: 22, multAbove2L: 24, multiplier: 24, ccObligation: 5 },
+    { category: 'A', grade: 'GREEN', slab1Foir: 60, slab2Foir: 65, maxFoir: 75, hlBonusSlab1: 10, hlBonusSlab2: 5, multBelow50k: 16, mult50kTo75k: 16, mult75kTo2L: 22, multAbove2L: 24, multiplier: 24, ccObligation: 5 },
+    { category: 'B', grade: 'AMBAR', slab1Foir: 60, slab2Foir: 65, maxFoir: 75, hlBonusSlab1: 10, hlBonusSlab2: 5, multBelow50k: 12, mult50kTo75k: 12, mult75kTo2L: 16, multAbove2L: 16, multiplier: 16, ccObligation: 5 },
+    { category: 'C', grade: 'RED', slab1Foir: 60, slab2Foir: 65, maxFoir: 75, hlBonusSlab1: 10, hlBonusSlab2: 5, multBelow50k: 10, mult50kTo75k: 10, mult75kTo2L: 10, multAbove2L: 10, multiplier: 10, ccObligation: 5 },
+    { category: 'D', grade: 'DARK RED', slab1Foir: 60, slab2Foir: 65, maxFoir: 75, hlBonusSlab1: 10, hlBonusSlab2: 5, multBelow50k: 14, mult50kTo75k: 14, mult75kTo2L: 14, multAbove2L: 14, multListed: 14, multUnlisted: 12, multiplier: 14, ccObligation: 5 },
+    { category: 'Govt', grade: 'GREEN', slab1Foir: 60, slab2Foir: 65, maxFoir: 75, hlBonusSlab1: 10, hlBonusSlab2: 5, multBelow50k: 16, mult50kTo75k: 16, mult75kTo2L: 22, multAbove2L: 24, multiplier: 24, ccObligation: 5 }
   ],
 
   // Section 1: DEMOGRAPHIC AND AGE ELIGIBILITY CRITERIA
