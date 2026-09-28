@@ -1339,36 +1339,38 @@ function generateHTML() {
 
     /* COMPARISON TABLE & MATRIX STYLES */
     .comp-intro-bar {
-      border: 1px solid #000000;
+      border: 1.5px solid #000000;
       background: #f9f9f9;
-      padding: 4px 8px;
+      padding: 5px 8px;
       font-size: 8.5px;
-      margin-bottom: 5px;
+      margin-bottom: 6px;
       line-height: 1.35;
     }
 
     .comp-matrix-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 7.6px;
-      line-height: 1.25;
-      margin-bottom: 5px;
+      table-layout: fixed;
+      font-size: 8px;
+      line-height: 1.3;
+      margin-bottom: 6px;
     }
 
     .comp-matrix-table th {
       background: #f0f0f0;
-      border: 1px solid #000000;
-      padding: 3px 4px;
+      border: 1.5px solid #000000;
+      padding: 4px 6px;
       font-weight: 800;
       text-transform: uppercase;
-      font-size: 7.8px;
+      font-size: 8.2px;
       text-align: left;
     }
 
     .comp-matrix-table td {
       border: 1px solid #000000;
-      padding: 2.2px 4px;
+      padding: 4px 6px;
       vertical-align: middle;
+      word-wrap: break-word;
     }
 
     .comp-matrix-table tr:nth-child(even) {
@@ -1378,70 +1380,63 @@ function generateHTML() {
     .tag-mono {
       font-weight: 700;
       border: 1px solid #000000;
-      padding: 0.5px 3.5px;
+      padding: 1px 4px;
       border-radius: 2px;
       background: #ffffff;
       display: inline-block;
-      white-space: nowrap;
-      font-size: 7.2px;
+      font-size: 7.6px;
+      line-height: 1.2;
     }
 
-    /* ARCHITECTURAL TREE DIAGRAMS (PAGE 3) */
-    .arch-grid-2x2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 7px;
-      margin-bottom: 5px;
-      flex: 1;
-    }
-
-    .arch-card {
+    /* ARCHITECTURAL TREE DIAGRAMS (PAGES 4 & 5) */
+    .arch-panel-card {
       border: 1.5px solid #000000;
       border-radius: 3px;
-      padding: 6px 8px;
+      padding: 8px 10px;
       background: #ffffff;
-      display: flex;
-      flex-direction: column;
+      margin-bottom: 8px;
     }
 
-    .arch-card-header {
-      font-size: 8.8px;
+    .arch-panel-title {
+      font-size: 9.5px;
       font-weight: 800;
       text-transform: uppercase;
       border-bottom: 1.5px solid #000000;
-      padding-bottom: 3px;
-      margin-bottom: 4px;
+      padding-bottom: 4px;
+      margin-bottom: 6px;
       display: flex;
       justify-content: space-between;
     }
 
-    .arch-tree-item {
-      margin-bottom: 4px;
-      font-size: 8px;
-      line-height: 1.3;
+    .tree-branch-block {
+      margin-bottom: 6px;
+      font-size: 8.5px;
+      line-height: 1.35;
     }
 
-    .arch-model-name {
+    .tree-branch-block:last-child {
+      margin-bottom: 0;
+    }
+
+    .tree-model-heading {
       font-weight: 800;
       color: #000000;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      margin-bottom: 1px;
+      margin-bottom: 2px;
     }
 
-    .arch-bank-list {
-      padding-left: 10px;
-      color: #333333;
-      font-size: 7.5px;
+    .tree-bank-desc {
+      padding-left: 14px;
+      color: #222222;
+      font-size: 8px;
     }
 
     .arch-takeaway-box {
       border: 1.5px solid #000000;
       background: #f9f9f9;
-      padding: 4px 8px;
-      font-size: 8.2px;
-      line-height: 1.3;
+      padding: 6px 10px;
+      font-size: 8.5px;
+      line-height: 1.4;
+      margin-top: 4px;
     }
 
     .page-footer-bar {
@@ -1546,236 +1541,297 @@ function generateHTML() {
     </div>
   </div>
 
-  <!-- PAGE 2: CROSS-BANK FACTOR DEPENDENCY COMPARISON MATRIX -->
+  <!-- PAGE 2: CROSS-BANK FACTOR DEPENDENCY COMPARISON (PART 1) -->
   <div class="page">
     <div class="bank-header">
       <div class="bank-title-area">
-        <h2>CROSS-BANK FACTOR DEPENDENCY COMPARISON CHART</h2>
-        <span>Universal Policy Dependency Analysis across all 19 Banking Institutions</span>
+        <h2>CROSS-BANK FACTOR DEPENDENCY COMPARISON (PART 1)</h2>
+        <span>Institutions 1 to 10: Commercial Banks &amp; Premier Lenders</span>
       </div>
       <div class="bank-type-pill">COMPARISON MATRIX</div>
     </div>
 
     <div class="comp-intro-bar">
-      <strong>⚡ Factor Dependency Analysis:</strong> Different banks require distinct combinations of customer factors. For example, some banks compute FOIR solely from <code>[Category + Salary]</code>, while others factor in <code>[Live Home Loan Bonus]</code> or <code>[Housing Status]</code>. For ROI, ticket-driven banks price by <code>[Category + Loan Amount]</code>, while risk-based lenders price by <code>[Category + Salary + CIBIL]</code>.
+      <strong>⚡ Factor Dependency Analysis:</strong> Different banks require distinct combinations of customer inputs. For instance, some calculate FOIR solely from <code>[Category + Salary]</code>, while others factor in <code>[Live Home Loan Bonus]</code> or <code>[Housing Status]</code>. For ROI, ticket-driven lenders look at <code>[Category + Loan Amount]</code>, whereas risk-based lenders evaluate <code>[Category + Salary + CIBIL]</code>.
     </div>
 
     <table class="comp-matrix-table">
       <thead>
         <tr>
-          <th style="width: 110px;">Bank / NBFC</th>
-          <th style="width: 145px;">FOIR % Input Factors</th>
-          <th style="width: 135px;">Loan Sizing Engine</th>
-          <th style="width: 165px;">ROI % Input Factors</th>
-          <th style="width: 115px;">Tenure &amp; Cap Factors</th>
+          <th style="width: 100px;">Bank / NBFC</th>
+          <th style="width: 140px;">FOIR % Input Factors</th>
+          <th style="width: 130px;">Loan Sizing Engine</th>
+          <th style="width: 155px;">ROI % Input Factors</th>
+          <th style="width: 110px;">Tenure &amp; Cap Factors</th>
           <th>Special Dependency Edge</th>
         </tr>
       </thead>
       <tbody>
-        ${banks.map(b => `
+        ${banks.slice(0, 10).map(b => `
           <tr>
-            <td><strong>${b.name}</strong><br><span style="color: #555; font-size: 7px;">${b.sheet}</span></td>
+            <td><strong>${b.name}</strong><br><span style="color: #555; font-size: 7.2px;">${b.sheet}</span></td>
             <td><span class="tag-mono">[ ${b.dependencies[1].dependsOn} ]</span></td>
             <td><span class="tag-mono">[ ${b.dependencies[3].dependsOn} ]</span></td>
             <td><span class="tag-mono">[ ${b.dependencies[4].dependsOn} ]</span></td>
             <td><span class="tag-mono">[ ${b.dependencies[5].dependsOn} ]</span><br><span class="tag-mono" style="margin-top: 2px;">[ ${b.dependencies[6].dependsOn} ]</span></td>
-            <td style="font-size: 7.2px; color: #222;">${b.distinctive}</td>
+            <td style="font-size: 7.5px; color: #111;">${b.distinctive}</td>
           </tr>
         `).join('')}
       </tbody>
     </table>
 
     <div class="page-footer-bar">
-      <span>LaxmiCredit OmniEngine &bull; Cross-Bank Factor Dependency Comparison Chart</span>
-      <span>Page 2 of ${banks.length + 3}</span>
+      <span>LaxmiCredit OmniEngine &bull; Cross-Bank Factor Dependency Matrix (Part 1)</span>
+      <span>Page 2 of ${banks.length + 5}</span>
     </div>
   </div>
 
-  <!-- PAGE 3: FACTOR DEPENDENCY ARCHITECTURAL CLUSTER DIAGRAMS -->
+  <!-- PAGE 3: CROSS-BANK FACTOR DEPENDENCY COMPARISON (PART 2) -->
   <div class="page">
     <div class="bank-header">
       <div class="bank-title-area">
-        <h2>FACTOR DEPENDENCY ARCHITECTURAL DECISION DIAGRAMS</h2>
-        <span>How Banks Cluster by Underwriting &amp; Pricing Models</span>
+        <h2>CROSS-BANK FACTOR DEPENDENCY COMPARISON (PART 2)</h2>
+        <span>Institutions 11 to 19: Leading NBFCs &amp; Digital Fintech Lenders</span>
+      </div>
+      <div class="bank-type-pill">COMPARISON MATRIX</div>
+    </div>
+
+    <div class="comp-intro-bar">
+      <strong>⚡ Underwriting Spectrum:</strong> NBFCs and fintechs offer flexible underwriting structures, such as pure FOIR capitalization (no salary multiplier caps), geographical city tier limits, and accessible credit score cutoffs.
+    </div>
+
+    <table class="comp-matrix-table">
+      <thead>
+        <tr>
+          <th style="width: 100px;">Bank / NBFC</th>
+          <th style="width: 140px;">FOIR % Input Factors</th>
+          <th style="width: 130px;">Loan Sizing Engine</th>
+          <th style="width: 155px;">ROI % Input Factors</th>
+          <th style="width: 110px;">Tenure &amp; Cap Factors</th>
+          <th>Special Dependency Edge</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${banks.slice(10).map(b => `
+          <tr>
+            <td><strong>${b.name}</strong><br><span style="color: #555; font-size: 7.2px;">${b.sheet}</span></td>
+            <td><span class="tag-mono">[ ${b.dependencies[1].dependsOn} ]</span></td>
+            <td><span class="tag-mono">[ ${b.dependencies[3].dependsOn} ]</span></td>
+            <td><span class="tag-mono">[ ${b.dependencies[4].dependsOn} ]</span></td>
+            <td><span class="tag-mono">[ ${b.dependencies[5].dependsOn} ]</span><br><span class="tag-mono" style="margin-top: 2px;">[ ${b.dependencies[6].dependsOn} ]</span></td>
+            <td style="font-size: 7.5px; color: #111;">${b.distinctive}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+
+    <div class="page-footer-bar">
+      <span>LaxmiCredit OmniEngine &bull; Cross-Bank Factor Dependency Matrix (Part 2)</span>
+      <span>Page 3 of ${banks.length + 5}</span>
+    </div>
+  </div>
+
+  <!-- PAGE 4: ARCHITECTURAL DECISION TREES (PART 1: CAPACITY & LOAN SIZING) -->
+  <div class="page">
+    <div class="bank-header">
+      <div class="bank-title-area">
+        <h2>FACTOR DEPENDENCY DECISION TREES (PART 1: CAPACITY &amp; SIZING)</h2>
+        <span>Structural Breakdown of FOIR Calculation Models &amp; Loan Amount Engines</span>
       </div>
       <div class="bank-type-pill">DECISION TREES</div>
     </div>
 
-    <div class="arch-grid-2x2">
+    <!-- TREE 1: FOIR % -->
+    <div class="arch-panel-card">
+      <div class="arch-panel-title">
+        <span>1. FOIR % FACTOR DEPENDENCY DECISION TREE</span>
+        <span>DEBT CAPACITY MODELS</span>
+      </div>
 
-      <!-- DIAGRAM 1: FOIR % DECISION TREE -->
-      <div class="arch-card">
-        <div class="arch-card-header">
-          <span>1. FOIR % FACTOR DEPENDENCY TREE</span>
-          <span>DEBT CAPACITY</span>
-        </div>
-
-        <div class="arch-tree-item">
-          <div class="arch-model-name">├── MODEL A: [ Category + Net Salary ]</div>
-          <div class="arch-bank-list">
-            &bull; Standard matrix (50% to 75% FOIR)<br>
-            &bull; Banks: Axis Bank, HDFC Bank, Kotak Mahindra, Tata Capital, Bandhan Bank, SMFG India, Chola, L&amp;T Finance, Piramal, AU Small Finance, ABFL, Finnable
-          </div>
-        </div>
-
-        <div class="arch-tree-item">
-          <div class="arch-model-name">├── MODEL B: [ Category + Salary + Live HL Bonus ]</div>
-          <div class="arch-bank-list">
-            &bull; Running Home Loan boosts FOIR directly to 70% &ndash; 75%!<br>
-            &bull; Banks: IndusInd Bank (75% FOIR), ICICI Bank (70% FOIR)
-          </div>
-        </div>
-
-        <div class="arch-tree-item">
-          <div class="arch-model-name">├── MODEL C: [ Category + Salary + Housing Status ]</div>
-          <div class="arch-bank-list">
-            &bull; Owned House gets +5% to +10% higher FOIR vs Rented<br>
-            &bull; Banks: IndusInd Bank (70% Owned vs 65% Rented), Poonawalla Fincorp
-          </div>
-        </div>
-
-        <div class="arch-tree-item">
-          <div class="arch-model-name">└── MODEL D: [ Category + Salary + CIBIL Tier ]</div>
-          <div class="arch-bank-list">
-            &bull; High credit score allows higher debt burden tolerance (+5% deviation)<br>
-            &bull; Banks: Poonawalla Fincorp, Bajaj Finance, InCred Financial
-          </div>
+      <div class="tree-branch-block">
+        <div class="tree-model-heading">├── MODEL A: [ Category + Net Monthly Salary ] (Standard Matrix)</div>
+        <div class="tree-bank-desc">
+          &bull; Rule: FOIR scales solely by company category tier and net take-home salary bracket (50% to 75%).<br>
+          &bull; Applied By: Axis Bank, HDFC Bank, Kotak Mahindra, Tata Capital, Bandhan Bank, SMFG India, Chola, L&amp;T Finance, Piramal, AU Small Finance, ABFL, Finnable.
         </div>
       </div>
 
-      <!-- DIAGRAM 2: LOAN SIZING ENGINE -->
-      <div class="arch-card">
-        <div class="arch-card-header">
-          <span>2. LOAN SIZING ENGINE ARCHITECTURE</span>
-          <span>CAPACITY SIZING</span>
-        </div>
-
-        <div class="arch-tree-item">
-          <div class="arch-model-name">├── DUAL ENGINE: MIN(FOIR PV Loan, Category Multiplier)</div>
-          <div class="arch-bank-list">
-            &bull; Dual check prevents over-leveraging; selects the LOWER value<br>
-            &bull; Multipliers: Super A (up to 36x), Cat A/B (24x-30x), Cat C (18x-20x)<br>
-            &bull; Banks: Axis Bank, HDFC Bank, Kotak Mahindra, Tata Capital, Axis Finance
-          </div>
-        </div>
-
-        <div class="arch-tree-item">
-          <div class="arch-model-name">├── PURE FOIR ENGINE: Net EMI ➔ PV Loan (Zero Mult Cap)</div>
-          <div class="arch-bank-list">
-            &bull; Full debt room capitalized at ROI without arbitrary salary cap<br>
-            &bull; Advantage: Maximizes loan amount for clients with low obligations<br>
-            &bull; Banks: Poonawalla Fincorp, InCred Financial, Finnable
-          </div>
-        </div>
-
-        <div class="arch-tree-item">
-          <div class="arch-model-name">└── MULTIPLIER PRIMARY ENGINE</div>
-          <div class="arch-bank-list">
-            &bull; Fixed salary multiplier with FOIR boundary check<br>
-            &bull; Banks: Bajaj Finance, Aditya Birla Finance (ABFL)
-          </div>
+      <div class="tree-branch-block">
+        <div class="tree-model-heading">├── MODEL B: [ Category + Salary + Live Home Loan (HL Running Bonus) ]</div>
+        <div class="tree-bank-desc">
+          &bull; Rule: Applicants with an active running Home Loan receive an instant boost to their allowable debt-to-income ratio!<br>
+          &bull; Applied By: <strong>IndusInd Bank (FOIR jumps to 75%!)</strong> &bull; <strong>ICICI Bank (FOIR jumps to 70%!)</strong>.
         </div>
       </div>
 
-      <!-- DIAGRAM 3: ROI PRICING DECISION TREE -->
-      <div class="arch-card">
-        <div class="arch-card-header">
-          <span>3. RATE OF INTEREST (ROI) DECISION TREE</span>
-          <span>PRICING MATRIX</span>
-        </div>
-
-        <div class="arch-tree-item">
-          <div class="arch-model-name">├── MODEL A: [ Category + Loan Amount Bracket ]</div>
-          <div class="arch-bank-list">
-            &bull; High-ticket loans unlock prime discounted rate slabs:<br>
-            &bull; Axis (≥15L ➔ 10.35%), HDFC (≥20L ➔ 9.99%), Kotak (≥15L ➔ 9.95%), Tata (≥15L ➔ 10.99%)
-          </div>
-        </div>
-
-        <div class="arch-tree-item">
-          <div class="arch-model-name">├── MODEL B: [ Category + Salary + CIBIL + Ticket ]</div>
-          <div class="arch-bank-list">
-            &bull; Multi-factor matrix (salary + CIBIL + ticket drop rate)<br>
-            &bull; ICICI (CIBIL 775+ &amp; 75k+ Sal &amp; ≥20L ➔ 9.99%)<br>
-            &bull; Poonawalla (5 Category grids + CIBIL 0/-1 markup + tenure deviations)<br>
-            &bull; Bandhan Bank, InCred Financial
-          </div>
-        </div>
-
-        <div class="arch-tree-item">
-          <div class="arch-model-name">├── MODEL C: [ Category + CIBIL Tier ] (Risk-Based)</div>
-          <div class="arch-bank-list">
-            &bull; Slabs fixed by credit score bracket (750+, 725-749, 700-724)<br>
-            &bull; Banks: Bajaj Finance, Chola, Piramal, SMFG India, AU Small Finance
-          </div>
-        </div>
-
-        <div class="arch-tree-item">
-          <div class="arch-model-name">└── MODEL D: [ Loan Amount + Insurance Mandate ]</div>
-          <div class="arch-bank-list">
-            &bull; Preferential 9.99%&ndash;10.49% requires insurance bundle<br>
-            &bull; Banks: IndusInd Bank
-          </div>
+      <div class="tree-branch-block">
+        <div class="tree-model-heading">├── MODEL C: [ Category + Salary + Housing Status (Owned vs Rented) ]</div>
+        <div class="tree-bank-desc">
+          &bull; Rule: Owned residence receives 5% to 10% higher FOIR headroom compared to rented applicants.<br>
+          &bull; Applied By: IndusInd Bank (Owned 70% vs Rented 65%) &bull; Poonawalla Fincorp (Rented strictly capped to 65%).
         </div>
       </div>
 
-      <!-- DIAGRAM 4: TENURE & CAPPING DECISION TREE -->
-      <div class="arch-card">
-        <div class="arch-card-header">
-          <span>4. TENURE &amp; SANCTION CAPPING TREE</span>
-          <span>DURATION &amp; CEILINGS</span>
+      <div class="tree-branch-block">
+        <div class="tree-model-heading">└── MODEL D: [ Category + Salary + CIBIL Score Tier ]</div>
+        <div class="tree-bank-desc">
+          &bull; Rule: Higher credit scores permit a higher debt-servicing tolerance (+5% policy deviation).<br>
+          &bull; Applied By: Poonawalla Fincorp, Bajaj Finance, InCred Financial.
         </div>
+      </div>
+    </div>
 
-        <div class="arch-tree-item">
-          <div class="arch-model-name">├── TENURE: Category A/Govt = 84M | Category B/C = 72M</div>
-          <div class="arch-bank-list">
-            &bull; Up to 7 Years (84 Months) allowed for top tiers (Retirement ≤ 60)<br>
-            &bull; Banks: Axis Bank, IndusInd Bank, HDFC Bank, Poonawalla, AU Bank
-          </div>
-        </div>
+    <!-- TREE 2: LOAN SIZING -->
+    <div class="arch-panel-card">
+      <div class="arch-panel-title">
+        <span>2. LOAN SIZING ENGINE ARCHITECTURE</span>
+        <span>CAPITALIZATION MODELS</span>
+      </div>
 
-        <div class="arch-tree-item">
-          <div class="arch-model-name">├── TENURE: Flat 72 Months Across Categories</div>
-          <div class="arch-bank-list">
-            &bull; Flat 6 Years; Cat D strictly capped to 60 Months (5 Years)<br>
-            &bull; Banks: ICICI Bank, Kotak Mahindra, Tata Capital, Bandhan, L&amp;T
-          </div>
-        </div>
-
-        <div class="arch-tree-item">
-          <div class="arch-model-name">├── SPECIAL TENURE RULE: CIBIL -1 Capped to 48 Months</div>
-          <div class="arch-bank-list">
-            &bull; First-time borrowers (New To Credit) capped to 4 Years max<br>
-            &bull; Bank: IndusInd Bank (Strict NTC tenure restriction)
-          </div>
-        </div>
-
-        <div class="arch-tree-item">
-          <div class="arch-model-name">└── CAPPING: Pure Category vs Category + City Tier</div>
-          <div class="arch-bank-list">
-            &bull; Category Only: Axis (₹50L), HDFC (₹75L), Kotak (₹1 Cr), ICICI (₹1 Cr)<br>
-            &bull; Category + City Tier: Poonawalla (Metro ₹60L, T1 ₹50L, T2 ₹40L, Rest ₹25L), Piramal, SMFG
-          </div>
+      <div class="tree-branch-block">
+        <div class="tree-model-heading">├── DUAL ENGINE: MIN(FOIR PV Loan, Category Multiplier)</div>
+        <div class="tree-bank-desc">
+          &bull; Rule: Dual underwriting checks both Net EMI capacity room and gross salary multiplier, selecting whichever is LOWER.<br>
+          &bull; Multipliers: Super A (up to 36x for 40k+), Cat A/B (24x-30x), Cat C (18x-20x).<br>
+          &bull; Applied By: Axis Bank, HDFC Bank, Kotak Mahindra, Tata Capital, Axis Finance.
         </div>
       </div>
 
+      <div class="tree-branch-block">
+        <div class="tree-model-heading">├── PURE FOIR ENGINE: Net EMI Room ➔ PV Loan (Zero Multiplier Limits)</div>
+        <div class="tree-bank-desc">
+          &bull; Rule: Entire disposable income room is capitalized directly at interest rate without arbitrary salary multiplier limits.<br>
+          &bull; Advantage: Maximizes loan sanction for high-earning individuals with minimal existing obligations.<br>
+          &bull; Applied By: <strong>Poonawalla Fincorp</strong>, <strong>InCred Financial</strong>, <strong>Finnable</strong>.
+        </div>
+      </div>
+
+      <div class="tree-branch-block">
+        <div class="tree-model-heading">└── MULTIPLIER PRIMARY ENGINE</div>
+        <div class="tree-bank-desc">
+          &bull; Rule: Gross salary multiplier acts as primary loan sizing vehicle, checked against FOIR ceiling.<br>
+          &bull; Applied By: Bajaj Finance, Aditya Birla Finance (ABFL).
+        </div>
+      </div>
     </div>
 
     <!-- SUMMARY UNDERWRITING GUIDE -->
     <div class="arch-takeaway-box">
-      <strong>🎯 Underwriter's Routing Rule of Thumb:</strong>
-      If client has a running Home Loan ➔ Route to <strong>IndusInd (75% FOIR)</strong> or <strong>ICICI (70% FOIR)</strong>. 
-      If client seeks large ticket ≥15L with lowest rate ➔ Route to <strong>Kotak (9.95%)</strong>, <strong>HDFC (9.99%)</strong>, or <strong>Axis (10.35%)</strong>.
-      If client has low obligation and seeks maximum possible loan without multiplier ceiling ➔ Route to <strong>Poonawalla Fincorp (Pure FOIR)</strong>.
+      <strong>🎯 Underwriter's Capacity Routing Rule:</strong>
+      If applicant has an active Home Loan ➔ Route to <strong>IndusInd (75% FOIR)</strong> or <strong>ICICI (70% FOIR)</strong>.<br>
+      If applicant has low obligations and needs maximum loan amount without multiplier capping ➔ Route to <strong>Poonawalla Fincorp (Pure FOIR)</strong>.
     </div>
 
     <div class="page-footer-bar">
-      <span>LaxmiCredit OmniEngine &bull; Factor Dependency Architectural Decision Diagrams</span>
-      <span>Page 3 of ${banks.length + 3}</span>
+      <span>LaxmiCredit OmniEngine &bull; Architectural Decision Trees (Part 1)</span>
+      <span>Page 4 of ${banks.length + 5}</span>
     </div>
   </div>
 
-  <!-- INDIVIDUAL BANK PAGES (PAGES 4 TO 22) -->
+  <!-- PAGE 5: ARCHITECTURAL DECISION TREES (PART 2: PRICING & CEILINGS) -->
+  <div class="page">
+    <div class="bank-header">
+      <div class="bank-title-area">
+        <h2>FACTOR DEPENDENCY DECISION TREES (PART 2: PRICING &amp; CEILINGS)</h2>
+        <span>Structural Breakdown of ROI Pricing Matrices &amp; Repayment Duration Limits</span>
+      </div>
+      <div class="bank-type-pill">DECISION TREES</div>
+    </div>
+
+    <!-- TREE 3: ROI PRICING -->
+    <div class="arch-panel-card">
+      <div class="arch-panel-title">
+        <span>3. RATE OF INTEREST (ROI) PRICING DECISION TREE</span>
+        <span>INTEREST RATE ASSIGNMENT</span>
+      </div>
+
+      <div class="tree-branch-block">
+        <div class="tree-model-heading">├── MODEL A: [ Category + Loan Amount Bracket ] (Ticket-Driven Pricing)</div>
+        <div class="tree-bank-desc">
+          &bull; Rule: Loan amount acts as the primary rate decider. Higher tickets unlock steep interest rate discounts.<br>
+          &bull; Slabs: Axis Bank (≥15L ➔ 10.35%) &bull; HDFC Bank (≥20L ➔ 9.99%) &bull; Kotak Bank (≥15L ➔ 9.95%) &bull; Tata Capital (≥15L ➔ 10.99%).
+        </div>
+      </div>
+
+      <div class="tree-branch-block">
+        <div class="tree-model-heading">├── MODEL B: [ Category + Salary + CIBIL + Ticket Size ] (Multi-Variable Matrix)</div>
+        <div class="tree-bank-desc">
+          &bull; Rule: Multi-dimensional matrix combining company category, net monthly income, credit score, and requested loan size.<br>
+          &bull; Applied By: <strong>ICICI Bank</strong> (CIBIL 775+ &amp; 75k+ Sal &amp; ≥20L ➔ 9.99%) &bull; <strong>Poonawalla Fincorp</strong> (5 Grids + CIBIL markups) &bull; Bandhan Bank &bull; InCred.
+        </div>
+      </div>
+
+      <div class="tree-branch-block">
+        <div class="tree-model-heading">├── MODEL C: [ Category + CIBIL Score Tier ] (Pure Risk-Based Pricing)</div>
+        <div class="tree-bank-desc">
+          &bull; Rule: Rate matrix is directly tiered by credit score brackets (750+, 725-749, 700-724).<br>
+          &bull; Applied By: Bajaj Finance, Chola, Piramal Capital, SMFG India Credit, AU Small Finance Bank.
+        </div>
+      </div>
+
+      <div class="tree-branch-block">
+        <div class="tree-model-heading">└── MODEL D: [ Loan Amount + Insurance Mandate ]</div>
+        <div class="tree-bank-desc">
+          &bull; Rule: Preferential pricing (9.99%–10.49%) is bundled with a mandatory insurance policy requirement.<br>
+          &bull; Applied By: <strong>IndusInd Bank</strong>.
+        </div>
+      </div>
+    </div>
+
+    <!-- TREE 4: TENURE & CAPPING -->
+    <div class="arch-panel-card">
+      <div class="arch-panel-title">
+        <span>4. TENURE &amp; SANCTION CAPPING DECISION TREE</span>
+        <span>DURATION &amp; EXPOSURE LIMITS</span>
+      </div>
+
+      <div class="tree-branch-block">
+        <div class="tree-model-heading">├── TENURE: Category A/Govt = 84 Months (7 Yrs) | Category B/C = 72 Months (6 Yrs)</div>
+        <div class="tree-bank-desc">
+          &bull; Rule: Up to 84 Months allowed for prime corporate/government profiles, capped at retirement age 60.<br>
+          &bull; Applied By: Axis Bank, IndusInd Bank, HDFC Bank, Poonawalla Fincorp, AU Small Finance Bank.
+        </div>
+      </div>
+
+      <div class="tree-branch-block">
+        <div class="tree-model-heading">├── TENURE: Flat 72 Months Across Categories (Max Age 60)</div>
+        <div class="tree-bank-desc">
+          &bull; Rule: Standard 6-year duration for all eligible employers; Cat D strictly capped at 60 Months (5 Years).<br>
+          &bull; Applied By: ICICI Bank, Kotak Mahindra, Tata Capital, Bandhan Bank, L&amp;T Finance.
+        </div>
+      </div>
+
+      <div class="tree-branch-block">
+        <div class="tree-model-heading">├── SPECIAL TENURE RULE: CIBIL -1 (NTC) Strictly Capped to 48 Months</div>
+        <div class="tree-bank-desc">
+          &bull; Rule: First-time borrowers (New To Credit) without active bureau history are capped to a maximum of 4 Years.<br>
+          &bull; Applied By: <strong>IndusInd Bank</strong>.
+        </div>
+      </div>
+
+      <div class="tree-branch-block">
+        <div class="tree-model-heading">└── LOAN CAPPING: Pure Category Slabs vs Category + City Tier</div>
+        <div class="tree-bank-desc">
+          &bull; Pure Category: Axis (₹50L), HDFC (₹75L), Kotak (₹1 Cr), ICICI (₹1 Cr).<br>
+          &bull; Category + City Tier: Poonawalla (Metro ₹60L, T1 ₹50L, T2 ₹40L, Rest ₹25L), Piramal, SMFG India Credit.
+        </div>
+      </div>
+    </div>
+
+    <!-- SUMMARY UNDERWRITING GUIDE -->
+    <div class="arch-takeaway-box">
+      <strong>🎯 Underwriter's Pricing Routing Rule:</strong>
+      If applicant seeks large loan (≥15L/20L) at lowest interest rate ➔ Route to <strong>Kotak (9.95%)</strong>, <strong>HDFC (9.99%)</strong>, or <strong>Axis (10.35%)</strong>.<br>
+      If applicant is New to Credit (CIBIL -1) ➔ Route to <strong>IndusInd Bank</strong> (note 48M tenure cap).
+    </div>
+
+    <div class="page-footer-bar">
+      <span>LaxmiCredit OmniEngine &bull; Architectural Decision Trees (Part 2)</span>
+      <span>Page 5 of ${banks.length + 5}</span>
+    </div>
+  </div>
+
+  <!-- INDIVIDUAL BANK PAGES (PAGES 6 TO 24) -->
   ${banks.map((b, idx) => {
     const d1 = b.dependencies[0]; // Category
     const d2 = b.dependencies[1]; // FOIR
@@ -1941,7 +1997,7 @@ function generateHTML() {
       <!-- PAGE FOOTER -->
       <div class="page-footer-bar">
         <span>LaxmiCredit OmniEngine &bull; ${b.name} Factor Dependency Flowchart</span>
-        <span>Page ${idx + 4} of ${banks.length + 3}</span>
+        <span>Page ${idx + 6} of ${banks.length + 5}</span>
       </div>
     </div>
   `}).join('')}
@@ -1985,7 +2041,11 @@ async function run() {
   console.log('Completed successfully! Total size:', (pdfBuffer.length / 1024 / 1024).toFixed(2), 'MB');
 }
 
-run().catch(err => {
-  console.error('Error generating PDF:', err);
-  process.exit(1);
-});
+module.exports = { generateHTML, banks, run };
+
+if (require.main === module) {
+  run().catch(err => {
+    console.error('Error generating PDF:', err);
+    process.exit(1);
+  });
+}
