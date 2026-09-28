@@ -1550,7 +1550,7 @@ const UnifiedBankPolicyManager = () => {
                       <p>Piramal Finance Master Policy Slabs (from Excel: BANKS POLICYS.xlsx): <strong>11.99% to 28.00% p.a.</strong> across all categories (Super A, A, B, C, D, Govt) — <strong>AS PER VENTILE SCORE</strong>.</p>
                     )}
                     {isPoonawala && (
-                      <p>Poonawala Master Policy Slabs: <strong>≥ ₹35 Lakh</strong> (11.99%), <strong>₹20L – ₹35L</strong> (12.25%), and <strong>&lt; ₹20 Lakh</strong> (12.50% – 14.25%).</p>
+                      <p>Poonawalla Fincorp Master Policy (from Excel: Sheet POONAWALA): New Rate Grid effective starting 1st Aug 2026 across <strong>Super CAT / CAT A / Govt Ratna</strong> (11.99% – 15.00%), <strong>Govt / Cat B / CAT EDU / Defence</strong> (13.50% – 15.50%), <strong>Cat C</strong> (14.00% – 16.00%), <strong>Cat D</strong> (14.74% – 17.24%), and <strong>Cat E</strong> (16.75% – 19.75%).</p>
                     )}
                     {isIcici && (
                       <p>ICICI Bank Master Policy (from Excel): <strong>CIBIL 775+ & ₹75k+ Sal (≥₹20L)</strong> (9.99%), <strong>CIBIL 750–774 & ₹75k+ Sal</strong> (10.30%), and <strong>Standard ROI</strong> (12.00% to 9.99% / Open Market: 11.00% to 12.80%). Min Ticket in Rajasthan: <strong>₹6.10 Lakhs</strong>.</p>
@@ -2532,6 +2532,187 @@ const UnifiedBankPolicyManager = () => {
                   </table>
                 </div>
                 )}
+
+                {isPoonawala && (
+                  <div style={{
+                    marginTop: '24px',
+                    background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%)',
+                    border: '1.5px solid rgba(56, 189, 248, 0.35)',
+                    borderRadius: '10px',
+                    padding: '18px 20px',
+                    color: '#e2e8f0'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <CheckCircle2 size={20} color="#38bdf8" />
+                        <h4 style={{ margin: 0, color: '#38bdf8', fontSize: '1.05rem', fontWeight: 700 }}>
+                          Poonawalla Fincorp Complete Rate Grids (Excel Sheet: POONAWALA — Effective 1st Aug 2026)
+                        </h4>
+                      </div>
+                      <span style={{ fontSize: '0.8rem', background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', padding: '4px 10px', borderRadius: '4px', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+                        Pure FOIR Institution • 100% Digital
+                      </span>
+                    </div>
+
+                    {/* Grids 1 & 2 */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '16px', marginBottom: '16px' }}>
+                      {/* Grid 1 */}
+                      <div style={{ background: 'rgba(15, 23, 42, 0.65)', border: '1px solid rgba(56, 189, 248, 0.2)', borderRadius: '8px', padding: '12px 14px' }}>
+                        <div style={{ fontWeight: 700, color: '#38bdf8', fontSize: '0.88rem', marginBottom: '8px' }}>
+                          📊 Super CAT / CAT A / Govt Ratna
+                        </div>
+                        <table style={{ width: '100%', fontSize: '0.82rem', borderCollapse: 'collapse', textAlign: 'left' }}>
+                          <thead>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
+                              <th style={{ padding: '6px 8px' }}>Salary / Ticket Slab</th>
+                              <th style={{ padding: '6px 8px', color: '#f87171' }}>≥ 700</th>
+                              <th style={{ padding: '6px 8px', color: '#fbbf24' }}>≥ 730</th>
+                              <th style={{ padding: '6px 8px', color: '#4ade80' }}>≥ 780</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '6px 8px' }}>NTH up to 50K</td><td style={{ padding: '6px 8px' }}>15.00%</td><td style={{ padding: '6px 8px' }}>14.74%</td><td style={{ padding: '6px 8px', fontWeight: 600, color: '#4ade80' }}>13.75%</td></tr>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '6px 8px' }}>NTH &gt;50K–75K</td><td style={{ padding: '6px 8px' }}>14.74%</td><td style={{ padding: '6px 8px' }}>14.50%</td><td style={{ padding: '6px 8px', fontWeight: 600, color: '#4ade80' }}>13.50%</td></tr>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '6px 8px' }}>NTH &gt;75K</td><td style={{ padding: '6px 8px' }}>14.00%</td><td style={{ padding: '6px 8px' }}>13.50%</td><td style={{ padding: '6px 8px', fontWeight: 600, color: '#4ade80' }}>12.50%</td></tr>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '6px 8px' }}>NTH &gt;100K &amp; LA ≥ 20L</td><td style={{ padding: '6px 8px' }}>13.75%</td><td style={{ padding: '6px 8px' }}>13.25%</td><td style={{ padding: '6px 8px', fontWeight: 600, color: '#4ade80' }}>12.25%</td></tr>
+                            <tr><td style={{ padding: '6px 8px' }}>NTH &gt;100K &amp; LA ≥ 35L</td><td style={{ padding: '6px 8px' }}>13.00%</td><td style={{ padding: '6px 8px' }}>12.50%</td><td style={{ padding: '6px 8px', fontWeight: 700, color: '#38bdf8' }}>11.99%</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Grid 2 */}
+                      <div style={{ background: 'rgba(15, 23, 42, 0.65)', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '8px', padding: '12px 14px' }}>
+                        <div style={{ fontWeight: 700, color: '#34d399', fontSize: '0.88rem', marginBottom: '8px' }}>
+                          📊 Govt / Cat B / CAT EDU / Defence
+                        </div>
+                        <table style={{ width: '100%', fontSize: '0.82rem', borderCollapse: 'collapse', textAlign: 'left' }}>
+                          <thead>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
+                              <th style={{ padding: '6px 8px' }}>Salary / Ticket Slab</th>
+                              <th style={{ padding: '6px 8px', color: '#f87171' }}>≥ 700</th>
+                              <th style={{ padding: '6px 8px', color: '#fbbf24' }}>≥ 730</th>
+                              <th style={{ padding: '6px 8px', color: '#a78bfa' }}>≥ 750</th>
+                              <th style={{ padding: '6px 8px', color: '#4ade80' }}>≥ 780</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '6px 8px' }}>NTH up to 50K</td><td style={{ padding: '6px 8px' }}>15.50%</td><td style={{ padding: '6px 8px' }}>15.24%</td><td style={{ padding: '6px 8px' }}>15.00%</td><td style={{ padding: '6px 8px', fontWeight: 600, color: '#4ade80' }}>14.25%</td></tr>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '6px 8px' }}>NTH &gt;50K–75K</td><td style={{ padding: '6px 8px' }}>15.24%</td><td style={{ padding: '6px 8px' }}>15.00%</td><td style={{ padding: '6px 8px' }}>14.75%</td><td style={{ padding: '6px 8px', fontWeight: 600, color: '#4ade80' }}>14.00%</td></tr>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '6px 8px' }}>NTH &gt;75K</td><td style={{ padding: '6px 8px' }}>15.00%</td><td style={{ padding: '6px 8px' }}>14.75%</td><td style={{ padding: '6px 8px' }}>14.50%</td><td style={{ padding: '6px 8px', fontWeight: 600, color: '#4ade80' }}>13.75%</td></tr>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '6px 8px' }}>NTH &gt;100K &amp; LA ≥ 20L</td><td style={{ padding: '6px 8px' }}>14.75%</td><td style={{ padding: '6px 8px' }}>14.50%</td><td style={{ padding: '6px 8px' }}>14.25%</td><td style={{ padding: '6px 8px', fontWeight: 600, color: '#4ade80' }}>13.50%</td></tr>
+                            <tr><td style={{ padding: '6px 8px' }}>NTH &gt;100K &amp; LA ≥ 35L</td><td style={{ padding: '6px 8px', color: '#94a3b8' }}>NA</td><td style={{ padding: '6px 8px', color: '#94a3b8' }}>NA</td><td style={{ padding: '6px 8px', color: '#94a3b8' }}>NA</td><td style={{ padding: '6px 8px', color: '#94a3b8' }}>NA</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    {/* Grids 3, 4, 5 */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px', marginBottom: '16px' }}>
+                      {/* Grid 3 - Cat C */}
+                      <div style={{ background: 'rgba(15, 23, 42, 0.65)', border: '1px solid rgba(251, 191, 36, 0.2)', borderRadius: '8px', padding: '12px 14px' }}>
+                        <div style={{ fontWeight: 700, color: '#fbbf24', fontSize: '0.88rem', marginBottom: '8px' }}>
+                          📊 Category C Rate Grid
+                        </div>
+                        <table style={{ width: '100%', fontSize: '0.8rem', borderCollapse: 'collapse', textAlign: 'left' }}>
+                          <thead>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
+                              <th style={{ padding: '5px' }}>Salary Slab</th>
+                              <th style={{ padding: '5px' }}>≥700</th>
+                              <th style={{ padding: '5px' }}>≥730</th>
+                              <th style={{ padding: '5px' }}>≥750</th>
+                              <th style={{ padding: '5px' }}>≥780</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '5px' }}>≤ 50K</td><td>16.00%</td><td>15.75%</td><td>15.50%</td><td style={{ color: '#4ade80' }}>15.24%</td></tr>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '5px' }}>&gt;50K–75K</td><td>15.50%</td><td>15.25%</td><td>15.00%</td><td style={{ color: '#4ade80' }}>14.50%</td></tr>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '5px' }}>&gt;75K</td><td>15.25%</td><td>15.00%</td><td>14.50%</td><td style={{ color: '#4ade80' }}>14.00%</td></tr>
+                            <tr><td style={{ padding: '5px' }}>&gt;100K &amp; LA≥20L</td><td>14.74%</td><td>14.50%</td><td>14.25%</td><td style={{ color: '#4ade80' }}>14.00%</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Grid 4 - Cat D */}
+                      <div style={{ background: 'rgba(15, 23, 42, 0.65)', border: '1px solid rgba(248, 113, 113, 0.2)', borderRadius: '8px', padding: '12px 14px' }}>
+                        <div style={{ fontWeight: 700, color: '#f87171', fontSize: '0.88rem', marginBottom: '8px' }}>
+                          📊 Category D Rate Grid
+                        </div>
+                        <table style={{ width: '100%', fontSize: '0.8rem', borderCollapse: 'collapse', textAlign: 'left' }}>
+                          <thead>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
+                              <th style={{ padding: '5px' }}>Salary Slab</th>
+                              <th style={{ padding: '5px' }}>≥700</th>
+                              <th style={{ padding: '5px' }}>≥730</th>
+                              <th style={{ padding: '5px' }}>≥750</th>
+                              <th style={{ padding: '5px' }}>≥780</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '5px' }}>≤ 50K</td><td>17.24%</td><td>16.24%</td><td>15.75%</td><td style={{ color: '#4ade80' }}>15.50%</td></tr>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '5px' }}>&gt;50K–75K</td><td>16.24%</td><td>15.75%</td><td>15.50%</td><td style={{ color: '#4ade80' }}>15.24%</td></tr>
+                            <tr><td style={{ padding: '5px' }}>&gt;75K</td><td>15.75%</td><td>15.24%</td><td>15.00%</td><td style={{ color: '#4ade80' }}>14.74%</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Grid 5 - Cat E */}
+                      <div style={{ background: 'rgba(15, 23, 42, 0.65)', border: '1px solid rgba(192, 132, 252, 0.2)', borderRadius: '8px', padding: '12px 14px' }}>
+                        <div style={{ fontWeight: 700, color: '#c084fc', fontSize: '0.88rem', marginBottom: '8px' }}>
+                          📊 Category E Rate Grid
+                        </div>
+                        <table style={{ width: '100%', fontSize: '0.8rem', borderCollapse: 'collapse', textAlign: 'left' }}>
+                          <thead>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
+                              <th style={{ padding: '5px' }}>Salary Slab</th>
+                              <th style={{ padding: '5px' }}>≥700</th>
+                              <th style={{ padding: '5px' }}>≥730</th>
+                              <th style={{ padding: '5px' }}>≥750</th>
+                              <th style={{ padding: '5px' }}>≥780</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '5px' }}>≤ 50K</td><td>19.75%</td><td>18.74%</td><td>18.50%</td><td style={{ color: '#4ade80' }}>18.25%</td></tr>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '5px' }}>&gt;50K–75K</td><td>18.24%</td><td>17.74%</td><td>17.50%</td><td style={{ color: '#4ade80' }}>17.25%</td></tr>
+                            <tr><td style={{ padding: '5px' }}>&gt;75K</td><td>17.74%</td><td>17.24%</td><td>17.00%</td><td style={{ color: '#4ade80' }}>16.75%</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    {/* Additional ROI & PF Deviations Matrix */}
+                    <div style={{ background: 'rgba(15, 23, 42, 0.75)', border: '1px solid rgba(56, 189, 248, 0.25)', borderRadius: '8px', padding: '14px 16px' }}>
+                      <div style={{ fontWeight: 700, color: '#38bdf8', fontSize: '0.9rem', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '6px' }}>
+                        <span>📌 Additional ROI, PF &amp; Minimum Insurance Matrix (Excel Rows 54–68)</span>
+                        <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>Minimum ROI not applicable for PFL Staff</span>
+                      </div>
+                      <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', fontSize: '0.82rem', borderCollapse: 'collapse', textAlign: 'left' }}>
+                          <thead>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
+                              <th style={{ padding: '7px 10px' }}>Deviation / Risk Scenario</th>
+                              <th style={{ padding: '7px 10px', color: '#38bdf8' }}>Additional ROI</th>
+                              <th style={{ padding: '7px 10px', color: '#fbbf24' }}>Additional PF</th>
+                              <th style={{ padding: '7px 10px', color: '#f87171' }}>Minimum ROI Floor</th>
+                              <th style={{ padding: '7px 10px', color: '#34d399' }}>Minimum Insurance</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '6px 10px' }}>Eligibility as per 5 years with 70% FOIR &amp; Tenure 6 or 7 year</td><td>+0.00%</td><td>+0.00%</td><td>—</td><td style={{ color: '#34d399' }}>1.75%</td></tr>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '6px 10px' }}>Eligibility as per 6-year FOIR (up to 70%)</td><td>+0.25%</td><td>+0.25%</td><td>—</td><td style={{ color: '#34d399' }}>1.75%</td></tr>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '6px 10px' }}>Eligibility as per 7-year FOIR (up to 70%)</td><td>+0.50%</td><td>+0.25%</td><td>—</td><td style={{ color: '#34d399' }}>2.00%</td></tr>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '6px 10px' }}>For FOIR deviation up to 5%</td><td>+0.25%</td><td>+0.25%</td><td>—</td><td style={{ color: '#34d399' }}>1.75%</td></tr>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '6px 10px' }}>For FOIR deviation &gt; 5%</td><td>+0.50%</td><td>+0.50%</td><td style={{ color: '#f87171', fontWeight: 600 }}>13.49%</td><td style={{ color: '#34d399' }}>2.00%</td></tr>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '6px 10px' }}>For FOIR &gt; 70% (If &gt; 2 CC or App loan BT)</td><td>+1.00%</td><td>+0.50%</td><td>—</td><td style={{ color: '#34d399' }}>1.75%</td></tr>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '6px 10px' }}>For CIBIL 0 and -1 (NTC)</td><td>+1.00%</td><td>+1.00%</td><td style={{ color: '#f87171', fontWeight: 600 }}>14.50%</td><td style={{ color: '#34d399' }}>2.50%</td></tr>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '6px 10px' }}>For CC / App Loan BT up to 2</td><td>+1.25%</td><td>+0.50%</td><td style={{ color: '#f87171', fontWeight: 600 }}>15.00%</td><td style={{ color: '#34d399' }}>2.25%</td></tr>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '6px 10px' }}>For CC / App Loan BT from 3 card to 4 card</td><td>+2.25%</td><td>+1.00%</td><td style={{ color: '#f87171', fontWeight: 600 }}>16.25%</td><td style={{ color: '#34d399' }}>2.50%</td></tr>
+                            <tr><td style={{ padding: '6px 10px' }}>For CC / App Loan BT &gt; 4 card</td><td>+3.35%</td><td>+1.50%</td><td style={{ color: '#f87171', fontWeight: 600 }}>17.25%</td><td style={{ color: '#34d399' }}>3.00%</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })()}
@@ -2561,6 +2742,40 @@ const UnifiedBankPolicyManager = () => {
                 }}>
                   <AlertTriangle size={18} />
                   <span><strong>ICICI Bank Master Policy (from Excel):</strong> In Rajasthan, minimum loan amount is strictly <strong>₹6.10 Lakhs</strong> across all domestic categories (`IN RAJASTHAN 6.10 LAC`). Standard minimum ticket in other states is ₹1 Lakh. NRI Cases require minimum <strong>₹6 Lakhs</strong>. Maximum loan is <strong>₹1 Crore</strong> (Open Market: ₹15 Lakhs, Army & NRI: ₹10 Lakhs).</span>
+                </div>
+              )}
+
+              {(activeConfigBank?.id === 'poonawala' || activeConfigBank?.name?.toLowerCase().includes('poonawala')) && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(0, 85, 150, 0.15) 0%, rgba(16, 185, 129, 0.12) 100%)',
+                  border: '1.5px solid rgba(0, 85, 150, 0.4)',
+                  borderRadius: '8px',
+                  padding: '14px 18px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '10px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38bdf8', fontWeight: 700, fontSize: '0.98rem' }}>
+                    <CheckCircle2 size={18} />
+                    <span>Poonawalla Fincorp Loan Capping Matrix (Excel Sheet: POONAWALA — Section 3 &amp; 5)</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '12px', fontSize: '0.85rem', color: '#e2e8f0' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.7)', padding: '12px 14px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
+                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 Category-wise Loan Capping (Min: ₹1 Lakh):</strong>
+                      <div style={{ marginTop: '6px' }}>• Super A &amp; Category A: <strong>₹1 Lakh to ₹60 Lakhs</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Category B &amp; Govt: <strong>₹1 Lakh to ₹40 Lakhs</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Category C: <strong>₹1 Lakh to ₹30 Lakhs</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Category D: <strong>₹1 Lakh to ₹10 Lakhs</strong></div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.7)', padding: '12px 14px', borderRadius: '6px', border: '1px solid rgba(16, 185, 129, 0.25)' }}>
+                      <strong style={{ color: '#34d399', fontSize: '0.88rem' }}>📌 City-wise Loan Capping (Excel Rows 86–87):</strong>
+                      <div style={{ marginTop: '6px' }}>• Metro Cities: <strong>₹60 Lakhs Maximum</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Tier 1 Cities: <strong>₹50 Lakhs Maximum</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Tier 2 Cities: <strong>₹40 Lakhs Maximum</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Other Locations / Cities: <strong>₹25 Lakhs Maximum</strong></div>
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -2999,6 +3214,24 @@ const UnifiedBankPolicyManager = () => {
                 }}>
                   <CheckCircle2 size={18} />
                   <span><strong>ICICI Bank Master Policy (from Excel):</strong> Permitted tenure is up to <strong>72 Months (6 Years)</strong> flat across all categories (`TENURE UPTO 6 YEARS`). Minimum tenure is <strong>12 Months</strong>. Maximum age at loan time is <strong>60 Years</strong> (Pensioner: <strong>65 Years</strong>).</span>
+                </div>
+              )}
+
+              {(activeConfigBank?.id === 'poonawala' || activeConfigBank?.name?.toLowerCase().includes('poonawala')) && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(0, 85, 150, 0.15) 0%, rgba(16, 185, 129, 0.12) 100%)',
+                  border: '1.5px solid rgba(0, 85, 150, 0.4)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  color: '#93c5fd',
+                  fontSize: '0.88rem'
+                }}>
+                  <CheckCircle2 size={18} />
+                  <span><strong>Poonawalla Fincorp Master Tenure Policy (from Excel: Sheet POONAWALA):</strong> Super A, Category A, and Govt qualify for up to <strong>84 Months (7 Years)</strong> (`CAT A 84 MONTH`). Category B, C, and D are capped at <strong>72 Months (6 Years)</strong> (`CAT B,C,D 72 MONTH`). Minimum tenure is <strong>12 Months</strong> across all categories. Maximum applicant age at loan maturity / retirement is <strong>60 Years</strong>.</span>
                 </div>
               )}
 
@@ -3631,33 +3864,98 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               )}
 
-              {activeConfigBank?.id === 'poonawala' && (
+              {(activeConfigBank?.id === 'poonawala' || activeConfigBank?.name?.toLowerCase().includes('poonawala')) && (
                 <div style={{
-                  background: 'linear-gradient(135deg, rgba(0, 85, 150, 0.15) 0%, rgba(16, 185, 129, 0.12) 100%)',
-                  border: '1.5px solid rgba(0, 85, 150, 0.4)',
-                  borderRadius: '8px',
-                  padding: '12px 16px',
-                  marginBottom: '16px',
+                  background: 'linear-gradient(135deg, rgba(0, 85, 150, 0.18) 0%, rgba(16, 185, 129, 0.15) 100%)',
+                  border: '1.5px solid rgba(0, 85, 150, 0.45)',
+                  borderRadius: '10px',
+                  padding: '16px 20px',
+                  marginBottom: '20px',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '8px'
+                  gap: '12px'
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38bdf8', fontWeight: 700, fontSize: '0.95rem' }}>
-                    <CheckCircle2 size={18} />
-                    <span>Poonawala Finance Master Policy Rules (from Excel)</span>
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
-                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
-                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 Sanction & Rates:</strong>
-                      <div style={{ marginTop: '5px' }}>• Maximum Sanction: <strong>₹60 Lakhs</strong></div>
-                      <div style={{ marginTop: '3px' }}>• ≥ ₹35 Lakh: <strong>11.99%</strong> | ≥ ₹20L: <strong>12.25%</strong></div>
-                      <div style={{ marginTop: '3px' }}>• Max Tenure: <strong>84 Months (Cat A/B)</strong> | 72M (Cat C)</div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38bdf8', fontWeight: 700, fontSize: '1rem' }}>
+                      <CheckCircle2 size={20} />
+                      <span>Poonawalla Fincorp Master FOIR &amp; Obligation Policy (Excel Sheet: POONAWALA)</span>
                     </div>
-                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                      <strong style={{ color: '#34d399', fontSize: '0.88rem' }}>📌 Credit Card BT Policy:</strong>
-                      <div style={{ marginTop: '5px' }}>• Max CC BT Allowed: <strong>Up to 6 Credit Cards</strong></div>
-                      <div style={{ marginTop: '3px' }}>• CC POS Cap: <strong>≤ 4x Net Monthly Salary</strong></div>
-                      <div style={{ marginTop: '3px' }}>• FOIR: <strong>60% to 70%</strong></div>
+                    <span style={{ fontSize: '0.8rem', background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', padding: '4px 10px', borderRadius: '4px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+                      Pure FOIR Model (No Multiplier Restrictions)
+                    </span>
+                  </div>
+
+                  {/* FOIR Matrix Table from Excel */}
+                  <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
+                    <div style={{ fontWeight: 700, color: '#38bdf8', fontSize: '0.9rem', marginBottom: '8px' }}>
+                      📌 FOIR Matrix across Salary Slabs (Excel Section 5 Rows 76–82):
+                    </div>
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', fontSize: '0.84rem', borderCollapse: 'collapse', textAlign: 'center' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
+                            <th style={{ padding: '6px 10px', textAlign: 'left' }}>Salary Bracket (NTH)</th>
+                            <th style={{ padding: '6px 10px', color: '#38bdf8' }}>CAT A</th>
+                            <th style={{ padding: '6px 10px', color: '#34d399' }}>CAT B / GOVT</th>
+                            <th style={{ padding: '6px 10px', color: '#fbbf24' }}>CAT C</th>
+                            <th style={{ padding: '6px 10px', color: '#f87171' }}>CAT D</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>₹30K – ₹50K</td>
+                            <td style={{ padding: '6px 10px', color: '#38bdf8', fontWeight: 600 }}>60%</td>
+                            <td style={{ padding: '6px 10px' }}>50%</td>
+                            <td style={{ padding: '6px 10px' }}>50%</td>
+                            <td style={{ padding: '6px 10px' }}>50%</td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>&gt; ₹50K – ₹75K</td>
+                            <td style={{ padding: '6px 10px', color: '#38bdf8', fontWeight: 600 }}>65%</td>
+                            <td style={{ padding: '6px 10px' }}>60%</td>
+                            <td style={{ padding: '6px 10px' }}>55%</td>
+                            <td style={{ padding: '6px 10px' }}>55%</td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>&gt; ₹75K – ₹1.50 Lakh</td>
+                            <td style={{ padding: '6px 10px', color: '#38bdf8', fontWeight: 600 }}>70%</td>
+                            <td style={{ padding: '6px 10px' }}>65%</td>
+                            <td style={{ padding: '6px 10px' }}>55%</td>
+                            <td style={{ padding: '6px 10px' }}>55%</td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>&gt; ₹1.50L – ₹2.50 Lakh</td>
+                            <td style={{ padding: '6px 10px', color: '#38bdf8', fontWeight: 600 }}>75%</td>
+                            <td style={{ padding: '6px 10px' }}>70%</td>
+                            <td style={{ padding: '6px 10px' }}>60%</td>
+                            <td style={{ padding: '6px 10px' }}>60%</td>
+                          </tr>
+                          <tr>
+                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>&gt; ₹2.50 Lakh</td>
+                            <td style={{ padding: '6px 10px', color: '#38bdf8', fontWeight: 700 }}>75%</td>
+                            <td style={{ padding: '6px 10px', color: '#34d399', fontWeight: 700 }}>70%</td>
+                            <td style={{ padding: '6px 10px', color: '#fbbf24', fontWeight: 700 }}>65%</td>
+                            <td style={{ padding: '6px 10px', color: '#f87171', fontWeight: 700 }}>65%</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Policy Guidelines Cards */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '12px 14px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 Credit Card &amp; Specialized Obligations:</strong>
+                      <div style={{ marginTop: '5px' }}>• Credit Card Obligation: <strong>5% of Outstanding POS / Limit</strong></div>
+                      <div style={{ marginTop: '3px', color: '#f87171' }}>• CC POS Rule: <strong>POS &gt; 4 times monthly salary NOT allowed</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Specialized Deductions: <strong>1 KCC Obligate</strong>, <strong>1 Gold Loan (GL) Obligate</strong></div>
+                    </div>
+
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '12px 14px', borderRadius: '6px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                      <strong style={{ color: '#34d399', fontSize: '0.88rem' }}>📌 Balance Transfer (BT) Limits (Max 8 Total):</strong>
+                      <div style={{ marginTop: '5px' }}>• Total BTs Allowed: <strong>Maximum 8 Loans/Cards</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Permitted Combination: <strong>Max 3 App Loans + 3 Credit Cards + 2 PL/OD</strong></div>
+                      <div style={{ marginTop: '3px', color: '#86efac' }}>• FOIR Deviation: <strong>5% Deviation allowed on case-to-case basis</strong></div>
                     </div>
                   </div>
                 </div>
@@ -4625,6 +4923,42 @@ const UnifiedBankPolicyManager = () => {
                       <div style={{ marginTop: '3px', color: '#f87171' }}>• Minimum CIBIL Score: <strong>720+ Strictly Required</strong> (`CIBIL 720PLUS`)</div>
                       <div style={{ marginTop: '3px', color: '#fca5a5' }}>• Credit Card BT: <strong>Strictly NOT ALLOWED</strong> (`CC BT NOT ALLOW`)</div>
                       <div style={{ marginTop: '3px', color: '#38bdf8' }}>• Credit Card Obligation: <strong>5%</strong> (`0.05`)</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {(activeConfigBank?.id === 'poonawala' || activeConfigBank?.name?.toLowerCase().includes('poonawala')) && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(0, 85, 150, 0.15) 0%, rgba(16, 185, 129, 0.12) 100%)',
+                  border: '1.5px solid rgba(0, 85, 150, 0.4)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38bdf8', fontWeight: 700, fontSize: '0.95rem' }}>
+                    <CheckCircle2 size={18} />
+                    <span>Poonawalla Fincorp Demographics &amp; Eligibility Criteria (from Excel: Sheet POONAWALA)</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
+                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 Age &amp; Experience Parameters:</strong>
+                      <div style={{ marginTop: '5px' }}>• Minimum Applicant Age: <strong>21 Years</strong> (`MIN 21 YRS`)</div>
+                      <div style={{ marginTop: '3px' }}>• Maximum Age at Loan Time: <strong>60 Years</strong> (`MAX 60 YRS`)</div>
+                      <div style={{ marginTop: '3px' }}>• Retirement Age: <strong>60 Years</strong></div>
+                      <div style={{ marginTop: '3px', color: '#86efac' }}>• Total Work Experience: <strong>Minimum 2 Years</strong> (`MINI WORK EXPRINCE 2YEARS`)</div>
+                      <div style={{ marginTop: '3px', color: '#38bdf8' }}>• Minimum Salary (NTH): <strong>₹30,000 (30K)</strong></div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(16, 185, 129, 0.25)' }}>
+                      <strong style={{ color: '#34d399', fontSize: '0.88rem' }}>📌 CIBIL, Operation &amp; Foreclosure Norms:</strong>
+                      <div style={{ marginTop: '5px' }}>• Minimum CIBIL TU Score: <strong>700 Minimum</strong></div>
+                      <div style={{ marginTop: '3px', color: '#fde047' }}>• NTC / CIBIL 0 &amp; -1: <strong>Allowed in Tier 1 &amp; Tier 2 cities, and Category A</strong></div>
+                      <div style={{ marginTop: '3px', color: '#f87171' }}>• CIBIL USL Enquiries: <strong>Max 6 in last 90 days</strong> (Up to 9 with deviation)</div>
+                      <div style={{ marginTop: '3px' }}>• Process Mode &amp; Geo Limit: <strong>100% Digital</strong> | <strong>80 KM from Branch</strong></div>
+                      <div style={{ marginTop: '3px', color: '#86efac' }}>• Foreclosure Charges: <strong>NIL after 12 EMIs from own funds</strong>, else as per grid</div>
                     </div>
                   </div>
                 </div>
