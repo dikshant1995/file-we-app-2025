@@ -22,11 +22,11 @@ export const AXIS_BANK_EXCEL_POLICY = {
     { category: 'Govt', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years' }
   ],
   foirMultiplier: [
-    { category: 'Super A', slab1Foir: 55, slab2Foir: 65, maxFoir: 75, multiplier: 36, ccObligation: 4 },
-    { category: 'A', slab1Foir: 55, slab2Foir: 65, maxFoir: 75, multiplier: 36, ccObligation: 4 },
-    { category: 'B', slab1Foir: 55, slab2Foir: 65, maxFoir: 75, multiplier: 36, ccObligation: 4 },
-    { category: 'C', slab1Foir: 55, slab2Foir: 65, maxFoir: 75, multiplier: 36, ccObligation: 4 },
-    { category: 'Govt', slab1Foir: 55, slab2Foir: 65, maxFoir: 75, multiplier: 36, ccObligation: 4 }
+    { category: 'Super A', slab1Foir: 55, mult1: 24, slab2Foir: 65, mult2: 30, maxFoir: 75, mult3: 36, multiplier: 36, ccObligation: 4 },
+    { category: 'A', slab1Foir: 55, mult1: 24, slab2Foir: 65, mult2: 30, maxFoir: 75, mult3: 36, multiplier: 36, ccObligation: 4 },
+    { category: 'B', slab1Foir: 55, mult1: 24, slab2Foir: 60, mult2: 26, maxFoir: 75, mult3: 30, multiplier: 30, ccObligation: 4 },
+    { category: 'C', slab1Foir: 50, mult1: 18, slab2Foir: 55, mult2: 20, maxFoir: 60, mult3: 20, multiplier: 20, ccObligation: 4 },
+    { category: 'Govt', slab1Foir: 55, mult1: 24, slab2Foir: 65, mult2: 30, maxFoir: 75, mult3: 36, multiplier: 36, ccObligation: 4 }
   ],
   demographics: {
     minAge: 21,
