@@ -1,17 +1,16 @@
-// Axis Finance Configuration according to BANKS POLICYS.xlsx (Sheet: AXIS FINANCE)
+// Axis Finance Configuration according to Master Policy & Policy Updates
 export const axisFinConfig = {
   id: 'axis-fin',
   name: 'Axis Finance',
-  minAge: 21, // Minimum age requirement (Excel: MINIMUM APLICANT AGE: 21)
-  maxAge: 60, // Maximum age at loan maturity (Excel: MAXIMUM AGE AT LOAN TIME: 60)
-  minCreditScore: 0, // No hard cutoff (score based program)
+  minAge: 21,
+  maxAge: 60,
+  minCreditScore: 0,
   minSalaryUrban: 30000,
-  minSalaryRural: 25000,
-  minSalary: 25000, // Universal minimum salary requirement
-  minWorkExperienceMonths: 6, // 6 MONTHS
-  interestRate: 13.50, // Base Super A / Govt ROI
+  minSalaryRural: 30000,
+  minSalary: 30000, // Universal minimum salary requirement ₹30,000
+  minWorkExperienceMonths: 6,
+  interestRate: 13.50,
 
-  // Category-specific interest rates (Excel Section 2)
   roiByCategory: {
     'SUPER-A': 13.50,
     'SUPER A': 13.50,
@@ -21,21 +20,20 @@ export const axisFinConfig = {
     'D': 16.00,
     'GOVT': 13.50
   },
-  btInterestRate: 18.00, // CC BT and App Loan BT ROI 18% applicable
+  btInterestRate: 18.00,
 
-  // FOIR limits by company category (Excel Section 3)
-  foirByCategory: {
-    'SUPER-A': 0.70,
-    'SUPER A': 0.70,
-    'A': 0.70,
-    'B': 0.65,
-    'C': 0.60,
-    'D': 0.50,
-    'GOVT': 0.70
-  },
+  // FOIR & Multipliers depend strictly on Salary Slab only:
+  // < 50k: FOIR 70%, Mult 24x
+  // 50k-75k: FOIR 70%, Mult 26x
+  // 75k-100k (75k above): FOIR 65%, Mult 28x
+  // >= 100k (1 Lac above): FOIR 60%, Mult 30x
+  salarySlabs: [
+    { band: '<50k', minSalary: 30000, maxSalary: 49999, foir: 0.70, multiplier: 24, label: '< 50K (30k to <50k)' },
+    { band: '50k-75k', minSalary: 50000, maxSalary: 74999, foir: 0.70, multiplier: 26, label: '50K TO 75K' },
+    { band: '75k-100k', minSalary: 75000, maxSalary: 99999, foir: 0.65, multiplier: 28, label: '75K TO 1 LAC' },
+    { band: '100k+', minSalary: 100000, maxSalary: Infinity, foir: 0.60, multiplier: 30, label: '1 LAC ABOVE' }
+  ],
 
-  // Multiplier table based on salary slabs (Excel Section 3: "COM CAT NOT REQ FOR FOIR AND MULTIPLIER")
-  // Category D has no multiplier (processed via FOIR)
   multiplierSlabs: [
     { minSalary: 0, maxSalary: 49999, multiplier: 24, label: '< 50K' },
     { minSalary: 50000, maxSalary: 74999, multiplier: 26, label: '50K TO 75K' },
@@ -43,7 +41,6 @@ export const axisFinConfig = {
     { minSalary: 100000, maxSalary: Infinity, multiplier: 30, label: '1 LAC ABOVE' }
   ],
 
-  // Maximum loan amounts by category (Excel Section 5: MINIMUM LOAN AMOUNT AND MAX LOAN AMOUNT)
   maxLoanByCategory: {
     'SUPER-A': 5000000,
     'SUPER A': 5000000,
@@ -53,29 +50,26 @@ export const axisFinConfig = {
     'D': 1000000,
     'GOVT': 5000000
   },
-  minLoanAmount: 100000, // 1 LAC
-  maxLoanAmount: 5000000, // 50 LAC
+  minLoanAmount: 100000,
+  maxLoanAmount: 5000000,
 
-  // Maximum tenure by category in months (Excel Section 4)
   maxTenureByCategory: {
-    'SUPER-A': 84, // 7 years
+    'SUPER-A': 84,
     'SUPER A': 84,
-    'A': 72,       // 6 years
-    'B': 72,       // 6 years
-    'C': 60,       // 5 years
-    'D': 60,       // 5 years
-    'GOVT': 84     // 7 years
+    'A': 72,
+    'B': 72,
+    'C': 60,
+    'D': 60,
+    'GOVT': 84
   },
 
-  // Demographics and obligations (Excel Section 1)
-  ccObligationPercent: 5, // 5% OBLIGATE
-  maxCreditCardsForBT: 5, // 5 CC BT ALLOW
-  goldLoanObligationPercent: 1, // GOLD LOAN OBLIGATION 1% COUNT
-  kccExemptionLimit: 1500000, // KCC OBLIGATION UPTO 15LAC = 0 OBLIGATE
+  ccObligationPercent: 5,
+  maxCreditCardsForBT: 5,
+  goldLoanObligationPercent: 1,
+  kccExemptionLimit: 1500000,
 
   employmentTypes: ['salaried', 'government'],
 
-  // Balance Transfer (BT) Configuration
   btConfig: {
     isAvailable: true,
     maxLoansForBT: 5,

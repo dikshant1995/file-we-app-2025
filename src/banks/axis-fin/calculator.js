@@ -154,14 +154,13 @@ export const calculateAxisFinEligibility = (userData) => {
     };
   }
 
-  // Minimum salary check (Excel Section 1: Urban 30k, Rural 25k)
-  const isRural = userData.locationType === 'rural' || userData.isRural === true;
-  const reqMinSalary = isRural ? axisFinConfig.minSalaryRural : axisFinConfig.minSalaryUrban;
+  // Minimum salary check: ₹30,000 required across all locations
+  const reqMinSalary = 30000;
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncomeForCalc;
-  if (incomeToCheck < reqMinSalary && incomeToCheck < axisFinConfig.minSalary) {
+  if (incomeToCheck < reqMinSalary) {
     return { 
       eligible: false, 
-      reason: `Minimum salary of ₹${reqMinSalary.toLocaleString()} required for Axis Finance (${isRural ? 'Rural' : 'Urban'}). Current: ₹${incomeToCheck.toLocaleString()}`, 
+      reason: `Minimum net monthly salary required for Axis Finance is ₹${reqMinSalary.toLocaleString()} (Applicant: ₹${incomeToCheck.toLocaleString()})`, 
       isBTMode: isBT 
     };
   }
@@ -175,25 +174,29 @@ export const calculateAxisFinEligibility = (userData) => {
     };
   }
 
+  // Both FOIR and Multiplier depend strictly on Salary Slabs:
+  // < 50k: FOIR 70%, Multiplier 24x
+  // 50k - 75k: FOIR 70%, Multiplier 26x
+  // 75k - 100k (75k above): FOIR 65%, Multiplier 28x
+  // >= 100k (1 Lac above): FOIR 60%, Multiplier 30x
+  let maxFoir = 0.70;
+  let multiplier = 24;
 
-  // Category specific FOIR and Multipliers (Excel Section 3)
-  const maxFoir = axisFinConfig.foirByCategory[effectiveCategoryKey] || 0.60;
-  let multiplier = 0;
-  let calculationMethod = 'Multiplier';
-
-  if (effectiveCategoryKey === 'D') {
-    // Cat D: Excel says "NO MULTIPLIER APLICABLE, AFTER DEVIATION CASE WILL BE PROCESS IN FOIR"
-    multiplier = 0;
-    calculationMethod = 'FOIR (Deviation)';
+  if (incomeToCheck >= 100000) {
+    maxFoir = 0.60;
+    multiplier = 30;
+  } else if (incomeToCheck >= 75000) {
+    maxFoir = 0.65;
+    multiplier = 28;
+  } else if (incomeToCheck >= 50000) {
+    maxFoir = 0.70;
+    multiplier = 26;
   } else {
-    // Multiplier from salary slabs (Excel Section 3: <50k: 24, 50k-75k: 26, 75k-1L: 28, >1L: 30)
-    if (isGovtEmployee && govtMultiplier) {
-      multiplier = govtMultiplier;
-    } else {
-      const slab = axisFinConfig.multiplierSlabs.find(s => incomeToCheck >= s.minSalary && incomeToCheck <= s.maxSalary);
-      multiplier = slab ? slab.multiplier : 24;
-    }
+    maxFoir = 0.70;
+    multiplier = 24;
   }
+
+  const calculationMethod = 'Salary Slab FOIR + Multiplier';
 
   // Determine ROI (Excel Section 2 & BT Note)
   let effectiveInterestRate = interestRateOverride;
@@ -210,30 +213,16 @@ export const calculateAxisFinEligibility = (userData) => {
   // Calculate Loan Amount:
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
   const availableSalary = isBT ? incomeToCheck : (monthlyIncomeForCalc - totalObligations);
-  let calculatedLoanAmount = 0;
-
-  if (effectiveCategoryKey === 'D') {
-    // Pure FOIR capacity for Category D
-    const foirCap = (monthlyIncomeForCalc * maxFoir) - totalObligations;
-    if (foirCap <= 0) {
-      return { eligible: false, reason: `Obligations exceed max FOIR of ${(maxFoir * 100)}% for Category D`, isBTMode: isBT };
-    }
-    const r = (effectiveInterestRate / 12) / 100;
-    const n = cappedTenureMonths;
-    calculatedLoanAmount = foirCap * (Math.pow(1 + r, n) - 1) / (r * Math.pow(1 + r, n));
-  } else {
-    // Multiplier-based with FOIR cap
-    if (availableSalary <= 0) {
-      return { eligible: false, reason: `Total obligations (₹${totalObligations.toLocaleString()}) exceed monthly income`, isBTMode: isBT };
-    }
-    const multLoan = availableSalary * multiplier;
-    // Check against FOIR
-    const maxAllowedEmi = (monthlyIncomeForCalc * maxFoir) - totalObligations;
-    const r = (effectiveInterestRate / 12) / 100;
-    const n = cappedTenureMonths;
-    const foirMaxLoan = maxAllowedEmi > 0 ? (maxAllowedEmi * (Math.pow(1 + r, n) - 1) / (r * Math.pow(1 + r, n))) : 0;
-    calculatedLoanAmount = foirMaxLoan > 0 ? Math.min(multLoan, foirMaxLoan) : multLoan;
+  if (availableSalary <= 0) {
+    return { eligible: false, reason: `Total obligations (₹${totalObligations.toLocaleString()}) exceed monthly income`, isBTMode: isBT };
   }
+
+  const multLoan = availableSalary * multiplier;
+  const maxAllowedEmi = (monthlyIncomeForCalc * maxFoir) - totalObligations;
+  const r = (effectiveInterestRate / 12) / 100;
+  const n = cappedTenureMonths;
+  const foirMaxLoan = maxAllowedEmi > 0 ? (maxAllowedEmi * (Math.pow(1 + r, n) - 1) / (r * Math.pow(1 + r, n))) : 0;
+  const calculatedLoanAmount = foirMaxLoan > 0 ? Math.min(multLoan, foirMaxLoan) : multLoan;
 
   const categoryMaxCap = axisFinConfig.maxLoanByCategory[effectiveCategoryKey] || axisFinConfig.maxLoanAmount;
   const finalLoanAmount = Math.min(calculatedLoanAmount, desiredLoanAmount || Infinity);

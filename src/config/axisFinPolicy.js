@@ -17,7 +17,7 @@ export const AXIS_FINANCE_EXCEL_POLICY = {
     { tier: 'B', minLoan: 100000, maxLoan: 2500000, bachelorCap: null, minSalary: 30000 },
     { tier: 'C', minLoan: 100000, maxLoan: 2000000, bachelorCap: null, minSalary: 30000 },
     { tier: 'D', minLoan: 100000, maxLoan: 1000000, bachelorCap: null, minSalary: 30000 },
-    { tier: 'Govt', minLoan: 100000, maxLoan: 5000000, bachelorCap: null, minSalary: 25000 }
+    { tier: 'Govt', minLoan: 100000, maxLoan: 5000000, bachelorCap: null, minSalary: 30000 }
   ],
 
   // Section 4: TENURE AND REPAYMENT WINDOWS (Excel Rows 34-41)
@@ -30,44 +30,47 @@ export const AXIS_FINANCE_EXCEL_POLICY = {
     { category: 'Govt', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years (84 Months)' }
   ],
 
-  // Section 3: Multiplier table based on salary slabs (Excel: "COM CAT NOT REQ FOR FOIR AND MULTIPLIER")
-  // Category D has no multiplier (processed via FOIR)
+  // Section 3: Salary Slabs for FOIR & Multiplier (Both depend strictly on Salary Slab only)
+  // < 50k: FOIR 70%, Mult 24x
+  // 50k-75k: FOIR 70%, Mult 26x
+  // 75k-100k (75k above): FOIR 65%, Mult 28x
+  // >= 100k (1 Lac above): FOIR 60%, Mult 30x
   salaryMultiplierSlabs: [
-    { minSalary: 0, maxSalary: 49999, multiplier: 24, label: '< 50K' },
-    { minSalary: 50000, maxSalary: 74999, multiplier: 26, label: '50K TO 75K' },
-    { minSalary: 75000, maxSalary: 99999, multiplier: 28, label: '75K TO 1 LAC' },
-    { minSalary: 100000, maxSalary: Infinity, multiplier: 30, label: '1 LAC ABOVE' }
+    { minSalary: 30000, maxSalary: 49999, foir: 70, multiplier: 24, label: '< 50K (30K - <50K)' },
+    { minSalary: 50000, maxSalary: 74999, foir: 70, multiplier: 26, label: '50K TO 75K' },
+    { minSalary: 75000, maxSalary: 99999, foir: 65, multiplier: 28, label: '75K TO 1 LAC' },
+    { minSalary: 100000, maxSalary: Infinity, foir: 60, multiplier: 30, label: '1 LAC ABOVE' }
   ],
 
-  // Section 3: FOIR AND MULTIPLIER (Excel Rows 24-31)
+  // Section 3: FOIR AND MULTIPLIER
   foirMultiplier: [
-    { category: 'Super A', maxFoir: 70, slab1Foir: 70, slab2Foir: 70, multiplierBelow50k: 24, multiplier50kTo75k: 26, multiplier75kTo100k: 28, multiplierAbove100k: 30, multiplier: 30, ccObligation: 5 },
-    { category: 'A', maxFoir: 70, slab1Foir: 70, slab2Foir: 70, multiplierBelow50k: 24, multiplier50kTo75k: 26, multiplier75kTo100k: 28, multiplierAbove100k: 30, multiplier: 30, ccObligation: 5 },
-    { category: 'B', maxFoir: 65, slab1Foir: 65, slab2Foir: 65, multiplierBelow50k: 24, multiplier50kTo75k: 26, multiplier75kTo100k: 28, multiplierAbove100k: 30, multiplier: 28, ccObligation: 5 },
-    { category: 'C', maxFoir: 60, slab1Foir: 60, slab2Foir: 60, multiplierBelow50k: 24, multiplier50kTo75k: 26, multiplier75kTo100k: 28, multiplierAbove100k: 30, multiplier: 26, ccObligation: 5 },
-    { category: 'D', maxFoir: 50, slab1Foir: 50, slab2Foir: 50, multiplierBelow50k: null, multiplier50kTo75k: null, multiplier75kTo100k: null, multiplierAbove100k: null, multiplier: null, ccObligation: 5, note: 'No multiplier applicable (After deviation case will be processed in FOIR)' },
-    { category: 'Govt', maxFoir: 70, slab1Foir: 70, slab2Foir: 70, multiplierBelow50k: 24, multiplier50kTo75k: 26, multiplier75kTo100k: 28, multiplierAbove100k: 30, multiplier: 30, ccObligation: 5 }
+    { category: 'Super A', foirBelow50k: 70, foir50kTo75k: 70, foir75kTo100k: 65, foirAbove100k: 60, maxFoir: 70, multiplierBelow50k: 24, multiplier50kTo75k: 26, multiplier75kTo100k: 28, multiplierAbove100k: 30, multiplier: 30, ccObligation: 5 },
+    { category: 'A', foirBelow50k: 70, foir50kTo75k: 70, foir75kTo100k: 65, foirAbove100k: 60, maxFoir: 70, multiplierBelow50k: 24, multiplier50kTo75k: 26, multiplier75kTo100k: 28, multiplierAbove100k: 30, multiplier: 30, ccObligation: 5 },
+    { category: 'B', foirBelow50k: 70, foir50kTo75k: 70, foir75kTo100k: 65, foirAbove100k: 60, maxFoir: 70, multiplierBelow50k: 24, multiplier50kTo75k: 26, multiplier75kTo100k: 28, multiplierAbove100k: 30, multiplier: 30, ccObligation: 5 },
+    { category: 'C', foirBelow50k: 70, foir50kTo75k: 70, foir75kTo100k: 65, foirAbove100k: 60, maxFoir: 70, multiplierBelow50k: 24, multiplier50kTo75k: 26, multiplier75kTo100k: 28, multiplierAbove100k: 30, multiplier: 30, ccObligation: 5 },
+    { category: 'D', foirBelow50k: 70, foir50kTo75k: 70, foir75kTo100k: 65, foirAbove100k: 60, maxFoir: 70, multiplierBelow50k: 24, multiplier50kTo75k: 26, multiplier75kTo100k: 28, multiplierAbove100k: 30, multiplier: 30, ccObligation: 5 },
+    { category: 'Govt', foirBelow50k: 70, foir50kTo75k: 70, foir75kTo100k: 65, foirAbove100k: 60, maxFoir: 70, multiplierBelow50k: 24, multiplier50kTo75k: 26, multiplier75kTo100k: 28, multiplierAbove100k: 30, multiplier: 30, ccObligation: 5 }
   ],
 
-  // Section 1: DEMOGRAPHIC AND AGE ELIGIBILITY CRITERIA (Excel Rows 4-11)
+  // Section 1: DEMOGRAPHIC AND AGE ELIGIBILITY CRITERIA
   demographics: {
-    minAge: 21, // Excel Row 6: 21
-    maxAge: 60, // Excel Row 7: 60
+    minAge: 21,
+    maxAge: 60,
     retirementSalaried: 60,
     retirementGovt: 60,
-    minSalaryUrban: 30000, // Excel Row 9: URBAN 30K
-    minSalaryRural: 25000, // Excel Row 9: RURAL 25
-    minSalary: 25000,
-    minExperienceTotal: 6, // Excel Row 10: 6 MONTHS
+    minSalaryUrban: 30000,
+    minSalaryRural: 30000,
+    minSalary: 30000, // Minimum Salary ₹30,000
+    minExperienceTotal: 6,
     minExperienceCurrent: 6,
-    minLoanAmount: 100000, // Excel Row 46: 1 LAC
-    minTenureMonths: 12, // Excel Row 36: 12 MONTHS
+    minLoanAmount: 100000,
+    minTenureMonths: 12,
     minCibilScore: 0,
-    ccObligationPercent: 5, // Excel Row 11: 5% OBLIGATE
+    ccObligationPercent: 5,
     allowCcBt: true,
-    ccBtAllowedCount: 5, // Excel Row 11: 5 CC BT ALLOW
-    btRoi: 18.00, // Excel Row 17: CC BT AND APP LOAN BT ROI 18% APLICABLE
-    goldLoanObligationPercent: 1, // Excel Row 11: GOLD LOAN OBLIGATION 1% COUNT
-    kccExemptionLimit: 1500000 // Excel Row 11: KCC OBLIGATION UPTO 15LAC = 0 OBLIGATE
+    ccBtAllowedCount: 5,
+    btRoi: 18.00,
+    goldLoanObligationPercent: 1,
+    kccExemptionLimit: 1500000
   }
 };

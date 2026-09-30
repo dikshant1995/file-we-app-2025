@@ -1891,34 +1891,26 @@ const matchCategory = (cat1, cat2) => {
               bankInput.multiplierOverride = auMult;
               if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
             } else if ((name.toLowerCase().includes('axis') && name.toLowerCase().includes('fin')) || id === 'axis' || id === 'axis_fin') {
-              // Axis Finance Excel Policy (Sheet: AXIS FINANCE)
-              // Excel note: "COM CAT NOT REQ FOR FOIR AND MULTIPLIER" (FOIR is category-based, Multiplier is salary-based)
-              const catUpper = String(bankCategory || '').toUpperCase();
-              let axFoir = 60;
-              if (catUpper.includes('SUPER') || catUpper === 'A' || catUpper === 'GOVT') {
-                axFoir = 70;
-              } else if (catUpper === 'B') {
-                axFoir = 65;
-              } else if (catUpper === 'C') {
+              // Axis Finance Policy Update: FOIR and Multiplier depend strictly on Salary Slab only
+              // < 50k (30k to <50k): FOIR 70%, Mult 24x | 50k-75k: FOIR 70%, Mult 26x | 75k-100k: FOIR 65%, Mult 28x | >= 100k: FOIR 60%, Mult 30x
+              let axFoir = 70;
+              let axMult = 24;
+              if (income >= 100000) {
                 axFoir = 60;
+                axMult = 30;
+              } else if (income >= 75000) {
+                axFoir = 65;
+                axMult = 28;
+              } else if (income >= 50000) {
+                axFoir = 70;
+                axMult = 26;
               } else {
-                // Cat D: 50% FOIR (deviation), NO Multiplier
-                axFoir = 50;
-              }
-
-              let axMult = null;
-              if (catUpper !== 'D') {
-                if (income > 100000) axMult = 30;
-                else if (income >= 75000) axMult = 28;
-                else if (income >= 50000) axMult = 26;
-                else axMult = 24;
+                axFoir = 70;
+                axMult = 24;
               }
 
               bankInput.foirOverride = axFoir;
               bankInput.multiplierOverride = axMult;
-              if (axMult === null) {
-                bankInput.isFoirOnly = true;
-              }
               bankInput.ccObligationPercentOverride = 5;
             } else if (name.toLowerCase().includes('poonawala') || name.toLowerCase().includes('poonawalla') || id === 'poonawala') {
               // Poonawalla Fincorp Excel Policy (Sheet: POONAWALA - Section 5 Rows 77-82)

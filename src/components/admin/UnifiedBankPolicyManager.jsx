@@ -385,6 +385,14 @@ const sanitizePolicyData = (raw) => {
           { salarySlab: '30K - 40K', minSalary: 30001, maxSalary: 40000, baseFoir: 60, aaBonusFoir: 5, maxFoir: 65, ccObligation: 5 },
           { salarySlab: '> 40K', minSalary: 40001, maxSalary: Infinity, baseFoir: 65, aaBonusFoir: 5, maxFoir: 70, ccObligation: 5 }
         ]),
+    salaryMultiplierSlabs: Array.isArray(raw.salaryMultiplierSlabs) && raw.salaryMultiplierSlabs.length > 0
+      ? raw.salaryMultiplierSlabs
+      : (raw.salaryMultiplierSlabs || [
+          { label: '< 50K (30K - <50K)', minSalary: 30000, maxSalary: 49999, foir: 70, multiplier: 24, ccObligation: 5 },
+          { label: '50K TO 75K', minSalary: 50000, maxSalary: 74999, foir: 70, multiplier: 26, ccObligation: 5 },
+          { label: '75K TO 1 LAC', minSalary: 75000, maxSalary: 99999, foir: 65, multiplier: 28, ccObligation: 5 },
+          { label: '1 LAC ABOVE', minSalary: 100000, maxSalary: Infinity, foir: 60, multiplier: 30, ccObligation: 5 }
+        ]),
     companies: Array.isArray(raw.companies) && raw.companies.length > 0 
       ? raw.companies 
       : DEFAULT_UNIFIED_POLICY.companies
@@ -1558,7 +1566,7 @@ const UnifiedBankPolicyManager = () => {
                       <p>Cholamandalam Finance Master Policy Slabs (Excel Sheet: CHOLA): <strong>≥ ₹10L & 75K+ Sal</strong> (13.75%), <strong>≥ ₹7.50L & 50K+ Sal</strong> (14.50%), <strong>≥ ₹5L Loan Cases / Cat B</strong> (14.50% – 15.00%), and <strong>Standard / Cat C & D</strong> (15.00%).</p>
                     )}
                     {isAxisFin && (
-                      <p>Axis Finance Master Policy Slabs: <strong>₹5L – ₹25L Loan Cases</strong> (13.50% – 16.00%), and <strong>Credit Card BT / App BT</strong> (18.00%).</p>
+                      <p>Axis Finance Master Policy Slabs: FOIR and Multiplier depend strictly on Salary Slabs (<strong>&lt;₹50k: 70% FOIR / 24x</strong>, <strong>₹50k–₹75k: 70% FOIR / 26x</strong>, <strong>₹75k–₹100k: 65% FOIR / 28x</strong>, <strong>&ge;₹100k: 60% FOIR / 30x</strong>). Min Salary: <strong>₹30,000</strong>. Base ROI: <strong>13.50% – 16.00%</strong> (CC BT: 18.00%).</p>
                     )}
                     {isLnt && (
                       <p>L&T Finance Master Policy Slabs: <strong>₹20L – ₹30L</strong> (11.50% – 12.50%), <strong>₹10L – ₹20L</strong> (14.00%), and <strong>&lt; ₹10L</strong> (13.00% – 15.00%). Special Rate: <strong>10.99%</strong> for Super A & A with Owned House, ₹1.75L+ Salary & 775+ CIBIL.</p>
@@ -1583,6 +1591,9 @@ const UnifiedBankPolicyManager = () => {
                     )}
                     {isIncred && (
                       <p>InCred Finance Master Policy (Sheet: INCRED): Loan amount <strong>₹50,000 to ₹15 Lakhs (50k to 15 Lac)</strong> has an ROI range of <strong>13.49% to 33.00% p.a.</strong> across all category tiers.</p>
+                    )}
+                    {isAxisFin && (
+                      <p>Axis Finance Master Policy Slabs (Sheet: AXIS FINANCE): Base ROI starts from <strong>13.50% to 16.00% p.a.</strong> (Super A / Govt: 13.50%, Cat A: 14.50%, Cat B: 15.00%, Cat C/D: 16.00%). CC BT / App BT ROI is <strong>18.00% p.a.</strong> Minimum salary required is <strong>₹30,000</strong>.</p>
                     )}
                     {isHdfc && (
                       <p>HDFC Master Policy Slabs: <strong>20 LAKH +</strong> (9.99%), <strong>15 LAKH+</strong> (10.15%), <strong>10-15 LAKH</strong> (10.50%), and <strong>5-10 LAKH</strong> (11.50%).</p>
@@ -4599,7 +4610,109 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               )}
 
-              {!(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg') || activeConfigBank?.id === 'piramal' || activeConfigBank?.name?.toLowerCase().includes('piramal') || activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('bandhan') || activeConfigBank?.id === 'incred' || activeConfigBank?.name?.toLowerCase().includes('incred')) && (
+              {(activeConfigBank?.id === 'axis-fin' || activeConfigBank?.id === 'axis_fin' || (activeConfigBank?.name?.toLowerCase().includes('axis') && activeConfigBank?.name?.toLowerCase().includes('fin'))) && (
+                <div style={{ marginBottom: '24px' }}>
+                  <div style={{
+                    background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(59, 130, 246, 0.15) 100%)',
+                    border: '1.5px solid rgba(168, 85, 247, 0.4)',
+                    borderRadius: '8px',
+                    padding: '12px 16px',
+                    marginBottom: '16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '6px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#c084fc', fontWeight: 700, fontSize: '0.98rem' }}>
+                      <CheckCircle2 size={18} />
+                      <span>Axis Finance FOIR &amp; Multiplier Policy Matrix (Salary Slab Dependent)</span>
+                    </div>
+                    <div style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>
+                      • <strong>Salary Slab Dependency Only:</strong> Both FOIR percentage and Multiplier depend strictly on Net Monthly Salary Slabs.<br />
+                      • <strong>Minimum Salary Threshold:</strong> Minimum net monthly salary required for Axis Finance is <strong>₹30,000</strong>.
+                    </div>
+                  </div>
+
+                  <div className="table-responsive">
+                    <table className="policy-table">
+                      <thead>
+                        <tr>
+                          <th style={{ background: 'rgba(147, 51, 234, 0.85)', color: '#fff', textTransform: 'uppercase', textAlign: 'center', fontSize: '1rem', letterSpacing: '0.5px' }} colSpan={4}>
+                            FOIR &amp; Multiplier Policy (Axis Finance)
+                          </th>
+                        </tr>
+                        <tr>
+                          <th style={{ color: '#38bdf8', minWidth: '180px' }}>Net Monthly Income (Salary Slab)</th>
+                          <th style={{ color: '#c084fc' }}>FOIR (%)</th>
+                          <th style={{ color: '#34d399' }}>Multiplier (x)</th>
+                          <th style={{ color: '#e2e8f0' }}>Credit Card Obligation (%)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(policyData?.salaryMultiplierSlabs || [
+                          { label: '< 50K (30K - <50K)', minSalary: 30000, maxSalary: 49999, foir: 70, multiplier: 24, ccObligation: 5 },
+                          { label: '50K TO 75K', minSalary: 50000, maxSalary: 74999, foir: 70, multiplier: 26, ccObligation: 5 },
+                          { label: '75K TO 1 LAC', minSalary: 75000, maxSalary: 99999, foir: 65, multiplier: 28, ccObligation: 5 },
+                          { label: '1 LAC ABOVE', minSalary: 100000, maxSalary: Infinity, foir: 60, multiplier: 30, ccObligation: 5 }
+                        ]).map((row, idx) => (
+                          <tr key={idx}>
+                            <td>
+                              <strong style={{ color: '#38bdf8', fontSize: '0.92rem' }}>{row.label || row.salarySlab}</strong>
+                            </td>
+                            <td>
+                              <div className="table-input-cell">
+                                <input 
+                                  type="number"
+                                  value={row.foir ?? (idx === 0 ? 70 : (idx === 1 ? 70 : (idx === 2 ? 65 : 60)))}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...(policyData.salaryMultiplierSlabs || [])];
+                                    updated[idx] = { ...updated[idx], foir: val };
+                                    setPolicyData({ ...policyData, salaryMultiplierSlabs: updated });
+                                  }}
+                                />
+                                <span>%</span>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="table-input-cell highlight" style={{ background: 'rgba(52, 211, 153, 0.1)', border: '1px solid rgba(52, 211, 153, 0.4)' }}>
+                                <input 
+                                  type="number"
+                                  style={{ color: '#34d399', fontWeight: 800 }}
+                                  value={row.multiplier ?? (idx === 0 ? 24 : (idx === 1 ? 26 : (idx === 2 ? 28 : 30)))}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...(policyData.salaryMultiplierSlabs || [])];
+                                    updated[idx] = { ...updated[idx], multiplier: val };
+                                    setPolicyData({ ...policyData, salaryMultiplierSlabs: updated });
+                                  }}
+                                />
+                                <span>x</span>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="table-input-cell">
+                                <input 
+                                  type="number"
+                                  value={row.ccObligation ?? 5}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...(policyData.salaryMultiplierSlabs || [])];
+                                    updated[idx] = { ...updated[idx], ccObligation: val };
+                                    setPolicyData({ ...policyData, salaryMultiplierSlabs: updated });
+                                  }}
+                                />
+                                <span>%</span>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {!(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg') || activeConfigBank?.id === 'piramal' || activeConfigBank?.name?.toLowerCase().includes('piramal') || activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('bandhan') || activeConfigBank?.id === 'incred' || activeConfigBank?.name?.toLowerCase().includes('incred') || activeConfigBank?.id === 'axis-fin' || activeConfigBank?.id === 'axis_fin' || (activeConfigBank?.name?.toLowerCase().includes('axis') && activeConfigBank?.name?.toLowerCase().includes('fin'))) && (
                 <div className="table-responsive">
                 <table className="policy-table">
                   <thead>
@@ -6183,6 +6296,39 @@ const UnifiedBankPolicyManager = () => {
                       <div style={{ marginTop: '5px' }}>• Minimum Net Salary: <strong>₹15,000 (15k)</strong></div>
                       <div style={{ marginTop: '3px' }}>• CC / Gold Loan / KCC Obligation: <strong>5%</strong></div>
                       <div style={{ marginTop: '3px', color: '#fca5a5' }}>• Balance Transfer (BT): <strong>Credit Card BT NOT Allowed</strong></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {(activeConfigBank?.id === 'axis-fin' || activeConfigBank?.id === 'axis_fin' || (activeConfigBank?.name?.toLowerCase().includes('axis') && activeConfigBank?.name?.toLowerCase().includes('fin'))) && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(128, 0, 0, 0.25) 0%, rgba(168, 85, 247, 0.15) 100%)',
+                  border: '1.5px solid rgba(168, 85, 247, 0.4)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#c084fc', fontWeight: 700, fontSize: '0.95rem' }}>
+                    <CheckCircle2 size={18} />
+                    <span>Axis Finance Demographics &amp; Eligibility Criteria (Master Policy &amp; Updates)</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(168, 85, 247, 0.25)' }}>
+                      <strong style={{ color: '#c084fc', fontSize: '0.88rem' }}>📌 Age &amp; Stability:</strong>
+                      <div style={{ marginTop: '5px' }}>• Applicant Age Range: <strong>21 to 60 Years</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Minimum Work Experience: <strong>6 Months</strong></div>
+                      <div style={{ marginTop: '3px', color: '#38bdf8' }}>• Minimum Net Monthly Salary: <strong>₹30,000 (30k)</strong> across all profiles &amp; locations</div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(52, 211, 153, 0.25)' }}>
+                      <strong style={{ color: '#34d399', fontSize: '0.88rem' }}>📌 Multiplier &amp; FOIR Structure (Salary Slabs):</strong>
+                      <div style={{ marginTop: '5px' }}>• &lt; ₹50,000 (₹30k–&lt;50k): <strong>FOIR 70% | Multiplier 24x</strong></div>
+                      <div style={{ marginTop: '3px' }}>• ₹50,000 – ₹75,000: <strong>FOIR 70% | Multiplier 26x</strong></div>
+                      <div style={{ marginTop: '3px' }}>• ₹75,000 – ₹100,000 (75k+): <strong>FOIR 65% | Multiplier 28x</strong></div>
+                      <div style={{ marginTop: '3px', color: '#facc15' }}>• &ge; ₹100,000 (1 Lac+): <strong>FOIR 60% | Multiplier 30x</strong></div>
                     </div>
                   </div>
                 </div>
