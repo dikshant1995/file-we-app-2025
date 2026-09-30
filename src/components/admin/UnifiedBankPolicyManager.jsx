@@ -3646,7 +3646,6 @@ const UnifiedBankPolicyManager = () => {
                       <div style={{ marginTop: '3px' }}>• <strong>₹1L–₹2L:</strong> Super A/A/B/Govt: <strong>75% FOIR (24x)</strong> | C: <strong>70% (20x)</strong> | D: <strong>65% (16x)</strong></div>
                       <div style={{ marginTop: '3px' }}>• <strong>₹50K–₹1L:</strong> Super A/A/B/Govt: <strong>70% FOIR (20x)</strong> | C: <strong>60% (18x)</strong> | D: <strong>55% (15x)</strong></div>
                       <div style={{ marginTop: '3px' }}>• <strong>₹25K–₹50K:</strong> Super A/A/B/Govt: <strong>55% FOIR (18x)</strong> | C: <strong>50% (16x)</strong> | D: <strong>50% (14x)</strong></div>
-                    </div>
                     <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
                       <strong style={{ color: '#f87171', fontSize: '0.88rem' }}>📌 Eligibility, ROI & Capping:</strong>
                       <div style={{ marginTop: '5px', color: '#86efac' }}>• <strong>Special 10.99% ROI:</strong> Super A / A with Owned House, ₹1.75L+ Sal & 775+ CIBIL</div>
@@ -3663,71 +3662,170 @@ const UnifiedBankPolicyManager = () => {
                   background: 'linear-gradient(135deg, rgba(31, 78, 120, 0.18) 0%, rgba(14, 165, 233, 0.12) 100%)',
                   border: '1.5px solid rgba(56, 189, 248, 0.4)',
                   borderRadius: '8px',
-                  padding: '12px 16px',
+                  padding: '14px 18px',
                   marginBottom: '16px',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '12px'
+                  gap: '16px'
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38bdf8', fontWeight: 700, fontSize: '0.95rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38bdf8', fontWeight: 700, fontSize: '0.98rem' }}>
                     <CheckCircle2 size={18} />
-                    <span>Piramal Finance CIBIL & Ventile Band FOIR & Multiplier Matrix (from Excel: BANKS POLICYS.xlsx - Sheet: PIRAMAL)</span>
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
-                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
-                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 FOIR Slabs by CIBIL Score Range:</strong>
-                      <div style={{ marginTop: '5px' }}>• <strong>775 – 800+ (V13–V20) & 750 – 774 (V10–V12) & 730 – 749 (V8–V9):</strong> Low: <strong>50%</strong> | Med: <strong>65%</strong> | High: <strong>70%</strong></div>
-                      <div style={{ marginTop: '3px' }}>• <strong>700 – 729 (V6–V7):</strong> Low: <strong>40%</strong> | Med: <strong>55%</strong> | High: <strong>60%</strong></div>
-                      <div style={{ marginTop: '3px' }}>• <strong>&lt; 700 / NTC (V4–V5):</strong> Low: <strong>40%</strong> | Med: <strong>50%</strong> | High: <strong>50%–55%</strong></div>
-                    </div>
-                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(249, 115, 22, 0.25)' }}>
-                      <strong style={{ color: '#fdba74', fontSize: '0.88rem' }}>📌 Multipliers by CIBIL Range (700-800+) & Profile:</strong>
-                      <div style={{ marginTop: '5px' }}>• <strong>Elite / Cat A:</strong> Up to <strong>30x</strong> (775–800+), 24x (750–774), 15x (730–749), 9x (700–729), 7.5x (&lt; 700)</div>
-                      <div style={{ marginTop: '3px' }}>• <strong>Cat B / C:</strong> Up to <strong>22x</strong> (775–800+), 15x (750–774), 10x (730–749), 7.5x (700–729), 6x (&lt; 700)</div>
-                      <div style={{ marginTop: '3px' }}>• <strong>Govt (NMI ≥ ₹60k):</strong> <strong>20x</strong> | BT Govt: <strong>24x</strong></div>
-                      <div style={{ marginTop: '3px', color: '#86efac' }}>• <strong>BT Policy:</strong> <strong>1 Personal Loan BT (1 PL BT) allowed along with up to 2 Credit Cards BT (2 CC BT)</strong> (Excel: <code>2 CC BT ALLOW WITH 1 PL BT</code>)</div>
-                    </div>
+                    <span>Piramal Finance CIBIL Score & Ventile Band Policy (Editable Master Tables)</span>
                   </div>
 
-                  <div style={{ marginTop: '6px' }}>
-                    <div style={{ color: '#93c5fd', fontSize: '0.86rem', marginBottom: '6px', fontWeight: 600 }}>Master CIBIL Score Range & Ventile Matrix Table (Excel Sheet: PIRAMAL)</div>
+                  {/* Table 1: FOIR Matrix by CIBIL Score Range */}
+                  <div>
+                    <div style={{ color: '#38bdf8', fontSize: '0.88rem', marginBottom: '8px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <CheckCircle2 size={15} />
+                      <span>Table 1: Piramal FOIR Matrix by CIBIL Score Range (Editable)</span>
+                    </div>
                     <div className="table-responsive">
-                      <table className="policy-table" style={{ fontSize: '0.80rem' }}>
+                      <table className="policy-table" style={{ fontSize: '0.82rem' }}>
                         <thead>
                           <tr>
                             <th>CIBIL Score Range</th>
                             <th>Ventile Band</th>
-                            <th>Low FOIR</th>
-                            <th>Medium FOIR</th>
-                            <th>High FOIR</th>
-                            <th>Elite / Cat A Mult</th>
-                            <th>Cat B/C Mult</th>
-                            <th>Govt (≥ 60K)</th>
-                            <th>Govt (&lt; 60K)</th>
-                            <th>BT Govt (≥ 60K)</th>
-                            <th>Others</th>
+                            <th style={{ color: '#38bdf8' }}>Low FOIR %</th>
+                            <th style={{ color: '#38bdf8' }}>Medium FOIR %</th>
+                            <th style={{ color: '#4ade80' }}>High FOIR % (Max)</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {[
-                            { cibil: '< 700 / NTC', band: 'NTC / V4-V5', low: '40%', med: '50%', high: '50%-55%', elite: '7.5x', bc: '6x', gHigh: '5x', gLow: '5x', btG: '5x', oth: '5x' },
-                            { cibil: '700 – 729', band: 'V6-V7', low: '40%', med: '55%', high: '60%', elite: '9x', bc: '7.5x', gHigh: '6x', gLow: '6x', btG: '7x', oth: '6x' },
-                            { cibil: '730 – 749', band: 'V8-V9', low: '50%', med: '65%', high: '70%', elite: '15x', bc: '10x', gHigh: '8x', gLow: '8x', btG: '10x', oth: '8x' },
-                            { cibil: '750 – 774', band: 'V10-V12', low: '50%', med: '65%', high: '70%', elite: '24x', bc: '15x', gHigh: '15x', gLow: '12x', btG: '18x', oth: '12x' },
-                            { cibil: '775 – 800+', band: 'V13-V20', low: '50%', med: '65%', high: '70%', elite: '30x', bc: '22x', gHigh: '20x', gLow: '15x', btG: '24x', oth: '18x' }
-                          ].map((vb, vidx) => (
-                            <tr key={vidx}>
-                              <td><strong style={{ color: '#fbbf24' }}>{vb.cibil}</strong></td>
-                              <td><strong style={{ color: '#38bdf8' }}>{vb.band}</strong></td>
-                              <td>{vb.low}</td>
-                              <td>{vb.med}</td>
-                              <td><strong style={{ color: '#4ade80' }}>{vb.high}</strong></td>
-                              <td><span style={{ color: '#f59e0b', fontWeight: 700 }}>{vb.elite}</span></td>
-                              <td>{vb.bc}</td>
-                              <td>{vb.gHigh}</td>
-                              <td>{vb.gLow}</td>
-                              <td>{vb.btG}</td>
-                              <td>{vb.oth}</td>
+                          {(policyData?.cibilVentileBands || [
+                            { cibilRange: '< 700 / NTC', ventileBand: 'NTC / V4-V5', lowFoir: 40, medFoir: 50, highFoir: 55, eliteMult: 7.5, catBCMult: 6, govtHighNmiMult: 5, govtLowNmiMult: 5, btGovtHighNmiMult: 5, othersMult: 5 },
+                            { cibilRange: '700 – 729', ventileBand: 'V6-V7', lowFoir: 40, medFoir: 55, highFoir: 60, eliteMult: 9, catBCMult: 7.5, govtHighNmiMult: 6, govtLowNmiMult: 6, btGovtHighNmiMult: 7, othersMult: 6 },
+                            { cibilRange: '730 – 749', ventileBand: 'V8-V9', lowFoir: 50, medFoir: 65, highFoir: 70, eliteMult: 15, catBCMult: 10, govtHighNmiMult: 8, govtLowNmiMult: 8, btGovtHighNmiMult: 10, othersMult: 8 },
+                            { cibilRange: '750 – 774', ventileBand: 'V10-V12', lowFoir: 50, medFoir: 65, highFoir: 70, eliteMult: 24, catBCMult: 15, govtHighNmiMult: 15, govtLowNmiMult: 12, btGovtHighNmiMult: 18, othersMult: 12 },
+                            { cibilRange: '775 – 800+', ventileBand: 'V13-V20', lowFoir: 50, medFoir: 65, highFoir: 70, eliteMult: 30, catBCMult: 22, govtHighNmiMult: 20, govtLowNmiMult: 15, btGovtHighNmiMult: 24, othersMult: 18 }
+                          ]).map((band, idx) => (
+                            <tr key={idx}>
+                              <td><strong style={{ color: '#fbbf24' }}>{band.cibilRange}</strong></td>
+                              <td><strong style={{ color: '#38bdf8' }}>{band.ventileBand}</strong></td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number"
+                                    value={band.lowFoir}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const bands = [...(policyData?.cibilVentileBands || [
+                                        { cibilRange: '< 700 / NTC', ventileBand: 'NTC / V4-V5', lowFoir: 40, medFoir: 50, highFoir: 55, eliteMult: 7.5, catBCMult: 6, govtHighNmiMult: 5, govtLowNmiMult: 5, btGovtHighNmiMult: 5, othersMult: 5 },
+                                        { cibilRange: '700 – 729', ventileBand: 'V6-V7', lowFoir: 40, medFoir: 55, highFoir: 60, eliteMult: 9, catBCMult: 7.5, govtHighNmiMult: 6, govtLowNmiMult: 6, btGovtHighNmiMult: 7, othersMult: 6 },
+                                        { cibilRange: '730 – 749', ventileBand: 'V8-V9', lowFoir: 50, medFoir: 65, highFoir: 70, eliteMult: 15, catBCMult: 10, govtHighNmiMult: 8, govtLowNmiMult: 8, btGovtHighNmiMult: 10, othersMult: 8 },
+                                        { cibilRange: '750 – 774', ventileBand: 'V10-V12', lowFoir: 50, medFoir: 65, highFoir: 70, eliteMult: 24, catBCMult: 15, govtHighNmiMult: 15, govtLowNmiMult: 12, btGovtHighNmiMult: 18, othersMult: 12 },
+                                        { cibilRange: '775 – 800+', ventileBand: 'V13-V20', lowFoir: 50, medFoir: 65, highFoir: 70, eliteMult: 30, catBCMult: 22, govtHighNmiMult: 20, govtLowNmiMult: 15, btGovtHighNmiMult: 24, othersMult: 18 }
+                                      ])];
+                                      bands[idx] = { ...bands[idx], lowFoir: val };
+                                      setPolicyData({ ...policyData, cibilVentileBands: bands });
+                                    }}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number"
+                                    value={band.medFoir}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const bands = [...(policyData?.cibilVentileBands || [
+                                        { cibilRange: '< 700 / NTC', ventileBand: 'NTC / V4-V5', lowFoir: 40, medFoir: 50, highFoir: 55, eliteMult: 7.5, catBCMult: 6, govtHighNmiMult: 5, govtLowNmiMult: 5, btGovtHighNmiMult: 5, othersMult: 5 },
+                                        { cibilRange: '700 – 729', ventileBand: 'V6-V7', lowFoir: 40, medFoir: 55, highFoir: 60, eliteMult: 9, catBCMult: 7.5, govtHighNmiMult: 6, govtLowNmiMult: 6, btGovtHighNmiMult: 7, othersMult: 6 },
+                                        { cibilRange: '730 – 749', ventileBand: 'V8-V9', lowFoir: 50, medFoir: 65, highFoir: 70, eliteMult: 15, catBCMult: 10, govtHighNmiMult: 8, govtLowNmiMult: 8, btGovtHighNmiMult: 10, othersMult: 8 },
+                                        { cibilRange: '750 – 774', ventileBand: 'V10-V12', lowFoir: 50, medFoir: 65, highFoir: 70, eliteMult: 24, catBCMult: 15, govtHighNmiMult: 15, govtLowNmiMult: 12, btGovtHighNmiMult: 18, othersMult: 12 },
+                                        { cibilRange: '775 – 800+', ventileBand: 'V13-V20', lowFoir: 50, medFoir: 65, highFoir: 70, eliteMult: 30, catBCMult: 22, govtHighNmiMult: 20, govtLowNmiMult: 15, btGovtHighNmiMult: 24, othersMult: 18 }
+                                      ])];
+                                      bands[idx] = { ...bands[idx], medFoir: val };
+                                      setPolicyData({ ...policyData, cibilVentileBands: bands });
+                                    }}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div className="table-input-cell highlight">
+                                  <input 
+                                    type="number"
+                                    value={band.highFoir}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const bands = [...(policyData?.cibilVentileBands || [
+                                        { cibilRange: '< 700 / NTC', ventileBand: 'NTC / V4-V5', lowFoir: 40, medFoir: 50, highFoir: 55, eliteMult: 7.5, catBCMult: 6, govtHighNmiMult: 5, govtLowNmiMult: 5, btGovtHighNmiMult: 5, othersMult: 5 },
+                                        { cibilRange: '700 – 729', ventileBand: 'V6-V7', lowFoir: 40, medFoir: 55, highFoir: 60, eliteMult: 9, catBCMult: 7.5, govtHighNmiMult: 6, govtLowNmiMult: 6, btGovtHighNmiMult: 7, othersMult: 6 },
+                                        { cibilRange: '730 – 749', ventileBand: 'V8-V9', lowFoir: 50, medFoir: 65, highFoir: 70, eliteMult: 15, catBCMult: 10, govtHighNmiMult: 8, govtLowNmiMult: 8, btGovtHighNmiMult: 10, othersMult: 8 },
+                                        { cibilRange: '750 – 774', ventileBand: 'V10-V12', lowFoir: 50, medFoir: 65, highFoir: 70, eliteMult: 24, catBCMult: 15, govtHighNmiMult: 15, govtLowNmiMult: 12, btGovtHighNmiMult: 18, othersMult: 12 },
+                                        { cibilRange: '775 – 800+', ventileBand: 'V13-V20', lowFoir: 50, medFoir: 65, highFoir: 70, eliteMult: 30, catBCMult: 22, govtHighNmiMult: 20, govtLowNmiMult: 15, btGovtHighNmiMult: 24, othersMult: 18 }
+                                      ])];
+                                      bands[idx] = { ...bands[idx], highFoir: val };
+                                      setPolicyData({ ...policyData, cibilVentileBands: bands });
+                                    }}
+                                  />
+                                  <span>%</span>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Table 2: Salary Multipliers Matrix by CIBIL Score Range & Profile */}
+                  <div>
+                    <div style={{ color: '#fdba74', fontSize: '0.88rem', marginBottom: '8px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <CheckCircle2 size={15} />
+                      <span>Table 2: Piramal Salary Multipliers Matrix by CIBIL Score Range & Profile (Editable)</span>
+                    </div>
+                    <div className="table-responsive">
+                      <table className="policy-table" style={{ fontSize: '0.82rem' }}>
+                        <thead>
+                          <tr>
+                            <th>CIBIL Score Range</th>
+                            <th>Ventile Band</th>
+                            <th style={{ color: '#f59e0b' }}>Elite / Cat A Mult</th>
+                            <th style={{ color: '#fbba74' }}>Cat B/C Mult</th>
+                            <th style={{ color: '#38bdf8' }}>Govt (≥ 60K)</th>
+                            <th style={{ color: '#38bdf8' }}>Govt (&lt; 60K)</th>
+                            <th style={{ color: '#86efac' }}>BT Govt (≥ 60K)</th>
+                            <th>Others Mult</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(policyData?.cibilVentileBands || [
+                            { cibilRange: '< 700 / NTC', ventileBand: 'NTC / V4-V5', lowFoir: 40, medFoir: 50, highFoir: 55, eliteMult: 7.5, catBCMult: 6, govtHighNmiMult: 5, govtLowNmiMult: 5, btGovtHighNmiMult: 5, othersMult: 5 },
+                            { cibilRange: '700 – 729', ventileBand: 'V6-V7', lowFoir: 40, medFoir: 55, highFoir: 60, eliteMult: 9, catBCMult: 7.5, govtHighNmiMult: 6, govtLowNmiMult: 6, btGovtHighNmiMult: 7, othersMult: 6 },
+                            { cibilRange: '730 – 749', ventileBand: 'V8-V9', lowFoir: 50, medFoir: 65, highFoir: 70, eliteMult: 15, catBCMult: 10, govtHighNmiMult: 8, govtLowNmiMult: 8, btGovtHighNmiMult: 10, othersMult: 8 },
+                            { cibilRange: '750 – 774', ventileBand: 'V10-V12', lowFoir: 50, medFoir: 65, highFoir: 70, eliteMult: 24, catBCMult: 15, govtHighNmiMult: 15, govtLowNmiMult: 12, btGovtHighNmiMult: 18, othersMult: 12 },
+                            { cibilRange: '775 – 800+', ventileBand: 'V13-V20', lowFoir: 50, medFoir: 65, highFoir: 70, eliteMult: 30, catBCMult: 22, govtHighNmiMult: 20, govtLowNmiMult: 15, btGovtHighNmiMult: 24, othersMult: 18 }
+                          ]).map((band, idx) => (
+                            <tr key={idx}>
+                              <td><strong style={{ color: '#fbbf24' }}>{band.cibilRange}</strong></td>
+                              <td><strong style={{ color: '#38bdf8' }}>{band.ventileBand}</strong></td>
+                              {['eliteMult', 'catBCMult', 'govtHighNmiMult', 'govtLowNmiMult', 'btGovtHighNmiMult', 'othersMult'].map((fieldKey) => (
+                                <td key={fieldKey}>
+                                  <div className="table-input-cell">
+                                    <input 
+                                      type="number"
+                                      step="0.5"
+                                      value={band[fieldKey]}
+                                      onChange={(e) => {
+                                        const val = Number(e.target.value);
+                                        const bands = [...(policyData?.cibilVentileBands || [
+                                          { cibilRange: '< 700 / NTC', ventileBand: 'NTC / V4-V5', lowFoir: 40, medFoir: 50, highFoir: 55, eliteMult: 7.5, catBCMult: 6, govtHighNmiMult: 5, govtLowNmiMult: 5, btGovtHighNmiMult: 5, othersMult: 5 },
+                                          { cibilRange: '700 – 729', ventileBand: 'V6-V7', lowFoir: 40, medFoir: 55, highFoir: 60, eliteMult: 9, catBCMult: 7.5, govtHighNmiMult: 6, govtLowNmiMult: 6, btGovtHighNmiMult: 7, othersMult: 6 },
+                                          { cibilRange: '730 – 749', ventileBand: 'V8-V9', lowFoir: 50, medFoir: 65, highFoir: 70, eliteMult: 15, catBCMult: 10, govtHighNmiMult: 8, govtLowNmiMult: 8, btGovtHighNmiMult: 10, othersMult: 8 },
+                                          { cibilRange: '750 – 774', ventileBand: 'V10-V12', lowFoir: 50, medFoir: 65, highFoir: 70, eliteMult: 24, catBCMult: 15, govtHighNmiMult: 15, govtLowNmiMult: 12, btGovtHighNmiMult: 18, othersMult: 12 },
+                                          { cibilRange: '775 – 800+', ventileBand: 'V13-V20', lowFoir: 50, medFoir: 65, highFoir: 70, eliteMult: 30, catBCMult: 22, govtHighNmiMult: 20, govtLowNmiMult: 15, btGovtHighNmiMult: 24, othersMult: 18 }
+                                        ])];
+                                        bands[idx] = { ...bands[idx], [fieldKey]: val };
+                                        setPolicyData({ ...policyData, cibilVentileBands: bands });
+                                      }}
+                                    />
+                                    <span>x</span>
+                                  </div>
+                                </td>
+                              ))}
                             </tr>
                           ))}
                         </tbody>
@@ -4038,7 +4136,7 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               )}
 
-              {!(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) && (
+              {!(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg') || activeConfigBank?.id === 'piramal' || activeConfigBank?.name?.toLowerCase().includes('piramal')) && (
                 <div className="table-responsive">
                 <table className="policy-table">
                   <thead>

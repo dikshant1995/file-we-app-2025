@@ -233,8 +233,32 @@ export const calculatePiramalEligibility = (userData) => {
   }
 
 // Helper function to get Ventile Band & Multipliers based on CIBIL Score range (700 to 800+)
-const getCibilVentileBand = (cibilScore) => {
+const getCibilVentileBand = (cibilScore, customBands = null) => {
   const score = Number(cibilScore) || 0;
+  if (Array.isArray(customBands) && customBands.length > 0) {
+    let matchedBand = customBands.find(b => score >= (b.minCibil ?? 0) && score <= (b.maxCibil ?? 900));
+    if (!matchedBand) {
+      if (score >= 775) matchedBand = customBands[customBands.length - 1];
+      else if (score >= 750) matchedBand = customBands[3] || customBands[customBands.length - 1];
+      else if (score >= 730) matchedBand = customBands[2] || customBands[0];
+      else if (score >= 700) matchedBand = customBands[1] || customBands[0];
+      else matchedBand = customBands[0];
+    }
+    if (matchedBand) {
+      return {
+        band: matchedBand.ventileBand || 'V-Band',
+        cibilRange: matchedBand.cibilRange || '700+',
+        foir: (matchedBand.highFoir || 70) / 100,
+        eliteMult: Number(matchedBand.eliteMult ?? 30),
+        catBCMult: Number(matchedBand.catBCMult ?? 22),
+        govtHighNmiMult: Number(matchedBand.govtHighNmiMult ?? 20),
+        govtLowNmiMult: Number(matchedBand.govtLowNmiMult ?? 15),
+        btGovtHighNmiMult: Number(matchedBand.btGovtHighNmiMult ?? 24),
+        othersMult: Number(matchedBand.othersMult ?? 18)
+      };
+    }
+  }
+
   if (score >= 775) {
     return { band: 'V13-V20', cibilRange: '775 – 800+', foir: 0.70, eliteMult: 30, catBCMult: 22, govtHighNmiMult: 20, govtLowNmiMult: 15, btGovtHighNmiMult: 24, othersMult: 18 };
   } else if (score >= 750) {
@@ -251,7 +275,7 @@ const getCibilVentileBand = (cibilScore) => {
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncomeForCalc;
 
   // CIBIL Ventile Band Lookup (Replaces Internal Ventile Score with CIBIL Score 700-800+)
-  const cibilBandInfo = getCibilVentileBand(creditScore);
+  const cibilBandInfo = getCibilVentileBand(creditScore, adminBankConfig?.cibilVentileBands || userData?.cibilVentileBands);
   const catUpper = String(category || 'C').toUpperCase().trim();
 
   let cibilMultiplier = cibilBandInfo.othersMult;
