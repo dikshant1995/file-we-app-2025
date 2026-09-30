@@ -14,6 +14,7 @@ import { calculatePiramalEligibility } from '../banks/piramal/calculator.js';
 import { calculateSmfgEligibility } from '../banks/smfg/calculator.js';
 import { calculateBajajEligibility } from '../banks/bajaj/calculator.js';
 import { calculateAuEligibility, getAuROI } from '../banks/au/calculator.js';
+import { calculateIncredEligibility } from '../banks/incred/calculator.js';
 
 // Import bank configs for transparency
 import { kotakConfig } from '../banks/kotak/config.js';
@@ -31,6 +32,7 @@ import { piramalConfig } from '../banks/piramal/config.js';
 import { smfgConfig } from '../banks/smfg/config.js';
 import { bajajConfig } from '../banks/bajaj/config.js';
 import { auConfig } from '../banks/au/config.js';
+import { incredConfig } from '../banks/incred/config.js';
 
 // Import company database service
 import { getCompanyCategoryForBank } from './companyDatabaseService.js';
@@ -183,7 +185,7 @@ export const calculateLoanEligibility = async (userData) => {
     { id: 'lnt', name: 'L&T Finance', calculator: calculateUnifiedBankEligibility, config: { name: 'L&T Finance', maxLoanCap: 3000000, defaultRate: 11.5 }, hasDatabase: false },
     { id: 'smfg', name: 'SMFG India Credit', calculator: calculateSmfgEligibility, config: smfgConfig, hasDatabase: false },
     { id: 'bajaj', name: 'Bajaj Finance', calculator: calculateBajajEligibility, config: bajajConfig, hasDatabase: true },
-    { id: 'incred', name: 'Incred Finance', calculator: calculateUnifiedBankEligibility, config: { name: 'Incred Finance', maxLoanCap: 1500000, defaultRate: 13.49 }, hasDatabase: false },
+    { id: 'incred', name: 'Incred Finance', calculator: calculateIncredEligibility, config: incredConfig, hasDatabase: false },
     { id: 'au-bank', name: 'AU Small Finance Bank', calculator: calculateAuEligibility, config: auConfig, hasDatabase: false },
     { id: 'abfl', name: 'Aditya Birla Finance', calculator: calculateUnifiedBankEligibility, config: { name: 'Aditya Birla Finance', maxLoanCap: 5000000, defaultRate: 11.25 }, hasDatabase: false },
     { id: 'finnable', name: 'Finnable Finance', calculator: calculateUnifiedBankEligibility, config: { name: 'Finnable Finance', maxLoanCap: 1000000, defaultRate: 14.0 }, hasDatabase: false }
@@ -1995,15 +1997,17 @@ const matchCategory = (cat1, cat2) => {
               bankInput.multiplierOverride = idfcMult;
               if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
             } else if (name.toLowerCase().includes('incred') || id === 'incred') {
-              // Incred Finance Excel Policy
+              // Incred Finance Excel Policy (Sheet: INCRED)
               let incFoir = 40;
               if (income > 40000) incFoir = 65;
               else if (income >= 30000) incFoir = 60;
               else if (income >= 20000) incFoir = 50;
               else incFoir = 40;
-              bankInput.foirOverride = incFoir + 5; // +5% for account aggregator
-              bankInput.multiplierOverride = matchedFoir.multiplier || 22;
+              bankInput.foirOverride = incFoir + 5; // +5% for account aggregator (45%, 55%, 65%, 70%)
+              bankInput.isFoirOnly = true;
+              bankInput.multiplierOverride = null;
               if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
+              else bankInput.ccObligationPercentOverride = 5;
             } else if (name.toLowerCase().includes('aditya') || name.toLowerCase().includes('abfl') || id === 'abfl') {
               // Aditya Birla Finance Excel Policy (Sheet: ABFL - Section 2 FOIR Rows 15-21)
               const hasHlOrLap = (calculatorInput.existingLoanTypes && 

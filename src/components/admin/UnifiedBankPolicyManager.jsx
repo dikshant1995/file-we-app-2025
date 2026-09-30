@@ -377,6 +377,14 @@ const sanitizePolicyData = (raw) => {
           { nmiSlab: 'INR 75K - <100K', minIncome: 75000, maxIncome: 99999, foirP1: 70, multP1: 22, capP1: 15.0, foirP0: 65, multP0: 18, capP0: 10.0 },
           { nmiSlab: '>= INR 100K', minIncome: 100000, maxIncome: Infinity, foirP1: 75, multP1: 24, capP1: 15.0, foirP0: 70, multP0: 20, capP0: 10.0 }
         ]),
+    salaryFoirSlabs: Array.isArray(raw.salaryFoirSlabs) && raw.salaryFoirSlabs.length > 0
+      ? raw.salaryFoirSlabs
+      : (raw.salaryFoirSlabs || [
+          { salarySlab: '15K - 20K', minSalary: 15000, maxSalary: 20000, baseFoir: 40, aaBonusFoir: 5, maxFoir: 45, ccObligation: 5 },
+          { salarySlab: '20K - 30K', minSalary: 20001, maxSalary: 30000, baseFoir: 50, aaBonusFoir: 5, maxFoir: 55, ccObligation: 5 },
+          { salarySlab: '30K - 40K', minSalary: 30001, maxSalary: 40000, baseFoir: 60, aaBonusFoir: 5, maxFoir: 65, ccObligation: 5 },
+          { salarySlab: '> 40K', minSalary: 40001, maxSalary: Infinity, baseFoir: 65, aaBonusFoir: 5, maxFoir: 70, ccObligation: 5 }
+        ]),
     companies: Array.isArray(raw.companies) && raw.companies.length > 0 
       ? raw.companies 
       : DEFAULT_UNIFIED_POLICY.companies
@@ -1506,6 +1514,7 @@ const UnifiedBankPolicyManager = () => {
             const isAbfl = bankId === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('birla') || activeConfigBank?.name?.toLowerCase().includes('abfl');
             const isSmfg = bankId === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg');
             const isAu = bankId === 'au-bank' || bankId === 'au' || activeConfigBank?.name?.toLowerCase().includes('au ');
+            const isIncred = bankId === 'incred' || activeConfigBank?.name?.toLowerCase().includes('incred');
 
             const rawRates = policyData?.interestRates || [];
             // Banks that don't have Cat D in ROI: HDFC, IndusInd, Axis, Tata
@@ -1571,6 +1580,9 @@ const UnifiedBankPolicyManager = () => {
                     )}
                     {isAu && (
                       <p>AU Small Finance Bank Master Policy Slabs (Sheet: AU BANK - Section 5): Structured by <strong>CIBIL Score (&ge;750, &lt;750, NTC)</strong>, <strong>Loan Bracket (&gt;₹1.50L, ₹50k–₹1.50L, &lt;₹50k)</strong> and Segment (&ge;₹2L vs &lt;₹2L). Rates span <strong>13.00% to 24.00% p.a.</strong> across Super A, A, B, C, D &amp; Others.</p>
+                    )}
+                    {isIncred && (
+                      <p>InCred Finance Master Policy (Sheet: INCRED): Loan amount <strong>₹50,000 to ₹15 Lakhs (50k to 15 Lac)</strong> has an ROI range of <strong>13.49% to 33.00% p.a.</strong> across all category tiers.</p>
                     )}
                     {isHdfc && (
                       <p>HDFC Master Policy Slabs: <strong>20 LAKH +</strong> (9.99%), <strong>15 LAKH+</strong> (10.15%), <strong>10-15 LAKH</strong> (10.50%), and <strong>5-10 LAKH</strong> (11.50%).</p>
@@ -4468,7 +4480,126 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               )}
 
-              {!(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg') || activeConfigBank?.id === 'piramal' || activeConfigBank?.name?.toLowerCase().includes('piramal') || activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('bandhan')) && (
+              {(activeConfigBank?.id === 'incred' || activeConfigBank?.name?.toLowerCase().includes('incred')) && (
+                <div style={{ marginBottom: '24px' }}>
+                  <div style={{
+                    background: 'linear-gradient(135deg, rgba(245, 130, 32, 0.2) 0%, rgba(30, 64, 175, 0.15) 100%)',
+                    border: '1.5px solid rgba(245, 130, 32, 0.4)',
+                    borderRadius: '8px',
+                    padding: '12px 16px',
+                    marginBottom: '16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '6px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#f97316', fontWeight: 700, fontSize: '0.98rem' }}>
+                      <CheckCircle2 size={18} />
+                      <span>InCred Finance FOIR Policy Matrix (FOIR Only — Salary Slab Dependent)</span>
+                    </div>
+                    <div style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>
+                      • <strong>FOIR Only Institution:</strong> Multiplier column is removed as loan eligibility is calculated purely by FOIR.<br />
+                      • <strong>Account Aggregator Bonus:</strong> Additional +5% FOIR basis Account Aggregator validation (e.g., 40% + 5% = 45%).
+                    </div>
+                  </div>
+
+                  <div className="table-responsive">
+                    <table className="policy-table">
+                      <thead>
+                        <tr>
+                          <th style={{ background: 'rgba(245, 130, 32, 0.85)', color: '#fff', textTransform: 'uppercase', textAlign: 'center', fontSize: '1rem', letterSpacing: '0.5px' }} colSpan={5}>
+                            Foir as per salary (InCred Finance Policy)
+                          </th>
+                        </tr>
+                        <tr>
+                          <th style={{ color: '#38bdf8', minWidth: '160px' }}>Net Monthly Income (Salary Slab)</th>
+                          <th style={{ color: '#fb923c' }}>Base FOIR (%)</th>
+                          <th style={{ color: '#34d399' }}>Account Aggregator Bonus (+5%)</th>
+                          <th style={{ color: '#a78bfa' }}>Max Effective FOIR (%)</th>
+                          <th style={{ color: '#e2e8f0' }}>CC / Gold / KCC Obligation (%)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(policyData?.salaryFoirSlabs || [
+                          { salarySlab: '15K - 20K', minSalary: 15000, maxSalary: 20000, baseFoir: 40, aaBonusFoir: 5, maxFoir: 45, ccObligation: 5 },
+                          { salarySlab: '20K - 30K', minSalary: 20001, maxSalary: 30000, baseFoir: 50, aaBonusFoir: 5, maxFoir: 55, ccObligation: 5 },
+                          { salarySlab: '30K - 40K', minSalary: 30001, maxSalary: 40000, baseFoir: 60, aaBonusFoir: 5, maxFoir: 65, ccObligation: 5 },
+                          { salarySlab: '> 40K', minSalary: 40001, maxSalary: Infinity, baseFoir: 65, aaBonusFoir: 5, maxFoir: 70, ccObligation: 5 }
+                        ]).map((row, idx) => (
+                          <tr key={idx}>
+                            <td>
+                              <strong style={{ color: '#f97316', fontSize: '0.92rem' }}>{row.salarySlab}</strong>
+                            </td>
+                            <td>
+                              <div className="table-input-cell">
+                                <input 
+                                  type="number"
+                                  value={row.baseFoir ?? (idx === 0 ? 40 : (idx === 1 ? 50 : (idx === 2 ? 60 : 65)))}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...(policyData.salaryFoirSlabs || [])];
+                                    const bonus = updated[idx]?.aaBonusFoir ?? 5;
+                                    updated[idx] = { ...updated[idx], baseFoir: val, maxFoir: val + bonus };
+                                    setPolicyData({ ...policyData, salaryFoirSlabs: updated });
+                                  }}
+                                />
+                                <span>%</span>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="table-input-cell highlight" style={{ background: 'rgba(52, 211, 153, 0.1)', border: '1px solid rgba(52, 211, 153, 0.4)' }}>
+                                <span>+</span>
+                                <input 
+                                  type="number"
+                                  style={{ color: '#34d399', fontWeight: 800 }}
+                                  value={row.aaBonusFoir ?? 5}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...(policyData.salaryFoirSlabs || [])];
+                                    const base = updated[idx]?.baseFoir ?? 40;
+                                    updated[idx] = { ...updated[idx], aaBonusFoir: val, maxFoir: base + val };
+                                    setPolicyData({ ...policyData, salaryFoirSlabs: updated });
+                                  }}
+                                />
+                                <span>%</span>
+                              </div>
+                            </td>
+                            <td>
+                              <span style={{ 
+                                padding: '4px 12px', 
+                                borderRadius: '6px', 
+                                background: 'rgba(167, 139, 250, 0.2)', 
+                                color: '#c084fc', 
+                                fontWeight: 700,
+                                fontSize: '0.95rem',
+                                border: '1px solid rgba(167, 139, 250, 0.4)'
+                              }}>
+                                {(row.baseFoir ?? (idx === 0 ? 40 : (idx === 1 ? 50 : (idx === 2 ? 60 : 65)))) + (row.aaBonusFoir ?? 5)}% FOIR
+                              </span>
+                            </td>
+                            <td>
+                              <div className="table-input-cell">
+                                <input 
+                                  type="number"
+                                  value={row.ccObligation ?? 5}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...(policyData.salaryFoirSlabs || [])];
+                                    updated[idx] = { ...updated[idx], ccObligation: val };
+                                    setPolicyData({ ...policyData, salaryFoirSlabs: updated });
+                                  }}
+                                />
+                                <span>%</span>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {!(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg') || activeConfigBank?.id === 'piramal' || activeConfigBank?.name?.toLowerCase().includes('piramal') || activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('bandhan') || activeConfigBank?.id === 'incred' || activeConfigBank?.name?.toLowerCase().includes('incred')) && (
                 <div className="table-responsive">
                 <table className="policy-table">
                   <thead>
@@ -6020,6 +6151,38 @@ const UnifiedBankPolicyManager = () => {
                       <div style={{ marginTop: '3px', color: '#fca5a5' }}>• Cash Salary: <strong>NOT considered</strong>. Variable pay (Incentives, bonus, 1-time allowances) to be deducted</div>
                       <div style={{ marginTop: '3px', color: '#f87171' }}>• Balance Transfer (BT): <strong>ONLY Personal Loan BT</strong> (Credit Card BT strictly NOT allowed)</div>
                       <div style={{ marginTop: '3px', color: '#4ade80' }}>• Bachelor Capping: <strong>Removed (No Restriction as per policy)</strong></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {(activeConfigBank?.id === 'incred' || activeConfigBank?.name?.toLowerCase().includes('incred')) && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(245, 130, 32, 0.18) 0%, rgba(30, 64, 175, 0.12) 100%)',
+                  border: '1.5px solid rgba(245, 130, 32, 0.35)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#f97316', fontWeight: 700, fontSize: '0.95rem' }}>
+                    <CheckCircle2 size={18} />
+                    <span>InCred Finance Demographics &amp; Eligibility Criteria (Master Policy &amp; Excel)</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(245, 130, 32, 0.25)' }}>
+                      <strong style={{ color: '#f97316', fontSize: '0.88rem' }}>📌 Age &amp; Experience Requirements:</strong>
+                      <div style={{ marginTop: '5px' }}>• Applicant Age Range: <strong>21 to 55 Years</strong> (<code>21 yr to 55 yr</code>)</div>
+                      <div style={{ marginTop: '3px' }}>• Max Age / Retirement: <strong>55 Years</strong></div>
+                      <div style={{ marginTop: '3px', color: '#86efac' }}>• Minimum Work Experience: <strong>3 Months</strong> (<code>Minimum work experience: 3 Months</code>)</div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
+                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 Financial, Obligation &amp; BT Rules:</strong>
+                      <div style={{ marginTop: '5px' }}>• Minimum Net Salary: <strong>₹15,000 (15k)</strong></div>
+                      <div style={{ marginTop: '3px' }}>• CC / Gold Loan / KCC Obligation: <strong>5%</strong></div>
+                      <div style={{ marginTop: '3px', color: '#fca5a5' }}>• Balance Transfer (BT): <strong>Credit Card BT NOT Allowed</strong></div>
                     </div>
                   </div>
                 </div>
