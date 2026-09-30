@@ -48,6 +48,10 @@ export const calculateAxisFinEligibility = (userData) => {
     monthlyIncome,
     existingEMI = 0,
     creditCardObligation, // NEW: 5% of non-BT credit card balances
+    goldLoanOutstanding = 0,
+    goldLoanObligation,
+    kccOutstanding = 0,
+    kccObligation,
     category = 'C',
     creditScore,
     employmentType,
@@ -69,6 +73,19 @@ export const calculateAxisFinEligibility = (userData) => {
     incentivePercentageOverride,
     incentiveMonthsOverride
   } = userData;
+
+  // ========== GOLD LOAN & KCC OBLIGATION CALCULATION ==========
+  // Gold Loan Obligation: 1% Count
+  const effectiveGoldLoanObligation = goldLoanObligation !== undefined 
+    ? goldLoanObligation 
+    : Math.round((goldLoanOutstanding || 0) * ((axisFinConfig.goldLoanObligationPercent || 1) / 100));
+
+  // KCC Obligation: Upto 15 Lacs = 0 Obligate, excess above 15 Lacs obligated at 5%
+  const kccExemptionLimit = axisFinConfig.kccExemptionLimit || 1500000;
+  const kccTaxableAmount = Math.max(0, (kccOutstanding || 0) - kccExemptionLimit);
+  const effectiveKccObligation = kccObligation !== undefined 
+    ? kccObligation 
+    : Math.round(kccTaxableAmount * 0.05);
 
   // ========== INCENTIVE CALCULATION LOGIC ==========
   const effectiveIncentivePercentage = incentivePercentageOverride !== undefined 
@@ -211,7 +228,7 @@ export const calculateAxisFinEligibility = (userData) => {
   }
 
   // Calculate Loan Amount:
-  const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
+  const totalObligations = (existingEMI || 0) + (creditCardObligation || 0) + effectiveGoldLoanObligation + effectiveKccObligation;
   const availableSalary = isBT ? incomeToCheck : (monthlyIncomeForCalc - totalObligations);
   if (availableSalary <= 0) {
     return { eligible: false, reason: `Total obligations (₹${totalObligations.toLocaleString()}) exceed monthly income`, isBTMode: isBT };
@@ -259,7 +276,11 @@ export const calculateAxisFinEligibility = (userData) => {
       nonBTLoansEMI: Math.round(nonBTLoansEMI),
       creditCardObligation: Math.round(creditCardObligation || 0),
       creditCardObligationNote: creditCardObligation > 0 ? '5% of non-BT credit card outstanding' : 'No credit card obligation',
-      totalNonBTObligations: Math.round(nonBTLoansEMI + (creditCardObligation || 0)),
+      goldLoanObligation: Math.round(effectiveGoldLoanObligation),
+      goldLoanObligationNote: effectiveGoldLoanObligation > 0 ? '1% of Gold Loan Outstanding' : 'No Gold Loan obligation',
+      kccObligation: Math.round(effectiveKccObligation),
+      kccObligationNote: effectiveKccObligation === 0 ? 'KCC Upto 15L = 0 Obligate' : '5% on KCC amount above 15L',
+      totalNonBTObligations: Math.round(nonBTLoansEMI + (creditCardObligation || 0) + effectiveGoldLoanObligation + effectiveKccObligation),
       originalIncome: monthlyIncomeForCalc,
       adjustedIncome: Math.round(adjustedIncome)
     };
@@ -309,6 +330,10 @@ export const calculateAxisFinEligibility = (userData) => {
       existingEMI: Math.round(existingEMI || 0),
       creditCardObligation: Math.round(creditCardObligation || 0),
       creditCardObligationNote: creditCardObligation > 0 ? '5% of credit card outstanding balance' : 'No credit card obligations',
+      goldLoanObligation: Math.round(effectiveGoldLoanObligation),
+      goldLoanObligationNote: effectiveGoldLoanObligation > 0 ? '1% of Gold Loan Outstanding' : 'No Gold Loan obligation',
+      kccObligation: Math.round(effectiveKccObligation),
+      kccObligationNote: effectiveKccObligation === 0 ? 'KCC Upto 15L = 0 Obligate' : '5% on KCC amount above 15L',
       totalObligations: Math.round(totalObligations),
       availableSalaryAfterObligations: Math.round(availableSalary)
     },

@@ -71,6 +71,8 @@ export const AXIS_FINANCE_EXCEL_POLICY = {
     ccBtAllowedCount: 5,
     btRoi: 18.00,
     goldLoanObligationPercent: 1,
-    kccExemptionLimit: 1500000
+    goldLoanObligationText: 'GOLD LOAN OBLIGATION 1% COUNT',
+    kccExemptionLimit: 1500000,
+    kccObligationText: 'KCC OBLIGATION UPTO 15LAC = 0 OBLIGATE'
   }
 };

@@ -104,8 +104,56 @@ export const poonawalaConfig = {
     }
   },
 
-  // Excel Section 4 Rows 34-52: Detailed Rate Grid Lookup Function
-  getPoonawalaRate: (category, income, loanAmount, cibilScore) => {
+  // Rate Grids (Excel Sheet: POONAWALA — Effective 1st Aug 2026)
+  rateGrids: {
+    superCatCatAGovtRatna: [
+      { slab: 'NTH up to 50K', min700: 15.00, min730: 14.74, min780: 13.75 },
+      { slab: 'NTH >50K–75K', min700: 14.74, min730: 14.50, min780: 13.50 },
+      { slab: 'NTH >75K', min700: 14.00, min730: 13.50, min780: 12.50 },
+      { slab: 'NTH >100K & LA ≥ 20L', min700: 13.75, min730: 13.25, min780: 12.25 },
+      { slab: 'NTH >100K & LA ≥ 35L', min700: 13.00, min730: 12.50, min780: 11.99 }
+    ],
+    govtCatBCatEduDefence: [
+      { slab: 'NTH up to 50K', min700: 15.50, min730: 15.24, min750: 15.00, min780: 14.25 },
+      { slab: 'NTH >50K–75K', min700: 15.24, min730: 15.00, min750: 14.75, min780: 14.00 },
+      { slab: 'NTH >75K', min700: 15.00, min730: 14.75, min750: 14.50, min780: 13.75 },
+      { slab: 'NTH >100K & LA ≥ 20L', min700: 14.75, min730: 14.50, min750: 14.25, min780: 13.50 },
+      { slab: 'NTH >100K & LA ≥ 35L', min700: null, min730: null, min750: null, min780: null }
+    ],
+    categoryC: [
+      { slab: '≤ 50K', min700: 16.00, min730: 15.75, min750: 15.50, min780: 15.24 },
+      { slab: '>50K–75K', min700: 15.50, min730: 15.25, min750: 15.00, min780: 14.50 },
+      { slab: '>75K', min700: 15.25, min730: 15.00, min750: 14.50, min780: 14.00 },
+      { slab: '>100K & LA ≥ 20L', min700: 14.74, min730: 14.50, min750: 14.25, min780: 14.00 }
+    ],
+    categoryD: [
+      { slab: '≤ 50K', min700: 17.24, min730: 16.24, min750: 15.75, min780: 15.50 },
+      { slab: '>50K–75K', min700: 16.24, min730: 15.75, min750: 15.50, min780: 15.24 },
+      { slab: '>75K', min700: 15.75, min730: 15.24, min750: 15.00, min780: 14.74 }
+    ],
+    categoryE: [
+      { slab: '≤ 50K', min700: 19.75, min730: 18.74, min750: 18.50, min780: 18.25 },
+      { slab: '>50K–75K', min700: 18.24, min730: 17.74, min750: 17.50, min780: 17.25 },
+      { slab: '>75K', min700: 17.74, min730: 17.24, min750: 17.00, min780: 16.75 }
+    ]
+  },
+
+  // Additional ROI Markups (Excel Section 4 Rows 55-68)
+  rateMarkups: {
+    ntcScoreMarkup: 1.00,
+    ntcMinRoi: 14.50,
+    btUpTo2CcAppLoan: 1.25,
+    btUpTo2MinRoi: 15.00,
+    bt3To4CcAppLoan: 2.25,
+    bt3To4MinRoi: 16.25,
+    btMoreThan4CcAppLoan: 3.35,
+    btMoreThan4MinRoi: 17.25,
+    foir6YearTenureMarkup: 0.25,
+    foir7YearTenureMarkup: 0.50
+  },
+
+  // Dynamic Rate Lookup with Markups
+  getPoonawalaRate: (category, income, loanAmount, cibilScore, btCount = 0, is6YrTenure = false, is7YrTenure = false) => {
     const cibil = Number(cibilScore || 750);
     const cat = String(category || 'A').toUpperCase().trim();
     const isSuperA = cat.includes('SUPER') || cat === 'A';
@@ -113,75 +161,85 @@ export const poonawalaConfig = {
     const isC = cat === 'C';
     const isD = cat === 'D';
 
-    // Handle NTC (0 / -1)
-    if (cibil === 0 || cibil === -1) {
-      return 14.50; // Excel Row 65: For Cibil 0 and -1 min 14.50%
-    }
+    let baseRoi = 14.50;
 
     if (isSuperA) {
       if (income > 100000 && loanAmount >= 3500000) {
-        return cibil >= 780 ? 11.99 : (cibil >= 730 ? 12.50 : 13.00);
+        baseRoi = cibil >= 780 ? 11.99 : (cibil >= 730 ? 12.50 : 13.00);
+      } else if (income > 100000 && loanAmount >= 2000000) {
+        baseRoi = cibil >= 780 ? 12.25 : (cibil >= 730 ? 13.25 : 13.75);
+      } else if (income > 75000) {
+        baseRoi = cibil >= 780 ? 12.50 : (cibil >= 730 ? 13.50 : 14.00);
+      } else if (income > 50000) {
+        baseRoi = cibil >= 780 ? 13.50 : (cibil >= 730 ? 14.50 : 14.74);
+      } else {
+        baseRoi = cibil >= 780 ? 13.75 : (cibil >= 730 ? 14.74 : 15.00);
       }
+    } else if (isGovtOrB) {
       if (income > 100000 && loanAmount >= 2000000) {
-        return cibil >= 780 ? 12.25 : (cibil >= 730 ? 13.25 : 13.75);
+        baseRoi = cibil >= 780 ? 13.50 : (cibil >= 750 ? 14.25 : (cibil >= 730 ? 14.50 : 14.75));
+      } else if (income > 75000) {
+        baseRoi = cibil >= 780 ? 13.75 : (cibil >= 750 ? 14.50 : (cibil >= 730 ? 14.75 : 15.00));
+      } else if (income > 50000) {
+        baseRoi = cibil >= 780 ? 14.00 : (cibil >= 750 ? 14.75 : (cibil >= 730 ? 15.00 : 15.24));
+      } else {
+        baseRoi = cibil >= 780 ? 14.25 : (cibil >= 750 ? 15.00 : (cibil >= 730 ? 15.24 : 15.50));
       }
-      if (income > 75000) {
-        return cibil >= 780 ? 12.50 : (cibil >= 730 ? 13.50 : 14.00);
-      }
-      if (income > 50000) {
-        return cibil >= 780 ? 13.50 : (cibil >= 730 ? 14.50 : 14.74);
-      }
-      // up to 50k
-      return cibil >= 780 ? 13.75 : (cibil >= 730 ? 14.74 : 15.00);
-    }
-
-    if (isGovtOrB) {
+    } else if (isC) {
       if (income > 100000 && loanAmount >= 2000000) {
-        return cibil >= 780 ? 13.50 : (cibil >= 750 ? 14.25 : (cibil >= 730 ? 14.50 : 14.75));
+        baseRoi = cibil >= 780 ? 14.00 : (cibil >= 750 ? 14.25 : (cibil >= 730 ? 14.50 : 14.74));
+      } else if (income > 75000) {
+        baseRoi = cibil >= 780 ? 14.00 : (cibil >= 750 ? 14.50 : (cibil >= 730 ? 15.00 : 15.25));
+      } else if (income > 50000) {
+        baseRoi = cibil >= 780 ? 14.50 : (cibil >= 750 ? 15.00 : (cibil >= 730 ? 15.25 : 15.50));
+      } else {
+        baseRoi = cibil >= 780 ? 15.24 : (cibil >= 750 ? 15.50 : (cibil >= 730 ? 15.75 : 16.00));
       }
+    } else if (isD) {
       if (income > 75000) {
-        return cibil >= 780 ? 13.75 : (cibil >= 750 ? 14.50 : (cibil >= 730 ? 14.75 : 15.00));
+        baseRoi = cibil >= 780 ? 14.74 : (cibil >= 750 ? 15.00 : (cibil >= 730 ? 15.24 : 15.75));
+      } else if (income > 50000) {
+        baseRoi = cibil >= 780 ? 15.24 : (cibil >= 750 ? 15.50 : (cibil >= 730 ? 15.75 : 16.24));
+      } else {
+        baseRoi = cibil >= 780 ? 15.50 : (cibil >= 750 ? 15.75 : (cibil >= 730 ? 16.24 : 17.24));
       }
-      if (income > 50000) {
-        return cibil >= 780 ? 14.00 : (cibil >= 750 ? 14.75 : (cibil >= 730 ? 15.00 : 15.24));
+    } else {
+      // Cat E / Unlisted
+      if (income > 75000) {
+        baseRoi = cibil >= 780 ? 16.75 : (cibil >= 750 ? 17.00 : (cibil >= 730 ? 17.24 : 17.74));
+      } else if (income > 50000) {
+        baseRoi = cibil >= 780 ? 17.25 : (cibil >= 750 ? 17.50 : (cibil >= 730 ? 17.74 : 18.24));
+      } else {
+        baseRoi = cibil >= 780 ? 18.25 : (cibil >= 750 ? 18.50 : (cibil >= 730 ? 18.74 : 19.75));
       }
-      // up to 50k
-      return cibil >= 780 ? 14.25 : (cibil >= 750 ? 15.00 : (cibil >= 730 ? 15.24 : 15.50));
     }
 
-    if (isC) {
-      if (income > 100000 && loanAmount >= 2000000) {
-        return cibil >= 780 ? 14.00 : (cibil >= 750 ? 14.25 : (cibil >= 730 ? 14.50 : 14.74));
-      }
-      if (income > 75000) {
-        return cibil >= 780 ? 14.00 : (cibil >= 750 ? 14.50 : (cibil >= 730 ? 15.00 : 15.25));
-      }
-      if (income > 50000) {
-        return cibil >= 780 ? 14.50 : (cibil >= 750 ? 15.00 : (cibil >= 730 ? 15.25 : 15.50));
-      }
-      // up to 50k
-      return cibil >= 780 ? 15.24 : (cibil >= 750 ? 15.50 : (cibil >= 730 ? 15.75 : 16.00));
+    let finalRoi = baseRoi;
+
+    // Apply NTC markup
+    if (cibil === 0 || cibil === -1) {
+      finalRoi = Math.max(finalRoi + 1.00, 14.50);
     }
 
-    if (isD) {
-      if (income > 75000) {
-        return cibil >= 780 ? 14.74 : (cibil >= 750 ? 15.00 : (cibil >= 730 ? 15.24 : 15.75));
+    // Apply BT count markup
+    if (btCount > 0) {
+      if (btCount <= 2) {
+        finalRoi = Math.max(finalRoi + 1.25, 15.00);
+      } else if (btCount <= 4) {
+        finalRoi = Math.max(finalRoi + 2.25, 16.25);
+      } else {
+        finalRoi = Math.max(finalRoi + 3.35, 17.25);
       }
-      if (income > 50000) {
-        return cibil >= 780 ? 15.24 : (cibil >= 750 ? 15.50 : (cibil >= 730 ? 15.75 : 16.24));
-      }
-      // up to 50k
-      return cibil >= 780 ? 15.50 : (cibil >= 750 ? 15.75 : (cibil >= 730 ? 16.24 : 17.24));
     }
 
-    // Cat E / Unlisted
-    if (income > 75000) {
-      return cibil >= 780 ? 16.75 : (cibil >= 750 ? 17.00 : (cibil >= 730 ? 17.24 : 17.74));
+    // Apply tenure markup
+    if (is7YrTenure) {
+      finalRoi += 0.50;
+    } else if (is6YrTenure) {
+      finalRoi += 0.25;
     }
-    if (income > 50000) {
-      return cibil >= 780 ? 17.25 : (cibil >= 750 ? 17.50 : (cibil >= 730 ? 17.74 : 18.24));
-    }
-    return cibil >= 780 ? 18.25 : (cibil >= 750 ? 18.50 : (cibil >= 730 ? 18.74 : 19.75));
+
+    return Number(finalRoi.toFixed(2));
   },
 
   employmentTypes: ['salaried', 'government', 'self-employed'],

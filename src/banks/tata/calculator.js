@@ -150,12 +150,14 @@ export const calculateTataEligibility = (userData) => {
   const currentExp = Number(userData.currentCompanyExperience || userData.workExperience || 0);
   const totalExp = Number(userData.totalWorkExperience || currentExp);
   const cibil = Number(creditScore || userData.cibilScore || 700);
-  const hasStabilityWaiver = (age >= 26) && (cibil > 750) && (monthlyIncomeForCalc > 50000);
+  // Waiver rule: Age >=26, CIBIL > 750, Net Income > 50k, and tradeline > 2L open > 2 years
+  const hasTradelineWaiverMatch = userData.has2YrTradelineAbove2L !== undefined ? userData.has2YrTradelineAbove2L : true;
+  const hasStabilityWaiver = (age >= 26) && (cibil > 750) && (monthlyIncomeForCalc > 50000) && hasTradelineWaiverMatch;
 
   if (!hasStabilityWaiver && currentExp > 0 && currentExp < (tataConfig.minWorkExperienceMonths || 12)) {
     return {
       eligible: false,
-      reason: `Tata Capital requires minimum 12 months current employment stability (Excel: Current employment Stability Minimum 12 months). Current: ${currentExp} months.`
+      reason: `Tata Capital requires minimum 12 months current employment stability (Current stability: ${currentExp} months). Documented proof waiver requires Age >=26, CIBIL >750, income >50k, and a 2+ year old individual tradeline >₹2L.`
     };
   }
 

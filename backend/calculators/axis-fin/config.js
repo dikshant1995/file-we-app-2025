@@ -71,7 +71,9 @@ export const axisFinConfig = {
   ccObligationPercent: 5, // 5% OBLIGATE
   maxCreditCardsForBT: 5, // 5 CC BT ALLOW
   goldLoanObligationPercent: 1, // GOLD LOAN OBLIGATION 1% COUNT
+  goldLoanObligationText: 'GOLD LOAN OBLIGATION 1% COUNT',
   kccExemptionLimit: 1500000, // KCC OBLIGATION UPTO 15LAC = 0 OBLIGATE
+  kccObligationText: 'KCC OBLIGATION UPTO 15LAC = 0 OBLIGATE',
 
   employmentTypes: ['salaried', 'government'],
 

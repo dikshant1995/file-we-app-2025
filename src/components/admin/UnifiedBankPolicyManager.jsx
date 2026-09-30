@@ -2601,7 +2601,7 @@ const UnifiedBankPolicyManager = () => {
                       {/* Grid 1 */}
                       <div style={{ background: 'rgba(15, 23, 42, 0.65)', border: '1px solid rgba(56, 189, 248, 0.2)', borderRadius: '8px', padding: '12px 14px' }}>
                         <div style={{ fontWeight: 700, color: '#38bdf8', fontSize: '0.88rem', marginBottom: '8px' }}>
-                          📊 Super CAT / CAT A / Govt Ratna
+                          📊 Super CAT / CAT A / Govt Ratna (Editable Rate Grid)
                         </div>
                         <table style={{ width: '100%', fontSize: '0.82rem', borderCollapse: 'collapse', textAlign: 'left' }}>
                           <thead>
@@ -2613,11 +2613,53 @@ const UnifiedBankPolicyManager = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '6px 8px' }}>NTH up to 50K</td><td style={{ padding: '6px 8px' }}>15.00%</td><td style={{ padding: '6px 8px' }}>14.74%</td><td style={{ padding: '6px 8px', fontWeight: 600, color: '#4ade80' }}>13.75%</td></tr>
-                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '6px 8px' }}>NTH &gt;50K–75K</td><td style={{ padding: '6px 8px' }}>14.74%</td><td style={{ padding: '6px 8px' }}>14.50%</td><td style={{ padding: '6px 8px', fontWeight: 600, color: '#4ade80' }}>13.50%</td></tr>
-                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '6px 8px' }}>NTH &gt;75K</td><td style={{ padding: '6px 8px' }}>14.00%</td><td style={{ padding: '6px 8px' }}>13.50%</td><td style={{ padding: '6px 8px', fontWeight: 600, color: '#4ade80' }}>12.50%</td></tr>
-                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '6px 8px' }}>NTH &gt;100K &amp; LA ≥ 20L</td><td style={{ padding: '6px 8px' }}>13.75%</td><td style={{ padding: '6px 8px' }}>13.25%</td><td style={{ padding: '6px 8px', fontWeight: 600, color: '#4ade80' }}>12.25%</td></tr>
-                            <tr><td style={{ padding: '6px 8px' }}>NTH &gt;100K &amp; LA ≥ 35L</td><td style={{ padding: '6px 8px' }}>13.00%</td><td style={{ padding: '6px 8px' }}>12.50%</td><td style={{ padding: '6px 8px', fontWeight: 700, color: '#38bdf8' }}>11.99%</td></tr>
+                            {(policyData?.rateGrids?.superCatCatAGovtRatna || [
+                              { slab: 'NTH up to 50K', min700: 15.00, min730: 14.74, min780: 13.75 },
+                              { slab: 'NTH >50K–75K', min700: 14.74, min730: 14.50, min780: 13.50 },
+                              { slab: 'NTH >75K', min700: 14.00, min730: 13.50, min780: 12.50 },
+                              { slab: 'NTH >100K & LA ≥ 20L', min700: 13.75, min730: 13.25, min780: 12.25 },
+                              { slab: 'NTH >100K & LA ≥ 35L', min700: 13.00, min730: 12.50, min780: 11.99 }
+                            ]).map((row, rIdx) => (
+                              <tr key={rIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                                <td style={{ padding: '4px 6px' }}>{row.slab}</td>
+                                {['min700', 'min730', 'min780'].map((colKey) => (
+                                  <td key={colKey} style={{ padding: '4px 6px' }}>
+                                    <input
+                                      type="number"
+                                      step="0.01"
+                                      style={{
+                                        width: '65px',
+                                        background: 'rgba(15, 23, 42, 0.8)',
+                                        border: '1px solid rgba(56, 189, 248, 0.3)',
+                                        borderRadius: '4px',
+                                        color: colKey === 'min780' ? '#4ade80' : '#e2e8f0',
+                                        padding: '3px 5px',
+                                        fontSize: '0.8rem',
+                                        textAlign: 'center',
+                                        fontWeight: colKey === 'min780' ? 600 : 400
+                                      }}
+                                      value={row[colKey] ?? ''}
+                                      onChange={(e) => {
+                                        const val = e.target.value === '' ? null : parseFloat(e.target.value);
+                                        const currentGrids = policyData?.rateGrids || {
+                                          superCatCatAGovtRatna: [
+                                            { slab: 'NTH up to 50K', min700: 15.00, min730: 14.74, min780: 13.75 },
+                                            { slab: 'NTH >50K–75K', min700: 14.74, min730: 14.50, min780: 13.50 },
+                                            { slab: 'NTH >75K', min700: 14.00, min730: 13.50, min780: 12.50 },
+                                            { slab: 'NTH >100K & LA ≥ 20L', min700: 13.75, min730: 13.25, min780: 12.25 },
+                                            { slab: 'NTH >100K & LA ≥ 35L', min700: 13.00, min730: 12.50, min780: 11.99 }
+                                          ]
+                                        };
+                                        const updated = JSON.parse(JSON.stringify(currentGrids));
+                                        if (!updated.superCatCatAGovtRatna) updated.superCatCatAGovtRatna = [];
+                                        updated.superCatCatAGovtRatna[rIdx][colKey] = val;
+                                        setPolicyData({ ...policyData, rateGrids: updated });
+                                      }}
+                                    />%
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
                           </tbody>
                         </table>
                       </div>
@@ -2625,7 +2667,7 @@ const UnifiedBankPolicyManager = () => {
                       {/* Grid 2 */}
                       <div style={{ background: 'rgba(15, 23, 42, 0.65)', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '8px', padding: '12px 14px' }}>
                         <div style={{ fontWeight: 700, color: '#34d399', fontSize: '0.88rem', marginBottom: '8px' }}>
-                          📊 Govt / Cat B / CAT EDU / Defence
+                          📊 Govt / Cat B / CAT EDU / Defence (Editable Rate Grid)
                         </div>
                         <table style={{ width: '100%', fontSize: '0.82rem', borderCollapse: 'collapse', textAlign: 'left' }}>
                           <thead>
@@ -2638,11 +2680,46 @@ const UnifiedBankPolicyManager = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '6px 8px' }}>NTH up to 50K</td><td style={{ padding: '6px 8px' }}>15.50%</td><td style={{ padding: '6px 8px' }}>15.24%</td><td style={{ padding: '6px 8px' }}>15.00%</td><td style={{ padding: '6px 8px', fontWeight: 600, color: '#4ade80' }}>14.25%</td></tr>
-                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '6px 8px' }}>NTH &gt;50K–75K</td><td style={{ padding: '6px 8px' }}>15.24%</td><td style={{ padding: '6px 8px' }}>15.00%</td><td style={{ padding: '6px 8px' }}>14.75%</td><td style={{ padding: '6px 8px', fontWeight: 600, color: '#4ade80' }}>14.00%</td></tr>
-                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '6px 8px' }}>NTH &gt;75K</td><td style={{ padding: '6px 8px' }}>15.00%</td><td style={{ padding: '6px 8px' }}>14.75%</td><td style={{ padding: '6px 8px' }}>14.50%</td><td style={{ padding: '6px 8px', fontWeight: 600, color: '#4ade80' }}>13.75%</td></tr>
-                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '6px 8px' }}>NTH &gt;100K &amp; LA ≥ 20L</td><td style={{ padding: '6px 8px' }}>14.75%</td><td style={{ padding: '6px 8px' }}>14.50%</td><td style={{ padding: '6px 8px' }}>14.25%</td><td style={{ padding: '6px 8px', fontWeight: 600, color: '#4ade80' }}>13.50%</td></tr>
-                            <tr><td style={{ padding: '6px 8px' }}>NTH &gt;100K &amp; LA ≥ 35L</td><td style={{ padding: '6px 8px', color: '#94a3b8' }}>NA</td><td style={{ padding: '6px 8px', color: '#94a3b8' }}>NA</td><td style={{ padding: '6px 8px', color: '#94a3b8' }}>NA</td><td style={{ padding: '6px 8px', color: '#94a3b8' }}>NA</td></tr>
+                            {(policyData?.rateGrids?.govtCatBCatEduDefence || [
+                              { slab: 'NTH up to 50K', min700: 15.50, min730: 15.24, min750: 15.00, min780: 14.25 },
+                              { slab: 'NTH >50K–75K', min700: 15.24, min730: 15.00, min750: 14.75, min780: 14.00 },
+                              { slab: 'NTH >75K', min700: 15.00, min730: 14.75, min750: 14.50, min780: 13.75 },
+                              { slab: 'NTH >100K & LA ≥ 20L', min700: 14.75, min730: 14.50, min750: 14.25, min780: 13.50 },
+                              { slab: 'NTH >100K & LA ≥ 35L', min700: null, min730: null, min750: null, min780: null }
+                            ]).map((row, rIdx) => (
+                              <tr key={rIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                                <td style={{ padding: '4px 6px' }}>{row.slab}</td>
+                                {['min700', 'min730', 'min750', 'min780'].map((colKey) => (
+                                  <td key={colKey} style={{ padding: '4px 6px' }}>
+                                    <input
+                                      type="number"
+                                      step="0.01"
+                                      placeholder="NA"
+                                      style={{
+                                        width: '60px',
+                                        background: 'rgba(15, 23, 42, 0.8)',
+                                        border: '1px solid rgba(16, 185, 129, 0.3)',
+                                        borderRadius: '4px',
+                                        color: colKey === 'min780' ? '#4ade80' : '#e2e8f0',
+                                        padding: '3px 5px',
+                                        fontSize: '0.8rem',
+                                        textAlign: 'center',
+                                        fontWeight: colKey === 'min780' ? 600 : 400
+                                      }}
+                                      value={row[colKey] ?? ''}
+                                      onChange={(e) => {
+                                        const val = e.target.value === '' ? null : parseFloat(e.target.value);
+                                        const currentGrids = policyData?.rateGrids || {};
+                                        const updated = JSON.parse(JSON.stringify(currentGrids));
+                                        if (!updated.govtCatBCatEduDefence) updated.govtCatBCatEduDefence = [];
+                                        updated.govtCatBCatEduDefence[rIdx][colKey] = val;
+                                        setPolicyData({ ...policyData, rateGrids: updated });
+                                      }}
+                                    />{row[colKey] !== null ? '%' : ''}
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
                           </tbody>
                         </table>
                       </div>
@@ -2653,7 +2730,7 @@ const UnifiedBankPolicyManager = () => {
                       {/* Grid 3 - Cat C */}
                       <div style={{ background: 'rgba(15, 23, 42, 0.65)', border: '1px solid rgba(251, 191, 36, 0.2)', borderRadius: '8px', padding: '12px 14px' }}>
                         <div style={{ fontWeight: 700, color: '#fbbf24', fontSize: '0.88rem', marginBottom: '8px' }}>
-                          📊 Category C Rate Grid
+                          📊 Category C Rate Grid (Editable)
                         </div>
                         <table style={{ width: '100%', fontSize: '0.8rem', borderCollapse: 'collapse', textAlign: 'left' }}>
                           <thead>
@@ -2666,10 +2743,43 @@ const UnifiedBankPolicyManager = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '5px' }}>≤ 50K</td><td>16.00%</td><td>15.75%</td><td>15.50%</td><td style={{ color: '#4ade80' }}>15.24%</td></tr>
-                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '5px' }}>&gt;50K–75K</td><td>15.50%</td><td>15.25%</td><td>15.00%</td><td style={{ color: '#4ade80' }}>14.50%</td></tr>
-                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '5px' }}>&gt;75K</td><td>15.25%</td><td>15.00%</td><td>14.50%</td><td style={{ color: '#4ade80' }}>14.00%</td></tr>
-                            <tr><td style={{ padding: '5px' }}>&gt;100K &amp; LA≥20L</td><td>14.74%</td><td>14.50%</td><td>14.25%</td><td style={{ color: '#4ade80' }}>14.00%</td></tr>
+                            {(policyData?.rateGrids?.categoryC || [
+                              { slab: '≤ 50K', min700: 16.00, min730: 15.75, min750: 15.50, min780: 15.24 },
+                              { slab: '>50K–75K', min700: 15.50, min730: 15.25, min750: 15.00, min780: 14.50 },
+                              { slab: '>75K', min700: 15.25, min730: 15.00, min750: 14.50, min780: 14.00 },
+                              { slab: '>100K & LA≥20L', min700: 14.74, min730: 14.50, min750: 14.25, min780: 14.00 }
+                            ]).map((row, rIdx) => (
+                              <tr key={rIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                                <td style={{ padding: '4px 6px' }}>{row.slab}</td>
+                                {['min700', 'min730', 'min750', 'min780'].map((colKey) => (
+                                  <td key={colKey} style={{ padding: '4px 4px' }}>
+                                    <input
+                                      type="number"
+                                      step="0.01"
+                                      style={{
+                                        width: '55px',
+                                        background: 'rgba(15, 23, 42, 0.8)',
+                                        border: '1px solid rgba(251, 191, 36, 0.3)',
+                                        borderRadius: '4px',
+                                        color: colKey === 'min780' ? '#4ade80' : '#e2e8f0',
+                                        padding: '2px 4px',
+                                        fontSize: '0.78rem',
+                                        textAlign: 'center'
+                                      }}
+                                      value={row[colKey] ?? ''}
+                                      onChange={(e) => {
+                                        const val = e.target.value === '' ? null : parseFloat(e.target.value);
+                                        const currentGrids = policyData?.rateGrids || {};
+                                        const updated = JSON.parse(JSON.stringify(currentGrids));
+                                        if (!updated.categoryC) updated.categoryC = [];
+                                        updated.categoryC[rIdx][colKey] = val;
+                                        setPolicyData({ ...policyData, rateGrids: updated });
+                                      }}
+                                    />%
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
                           </tbody>
                         </table>
                       </div>
@@ -2677,7 +2787,7 @@ const UnifiedBankPolicyManager = () => {
                       {/* Grid 4 - Cat D */}
                       <div style={{ background: 'rgba(15, 23, 42, 0.65)', border: '1px solid rgba(248, 113, 113, 0.2)', borderRadius: '8px', padding: '12px 14px' }}>
                         <div style={{ fontWeight: 700, color: '#f87171', fontSize: '0.88rem', marginBottom: '8px' }}>
-                          📊 Category D Rate Grid
+                          📊 Category D Rate Grid (Editable)
                         </div>
                         <table style={{ width: '100%', fontSize: '0.8rem', borderCollapse: 'collapse', textAlign: 'left' }}>
                           <thead>
@@ -2690,9 +2800,42 @@ const UnifiedBankPolicyManager = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '5px' }}>≤ 50K</td><td>17.24%</td><td>16.24%</td><td>15.75%</td><td style={{ color: '#4ade80' }}>15.50%</td></tr>
-                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '5px' }}>&gt;50K–75K</td><td>16.24%</td><td>15.75%</td><td>15.50%</td><td style={{ color: '#4ade80' }}>15.24%</td></tr>
-                            <tr><td style={{ padding: '5px' }}>&gt;75K</td><td>15.75%</td><td>15.24%</td><td>15.00%</td><td style={{ color: '#4ade80' }}>14.74%</td></tr>
+                            {(policyData?.rateGrids?.categoryD || [
+                              { slab: '≤ 50K', min700: 17.24, min730: 16.24, min750: 15.75, min780: 15.50 },
+                              { slab: '>50K–75K', min700: 16.24, min730: 15.75, min750: 15.50, min780: 15.24 },
+                              { slab: '>75K', min700: 15.75, min730: 15.24, min750: 15.00, min780: 14.74 }
+                            ]).map((row, rIdx) => (
+                              <tr key={rIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                                <td style={{ padding: '4px 6px' }}>{row.slab}</td>
+                                {['min700', 'min730', 'min750', 'min780'].map((colKey) => (
+                                  <td key={colKey} style={{ padding: '4px 4px' }}>
+                                    <input
+                                      type="number"
+                                      step="0.01"
+                                      style={{
+                                        width: '55px',
+                                        background: 'rgba(15, 23, 42, 0.8)',
+                                        border: '1px solid rgba(248, 113, 113, 0.3)',
+                                        borderRadius: '4px',
+                                        color: colKey === 'min780' ? '#4ade80' : '#e2e8f0',
+                                        padding: '2px 4px',
+                                        fontSize: '0.78rem',
+                                        textAlign: 'center'
+                                      }}
+                                      value={row[colKey] ?? ''}
+                                      onChange={(e) => {
+                                        const val = e.target.value === '' ? null : parseFloat(e.target.value);
+                                        const currentGrids = policyData?.rateGrids || {};
+                                        const updated = JSON.parse(JSON.stringify(currentGrids));
+                                        if (!updated.categoryD) updated.categoryD = [];
+                                        updated.categoryD[rIdx][colKey] = val;
+                                        setPolicyData({ ...policyData, rateGrids: updated });
+                                      }}
+                                    />%
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
                           </tbody>
                         </table>
                       </div>
@@ -2700,7 +2843,7 @@ const UnifiedBankPolicyManager = () => {
                       {/* Grid 5 - Cat E */}
                       <div style={{ background: 'rgba(15, 23, 42, 0.65)', border: '1px solid rgba(192, 132, 252, 0.2)', borderRadius: '8px', padding: '12px 14px' }}>
                         <div style={{ fontWeight: 700, color: '#c084fc', fontSize: '0.88rem', marginBottom: '8px' }}>
-                          📊 Category E Rate Grid
+                          📊 Category E Rate Grid (Editable)
                         </div>
                         <table style={{ width: '100%', fontSize: '0.8rem', borderCollapse: 'collapse', textAlign: 'left' }}>
                           <thead>
@@ -2713,9 +2856,42 @@ const UnifiedBankPolicyManager = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '5px' }}>≤ 50K</td><td>19.75%</td><td>18.74%</td><td>18.50%</td><td style={{ color: '#4ade80' }}>18.25%</td></tr>
-                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}><td style={{ padding: '5px' }}>&gt;50K–75K</td><td>18.24%</td><td>17.74%</td><td>17.50%</td><td style={{ color: '#4ade80' }}>17.25%</td></tr>
-                            <tr><td style={{ padding: '5px' }}>&gt;75K</td><td>17.74%</td><td>17.24%</td><td>17.00%</td><td style={{ color: '#4ade80' }}>16.75%</td></tr>
+                            {(policyData?.rateGrids?.categoryE || [
+                              { slab: '≤ 50K', min700: 19.75, min730: 18.74, min750: 18.50, min780: 18.25 },
+                              { slab: '>50K–75K', min700: 18.24, min730: 17.74, min750: 17.50, min780: 17.25 },
+                              { slab: '>75K', min700: 17.74, min730: 17.24, min750: 17.00, min780: 16.75 }
+                            ]).map((row, rIdx) => (
+                              <tr key={rIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                                <td style={{ padding: '4px 6px' }}>{row.slab}</td>
+                                {['min700', 'min730', 'min750', 'min780'].map((colKey) => (
+                                  <td key={colKey} style={{ padding: '4px 4px' }}>
+                                    <input
+                                      type="number"
+                                      step="0.01"
+                                      style={{
+                                        width: '55px',
+                                        background: 'rgba(15, 23, 42, 0.8)',
+                                        border: '1px solid rgba(192, 132, 252, 0.3)',
+                                        borderRadius: '4px',
+                                        color: colKey === 'min780' ? '#4ade80' : '#e2e8f0',
+                                        padding: '2px 4px',
+                                        fontSize: '0.78rem',
+                                        textAlign: 'center'
+                                      }}
+                                      value={row[colKey] ?? ''}
+                                      onChange={(e) => {
+                                        const val = e.target.value === '' ? null : parseFloat(e.target.value);
+                                        const currentGrids = policyData?.rateGrids || {};
+                                        const updated = JSON.parse(JSON.stringify(currentGrids));
+                                        if (!updated.categoryE) updated.categoryE = [];
+                                        updated.categoryE[rIdx][colKey] = val;
+                                        setPolicyData({ ...policyData, rateGrids: updated });
+                                      }}
+                                    />%
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
                           </tbody>
                         </table>
                       </div>
@@ -4245,60 +4421,79 @@ const UnifiedBankPolicyManager = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>₹30K – ₹50K</td>
-                            <td style={{ padding: '6px 10px', color: '#38bdf8', fontWeight: 600 }}>60%</td>
-                            <td style={{ padding: '6px 10px' }}>50%</td>
-                            <td style={{ padding: '6px 10px' }}>50%</td>
-                            <td style={{ padding: '6px 10px' }}>50%</td>
-                          </tr>
-                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>&gt; ₹50K – ₹75K</td>
-                            <td style={{ padding: '6px 10px', color: '#38bdf8', fontWeight: 600 }}>65%</td>
-                            <td style={{ padding: '6px 10px' }}>60%</td>
-                            <td style={{ padding: '6px 10px' }}>55%</td>
-                            <td style={{ padding: '6px 10px' }}>55%</td>
-                          </tr>
-                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>&gt; ₹75K – ₹1.50 Lakh</td>
-                            <td style={{ padding: '6px 10px', color: '#38bdf8', fontWeight: 600 }}>70%</td>
-                            <td style={{ padding: '6px 10px' }}>65%</td>
-                            <td style={{ padding: '6px 10px' }}>55%</td>
-                            <td style={{ padding: '6px 10px' }}>55%</td>
-                          </tr>
-                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>&gt; ₹1.50L – ₹2.50 Lakh</td>
-                            <td style={{ padding: '6px 10px', color: '#38bdf8', fontWeight: 600 }}>75%</td>
-                            <td style={{ padding: '6px 10px' }}>70%</td>
-                            <td style={{ padding: '6px 10px' }}>60%</td>
-                            <td style={{ padding: '6px 10px' }}>60%</td>
-                          </tr>
-                          <tr>
-                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>&gt; ₹2.50 Lakh</td>
-                            <td style={{ padding: '6px 10px', color: '#38bdf8', fontWeight: 700 }}>75%</td>
-                            <td style={{ padding: '6px 10px', color: '#34d399', fontWeight: 700 }}>70%</td>
-                            <td style={{ padding: '6px 10px', color: '#fbbf24', fontWeight: 700 }}>65%</td>
-                            <td style={{ padding: '6px 10px', color: '#f87171', fontWeight: 700 }}>65%</td>
-                          </tr>
+                          {(policyData?.foirMatrixSlabs || [
+                            { label: '30k-50k', minSalary: 30000, maxSalary: 50000, catA: 60, catB: 50, catC: 50, catD: 50, govt: 50 },
+                            { label: '>50k-75k', minSalary: 50001, maxSalary: 75000, catA: 65, catB: 60, catC: 55, catD: 55, govt: 60 },
+                            { label: '>75k-1.5 LAC', minSalary: 75001, maxSalary: 150000, catA: 70, catB: 65, catC: 55, catD: 55, govt: 65 },
+                            { label: '>1.5-2.5 L', minSalary: 150001, maxSalary: 250000, catA: 75, catB: 70, catC: 60, catD: 60, govt: 70 },
+                            { label: '>2.5 L', minSalary: 250001, maxSalary: Infinity, catA: 75, catB: 70, catC: 65, catD: 65, govt: 70 }
+                          ]).map((row, rIdx) => (
+                            <tr key={rIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                              <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600, color: '#e2e8f0' }}>{row.label}</td>
+                              {['catA', 'catB', 'catC', 'catD'].map((catKey) => (
+                                <td key={catKey} style={{ padding: '6px 8px' }}>
+                                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                                    <input
+                                      type="number"
+                                      style={{
+                                        width: '58px',
+                                        background: 'rgba(15, 23, 42, 0.85)',
+                                        border: '1px solid rgba(56, 189, 248, 0.35)',
+                                        borderRadius: '4px',
+                                        color: catKey === 'catA' ? '#38bdf8' : (catKey === 'catB' ? '#34d399' : (catKey === 'catC' ? '#fbbf24' : '#f87171')),
+                                        padding: '3px 5px',
+                                        fontSize: '0.84rem',
+                                        textAlign: 'center',
+                                        fontWeight: 700
+                                      }}
+                                      value={row[catKey] ?? ''}
+                                      onChange={(e) => {
+                                        const val = e.target.value === '' ? null : parseFloat(e.target.value);
+                                        const currentSlabs = policyData?.foirMatrixSlabs || [
+                                          { label: '30k-50k', minSalary: 30000, maxSalary: 50000, catA: 60, catB: 50, catC: 50, catD: 50, govt: 50 },
+                                          { label: '>50k-75k', minSalary: 50001, maxSalary: 75000, catA: 65, catB: 60, catC: 55, catD: 55, govt: 60 },
+                                          { label: '>75k-1.5 LAC', minSalary: 75001, maxSalary: 150000, catA: 70, catB: 65, catC: 55, catD: 55, govt: 65 },
+                                          { label: '>1.5-2.5 L', minSalary: 150001, maxSalary: 250000, catA: 75, catB: 70, catC: 60, catD: 60, govt: 70 },
+                                          { label: '>2.5 L', minSalary: 250001, maxSalary: Infinity, catA: 75, catB: 70, catC: 65, catD: 65, govt: 70 }
+                                        ];
+                                        const updated = JSON.parse(JSON.stringify(currentSlabs));
+                                        updated[rIdx][catKey] = val;
+                                        setPolicyData({ ...policyData, foirMatrixSlabs: updated });
+                                      }}
+                                    />
+                                    <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>%</span>
+                                  </div>
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
                         </tbody>
                       </table>
                     </div>
                   </div>
 
-                  {/* Policy Guidelines Cards */}
+                  {/* Policy Guidelines Cards & Demographic Rules */}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
                     <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '12px 14px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
-                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 Credit Card &amp; Specialized Obligations:</strong>
-                      <div style={{ marginTop: '5px' }}>• Credit Card Obligation: <strong>5% of Outstanding POS / Limit</strong></div>
-                      <div style={{ marginTop: '3px', color: '#f87171' }}>• CC POS Rule: <strong>POS &gt; 4 times monthly salary NOT allowed</strong></div>
-                      <div style={{ marginTop: '3px' }}>• Specialized Deductions: <strong>1 KCC Obligate</strong>, <strong>1 Gold Loan (GL) Obligate</strong></div>
+                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 Credit Score &amp; Demographic Rules:</strong>
+                      <div style={{ marginTop: '5px' }}>• Min CIBIL Score: <strong>700</strong></div>
+                      <div style={{ marginTop: '3px', color: '#38bdf8' }}>• NTC / CIBIL 0 &amp; -1: <strong>ALLOWED in Tier 1, Tier 2 Cities &amp; CAT A Category</strong> (+1.00% ROI, Min 14.50%)</div>
+                      <div style={{ marginTop: '3px' }}>• Min Net Income: <strong>₹30,000 / month</strong></div>
                     </div>
 
                     <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '12px 14px', borderRadius: '6px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                      <strong style={{ color: '#34d399', fontSize: '0.88rem' }}>📌 Balance Transfer (BT) Limits (Max 8 Total):</strong>
-                      <div style={{ marginTop: '5px' }}>• Total BTs Allowed: <strong>Maximum 8 Loans/Cards</strong></div>
-                      <div style={{ marginTop: '3px' }}>• Permitted Combination: <strong>Max 3 App Loans + 3 Credit Cards + 2 PL/OD</strong></div>
-                      <div style={{ marginTop: '3px', color: '#86efac' }}>• FOIR Deviation: <strong>5% Deviation allowed on case-to-case basis</strong></div>
+                      <strong style={{ color: '#34d399', fontSize: '0.88rem' }}>📌 Credit Card &amp; Obligations Rules:</strong>
+                      <div style={{ marginTop: '5px' }}>• Credit Card Obligation: <strong>5% of Limit / POS</strong></div>
+                      <div style={{ marginTop: '3px', color: '#f87171' }}>• CC POS Rule: <strong>POS &gt; 4 times monthly salary NOT ALLOWED</strong></div>
+                      <div style={{ marginTop: '3px' }}>• Specialized Obligations: <strong>1 KCC Obligate</strong>, <strong>1 Gold Loan (GL) Obligate</strong></div>
+                    </div>
+
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '12px 14px', borderRadius: '6px', border: '1px solid rgba(251, 191, 36, 0.2)' }}>
+                      <strong style={{ color: '#fbbf24', fontSize: '0.88rem' }}>📌 Balance Transfer (BT) &amp; ROI Markups:</strong>
+                      <div style={{ marginTop: '5px' }}>• Permitted Combination: <strong>Max 3 App Loans + 3 Credit Cards + 2 PL/OD</strong></div>
+                      <div style={{ marginTop: '3px', color: '#86efac' }}>• Max CC BT Allowed: <strong>Max 6 CC BT Allowed</strong></div>
+                      <div style={{ marginTop: '3px' }}>• CC/App BT Markup: <strong>1-2 BT (+1.25%), 3-4 BT (+2.25%), &gt;4 BT (+3.35%)</strong></div>
+                      <div style={{ marginTop: '3px', color: '#fbbf24' }}>• Long Tenure Markup: <strong>6-Yr (+0.25%), 7-Yr (+0.50%)</strong></div>
                     </div>
                   </div>
                 </div>

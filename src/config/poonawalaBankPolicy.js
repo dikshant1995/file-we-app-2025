@@ -3,15 +3,39 @@ export const POONAWALA_BANK_EXCEL_POLICY = {
   // Flag indicating Poonawalla is a pure FOIR-based institution with no multiplier restrictions
   isFoirOnly: true,
 
-  // Section 4: ROI STRUCTURES AND SLABS (Rows 34-52)
-  interestRates: [
-    { category: 'Super A', roiAbove35L: 11.99, roiAbove20L: 12.25, roiAbove75kSal: 12.50, roi50kTo75kSal: 13.50, roiBelow50kSal: 13.75, minRoi: 11.99, maxRoi: 15.00, defaultRoi: 12.50 },
-    { category: 'A', roiAbove35L: 11.99, roiAbove20L: 12.25, roiAbove75kSal: 12.50, roi50kTo75kSal: 13.50, roiBelow50kSal: 13.75, minRoi: 11.99, maxRoi: 15.00, defaultRoi: 12.50 },
-    { category: 'B', roiAbove35L: 13.50, roiAbove20L: 13.50, roiAbove75kSal: 13.75, roi50kTo75kSal: 14.00, roiBelow50kSal: 14.25, minRoi: 13.50, maxRoi: 15.50, defaultRoi: 13.75 },
-    { category: 'C', roiAbove35L: 14.00, roiAbove20L: 14.00, roiAbove75kSal: 14.00, roi50kTo75kSal: 14.50, roiBelow50kSal: 15.24, minRoi: 14.00, maxRoi: 16.00, defaultRoi: 14.50 },
-    { category: 'D', roiAbove35L: 14.74, roiAbove20L: 14.74, roiAbove75kSal: 14.74, roi50kTo75kSal: 15.24, roiBelow50kSal: 15.50, minRoi: 14.74, maxRoi: 17.24, defaultRoi: 15.24 },
-    { category: 'Govt', roiAbove35L: 11.99, roiAbove20L: 12.25, roiAbove75kSal: 12.50, roi50kTo75kSal: 13.50, roiBelow50kSal: 13.75, minRoi: 11.99, maxRoi: 15.00, defaultRoi: 12.50 }
-  ],
+  // Rate Grids (Excel Sheet: POONAWALA — Effective 1st Aug 2026)
+  rateGrids: {
+    superCatCatAGovtRatna: [
+      { slab: 'NTH up to 50K', min700: 15.00, min730: 14.74, min780: 13.75 },
+      { slab: 'NTH >50K–75K', min700: 14.74, min730: 14.50, min780: 13.50 },
+      { slab: 'NTH >75K', min700: 14.00, min730: 13.50, min780: 12.50 },
+      { slab: 'NTH >100K & LA ≥ 20L', min700: 13.75, min730: 13.25, min780: 12.25 },
+      { slab: 'NTH >100K & LA ≥ 35L', min700: 13.00, min730: 12.50, min780: 11.99 }
+    ],
+    govtCatBCatEduDefence: [
+      { slab: 'NTH up to 50K', min700: 15.50, min730: 15.24, min750: 15.00, min780: 14.25 },
+      { slab: 'NTH >50K–75K', min700: 15.24, min730: 15.00, min750: 14.75, min780: 14.00 },
+      { slab: 'NTH >75K', min700: 15.00, min730: 14.75, min750: 14.50, min780: 13.75 },
+      { slab: 'NTH >100K & LA ≥ 20L', min700: 14.75, min730: 14.50, min750: 14.25, min780: 13.50 },
+      { slab: 'NTH >100K & LA ≥ 35L', min700: null, min730: null, min750: null, min780: null }
+    ],
+    categoryC: [
+      { slab: '≤ 50K', min700: 16.00, min730: 15.75, min750: 15.50, min780: 15.24 },
+      { slab: '>50K–75K', min700: 15.50, min730: 15.25, min750: 15.00, min780: 14.50 },
+      { slab: '>75K', min700: 15.25, min730: 15.00, min750: 14.50, min780: 14.00 },
+      { slab: '>100K & LA ≥ 20L', min700: 14.74, min730: 14.50, min750: 14.25, min780: 14.00 }
+    ],
+    categoryD: [
+      { slab: '≤ 50K', min700: 17.24, min730: 16.24, min750: 15.75, min780: 15.50 },
+      { slab: '>50K–75K', min700: 16.24, min730: 15.75, min750: 15.50, min780: 15.24 },
+      { slab: '>75K', min700: 15.75, min730: 15.24, min750: 15.00, min780: 14.74 }
+    ],
+    categoryE: [
+      { slab: '≤ 50K', min700: 19.75, min730: 18.74, min750: 18.50, min780: 18.25 },
+      { slab: '>50K–75K', min700: 18.24, min730: 17.74, min750: 17.50, min780: 17.25 },
+      { slab: '>75K', min700: 17.74, min730: 17.24, min750: 17.00, min780: 16.75 }
+    ]
+  },
 
   // Section 4 Rows 55-68: Additional ROI & PF Markups
   rateMarkups: {
@@ -55,29 +79,13 @@ export const POONAWALA_BANK_EXCEL_POLICY = {
     { category: 'Govt', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years (84 Months)' }
   ],
 
-  // Section 5 Rows 76-83: FOIR MATRIX
-  // 30k-50k: CAT A 60%, CAT B/GOVT 50%, CAT C 50%, CAT D 50%
-  // >50k-75k: CAT A 65%, CAT B/GOVT 60%, CAT C 55%, CAT D 55%
-  // >75k-1.5 LAC: CAT A 70%, CAT B/GOVT 65%, CAT C 55%, CAT D 55%
-  // >1.5-2.5 L: CAT A 75%, CAT B/GOVT 70%, CAT C 60%, CAT D 60%
-  // >2.5 L: CAT A 75%, CAT B/GOVT 70%, CAT C 65%, CAT D 65%
-  // 5% Deviation allowed in FOIR case to case basis
+  // Section 5 Rows 76-83: FOIR MATRIX (Pure FOIR Institution)
   foirMatrixSlabs: [
     { label: '30k-50k', minSalary: 30000, maxSalary: 50000, catA: 60, catB: 50, catC: 50, catD: 50, govt: 50 },
     { label: '>50k-75k', minSalary: 50001, maxSalary: 75000, catA: 65, catB: 60, catC: 55, catD: 55, govt: 60 },
     { label: '>75k-1.5 LAC', minSalary: 75001, maxSalary: 150000, catA: 70, catB: 65, catC: 55, catD: 55, govt: 65 },
     { label: '>1.5-2.5 L', minSalary: 150001, maxSalary: 250000, catA: 75, catB: 70, catC: 60, catD: 60, govt: 70 },
     { label: '>2.5 L', minSalary: 250001, maxSalary: Infinity, catA: 75, catB: 70, catC: 65, catD: 65, govt: 70 }
-  ],
-
-  // Excel Policy does not use multipliers for Poonawalla; kept for UI schema backwards compatibility
-  foirMultiplier: [
-    { category: 'Super A', slab1Foir: 60, slab2Foir: 65, maxFoir: 75, multiplier: null, ccObligation: 5 },
-    { category: 'A', slab1Foir: 60, slab2Foir: 65, maxFoir: 75, multiplier: null, ccObligation: 5 },
-    { category: 'B', slab1Foir: 50, slab2Foir: 60, maxFoir: 70, multiplier: null, ccObligation: 5 },
-    { category: 'C', slab1Foir: 50, slab2Foir: 55, maxFoir: 65, multiplier: null, ccObligation: 5 },
-    { category: 'D', slab1Foir: 50, slab2Foir: 55, maxFoir: 65, multiplier: null, ccObligation: 5 },
-    { category: 'Govt', slab1Foir: 50, slab2Foir: 60, maxFoir: 70, multiplier: null, ccObligation: 5 }
   ],
 
   // Rows 89-98 & Section 1: DEMOGRAPHIC AND ELIGIBILITY CRITERIA
@@ -90,20 +98,20 @@ export const POONAWALA_BANK_EXCEL_POLICY = {
     minExperienceTotal: 24, // Excel Row 10: 2YEARS
     minExperienceCurrent: 12,
     minLoanAmount: 100000, // Excel Row 26: 1LAC
-    minCibilScore: 700, // Excel Row 93: 700 MINIMUM (0, -1 allowed in Tier 1, 2 & Cat A)
-    allowNtcInTier1And2AndCatA: true,
-    ccObligationPercent: 5, // Excel Row 11: 5% OBLIGATE
+    minCibilScore: 700, // 700 MIN CIBIL
+    allowNtcInTier1And2AndCatA: true, // 0,-1 ALLOWED IN TIER 1, 2 CITIES & CAT A CATEGORY
+    ccObligationPercent: 5, // 5% OBLIGATE
     allowCcBt: true,
-    maxBtCountTotal: 8, // Excel Row 96: MAX TOTAL 8 (3 APP LOAN / 3 CC / 2 PL or OD)
+    maxBtCountTotal: 8, // Combination of 3 APP LOAN / 3 CC / 2 PL or OD
     maxAppLoanBt: 3,
     maxCcBt: 3,
     maxPlBt: 2,
-    maxCreditCardsForBT: 6, // Excel Row 11: 6 CC BT ALLOW
-    maxCcPosMultiplier: 4, // Excel Row 11: CC POS MORE THEN 4 TIME NOT ALLOW
-    kccObligateCount: 1, // Excel Row 11: 1 KCC OBLIGATE
-    goldLoanObligateCount: 1, // Excel Row 11: 1 GL OBLIGATE
-    maxCibilEnquiriesIn90Days: 6, // Excel Row 97: MAX USL 6 IN 90 DAYS (9 with deviation)
-    geoLimitKm: 80, // Excel Row 98: 80 KM FROM POONAWALLA PL BRANCH LOCATION
-    mode: '100% DIGITAL PROCESS' // Excel Row 95: 100% DIGITAL PROCESS
+    maxCreditCardsForBT: 6, // 6 CC BT ALLOW
+    maxCcPosMultiplier: 4, // CC POS MORE THEN 4 TIME NOT ALLOW
+    kccObligateCount: 1, // 1 KCC OBLIGATE
+    goldLoanObligateCount: 1, // 1 GL OBLIGATE
+    maxCibilEnquiriesIn90Days: 6,
+    geoLimitKm: 80,
+    mode: '100% DIGITAL PROCESS'
   }
 };

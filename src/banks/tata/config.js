@@ -84,10 +84,10 @@ export const tataConfig = {
   // Min tenure: 24 Months
   minTenureMonths: 24,
   maxTenureByCategory: {
-    'SUPER-A': 84, // 84-96 months
-    'SUPER A': 84,
-    'A': 84,
-    'GOVT': 84,
+    'SUPER-A': 96, // 84 to 96 months
+    'SUPER A': 96,
+    'A': 96,
+    'GOVT': 96,
     'B': 72,       // 72 months (84 if income > 75k)
     'C': 60,       // 60 months
     'D': 60,       // 60 months
@@ -96,7 +96,15 @@ export const tataConfig = {
 
   // Demographics and obligations (Excel Section 1)
   minWorkExperienceMonths: 12, // 12 months stability
-  ccObligationPercent: 5, // 5% OBLIGATE
+  stabilityWaiverRule: 'Current stability proof waived if age >=26, CIBIL >750, income >50k, and tradeline >2L >2 yrs old',
+  stabilityWaiverConditions: {
+    minAge: 26,
+    minCibilScore: 750,
+    minIncome: 50000,
+    minTradelineAmount: 200000,
+    minTradelineAgeYears: 2
+  },
+  ccObligationPercent: 5, // 5% CC OBLIGATE
   maxCreditCardsForBT: 5, // Max 5 Credit card BT allowed
 
   employmentTypes: ['salaried', 'government'],

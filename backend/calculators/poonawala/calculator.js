@@ -223,7 +223,11 @@ export const calculatePoonawalaEligibility = (userData) => {
   }
 
   // Pass 1: Calculate preliminary loan with base rate
-  let baseRate = interestRateOverride || (isGovtEmployee && govtROI ? govtROI : poonawalaConfig.getPoonawalaRate(customerSegment, incomeForCalculation, desiredLoanAmount || 1000000, cibilScoreVal));
+  const btCount = isBT ? (loansForBT ? loansForBT.length : 0) : 0;
+  const is6YrTenure = cappedTenureMonths === 72;
+  const is7YrTenure = cappedTenureMonths === 84;
+
+  let baseRate = interestRateOverride || (isGovtEmployee && govtROI ? govtROI : poonawalaConfig.getPoonawalaRate(customerSegment, incomeForCalculation, desiredLoanAmount || 1000000, cibilScoreVal, btCount, is6YrTenure, is7YrTenure));
 
   const calculatedLoanAmountPass1 = calculatePrincipalFromEMI(
     availableEMI,
@@ -243,7 +247,7 @@ export const calculatePoonawalaEligibility = (userData) => {
   let finalInterestRate = interestRateOverride;
   if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
   if (!finalInterestRate) {
-    finalInterestRate = poonawalaConfig.getPoonawalaRate(customerSegment, incomeForCalculation, preliminaryCappedLoan, cibilScoreVal);
+    finalInterestRate = poonawalaConfig.getPoonawalaRate(customerSegment, incomeForCalculation, preliminaryCappedLoan, cibilScoreVal, btCount, is6YrTenure, is7YrTenure);
   }
 
   // Recalculate loan with final rate
