@@ -34,7 +34,23 @@ const calculateLoanAmountFromEMI = (emi, annualInterestRate, tenureInYears) => {
 };
 
 // Function to get FOIR percentage based on net monthly salary (Excel Sheet: BANDHAN BANK - Section 2)
-export const getBandhanFoir = (salary) => {
+export const getBandhanFoir = (salary, customSlabs) => {
+  if (Array.isArray(customSlabs) && customSlabs.length > 0) {
+    let slabMatch = null;
+    if (salary > 75000) {
+      slabMatch = customSlabs.find(s => s.incomeSlab && (s.incomeSlab.includes('75001') || s.incomeSlab.includes('75000') || s.incomeSlab.includes('75')));
+    } else if (salary >= 50001) {
+      slabMatch = customSlabs.find(s => s.incomeSlab && (s.incomeSlab.includes('50001') || s.incomeSlab.includes('50,001')));
+    } else if (salary >= 30001) {
+      slabMatch = customSlabs.find(s => s.incomeSlab && (s.incomeSlab.includes('30001') || s.incomeSlab.includes('30,001')));
+    } else {
+      slabMatch = customSlabs.find(s => s.incomeSlab && (s.incomeSlab.includes('30000') || s.incomeSlab.includes('30,000')));
+    }
+    if (slabMatch && slabMatch.foir !== undefined && slabMatch.foir !== null && !isNaN(slabMatch.foir)) {
+      return Number(slabMatch.foir) / 100;
+    }
+  }
+
   if (salary > 75000) return 0.70;
   if (salary >= 50001) return 0.65;
   if (salary >= 30001) return 0.60;
@@ -70,7 +86,7 @@ export const getBandhanROI = (category, monthlyIncome, cibilScore = 750, locatio
 };
 
 // Function to get multiplier based on category, income, and tenure (Excel Sheet: BANDHAN BANK - Section 6)
-export const getBandhanMultiplier = (category, salary, tenureMonths = 60) => {
+export const getBandhanMultiplier = (category, salary, tenureMonths = 60, customMatrix) => {
   const catUpper = String(category || 'B').toUpperCase().trim();
   let matrixKey = 'AB_GOVT';
   if (catUpper === 'C') matrixKey = 'C';
@@ -81,23 +97,26 @@ export const getBandhanMultiplier = (category, salary, tenureMonths = 60) => {
   else if (salary >= 50001) incomeKey = '50001-75000';
   else if (salary >= 30001) incomeKey = '30001-50000';
 
-  let tenureBucket = 60;
-  if (tenureMonths <= 12) tenureBucket = 12;
-  else if (tenureMonths <= 24) tenureBucket = 24;
-  else if (tenureMonths <= 36) tenureBucket = 36;
-  else if (tenureMonths <= 48) tenureBucket = 48;
-  else tenureBucket = 60;
+  let tenureBucket = '60m';
+  if (tenureMonths <= 12) tenureBucket = '12m';
+  else if (tenureMonths <= 24) tenureBucket = '24m';
+  else if (tenureMonths <= 36) tenureBucket = '36m';
+  else if (tenureMonths <= 48) tenureBucket = '48m';
+  else tenureBucket = '60m';
 
-  const row = bandhanConfig.multiplierMatrix[matrixKey]?.[incomeKey];
+  const matrixToUse = customMatrix || bandhanConfig.multiplierMatrix;
+  const row = matrixToUse?.[matrixKey]?.[incomeKey];
   if (!row) return 20;
 
   // Handle NA tenure cases (e.g. Cat D at 60M or Cat C <=50k at 60M)
-  if (row[tenureBucket] !== null && row[tenureBucket] !== undefined) {
-    return row[tenureBucket];
+  const multVal = row[tenureBucket] ?? row[parseInt(tenureBucket, 10)];
+  if (multVal !== null && multVal !== undefined && multVal !== '' && !isNaN(multVal)) {
+    return Number(multVal);
   }
 
   // Fallback to highest permissible tenure bucket for that category
-  return row[48] || row[36] || 18;
+  const fallbackVal = row['48m'] ?? row[48] ?? row['36m'] ?? row[36] ?? 18;
+  return Number(fallbackVal) || 18;
 };
 
 // Bandhan Bank specific eligibility calculation
@@ -132,7 +151,10 @@ export const calculateBandhanEligibility = (userData) => {
     loansForBT,
     btTotalEMI,
     // Incentive Overrides
-    incentivePercentageOverride
+    incentivePercentageOverride,
+    // Custom Admin Policy Slabs
+    salaryFoirSlabs,
+    multiplierMatrix
   } = userData;
 
   // ========== INCENTIVE CALCULATION LOGIC ==========
@@ -254,7 +276,7 @@ export const calculateBandhanEligibility = (userData) => {
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncomeForCalc;
   const foirPercentage = foirOverride 
     ? (foirOverride / 100) 
-    : (isGovtEmployee && govtFOIR ? (govtFOIR / 100) : getBandhanFoir(incomeForCalculation));
+    : (isGovtEmployee && govtFOIR ? (govtFOIR / 100) : getBandhanFoir(incomeForCalculation, salaryFoirSlabs));
 
   const totalObligations = (existingEMI || 0) + effectiveCcObligation;
   const foirCap = isBT ? (adjustedIncome * foirPercentage) : (monthlyIncomeForCalc * foirPercentage);
@@ -268,8 +290,9 @@ export const calculateBandhanEligibility = (userData) => {
     };
   }
 
-  // Section 6: Multiplier method
-  const multiplier = multiplierOverride || (isGovtEmployee && govtMultiplier ? govtMultiplier : getBandhanMultiplier(companyCategory, incomeForCalculation, effectiveTenureMonths));
+  // Section 6: Multiplier method (Salary + Tenure matrix)
+  const calculatedMultiplier = getBandhanMultiplier(companyCategory, incomeForCalculation, effectiveTenureMonths, multiplierMatrix);
+  const multiplier = multiplierOverride || (isGovtEmployee && govtMultiplier ? govtMultiplier : calculatedMultiplier);
   const availableSalary = isBT ? incomeForCalculation : Math.max(0, monthlyIncomeForCalc - totalObligations);
   const multiplierLoanAmount = availableSalary * multiplier;
 

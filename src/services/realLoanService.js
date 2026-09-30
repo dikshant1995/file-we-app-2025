@@ -1770,13 +1770,20 @@ const matchCategory = (cat1, cat2) => {
               if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
             } else if (name.toLowerCase().includes('bandhan') || id === 'bandhan') {
               // Bandhan Bank Excel Policy (Sheet: BANDHAN BANK)
-              // Section 2: FOIR Slabs: <=30k: 50%, 30k-50k: 60%, 50k-75k: 65%, >75k: 70%
+              // Section 2: FOIR Slabs by Salary: <=30k: 50%, 30k-50k: 60%, 50k-75k: 65%, >75k: 70%
+              if (Array.isArray(matchedPolicy?.salaryFoirSlabs) && matchedPolicy.salaryFoirSlabs.length > 0) {
+                bankInput.salaryFoirSlabs = matchedPolicy.salaryFoirSlabs;
+              }
+              if (matchedPolicy?.multiplierMatrix) {
+                bankInput.multiplierMatrix = matchedPolicy.multiplierMatrix;
+              }
+
               let bFoir = 50;
               if (income >= 75001) bFoir = 70;
               else if (income >= 50001) bFoir = 65;
               else if (income >= 30001) bFoir = 60;
               else bFoir = 50;
-              bankInput.foirOverride = bFoir;
+              if (!bankInput.salaryFoirSlabs) bankInput.foirOverride = bFoir;
 
               // Section 6: Multiplier from Tenure and Income Matrix
               const catUpper = String(bankCategory || '').toUpperCase();
@@ -1821,9 +1828,12 @@ const matchCategory = (cat1, cat2) => {
                   bMult = tenureBucket === 12 ? 6 : (tenureBucket === 24 ? 10 : (tenureBucket === 36 ? 14 : (tenureBucket === 48 ? 17 : 20)));
                 }
               }
-              bankInput.multiplierOverride = matchedFoir.multiplier || bMult;
+              
+              if (!bankInput.multiplierMatrix && !calculatorInput.multiplierOverride) {
+                bankInput.multiplierOverride = bMult;
+              }
 
-              // CC Obligation: 3% (0% if CC limit < 3x monthly salary)
+              // CC Obligation: 3% fixed across all categories (0% if CC limit < 3x monthly salary)
               const ccLimit = calculatorInput.totalCreditCardLimit || 0;
               if (ccLimit > 0 && ccLimit < (income * 3)) {
                 bankInput.ccObligationPercentOverride = 0;
