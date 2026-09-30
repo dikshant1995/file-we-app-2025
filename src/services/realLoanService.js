@@ -931,11 +931,27 @@ const matchCategory = (cat1, cat2) => {
       // 3.14 AU SMALL FINANCE BANK EXCEL POLICY CHECKS (Sheet: AU BANK)
       const isAuInst = name.toLowerCase().includes('au ') || id === 'au-bank' || id === 'au';
       if (isAuInst) {
-        const income = Number(calculatorInput.monthlyIncome || calculatorInput.basicSalary || 0);
+        // Cash Salary Check: Cash salary not to be considered
+        const salaryMode = String(calculatorInput.salaryType || calculatorInput.salaryMode || calculatorInput.paymentType || '').toLowerCase();
+        if (salaryMode === 'cash') {
+          return {
+            bankName: name,
+            eligible: false,
+            reason: 'AU Small Finance Bank does not consider cash salary. Salary must be credited via direct bank transfer.',
+            category: bankCategory
+          };
+        }
+
+        // Net salary considers after all deductions; variable pay (Incentive, bonus, allowances) to be deducted
+        const income = Number(calculatorInput.basicSalary || calculatorInput.monthlyIncome || 0);
         const compType = String(calculatorInput.companyType || '').toLowerCase();
         const catUpper = String(bankCategory || '').toUpperCase();
         const isPriority1 = catUpper.includes('SUPER') || catUpper === 'A' || catUpper === 'B' || catUpper === 'GOVT' || catUpper === 'D';
         const isNtc = calculatorInput.cibilScore === -1 || calculatorInput.cibilScore === 0 || !calculatorInput.cibilScore;
+
+        const cityTier = getCityTier(calculatorInput.city, calculatorInput.state);
+        const cityTierNorm = String(cityTier || calculatorInput.location || '').toLowerCase();
+        const isNonMetro = cityTierNorm.includes('non') || cityTierNorm.includes('tier 2') || cityTierNorm.includes('tier 3') || cityTierNorm.includes('rural');
 
         // Age Check: Salaried 21, Self-employed 23; Pvt 57, Govt 59
         const age = calculatorInput.age ? Number(calculatorInput.age) : null;
@@ -971,13 +987,15 @@ const matchCategory = (cat1, cat2) => {
           };
         }
 
-        // Min Salary Check: Listed 20k, Unlisted 25k, NTC 30k (Listed/Govt only)
+        // Min Salary & NMI Rules:
+        // NTC (-1,0) allowed ONLY for Super A, Cat A, Cat B, and Cat D (Govt).
+        // NTC Salary Requirement: ₹30,000 for both Metro and Non-Metro.
         if (isNtc) {
           if (!isPriority1) {
             return {
               bankName: name,
               eligible: false,
-              reason: 'AU Small Finance Bank permits New to Credit (-1 CIBIL) only for Super A, Cat A, Cat B, and Govt categories (Excel: Lending to NTC allowed for Super A, CAT A, CAT B and CAT D only).',
+              reason: 'AU Small Finance Bank permits New to Credit (NTC / -1 CIBIL) only for Super A, Cat A, Cat B, and Cat D (Govt) categories.',
               category: bankCategory
             };
           }
@@ -985,18 +1003,26 @@ const matchCategory = (cat1, cat2) => {
             return {
               bankName: name,
               eligible: false,
-              reason: `AU Small Finance Bank requires minimum ₹30,000 net salary for New to Credit (-1 CIBIL) applicants (Excel: -1 CIBIL 30K). Current: ₹${income.toLocaleString()}`,
+              reason: `AU Small Finance Bank requires minimum ₹30,000 net salary for New to Credit (-1 CIBIL) applicants in Metro and Non-Metro (Excel: -1 CIBIL 30K). Current: ₹${income.toLocaleString()}`,
               category: bankCategory
             };
           }
         } else {
-          const isUnlisted = compType === 'unlisted' || catUpper === 'C' || catUpper === 'OTHERS' || catUpper === 'UNLISTED';
-          const reqSalary = isUnlisted ? 25000 : 20000;
+          // Non-NTC Salary Check:
+          // Super Cat A, Cat A, Cat B, Cat D(Govt) -> Metro: 30K, Non-metro: 20K
+          // Cat C / Others / Unlisted -> Metro: 35K, Non-metro: 25K
+          let reqSalary = 20000;
+          if (isPriority1) {
+            reqSalary = isNonMetro ? 20000 : 30000;
+          } else {
+            reqSalary = isNonMetro ? 25000 : 35000;
+          }
+
           if (income < reqSalary) {
             return {
               bankName: name,
               eligible: false,
-              reason: `AU Small Finance Bank requires minimum monthly salary of ₹${reqSalary.toLocaleString()} for ${isUnlisted ? 'Unlisted' : 'Listed'} companies (Excel: LISTED 20K/UNLISTED 25K). Current: ₹${income.toLocaleString()}`,
+              reason: `AU Small Finance Bank requires minimum net monthly salary of ₹${reqSalary.toLocaleString()} for Category ${bankCategory} in ${isNonMetro ? 'Non-Metro' : 'Metro'} location (Excel: LISTED 20K/UNLISTED 25K & Metro 30k/35k). Current: ₹${income.toLocaleString()}`,
               category: bankCategory
             };
           }

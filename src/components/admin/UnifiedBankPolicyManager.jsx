@@ -369,6 +369,14 @@ const sanitizePolicyData = (raw) => {
       ...DEFAULT_DEMOGRAPHIC_RULES,
       ...(raw.demographics || {})
     },
+    etcCustomerSlabs: Array.isArray(raw.etcCustomerSlabs) && raw.etcCustomerSlabs.length > 0
+      ? raw.etcCustomerSlabs
+      : (raw.etcCustomerSlabs || [
+          { nmiSlab: 'INR 20K - <50K', minIncome: 20000, maxIncome: 49999, foirP1: 60, multP1: 18, capP1: 5.0, foirP0: 50, multP0: 11, capP0: 5.0 },
+          { nmiSlab: 'INR 50K - <75K', minIncome: 50000, maxIncome: 74999, foirP1: 65, multP1: 20, capP1: 15.0, foirP0: 60, multP0: 15, capP0: 7.5 },
+          { nmiSlab: 'INR 75K - <100K', minIncome: 75000, maxIncome: 99999, foirP1: 70, multP1: 22, capP1: 15.0, foirP0: 65, multP0: 18, capP0: 10.0 },
+          { nmiSlab: '>= INR 100K', minIncome: 100000, maxIncome: Infinity, foirP1: 75, multP1: 24, capP1: 15.0, foirP0: 70, multP0: 20, capP0: 10.0 }
+        ]),
     companies: Array.isArray(raw.companies) && raw.companies.length > 0 
       ? raw.companies 
       : DEFAULT_UNIFIED_POLICY.companies
@@ -2930,7 +2938,7 @@ const UnifiedBankPolicyManager = () => {
                   fontSize: '0.88rem'
                 }}>
                   <AlertTriangle size={18} />
-                  <span><strong>AU Small Finance Bank Policy (Excel Sheet: AU BANK - Section 3 & Row 36):</strong> Overall maximum loan capping is <strong>₹15 Lakhs (15LAC)</strong> across all categories (Super A, A, B, C, D, Govt; Min loan ₹50,000). <strong>Special Capping Limits:</strong> NTC (-1 CIBIL): <strong>₹3 Lakhs</strong> | Thin CIBIL Cat C/Others: <strong>₹7.50 Lakhs</strong> | PG / Rented Bachelor: <strong>₹5 Lakhs</strong>.</span>
+                  <span><strong>AU Small Finance Bank Policy (Excel Sheet: AU BANK - Section 3 & Row 36):</strong> Overall maximum loan capping is <strong>₹15 Lakhs (15LAC)</strong> across all categories (Super A, A, B, C, D, Govt; Min loan ₹50,000). <strong>Special Capping Limits:</strong> NTC (-1 CIBIL): <strong>₹3 Lakhs</strong> | Thin CIBIL Cat C/Others: <strong>₹7.50 Lakhs</strong> | Bachelor Capping: <strong>Removed (No Restriction)</strong>.</span>
                 </div>
               )}
 
@@ -2984,26 +2992,9 @@ const UnifiedBankPolicyManager = () => {
                           </div>
                         </td>
                         <td>
-                          {(activeConfigBank?.id === 'au-bank' || activeConfigBank?.name?.toLowerCase().includes('au ')) ? (
-                            <div className="table-input-cell">
-                              <span>₹</span>
-                              <input 
-                                type="number"
-                                value={row.bachelorCap ?? 500000}
-                                placeholder="₹5,00,000"
-                                onChange={(e) => {
-                                  const val = e.target.value === '' ? null : Number(e.target.value);
-                                  const updated = [...policyData.loanCapping];
-                                  updated[idx].bachelorCap = val;
-                                  setPolicyData({ ...policyData, loanCapping: updated });
-                                }}
-                              />
-                            </div>
-                          ) : (
-                            <span className="cat-pill" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.3)', fontSize: '0.78rem' }}>
-                              No Restriction
-                            </span>
-                          )}
+                          <span className="cat-pill" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.3)', fontSize: '0.78rem' }}>
+                            No Restriction
+                          </span>
                         </td>
                         <td>
                           <span className="tag-lakhs">
@@ -4320,6 +4311,159 @@ const UnifiedBankPolicyManager = () => {
                       <div style={{ marginTop: '3px' }}>• <strong>Open Market</strong>: <strong>₹75,000</strong> (`OPEN MARKET - 75K`)</div>
                       <div style={{ marginTop: '3px', color: '#fca5a5' }}>• <strong>NRI Case</strong>: <strong>₹2,00,000 (2 Lacs)</strong></div>
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {(activeConfigBank?.id === 'au-bank' || activeConfigBank?.id === 'au' || activeConfigBank?.name?.toLowerCase().includes('au ')) && (
+                <div style={{ marginBottom: '24px' }}>
+                  <div style={{
+                    background: 'linear-gradient(135deg, rgba(111, 44, 145, 0.2) 0%, rgba(59, 130, 246, 0.15) 100%)',
+                    border: '1.5px solid rgba(192, 132, 252, 0.35)',
+                    borderRadius: '8px',
+                    padding: '12px 16px',
+                    marginBottom: '16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '6px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#c084fc', fontWeight: 700, fontSize: '0.98rem' }}>
+                      <CheckCircle2 size={18} />
+                      <span>ETC Customer FOIR, Multipliers &amp; Exposure Capping Matrix — AU Small Finance Bank</span>
+                    </div>
+                    <div style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>
+                      • <strong>Priority 1:</strong> Super Cat A, Cat A, Cat B, Cat D (Govt)<br />
+                      • <strong>Priority 0:</strong> Cat C, Others, Unlisted
+                    </div>
+                  </div>
+
+                  <div className="table-responsive">
+                    <table className="policy-table">
+                      <thead>
+                        <tr>
+                          <th style={{ background: 'rgba(111, 44, 145, 0.8)', color: '#fff', textTransform: 'uppercase', textAlign: 'center', fontSize: '1rem', letterSpacing: '0.5px' }} colSpan={7}>
+                            ETC Customer Policy Matrix
+                          </th>
+                        </tr>
+                        <tr>
+                          <th style={{ color: '#38bdf8', minWidth: '150px' }}>Net Monthly Income (NMI)</th>
+                          <th style={{ color: '#c084fc' }}>FOIR % - Priority 1</th>
+                          <th style={{ color: '#c084fc' }}>Multiplier on NTH - Priority 1</th>
+                          <th style={{ color: '#c084fc' }}>Exposure Cap (Lakhs) - Priority 1</th>
+                          <th style={{ color: '#f472b6' }}>FOIR % - Priority 0</th>
+                          <th style={{ color: '#f472b6' }}>Multiplier on NTH - Priority 0</th>
+                          <th style={{ color: '#f472b6' }}>Exposure Cap (Lakhs) - Priority 0</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(policyData?.etcCustomerSlabs || [
+                          { nmiSlab: 'INR 20K - <50K', minIncome: 20000, maxIncome: 49999, foirP1: 60, multP1: 18, capP1: 5.0, foirP0: 50, multP0: 11, capP0: 5.0 },
+                          { nmiSlab: 'INR 50K - <75K', minIncome: 50000, maxIncome: 74999, foirP1: 65, multP1: 20, capP1: 15.0, foirP0: 60, multP0: 15, capP0: 7.5 },
+                          { nmiSlab: 'INR 75K - <100K', minIncome: 75000, maxIncome: 99999, foirP1: 70, multP1: 22, capP1: 15.0, foirP0: 65, multP0: 18, capP0: 10.0 },
+                          { nmiSlab: '>= INR 100K', minIncome: 100000, maxIncome: Infinity, foirP1: 75, multP1: 24, capP1: 15.0, foirP0: 70, multP0: 20, capP0: 10.0 }
+                        ]).map((row, idx) => (
+                          <tr key={idx}>
+                            <td>
+                              <strong style={{ color: '#38bdf8' }}>{row.nmiSlab}</strong>
+                            </td>
+                            <td>
+                              <div className="table-input-cell">
+                                <input 
+                                  type="number"
+                                  value={row.foirP1}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...(policyData.etcCustomerSlabs || [])];
+                                    updated[idx] = { ...updated[idx], foirP1: val };
+                                    setPolicyData({ ...policyData, etcCustomerSlabs: updated });
+                                  }}
+                                />
+                                <span>%</span>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="table-input-cell highlight">
+                                <input 
+                                  type="number"
+                                  value={row.multP1}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...(policyData.etcCustomerSlabs || [])];
+                                    updated[idx] = { ...updated[idx], multP1: val };
+                                    setPolicyData({ ...policyData, etcCustomerSlabs: updated });
+                                  }}
+                                />
+                                <span>x</span>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="table-input-cell">
+                                <span>₹</span>
+                                <input 
+                                  type="number"
+                                  value={row.capP1}
+                                  step="0.5"
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...(policyData.etcCustomerSlabs || [])];
+                                    updated[idx] = { ...updated[idx], capP1: val };
+                                    setPolicyData({ ...policyData, etcCustomerSlabs: updated });
+                                  }}
+                                />
+                                <span>Lakhs</span>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="table-input-cell">
+                                <input 
+                                  type="number"
+                                  value={row.foirP0}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...(policyData.etcCustomerSlabs || [])];
+                                    updated[idx] = { ...updated[idx], foirP0: val };
+                                    setPolicyData({ ...policyData, etcCustomerSlabs: updated });
+                                  }}
+                                />
+                                <span>%</span>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="table-input-cell highlight">
+                                <input 
+                                  type="number"
+                                  value={row.multP0}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...(policyData.etcCustomerSlabs || [])];
+                                    updated[idx] = { ...updated[idx], multP0: val };
+                                    setPolicyData({ ...policyData, etcCustomerSlabs: updated });
+                                  }}
+                                />
+                                <span>x</span>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="table-input-cell">
+                                <span>₹</span>
+                                <input 
+                                  type="number"
+                                  value={row.capP0}
+                                  step="0.5"
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...(policyData.etcCustomerSlabs || [])];
+                                    updated[idx] = { ...updated[idx], capP0: val };
+                                    setPolicyData({ ...policyData, etcCustomerSlabs: updated });
+                                  }}
+                                />
+                                <span>Lakhs</span>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               )}
@@ -5868,11 +6012,14 @@ const UnifiedBankPolicyManager = () => {
                       <div style={{ marginTop: '3px', color: '#86efac' }}>• Work Experience: <strong>Minimum 1 Year (12 Months)</strong> (<code>MINI WORK EXPRINCE: 1YEARS</code>)</div>
                     </div>
                     <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(245, 158, 11, 0.25)' }}>
-                      <strong style={{ color: '#f59e0b', fontSize: '0.88rem' }}>📌 Financial &amp; BT Criteria:</strong>
-                      <div style={{ marginTop: '5px' }}>• Minimum Net Salary: <strong>Listed ₹20,000 / Unlisted ₹25,000 / NTC ₹30,000</strong> (Listed &amp; Govt only)</div>
-                      <div style={{ marginTop: '3px', color: '#38bdf8' }}>• Credit Card Obligation: <strong>5% of Limit</strong></div>
-                      <div style={{ marginTop: '3px', color: '#fca5a5' }}>• Balance Transfer (BT): <strong>ONLY PL BT</strong> (Credit Card BT Strictly NOT Allowed)</div>
-                      <div style={{ marginTop: '3px', color: '#fde047' }}>• Cappings: <strong>Overall ₹15L, NTC ₹3L, Thin CIBIL ₹7.5L, PG/Rented Bachelor ₹5L</strong></div>
+                      <strong style={{ color: '#f59e0b', fontSize: '0.88rem' }}>📌 Financial, NMI &amp; Salary Criteria:</strong>
+                      <div style={{ marginTop: '5px' }}>• Min Salary Slabs: <strong>Listed ₹20,000 / Unlisted ₹25,000 / NTC ₹30,000</strong> (Listed &amp; Govt only)</div>
+                      <div style={{ marginTop: '3px', color: '#38bdf8' }}>• Priority 1 NMI (Super A, A, B, D Govt): <strong>Metro: ₹30,000 | Non-Metro: ₹20,000</strong></div>
+                      <div style={{ marginTop: '3px', color: '#fb923c' }}>• Priority 0 NMI (Cat C / Others / Unlisted): <strong>Metro: ₹35,000 | Non-Metro: ₹25,000</strong></div>
+                      <div style={{ marginTop: '3px', color: '#f472b6' }}>• NTC (-1, 0 CIBIL): <strong>₹30,000 both Metro &amp; Non-Metro</strong> (Allowed ONLY for Super A, Cat A, Cat B &amp; Cat D Govt)</div>
+                      <div style={{ marginTop: '3px', color: '#fca5a5' }}>• Cash Salary: <strong>NOT considered</strong>. Variable pay (Incentives, bonus, 1-time allowances) to be deducted</div>
+                      <div style={{ marginTop: '3px', color: '#f87171' }}>• Balance Transfer (BT): <strong>ONLY Personal Loan BT</strong> (Credit Card BT strictly NOT allowed)</div>
+                      <div style={{ marginTop: '3px', color: '#4ade80' }}>• Bachelor Capping: <strong>Removed (No Restriction as per policy)</strong></div>
                     </div>
                   </div>
                 </div>

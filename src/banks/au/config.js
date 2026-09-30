@@ -24,24 +24,45 @@ export const auConfig = {
   maxLoanAmount: 1500000, // Excel: 15LAC overall capping
   ntcMaxLoan: 300000, // Excel: NTC (-1) 3 lac
   thinCibilMaxLoan: 750000, // Excel: Thin Cibil Cat C/ Others 7.5 lac
-  bachelorMaxLoan: 500000, // Excel: PG/ Rented Bachelor Max 5 Lac
+  bachelorMaxLoan: null, // Bachelor Capping REMOVED (Not in policy)
   creditCardObligationPercent: 0.05, // Excel: CC OBLIGATION: 5% OBLIGATE
   allowCcBt: false, // Excel: ONLY PL BT (No Credit Card BT)
   allowPlBt: true,
+
+  // NMI Location & Category Requirements:
+  // Super Cat A, Cat A, Cat B, Cat D(Govt) -> Metro: 30K, Non-metro: 20K
+  // Cat C / Others -> Metro: 35K, Non-metro: 25K
+  // NTC (-1,0) -> 30K Metro & Non-Metro (Super A, Cat A, Cat B, Cat D Govt only)
+  nmiRequirements: {
+    priority1Metro: 30000,
+    priority1NonMetro: 20000,
+    priority0Metro: 35000,
+    priority0NonMetro: 25000,
+    ntcBoth: 30000,
+    allowCashSalary: false,
+    deductVariablePay: true
+  },
 
   btConfig: {
     isAvailable: true,
     allowCcBt: false,
     allowPlBt: true,
     maxPersonalLoansForBT: 5,
-    description: 'AU Small Finance Bank allows ONLY Personal Loan Balance Transfer (CC BT not allowed)'
+    description: 'AU Small Finance Bank allows ONLY Personal Loan Balance Transfer (CC BT strictly prohibited)'
   },
 
   employmentTypes: ['salaried', 'government', 'salaried_professional'],
 
-  // Section 4: ETC Customer (FOIR, Multiplier & Exposure Capping)
+  // Section 4: ETC Customer (FOIR, Multipliers & Exposure Capping Matrix - Excel Screenshot Structure)
   priority1Categories: ['SUPER A', 'A', 'B', 'D', 'GOVT'],
   priority0Categories: ['C', 'OTHERS', 'UNLISTED'],
+
+  etcCustomerSlabs: [
+    { nmiSlab: 'INR 20K - <50K', minIncome: 20000, maxIncome: 49999, foirP1: 0.60, multP1: 18, capP1: 500000, foirP0: 0.50, multP0: 11, capP0: 500000 },
+    { nmiSlab: 'INR 50K - <75K', minIncome: 50000, maxIncome: 74999, foirP1: 0.65, multP1: 20, capP1: 1500000, foirP0: 0.60, multP0: 15, capP0: 750000 },
+    { nmiSlab: 'INR 75K - <100K', minIncome: 75000, maxIncome: 99999, foirP1: 0.70, multP1: 22, capP1: 1500000, foirP0: 0.65, multP0: 18, capP0: 1000000 },
+    { nmiSlab: '>= INR 100K', minIncome: 100000, maxIncome: Infinity, foirP1: 0.75, multP1: 24, capP1: 1500000, foirP0: 0.70, multP0: 20, capP0: 1000000 }
+  ],
 
   priority1Slabs: [
     { minIncome: 20000, maxIncome: 49999, foir: 0.60, multiplier: 18, maxCap: 500000 },

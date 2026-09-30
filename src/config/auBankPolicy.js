@@ -44,12 +44,12 @@ export const AU_BANK_EXCEL_POLICY = {
 
   // Section 3: MINIMUM LOAN AMOUNT AND MAX LOAN AMOUNT & Row 36 Capping
   loanCapping: [
-    { tier: 'Super A', minLoan: 50000, maxLoan: 1500000, bachelorCap: 500000, ntcCap: 300000, minSalary: 20000 },
-    { tier: 'A', minLoan: 50000, maxLoan: 1500000, bachelorCap: 500000, ntcCap: 300000, minSalary: 20000 },
-    { tier: 'B', minLoan: 50000, maxLoan: 1500000, bachelorCap: 500000, ntcCap: 300000, minSalary: 20000 },
-    { tier: 'C', minLoan: 50000, maxLoan: 1500000, bachelorCap: 500000, thinCibilCap: 750000, minSalary: 25000 },
-    { tier: 'D', minLoan: 50000, maxLoan: 1500000, bachelorCap: 500000, ntcCap: 300000, minSalary: 20000 },
-    { tier: 'Govt', minLoan: 50000, maxLoan: 1500000, bachelorCap: 500000, ntcCap: 300000, minSalary: 20000 }
+    { tier: 'Super A', minLoan: 50000, maxLoan: 1500000, bachelorCap: null, ntcCap: 300000, minSalary: 20000 },
+    { tier: 'A', minLoan: 50000, maxLoan: 1500000, bachelorCap: null, ntcCap: 300000, minSalary: 20000 },
+    { tier: 'B', minLoan: 50000, maxLoan: 1500000, bachelorCap: null, ntcCap: 300000, minSalary: 20000 },
+    { tier: 'C', minLoan: 50000, maxLoan: 1500000, bachelorCap: null, thinCibilCap: 750000, minSalary: 25000 },
+    { tier: 'D', minLoan: 50000, maxLoan: 1500000, bachelorCap: null, ntcCap: 300000, minSalary: 20000 },
+    { tier: 'Govt', minLoan: 50000, maxLoan: 1500000, bachelorCap: null, ntcCap: 300000, minSalary: 20000 }
   ],
 
   // Section 2: TENURE AND REPAYMENT WINDOWS
@@ -63,8 +63,8 @@ export const AU_BANK_EXCEL_POLICY = {
     { category: 'Govt', minMonths: 12, maxMonths: 60, description: '12 to 60 Months (Up to 5 Years)' }
   ],
 
-  // Section 4: ETC Customer (FOIR, Multipliers & Exposure Capping)
-  // Priority 1 (Super A, A, B, D / Govt):
+  // Section 4: ETC Customer (FOIR, Multipliers & Exposure Capping Matrix - Excel Screenshot Structure)
+  // Priority 1 (Super Cat A, Cat A, Cat B, Cat D Govt):
   // 20k-<50k: FOIR 60%, Mult 18x, Cap 5L
   // 50k-<75k: FOIR 65%, Mult 20x, Cap 15L
   // 75k-<100k: FOIR 70%, Mult 22x, Cap 15L
@@ -74,6 +74,13 @@ export const AU_BANK_EXCEL_POLICY = {
   // 50k-<75k: FOIR 60%, Mult 15x, Cap 7.5L
   // 75k-<100k: FOIR 65%, Mult 18x, Cap 10L
   // >=100k: FOIR 70%, Mult 20x, Cap 10L
+  etcCustomerSlabs: [
+    { nmiSlab: 'INR 20K - <50K', minIncome: 20000, maxIncome: 49999, foirP1: 60, multP1: 18, capP1: 5.0, foirP0: 50, multP0: 11, capP0: 5.0 },
+    { nmiSlab: 'INR 50K - <75K', minIncome: 50000, maxIncome: 74999, foirP1: 65, multP1: 20, capP1: 15.0, foirP0: 60, multP0: 15, capP0: 7.5 },
+    { nmiSlab: 'INR 75K - <100K', minIncome: 75000, maxIncome: 99999, foirP1: 70, multP1: 22, capP1: 15.0, foirP0: 65, multP0: 18, capP0: 10.0 },
+    { nmiSlab: '>= INR 100K', minIncome: 100000, maxIncome: Infinity, foirP1: 75, multP1: 24, capP1: 15.0, foirP0: 70, multP0: 20, capP0: 10.0 }
+  ],
+
   foirMultiplier: [
     { category: 'Super A', slab1Foir: 60, slab2Foir: 65, slab3Foir: 70, maxFoir: 75, multiplierBelow50k: 18, multiplier50kTo75k: 20, multiplier75kTo100k: 22, multiplierAbove100k: 24, multiplier: 24, ccObligation: 5, priority: 1 },
     { category: 'A', slab1Foir: 60, slab2Foir: 65, slab3Foir: 70, maxFoir: 75, multiplierBelow50k: 18, multiplier50kTo75k: 20, multiplier75kTo100k: 22, multiplierAbove100k: 24, multiplier: 24, ccObligation: 5, priority: 1 },
@@ -90,18 +97,27 @@ export const AU_BANK_EXCEL_POLICY = {
     maxAgeGovt: 59,            // GOVT 59 YEARS
     retirementSalaried: 60,    // 60 YEARS
     retirementGovt: 60,        // 60 YEARS
-    minSalary: 20000,          // LISTED 20K (Non-metro 20k / Metro 30k)
-    minSalaryUnlisted: 25000,  // UNLISTED 25K (Non-metro 25k / Metro 35k)
+    minSalaryListed: 20000,    // LISTED 20K
+    minSalaryUnlisted: 25000,  // UNLISTED 25K
     minSalaryNtc: 30000,       // -1 CIBIL 30K (LISTED AND GOVT ONLY)
-    minExperienceTotal: 12,    // 1 YEAR (12 MONTHS)
-    minExperienceCurrent: 12,  // 1 YEAR (12 MONTHS)
-    minCibilScore: 0,          // Allowed NTC (-1) for Super A, A, B, Govt
+    // NMI Location & Category thresholds:
+    nmiPriority1Metro: 30000,      // Super Cat A, Cat A, Cat B, Cat D(Govt) Metro: 30K
+    nmiPriority1NonMetro: 20000,   // Super Cat A, Cat A, Cat B, Cat D(Govt) Non-metro: 20K
+    nmiPriority0Metro: 35000,      // Cat C / Others Metro: 35K
+    nmiPriority0NonMetro: 25000,   // Cat C / Others Non-metro: 25K
+    nmiNtcBothMetroNonMetro: 30000,// NTC: 30K for Metro and Non-Metro
+    ntcPermittedCategories: ['Super A', 'A', 'B', 'Govt', 'D'], // Lending to NTC (-1,0) allowed for Super A, Cat A, Cat B, Cat D(Govt) ONLY
+    allowCashSalary: false,        // Cash Salary not to be considered
+    deductVariablePay: true,       // Variable pay (Incentive, bonus, one time allowances) to be deducted
+    minExperienceTotal: 12,        // 1 YEAR (12 MONTHS)
+    minExperienceCurrent: 12,      // 1 YEAR (12 MONTHS)
+    minCibilScore: 0,              // Allowed NTC (-1) for Super A, A, B, Govt
     allowNtc: true,
-    ntcCapping: 300000,        // NTC (-1) 3 LAC
-    thinCibilCapping: 750000,  // Thin Cibil Cat C/Others 7.5 LAC
-    bachelorCapping: 500000,   // PG / Rented Bachelor Max 5 Lac
-    ccObligationPercent: 5,    // 5% OBLIGATE
-    allowCcBt: false,          // ONLY PL BT (Credit Card BT strictly not allowed)
+    ntcCapping: 300000,            // NTC (-1) 3 LAC
+    thinCibilCapping: 750000,      // Thin Cibil Cat C/Others 7.5 LAC
+    bachelorCapping: null,         // Bachelor Capping REMOVED (Not in policy)
+    ccObligationPercent: 5,        // 5% OBLIGATE
+    allowCcBt: false,              // ONLY PL BT (Credit Card BT strictly not allowed)
     allowPlBt: true
   }
 };
