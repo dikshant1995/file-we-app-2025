@@ -3742,30 +3742,61 @@ const UnifiedBankPolicyManager = () => {
                   background: 'linear-gradient(135deg, rgba(0, 45, 98, 0.20) 0%, rgba(14, 165, 233, 0.15) 100%)',
                   border: '1.5px solid rgba(56, 189, 248, 0.4)',
                   borderRadius: '8px',
-                  padding: '12px 16px',
+                  padding: '14px 18px',
                   marginBottom: '16px',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '12px'
+                  gap: '14px'
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38bdf8', fontWeight: 700, fontSize: '0.95rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38bdf8', fontWeight: 700, fontSize: '0.98rem' }}>
                     <CheckCircle2 size={18} />
-                    <span>SMFG India Credit Net Salary Band FOIR & Multiplier Matrix (from Excel Sheet: SMFG)</span>
+                    <span>SMFG India Credit Master FOIR & Multiplier Policy (Excel Sheet: SMFG)</span>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
-                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
-                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 FOIR Slabs by Salary:</strong>
-                      <div style={{ marginTop: '5px' }}>• <strong>₹25k – ₹30k:</strong> Max FOIR <strong>60%</strong></div>
-                      <div style={{ marginTop: '3px' }}>• <strong>₹30k – ₹35k:</strong> Max FOIR <strong>65%</strong></div>
-                      <div style={{ marginTop: '3px' }}>• <strong>₹35k and Above:</strong> Max FOIR <strong>70%</strong></div>
-                      <div style={{ marginTop: '3px', color: '#fca5a5' }}>• <strong>Prop / Part / LLP Firm:</strong> Max FOIR strictly capped at <strong>55%</strong> (`PROP/PART/LLP FIRM: 55% FOIR`)</div>
+                  <div style={{ fontSize: '0.84rem', color: '#93c5fd' }}>
+                    📌 Policy Rule: FOIR & Multipliers for SMFG India Credit depend <strong>STRICTLY ON SALARY SLABS</strong> (Category Independent).
+                  </div>
+
+                  <div className="table-responsive">
+                    <table className="policy-table" style={{ fontSize: '0.82rem', width: '100%' }}>
+                      <thead>
+                        <tr>
+                          <th>Salary Band (Monthly Net Income)</th>
+                          <th style={{ color: '#38bdf8' }}>Max FOIR %</th>
+                          <th style={{ color: '#fbba74' }}>Multiplier</th>
+                          <th>Special Rules / Notes</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[
+                          { band: 'Income Less Than 25K', foir: 'Not Eligible (0%)', mult: 'N/A', note: 'Min ₹25K+ Salary required with 0 deduction', isEligible: false },
+                          { band: '25K-30K', foir: '60%', mult: '12 TO 13', note: 'AS PER COM CAT AND PROFILE BASE', isEligible: true },
+                          { band: '30K-35K', foir: '65%', mult: '15 TO 16', note: 'AS PER COM CAT AND PROFILE BASE', isEligible: true },
+                          { band: '35K-40K', foir: '70%', mult: '16 TO 18', note: 'COM TYPE PROP/PART/LLP FIRM MAX FOIR 55%', isEligible: true },
+                          { band: '40K-50K', foir: '70%', mult: '18 TO 20', note: 'Standard 70% Max FOIR', isEligible: true },
+                          { band: '50K-75K', foir: '70%', mult: '22 TO 25', note: 'Standard 70% Max FOIR', isEligible: true },
+                          { band: '75K-100K', foir: '70%', mult: '23 TO 30', note: 'Standard 70% Max FOIR', isEligible: true },
+                          { band: '100K and Above', foir: '70%', mult: '23 TO 30', note: 'Max Multiplier up to 30x', isEligible: true }
+                        ].map((row, rIdx) => (
+                          <tr key={rIdx}>
+                            <td><strong style={{ color: row.isEligible ? '#fbbf24' : '#f87171' }}>{row.band}</strong></td>
+                            <td><strong style={{ color: row.isEligible ? '#38bdf8' : '#f87171' }}>{row.foir}</strong></td>
+                            <td><span style={{ color: '#f59e0b', fontWeight: 700 }}>{row.mult}</span></td>
+                            <td style={{ color: '#94a3b8', fontSize: '0.78rem' }}>{row.note}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0', marginTop: '6px' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(239, 68, 68, 0.25)' }}>
+                      <strong style={{ color: '#fca5a5', fontSize: '0.88rem' }}>📌 Special Firm FOIR Restriction:</strong>
+                      <div style={{ marginTop: '5px' }}>• <strong>PROP / PART / LLP FIRM:</strong> Max FOIR strictly capped at <strong>55%</strong> (`COM TYPE PROP/PART/LLP FIRM MAX FOIR 55%`)</div>
                     </div>
-                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(249, 115, 22, 0.25)' }}>
-                      <strong style={{ color: '#fdba74', fontSize: '0.88rem' }}>📌 Multipliers by Salary:</strong>
-                      <div style={{ marginTop: '5px' }}>• <strong>₹25k – ₹30k:</strong> <strong>12x to 13x</strong></div>
-                      <div style={{ marginTop: '3px' }}>• <strong>₹30k – ₹35k:</strong> <strong>15x to 16x</strong> | <strong>₹35k – ₹40k:</strong> <strong>16x to 18x</strong></div>
-                      <div style={{ marginTop: '3px' }}>• <strong>₹40k – ₹50k:</strong> <strong>18x to 20x</strong> | <strong>₹50k – ₹75k:</strong> <strong>22x to 25x</strong></div>
-                      <div style={{ marginTop: '3px', color: '#86efac' }}>• <strong>₹75k – ₹100k+:</strong> <strong>23x to 30x</strong> (as per company cat and profile base)</div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(34, 197, 94, 0.25)' }}>
+                      <strong style={{ color: '#86efac', fontSize: '0.88rem' }}>📌 Credit Card Obligation & BT Rules:</strong>
+                      <div style={{ marginTop: '5px' }}>• <strong>Credit Card Obligation:</strong> <strong>5%</strong> of Limit</div>
+                      <div style={{ marginTop: '3px' }}>• <strong>Balance Transfer (BT):</strong> Maximum <strong>2 Credit Card BTs</strong> allowed (`MAX 2 CC BT`)</div>
                     </div>
                   </div>
                 </div>
@@ -4007,7 +4038,8 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               )}
 
-              <div className="table-responsive">
+              {!(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) && (
+                <div className="table-responsive">
                 <table className="policy-table">
                   <thead>
                     <tr>
@@ -5211,6 +5243,7 @@ const UnifiedBankPolicyManager = () => {
                   </tbody>
                 </table>
               </div>
+              )}
             </div>
           )}
 
