@@ -2380,7 +2380,7 @@ const UnifiedBankPolicyManager = () => {
                                 <div className="table-input-cell">
                                   <input 
                                     type="number" step="0.01"
-                                    value={row.roiBelow25k ?? row.roi25001 ?? (row.category === 'Super A' || row.category === 'A' || row.category === 'Govt' ? 24.00 : (row.category === 'B' ? 25.50 : (row.category === 'C' ? 27.50 : 30.00)))}
+                                    value={row.roiBelow25k ?? row.roi25001 ?? 24.00}
                                     onChange={(e) => {
                                       const val = Number(e.target.value);
                                       updateRate(row.category, 'roiBelow25k', val);
@@ -2394,7 +2394,7 @@ const UnifiedBankPolicyManager = () => {
                                 <div className="table-input-cell">
                                   <input 
                                     type="number" step="0.01"
-                                    value={row.roi25kTo30k ?? (row.category === 'Super A' || row.category === 'A' || row.category === 'Govt' ? 23.00 : (row.category === 'B' ? 24.00 : (row.category === 'C' ? 25.00 : (row.category === 'D' ? 28.00 : 30.00))))}
+                                    value={row.roi25kTo30k ?? 23.00}
                                     onChange={(e) => updateRate(row.category, 'roi25kTo30k', Number(e.target.value))}
                                   />
                                   <span>%</span>
@@ -2404,7 +2404,7 @@ const UnifiedBankPolicyManager = () => {
                                 <div className="table-input-cell">
                                   <input 
                                     type="number" step="0.01"
-                                    value={row.roi30kTo35k ?? (row.category === 'Super A' || row.category === 'A' || row.category === 'Govt' ? 21.50 : (row.category === 'B' ? 22.00 : (row.category === 'C' ? 23.50 : (row.category === 'D' ? 25.00 : 30.00))))}
+                                    value={row.roi30kTo35k ?? 21.50}
                                     onChange={(e) => updateRate(row.category, 'roi30kTo35k', Number(e.target.value))}
                                   />
                                   <span>%</span>
@@ -2414,7 +2414,7 @@ const UnifiedBankPolicyManager = () => {
                                 <div className="table-input-cell">
                                   <input 
                                     type="number" step="0.01"
-                                    value={row.roi35kTo40k ?? (row.category === 'Super A' || row.category === 'A' || row.category === 'Govt' ? 19.50 : (row.category === 'B' ? 21.00 : (row.category === 'C' ? 23.00 : (row.category === 'D' ? 24.00 : 30.00))))}
+                                    value={row.roi35kTo40k ?? 19.50}
                                     onChange={(e) => updateRate(row.category, 'roi35kTo40k', Number(e.target.value))}
                                   />
                                   <span>%</span>
@@ -2424,7 +2424,7 @@ const UnifiedBankPolicyManager = () => {
                                 <div className="table-input-cell">
                                   <input 
                                     type="number" step="0.01"
-                                    value={row.roi40kTo50k ?? (row.category === 'Super A' || row.category === 'A' || row.category === 'Govt' ? 19.00 : (row.category === 'B' ? 20.00 : (row.category === 'C' ? 21.50 : (row.category === 'D' ? 24.00 : 30.00))))}
+                                    value={row.roi40kTo50k ?? 19.00}
                                     onChange={(e) => updateRate(row.category, 'roi40kTo50k', Number(e.target.value))}
                                   />
                                   <span>%</span>
@@ -2434,7 +2434,7 @@ const UnifiedBankPolicyManager = () => {
                                 <div className="table-input-cell">
                                   <input 
                                     type="number" step="0.01"
-                                    value={row.roi50kTo75k ?? (row.category === 'Super A' || row.category === 'A' || row.category === 'Govt' ? 18.50 : (row.category === 'B' ? 18.50 : (row.category === 'C' ? 21.50 : (row.category === 'D' ? 22.00 : 30.00))))}
+                                    value={row.roi50kTo75k ?? 18.50}
                                     onChange={(e) => updateRate(row.category, 'roi50kTo75k', Number(e.target.value))}
                                   />
                                   <span>%</span>
@@ -2444,7 +2444,7 @@ const UnifiedBankPolicyManager = () => {
                                 <div className="table-input-cell">
                                   <input 
                                     type="number" step="0.01"
-                                    value={row.roi75kTo100k ?? (row.category === 'Super A' || row.category === 'A' || row.category === 'Govt' ? 18.50 : (row.category === 'B' ? 18.50 : (row.category === 'C' ? 19.50 : (row.category === 'D' ? 20.00 : 30.00))))}
+                                    value={row.roi75kTo100k ?? 18.50}
                                     onChange={(e) => updateRate(row.category, 'roi75kTo100k', Number(e.target.value))}
                                   />
                                   <span>%</span>
@@ -2454,7 +2454,7 @@ const UnifiedBankPolicyManager = () => {
                                 <div className="table-input-cell highlight">
                                   <input 
                                     type="number" step="0.01"
-                                    value={row.roiAbove100k ?? (row.category === 'Super A' || row.category === 'A' || row.category === 'Govt' ? 17.00 : (row.category === 'B' ? 17.00 : (row.category === 'C' ? 19.00 : (row.category === 'D' ? 20.00 : 30.00))))}
+                                    value={row.roiAbove100k ?? 17.00}
                                     onChange={(e) => updateRate(row.category, 'roiAbove100k', Number(e.target.value))}
                                   />
                                   <span>%</span>

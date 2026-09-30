@@ -6,11 +6,11 @@ export const LNT_BANK_EXCEL_POLICY = {
       category: 'Super A', 
       roi20Lto30L: 11.50, 
       roi10Lto20L: 14.00, 
-      roi1Lto10L: 13.00, 
-      roiBelow10L: 13.00,
+      roi1Lto10L: 13.50, 
+      roiBelow10L: 13.50,
       minRoi: 10.99, 
       maxRoi: 15.00, 
-      defaultRoi: 12.50,
+      defaultRoi: 11.50,
       specialRate: 10.99,
       specialRateCondition: 'Owned House + ₹1.75L+ Salary + 775+ CIBIL'
     },
@@ -18,11 +18,11 @@ export const LNT_BANK_EXCEL_POLICY = {
       category: 'A', 
       roi20Lto30L: 11.50, 
       roi10Lto20L: 14.00, 
-      roi1Lto10L: 13.00, 
-      roiBelow10L: 13.00,
+      roi1Lto10L: 13.50, 
+      roiBelow10L: 13.50,
       minRoi: 10.99, 
       maxRoi: 15.00, 
-      defaultRoi: 12.50,
+      defaultRoi: 11.50,
       specialRate: 10.99,
       specialRateCondition: 'Owned House + ₹1.75L+ Salary + 775+ CIBIL'
     },
@@ -72,7 +72,7 @@ export const LNT_BANK_EXCEL_POLICY = {
     { tier: 'A', minLoan: 100000, maxLoan: 3000000, bachelorCap: null, rentedCap: null, minSalary: 25000 },
     { tier: 'B', minLoan: 100000, maxLoan: 3000000, bachelorCap: null, rentedCap: null, minSalary: 25000 },
     { tier: 'C', minLoan: 100000, maxLoan: 3000000, bachelorCap: null, rentedCap: null, minSalary: 25000 },
-    { tier: 'D', minLoan: 100000, maxLoan: 3000000, bachelorCap: null, rentedCap: 2000000, minSalary: 25000, note: 'Rented capped at ₹20 Lakhs' },
+    { tier: 'D', minLoan: 100000, maxLoan: 3000000, bachelorCap: null, rentedCap: 2500000, minSalary: 25000, note: 'Rented capped at ₹25 Lakhs (25L), otherwise ₹30 Lakhs (30L)' },
     { tier: 'Govt', minLoan: 100000, maxLoan: 3000000, bachelorCap: null, rentedCap: null, minSalary: 25000 }
   ],
   tenureRules: [
