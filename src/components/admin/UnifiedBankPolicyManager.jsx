@@ -4068,6 +4068,14 @@ const UnifiedBankPolicyManager = () => {
                           <th style={{ color: '#38bdf8', whiteSpace: 'nowrap', borderBottom: '2px solid rgba(56, 189, 248, 0.5)' }}>≥ ₹40K Max (FOIR % / Mult)</th>
                           <th>Credit Card Obligation (4%)</th>
                         </>
+                      ) : (activeConfigBank?.id === 'icici' || activeConfigBank?.name?.toLowerCase().includes('icici')) ? (
+                        <>
+                          <th style={{ color: '#38bdf8' }}>CIBIL &amp; Salary Criteria (Excel)</th>
+                          <th style={{ color: '#38bdf8' }}>Standard Base FOIR (%)</th>
+                          <th style={{ color: '#38bdf8' }}>Standard Max FOIR (%)</th>
+                          <th style={{ color: '#34d399' }}>HL Running Bonus FOIR (+5%)</th>
+                          <th>Credit Card Obligation (5%)</th>
+                        </>
                       ) : (
                         <>
                           <th>{activeConfigBank?.id === 'icici' ? 'Standard Base FOIR (45%)' : (activeConfigBank?.id === 'indusind' ? '₹20K – ₹35K FOIR' : (activeConfigBank?.id === 'bandhan' ? '≤ ₹30K Salary FOIR' : '₹25K – ₹35K Salary FOIR'))}</th>
@@ -4834,6 +4842,81 @@ const UnifiedBankPolicyManager = () => {
                               </div>
                             </td>
                           </>
+                        ) : (activeConfigBank?.id === 'icici' || activeConfigBank?.name?.toLowerCase().includes('icici')) ? (
+                          <>
+                            <td>
+                              <span style={{ color: '#cbd5e1', fontSize: '0.8rem', fontWeight: 600 }}>
+                                {row.criteria || (row.category === 'Govt' ? 'CIBIL 725-775 + 25K+ Sal' : (row.category === 'Open Market' ? 'CIBIL 750+ + 50K+ Sal' : 'CIBIL 725-775 + 30K+ Sal'))}
+                              </span>
+                            </td>
+                            <td>
+                              <div className="table-input-cell">
+                                <input 
+                                  type="number"
+                                  value={row.slab1Foir ?? 45}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...policyData.foirMultiplier];
+                                    updated[idx].slab1Foir = val;
+                                    setPolicyData({ ...policyData, foirMultiplier: updated });
+                                  }}
+                                />
+                                <span>% (45%)</span>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="table-input-cell">
+                                <input 
+                                  type="number"
+                                  value={row.maxFoir ?? (row.category === 'Open Market' ? 55 : 65)}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...policyData.foirMultiplier];
+                                    updated[idx].maxFoir = val;
+                                    setPolicyData({ ...policyData, foirMultiplier: updated });
+                                  }}
+                                />
+                                <span>% ({row.category === 'Open Market' ? '55%' : '65%'})</span>
+                              </div>
+                            </td>
+                            <td>
+                              {row.category === 'Open Market' ? (
+                                <span style={{ color: '#94a3b8', fontSize: '0.8rem', fontWeight: 600, padding: '6px 10px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '4px' }}>
+                                  N/A (Excluded)
+                                </span>
+                              ) : (
+                                <div className="table-input-cell highlight" style={{ border: '1.5px solid rgba(52, 211, 153, 0.5)' }}>
+                                  <input 
+                                    type="number"
+                                    style={{ color: '#34d399', fontWeight: 700 }}
+                                    value={row.hlFoir ?? 70}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.foirMultiplier];
+                                      updated[idx].hlFoir = val;
+                                      setPolicyData({ ...policyData, foirMultiplier: updated });
+                                    }}
+                                  />
+                                  <span>% (70%)</span>
+                                </div>
+                              )}
+                            </td>
+                            <td>
+                              <div className="table-input-cell">
+                                <input 
+                                  type="number"
+                                  value={row.ccObligation ?? 5}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...policyData.foirMultiplier];
+                                    updated[idx].ccObligation = val;
+                                    setPolicyData({ ...policyData, foirMultiplier: updated });
+                                  }}
+                                />
+                                <span>% (5%)</span>
+                              </div>
+                            </td>
+                          </>
                         ) : (
                           <>
                             <td>
@@ -5496,20 +5579,24 @@ const UnifiedBankPolicyManager = () => {
                         </div>
                       </td>
                       <td>
-                        {(activeConfigBank?.id === 'bajaj' || activeConfigBank?.name?.toLowerCase().includes('bajaj')) 
-                          ? '₹27,000 (Listed)' 
-                          : (activeConfigBank?.id === 'au-bank' || activeConfigBank?.id === 'au' || activeConfigBank?.name?.toLowerCase().includes('au ')) 
-                            ? '₹20,000 (Listed)' 
-                            : '₹25,000'}
+                        {(activeConfigBank?.id === 'icici' || activeConfigBank?.name?.toLowerCase().includes('icici'))
+                          ? 'Govt: ₹25K | Pvt: ₹30K | Open Mkt: ₹75K'
+                          : (activeConfigBank?.id === 'bajaj' || activeConfigBank?.name?.toLowerCase().includes('bajaj')) 
+                            ? '₹27,000 (Listed)' 
+                            : (activeConfigBank?.id === 'au-bank' || activeConfigBank?.id === 'au' || activeConfigBank?.name?.toLowerCase().includes('au ')) 
+                              ? '₹20,000 (Listed)' 
+                              : '₹25,000'}
                       </td>
                       <td>
-                        {(activeConfigBank?.id === 'bajaj' || activeConfigBank?.name?.toLowerCase().includes('bajaj'))
-                          ? 'Excel Policy: LISTED 27K AND UNLISTED 30K'
-                          : (activeConfigBank?.id === 'au-bank' || activeConfigBank?.id === 'au' || activeConfigBank?.name?.toLowerCase().includes('au '))
-                            ? 'Excel Policy: LISTED 20K / UNLISTED 25K / -1 CIBIL 30K'
-                            : (activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg'))
-                              ? 'Excel Policy: 25K+ SALARY WITH 0 DEDUCTION'
-                              : 'Minimum verifiable monthly salary required for qualification'}
+                        {(activeConfigBank?.id === 'icici' || activeConfigBank?.name?.toLowerCase().includes('icici'))
+                          ? 'Excel Policy: GOVT ₹25,000 | PVT (Super Prime/Preferred/Elite/Army) ₹30,000 | OPEN MARKET ₹75,000'
+                          : (activeConfigBank?.id === 'bajaj' || activeConfigBank?.name?.toLowerCase().includes('bajaj'))
+                            ? 'Excel Policy: LISTED 27K AND UNLISTED 30K'
+                            : (activeConfigBank?.id === 'au-bank' || activeConfigBank?.id === 'au' || activeConfigBank?.name?.toLowerCase().includes('au '))
+                              ? 'Excel Policy: LISTED 20K / UNLISTED 25K / -1 CIBIL 30K'
+                              : (activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg'))
+                                ? 'Excel Policy: 25K+ SALARY WITH 0 DEDUCTION'
+                                : 'Minimum verifiable monthly salary required for qualification'}
                       </td>
                     </tr>
                     <tr>

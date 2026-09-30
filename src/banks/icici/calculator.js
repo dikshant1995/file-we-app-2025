@@ -236,6 +236,13 @@ export const calculateIciciEligibility = (userData) => {
   // Logic Bridge: Support govtFOIR override
   let foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : getFoirPercentage(incomeForCalculation);
 
+  const isNormOpenMarket = String(companyCategory).toLowerCase().includes('open market');
+  if (userData.hasEverHomeLoan && !isNormOpenMarket) {
+    foirPercentage = 0.70; // 5% bonus for running HL up to 70%
+  } else if (isNormOpenMarket) {
+    foirPercentage = Math.min(foirPercentage || 0.55, 0.55);
+  }
+
   if (!foirPercentage) {
     return {
       eligible: false,

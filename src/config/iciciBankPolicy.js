@@ -90,21 +90,6 @@ export const ICICI_BANK_EXCEL_POLICY = {
       roiBelow10L: 11.50,
       minSalary: 25000,
       note: 'Defense profile | Max loan 10 Lakhs'
-    },
-    { 
-      category: 'NRI Case', 
-      criteria: 'CIBIL 725+ + SALARY 2 LAC+',
-      roiCibil775: 9.99, 
-      roiCibil750: 10.30, 
-      minRoi: 9.99, 
-      maxRoi: 12.00, 
-      defaultRoi: 11.00,
-      roiAbove20L: 9.99,
-      roi15Lto20L: 10.50,
-      roi10Lto15L: 11.00,
-      roiBelow10L: 12.00,
-      minSalary: 200000,
-      note: 'Min salary 2 Lakhs | Loan 6L to 10L'
     }
   ],
   loanCapping: [
@@ -113,8 +98,7 @@ export const ICICI_BANK_EXCEL_POLICY = {
     { tier: 'Elite', minLoan: 610000, minLoanOther: 100000, maxLoan: 10000000, bachelorCap: null, minSalary: 30000, note: 'In Rajasthan 6.10 Lac | Band 6L-9L (Sanction up to 1 CR)' },
     { tier: 'Open Market', minLoan: 610000, minLoanOther: 100000, maxLoan: 1500000, bachelorCap: null, minSalary: 75000, note: 'In Rajasthan 6.10 Lac | Max 15 Lac' },
     { tier: 'Govt', minLoan: 610000, minLoanOther: 100000, maxLoan: 10000000, bachelorCap: null, minSalary: 25000, note: 'In Rajasthan 6.10 Lac | Max 1 CR' },
-    { tier: 'Army Profile', minLoan: 610000, minLoanOther: 100000, maxLoan: 1000000, bachelorCap: null, minSalary: 25000, note: 'In Rajasthan 6.10 Lac | Max 10 Lac' },
-    { tier: 'NRI Case', minLoan: 600000, minLoanOther: 600000, maxLoan: 1000000, bachelorCap: null, minSalary: 200000, note: 'Min 6 Lac | Max 10 Lac' }
+    { tier: 'Army Profile', minLoan: 610000, minLoanOther: 100000, maxLoan: 1000000, bachelorCap: null, minSalary: 25000, note: 'In Rajasthan 6.10 Lac | Max 10 Lac' }
   ],
   tenureRules: [
     { category: 'Super Prime', minMonths: 12, maxMonths: 72, description: 'Up to 6 Years (72 Months)' },
@@ -122,17 +106,15 @@ export const ICICI_BANK_EXCEL_POLICY = {
     { category: 'Elite', minMonths: 12, maxMonths: 72, description: 'Up to 6 Years (72 Months)' },
     { category: 'Open Market', minMonths: 12, maxMonths: 72, description: 'Up to 6 Years (72 Months)' },
     { category: 'Govt', minMonths: 12, maxMonths: 72, description: 'Up to 6 Years (72 Months)' },
-    { category: 'Army Profile', minMonths: 12, maxMonths: 72, description: 'Up to 6 Years (72 Months)' },
-    { category: 'NRI Case', minMonths: 12, maxMonths: 72, description: 'Up to 6 Years (72 Months)' }
+    { category: 'Army Profile', minMonths: 12, maxMonths: 72, description: 'Up to 6 Years (72 Months)' }
   ],
   foirMultiplier: [
-    { category: 'Super Prime', slab1Foir: 45, slab2Foir: 55, maxFoir: 65, hlFoir: 70, multiplier: 28, ccObligation: 5, note: '45% to 65% (HL Running: 70%)' },
-    { category: 'Preferred', slab1Foir: 45, slab2Foir: 55, maxFoir: 65, hlFoir: 70, multiplier: 27, ccObligation: 5, note: '45% to 65% (HL Running: 70%)' },
-    { category: 'Elite', slab1Foir: 45, slab2Foir: 55, maxFoir: 65, hlFoir: 70, multiplier: 25, ccObligation: 5, note: '45% to 65% (HL Running: 70%)' },
-    { category: 'Open Market', slab1Foir: 45, slab2Foir: 50, maxFoir: 55, hlFoir: 55, multiplier: 20, ccObligation: 5, note: '45% to 55%' },
-    { category: 'Govt', slab1Foir: 45, slab2Foir: 55, maxFoir: 65, hlFoir: 70, multiplier: 27, ccObligation: 5, note: '45% to 65% (HL Running: 70%)' },
-    { category: 'Army Profile', slab1Foir: 45, slab2Foir: 55, maxFoir: 65, hlFoir: 70, multiplier: 25, ccObligation: 5, note: '45% to 65% (HL Running: 70%)' },
-    { category: 'NRI Case', slab1Foir: 45, slab2Foir: 50, maxFoir: 60, hlFoir: 60, multiplier: 20, ccObligation: 5, note: '45% to 60%' }
+    { category: 'Super Prime', criteria: 'CIBIL 725-775 + 30K+ Sal', slab1Foir: 45, maxFoir: 65, hlFoir: 70, ccObligation: 5, note: 'Base 45%, Max 65%, HL Running Bonus: 70% (+5% bonus)' },
+    { category: 'Preferred', criteria: 'CIBIL 725-775 + 30K+ Sal', slab1Foir: 45, maxFoir: 65, hlFoir: 70, ccObligation: 5, note: 'Base 45%, Max 65%, HL Running Bonus: 70% (+5% bonus)' },
+    { category: 'Elite', criteria: 'CIBIL 725-775 + 30K+ Sal', slab1Foir: 45, maxFoir: 65, hlFoir: 70, ccObligation: 5, note: 'Base 45%, Max 65%, HL Running Bonus: 70% (+5% bonus)' },
+    { category: 'Govt', criteria: 'CIBIL 725-775 + 25K+ Sal', slab1Foir: 45, maxFoir: 65, hlFoir: 70, ccObligation: 5, note: 'Base 45%, Max 65%, HL Running Bonus: 70% (+5% bonus)' },
+    { category: 'Army Profile', criteria: 'CIBIL 725+ + 25K+ Sal', slab1Foir: 45, maxFoir: 65, hlFoir: 70, ccObligation: 5, note: 'Base 45%, Max 65%, HL Running Bonus: 70% (+5% bonus)' },
+    { category: 'Open Market', criteria: 'CIBIL 750+ + 50K+ Sal', slab1Foir: 45, maxFoir: 55, hlFoir: null, ccObligation: 5, note: 'Base 45%, Max 55% (HL Running Bonus Excluded)' }
   ],
   demographics: {
     minAge: 21,
@@ -144,7 +126,6 @@ export const ICICI_BANK_EXCEL_POLICY = {
     minSalaryGovt: 25000,
     minSalaryPvt: 30000,
     minSalaryOpenMarket: 75000,
-    minSalaryNri: 200000,
     minExperienceTotal: 12,
     minExperienceCurrent: 12,
     minCibilScore: 725,
