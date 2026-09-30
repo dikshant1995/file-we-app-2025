@@ -25,12 +25,12 @@ export const HDFC_BANK_EXCEL_POLICY = {
     { category: 'Govt', minMonths: 12, maxMonths: 84, description: 'Up to 7 Years (84 Months)' }
   ],
   foirMultiplier: [
-    { category: 'Super A', slab1Foir: 50, slab2Foir: 60, maxFoir: 70, multiplier: 27, ccObligation: 5 },
-    { category: 'A', slab1Foir: 50, slab2Foir: 60, maxFoir: 70, multiplier: 27, ccObligation: 5 },
-    { category: 'B', slab1Foir: 50, slab2Foir: 55, maxFoir: 65, multiplier: 25, ccObligation: 5 },
-    { category: 'C', slab1Foir: 40, slab2Foir: 45, maxFoir: 50, multiplier: 20, ccObligation: 5 },
-    { category: 'D', slab1Foir: 40, slab2Foir: 45, maxFoir: 50, multiplier: 20, ccObligation: 5 },
-    { category: 'Govt', slab1Foir: 50, slab2Foir: 60, maxFoir: 70, multiplier: 27, ccObligation: 5 }
+    { category: 'Super A', slab1Foir: 50, mult1: 19, mult1_35k: 22, slab2Foir: 60, mult2: 25, maxFoir: 70, mult3: 27, multiplier: 27, ccObligation: 5 },
+    { category: 'A', slab1Foir: 50, mult1: 19, mult1_35k: 22, slab2Foir: 60, mult2: 25, maxFoir: 70, mult3: 27, multiplier: 27, ccObligation: 5 },
+    { category: 'B', slab1Foir: 50, mult1: 15, mult1_35k: 18, slab2Foir: 55, mult2: 22, maxFoir: 65, mult3: 25, multiplier: 25, ccObligation: 5 },
+    { category: 'C', slab1Foir: 40, mult1: 12, mult1_35k: 15, slab2Foir: 45, mult2: 18, maxFoir: 50, mult3: 20, multiplier: 20, ccObligation: 5 },
+    { category: 'D', slab1Foir: 40, mult1: 12, mult1_35k: 15, slab2Foir: 45, mult2: 18, maxFoir: 50, mult3: 20, multiplier: 20, ccObligation: 5 },
+    { category: 'Govt', slab1Foir: 50, mult1: 19, mult1_35k: 22, slab2Foir: 60, mult2: 25, maxFoir: 70, mult3: 27, multiplier: 27, ccObligation: 5 }
   ],
   demographics: {
     minAge: 21,

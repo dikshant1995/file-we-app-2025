@@ -1801,7 +1801,7 @@ const UnifiedBankPolicyManager = () => {
                                 <div className="table-input-cell highlight">
                                   <input 
                                     type="number" step="0.01"
-                                    value={row.roiAbove20L ?? (row.category === 'C' ? 10.25 : 9.99)}
+                                    value={row.roiAbove20L ?? (row.category === 'C' || row.category === 'D' ? 10.25 : 9.99)}
                                     onChange={(e) => updateRate(row.category, 'roiAbove20L', Number(e.target.value))}
                                   />
                                   <span>%</span>
@@ -1811,7 +1811,7 @@ const UnifiedBankPolicyManager = () => {
                                 <div className="table-input-cell">
                                   <input 
                                     type="number" step="0.01"
-                                    value={row.roi15Lto20L ?? (row.category === 'C' ? 10.50 : 10.15)}
+                                    value={row.roi15Lto20L ?? (row.category === 'C' || row.category === 'D' ? 10.50 : 10.15)}
                                     onChange={(e) => updateRate(row.category, 'roi15Lto20L', Number(e.target.value))}
                                   />
                                   <span>%</span>
@@ -1821,7 +1821,7 @@ const UnifiedBankPolicyManager = () => {
                                 <div className="table-input-cell">
                                   <input 
                                     type="number" step="0.01"
-                                    value={row.roi10Lto15L ?? (row.category === 'C' ? 11.00 : 10.50)}
+                                    value={row.roi10Lto15L ?? (row.category === 'C' || row.category === 'D' ? 11.00 : 10.50)}
                                     onChange={(e) => updateRate(row.category, 'roi10Lto15L', Number(e.target.value))}
                                   />
                                   <span>%</span>
@@ -4061,6 +4061,14 @@ const UnifiedBankPolicyManager = () => {
                           <th style={{ color: '#c084fc' }}>&ge; ₹100k (FOIR / Mult)</th>
                           <th>Credit Card Obligation (ONLY PL BT)</th>
                         </>
+                      ) : (activeConfigBank?.id === 'hdfc' || activeConfigBank?.name?.toLowerCase().includes('hdfc')) ? (
+                        <>
+                          <th style={{ color: '#38bdf8', whiteSpace: 'nowrap', borderBottom: '2px solid rgba(56, 189, 248, 0.5)' }}>₹25K–₹35K (FOIR % / Mult)</th>
+                          <th style={{ color: '#38bdf8', whiteSpace: 'nowrap', borderBottom: '2px solid rgba(56, 189, 248, 0.5)' }}>₹35K–₹50K (FOIR % / Mult)</th>
+                          <th style={{ color: '#38bdf8', whiteSpace: 'nowrap', borderBottom: '2px solid rgba(56, 189, 248, 0.5)' }}>₹50K–₹75K (FOIR % / Mult)</th>
+                          <th style={{ color: '#38bdf8', whiteSpace: 'nowrap', borderBottom: '2px solid rgba(56, 189, 248, 0.5)' }}>≥ ₹75K Max (FOIR % / Mult)</th>
+                          <th>Credit Card Obligation (5%)</th>
+                        </>
                       ) : (activeConfigBank?.id === 'axis-bank' || activeConfigBank?.id === 'axis' || (activeConfigBank?.name?.toLowerCase().includes('axis') && !activeConfigBank?.name?.toLowerCase().includes('fin'))) ? (
                         <>
                           <th style={{ color: '#38bdf8', whiteSpace: 'nowrap', borderBottom: '2px solid rgba(56, 189, 248, 0.5)' }}>₹25K–₹35K (FOIR % / Mult)</th>
@@ -4727,6 +4735,149 @@ const UnifiedBankPolicyManager = () => {
                                   }}
                                 />
                                 <span>% (ONLY PL BT)</span>
+                              </div>
+                            </td>
+                          </>
+                        ) : (activeConfigBank?.id === 'hdfc' || activeConfigBank?.name?.toLowerCase().includes('hdfc')) ? (
+                          <>
+                            <td>
+                              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                <div className="table-input-cell" style={{ width: '85px' }}>
+                                  <input 
+                                    type="number"
+                                    value={row.slab1Foir ?? ((row.category === 'C' || row.category === 'D') ? 40 : 50)}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.foirMultiplier];
+                                      updated[idx].slab1Foir = val;
+                                      setPolicyData({ ...policyData, foirMultiplier: updated });
+                                    }}
+                                  />
+                                  <span>%</span>
+                                </div>
+                                <div className="table-input-cell" style={{ width: '75px', background: '#0b1329', border: '1.5px solid rgba(56, 189, 248, 0.45)' }}>
+                                  <input 
+                                    type="number"
+                                    style={{ color: '#38bdf8', fontWeight: 800 }}
+                                    value={row.mult1 ?? ((row.category === 'C' || row.category === 'D') ? 12 : (row.category === 'B' ? 15 : 19))}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.foirMultiplier];
+                                      updated[idx].mult1 = val;
+                                      setPolicyData({ ...policyData, foirMultiplier: updated });
+                                    }}
+                                  />
+                                  <span>x</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                <div className="table-input-cell" style={{ width: '85px' }}>
+                                  <input 
+                                    type="number"
+                                    value={row.slab1Foir ?? ((row.category === 'C' || row.category === 'D') ? 40 : 50)}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.foirMultiplier];
+                                      updated[idx].slab1Foir = val;
+                                      setPolicyData({ ...policyData, foirMultiplier: updated });
+                                    }}
+                                  />
+                                  <span>%</span>
+                                </div>
+                                <div className="table-input-cell" style={{ width: '75px', background: '#0b1329', border: '1.5px solid rgba(56, 189, 248, 0.45)' }}>
+                                  <input 
+                                    type="number"
+                                    style={{ color: '#38bdf8', fontWeight: 800 }}
+                                    value={row.mult1_35k ?? ((row.category === 'C' || row.category === 'D') ? 15 : (row.category === 'B' ? 18 : 22))}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.foirMultiplier];
+                                      updated[idx].mult1_35k = val;
+                                      setPolicyData({ ...policyData, foirMultiplier: updated });
+                                    }}
+                                  />
+                                  <span>x</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                <div className="table-input-cell" style={{ width: '85px' }}>
+                                  <input 
+                                    type="number"
+                                    value={row.slab2Foir ?? ((row.category === 'C' || row.category === 'D') ? 45 : (row.category === 'B' ? 55 : 60))}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.foirMultiplier];
+                                      updated[idx].slab2Foir = val;
+                                      setPolicyData({ ...policyData, foirMultiplier: updated });
+                                    }}
+                                  />
+                                  <span>%</span>
+                                </div>
+                                <div className="table-input-cell" style={{ width: '75px', background: '#0b1329', border: '1.5px solid rgba(56, 189, 248, 0.45)' }}>
+                                  <input 
+                                    type="number"
+                                    style={{ color: '#38bdf8', fontWeight: 800 }}
+                                    value={row.mult2 ?? ((row.category === 'C' || row.category === 'D') ? 18 : (row.category === 'B' ? 22 : 25))}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.foirMultiplier];
+                                      updated[idx].mult2 = val;
+                                      setPolicyData({ ...policyData, foirMultiplier: updated });
+                                    }}
+                                  />
+                                  <span>x</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                <div className="table-input-cell highlight" style={{ width: '85px' }}>
+                                  <input 
+                                    type="number"
+                                    value={row.maxFoir ?? ((row.category === 'C' || row.category === 'D') ? 50 : (row.category === 'B' ? 65 : 70))}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.foirMultiplier];
+                                      updated[idx].maxFoir = val;
+                                      setPolicyData({ ...policyData, foirMultiplier: updated });
+                                    }}
+                                  />
+                                  <span>%</span>
+                                </div>
+                                <div className="table-input-cell" style={{ width: '75px', background: '#0b1329', border: '1.5px solid rgba(56, 189, 248, 0.45)' }}>
+                                  <input 
+                                    type="number"
+                                    style={{ color: '#38bdf8', fontWeight: 800 }}
+                                    value={row.mult3 ?? row.multiplier ?? ((row.category === 'C' || row.category === 'D') ? 20 : (row.category === 'B' ? 25 : 27))}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...policyData.foirMultiplier];
+                                      updated[idx].mult3 = val;
+                                      updated[idx].multiplier = val;
+                                      setPolicyData({ ...policyData, foirMultiplier: updated });
+                                    }}
+                                  />
+                                  <span>x</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="table-input-cell">
+                                <input 
+                                  type="number"
+                                  value={row.ccObligation ?? 5}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const updated = [...policyData.foirMultiplier];
+                                    updated[idx].ccObligation = val;
+                                    setPolicyData({ ...policyData, foirMultiplier: updated });
+                                  }}
+                                />
+                                <span>% (5%)</span>
                               </div>
                             </td>
                           </>
