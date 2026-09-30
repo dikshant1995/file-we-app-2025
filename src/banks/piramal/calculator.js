@@ -232,10 +232,49 @@ export const calculatePiramalEligibility = (userData) => {
     return { eligible: false, reason: `Minimum NTH salary of ₹${piramalConfig.minNTH.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
   }
 
+// Helper function to get Ventile Band & Multipliers based on CIBIL Score range (700 to 800+)
+const getCibilVentileBand = (cibilScore) => {
+  const score = Number(cibilScore) || 0;
+  if (score >= 775) {
+    return { band: 'V13-V20', cibilRange: '775 – 800+', foir: 0.70, eliteMult: 30, catBCMult: 22, govtHighNmiMult: 20, govtLowNmiMult: 15, btGovtHighNmiMult: 24, othersMult: 18 };
+  } else if (score >= 750) {
+    return { band: 'V10-V12', cibilRange: '750 – 774', foir: 0.70, eliteMult: 24, catBCMult: 15, govtHighNmiMult: 15, govtLowNmiMult: 12, btGovtHighNmiMult: 18, othersMult: 12 };
+  } else if (score >= 730) {
+    return { band: 'V8-V9', cibilRange: '730 – 749', foir: 0.70, eliteMult: 15, catBCMult: 10, govtHighNmiMult: 8, govtLowNmiMult: 8, btGovtHighNmiMult: 10, othersMult: 8 };
+  } else if (score >= 700) {
+    return { band: 'V6-V7', cibilRange: '700 – 729', foir: 0.60, eliteMult: 9, catBCMult: 7.5, govtHighNmiMult: 6, govtLowNmiMult: 6, btGovtHighNmiMult: 7, othersMult: 6 };
+  } else {
+    return { band: 'NTC / V4-V5', cibilRange: '< 700 / NTC', foir: 0.55, eliteMult: 7.5, catBCMult: 6, govtHighNmiMult: 5, govtLowNmiMult: 5, btGovtHighNmiMult: 5, othersMult: 5 };
+  }
+};
+
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncomeForCalc;
 
-  // Logic Bridge: Support govtFOIR override
-  let foirPercentage = isGovtEmployee && govtFOIR ? (govtFOIR / 100) : getNTHBand(incomeForCalculation, piramalConfig.nthFoirTable);
+  // CIBIL Ventile Band Lookup (Replaces Internal Ventile Score with CIBIL Score 700-800+)
+  const cibilBandInfo = getCibilVentileBand(creditScore);
+  const catUpper = String(category || 'C').toUpperCase().trim();
+
+  let cibilMultiplier = cibilBandInfo.othersMult;
+  if (catUpper === 'SUPER A' || catUpper === 'A') {
+    cibilMultiplier = cibilBandInfo.eliteMult;
+  } else if (catUpper === 'B' || catUpper === 'C') {
+    cibilMultiplier = cibilBandInfo.catBCMult;
+  } else if (catUpper === 'GOVT') {
+    if (isBT && incomeForCalculation >= 60000) {
+      cibilMultiplier = cibilBandInfo.btGovtHighNmiMult;
+    } else if (incomeForCalculation >= 60000) {
+      cibilMultiplier = cibilBandInfo.govtHighNmiMult;
+    } else {
+      cibilMultiplier = cibilBandInfo.govtLowNmiMult;
+    }
+  }
+
+  const effectiveMultiplier = multiplierOverride ? Number(multiplierOverride) : cibilMultiplier;
+
+  // Logic Bridge: Support govtFOIR override or CIBIL Ventile FOIR
+  let foirPercentage = foirOverride 
+    ? (foirOverride / 100) 
+    : (isGovtEmployee && govtFOIR ? (govtFOIR / 100) : (cibilBandInfo.foir || getNTHBand(incomeForCalculation, piramalConfig.nthFoirTable) || 0.70));
 
   if (foirPercentage === null) {
     return { eligible: false, reason: `No FOIR available for NTH ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
@@ -255,8 +294,10 @@ export const calculatePiramalEligibility = (userData) => {
   // Pass 1: Preliminary ROI for initial calculation
   const baseRate = piramalConfig.interestRate;
 
-  // Calculate preliminary loan amount based on available EMI using base rate
-  const preliminaryLoanAmount = calculatePrincipalFromEMI(availableEMI, baseRate, cappedTenureYears);
+  // Calculate preliminary loan amount based on available EMI & Multiplier
+  const foirLoanAmountPrem = calculatePrincipalFromEMI(availableEMI, baseRate, cappedTenureYears);
+  const multLoanAmountPrem = incomeForCalculation * effectiveMultiplier;
+  const preliminaryLoanAmount = Math.min(foirLoanAmountPrem, multLoanAmountPrem);
 
   // Pass 2: Get final ROI based on preliminary loan amount
   let finalInterestRate = interestRateOverride || piramalConfig.interestRate;
@@ -265,11 +306,10 @@ export const calculatePiramalEligibility = (userData) => {
 
   const effectiveInterestRate = finalInterestRate;
 
-  const calculatedLoanAmount = calculatePrincipalFromEMI(
-    availableEMI,
-    effectiveInterestRate,
-    cappedTenureYears
-  );
+  const foirLoanAmountFinal = calculatePrincipalFromEMI(availableEMI, effectiveInterestRate, cappedTenureYears);
+  const multLoanAmountFinal = incomeForCalculation * effectiveMultiplier;
+
+  const calculatedLoanAmount = Math.min(foirLoanAmountFinal, multLoanAmountFinal);
 
   // Final loan amount is minimum of calculated and desired
   const finalLoanAmount = Math.min(

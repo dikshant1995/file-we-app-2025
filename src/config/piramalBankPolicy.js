@@ -32,13 +32,12 @@ export const PIRAMAL_BANK_EXCEL_POLICY = {
     { category: 'D', slab1Foir: 40, slab2Foir: 50, maxFoir: 55, multiplier: 15, ccObligation: 5 },
     { category: 'Govt', slab1Foir: 50, slab2Foir: 65, maxFoir: 70, multiplier: 24, ccObligation: 5 }
   ],
-  ventileBands: [
-    { band: 'NTC', lowFoir: 40, medFoir: 50, highFoir: 50, eliteMult: 7.5, catBCMult: 6, govtHighNmiMult: 5, govtLowNmiMult: 5, btGovtHighNmiMult: 5, othersMult: 5 },
-    { band: 'V4-V5', lowFoir: 40, medFoir: 50, highFoir: 55, eliteMult: 7.5, catBCMult: 6, govtHighNmiMult: 5, govtLowNmiMult: 5, btGovtHighNmiMult: 5, othersMult: 5 },
-    { band: 'V6-V7', lowFoir: 40, medFoir: 55, highFoir: 60, eliteMult: 9, catBCMult: 7.5, govtHighNmiMult: 6, govtLowNmiMult: 6, btGovtHighNmiMult: 7, othersMult: 6 },
-    { band: 'V8-V9', lowFoir: 50, medFoir: 65, highFoir: 70, eliteMult: 15, catBCMult: 10, govtHighNmiMult: 8, govtLowNmiMult: 8, btGovtHighNmiMult: 10, othersMult: 8 },
-    { band: 'V10-12', lowFoir: 50, medFoir: 65, highFoir: 70, eliteMult: 24, catBCMult: 15, govtHighNmiMult: 15, govtLowNmiMult: 12, btGovtHighNmiMult: 18, othersMult: 12 },
-    { band: 'V13-V20', lowFoir: 50, medFoir: 65, highFoir: 70, eliteMult: 30, catBCMult: 22, govtHighNmiMult: 20, govtLowNmiMult: 15, btGovtHighNmiMult: 24, othersMult: 18 }
+  cibilVentileBands: [
+    { cibilRange: '< 700 / NTC', ventileBand: 'NTC / V4-V5', minCibil: 0, maxCibil: 699, lowFoir: 40, medFoir: 50, highFoir: 55, eliteMult: 7.5, catBCMult: 6, govtHighNmiMult: 5, govtLowNmiMult: 5, btGovtHighNmiMult: 5, othersMult: 5 },
+    { cibilRange: '700 – 729', ventileBand: 'V6-V7', minCibil: 700, maxCibil: 729, lowFoir: 40, medFoir: 55, highFoir: 60, eliteMult: 9, catBCMult: 7.5, govtHighNmiMult: 6, govtLowNmiMult: 6, btGovtHighNmiMult: 7, othersMult: 6 },
+    { cibilRange: '730 – 749', ventileBand: 'V8-V9', minCibil: 730, maxCibil: 749, lowFoir: 50, medFoir: 65, highFoir: 70, eliteMult: 15, catBCMult: 10, govtHighNmiMult: 8, govtLowNmiMult: 8, btGovtHighNmiMult: 10, othersMult: 8 },
+    { cibilRange: '750 – 774', ventileBand: 'V10-V12', minCibil: 750, maxCibil: 774, lowFoir: 50, medFoir: 65, highFoir: 70, eliteMult: 24, catBCMult: 15, govtHighNmiMult: 15, govtLowNmiMult: 12, btGovtHighNmiMult: 18, othersMult: 12 },
+    { cibilRange: '775 – 800+', ventileBand: 'V13-V20', minCibil: 775, maxCibil: 900, lowFoir: 50, medFoir: 65, highFoir: 70, eliteMult: 30, catBCMult: 22, govtHighNmiMult: 20, govtLowNmiMult: 15, btGovtHighNmiMult: 24, othersMult: 18 }
   ],
   demographics: {
     minAge: 21,

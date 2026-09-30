@@ -3671,30 +3671,31 @@ const UnifiedBankPolicyManager = () => {
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38bdf8', fontWeight: 700, fontSize: '0.95rem' }}>
                     <CheckCircle2 size={18} />
-                    <span>Piramal Finance Ventile Band FOIR & Multiplier Matrix (from Excel: BANKS POLICYS.xlsx - Sheet: PIRAMAL)</span>
+                    <span>Piramal Finance CIBIL & Ventile Band FOIR & Multiplier Matrix (from Excel: BANKS POLICYS.xlsx - Sheet: PIRAMAL)</span>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem', color: '#e2e8f0' }}>
                     <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
-                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 FOIR Slabs by Ventile Band:</strong>
-                      <div style={{ marginTop: '5px' }}>• <strong>V13–V20 & V8–V12:</strong> Low: <strong>50%</strong> | Med: <strong>65%</strong> | High: <strong>70%</strong></div>
-                      <div style={{ marginTop: '3px' }}>• <strong>V6–V7:</strong> Low: <strong>40%</strong> | Med: <strong>55%</strong> | High: <strong>60%</strong></div>
-                      <div style={{ marginTop: '3px' }}>• <strong>NTC & V4–V5:</strong> Low: <strong>40%</strong> | Med: <strong>50%</strong> | High: <strong>50%–55%</strong></div>
+                      <strong style={{ color: '#38bdf8', fontSize: '0.88rem' }}>📌 FOIR Slabs by CIBIL Score Range:</strong>
+                      <div style={{ marginTop: '5px' }}>• <strong>775 – 800+ (V13–V20) & 750 – 774 (V10–V12) & 730 – 749 (V8–V9):</strong> Low: <strong>50%</strong> | Med: <strong>65%</strong> | High: <strong>70%</strong></div>
+                      <div style={{ marginTop: '3px' }}>• <strong>700 – 729 (V6–V7):</strong> Low: <strong>40%</strong> | Med: <strong>55%</strong> | High: <strong>60%</strong></div>
+                      <div style={{ marginTop: '3px' }}>• <strong>&lt; 700 / NTC (V4–V5):</strong> Low: <strong>40%</strong> | Med: <strong>50%</strong> | High: <strong>50%–55%</strong></div>
                     </div>
                     <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '10px 14px', borderRadius: '6px', border: '1px solid rgba(249, 115, 22, 0.25)' }}>
-                      <strong style={{ color: '#fdba74', fontSize: '0.88rem' }}>📌 Salary Multipliers by Profile:</strong>
-                      <div style={{ marginTop: '5px' }}>• <strong>Elite / Cat A:</strong> Up to <strong>30x</strong> (V13–V20), 24x (V10–12), 15x (V8–V9)</div>
-                      <div style={{ marginTop: '3px' }}>• <strong>Cat B / C:</strong> Up to <strong>22x</strong> (V13–V20), 15x (V10–12), 10x (V8–V9)</div>
+                      <strong style={{ color: '#fdba74', fontSize: '0.88rem' }}>📌 Multipliers by CIBIL Range (700-800+) & Profile:</strong>
+                      <div style={{ marginTop: '5px' }}>• <strong>Elite / Cat A:</strong> Up to <strong>30x</strong> (775–800+), 24x (750–774), 15x (730–749), 9x (700–729), 7.5x (&lt; 700)</div>
+                      <div style={{ marginTop: '3px' }}>• <strong>Cat B / C:</strong> Up to <strong>22x</strong> (775–800+), 15x (750–774), 10x (730–749), 7.5x (700–729), 6x (&lt; 700)</div>
                       <div style={{ marginTop: '3px' }}>• <strong>Govt (NMI ≥ ₹60k):</strong> <strong>20x</strong> | BT Govt: <strong>24x</strong></div>
                       <div style={{ marginTop: '3px', color: '#86efac' }}>• <strong>BT Policy:</strong> <strong>1 Personal Loan BT (1 PL BT) allowed along with up to 2 Credit Cards BT (2 CC BT)</strong> (Excel: <code>2 CC BT ALLOW WITH 1 PL BT</code>)</div>
                     </div>
                   </div>
 
                   <div style={{ marginTop: '6px' }}>
-                    <div style={{ color: '#93c5fd', fontSize: '0.86rem', marginBottom: '6px', fontWeight: 600 }}>Master Ventile Matrix Table (Excel Sheet: PIRAMAL)</div>
+                    <div style={{ color: '#93c5fd', fontSize: '0.86rem', marginBottom: '6px', fontWeight: 600 }}>Master CIBIL Score Range & Ventile Matrix Table (Excel Sheet: PIRAMAL)</div>
                     <div className="table-responsive">
                       <table className="policy-table" style={{ fontSize: '0.80rem' }}>
                         <thead>
                           <tr>
+                            <th>CIBIL Score Range</th>
                             <th>Ventile Band</th>
                             <th>Low FOIR</th>
                             <th>Medium FOIR</th>
@@ -3709,14 +3710,14 @@ const UnifiedBankPolicyManager = () => {
                         </thead>
                         <tbody>
                           {[
-                            { band: 'NTC', low: '40%', med: '50%', high: '50%', elite: '7.5x', bc: '6x', gHigh: '5x', gLow: '5x', btG: '5x', oth: '5x' },
-                            { band: 'V4-V5', low: '40%', med: '50%', high: '55%', elite: '7.5x', bc: '6x', gHigh: '5x', gLow: '5x', btG: '5x', oth: '5x' },
-                            { band: 'V6-V7', low: '40%', med: '55%', high: '60%', elite: '9x', bc: '7.5x', gHigh: '6x', gLow: '6x', btG: '7x', oth: '6x' },
-                            { band: 'V8-V9', low: '50%', med: '65%', high: '70%', elite: '15x', bc: '10x', gHigh: '8x', gLow: '8x', btG: '10x', oth: '8x' },
-                            { band: 'V10-12', low: '50%', med: '65%', high: '70%', elite: '24x', bc: '15x', gHigh: '15x', gLow: '12x', btG: '18x', oth: '12x' },
-                            { band: 'V13-V20', low: '50%', med: '65%', high: '70%', elite: '30x', bc: '22x', gHigh: '20x', gLow: '15x', btG: '24x', oth: '18x' }
+                            { cibil: '< 700 / NTC', band: 'NTC / V4-V5', low: '40%', med: '50%', high: '50%-55%', elite: '7.5x', bc: '6x', gHigh: '5x', gLow: '5x', btG: '5x', oth: '5x' },
+                            { cibil: '700 – 729', band: 'V6-V7', low: '40%', med: '55%', high: '60%', elite: '9x', bc: '7.5x', gHigh: '6x', gLow: '6x', btG: '7x', oth: '6x' },
+                            { cibil: '730 – 749', band: 'V8-V9', low: '50%', med: '65%', high: '70%', elite: '15x', bc: '10x', gHigh: '8x', gLow: '8x', btG: '10x', oth: '8x' },
+                            { cibil: '750 – 774', band: 'V10-V12', low: '50%', med: '65%', high: '70%', elite: '24x', bc: '15x', gHigh: '15x', gLow: '12x', btG: '18x', oth: '12x' },
+                            { cibil: '775 – 800+', band: 'V13-V20', low: '50%', med: '65%', high: '70%', elite: '30x', bc: '22x', gHigh: '20x', gLow: '15x', btG: '24x', oth: '18x' }
                           ].map((vb, vidx) => (
                             <tr key={vidx}>
+                              <td><strong style={{ color: '#fbbf24' }}>{vb.cibil}</strong></td>
                               <td><strong style={{ color: '#38bdf8' }}>{vb.band}</strong></td>
                               <td>{vb.low}</td>
                               <td>{vb.med}</td>
