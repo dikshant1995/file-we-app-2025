@@ -12,9 +12,10 @@ import { piramalConfig } from './piramal/config.js';
 import { indusindConfig } from './indusind/config.js';
 import { idfcConfig } from './idfc/config.js';
 import { smfgConfig } from './smfg/config.js';
+import { abflConfig } from './abfl/config.js';
 
 // Re-export individual configs
-export { kotakConfig, hdfcConfig, iciciConfig, bandhanConfig, cholaConfig, tataConfig, poonawalaConfig, axisFinConfig, shriRamConfig, piramalConfig, indusindConfig, idfcConfig, smfgConfig };
+export { kotakConfig, hdfcConfig, iciciConfig, bandhanConfig, cholaConfig, tataConfig, poonawalaConfig, axisFinConfig, shriRamConfig, piramalConfig, indusindConfig, idfcConfig, smfgConfig, abflConfig };
 
 // Export all bank configurations as an array
 export const allBankConfigs = [
@@ -30,5 +31,6 @@ export const allBankConfigs = [
   piramalConfig,
   indusindConfig,
   idfcConfig,
-  smfgConfig
+  smfgConfig,
+  abflConfig
 ];

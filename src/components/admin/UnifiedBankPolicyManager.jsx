@@ -4686,6 +4686,358 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               )}
 
+              {(activeConfigBank?.id === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('aditya') || activeConfigBank?.name?.toLowerCase().includes('abfl')) && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(166, 25, 46, 0.18) 0%, rgba(30, 41, 59, 0.95) 100%)',
+                  border: '1.5px solid rgba(166, 25, 46, 0.45)',
+                  borderRadius: '10px',
+                  padding: '20px',
+                  marginBottom: '24px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '20px',
+                  color: '#e2e8f0'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <CheckCircle2 size={22} color="#f87171" />
+                      <h3 style={{ margin: 0, color: '#f87171', fontSize: '1.15rem', fontWeight: 700 }}>
+                        Aditya Birla Finance Ltd (ABFL) Complete Master Policy
+                      </h3>
+                    </div>
+                    <span style={{ fontSize: '0.8rem', background: 'rgba(166, 25, 46, 0.2)', color: '#fca5a5', padding: '4px 12px', borderRadius: '4px', border: '1px solid rgba(166, 25, 46, 0.4)', fontWeight: 600 }}>
+                      Salary Multiplier &amp; PL Progressive Programs • Enhanced Cap up to ₹65 Lacs
+                    </span>
+                  </div>
+
+                  {/* Table 1: Demographic and Age Eligibility Criteria */}
+                  <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(166, 25, 46, 0.3)' }}>
+                    <div style={{ fontWeight: 700, color: '#f87171', fontSize: '0.92rem', marginBottom: '10px' }}>
+                      📋 Table 1: Demographic and Age Eligibility Criteria
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '10px', fontSize: '0.84rem' }}>
+                      <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '10px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                        <span style={{ color: '#94a3b8' }}>Age Range:</span> <strong>21 to 60 Years (Retirement: 60 Years)</strong>
+                      </div>
+                      <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '10px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                        <span style={{ color: '#94a3b8' }}>Min Salary Thresholds:</span><br/>
+                        • Tier 1: <strong>₹40,000</strong> | Tier 2: <strong>₹35,000</strong><br/>
+                        • Tier 3: <strong>₹25,000</strong> | Tier 4: <strong>₹20,000</strong>
+                      </div>
+                      <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '10px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                        <span style={{ color: '#94a3b8' }}>Work Experience:</span> <strong>Minimum 1 Year (12 Months)</strong>
+                      </div>
+                      <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '10px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                        <span style={{ color: '#94a3b8' }}>Credit Card &amp; BT Rules:</span><br/>
+                        • <strong>5% CC Obligation</strong> | <strong>5 CC BT Allowed</strong><br/>
+                        • <strong>Max CC BT = 6x Monthly Salary</strong> | <strong>KCC Not Obligated</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Table 2: FOIR Policy Matrix (NO HL vs EVER HL/LAP) */}
+                  <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+                    <div style={{ fontWeight: 700, color: '#38bdf8', fontSize: '0.92rem', marginBottom: '8px' }}>
+                      📊 Table 2: FOIR Policy Matrix (NO HL vs EVER HL/LAP) (Editable)
+                    </div>
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', fontSize: '0.84rem', borderCollapse: 'collapse', textAlign: 'center' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
+                            <th style={{ padding: '6px 10px', textAlign: 'left' }}>Income Band (Eligible Income Prior Annual Bonus)</th>
+                            <th style={{ padding: '6px 10px', color: '#38bdf8' }}>FOIR % (NO HL)</th>
+                            <th style={{ padding: '6px 10px', color: '#4ade80' }}>FOIR % (EVER HL/LAP)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(policyData?.abflFoirMatrix || [
+                            { label: 'Up to ₹25,000', foirNoHl: 50, foirEverHl: 50 },
+                            { label: '₹25,001 to ₹50,000', foirNoHl: 60, foirEverHl: 60 },
+                            { label: '₹50,001 to ₹75,000', foirNoHl: 65, foirEverHl: 70 },
+                            { label: '₹75,001 to ₹1,00,000', foirNoHl: 65, foirEverHl: 70 },
+                            { label: 'Above ₹1,00,000', foirNoHl: 70, foirEverHl: 75 }
+                          ]).map((row, rIdx) => (
+                            <tr key={rIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                              <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600, color: '#fbbf24' }}>{row.label}</td>
+                              <td style={{ padding: '6px 10px' }}>
+                                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                                  <input
+                                    type="number"
+                                    style={{ width: '60px', background: 'rgba(15, 23, 42, 0.85)', border: '1px solid rgba(56, 189, 248, 0.35)', borderRadius: '4px', color: '#38bdf8', padding: '3px 5px', fontSize: '0.84rem', textAlign: 'center', fontWeight: 700 }}
+                                    value={row.foirNoHl ?? ''}
+                                    onChange={(e) => {
+                                      const val = parseFloat(e.target.value);
+                                      const current = policyData?.abflFoirMatrix || [];
+                                      const updated = JSON.parse(JSON.stringify(current));
+                                      updated[rIdx].foirNoHl = val;
+                                      setPolicyData({ ...policyData, abflFoirMatrix: updated });
+                                    }}
+                                  />%
+                                </div>
+                              </td>
+                              <td style={{ padding: '6px 10px' }}>
+                                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                                  <input
+                                    type="number"
+                                    style={{ width: '60px', background: 'rgba(15, 23, 42, 0.85)', border: '1px solid rgba(74, 222, 128, 0.35)', borderRadius: '4px', color: '#4ade80', padding: '3px 5px', fontSize: '0.84rem', textAlign: 'center', fontWeight: 700 }}
+                                    value={row.foirEverHl ?? ''}
+                                    onChange={(e) => {
+                                      const val = parseFloat(e.target.value);
+                                      const current = policyData?.abflFoirMatrix || [];
+                                      const updated = JSON.parse(JSON.stringify(current));
+                                      updated[rIdx].foirEverHl = val;
+                                      setPolicyData({ ...policyData, abflFoirMatrix: updated });
+                                    }}
+                                  />%
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Table 3: Tenure and Repayment Windows */}
+                  <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(251, 191, 36, 0.3)' }}>
+                    <div style={{ fontWeight: 700, color: '#fbbf24', fontSize: '0.92rem', marginBottom: '8px' }}>
+                      ⏳ Table 3: Tenure and Repayment Windows
+                    </div>
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', fontSize: '0.84rem', borderCollapse: 'collapse', textAlign: 'left' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
+                            <th style={{ padding: '6px 10px' }}>Categorisation</th>
+                            <th style={{ padding: '6px 10px' }}>Applied Loan Tenure</th>
+                            <th style={{ padding: '6px 10px' }}>Tenure for Eligibility Calculation</th>
+                            <th style={{ padding: '6px 10px' }}>Min Tenure</th>
+                            <th style={{ padding: '6px 10px', color: '#38bdf8' }}>Max Tenure (TL / OD)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {[
+                            { cat: 'EMERGING / ELITE', applied: '<= 60 Months', calc: 'Actual Tenure minus 12 Months', min: '12 Months', max: '84 Months (TL) / 96 Months (OD)' },
+                            { cat: 'ELITE', applied: '61 - 72 Months', calc: 'Policy eligibility rules apply', min: '12 Months', max: '84 Months (TL) / 96 Months (OD)' },
+                            { cat: 'ELITE', applied: '73 - 84 Months', calc: '84 Months applied is eligible for 72 Months', min: '12 Months', max: '84 Months (TL) / 96 Months (OD)' }
+                          ].map((tRow, tIdx) => (
+                            <tr key={tIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                              <td style={{ padding: '6px 10px', fontWeight: 700, color: '#e2e8f0' }}>{tRow.cat}</td>
+                              <td style={{ padding: '6px 10px', color: '#fbbf24' }}>{tRow.applied}</td>
+                              <td style={{ padding: '6px 10px', color: '#94a3b8' }}>{tRow.calc}</td>
+                              <td style={{ padding: '6px 10px' }}>{tRow.min}</td>
+                              <td style={{ padding: '6px 10px', color: '#38bdf8', fontWeight: 600 }}>{tRow.max}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Table 4: Maximum Loan Amount Matrix & Enhanced Cap */}
+                  <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(52, 211, 153, 0.3)' }}>
+                    <div style={{ fontWeight: 700, color: '#34d399', fontSize: '0.92rem', marginBottom: '8px' }}>
+                      💰 Table 4: Maximum Loan Amount Matrix (Company Cat vs Risk Segment) (Editable)
+                    </div>
+                    <div style={{ overflowX: 'auto', marginBottom: '12px' }}>
+                      <table style={{ width: '100%', fontSize: '0.84rem', borderCollapse: 'collapse', textAlign: 'center' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
+                            <th style={{ padding: '6px 10px', textAlign: 'left' }}>Company Cat</th>
+                            <th style={{ padding: '6px 10px', color: '#4ade80' }}>VLR</th>
+                            <th style={{ padding: '6px 10px', color: '#38bdf8' }}>LR</th>
+                            <th style={{ padding: '6px 10px', color: '#fbbf24' }}>MR</th>
+                            <th style={{ padding: '6px 10px', color: '#f87171' }}>HR</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(policyData?.abflMaxLoanMatrix || [
+                            { category: 'A', vlr: 50, lr: 50, mr: 40, hr: 40 },
+                            { category: 'B', vlr: 40, lr: 40, mr: 40, hr: 40 },
+                            { category: 'C', vlr: 40, lr: 40, mr: 35, hr: 30 },
+                            { category: 'D', vlr: 30, lr: 25, mr: 15, hr: 10 },
+                            { category: 'NC / Others', vlr: 8, lr: 8, mr: 5, hr: 5 }
+                          ]).map((row, rIdx) => (
+                            <tr key={rIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                              <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 700, color: '#e2e8f0' }}>{row.category}</td>
+                              {['vlr', 'lr', 'mr', 'hr'].map((segKey) => (
+                                <td key={segKey} style={{ padding: '6px 10px' }}>
+                                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                                    <input
+                                      type="number"
+                                      style={{ width: '55px', background: 'rgba(15, 23, 42, 0.85)', border: '1px solid rgba(52, 211, 153, 0.35)', borderRadius: '4px', color: '#e2e8f0', padding: '3px 5px', fontSize: '0.84rem', textAlign: 'center', fontWeight: 700 }}
+                                      value={row[segKey] ?? ''}
+                                      onChange={(e) => {
+                                        const val = parseFloat(e.target.value);
+                                        const current = policyData?.abflMaxLoanMatrix || [];
+                                        const updated = JSON.parse(JSON.stringify(current));
+                                        updated[rIdx][segKey] = val;
+                                        setPolicyData({ ...policyData, abflMaxLoanMatrix: updated });
+                                      }}
+                                    /> Lakhs
+                                  </div>
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <div style={{ fontSize: '0.82rem', color: '#94a3b8', background: 'rgba(15, 23, 42, 0.5)', padding: '10px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                      • <strong>Minimum Loan Thresholds:</strong> Employer Cat A &amp; B = <strong>₹10 Lacs</strong> | Cat C, D, NC, Proprietorship, Partnership, LLP = <strong>₹5 Lacs</strong> | Overall Min = <strong>₹1 Lac</strong><br/>
+                      • <strong style={{ color: '#4ade80' }}>Enhanced Maximum Loan (Up to ₹65 Lacs):</strong> Applicable if ALL met: (1) Cat A &amp; VLR/LR segment, (2) CIBIL &gt;= 755 &amp; Ever HL = True, (3) Income &gt;= ₹2.5 Lacs, (4) No DPD in 36M on loans &amp; 12M on cards.
+                    </div>
+                  </div>
+
+                  {/* Table 5: Salary Multiplier Program ROI Matrix */}
+                  <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(166, 25, 46, 0.35)' }}>
+                    <div style={{ fontWeight: 700, color: '#f87171', fontSize: '0.92rem', marginBottom: '8px' }}>
+                      📈 Table 5: Salary Multiplier Program ROI Matrix (Tier 1/2 vs Tier 3/4)
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '14px' }}>
+                      {/* Tier 1 / 2 */}
+                      <div>
+                        <div style={{ fontWeight: 700, color: '#38bdf8', fontSize: '0.84rem', marginBottom: '6px' }}>Tier 1 / 2 Cities</div>
+                        <table style={{ width: '100%', fontSize: '0.8rem', borderCollapse: 'collapse', textAlign: 'center' }}>
+                          <thead>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
+                              <th style={{ padding: '4px', textAlign: 'left' }}>Cat / Income</th>
+                              <th style={{ padding: '4px' }}>&lt;= 5L</th>
+                              <th style={{ padding: '4px' }}>5L - 25L</th>
+                              <th style={{ padding: '4px' }}>&gt; 25L</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[
+                              { cat: 'A/B', inc: '<=50k', l1: '14.70%', l2: '14.45%', l3: '13.45%' },
+                              { cat: 'A/B', inc: '50k-75k', l1: '14.20%', l2: '13.95%', l3: '12.95%' },
+                              { cat: 'A/B', inc: '>75k', l1: '13.85%', l2: '13.60%', l3: '12.60%' },
+                              { cat: 'C', inc: '<=50k', l1: '15.65%', l2: '15.40%', l3: '14.40%' },
+                              { cat: 'C', inc: '50k-75k', l1: '15.15%', l2: '14.90%', l3: '13.90%' },
+                              { cat: 'C', inc: '>75k', l1: '14.80%', l2: '14.55%', l3: '13.55%' },
+                              { cat: 'D', inc: '<=50k', l1: '15.80%', l2: '15.55%', l3: '14.55%' },
+                              { cat: 'D', inc: '50k-75k', l1: '15.30%', l2: '15.05%', l3: '14.05%' },
+                              { cat: 'D', inc: '>75k', l1: '14.95%', l2: '14.70%', l3: '13.70%' },
+                              { cat: 'Others', inc: '<=50k', l1: '16.20%', l2: '15.95%', l3: '14.95%' },
+                              { cat: 'Others', inc: '50k-75k', l1: '15.70%', l2: '15.45%', l3: '14.45%' },
+                              { cat: 'Others', inc: '>75k', l1: '15.35%', l2: '15.10%', l3: '14.10%' }
+                            ].map((mRow, mIdx) => (
+                              <tr key={mIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                                <td style={{ padding: '4px', textAlign: 'left', fontWeight: 600 }}>{mRow.cat} ({mRow.inc})</td>
+                                <td style={{ padding: '4px', color: '#e2e8f0' }}>{mRow.l1}</td>
+                                <td style={{ padding: '4px', color: '#fbbf24' }}>{mRow.l2}</td>
+                                <td style={{ padding: '4px', color: '#4ade80', fontWeight: 700 }}>{mRow.l3}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Tier 3 / 4 */}
+                      <div>
+                        <div style={{ fontWeight: 700, color: '#fbbf24', fontSize: '0.84rem', marginBottom: '6px' }}>Tier 3 / 4 Cities (+0.75% Premium)</div>
+                        <table style={{ width: '100%', fontSize: '0.8rem', borderCollapse: 'collapse', textAlign: 'center' }}>
+                          <thead>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
+                              <th style={{ padding: '4px', textAlign: 'left' }}>Cat / Income</th>
+                              <th style={{ padding: '4px' }}>&lt;= 5L</th>
+                              <th style={{ padding: '4px' }}>5L - 25L</th>
+                              <th style={{ padding: '4px' }}>&gt; 25L</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[
+                              { cat: 'A/B', inc: '<=50k', l1: '15.45%', l2: '15.20%', l3: '14.20%' },
+                              { cat: 'A/B', inc: '50k-75k', l1: '14.95%', l2: '14.70%', l3: '13.70%' },
+                              { cat: 'A/B', inc: '>75k', l1: '14.60%', l2: '14.35%', l3: '13.35%' },
+                              { cat: 'C', inc: '<=50k', l1: '16.40%', l2: '16.15%', l3: '15.15%' },
+                              { cat: 'C', inc: '50k-75k', l1: '15.90%', l2: '15.65%', l3: '14.65%' },
+                              { cat: 'C', inc: '>75k', l1: '15.55%', l2: '15.30%', l3: '14.30%' },
+                              { cat: 'D', inc: '<=50k', l1: '16.55%', l2: '16.30%', l3: '15.30%' },
+                              { cat: 'D', inc: '50k-75k', l1: '16.05%', l2: '16.00%', l3: '14.80%' },
+                              { cat: 'D', inc: '>75k', l1: '15.70%', l2: '15.45%', l3: '14.45%' },
+                              { cat: 'Others', inc: '<=50k', l1: '16.95%', l2: '16.70%', l3: '15.70%' },
+                              { cat: 'Others', inc: '50k-75k', l1: '16.45%', l2: '16.20%', l3: '15.20%' },
+                              { cat: 'Others', inc: '>75k', l1: '16.10%', l2: '15.85%', l3: '14.85%' }
+                            ].map((mRow, mIdx) => (
+                              <tr key={mIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                                <td style={{ padding: '4px', textAlign: 'left', fontWeight: 600 }}>{mRow.cat} ({mRow.inc})</td>
+                                <td style={{ padding: '4px', color: '#e2e8f0' }}>{mRow.l1}</td>
+                                <td style={{ padding: '4px', color: '#fbbf24' }}>{mRow.l2}</td>
+                                <td style={{ padding: '4px', color: '#4ade80', fontWeight: 700 }}>{mRow.l3}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Table 6: PL Progressive Program ROI Matrix */}
+                  <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(192, 132, 252, 0.3)' }}>
+                    <div style={{ fontWeight: 700, color: '#c084fc', fontSize: '0.92rem', marginBottom: '8px' }}>
+                      📊 Table 6: PL Progressive Program ROI Matrix
+                    </div>
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', fontSize: '0.8rem', borderCollapse: 'collapse', textAlign: 'center' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
+                            <th style={{ padding: '5px', textAlign: 'left' }}>Company Category</th>
+                            <th style={{ padding: '5px' }}>Income Range</th>
+                            <th style={{ padding: '5px', color: '#38bdf8' }}>Tier 1/2 (&lt;=4L)</th>
+                            <th style={{ padding: '5px', color: '#4ade80' }}>Tier 1/2 (&gt;4L)</th>
+                            <th style={{ padding: '5px', color: '#fbbf24' }}>Tier 3/4 (&lt;=4L)</th>
+                            <th style={{ padding: '5px', color: '#f87171' }}>Tier 3/4 (&gt;4L)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {[
+                            { cat: 'A & B', inc: '<= 25k', t1l: '18.95%', t1h: '17.95%', t3l: '19.70%', t3h: '18.70%' },
+                            { cat: 'A & B', inc: '25k - 30k', t1l: '18.45%', t1h: '17.45%', t3l: '19.20%', t3h: '18.20%' },
+                            { cat: 'A & B', inc: '> 30k', t1l: '17.95%', t1h: '16.95%', t3l: '18.70%', t3h: '17.70%' },
+                            { cat: 'C & D', inc: '<= 25k', t1l: '19.70%', t1h: '18.70%', t3l: '20.45%', t3h: '19.45%' },
+                            { cat: 'C & D', inc: '25k - 30k', t1l: '19.20%', t1h: '18.20%', t3l: '19.95%', t3h: '18.95%' },
+                            { cat: 'C & D', inc: '> 30k', t1l: '18.70%', t1h: '17.70%', t3l: '19.45%', t3h: '18.45%' },
+                            { cat: 'Others', inc: '<= 25k', t1l: '20.30%', t1h: '19.30%', t3l: '21.05%', t3h: '20.05%' },
+                            { cat: 'Others', inc: '25k - 30k', t1l: '19.80%', t1h: '18.80%', t3l: '20.55%', t3h: '19.55%' },
+                            { cat: 'Others', inc: '> 30k', t1l: '19.30%', t1h: '18.30%', t3l: '20.05%', t3h: '19.05%' }
+                          ].map((pRow, pIdx) => (
+                            <tr key={pIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                              <td style={{ padding: '5px', textAlign: 'left', fontWeight: 600 }}>{pRow.cat}</td>
+                              <td style={{ padding: '5px', color: '#94a3b8' }}>{pRow.inc}</td>
+                              <td style={{ padding: '5px', color: '#38bdf8' }}>{pRow.t1l}</td>
+                              <td style={{ padding: '5px', color: '#4ade80', fontWeight: 700 }}>{pRow.t1h}</td>
+                              <td style={{ padding: '5px', color: '#fbbf24' }}>{pRow.t3l}</td>
+                              <td style={{ padding: '5px', color: '#f87171' }}>{pRow.t3h}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Table 7: Additional ROI Risk & Booking Add-ons */}
+                  <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+                    <div style={{ fontWeight: 700, color: '#38bdf8', fontSize: '0.92rem', marginBottom: '8px' }}>
+                      🏷️ Table 7: Additional ROI Risk &amp; Booking Add-ons
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '12px', fontSize: '0.84rem' }}>
+                      <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '10px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                        <strong style={{ color: '#38bdf8' }}>Booking Add-ons:</strong>
+                        <div style={{ marginTop: '5px' }}>• Hybrid DL OD / DL OD: <strong style={{ color: '#fbbf24' }}>+1.00% Premium</strong></div>
+                        <div style={{ marginTop: '3px' }}>• Paperless BT: <strong style={{ color: '#fbbf24' }}>+1.00% Premium</strong></div>
+                      </div>
+                      <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '10px', borderRadius: '6px', border: '1px solid rgba(248, 113, 113, 0.2)' }}>
+                        <strong style={{ color: '#f87171' }}>Bureau Risk Premium Bands:</strong>
+                        <div style={{ marginTop: '5px' }}>• 810+: <strong>+0.00%</strong> | 786 - 810: <strong>+0.00% to +0.60%</strong></div>
+                        <div style={{ marginTop: '3px' }}>• 746 - 785: <strong>+0.65% to +1.60%</strong> | 701 - 745: <strong>+2.25% to +2.40%</strong></div>
+                        <div style={{ marginTop: '3px', color: '#f87171' }}>• LT 700 / NTC: <strong>+3.15% to +3.30%</strong></div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              )}
+
               {(activeConfigBank?.id === 'icici' || activeConfigBank?.name?.toLowerCase().includes('icici')) && (
                 <div style={{
                   background: 'linear-gradient(135deg, rgba(237, 28, 36, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%)',
@@ -5094,7 +5446,7 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               )}
 
-              {!(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg') || activeConfigBank?.id === 'piramal' || activeConfigBank?.name?.toLowerCase().includes('piramal') || activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('bandhan') || activeConfigBank?.id === 'incred' || activeConfigBank?.name?.toLowerCase().includes('incred') || activeConfigBank?.id === 'axis-fin' || activeConfigBank?.id === 'axis_fin' || activeConfigBank?.id === 'poonawala' || activeConfigBank?.name?.toLowerCase().includes('poonawala') || activeConfigBank?.id === 'tata' || activeConfigBank?.name?.toLowerCase().includes('tata') || (activeConfigBank?.name?.toLowerCase().includes('axis') && activeConfigBank?.name?.toLowerCase().includes('fin'))) && (
+              {!(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg') || activeConfigBank?.id === 'piramal' || activeConfigBank?.name?.toLowerCase().includes('piramal') || activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('bandhan') || activeConfigBank?.id === 'incred' || activeConfigBank?.name?.toLowerCase().includes('incred') || activeConfigBank?.id === 'axis-fin' || activeConfigBank?.id === 'axis_fin' || activeConfigBank?.id === 'poonawala' || activeConfigBank?.name?.toLowerCase().includes('poonawala') || activeConfigBank?.id === 'tata' || activeConfigBank?.name?.toLowerCase().includes('tata') || activeConfigBank?.id === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('aditya') || activeConfigBank?.name?.toLowerCase().includes('abfl') || (activeConfigBank?.name?.toLowerCase().includes('axis') && activeConfigBank?.name?.toLowerCase().includes('fin'))) && (
                 <div className="table-responsive">
                 <table className="policy-table">
                   <thead>

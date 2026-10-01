@@ -12,8 +12,7 @@ import { calculatePiramalEligibility } from './piramal/calculator.js';
 import { calculateIndusindEligibility } from './indusind/calculator.js';
 import { calculateIdfcEligibility } from './idfc/calculator.js';
 import { calculateSmfgEligibility } from './smfg/calculator.js';
-// import { calculateBajajFinanceEligibility } from './bajaj-finance/calculator.js';
-// import { calculateLntFinanceEligibility } from './lnt-finance/calculator.js';
+import { calculateAbflEligibility } from './abfl/calculator.js';
 
 // Export all calculators in an array
 export const bankCalculators = [
@@ -30,8 +29,7 @@ export const bankCalculators = [
   calculateIndusindEligibility,
   calculateIdfcEligibility,
   calculateSmfgEligibility,
-  // calculateBajajFinanceEligibility,
-  // calculateLntFinanceEligibility
+  calculateAbflEligibility
 ];
 
 export {
@@ -47,5 +45,6 @@ export {
   calculatePiramalEligibility,
   calculateIndusindEligibility,
   calculateIdfcEligibility,
-  calculateSmfgEligibility
+  calculateSmfgEligibility,
+  calculateAbflEligibility
 };
