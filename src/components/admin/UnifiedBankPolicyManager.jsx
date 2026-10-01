@@ -31,13 +31,11 @@ const INITIAL_12_BANKS = [
   { id: 'cholamandalam', name: 'Cholamandalam Finance', color: '#F37021', minRate: 13.75, maxLoan: 3000000, maxTenure: 84, enabled: true },
   { id: 'axis-fin', name: 'Axis Finance', color: '#800000', minRate: 13.50, maxLoan: 2500000, maxTenure: 84, enabled: true },
   { id: 'indusind', name: 'IndusInd Bank', color: '#005596', minRate: 9.99, maxLoan: 7500000, maxTenure: 84, enabled: true },
-  { id: 'shri-ram', name: 'Shri Ram Finance', color: '#1F4E78', minRate: 12.5, maxLoan: 2000000, maxTenure: 48, enabled: true },
   { id: 'piramal', name: 'Piramal Finance', color: '#1F4E78', minRate: 11.99, maxLoan: 5000000, maxTenure: 72, enabled: true },
   // Additional Banks & NBFCs from Master Policy
   { id: 'axis-bank', name: 'Axis Bank', color: '#97144D', minRate: 9.99, maxLoan: 5000000, maxTenure: 84, enabled: true },
   { id: 'lnt', name: 'L&T Finance', color: '#004F9E', minRate: 10.99, maxLoan: 3000000, maxTenure: 72, enabled: true },
   { id: 'smfg', name: 'SMFG India Credit', color: '#002D62', minRate: 17.00, maxLoan: 3000000, maxTenure: 60, enabled: true },
-  { id: 'bajaj', name: 'Bajaj Finance', color: '#0072BB', minRate: 10.0, maxLoan: 5000000, maxTenure: 96, enabled: true },
   { id: 'incred', name: 'Incred Finance', color: '#F37023', minRate: 13.49, maxLoan: 1500000, maxTenure: 60, enabled: true },
   { id: 'au-bank', name: 'AU Small Finance Bank', color: '#6F2C91', minRate: 11.5, maxLoan: 1500000, maxTenure: 60, enabled: true },
   { id: 'abfl', name: 'Aditya Birla Finance', color: '#A6192E', minRate: 11.50, maxLoan: 5000000, maxTenure: 84, enabled: true },

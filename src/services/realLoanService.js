@@ -179,14 +179,12 @@ export const calculateLoanEligibility = async (userData) => {
     { id: 'chola', name: 'Cholamandalam Finance', calculator: calculateCholaEligibility, config: cholaConfig, hasDatabase: true },
     { id: 'axis', name: 'Axis Finance', calculator: calculateAxisFinEligibility, config: axisFinConfig, hasDatabase: true },
     { id: 'indusind', name: 'IndusInd Bank', calculator: calculateIndusindEligibility, config: indusindConfig, hasDatabase: true },
-    { id: 'shriram', name: 'Shri Ram Finance', calculator: calculateShriRamEligibility, config: shriRamConfig, hasDatabase: false },
     { id: 'piramal', name: 'Piramal Finance', calculator: calculatePiramalEligibility, config: piramalConfig, hasDatabase: false },
 
-    // 8 Additional Banks & NBFCs from Master Excel Policy
+    // Additional Banks & NBFCs from Master Excel Policy
     { id: 'axis-bank', name: 'Axis Bank', calculator: calculateUnifiedBankEligibility, config: { name: 'Axis Bank', maxLoanCap: 5000000, defaultRate: 9.99 }, hasDatabase: true },
     { id: 'lnt', name: 'L&T Finance', calculator: calculateUnifiedBankEligibility, config: { name: 'L&T Finance', maxLoanCap: 3000000, defaultRate: 11.5 }, hasDatabase: false },
     { id: 'smfg', name: 'SMFG India Credit', calculator: calculateSmfgEligibility, config: smfgConfig, hasDatabase: false },
-    { id: 'bajaj', name: 'Bajaj Finance', calculator: calculateBajajEligibility, config: bajajConfig, hasDatabase: true },
     { id: 'incred', name: 'Incred Finance', calculator: calculateIncredEligibility, config: incredConfig, hasDatabase: false },
     { id: 'au-bank', name: 'AU Small Finance Bank', calculator: calculateAuEligibility, config: auConfig, hasDatabase: false },
     { id: 'abfl', name: 'Aditya Birla Finance', calculator: calculateUnifiedBankEligibility, config: { name: 'Aditya Birla Finance', maxLoanCap: 5000000, defaultRate: 11.25 }, hasDatabase: false },
