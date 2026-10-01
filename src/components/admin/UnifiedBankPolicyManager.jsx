@@ -1523,6 +1523,7 @@ const UnifiedBankPolicyManager = () => {
             const isSmfg = bankId === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg');
             const isAu = bankId === 'au-bank' || bankId === 'au' || activeConfigBank?.name?.toLowerCase().includes('au ');
             const isIncred = bankId === 'incred' || activeConfigBank?.name?.toLowerCase().includes('incred');
+            const isFinnable = bankId === 'finnable' || activeConfigBank?.name?.toLowerCase().includes('finnable');
 
             const rawRates = policyData?.interestRates || [];
             // Banks that don't have Cat D in ROI: HDFC, IndusInd, Axis, Tata
@@ -1756,6 +1757,48 @@ const UnifiedBankPolicyManager = () => {
                           <div style={{ marginTop: '3px' }}>• 746 - 785: <strong>+0.65% to +1.60%</strong> | 701 - 745: <strong>+2.25% to +2.40%</strong></div>
                           <div style={{ marginTop: '3px', color: '#f87171' }}>• LT 700 / NTC: <strong>+3.15% to +3.30%</strong></div>
                         </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : isFinnable ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.35)' }}>
+                      <div style={{ fontWeight: 700, color: '#34d399', fontSize: '0.95rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <CheckCircle2 size={18} />
+                        <span>Finnable Finance Ltd Rate of Interest (ROI) &amp; Processing Fee Matrix</span>
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: '#cbd5e1', marginBottom: '12px' }}>
+                        • <strong>Interest Rate Range:</strong> 22.00% to 36.00% p.a.<br/>
+                        • <strong>Processing Fee (PF) Range:</strong> 2.00% to 6.00%
+                      </div>
+                      <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', fontSize: '0.84rem', borderCollapse: 'collapse', textAlign: 'center' }}>
+                          <thead>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
+                              <th style={{ padding: '6px 10px', textAlign: 'left' }}>Company Category</th>
+                              <th style={{ padding: '6px 10px', color: '#34d399' }}>Minimum ROI (% p.a.)</th>
+                              <th style={{ padding: '6px 10px', color: '#f87171' }}>Maximum ROI (% p.a.)</th>
+                              <th style={{ padding: '6px 10px', color: '#38bdf8' }}>Default Applied ROI</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[
+                              { category: 'Super A', min: '22.00%', max: '36.00%', def: '22.00%' },
+                              { category: 'Category A', min: '22.00%', max: '36.00%', def: '22.00%' },
+                              { category: 'Category B', min: '24.00%', max: '36.00%', def: '24.00%' },
+                              { category: 'Category C', min: '26.00%', max: '36.00%', def: '26.00%' },
+                              { category: 'Category D', min: '28.00%', max: '36.00%', def: '28.00%' },
+                              { category: 'Govt Employees', min: '22.00%', max: '36.00%', def: '22.00%' }
+                            ].map((rRow, rIdx) => (
+                              <tr key={rIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                                <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>{rRow.category}</td>
+                                <td style={{ padding: '6px 10px', color: '#34d399', fontWeight: 600 }}>{rRow.min}</td>
+                                <td style={{ padding: '6px 10px', color: '#f87171' }}>{rRow.max}</td>
+                                <td style={{ padding: '6px 10px', color: '#38bdf8', fontWeight: 700 }}>{rRow.def}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
                     </div>
                   </div>
@@ -3290,7 +3333,75 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               )}
 
-              {(activeConfigBank?.id === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('birla') || activeConfigBank?.name?.toLowerCase().includes('abfl')) ? (
+              {(activeConfigBank?.id === 'finnable' || activeConfigBank?.name?.toLowerCase().includes('finnable')) ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {/* Table 2: CIBIL Score & Risk Matrix */}
+                  <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.35)' }}>
+                    <div style={{ fontWeight: 700, color: '#34d399', fontSize: '0.95rem', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <CheckCircle2 size={18} />
+                      <span>Table 2: CIBIL Score &amp; Risk Matrix (Finnable Policy)</span>
+                    </div>
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', fontSize: '0.84rem', borderCollapse: 'collapse', textAlign: 'center' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
+                            <th style={{ padding: '8px 10px', textAlign: 'left' }}>Criteria / Parameter</th>
+                            <th style={{ padding: '8px 10px', color: '#34d399' }}>CIBIL Score 700+</th>
+                            <th style={{ padding: '8px 10px', color: '#fbbf24' }}>NTC (-1 / &lt;700)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>Finnable Internal Score Threshold</td>
+                            <td style={{ padding: '6px 10px', color: '#94a3b8' }}>N/A (Standard)</td>
+                            <td style={{ padding: '6px 10px', color: '#fbbf24', fontWeight: 700 }}>&ge; 600 Score Required</td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>Minimum Loan Amount</td>
+                            <td style={{ padding: '6px 10px' }}>₹50,000</td>
+                            <td style={{ padding: '6px 10px' }}>₹50,000</td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>Maximum Loan Amount</td>
+                            <td style={{ padding: '6px 10px', color: '#34d399', fontWeight: 700 }}>₹10,00,000 (₹10 Lakhs)</td>
+                            <td style={{ padding: '6px 10px', color: '#fbbf24', fontWeight: 700 }}>₹4,00,000 (₹4 Lakhs Cap)</td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>Minimum Tenure</td>
+                            <td style={{ padding: '6px 10px' }}>6 Months</td>
+                            <td style={{ padding: '6px 10px' }}>6 Months</td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>Maximum Tenure</td>
+                            <td style={{ padding: '6px 10px', color: '#34d399', fontWeight: 700 }}>60 Months (5 Years)</td>
+                            <td style={{ padding: '6px 10px', color: '#fbbf24', fontWeight: 700 }}>36 Months (3 Years Cap)</td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>Minimum &amp; Maximum Age</td>
+                            <td style={{ padding: '6px 10px' }}>21 at login / 55 login / 60 maturity</td>
+                            <td style={{ padding: '6px 10px' }}>21 at login / 55 login / 60 maturity</td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>Salary Requirement</td>
+                            <td style={{ padding: '6px 10px', color: '#38bdf8' }}>₹20k Tier 1 | ₹15k Tier 2</td>
+                            <td style={{ padding: '6px 10px', color: '#38bdf8' }}>₹20k Tier 1 | ₹15k Tier 2</td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>Documents Required</td>
+                            <td style={{ padding: '6px 10px', fontSize: '0.8rem' }}>Latest 3 Payslips/Letterhead, Aadhaar, PAN, 3/6M Bank Stmt</td>
+                            <td style={{ padding: '6px 10px', fontSize: '0.8rem' }}>Latest 3 Payslips/Letterhead, Aadhaar, PAN, 3/6M Bank Stmt</td>
+                          </tr>
+                          <tr>
+                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>Verification Note</td>
+                            <td style={{ padding: '6px 10px', color: '#f87171' }}>Verify Form 16 if Loan Amount &ge; ₹5 Lakhs</td>
+                            <td style={{ padding: '6px 10px', color: '#f87171' }}>Verify Form 16 if Loan Amount &ge; ₹5 Lakhs</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              ) : (activeConfigBank?.id === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('birla') || activeConfigBank?.name?.toLowerCase().includes('abfl')) ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {/* Table 4: Maximum Loan Amount Matrix */}
                   <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(166, 25, 46, 0.35)' }}>
@@ -3645,7 +3756,45 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               )}
 
-              {(activeConfigBank?.id === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('birla') || activeConfigBank?.name?.toLowerCase().includes('abfl')) ? (
+              {(activeConfigBank?.id === 'finnable' || activeConfigBank?.name?.toLowerCase().includes('finnable')) ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.35)' }}>
+                    <div style={{ fontWeight: 700, color: '#34d399', fontSize: '0.95rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <CheckCircle2 size={18} />
+                      <span>Finnable Finance Ltd Tenure &amp; Repayment Windows</span>
+                    </div>
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', fontSize: '0.84rem', borderCollapse: 'collapse', textAlign: 'center' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
+                            <th style={{ padding: '6px 10px', textAlign: 'left' }}>Bureau Segment / Score</th>
+                            <th style={{ padding: '6px 10px' }}>Min Tenure</th>
+                            <th style={{ padding: '6px 10px', color: '#34d399' }}>Max Tenure (Months)</th>
+                            <th style={{ padding: '6px 10px', color: '#38bdf8' }}>Max Tenure (Years)</th>
+                            <th style={{ padding: '6px 10px' }}>Policy Notes</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600, color: '#34d399' }}>CIBIL Score 700+</td>
+                            <td style={{ padding: '6px 10px' }}>6 Months</td>
+                            <td style={{ padding: '6px 10px', color: '#34d399', fontWeight: 700 }}>60 Months</td>
+                            <td style={{ padding: '6px 10px', color: '#38bdf8' }}>5 Years</td>
+                            <td style={{ padding: '6px 10px', color: '#94a3b8' }}>Standard maximum tenure window</td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600, color: '#fbbf24' }}>NTC (-1 / &lt;700)</td>
+                            <td style={{ padding: '6px 10px' }}>6 Months</td>
+                            <td style={{ padding: '6px 10px', color: '#fbbf24', fontWeight: 700 }}>36 Months</td>
+                            <td style={{ padding: '6px 10px', color: '#38bdf8' }}>3 Years</td>
+                            <td style={{ padding: '6px 10px', color: '#fbbf24' }}>Capped to 36 Months for new-to-credit</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              ) : (activeConfigBank?.id === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('birla') || activeConfigBank?.name?.toLowerCase().includes('abfl')) ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {/* Table 3: Tenure and Repayment Windows */}
                   <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(166, 25, 46, 0.35)' }}>
@@ -5430,7 +5579,62 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               )}
 
-              {!(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg') || activeConfigBank?.id === 'piramal' || activeConfigBank?.name?.toLowerCase().includes('piramal') || activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('bandhan') || activeConfigBank?.id === 'incred' || activeConfigBank?.name?.toLowerCase().includes('incred') || activeConfigBank?.id === 'axis-fin' || activeConfigBank?.id === 'axis_fin' || activeConfigBank?.id === 'poonawala' || activeConfigBank?.name?.toLowerCase().includes('poonawala') || activeConfigBank?.id === 'tata' || activeConfigBank?.name?.toLowerCase().includes('tata') || activeConfigBank?.id === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('aditya') || activeConfigBank?.name?.toLowerCase().includes('abfl') || (activeConfigBank?.name?.toLowerCase().includes('axis') && activeConfigBank?.name?.toLowerCase().includes('fin'))) && (
+              {(activeConfigBank?.id === 'finnable' || activeConfigBank?.name?.toLowerCase().includes('finnable')) && (
+                <div style={{ marginBottom: '24px' }}>
+                  <div style={{
+                    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(59, 130, 246, 0.15) 100%)',
+                    border: '1.5px solid rgba(16, 185, 129, 0.4)',
+                    borderRadius: '8px',
+                    padding: '12px 16px',
+                    marginBottom: '16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '6px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#34d399', fontWeight: 700, fontSize: '0.98rem' }}>
+                      <CheckCircle2 size={18} />
+                      <span>Finnable Finance Ltd Table 5: Employment Checks &amp; Company Type Eligibility Matrix</span>
+                    </div>
+                    <div style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>
+                      • <strong>Allowed Entities (With PF):</strong> Public Ltd, Pvt Ltd, LLP, Partnership, Sole Proprietorship, Schools, Colleges, Hospital, NGO, HUF.<br />
+                      • <strong>Sole Proprietorship Zone Restrictions:</strong> Allowed in West and South zones only (Maharashtra, Gujarat, Goa, Karnataka, TN, AP, Telangana, Kerala).
+                    </div>
+                  </div>
+
+                  <div className="table-responsive">
+                    <table className="policy-table" style={{ width: '100%', fontSize: '0.86rem', borderCollapse: 'collapse' }}>
+                      <thead>
+                        <tr>
+                          <th style={{ background: 'rgba(16, 185, 129, 0.85)', color: '#fff', textTransform: 'uppercase', textAlign: 'center', fontSize: '0.95rem', letterSpacing: '0.5px' }} colSpan={2}>
+                            Table 5: Employment Checks &amp; Company Type Eligibility
+                          </th>
+                        </tr>
+                        <tr>
+                          <th style={{ color: '#38bdf8', width: '35%' }}>Company Type / Category</th>
+                          <th style={{ color: '#34d399' }}>Allowed Conditions &amp; Rules</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[
+                          { entity: 'Allowed Entities (With PF)', rule: 'Public Ltd, Pvt Ltd, LLP, Partnership, Sole Proprietorship, Schools, Colleges, Hospital, NGO, HUF (Hindu Undivided Family with PF).' },
+                          { entity: 'Sole Proprietorship Zone Restrictions', rule: 'Allowed in West and South zones only.' },
+                          { entity: 'Pvt Ltd / Public Ltd / LLP (With PF)', rule: '3 salary credits from 2 different companies allowed with PF (PF must be validated for both companies).' },
+                          { entity: 'Pvt Ltd / Public Ltd / LLP (Without PF)', rule: '3 salary credits from the same company are mandatory.' },
+                          { entity: 'Sole Prop / Partnership / HUF (With PF)', rule: '3 salary credits from the same company are mandatory.' },
+                          { entity: 'Sole Prop / Partnership (Without PF)', rule: '6 salary credits from the same company are mandatory.' }
+                        ].map((row, idx) => (
+                          <tr key={idx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ fontWeight: 600, color: '#f87171', padding: '10px 12px' }}>{row.entity}</td>
+                            <td style={{ color: '#e2e8f0', padding: '10px 12px', lineHeight: '1.4' }}>{row.rule}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {!(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg') || activeConfigBank?.id === 'piramal' || activeConfigBank?.name?.toLowerCase().includes('piramal') || activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('bandhan') || activeConfigBank?.id === 'incred' || activeConfigBank?.name?.toLowerCase().includes('incred') || activeConfigBank?.id === 'axis-fin' || activeConfigBank?.id === 'axis_fin' || activeConfigBank?.id === 'poonawala' || activeConfigBank?.name?.toLowerCase().includes('poonawala') || activeConfigBank?.id === 'tata' || activeConfigBank?.name?.toLowerCase().includes('tata') || activeConfigBank?.id === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('aditya') || activeConfigBank?.name?.toLowerCase().includes('abfl') || (activeConfigBank?.name?.toLowerCase().includes('axis') && activeConfigBank?.name?.toLowerCase().includes('fin')) || activeConfigBank?.id === 'finnable' || activeConfigBank?.name?.toLowerCase().includes('finnable')) && (
                 <div className="table-responsive">
                 <table className="policy-table">
                   <thead>
@@ -7558,6 +7762,52 @@ const UnifiedBankPolicyManager = () => {
                   </tbody>
                 </table>
               </div>
+
+              {(activeConfigBank?.id === 'finnable' || activeConfigBank?.name?.toLowerCase().includes('finnable')) && (
+                <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  {/* Table 3: Tier 1 City Classification */}
+                  <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(56, 189, 248, 0.35)' }}>
+                    <div style={{ fontWeight: 700, color: '#38bdf8', fontSize: '0.95rem', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <CheckCircle2 size={18} />
+                      <span>Table 3: Finnable Finance Tier 1 City Classification Matrix</span>
+                    </div>
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', fontSize: '0.84rem', borderCollapse: 'collapse', textAlign: 'left' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
+                            <th style={{ padding: '8px 12px', width: '30%', color: '#38bdf8' }}>Region / Zone</th>
+                            <th style={{ padding: '8px 12px', color: '#34d399' }}>Included Cities / Areas (Tier 1 Salary Threshold ₹20,000)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {[
+                            { zone: 'NCR & North', cities: 'Delhi, Delhi NCR, East Delhi, Gautam Buddh Nagar, Gurugram, New Delhi, Noida' },
+                            { zone: 'Mumbai Region', cities: 'Dombivli, Kalyan, Karjat, Mira Bhayandar, Mumbai, Navi Mumbai, Panvel' },
+                            { zone: 'South & Others', cities: 'Bangalore, Bangalore Rural, Bengaluru, Chennai, Hyderabad, Secunderabad' }
+                          ].map((cRow, cIdx) => (
+                            <tr key={cIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                              <td style={{ padding: '8px 12px', fontWeight: 600, color: '#fbbf24' }}>{cRow.zone}</td>
+                              <td style={{ padding: '8px 12px', color: '#e2e8f0' }}>{cRow.cities}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Table 4: Negative Profiles (Restricted Occupations) */}
+                  <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(248, 113, 113, 0.35)' }}>
+                    <div style={{ fontWeight: 700, color: '#f87171', fontSize: '0.95rem', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <AlertTriangle size={18} />
+                      <span>Table 4: Negative Profiles (Restricted Occupations)</span>
+                    </div>
+                    <div style={{ fontSize: '0.84rem', color: '#cbd5e1', lineHeight: '1.6', background: 'rgba(239, 68, 68, 0.1)', padding: '12px', borderRadius: '6px', border: '1px solid rgba(239, 68, 68, 0.25)' }}>
+                      <strong style={{ color: '#f87171' }}>Restricted Occupations &amp; Designations:</strong><br />
+                      Army, Bar Manager, Bishop, Border Security Force (BSF), Court Assistant, CRPF, Delivery Boy, Delivery Partner, Diamond Cutter, Fitness Coach, Fitness Manager, Fitness Trainee, Freelancer, Granthi, Gurudwara Manager, Gym Owner, Gym Trainer, Helper, Imam, Indian Navy, Jeweler, Jewelry Consultant, Labor, Lawyer, Lineman, Majdoor, Media, Missionary, Mufti, OWN BUSINESS, OWNER, Pandit, Pastor, Police, Political Parties, Porter, Priest, PROPRIETOR, Purohit, Self Employed, Trackman, Security Guard, Safai KaramChari, PEON, and other 4th-grade designations.
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

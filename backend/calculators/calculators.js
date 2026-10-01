@@ -13,6 +13,7 @@ import { calculateIndusindEligibility } from './indusind/calculator.js';
 import { calculateIdfcEligibility } from './idfc/calculator.js';
 import { calculateSmfgEligibility } from './smfg/calculator.js';
 import { calculateAbflEligibility } from './abfl/calculator.js';
+import { calculateFinnableEligibility } from './finnable/calculator.js';
 
 // Export all calculators in an array
 export const bankCalculators = [
@@ -29,7 +30,8 @@ export const bankCalculators = [
   calculateIndusindEligibility,
   calculateIdfcEligibility,
   calculateSmfgEligibility,
-  calculateAbflEligibility
+  calculateAbflEligibility,
+  calculateFinnableEligibility
 ];
 
 export {
@@ -46,5 +48,6 @@ export {
   calculateIndusindEligibility,
   calculateIdfcEligibility,
   calculateSmfgEligibility,
-  calculateAbflEligibility
+  calculateAbflEligibility,
+  calculateFinnableEligibility
 };
