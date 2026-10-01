@@ -94,27 +94,6 @@ const MainMasterPortal = ({ onAdminClick }) => {
               </span>
             </div>
             <div className="portal-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <Link
-                to="/admin"
-                className="portal-admin-btn"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                  color: '#475569',
-                  textDecoration: 'none',
-                  padding: '7px 16px',
-                  borderRadius: '20px',
-                  background: '#f1f5f9',
-                  border: '1px solid #e2e8f0',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <Lock size={13} style={{ color: '#f58220' }} />
-                <span>Admin Dashboard</span>
-              </Link>
             </div>
           </div>
         </header>

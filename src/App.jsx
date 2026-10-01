@@ -101,12 +101,6 @@ function App() {
           >
             <Activity size={16} /> <span className="text-xs sm:text-sm">Analyzer</span>
           </button>
-          <button 
-            onClick={() => setView('admin')}
-            className={`nav-btn flex-1 md:flex-none justify-center whitespace-nowrap ${view === 'admin' ? 'active' : ''}`}
-          >
-            <Building2 size={16} /> <span className="text-xs sm:text-sm">Admin</span>
-          </button>
         </div>
       </nav>
 

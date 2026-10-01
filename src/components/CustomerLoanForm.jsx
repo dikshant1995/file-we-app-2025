@@ -49,6 +49,7 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
       .filter(l => l.type !== 'Credit Card')
       .map(l => ({
         id: l.id || Date.now() + Math.random(),
+        loanType: l.loanType || (l.type === 'Home Loan' ? 'hl' : (l.type === 'Other Loan' ? 'other' : 'pl')),
         outstandingAmount: l.outstandingAmount || '',
         monthlyEMI: l.monthlyEMI || '',
         lender: l.lender || ''
@@ -237,6 +238,7 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
         ...prev.existingLoans,
         {
           id: Date.now() + Math.random(),
+          loanType: 'pl',
           outstandingAmount: '',
           monthlyEMI: '',
           lender: ''
@@ -429,8 +431,9 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
       return sum + (creditLimitUsed * 0.05);
     }, 0);
 
-    // Extract existing loan bank names (for checking if customer already has loan from same bank)
-    const existingLoanBanks = (formData.hasExistingLoans ? formData.existingLoans : [])
+    // Extract existing loan bank names and loan types
+    const activeLoans = formData.hasExistingLoans ? formData.existingLoans : [];
+    const existingLoanBanks = activeLoans
       .filter(loan =>
         loan.lender &&
         loan.lender.trim() !== '' &&
@@ -438,10 +441,21 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
       )
       .map(loan => loan.lender.trim().toLowerCase());
 
+    const existingLoanTypes = activeLoans.map(loan => {
+      if (loan.loanType === 'hl' || loan.type === 'Home Loan') return 'Home Loan';
+      if (loan.loanType === 'other' || loan.type === 'Other Loan') return 'Other Loan';
+      return 'Personal Loan';
+    });
+
+    const hasHlOrLap = activeLoans.some(loan => loan.loanType === 'hl' || loan.type === 'Home Loan');
+
     // Prepare loans and credit cards selected for Balance Transfer
-    const selectedLoans = (formData.hasExistingLoans ? formData.existingLoans : [])
+    const selectedLoans = activeLoans
       .filter(loan => formData.selectedLoansForBT.includes(loan.id))
-      .map(loan => ({ ...loan, type: 'Personal Loan' }));
+      .map(loan => ({ 
+        ...loan, 
+        type: loan.loanType === 'hl' ? 'Home Loan' : (loan.loanType === 'other' ? 'Other Loan' : 'Personal Loan')
+      }));
 
     const selectedCards = activeCreditCards
       .filter(card => formData.selectedLoansForBT.includes(card.id))
@@ -456,10 +470,12 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
     // DEBUG: Log extracted bank names
     console.log('='.repeat(80));
     console.log('🔍 EXISTING LIABILITIES CHECK:');
-    console.log('Existing loans count:', formData.hasExistingLoans ? formData.existingLoans.length : 0);
+    console.log('Existing loans count:', activeLoans.length);
     console.log('Credit cards count:', activeCreditCards.length);
     console.log('Total Existing EMI (Loans):', totalExistingEMI);
     console.log('Internal CC Obligation (5%):', Math.round(totalCreditCardObligation));
+    console.log('Existing Loan Types:', existingLoanTypes);
+    console.log('Has Home Loan / LAP:', hasHlOrLap);
     console.log('Loans/Cards selected for BT:', loansForBT.length);
     console.log('='.repeat(80));
 
@@ -484,6 +500,13 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
         isBT: formData.wantsBT && formData.selectedLoansForBT.includes(card.id)
       })),
       existingLoanBanks: existingLoanBanks,
+      existingLoanTypes: existingLoanTypes,
+      hasHlOrLap: hasHlOrLap,
+      existingLoans: activeLoans.map(loan => ({
+        ...loan,
+        loanType: loan.loanType || 'pl',
+        type: loan.loanType === 'hl' ? 'Home Loan' : (loan.loanType === 'other' ? 'Other Loan' : 'Personal Loan')
+      })),
       wantsBT: formData.wantsBT,
       selectedLoansForBT: formData.wantsBT ? formData.selectedLoansForBT : [],
       loansForBT: loansForBT,
@@ -1150,11 +1173,26 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
 
                 <div className="loan-fields">
                   <div className="form-group">
+                    <label>Loan Type <span className="required">*</span></label>
+                    <select
+                      value={loan.loanType || 'pl'}
+                      onChange={(e) => handleLoanChange(loan.id, 'loanType', e.target.value)}
+                      required
+                      style={{ color: '#111827', WebkitTextFillColor: '#111827', backgroundColor: '#ffffff', fontWeight: 600 }}
+                    >
+                      <option value="pl">Personal Loan (PL)</option>
+                      <option value="hl">Home Loan (HL)</option>
+                      <option value="other">Any Other Loan</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
                     <label>Current Lender <span className="required">*</span></label>
                     <select
                       value={loan.lender}
                       onChange={(e) => handleLoanChange(loan.id, 'lender', e.target.value)}
                       required
+                      style={{ color: '#111827', WebkitTextFillColor: '#111827', backgroundColor: '#ffffff', fontWeight: 600 }}
                     >
                       <option value="">-- Select Bank / NBFC --</option>
                       {LENDER_OPTIONS.map(opt => (
