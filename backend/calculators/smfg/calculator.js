@@ -2,6 +2,7 @@
 // Strictly adheres to Master Excel Policy (BANKS POLICYS.xlsx - Sheet: SMFG)
 
 import { smfgConfig } from './config.js';
+import { getBankConfig } from '../../utils/configHelper.js';
 
 // Calculate monthly EMI using standard formula
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
@@ -29,48 +30,68 @@ const calculatePrincipalFromEMI = (emi, annualInterestRate, tenureInYears) => {
   return Math.round(principal);
 };
 
-// Helper: Determine ROI from Excel Sheet: SMFG based on Net Income Band & Category (Section 2)
-const getSmfgROI = (monthlyIncome, category) => {
-  let catKey = 'A';
-  const c = String(category || '').toUpperCase();
-  if (c.includes('SUPER') || c === 'A' || c.includes('GOVT')) catKey = 'A';
-  else if (c === 'B') catKey = 'B';
-  else if (c === 'C') catKey = 'C';
-  else if (c === 'D') catKey = 'D';
-  else if (c === 'E') catKey = 'E';
+// Helper to parse work experience in months
+const parseWorkExperienceMonths = (userData) => {
+  if (userData.workExperience === 'below_3m') return 2;
+  if (userData.workExperience === '3m_to_24m') return 12;
+  if (userData.workExperience === 'above_24m') return 25;
 
-  const roundedSal = Math.round(monthlyIncome);
-  for (const row of smfgConfig.roiMatrix) {
-    if (roundedSal >= row.minSalary && roundedSal <= row.maxSalary) {
-      return row[catKey] ?? 17.0;
-    }
+  const val = userData.workExperienceMonths ?? userData.workExperience ?? userData.totalWorkExperience ?? userData.currentCompanyExperience;
+  if (val !== undefined && val !== null && !isNaN(Number(val)) && Number(val) >= 0) {
+    return Number(val);
   }
-
-  return 17.0; // Default lowest rate for high salary (>100k)
+  return 25; // Default to eligible (> 2 years) if unspecified
 };
 
-// Helper: Determine FOIR & Multiplier from Excel Sheet: SMFG (Section 3: FOIR & Multiplier)
-// Excel: As per com cat and profile base (Cat A/Govt gets maxMult, Cat B gets mid, Cat C/D gets minMult)
-const getSmfgFoirAndMultiplier = (monthlyIncome, category = 'B', companyType = '') => {
-  const roundedSal = Math.round(monthlyIncome);
+// Helper: Determine ROI from Excel Sheet: SMFG based purely on Net Salary Slabs (Category Independent)
+const getSmfgROI = (monthlyIncome) => {
+  const roundedSal = Math.round(monthlyIncome || 0);
+
+  if (roundedSal >= 100001) return 17.00;
+  if (roundedSal >= 75001) return 18.50;
+  if (roundedSal >= 50001) return 18.50;
+  if (roundedSal >= 40001) return 19.00;
+  if (roundedSal >= 35001) return 19.50;
+  if (roundedSal >= 30001) return 21.50;
+  if (roundedSal >= 25000) return 23.00;
+  return 24.00; // < 25K
+};
+
+// Helper: Determine FOIR & Multiplier from Dynamic Admin Slabs or Excel Policy
+const getSmfgFoirAndMultiplier = (monthlyIncome, companyType = '', configData = null) => {
+  const roundedSal = Math.round(monthlyIncome || 0);
   let baseFoir = 0.70;
-  let multiplier = 25;
+  let multiplier = 30;
 
-  const c = String(category || '').toUpperCase();
-  const isHighTier = c.includes('SUPER') || c === 'A' || c.includes('GOVT');
-  const isMidTier = c === 'B';
-
-  for (const slab of smfgConfig.salaryFoirSlabs) {
-    if (roundedSal >= slab.minSalary && roundedSal <= slab.maxSalary) {
-      baseFoir = slab.foir;
-      if (isHighTier) {
-        multiplier = slab.maxMult;
-      } else if (isMidTier) {
-        multiplier = Math.round((slab.minMult + slab.maxMult) / 2);
-      } else {
-        multiplier = slab.minMult;
-      }
-      break;
+  const slabs = configData?.salaryBandsFoirAndMultiplier;
+  if (Array.isArray(slabs) && slabs.length > 0) {
+    const match = slabs.find(s => roundedSal >= Number(s.minSalary) && roundedSal <= Number(s.maxSalary));
+    if (match) {
+      baseFoir = Number(match.maxFoir) / 100;
+      multiplier = Number(match.multiplier);
+    }
+  } else {
+    if (roundedSal < 25000) {
+      baseFoir = 0.00;
+      multiplier = 0;
+    } else if (roundedSal <= 30000) {
+      baseFoir = 0.60;
+      multiplier = 13;
+    } else if (roundedSal <= 35000) {
+      baseFoir = 0.65;
+      multiplier = 16;
+    } else if (roundedSal <= 40000) {
+      baseFoir = 0.70;
+      multiplier = 18;
+    } else if (roundedSal <= 50000) {
+      baseFoir = 0.70;
+      multiplier = 20;
+    } else if (roundedSal <= 75000) {
+      baseFoir = 0.70;
+      multiplier = 25;
+    } else {
+      baseFoir = 0.70;
+      multiplier = 30;
     }
   }
 
@@ -80,7 +101,7 @@ const getSmfgFoirAndMultiplier = (monthlyIncome, category = 'B', companyType = '
                       compUpper.includes('PARTNERSHIP') || 
                       compUpper.includes('LLP') ||
                       compUpper.includes('PARTNER');
-  if (isPropOrLlp) {
+  if (isPropOrLlp && baseFoir > 0) {
     baseFoir = Math.min(baseFoir, smfgConfig.propPartLlpMaxFoir);
   }
 
@@ -101,7 +122,6 @@ export const calculateSmfgEligibility = (userData, adminBankConfig) => {
     age,
     companyName,
     companyType,
-    currentCompanyExperience,
     isBTMode,
     loansForBT,
     btTotalEMI,
@@ -112,6 +132,9 @@ export const calculateSmfgEligibility = (userData, adminBankConfig) => {
     maxTenureOverride,
     maxLoanOverride
   } = userData;
+
+  // Dynamic policy from admin
+  const adminConfig = adminBankConfig || getBankConfig('SMFG India Credit');
 
   const actualMonthlyIncome = (basicSalary || monthlyIncome || 0) + (averageIncentive || 0);
 
@@ -144,16 +167,19 @@ export const calculateSmfgEligibility = (userData, adminBankConfig) => {
     };
   }
 
-  // 3. WORK EXPERIENCE CHECK (Excel: CURRENT COM 2 YEARS)
-  if (currentCompanyExperience !== undefined && currentCompanyExperience !== null) {
-    const currentExpMonths = Number(currentCompanyExperience);
-    if (currentExpMonths > 0 && currentExpMonths < smfgConfig.minCurrentCompanyExperience) {
-      return {
-        eligible: false,
-        bankName: smfgConfig.name,
-        reason: `SMFG India Credit requires minimum 2 years (24 months) experience in current company (Excel: CURRENT COM 2 YEARS). Found: ${currentExpMonths} months.`
-      };
-    }
+  // 3. WORK EXPERIENCE CHECK & CAPPING (3 MONTH FOR UP TO 15L AND 15L ABOVE 2YEARS)
+  const workExpMonths = parseWorkExperienceMonths(userData);
+  if (workExpMonths < 3) {
+    return {
+      eligible: false,
+      bankName: smfgConfig.name,
+      reason: `SMFG India Credit requires a minimum of 3 months work experience. Provided experience is less than 3 months.`
+    };
+  }
+
+  let workExpMaxCap = Infinity;
+  if (workExpMonths <= 24) {
+    workExpMaxCap = 1500000; // Capped at ₹15 Lakhs for 3 months to 2 years
   }
 
   // 4. BALANCE TRANSFER GATES (Excel: MAX CC BT: 2 CC BT)
@@ -192,9 +218,9 @@ export const calculateSmfgEligibility = (userData, adminBankConfig) => {
   const tenureMonths = Math.min(requestedTenureMonths, maxTenureMonthsAllowed);
   const tenureYears = tenureMonths / 12;
 
-  // 6. FOIR & MULTIPLIER (Excel: Band based + PROP/PART/LLP 55%)
+  // 6. FOIR & MULTIPLIER (Excel / Dynamic Admin Slabs)
   const incomeForCalc = isBT ? adjustedIncome : actualMonthlyIncome;
-  const { foir: defaultFoir, multiplier: defaultMultiplier, isPropOrLlp } = getSmfgFoirAndMultiplier(incomeForCalc, category, companyType || companyName);
+  const { foir: defaultFoir, multiplier: defaultMultiplier, isPropOrLlp } = getSmfgFoirAndMultiplier(incomeForCalc, companyType || companyName, adminConfig);
   const effectiveFOIR = foirOverride ? (foirOverride / 100) : defaultFoir;
   const effectiveMultiplier = multiplierOverride ? Number(multiplierOverride) : defaultMultiplier;
 
@@ -212,8 +238,8 @@ export const calculateSmfgEligibility = (userData, adminBankConfig) => {
     };
   }
 
-  // 8. ROI (Excel Matrix: Net Income Band vs Category)
-  const dynamicROI = getSmfgROI(actualMonthlyIncome, category);
+  // 8. ROI (Excel Matrix: Net Income Band based)
+  const dynamicROI = getSmfgROI(actualMonthlyIncome);
   const effectiveInterestRate = interestRateOverride || dynamicROI;
 
   // 9. LOAN CAPACITY (EMI capacity, Multiplier capacity, and Capping)
@@ -225,8 +251,8 @@ export const calculateSmfgEligibility = (userData, adminBankConfig) => {
     calculatedLoanAmount = Math.min(calculatedLoanAmount, desiredLoanAmount);
   }
 
-  // 10. LOAN AMOUNT CAPPING (Excel: 1LAC to 30LAC across all)
-  const maxCap = maxLoanOverride || smfgConfig.maxLoanAmount;
+  // 10. LOAN AMOUNT CAPPING (Excel: 1LAC to 30LAC across all & Work Experience Capping)
+  const maxCap = Math.min(maxLoanOverride || smfgConfig.maxLoanAmount, workExpMaxCap);
   const finalLoanAmount = Math.min(calculatedLoanAmount, maxCap);
 
   if (finalLoanAmount < smfgConfig.minLoanAmount) {
@@ -275,8 +301,11 @@ export const calculateSmfgEligibility = (userData, adminBankConfig) => {
     foirPercentage: effectiveFOIR,
     multiplier: effectiveMultiplier,
     maxLoanCap: maxCap,
+    workExperienceMonths: workExpMonths,
+    workExperienceCapped: workExpMonths <= 24 && calculatedLoanAmount > 1500000,
     isPropOrLlp: isPropOrLlp,
     btDetails: btDetails,
     isBTMode: isBT
   };
 };
+

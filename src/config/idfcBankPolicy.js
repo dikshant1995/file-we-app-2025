@@ -42,5 +42,50 @@ export const IDFC_BANK_EXCEL_POLICY = {
     minExperienceCurrent: 3,
     minCibilScore: 0,
     ccObligationPercent: 5
-  }
+  },
+  // Table 1: FOIR Matrix
+  idfcFoirMatrix: [
+    { nthBand: 'INR 20K - 40K', catSaAB: 60, catCD: 50 },
+    { nthBand: 'INR 40K - 50K', catSaAB: 60, catCD: 60 },
+    { nthBand: 'INR 50K - 75K', catSaAB: 65, catCD: 65 },
+    { nthBand: 'INR > 75K', catSaAB: 70, catCD: 70 },
+    { nthBand: 'GOVT', catSaAB: 'Policy Rules Apply', catCD: 'Policy Rules Apply' }
+  ],
+  // Table 2: Salary Multiplier Matrix
+  idfcMultiplierMatrix: [
+    { category: 'CAT SA & CAT A', nthLt50k: 23, nth50kTo75k: 25, nthGt75k: 27 },
+    { category: 'CAT B', nthLt50k: 16, nth50kTo75k: 20, nthGt75k: 22 },
+    { category: 'CAT C', nthLt50k: 11, nth50kTo75k: 13, nthGt75k: 15 },
+    { category: 'CAT D', nthLt50k: 11, nth50kTo75k: 13, nthGt75k: 15 }
+  ],
+  // Table 3: Base ROI Structures & Slabs
+  idfcBaseRoiMatrix: [
+    { scoreBand: '775+', lt5L: 16.50, l5To10L: 15.25, l10To15L: 14.50, gt15L: 13.00 },
+    { scoreBand: '750 - 774', lt5L: 17.00, l5To10L: 16.25, l10To15L: 16.25, gt15L: 14.00 },
+    { scoreBand: '725 - 749', lt5L: 18.00, l5To10L: 17.50, l10To15L: 17.25, gt15L: 15.00 },
+    { scoreBand: '700 - 724', lt5L: 18.00, l5To10L: 17.50, l10To15L: 17.25, gt15L: 15.00 },
+    { scoreBand: 'LT 700', lt5L: 19.00, l5To10L: 18.50, l10To15L: 18.00, gt15L: 16.00 }
+  ],
+  // Table 4: NON BT - CAT C AND D ROI Matrix
+  idfcNonBtCatCdRoiMatrix: [
+    { scoreBand: '775+', lt5L: 14.49, l5To10L: 12.49, l10To15L: 10.50, gt15L: 9.99 },
+    { scoreBand: '750 - 774', lt5L: 14.99, l5To10L: 13.49, l10To15L: 10.99, gt15L: 9.99 },
+    { scoreBand: '725 - 749', lt5L: 15.99, l5To10L: 14.49, l10To15L: 11.99, gt15L: 10.49 },
+    { scoreBand: '700 - 724', lt5L: 17.49, l5To10L: 15.99, l10To15L: 12.99, gt15L: 11.99 },
+    { scoreBand: 'LT 700', lt5L: 18.99, l5To10L: 18.49, l10To15L: 16.99, gt15L: 14.99 }
+  ],
+  // Table 5: NON BT - CAT ACE ROI Matrix
+  idfcNonBtCatAceRoiMatrix: [
+    { scoreBand: '775+', lt5L: 13.99, l5To10L: 11.99, l10To15L: 10.50, gt15L: 9.99 },
+    { scoreBand: '750 - 774', lt5L: 14.49, l5To10L: 12.99, l10To15L: 10.99, gt15L: 9.99 },
+    { scoreBand: '725 - 749', lt5L: 15.49, l5To10L: 13.99, l10To15L: 11.49, gt15L: 10.49 },
+    { scoreBand: '700 - 724', lt5L: 16.99, l5To10L: 15.49, l10To15L: 12.49, gt15L: 11.99 },
+    { scoreBand: 'LT 700', lt5L: 17.99, l5To10L: 17.49, l10To15L: 16.99, gt15L: 14.99 }
+  ],
+  // Table 6: Minimum ROI BT Cases
+  idfcBtMinRoiMatrix: [
+    { scoreBand: '725+', lt5L: 11.49, l5To10L: 10.49, l10To15L: 10.25, gt15L: 9.99 },
+    { scoreBand: '700 - 724', lt5L: 13.99, l5To10L: 11.99, l10To15L: 10.99, gt15L: 10.49 },
+    { scoreBand: 'LT 700', lt5L: 16.49, l5To10L: 15.99, l10To15L: 15.49, gt15L: 14.49 }
+  ]
 };

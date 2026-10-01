@@ -35,13 +35,13 @@ export const SMFG_BANK_EXCEL_POLICY = {
   ],
   salaryBandsFoirAndMultiplier: [
     { band: 'Income Less Than 25K', minSalary: 0, maxSalary: 24999, foir: 0, multiplier: 'Not Eligible', multiplierMin: 0, multiplierMax: 0, eligible: false, notes: 'Min ₹25K+ Salary required with 0 deduction' },
-    { band: '25K-30K', minSalary: 25000, maxSalary: 30000, foir: 60, multiplier: '12 to 13', multiplierMin: 12, multiplierMax: 13, eligible: true, notes: 'As per com cat and profile base (Cat A/Govt: 13x, Cat C/D: 12x)' },
-    { band: '30K-35K', minSalary: 30001, maxSalary: 35000, foir: 65, multiplier: '15 to 16', multiplierMin: 15, multiplierMax: 16, eligible: true, notes: 'As per com cat and profile base (Cat A/Govt: 16x, Cat C/D: 15x)' },
-    { band: '35K-40K', minSalary: 35001, maxSalary: 40000, foir: 70, multiplier: '16 to 18', multiplierMin: 16, multiplierMax: 18, eligible: true, notes: 'As per com cat and profile base (Cat A/Govt: 18x, Cat C/D: 16x)' },
-    { band: '40K-50K', minSalary: 40001, maxSalary: 50000, foir: 70, multiplier: '18 to 20', multiplierMin: 18, multiplierMax: 20, eligible: true, notes: 'As per com cat and profile base (Cat A/Govt: 20x, Cat C/D: 18x)' },
-    { band: '50K-75K', minSalary: 50001, maxSalary: 75000, foir: 70, multiplier: '22 to 25', multiplierMin: 22, multiplierMax: 25, eligible: true, notes: 'As per com cat and profile base (Cat A/Govt: 25x, Cat C/D: 22x)' },
-    { band: '75K-100K', minSalary: 75001, maxSalary: 100000, foir: 70, multiplier: '23 to 30', multiplierMin: 23, multiplierMax: 30, eligible: true, notes: 'As per com cat and profile base (Cat A/Govt: 30x, Cat C/D: 23x)' },
-    { band: '100K and Above', minSalary: 100001, maxSalary: Infinity, foir: 70, multiplier: '23 to 30', multiplierMin: 23, multiplierMax: 30, eligible: true, notes: 'Maximum multiplier up to 30x for high-tier profiles' }
+    { band: '25K-30K', minSalary: 25000, maxSalary: 30000, foir: 60, multiplier: '12 TO 13', multiplierMin: 12, multiplierMax: 13, eligible: true, notes: 'AS PER COM CAT AND PROFILE BASE' },
+    { band: '30K-35K', minSalary: 30001, maxSalary: 35000, foir: 65, multiplier: '15 TO 16', multiplierMin: 15, multiplierMax: 16, eligible: true, notes: 'AS PER COM CAT AND PROFILE BASE' },
+    { band: '35K-40K', minSalary: 35001, maxSalary: 40000, foir: 70, multiplier: '16 TO 18', multiplierMin: 16, multiplierMax: 18, eligible: true, notes: 'COM TYPE PROP/PART/LLP FIRM MAX FOIR 55%' },
+    { band: '40K-50K', minSalary: 40001, maxSalary: 50000, foir: 70, multiplier: '18 TO 20', multiplierMin: 18, multiplierMax: 20, eligible: true, notes: 'Standard 70% Max FOIR' },
+    { band: '50K-75K', minSalary: 50001, maxSalary: 75000, foir: 70, multiplier: '22 TO 25', multiplierMin: 22, multiplierMax: 25, eligible: true, notes: 'Standard 70% Max FOIR' },
+    { band: '75K-100K', minSalary: 75001, maxSalary: 100000, foir: 70, multiplier: '23 TO 30', multiplierMin: 23, multiplierMax: 30, eligible: true, notes: 'Standard 70% Max FOIR' },
+    { band: '100K and Above', minSalary: 100001, maxSalary: Infinity, foir: 70, multiplier: '23 TO 30', multiplierMin: 23, multiplierMax: 30, eligible: true, notes: 'Max Multiplier up to 30x' }
   ],
   specialCompanyFoir: {
     propPartLlpFirmMaxFoir: 55 // PROP/PART/LLP FIRM: 55% FOIR

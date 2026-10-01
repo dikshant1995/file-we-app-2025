@@ -430,7 +430,18 @@ const sanitizePolicyData = (raw) => {
     },
     enhancedMaxLoanRule: raw.enhancedMaxLoanRule || {
       maxAmount: 6500000, minIncome: 250000, minCibil: 755
-    }
+    },
+    // SMFG Specific Editable FOIR & Multipliers Slabs
+    salaryBandsFoirAndMultiplier: Array.isArray(raw.salaryBandsFoirAndMultiplier) && raw.salaryBandsFoirAndMultiplier.length > 0
+      ? raw.salaryBandsFoirAndMultiplier
+      : BANK_EXCEL_POLICIES['smfg']?.salaryBandsFoirAndMultiplier,
+    // IDFC Specific Editable Tables 1 to 6
+    idfcFoirMatrix: Array.isArray(raw.idfcFoirMatrix) && raw.idfcFoirMatrix.length > 0 ? raw.idfcFoirMatrix : BANK_EXCEL_POLICIES['idfc']?.idfcFoirMatrix,
+    idfcMultiplierMatrix: Array.isArray(raw.idfcMultiplierMatrix) && raw.idfcMultiplierMatrix.length > 0 ? raw.idfcMultiplierMatrix : BANK_EXCEL_POLICIES['idfc']?.idfcMultiplierMatrix,
+    idfcBaseRoiMatrix: Array.isArray(raw.idfcBaseRoiMatrix) && raw.idfcBaseRoiMatrix.length > 0 ? raw.idfcBaseRoiMatrix : BANK_EXCEL_POLICIES['idfc']?.idfcBaseRoiMatrix,
+    idfcNonBtCatCdRoiMatrix: Array.isArray(raw.idfcNonBtCatCdRoiMatrix) && raw.idfcNonBtCatCdRoiMatrix.length > 0 ? raw.idfcNonBtCatCdRoiMatrix : BANK_EXCEL_POLICIES['idfc']?.idfcNonBtCatCdRoiMatrix,
+    idfcNonBtCatAceRoiMatrix: Array.isArray(raw.idfcNonBtCatAceRoiMatrix) && raw.idfcNonBtCatAceRoiMatrix.length > 0 ? raw.idfcNonBtCatAceRoiMatrix : BANK_EXCEL_POLICIES['idfc']?.idfcNonBtCatAceRoiMatrix,
+    idfcBtMinRoiMatrix: Array.isArray(raw.idfcBtMinRoiMatrix) && raw.idfcBtMinRoiMatrix.length > 0 ? raw.idfcBtMinRoiMatrix : BANK_EXCEL_POLICIES['idfc']?.idfcBtMinRoiMatrix
   };
 };
 
@@ -1559,6 +1570,7 @@ const UnifiedBankPolicyManager = () => {
             const isAu = bankId === 'au-bank' || bankId === 'au' || activeConfigBank?.name?.toLowerCase().includes('au ');
             const isIncred = bankId === 'incred' || activeConfigBank?.name?.toLowerCase().includes('incred');
             const isFinnable = bankId === 'finnable' || activeConfigBank?.name?.toLowerCase().includes('finnable');
+            const isIdfc = bankId === 'idfc' || activeConfigBank?.name?.toLowerCase().includes('idfc');
 
             const rawRates = policyData?.interestRates || [];
             // Banks that don't have Cat D in ROI: HDFC, IndusInd, Axis, Tata
@@ -1639,7 +1651,189 @@ const UnifiedBankPolicyManager = () => {
                     )}
                   </div>
                 </div>
-                {isAbfl ? (
+                {isIdfc ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    {/* Table 3: Base ROI Structures & Slabs */}
+                    <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(139, 21, 56, 0.4)' }}>
+                      <div style={{ fontWeight: 700, color: '#f43f5e', fontSize: '0.95rem', marginBottom: '10px' }}>
+                        📊 Table 3: Base ROI Structures &amp; Slabs (Editable)
+                      </div>
+                      <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', fontSize: '0.84rem', borderCollapse: 'collapse', textAlign: 'center' }}>
+                          <thead>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
+                              <th style={{ padding: '6px 10px', textAlign: 'left' }}>Bureau Score</th>
+                              <th style={{ padding: '6px 10px', color: '#38bdf8' }}>LT 5 Lacs</th>
+                              <th style={{ padding: '6px 10px', color: '#34d399' }}>5 - 10 Lacs</th>
+                              <th style={{ padding: '6px 10px', color: '#fbbf24' }}>10 - 15 Lacs</th>
+                              <th style={{ padding: '6px 10px', color: '#f87171' }}>GT 15 Lacs</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {(policyData?.idfcBaseRoiMatrix || BANK_EXCEL_POLICIES['idfc']?.idfcBaseRoiMatrix || []).map((row, rIdx) => (
+                              <tr key={rIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                                <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 700, color: '#e2e8f0' }}>{row.scoreBand}</td>
+                                {['lt5L', 'l5To10L', 'l10To15L', 'gt15L'].map((colKey) => (
+                                  <td key={colKey} style={{ padding: '4px' }}>
+                                    <div className="table-input-cell highlight">
+                                      <input
+                                        type="number" step="0.01"
+                                        style={{ width: '55px', textAlign: 'center' }}
+                                        value={row[colKey] ?? ''}
+                                        onChange={(e) => {
+                                          const val = Number(e.target.value);
+                                          const list = [...(policyData?.idfcBaseRoiMatrix || BANK_EXCEL_POLICIES['idfc']?.idfcBaseRoiMatrix)];
+                                          list[rIdx] = { ...list[rIdx], [colKey]: val };
+                                          setPolicyData({ ...policyData, idfcBaseRoiMatrix: list });
+                                        }}
+                                      />
+                                      <span>%</span>
+                                    </div>
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    {/* Table 4: NON BT - CAT C AND D ROI Matrix */}
+                    <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+                      <div style={{ fontWeight: 700, color: '#fbbf24', fontSize: '0.95rem', marginBottom: '10px' }}>
+                        📊 Table 4: NON BT - CAT C AND D ROI Matrix (Editable)
+                      </div>
+                      <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', fontSize: '0.84rem', borderCollapse: 'collapse', textAlign: 'center' }}>
+                          <thead>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
+                              <th style={{ padding: '6px 10px', textAlign: 'left' }}>Bureau Score</th>
+                              <th style={{ padding: '6px 10px', color: '#38bdf8' }}>LT 5 Lacs</th>
+                              <th style={{ padding: '6px 10px', color: '#34d399' }}>5 - 10 Lacs</th>
+                              <th style={{ padding: '6px 10px', color: '#fbbf24' }}>10 - 15 Lacs</th>
+                              <th style={{ padding: '6px 10px', color: '#f87171' }}>GT 15 Lacs</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {(policyData?.idfcNonBtCatCdRoiMatrix || BANK_EXCEL_POLICIES['idfc']?.idfcNonBtCatCdRoiMatrix || []).map((row, rIdx) => (
+                              <tr key={rIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                                <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 700, color: '#e2e8f0' }}>{row.scoreBand}</td>
+                                {['lt5L', 'l5To10L', 'l10To15L', 'gt15L'].map((colKey) => (
+                                  <td key={colKey} style={{ padding: '4px' }}>
+                                    <div className="table-input-cell highlight">
+                                      <input
+                                        type="number" step="0.01"
+                                        style={{ width: '55px', textAlign: 'center' }}
+                                        value={row[colKey] ?? ''}
+                                        onChange={(e) => {
+                                          const val = Number(e.target.value);
+                                          const list = [...(policyData?.idfcNonBtCatCdRoiMatrix || BANK_EXCEL_POLICIES['idfc']?.idfcNonBtCatCdRoiMatrix)];
+                                          list[rIdx] = { ...list[rIdx], [colKey]: val };
+                                          setPolicyData({ ...policyData, idfcNonBtCatCdRoiMatrix: list });
+                                        }}
+                                      />
+                                      <span>%</span>
+                                    </div>
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    {/* Table 5: NON BT - CAT ACE ROI Matrix */}
+                    <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(56, 189, 248, 0.4)' }}>
+                      <div style={{ fontWeight: 700, color: '#38bdf8', fontSize: '0.95rem', marginBottom: '10px' }}>
+                        📊 Table 5: NON BT - CAT ACE ROI Matrix (Editable)
+                      </div>
+                      <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', fontSize: '0.84rem', borderCollapse: 'collapse', textAlign: 'center' }}>
+                          <thead>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
+                              <th style={{ padding: '6px 10px', textAlign: 'left' }}>Bureau Score</th>
+                              <th style={{ padding: '6px 10px', color: '#38bdf8' }}>LT 5 Lacs</th>
+                              <th style={{ padding: '6px 10px', color: '#34d399' }}>5 - 10 Lacs</th>
+                              <th style={{ padding: '6px 10px', color: '#fbbf24' }}>10 - 15 Lacs</th>
+                              <th style={{ padding: '6px 10px', color: '#f87171' }}>GT 15 Lacs</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {(policyData?.idfcNonBtCatAceRoiMatrix || BANK_EXCEL_POLICIES['idfc']?.idfcNonBtCatAceRoiMatrix || []).map((row, rIdx) => (
+                              <tr key={rIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                                <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 700, color: '#e2e8f0' }}>{row.scoreBand}</td>
+                                {['lt5L', 'l5To10L', 'l10To15L', 'gt15L'].map((colKey) => (
+                                  <td key={colKey} style={{ padding: '4px' }}>
+                                    <div className="table-input-cell highlight">
+                                      <input
+                                        type="number" step="0.01"
+                                        style={{ width: '55px', textAlign: 'center' }}
+                                        value={row[colKey] ?? ''}
+                                        onChange={(e) => {
+                                          const val = Number(e.target.value);
+                                          const list = [...(policyData?.idfcNonBtCatAceRoiMatrix || BANK_EXCEL_POLICIES['idfc']?.idfcNonBtCatAceRoiMatrix)];
+                                          list[rIdx] = { ...list[rIdx], [colKey]: val };
+                                          setPolicyData({ ...policyData, idfcNonBtCatAceRoiMatrix: list });
+                                        }}
+                                      />
+                                      <span>%</span>
+                                    </div>
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    {/* Table 6: Minimum ROI BT Cases */}
+                    <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(52, 211, 153, 0.4)' }}>
+                      <div style={{ fontWeight: 700, color: '#34d399', fontSize: '0.95rem', marginBottom: '10px' }}>
+                        📊 Table 6: Minimum ROI BT Cases (Editable)
+                      </div>
+                      <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', fontSize: '0.84rem', borderCollapse: 'collapse', textAlign: 'center' }}>
+                          <thead>
+                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
+                              <th style={{ padding: '6px 10px', textAlign: 'left' }}>Bureau Score</th>
+                              <th style={{ padding: '6px 10px', color: '#38bdf8' }}>LT 5 Lacs</th>
+                              <th style={{ padding: '6px 10px', color: '#34d399' }}>5 - 10 Lacs</th>
+                              <th style={{ padding: '6px 10px', color: '#fbbf24' }}>10 - 15 Lacs</th>
+                              <th style={{ padding: '6px 10px', color: '#f87171' }}>GT 15 Lacs</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {(policyData?.idfcBtMinRoiMatrix || BANK_EXCEL_POLICIES['idfc']?.idfcBtMinRoiMatrix || []).map((row, rIdx) => (
+                              <tr key={rIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                                <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 700, color: '#e2e8f0' }}>{row.scoreBand}</td>
+                                {['lt5L', 'l5To10L', 'l10To15L', 'gt15L'].map((colKey) => (
+                                  <td key={colKey} style={{ padding: '4px' }}>
+                                    <div className="table-input-cell highlight">
+                                      <input
+                                        type="number" step="0.01"
+                                        style={{ width: '55px', textAlign: 'center' }}
+                                        value={row[colKey] ?? ''}
+                                        onChange={(e) => {
+                                          const val = Number(e.target.value);
+                                          const list = [...(policyData?.idfcBtMinRoiMatrix || BANK_EXCEL_POLICIES['idfc']?.idfcBtMinRoiMatrix)];
+                                          list[rIdx] = { ...list[rIdx], [colKey]: val };
+                                          setPolicyData({ ...policyData, idfcBtMinRoiMatrix: list });
+                                        }}
+                                      />
+                                      <span>%</span>
+                                    </div>
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                ) : isAbfl ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     {/* Table 5: Salary Multiplier Program ROI Matrix (Editable) */}
                     <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(166, 25, 46, 0.35)' }}>
@@ -5039,6 +5233,139 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               )}
 
+              {(activeConfigBank?.id === 'idfc' || activeConfigBank?.name?.toLowerCase().includes('idfc')) && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '16px' }}>
+                  {/* Table 1: FOIR Matrix */}
+                  <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(139, 21, 56, 0.4)' }}>
+                    <div style={{ fontWeight: 700, color: '#f43f5e', fontSize: '0.95rem', marginBottom: '10px' }}>
+                      📊 Table 1: FOIR Matrix (Editable)
+                    </div>
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', fontSize: '0.84rem', borderCollapse: 'collapse', textAlign: 'center' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
+                            <th style={{ padding: '8px 10px', textAlign: 'left' }}>NTH Band</th>
+                            <th style={{ padding: '8px 10px', color: '#38bdf8' }}>CAT SA / A / B</th>
+                            <th style={{ padding: '8px 10px', color: '#fbbf24' }}>CAT C / D</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(policyData?.idfcFoirMatrix || BANK_EXCEL_POLICIES['idfc']?.idfcFoirMatrix || []).map((row, rIdx) => (
+                            <tr key={rIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                              <td style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, color: '#e2e8f0' }}>{row.nthBand}</td>
+                              <td style={{ padding: '6px 10px' }}>
+                                {typeof row.catSaAB === 'number' ? (
+                                  <div className="table-input-cell highlight">
+                                    <input
+                                      type="number" step="1"
+                                      style={{ width: '55px', textAlign: 'center' }}
+                                      value={row.catSaAB}
+                                      onChange={(e) => {
+                                        const val = Number(e.target.value);
+                                        const list = [...(policyData?.idfcFoirMatrix || BANK_EXCEL_POLICIES['idfc']?.idfcFoirMatrix)];
+                                        list[rIdx] = { ...list[rIdx], catSaAB: val };
+                                        setPolicyData({ ...policyData, idfcFoirMatrix: list });
+                                      }}
+                                    />
+                                    <span>%</span>
+                                  </div>
+                                ) : (
+                                  <input
+                                    type="text"
+                                    style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(148, 163, 184, 0.2)', color: '#38bdf8', borderRadius: '4px', padding: '4px 8px', textAlign: 'center', fontSize: '0.8rem', fontWeight: 600 }}
+                                    value={row.catSaAB || ''}
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      const list = [...(policyData?.idfcFoirMatrix || BANK_EXCEL_POLICIES['idfc']?.idfcFoirMatrix)];
+                                      list[rIdx] = { ...list[rIdx], catSaAB: val };
+                                      setPolicyData({ ...policyData, idfcFoirMatrix: list });
+                                    }}
+                                  />
+                                )}
+                              </td>
+                              <td style={{ padding: '6px 10px' }}>
+                                {typeof row.catCD === 'number' ? (
+                                  <div className="table-input-cell highlight">
+                                    <input
+                                      type="number" step="1"
+                                      style={{ width: '55px', textAlign: 'center' }}
+                                      value={row.catCD}
+                                      onChange={(e) => {
+                                        const val = Number(e.target.value);
+                                        const list = [...(policyData?.idfcFoirMatrix || BANK_EXCEL_POLICIES['idfc']?.idfcFoirMatrix)];
+                                        list[rIdx] = { ...list[rIdx], catCD: val };
+                                        setPolicyData({ ...policyData, idfcFoirMatrix: list });
+                                      }}
+                                    />
+                                    <span>%</span>
+                                  </div>
+                                ) : (
+                                  <input
+                                    type="text"
+                                    style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(148, 163, 184, 0.2)', color: '#fbbf24', borderRadius: '4px', padding: '4px 8px', textAlign: 'center', fontSize: '0.8rem', fontWeight: 600 }}
+                                    value={row.catCD || ''}
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      const list = [...(policyData?.idfcFoirMatrix || BANK_EXCEL_POLICIES['idfc']?.idfcFoirMatrix)];
+                                      list[rIdx] = { ...list[rIdx], catCD: val };
+                                      setPolicyData({ ...policyData, idfcFoirMatrix: list });
+                                    }}
+                                  />
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Table 2: Salary Multiplier Matrix */}
+                  <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(56, 189, 248, 0.4)' }}>
+                    <div style={{ fontWeight: 700, color: '#38bdf8', fontSize: '0.95rem', marginBottom: '10px' }}>
+                      📊 Table 2: Salary Multiplier Matrix (Editable)
+                    </div>
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', fontSize: '0.84rem', borderCollapse: 'collapse', textAlign: 'center' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
+                            <th style={{ padding: '8px 10px', textAlign: 'left' }}>Category</th>
+                            <th style={{ padding: '8px 10px', color: '#38bdf8' }}>NTH &lt; 50K</th>
+                            <th style={{ padding: '8px 10px', color: '#34d399' }}>NTH 50K - 75K</th>
+                            <th style={{ padding: '8px 10px', color: '#fbbf24' }}>NTH &gt; 75K</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(policyData?.idfcMultiplierMatrix || BANK_EXCEL_POLICIES['idfc']?.idfcMultiplierMatrix || []).map((row, rIdx) => (
+                            <tr key={rIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                              <td style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, color: '#e2e8f0' }}>{row.category}</td>
+                              {['nthLt50k', 'nth50kTo75k', 'nthGt75k'].map((colKey) => (
+                                <td key={colKey} style={{ padding: '4px' }}>
+                                  <div className="table-input-cell highlight">
+                                    <input
+                                      type="number" step="1"
+                                      style={{ width: '50px', textAlign: 'center', fontWeight: 700 }}
+                                      value={row[colKey] ?? ''}
+                                      onChange={(e) => {
+                                        const val = Number(e.target.value);
+                                        const list = [...(policyData?.idfcMultiplierMatrix || BANK_EXCEL_POLICIES['idfc']?.idfcMultiplierMatrix)];
+                                        list[rIdx] = { ...list[rIdx], [colKey]: val };
+                                        setPolicyData({ ...policyData, idfcMultiplierMatrix: list });
+                                      }}
+                                    />
+                                    <span>x</span>
+                                  </div>
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg')) && (
                 <div style={{
                   background: 'linear-gradient(135deg, rgba(0, 45, 98, 0.20) 0%, rgba(14, 165, 233, 0.15) 100%)',
@@ -5069,21 +5396,56 @@ const UnifiedBankPolicyManager = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {[
-                          { band: 'Income Less Than 25K', foir: 'Not Eligible (0%)', mult: 'N/A', note: 'Min ₹25K+ Salary required with 0 deduction', isEligible: false },
-                          { band: '25K-30K', foir: '60%', mult: '12 TO 13', note: 'AS PER COM CAT AND PROFILE BASE', isEligible: true },
-                          { band: '30K-35K', foir: '65%', mult: '15 TO 16', note: 'AS PER COM CAT AND PROFILE BASE', isEligible: true },
-                          { band: '35K-40K', foir: '70%', mult: '16 TO 18', note: 'COM TYPE PROP/PART/LLP FIRM MAX FOIR 55%', isEligible: true },
-                          { band: '40K-50K', foir: '70%', mult: '18 TO 20', note: 'Standard 70% Max FOIR', isEligible: true },
-                          { band: '50K-75K', foir: '70%', mult: '22 TO 25', note: 'Standard 70% Max FOIR', isEligible: true },
-                          { band: '75K-100K', foir: '70%', mult: '23 TO 30', note: 'Standard 70% Max FOIR', isEligible: true },
-                          { band: '100K and Above', foir: '70%', mult: '23 TO 30', note: 'Max Multiplier up to 30x', isEligible: true }
-                        ].map((row, rIdx) => (
+                        {(policyData?.salaryBandsFoirAndMultiplier || BANK_EXCEL_POLICIES['smfg']?.salaryBandsFoirAndMultiplier || []).map((row, rIdx) => (
                           <tr key={rIdx}>
-                            <td><strong style={{ color: row.isEligible ? '#fbbf24' : '#f87171' }}>{row.band}</strong></td>
-                            <td><strong style={{ color: row.isEligible ? '#38bdf8' : '#f87171' }}>{row.foir}</strong></td>
-                            <td><span style={{ color: '#f59e0b', fontWeight: 700 }}>{row.mult}</span></td>
-                            <td style={{ color: '#94a3b8', fontSize: '0.78rem' }}>{row.note}</td>
+                            <td>
+                              <strong style={{ color: row.eligible !== false ? '#fbbf24' : '#f87171' }}>{row.band}</strong>
+                            </td>
+                            <td>
+                              <div className="table-input-cell highlight" style={{ minWidth: '80px' }}>
+                                <input
+                                  type="number"
+                                  step="1"
+                                  style={{ width: '55px', textAlign: 'center' }}
+                                  value={row.foir}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const list = [...(policyData?.salaryBandsFoirAndMultiplier || [])];
+                                    list[rIdx] = { ...list[rIdx], foir: val, eligible: val > 0 };
+                                    setPolicyData({ ...policyData, salaryBandsFoirAndMultiplier: list });
+                                  }}
+                                />
+                                <span>%</span>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="table-input-cell" style={{ minWidth: '100px' }}>
+                                <input
+                                  type="text"
+                                  style={{ width: '80px', textAlign: 'center', color: '#f59e0b', fontWeight: 700 }}
+                                  value={row.multiplier || ''}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    const list = [...(policyData?.salaryBandsFoirAndMultiplier || [])];
+                                    list[rIdx] = { ...list[rIdx], multiplier: val };
+                                    setPolicyData({ ...policyData, salaryBandsFoirAndMultiplier: list });
+                                  }}
+                                />
+                              </div>
+                            </td>
+                            <td style={{ color: '#94a3b8', fontSize: '0.78rem' }}>
+                              <input
+                                type="text"
+                                style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(148, 163, 184, 0.2)', color: '#e2e8f0', width: '100%', borderRadius: '4px', padding: '3px 8px', fontSize: '0.78rem' }}
+                                value={row.notes || ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  const list = [...(policyData?.salaryBandsFoirAndMultiplier || [])];
+                                  list[rIdx] = { ...list[rIdx], notes: val };
+                                  setPolicyData({ ...policyData, salaryBandsFoirAndMultiplier: list });
+                                }}
+                              />
+                            </td>
                           </tr>
                         ))}
                       </tbody>

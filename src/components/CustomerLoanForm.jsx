@@ -94,7 +94,8 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
       state: saved?.state || '',
       city: saved?.city || '',
       maritalStatus: saved?.maritalStatus || '',
-      livingStatus: saved?.livingStatus || ''
+      livingStatus: saved?.livingStatus || '',
+      workExperience: saved?.workExperience || 'above_24m'
     };
   });
 
@@ -500,6 +501,10 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
       hasPfDeduction: Boolean(formData.hasPpfDeduction),
       maritalStatus: formData.maritalStatus,
       livingStatus: formData.livingStatus,
+      workExperience: formData.workExperience || 'above_24m',
+      workExperienceMonths: formData.workExperience === 'below_3m' ? 2 : (formData.workExperience === '3m_to_24m' ? 12 : 25),
+      totalWorkExperience: formData.workExperience === 'below_3m' ? 2 : (formData.workExperience === '3m_to_24m' ? 12 : 25),
+      currentCompanyExperience: formData.workExperience === 'below_3m' ? 2 : (formData.workExperience === '3m_to_24m' ? 12 : 25),
 
       // Additional data for display purposes
       _metadata: {
@@ -531,7 +536,9 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
         hasPpfDeduction: Boolean(formData.hasPpfDeduction),
         hasPfDeduction: Boolean(formData.hasPpfDeduction),
         maritalStatus: formData.maritalStatus,
-        livingStatus: formData.livingStatus
+        livingStatus: formData.livingStatus,
+        workExperience: formData.workExperience || 'above_24m',
+        workExperienceMonths: formData.workExperience === 'below_3m' ? 2 : (formData.workExperience === '3m_to_24m' ? 12 : 25)
       }
     };
 
@@ -1020,6 +1027,24 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
           >
             <option value="salaried">Private</option>
             <option value="government">Government Employee</option>
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="workExperience">
+            Total Work Experience <span className="required">*</span>
+          </label>
+          <select
+            id="workExperience"
+            name="workExperience"
+            value={formData.workExperience || 'above_24m'}
+            onChange={handleInputChange}
+            required
+            style={{ color: '#111827', WebkitTextFillColor: '#111827', backgroundColor: '#ffffff', fontWeight: 600 }}
+          >
+            <option value="below_3m">Less than 3 Months</option>
+            <option value="3m_to_24m">3 Months to 2 Years</option>
+            <option value="above_24m">&gt; 2 Years</option>
           </select>
         </div>
 

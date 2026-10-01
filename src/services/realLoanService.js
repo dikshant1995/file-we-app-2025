@@ -152,8 +152,10 @@ export const calculateLoanEligibility = async (userData) => {
     existingLoans: userData.existingLoans || [],
     existingLoanTypes: userData.existingLoanTypes || [],
     hasEverHomeLoan: Boolean(userData.hasEverHomeLoan || userData.hasHomeLoan || userData.everHL || userData.hlStatus),
-    totalWorkExperience: userData.totalWorkExperience !== undefined ? Number(userData.totalWorkExperience) : (userData.workExperience !== undefined ? Number(userData.workExperience) : (userData.totalExperience !== undefined ? Number(userData.totalExperience) : 0)),
-    workExperience: userData.workExperience !== undefined ? Number(userData.workExperience) : (userData.totalWorkExperience !== undefined ? Number(userData.totalWorkExperience) : 0),
+    totalWorkExperience: userData.totalWorkExperience !== undefined ? Number(userData.totalWorkExperience) : (userData.workExperienceMonths !== undefined ? Number(userData.workExperienceMonths) : (userData.workExperience === 'below_3m' ? 2 : (userData.workExperience === '3m_to_24m' ? 12 : 25))),
+    workExperience: userData.workExperience !== undefined ? userData.workExperience : 'above_24m',
+    workExperienceMonths: userData.workExperienceMonths !== undefined ? Number(userData.workExperienceMonths) : (userData.workExperience === 'below_3m' ? 2 : (userData.workExperience === '3m_to_24m' ? 12 : 25)),
+    currentCompanyExperience: userData.currentCompanyExperience !== undefined ? Number(userData.currentCompanyExperience) : (userData.workExperience === 'below_3m' ? 2 : (userData.workExperience === '3m_to_24m' ? 12 : 25)),
     designation: userData.designation || userData.jobRole || userData.profession || '',
     profession: userData.profession || userData.designation || ''
     // Note: Interest rate will be pulled dynamically from Admin Config in the loop below
