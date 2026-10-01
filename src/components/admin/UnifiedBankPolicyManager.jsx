@@ -1869,7 +1869,7 @@ const UnifiedBankPolicyManager = () => {
                                 { category: 'Others', incomeBand: '> 75k', roiBelow5L: 15.35, roi5Lto25L: 15.10, roiAbove25L: 14.10 }
                               ]).map((mRow, mIdx) => (
                                 <tr key={mIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                                  <td style={{ padding: '4px', textAlign: 'left', fontWeight: 600 }}>{mRow.category} ({mRow.incomeBand})</td>
+                                  <td style={{ padding: '4px', textAlign: 'left', fontWeight: 600, color: '#f8fafc' }}>{mRow.category} ({mRow.incomeBand})</td>
                                   {['roiBelow5L', 'roi5Lto25L', 'roiAbove25L'].map((fKey) => (
                                     <td key={fKey} style={{ padding: '4px' }}>
                                       <div className="table-input-cell highlight" style={{ minWidth: '65px' }}>
@@ -1926,7 +1926,7 @@ const UnifiedBankPolicyManager = () => {
                                 { category: 'Others', incomeBand: '> 75k', roiBelow5L: 16.10, roi5Lto25L: 15.85, roiAbove25L: 14.85 }
                               ]).map((mRow, mIdx) => (
                                 <tr key={mIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                                  <td style={{ padding: '4px', textAlign: 'left', fontWeight: 600 }}>{mRow.category} ({mRow.incomeBand})</td>
+                                  <td style={{ padding: '4px', textAlign: 'left', fontWeight: 600, color: '#f8fafc' }}>{mRow.category} ({mRow.incomeBand})</td>
                                   {['roiBelow5L', 'roi5Lto25L', 'roiAbove25L'].map((fKey) => (
                                     <td key={fKey} style={{ padding: '4px' }}>
                                       <div className="table-input-cell highlight" style={{ minWidth: '65px' }}>
@@ -1987,8 +1987,8 @@ const UnifiedBankPolicyManager = () => {
                               { category: 'Others', incomeBand: '> 30k', tier1or2Below4L: 19.30, tier1or2Above4L: 18.30, tier3or4Below4L: 20.05, tier3or4Above4L: 19.05 }
                             ]).map((pRow, pIdx) => (
                               <tr key={pIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                                <td style={{ padding: '5px', textAlign: 'left', fontWeight: 600 }}>{pRow.category}</td>
-                                <td style={{ padding: '5px', color: '#94a3b8' }}>{pRow.incomeBand}</td>
+                                <td style={{ padding: '5px', textAlign: 'left', fontWeight: 600, color: '#f8fafc' }}>{pRow.category}</td>
+                                <td style={{ padding: '5px', color: '#cbd5e1', fontWeight: 600 }}>{pRow.incomeBand}</td>
                                 {['tier1or2Below4L', 'tier1or2Above4L', 'tier3or4Below4L', 'tier3or4Above4L'].map((pKey) => (
                                   <td key={pKey} style={{ padding: '5px' }}>
                                     <div className="table-input-cell highlight" style={{ minWidth: '65px' }}>
@@ -4043,7 +4043,7 @@ const UnifiedBankPolicyManager = () => {
                             { cat: 'NC', vlr: 8, lr: 8, mr: 5, hr: 5 }
                           ]).map((mRow, rIdx) => (
                             <tr key={rIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                              <td style={{ padding: '6px', textAlign: 'left', fontWeight: 700 }}>Cat {mRow.cat}</td>
+                              <td style={{ padding: '6px', textAlign: 'left', fontWeight: 700, color: '#f8fafc' }}>Cat {mRow.cat}</td>
                               {['vlr', 'lr', 'mr', 'hr'].map((segKey) => (
                                 <td key={segKey} style={{ padding: '6px' }}>
                                   <div className="table-input-cell highlight" style={{ display: 'inline-flex', alignItems: 'center' }}>
@@ -8308,11 +8308,11 @@ const UnifiedBankPolicyManager = () => {
 
                       <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '12px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                         <span style={{ color: '#94a3b8', fontWeight: 600 }}>Min Salary Thresholds (Tier 1 – 4 ₹):</span>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
-                          <div className="table-input-cell" style={{ minWidth: '70px' }}>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+                          <div className="table-input-cell" style={{ minWidth: '85px' }}>
                             <span>T1: ₹</span>
                             <input 
-                              type="number" style={{ width: '55px' }}
+                              type="number" style={{ width: '65px', textAlign: 'center' }}
                               value={policyData?.abflDemographics?.minSalaryTier1 ?? 40000}
                               onChange={(e) => {
                                 const val = Number(e.target.value);
@@ -8321,10 +8321,10 @@ const UnifiedBankPolicyManager = () => {
                               }}
                             />
                           </div>
-                          <div className="table-input-cell" style={{ minWidth: '70px' }}>
+                          <div className="table-input-cell" style={{ minWidth: '85px' }}>
                             <span>T2: ₹</span>
                             <input 
-                              type="number" style={{ width: '55px' }}
+                              type="number" style={{ width: '65px', textAlign: 'center' }}
                               value={policyData?.abflDemographics?.minSalaryTier2 ?? 35000}
                               onChange={(e) => {
                                 const val = Number(e.target.value);
@@ -8333,10 +8333,10 @@ const UnifiedBankPolicyManager = () => {
                               }}
                             />
                           </div>
-                          <div className="table-input-cell" style={{ minWidth: '70px' }}>
+                          <div className="table-input-cell" style={{ minWidth: '85px' }}>
                             <span>T3: ₹</span>
                             <input 
-                              type="number" style={{ width: '55px' }}
+                              type="number" style={{ width: '65px', textAlign: 'center' }}
                               value={policyData?.abflDemographics?.minSalaryTier3 ?? 25000}
                               onChange={(e) => {
                                 const val = Number(e.target.value);
@@ -8345,10 +8345,10 @@ const UnifiedBankPolicyManager = () => {
                               }}
                             />
                           </div>
-                          <div className="table-input-cell" style={{ minWidth: '70px' }}>
+                          <div className="table-input-cell" style={{ minWidth: '85px' }}>
                             <span>T4: ₹</span>
                             <input 
-                              type="number" style={{ width: '55px' }}
+                              type="number" style={{ width: '65px', textAlign: 'center' }}
                               value={policyData?.abflDemographics?.minSalaryTier4 ?? 20000}
                               onChange={(e) => {
                                 const val = Number(e.target.value);
@@ -8362,10 +8362,10 @@ const UnifiedBankPolicyManager = () => {
 
                       <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '12px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                         <span style={{ color: '#94a3b8', fontWeight: 600 }}>Work Experience &amp; Min Loan:</span>
-                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
                           <div className="table-input-cell">
                             <input 
-                              type="number" style={{ width: '45px', textAlign: 'center' }}
+                              type="number" style={{ width: '50px', textAlign: 'center' }}
                               value={policyData?.abflDemographics?.minWorkExperienceMonths ?? 12}
                               onChange={(e) => {
                                 const val = Number(e.target.value);
@@ -8374,10 +8374,10 @@ const UnifiedBankPolicyManager = () => {
                               }}
                             /><span>Mos Exp</span>
                           </div>
-                          <div className="table-input-cell">
+                          <div className="table-input-cell" style={{ minWidth: '130px' }}>
                             <span>Min Loan: ₹</span>
                             <input 
-                              type="number" style={{ width: '70px' }}
+                              type="number" style={{ width: '80px', textAlign: 'center' }}
                               value={policyData?.abflDemographics?.minLoanAmount ?? 100000}
                               onChange={(e) => {
                                 const val = Number(e.target.value);
