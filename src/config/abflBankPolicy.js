@@ -115,7 +115,22 @@ export const ABFL_BANK_EXCEL_POLICY = {
 };
 
 // Function to calculate exact ABFL ROI based on parameters
-export const getAbflROI = (params = {}) => {
+export const getAbflROI = (params = {}, monthlyIncomeParam, categoryParam, cityTierParam, cibilScoreParam, isBTParam, customPolicyParam) => {
+  let paramsObj = {};
+  if (typeof params === 'object' && params !== null && !Array.isArray(params)) {
+    paramsObj = params;
+  } else {
+    paramsObj = {
+      loanAmount: params,
+      monthlyIncome: monthlyIncomeParam,
+      category: categoryParam,
+      cityTier: cityTierParam,
+      cibilScore: cibilScoreParam,
+      isBT: isBTParam,
+      customPolicy: customPolicyParam
+    };
+  }
+
   const {
     category = 'A',
     monthlyIncome = 50000,
@@ -125,9 +140,11 @@ export const getAbflROI = (params = {}) => {
     isBT = false,
     programType = 'Salary Multiplier Program',
     isHybridOd = false,
-    paperlessBt = false
-  } = params;
+    paperlessBt = false,
+    customPolicy = null
+  } = paramsObj;
 
+  const policy = customPolicy || ABFL_BANK_EXCEL_POLICY;
   const catUpper = String(category || '').toUpperCase();
   const tierUpper = String(cityTier || '').toUpperCase().trim();
   const isTier1or2 = tierUpper.includes('TIER 1') || tierUpper.includes('TIER 2') || tierUpper.includes('METRO') || tierUpper === '1' || tierUpper === '2';
@@ -144,12 +161,13 @@ export const getAbflROI = (params = {}) => {
     if (monthlyIncome <= 25000) incGroup = '<= 25k';
     else if (monthlyIncome <= 30000) incGroup = '25k - 30k';
 
-    const matrixRow = ABFL_BANK_EXCEL_POLICY.plProgressiveRoiMatrix.find(r => r.category === catGroup && r.incomeBand === incGroup);
+    const matrix = policy.plProgressiveRoiMatrix || ABFL_BANK_EXCEL_POLICY.plProgressiveRoiMatrix;
+    const matrixRow = matrix.find(r => r.category === catGroup && r.incomeBand === incGroup);
     if (matrixRow) {
       if (isTier1or2) {
-        baseRoi = loanAmount <= 400000 ? matrixRow.tier1or2Below4L : matrixRow.tier1or2Above4L;
+        baseRoi = loanAmount <= 400000 ? Number(matrixRow.tier1or2Below4L) : Number(matrixRow.tier1or2Above4L);
       } else {
-        baseRoi = loanAmount <= 400000 ? matrixRow.tier3or4Below4L : matrixRow.tier3or4Above4L;
+        baseRoi = loanAmount <= 400000 ? Number(matrixRow.tier3or4Below4L) : Number(matrixRow.tier3or4Above4L);
       }
     }
   } else {
@@ -163,12 +181,13 @@ export const getAbflROI = (params = {}) => {
     if (monthlyIncome <= 50000) incGroup = '<= 50k';
     else if (monthlyIncome <= 75000) incGroup = '50k - 75k';
 
-    const gridList = isTier1or2 ? ABFL_BANK_EXCEL_POLICY.salaryMultiplierRoiMatrix.tier1or2 : ABFL_BANK_EXCEL_POLICY.salaryMultiplierRoiMatrix.tier3or4;
+    const matrixObj = policy.salaryMultiplierRoiMatrix || ABFL_BANK_EXCEL_POLICY.salaryMultiplierRoiMatrix;
+    const gridList = isTier1or2 ? (matrixObj.tier1or2 || []) : (matrixObj.tier3or4 || []);
     const matrixRow = gridList.find(r => r.category === catGroup && r.incomeBand === incGroup);
     if (matrixRow) {
-      if (loanAmount > 2500000) baseRoi = matrixRow.roiAbove25L;
-      else if (loanAmount >= 500000) baseRoi = matrixRow.roi5Lto25L;
-      else baseRoi = matrixRow.roiBelow5L;
+      if (loanAmount > 2500000) baseRoi = Number(matrixRow.roiAbove25L);
+      else if (loanAmount >= 500000) baseRoi = Number(matrixRow.roi5Lto25L);
+      else baseRoi = Number(matrixRow.roiBelow5L);
     }
   }
 

@@ -92,15 +92,6 @@ export const poonawalaConfig = {
     }
   },
 
-  // Excel Section 4 Rows 34-52: Detailed Rate Grid Lookup Function
-  getPoonawalaRate: (category, income, loanAmount, cibilScore) => {
-    const cibil = Number(cibilScore || 750);
-    const cat = String(category || 'A').toUpperCase().trim();
-    const isSuperA = cat.includes('SUPER') || cat === 'A';
-    const isGovtOrB = cat === 'GOVT' || cat === 'B';
-    const isC = cat === 'C';
-    const isD = cat === 'D';
-
   // Rate Grids (Excel Sheet: POONAWALA — Effective 1st Aug 2026)
   rateGrids: {
     superCatCatAGovtRatna: [

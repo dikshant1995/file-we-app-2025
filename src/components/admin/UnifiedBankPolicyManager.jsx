@@ -395,7 +395,42 @@ const sanitizePolicyData = (raw) => {
         ]),
     companies: Array.isArray(raw.companies) && raw.companies.length > 0 
       ? raw.companies 
-      : DEFAULT_UNIFIED_POLICY.companies
+      : DEFAULT_UNIFIED_POLICY.companies,
+    // Finnable Specific Editable Policy Objects
+    finnableOverview: raw.finnableOverview || {
+      minLoanAmount: 50000, maxLoanAmount: 1000000, minRoi: 22.0, maxRoi: 36.0,
+      minPf: 2.0, maxPf: 6.0, minTenureMonths: 12, maxTenureMonths: 60, minAge: 21,
+      maxAgeLogin: 55, maxAgeMaturity: 60, ccObligationPercent: 5, goldLoanObligationPercent: 5,
+      kccObligationPercent: 5, minSalaryTier1: 20000, minSalaryTier2: 15000, minWorkExperienceMonths: 6
+    },
+    finnableRiskMatrix: raw.finnableRiskMatrix || {
+      cibil700Plus: { minLoanAmount: 50000, maxLoanAmount: 1000000, minTenureMonths: 6, maxTenureMonths: 60, minAge: 21, maxAgeLogin: 55, maxAgeMaturity: 60, minSalaryTier1: 20000, minSalaryTier2: 15000, form16Threshold: 500000 },
+      ntcMinusOne: { finnableScoreMin: 600, minLoanAmount: 50000, maxLoanAmount: 400000, minTenureMonths: 6, maxTenureMonths: 36, minAge: 21, maxAgeLogin: 55, maxAgeMaturity: 60, minSalaryTier1: 20000, minSalaryTier2: 15000, form16Threshold: 500000 }
+    },
+    finnableTenureMatrix: raw.finnableTenureMatrix || [
+      { segment: 'CIBIL Score 700+', minTenure: 6, maxTenure: 60, notes: 'Standard maximum tenure window' },
+      { segment: 'NTC (-1 or below 700)', minTenure: 6, maxTenure: 36, notes: 'Capped to 36 Months for new-to-credit' }
+    ],
+    finnableEmploymentRules: raw.finnableEmploymentRules || [
+      { companyType: 'Pvt Ltd / Public Ltd / LLP (With PF)', rule: '3 salary credits from 2 different companies allowed with PF (PF must be validated for both companies).' },
+      { companyType: 'Pvt Ltd / Public Ltd / LLP (Without PF)', rule: '3 salary credits from the same company are mandatory.' },
+      { companyType: 'Sole Prop / Partnership / HUF (With PF)', rule: '3 salary credits from the same company are mandatory.' },
+      { companyType: 'Sole Prop / Partnership (Without PF)', rule: '6 salary credits from the same company are mandatory.' }
+    ],
+    // ABFL Specific Editable Policy Objects
+    abflTenureRules: raw.abflTenureRules || [
+      { categorisation: 'EMERGING / ELITE', tenureRange: '<= 60 Months', eligibilityFormula: 'Actual Tenure minus 12 Months', minTenure: 12, maxTenureTL: 84, maxTenureOD: 96 },
+      { categorisation: 'ELITE', tenureRange: '61 - 72 Months', eligibilityFormula: 'Policy eligibility rules apply', minTenure: 12, maxTenureTL: 84, maxTenureOD: 96 },
+      { categorisation: 'ELITE', tenureRange: '73 - 84 Months', eligibilityFormula: '84 Months applied is eligible for 72 Months', minTenure: 12, maxTenureTL: 84, maxTenureOD: 96 }
+    ],
+    abflDemographics: raw.abflDemographics || {
+      minAge: 21, maxAge: 60, retirementAge: 60, minSalaryTier1: 40000, minSalaryTier2: 35000,
+      minSalaryTier3: 25000, minSalaryTier4: 20000, minWorkExperienceMonths: 12, ccObligationPercent: 5,
+      ccBtAllowedCount: 5, maxCcBtSalaryMultiplier: 6, minLoanAmount: 100000
+    },
+    enhancedMaxLoanRule: raw.enhancedMaxLoanRule || {
+      maxAmount: 6500000, minIncome: 250000, minCibil: 755
+    }
   };
 };
 
@@ -1602,23 +1637,16 @@ const UnifiedBankPolicyManager = () => {
                     {isIndusind && (
                       <p>IndusInd Master Policy Slabs: <strong>10L ABOVE CASES (Insurance Mandate)</strong> (9.99%) and <strong>5L ABOVE CASES</strong> (12.00%).</p>
                     )}
-                    {isAxis && (
-                      <p>Axis Bank Master Policy Slabs: <strong>10L ABOVE CASES</strong> (Super A/A: 10.35%, B: 10.45%, C: 10.75%, Govt: 10.45%).</p>
-                    )}
-                    {!isKotak && !isTata && !isBajaj && !isBandhan && !isChola && !isAxisFin && !isLnt && !isPiramal && !isPoonawala && !isIcici && !isAbfl && !isSmfg && !isHdfc && !isIndusind && !isAxis && !isAu && (
-                      <p>Define minimum ROI strictly according to employer category and loan amount brackets.</p>
-                    )}
                   </div>
                 </div>
-
                 {isAbfl ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    {/* Table 5: Salary Multiplier Program ROI Matrix */}
+                    {/* Table 5: Salary Multiplier Program ROI Matrix (Editable) */}
                     <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(166, 25, 46, 0.35)' }}>
                       <div style={{ fontWeight: 700, color: '#f87171', fontSize: '0.92rem', marginBottom: '8px' }}>
-                        📈 Table 5: Salary Multiplier Program ROI Matrix (Tier 1/2 vs Tier 3/4)
+                        📈 Table 5: Salary Multiplier Program ROI Matrix (Tier 1/2 vs Tier 3/4) (Editable)
                       </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '14px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '14px' }}>
                         {/* Tier 1 / 2 */}
                         <div>
                           <div style={{ fontWeight: 700, color: '#38bdf8', fontSize: '0.84rem', marginBottom: '6px' }}>Tier 1 / 2 Cities</div>
@@ -1626,31 +1654,50 @@ const UnifiedBankPolicyManager = () => {
                             <thead>
                               <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
                                 <th style={{ padding: '4px', textAlign: 'left' }}>Cat / Income</th>
-                                <th style={{ padding: '4px' }}>&lt;= 5L</th>
-                                <th style={{ padding: '4px' }}>5L - 25L</th>
-                                <th style={{ padding: '4px' }}>&gt; 25L</th>
+                                <th style={{ padding: '4px' }}>&lt;= 5L (%)</th>
+                                <th style={{ padding: '4px' }}>5L - 25L (%)</th>
+                                <th style={{ padding: '4px' }}>&gt; 25L (%)</th>
                               </tr>
                             </thead>
                             <tbody>
-                              {[
-                                { cat: 'A/B', inc: '<=50k', l1: '14.70%', l2: '14.45%', l3: '13.45%' },
-                                { cat: 'A/B', inc: '50k-75k', l1: '14.20%', l2: '13.95%', l3: '12.95%' },
-                                { cat: 'A/B', inc: '>75k', l1: '13.85%', l2: '13.60%', l3: '12.60%' },
-                                { cat: 'C', inc: '<=50k', l1: '15.65%', l2: '15.40%', l3: '14.40%' },
-                                { cat: 'C', inc: '50k-75k', l1: '15.15%', l2: '14.90%', l3: '13.90%' },
-                                { cat: 'C', inc: '>75k', l1: '14.80%', l2: '14.55%', l3: '13.55%' },
-                                { cat: 'D', inc: '<=50k', l1: '15.80%', l2: '15.55%', l3: '14.55%' },
-                                { cat: 'D', inc: '50k-75k', l1: '15.30%', l2: '15.05%', l3: '14.05%' },
-                                { cat: 'D', inc: '>75k', l1: '14.95%', l2: '14.70%', l3: '13.70%' },
-                                { cat: 'Others', inc: '<=50k', l1: '16.20%', l2: '15.95%', l3: '14.95%' },
-                                { cat: 'Others', inc: '50k-75k', l1: '15.70%', l2: '15.45%', l3: '14.45%' },
-                                { cat: 'Others', inc: '>75k', l1: '15.35%', l2: '15.10%', l3: '14.10%' }
-                              ].map((mRow, mIdx) => (
+                              {(policyData?.salaryMultiplierRoiMatrix?.tier1or2 || [
+                                { category: 'A / B', incomeBand: '<= 50k', roiBelow5L: 14.70, roi5Lto25L: 14.45, roiAbove25L: 13.45 },
+                                { category: 'A / B', incomeBand: '50k - 75k', roiBelow5L: 14.20, roi5Lto25L: 13.95, roiAbove25L: 12.95 },
+                                { category: 'A / B', incomeBand: '> 75k', roiBelow5L: 13.85, roi5Lto25L: 13.60, roiAbove25L: 12.60 },
+                                { category: 'C', incomeBand: '<= 50k', roiBelow5L: 15.65, roi5Lto25L: 15.40, roiAbove25L: 14.40 },
+                                { category: 'C', incomeBand: '50k - 75k', roiBelow5L: 15.15, roi5Lto25L: 14.90, roiAbove25L: 13.90 },
+                                { category: 'C', incomeBand: '> 75k', roiBelow5L: 14.80, roi5Lto25L: 14.55, roiAbove25L: 13.55 },
+                                { category: 'D', incomeBand: '<= 50k', roiBelow5L: 15.80, roi5Lto25L: 15.55, roiAbove25L: 14.55 },
+                                { category: 'D', incomeBand: '50k - 75k', roiBelow5L: 15.30, roi5Lto25L: 15.05, roiAbove25L: 14.05 },
+                                { category: 'D', incomeBand: '> 75k', roiBelow5L: 14.95, roi5Lto25L: 14.70, roiAbove25L: 13.70 },
+                                { category: 'Others', incomeBand: '<= 50k', roiBelow5L: 16.20, roi5Lto25L: 15.95, roiAbove25L: 14.95 },
+                                { category: 'Others', incomeBand: '50k - 75k', roiBelow5L: 15.70, roi5Lto25L: 15.45, roiAbove25L: 14.45 },
+                                { category: 'Others', incomeBand: '> 75k', roiBelow5L: 15.35, roi5Lto25L: 15.10, roiAbove25L: 14.10 }
+                              ]).map((mRow, mIdx) => (
                                 <tr key={mIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                                  <td style={{ padding: '4px', textAlign: 'left', fontWeight: 600 }}>{mRow.cat} ({mRow.inc})</td>
-                                  <td style={{ padding: '4px', color: '#e2e8f0' }}>{mRow.l1}</td>
-                                  <td style={{ padding: '4px', color: '#fbbf24' }}>{mRow.l2}</td>
-                                  <td style={{ padding: '4px', color: '#4ade80', fontWeight: 700 }}>{mRow.l3}</td>
+                                  <td style={{ padding: '4px', textAlign: 'left', fontWeight: 600 }}>{mRow.category} ({mRow.incomeBand})</td>
+                                  {['roiBelow5L', 'roi5Lto25L', 'roiAbove25L'].map((fKey) => (
+                                    <td key={fKey} style={{ padding: '4px' }}>
+                                      <div className="table-input-cell highlight" style={{ minWidth: '65px' }}>
+                                        <input 
+                                          type="number" step="0.05"
+                                          style={{ width: '50px', textAlign: 'center' }}
+                                          value={mRow[fKey]}
+                                          onChange={(e) => {
+                                            const val = Number(e.target.value);
+                                            const baseObj = policyData?.salaryMultiplierRoiMatrix || BANK_EXCEL_POLICIES['abfl'].salaryMultiplierRoiMatrix;
+                                            const tier1List = [...(baseObj.tier1or2 || [])];
+                                            tier1List[mIdx] = { ...tier1List[mIdx], [fKey]: val };
+                                            setPolicyData({
+                                              ...policyData,
+                                              salaryMultiplierRoiMatrix: { ...baseObj, tier1or2: tier1List }
+                                            });
+                                          }}
+                                        />
+                                        <span>%</span>
+                                      </div>
+                                    </td>
+                                  ))}
                                 </tr>
                               ))}
                             </tbody>
@@ -1664,31 +1711,50 @@ const UnifiedBankPolicyManager = () => {
                             <thead>
                               <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
                                 <th style={{ padding: '4px', textAlign: 'left' }}>Cat / Income</th>
-                                <th style={{ padding: '4px' }}>&lt;= 5L</th>
-                                <th style={{ padding: '4px' }}>5L - 25L</th>
-                                <th style={{ padding: '4px' }}>&gt; 25L</th>
+                                <th style={{ padding: '4px' }}>&lt;= 5L (%)</th>
+                                <th style={{ padding: '4px' }}>5L - 25L (%)</th>
+                                <th style={{ padding: '4px' }}>&gt; 25L (%)</th>
                               </tr>
                             </thead>
                             <tbody>
-                              {[
-                                { cat: 'A/B', inc: '<=50k', l1: '15.45%', l2: '15.20%', l3: '14.20%' },
-                                { cat: 'A/B', inc: '50k-75k', l1: '14.95%', l2: '14.70%', l3: '13.70%' },
-                                { cat: 'A/B', inc: '>75k', l1: '14.60%', l2: '14.35%', l3: '13.35%' },
-                                { cat: 'C', inc: '<=50k', l1: '16.40%', l2: '16.15%', l3: '15.15%' },
-                                { cat: 'C', inc: '50k-75k', l1: '15.90%', l2: '15.65%', l3: '14.65%' },
-                                { cat: 'C', inc: '>75k', l1: '15.55%', l2: '15.30%', l3: '14.30%' },
-                                { cat: 'D', inc: '<=50k', l1: '16.55%', l2: '16.30%', l3: '15.30%' },
-                                { cat: 'D', inc: '50k-75k', l1: '16.05%', l2: '16.00%', l3: '14.80%' },
-                                { cat: 'D', inc: '>75k', l1: '15.70%', l2: '15.45%', l3: '14.45%' },
-                                { cat: 'Others', inc: '<=50k', l1: '16.95%', l2: '16.70%', l3: '15.70%' },
-                                { cat: 'Others', inc: '50k-75k', l1: '16.45%', l2: '16.20%', l3: '15.20%' },
-                                { cat: 'Others', inc: '>75k', l1: '16.10%', l2: '15.85%', l3: '14.85%' }
-                              ].map((mRow, mIdx) => (
+                              {(policyData?.salaryMultiplierRoiMatrix?.tier3or4 || [
+                                { category: 'A / B', incomeBand: '<= 50k', roiBelow5L: 15.45, roi5Lto25L: 15.20, roiAbove25L: 14.20 },
+                                { category: 'A / B', incomeBand: '50k - 75k', roiBelow5L: 14.95, roi5Lto25L: 14.70, roiAbove25L: 13.70 },
+                                { category: 'A / B', incomeBand: '> 75k', roiBelow5L: 14.60, roi5Lto25L: 14.35, roiAbove25L: 13.35 },
+                                { category: 'C', incomeBand: '<= 50k', roiBelow5L: 16.40, roi5Lto25L: 16.15, roiAbove25L: 15.15 },
+                                { category: 'C', incomeBand: '50k - 75k', roiBelow5L: 15.90, roi5Lto25L: 15.65, roiAbove25L: 14.65 },
+                                { category: 'C', incomeBand: '> 75k', roiBelow5L: 15.55, roi5Lto25L: 15.30, roiAbove25L: 14.30 },
+                                { category: 'D', incomeBand: '<= 50k', roiBelow5L: 16.55, roi5Lto25L: 16.30, roiAbove25L: 15.30 },
+                                { category: 'D', incomeBand: '50k - 75k', roiBelow5L: 16.05, roi5Lto25L: 16.00, roiAbove25L: 14.80 },
+                                { category: 'D', incomeBand: '> 75k', roiBelow5L: 15.70, roi5Lto25L: 15.45, roiAbove25L: 14.45 },
+                                { category: 'Others', incomeBand: '<= 50k', roiBelow5L: 16.95, roi5Lto25L: 16.70, roiAbove25L: 15.70 },
+                                { category: 'Others', incomeBand: '50k - 75k', roiBelow5L: 16.45, roi5Lto25L: 16.20, roiAbove25L: 15.20 },
+                                { category: 'Others', incomeBand: '> 75k', roiBelow5L: 16.10, roi5Lto25L: 15.85, roiAbove25L: 14.85 }
+                              ]).map((mRow, mIdx) => (
                                 <tr key={mIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                                  <td style={{ padding: '4px', textAlign: 'left', fontWeight: 600 }}>{mRow.cat} ({mRow.inc})</td>
-                                  <td style={{ padding: '4px', color: '#e2e8f0' }}>{mRow.l1}</td>
-                                  <td style={{ padding: '4px', color: '#fbbf24' }}>{mRow.l2}</td>
-                                  <td style={{ padding: '4px', color: '#4ade80', fontWeight: 700 }}>{mRow.l3}</td>
+                                  <td style={{ padding: '4px', textAlign: 'left', fontWeight: 600 }}>{mRow.category} ({mRow.incomeBand})</td>
+                                  {['roiBelow5L', 'roi5Lto25L', 'roiAbove25L'].map((fKey) => (
+                                    <td key={fKey} style={{ padding: '4px' }}>
+                                      <div className="table-input-cell highlight" style={{ minWidth: '65px' }}>
+                                        <input 
+                                          type="number" step="0.05"
+                                          style={{ width: '50px', textAlign: 'center' }}
+                                          value={mRow[fKey]}
+                                          onChange={(e) => {
+                                            const val = Number(e.target.value);
+                                            const baseObj = policyData?.salaryMultiplierRoiMatrix || BANK_EXCEL_POLICIES['abfl'].salaryMultiplierRoiMatrix;
+                                            const tier3List = [...(baseObj.tier3or4 || [])];
+                                            tier3List[mIdx] = { ...tier3List[mIdx], [fKey]: val };
+                                            setPolicyData({
+                                              ...policyData,
+                                              salaryMultiplierRoiMatrix: { ...baseObj, tier3or4: tier3List }
+                                            });
+                                          }}
+                                        />
+                                        <span>%</span>
+                                      </div>
+                                    </td>
+                                  ))}
                                 </tr>
                               ))}
                             </tbody>
@@ -1697,10 +1763,10 @@ const UnifiedBankPolicyManager = () => {
                       </div>
                     </div>
 
-                    {/* Table 6: PL Progressive Program ROI Matrix */}
+                    {/* Table 6: PL Progressive Program ROI Matrix (Editable) */}
                     <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(192, 132, 252, 0.3)' }}>
                       <div style={{ fontWeight: 700, color: '#c084fc', fontSize: '0.92rem', marginBottom: '8px' }}>
-                        📊 Table 6: PL Progressive Program ROI Matrix
+                        📊 Table 6: PL Progressive Program ROI Matrix (Editable)
                       </div>
                       <div style={{ overflowX: 'auto' }}>
                         <table style={{ width: '100%', fontSize: '0.8rem', borderCollapse: 'collapse', textAlign: 'center' }}>
@@ -1715,24 +1781,38 @@ const UnifiedBankPolicyManager = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {[
-                              { cat: 'A & B', inc: '<= 25k', t1l: '18.95%', t1h: '17.95%', t3l: '19.70%', t3h: '18.70%' },
-                              { cat: 'A & B', inc: '25k - 30k', t1l: '18.45%', t1h: '17.45%', t3l: '19.20%', t3h: '18.20%' },
-                              { cat: 'A & B', inc: '> 30k', t1l: '17.95%', t1h: '16.95%', t3l: '18.70%', t3h: '17.70%' },
-                              { cat: 'C & D', inc: '<= 25k', t1l: '19.70%', t1h: '18.70%', t3l: '20.45%', t3h: '19.45%' },
-                              { cat: 'C & D', inc: '25k - 30k', t1l: '19.20%', t1h: '18.20%', t3l: '19.95%', t3h: '18.95%' },
-                              { cat: 'C & D', inc: '> 30k', t1l: '18.70%', t1h: '17.70%', t3l: '19.45%', t3h: '18.45%' },
-                              { cat: 'Others', inc: '<= 25k', t1l: '20.30%', t1h: '19.30%', t3l: '21.05%', t3h: '20.05%' },
-                              { cat: 'Others', inc: '25k - 30k', t1l: '19.80%', t1h: '18.80%', t3l: '20.55%', t3h: '19.55%' },
-                              { cat: 'Others', inc: '> 30k', t1l: '19.30%', t1h: '18.30%', t3l: '20.05%', t3h: '19.05%' }
-                            ].map((pRow, pIdx) => (
+                            {(policyData?.plProgressiveRoiMatrix || [
+                              { category: 'A & B', incomeBand: '<= 25k', tier1or2Below4L: 18.95, tier1or2Above4L: 17.95, tier3or4Below4L: 19.70, tier3or4Above4L: 18.70 },
+                              { category: 'A & B', incomeBand: '25k - 30k', tier1or2Below4L: 18.45, tier1or2Above4L: 17.45, tier3or4Below4L: 19.20, tier3or4Above4L: 18.20 },
+                              { category: 'A & B', incomeBand: '> 30k', tier1or2Below4L: 17.95, tier1or2Above4L: 16.95, tier3or4Below4L: 18.70, tier3or4Above4L: 17.70 },
+                              { category: 'C & D', incomeBand: '<= 25k', tier1or2Below4L: 19.70, tier1or2Above4L: 18.70, tier3or4Below4L: 20.45, tier3or4Above4L: 19.45 },
+                              { category: 'C & D', incomeBand: '25k - 30k', tier1or2Below4L: 19.20, tier1or2Above4L: 18.20, tier3or4Below4L: 19.95, tier3or4Above4L: 18.95 },
+                              { category: 'C & D', incomeBand: '> 30k', tier1or2Below4L: 18.70, tier1or2Above4L: 17.70, tier3or4Below4L: 19.45, tier3or4Above4L: 18.45 },
+                              { category: 'Others', incomeBand: '<= 25k', tier1or2Below4L: 20.30, tier1or2Above4L: 19.30, tier3or4Below4L: 21.05, tier3or4Above4L: 20.05 },
+                              { category: 'Others', incomeBand: '25k - 30k', tier1or2Below4L: 19.80, tier1or2Above4L: 18.80, tier3or4Below4L: 20.55, tier3or4Above4L: 19.55 },
+                              { category: 'Others', incomeBand: '> 30k', tier1or2Below4L: 19.30, tier1or2Above4L: 18.30, tier3or4Below4L: 20.05, tier3or4Above4L: 19.05 }
+                            ]).map((pRow, pIdx) => (
                               <tr key={pIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                                <td style={{ padding: '5px', textAlign: 'left', fontWeight: 600 }}>{pRow.cat}</td>
-                                <td style={{ padding: '5px', color: '#94a3b8' }}>{pRow.inc}</td>
-                                <td style={{ padding: '5px', color: '#38bdf8' }}>{pRow.t1l}</td>
-                                <td style={{ padding: '5px', color: '#4ade80', fontWeight: 700 }}>{pRow.t1h}</td>
-                                <td style={{ padding: '5px', color: '#fbbf24' }}>{pRow.t3l}</td>
-                                <td style={{ padding: '5px', color: '#f87171' }}>{pRow.t3h}</td>
+                                <td style={{ padding: '5px', textAlign: 'left', fontWeight: 600 }}>{pRow.category}</td>
+                                <td style={{ padding: '5px', color: '#94a3b8' }}>{pRow.incomeBand}</td>
+                                {['tier1or2Below4L', 'tier1or2Above4L', 'tier3or4Below4L', 'tier3or4Above4L'].map((pKey) => (
+                                  <td key={pKey} style={{ padding: '5px' }}>
+                                    <div className="table-input-cell highlight" style={{ minWidth: '65px' }}>
+                                      <input 
+                                        type="number" step="0.05"
+                                        style={{ width: '50px', textAlign: 'center' }}
+                                        value={pRow[pKey]}
+                                        onChange={(e) => {
+                                          const val = Number(e.target.value);
+                                          const currentList = [...(policyData?.plProgressiveRoiMatrix || BANK_EXCEL_POLICIES['abfl'].plProgressiveRoiMatrix)];
+                                          currentList[pIdx] = { ...currentList[pIdx], [pKey]: val };
+                                          setPolicyData({ ...policyData, plProgressiveRoiMatrix: currentList });
+                                        }}
+                                      />
+                                      <span>%</span>
+                                    </div>
+                                  </td>
+                                ))}
                               </tr>
                             ))}
                           </tbody>
@@ -1740,23 +1820,43 @@ const UnifiedBankPolicyManager = () => {
                       </div>
                     </div>
 
-                    {/* Table 7: Additional ROI Risk & Booking Add-ons */}
+                    {/* Table 7: Additional ROI Risk & Booking Add-ons (Editable) */}
                     <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
                       <div style={{ fontWeight: 700, color: '#38bdf8', fontSize: '0.92rem', marginBottom: '8px' }}>
-                        🏷️ Table 7: Additional ROI Risk &amp; Booking Add-ons
+                        🏷️ Table 7: Additional ROI Risk &amp; Booking Add-ons (Editable)
                       </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '12px', fontSize: '0.84rem' }}>
-                        <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '10px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
-                          <strong style={{ color: '#38bdf8' }}>Booking Add-ons:</strong>
-                          <div style={{ marginTop: '5px' }}>• Hybrid DL OD / DL OD: <strong style={{ color: '#fbbf24' }}>+1.00% Premium</strong></div>
-                          <div style={{ marginTop: '3px' }}>• Paperless BT: <strong style={{ color: '#fbbf24' }}>+1.00% Premium</strong></div>
-                        </div>
-                        <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '10px', borderRadius: '6px', border: '1px solid rgba(248, 113, 113, 0.2)' }}>
-                          <strong style={{ color: '#f87171' }}>Bureau Risk Premium Bands:</strong>
-                          <div style={{ marginTop: '5px' }}>• 810+: <strong>+0.00%</strong> | 786 - 810: <strong>+0.00% to +0.60%</strong></div>
-                          <div style={{ marginTop: '3px' }}>• 746 - 785: <strong>+0.65% to +1.60%</strong> | 701 - 745: <strong>+2.25% to +2.40%</strong></div>
-                          <div style={{ marginTop: '3px', color: '#f87171' }}>• LT 700 / NTC: <strong>+3.15% to +3.30%</strong></div>
-                        </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '0.84rem' }}>
+                        {(policyData?.additionalRoiRiskAddons || [
+                          { type: 'Booking Option', condition: 'Hybrid DL OD / DL OD', premium: 1.00 },
+                          { type: 'Booking Option', condition: 'Paperless BT', premium: 1.00 },
+                          { type: 'Risk Premium Bureau Band', condition: '810+', premium: 0.00 },
+                          { type: 'Risk Premium Bureau Band', condition: '786 - 810', premium: 0.30 },
+                          { type: 'Risk Premium Bureau Band', condition: '746 - 785', premium: 1.12 },
+                          { type: 'Risk Premium Bureau Band', condition: '701 - 745', premium: 2.30 },
+                          { type: 'Risk Premium Bureau Band', condition: 'LT 700 / NTC', premium: 3.20 }
+                        ]).map((addonRow, aIdx) => (
+                          <div key={aIdx} style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '10px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div>
+                              <strong style={{ color: '#38bdf8', fontSize: '0.8rem' }}>{addonRow.type}:</strong>
+                              <div style={{ color: '#e2e8f0', marginTop: '2px', fontWeight: 600 }}>{addonRow.condition}</div>
+                            </div>
+                            <div className="table-input-cell highlight" style={{ minWidth: '70px' }}>
+                              <span>+</span>
+                              <input 
+                                type="number" step="0.05"
+                                style={{ width: '45px', textAlign: 'center' }}
+                                value={addonRow.premium}
+                                onChange={(e) => {
+                                  const val = Number(e.target.value);
+                                  const currentList = [...(policyData?.additionalRoiRiskAddons || BANK_EXCEL_POLICIES['abfl'].additionalRoiRiskAddons)];
+                                  currentList[aIdx] = { ...currentList[aIdx], premium: val };
+                                  setPolicyData({ ...policyData, additionalRoiRiskAddons: currentList });
+                                }}
+                              />
+                              <span>%</span>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -1765,11 +1865,10 @@ const UnifiedBankPolicyManager = () => {
                     <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.35)' }}>
                       <div style={{ fontWeight: 700, color: '#34d399', fontSize: '0.95rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <CheckCircle2 size={18} />
-                        <span>Finnable Finance Ltd Rate of Interest (ROI) &amp; Processing Fee Matrix</span>
+                        <span>Finnable Finance Ltd Rate of Interest (ROI) &amp; Processing Fee Matrix (Editable)</span>
                       </div>
                       <div style={{ fontSize: '0.85rem', color: '#cbd5e1', marginBottom: '12px' }}>
-                        • <strong>Interest Rate Range:</strong> 22.00% to 36.00% p.a.<br/>
-                        • <strong>Processing Fee (PF) Range:</strong> 2.00% to 6.00%
+                        Define Minimum ROI, Maximum ROI, Default Applied ROI, and Processing Fee range for Finnable by employer category.
                       </div>
                       <div style={{ overflowX: 'auto' }}>
                         <table style={{ width: '100%', fontSize: '0.84rem', borderCollapse: 'collapse', textAlign: 'center' }}>
@@ -1778,23 +1877,74 @@ const UnifiedBankPolicyManager = () => {
                               <th style={{ padding: '6px 10px', textAlign: 'left' }}>Company Category</th>
                               <th style={{ padding: '6px 10px', color: '#34d399' }}>Minimum ROI (% p.a.)</th>
                               <th style={{ padding: '6px 10px', color: '#f87171' }}>Maximum ROI (% p.a.)</th>
-                              <th style={{ padding: '6px 10px', color: '#38bdf8' }}>Default Applied ROI</th>
+                              <th style={{ padding: '6px 10px', color: '#38bdf8' }}>Default Applied ROI (% p.a.)</th>
+                              <th style={{ padding: '6px 10px', color: '#fbbf24' }}>Processing Fee (Min – Max %)</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {[
-                              { category: 'Super A', min: '22.00%', max: '36.00%', def: '22.00%' },
-                              { category: 'Category A', min: '22.00%', max: '36.00%', def: '22.00%' },
-                              { category: 'Category B', min: '24.00%', max: '36.00%', def: '24.00%' },
-                              { category: 'Category C', min: '26.00%', max: '36.00%', def: '26.00%' },
-                              { category: 'Category D', min: '28.00%', max: '36.00%', def: '28.00%' },
-                              { category: 'Govt Employees', min: '22.00%', max: '36.00%', def: '22.00%' }
-                            ].map((rRow, rIdx) => (
+                            {(policyData?.interestRates || [
+                              { category: 'Super A', minRoi: 22.00, maxRoi: 36.00, defaultRoi: 22.00, processingFeeMin: 2.0, processingFeeMax: 6.0 },
+                              { category: 'A', minRoi: 22.00, maxRoi: 36.00, defaultRoi: 22.00, processingFeeMin: 2.0, processingFeeMax: 6.0 },
+                              { category: 'B', minRoi: 24.00, maxRoi: 36.00, defaultRoi: 24.00, processingFeeMin: 2.0, processingFeeMax: 6.0 },
+                              { category: 'C', minRoi: 26.00, maxRoi: 36.00, defaultRoi: 26.00, processingFeeMin: 2.0, processingFeeMax: 6.0 },
+                              { category: 'D', minRoi: 28.00, maxRoi: 36.00, defaultRoi: 28.00, processingFeeMin: 2.0, processingFeeMax: 6.0 },
+                              { category: 'Govt', minRoi: 22.00, maxRoi: 36.00, defaultRoi: 22.00, processingFeeMin: 2.0, processingFeeMax: 6.0 }
+                            ]).map((rRow, rIdx) => (
                               <tr key={rIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                                <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>{rRow.category}</td>
-                                <td style={{ padding: '6px 10px', color: '#34d399', fontWeight: 600 }}>{rRow.min}</td>
-                                <td style={{ padding: '6px 10px', color: '#f87171' }}>{rRow.max}</td>
-                                <td style={{ padding: '6px 10px', color: '#38bdf8', fontWeight: 700 }}>{rRow.def}</td>
+                                <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600, color: '#f87171' }}>{formatCategoryDisplay(rRow.category)}</td>
+                                <td>
+                                  <div className="table-input-cell highlight">
+                                    <input 
+                                      type="number" step="0.05"
+                                      value={rRow.minRoi ?? 22.00}
+                                      onChange={(e) => updateRate(rRow.category, 'minRoi', Number(e.target.value))}
+                                    />
+                                    <span>%</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <div className="table-input-cell">
+                                    <input 
+                                      type="number" step="0.05"
+                                      value={rRow.maxRoi ?? 36.00}
+                                      onChange={(e) => updateRate(rRow.category, 'maxRoi', Number(e.target.value))}
+                                    />
+                                    <span>%</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <div className="table-input-cell highlight">
+                                    <input 
+                                      type="number" step="0.05"
+                                      value={rRow.defaultRoi ?? rRow.minRoi ?? 22.00}
+                                      onChange={(e) => updateRate(rRow.category, 'defaultRoi', Number(e.target.value))}
+                                    />
+                                    <span>%</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'center' }}>
+                                    <div className="table-input-cell" style={{ minWidth: '55px' }}>
+                                      <input 
+                                        type="number" step="0.1"
+                                        style={{ width: '40px', textAlign: 'center' }}
+                                        value={rRow.processingFeeMin ?? 2.0}
+                                        onChange={(e) => updateRate(rRow.category, 'processingFeeMin', Number(e.target.value))}
+                                      />
+                                      <span>%</span>
+                                    </div>
+                                    <span style={{ color: '#94a3b8' }}>–</span>
+                                    <div className="table-input-cell" style={{ minWidth: '55px' }}>
+                                      <input 
+                                        type="number" step="0.1"
+                                        style={{ width: '40px', textAlign: 'center' }}
+                                        value={rRow.processingFeeMax ?? 6.0}
+                                        onChange={(e) => updateRate(rRow.category, 'processingFeeMax', Number(e.target.value))}
+                                      />
+                                      <span>%</span>
+                                    </div>
+                                  </div>
+                                </td>
                               </tr>
                             ))}
                           </tbody>
@@ -3335,11 +3485,11 @@ const UnifiedBankPolicyManager = () => {
 
               {(activeConfigBank?.id === 'finnable' || activeConfigBank?.name?.toLowerCase().includes('finnable')) && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  {/* Table 2: CIBIL Score & Risk Matrix */}
+                  {/* Table 2: CIBIL Score & Risk Matrix (Editable) */}
                   <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.35)' }}>
                     <div style={{ fontWeight: 700, color: '#34d399', fontSize: '0.95rem', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <CheckCircle2 size={18} />
-                      <span>Table 2: CIBIL Score &amp; Risk Matrix (Finnable Policy)</span>
+                      <span>Table 2: CIBIL Score &amp; Risk Matrix (Finnable Policy - Editable)</span>
                     </div>
                     <div style={{ overflowX: 'auto' }}>
                       <table style={{ width: '100%', fontSize: '0.84rem', borderCollapse: 'collapse', textAlign: 'center' }}>
@@ -3354,56 +3504,323 @@ const UnifiedBankPolicyManager = () => {
                           <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
                             <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>Finnable Internal Score Threshold</td>
                             <td style={{ padding: '6px 10px', color: '#94a3b8' }}>N/A (Standard)</td>
-                            <td style={{ padding: '6px 10px', color: '#fbbf24', fontWeight: 700 }}>&ge; 600 Score Required</td>
+                            <td style={{ padding: '6px 10px' }}>
+                              <div className="table-input-cell highlight" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                                <span style={{ fontSize: '0.8rem', color: '#fbbf24' }}>≥</span>
+                                <input 
+                                  type="number"
+                                  style={{ width: '55px', textAlign: 'center', color: '#fbbf24', fontWeight: 700 }}
+                                  value={policyData?.finnableRiskMatrix?.ntcMinusOne?.finnableScoreMin ?? 600}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const curr = policyData?.finnableRiskMatrix || {};
+                                    setPolicyData({ ...policyData, finnableRiskMatrix: { ...curr, ntcMinusOne: { ...(curr.ntcMinusOne || {}), finnableScoreMin: val } } });
+                                  }}
+                                />
+                              </div>
+                            </td>
                           </tr>
                           <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>Minimum Loan Amount</td>
-                            <td style={{ padding: '6px 10px' }}>₹50,000</td>
-                            <td style={{ padding: '6px 10px' }}>₹50,000</td>
+                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>Minimum Loan Amount (₹)</td>
+                            <td style={{ padding: '6px 10px' }}>
+                              <div className="table-input-cell" style={{ display: 'inline-flex' }}>
+                                <span>₹</span>
+                                <input 
+                                  type="number" style={{ width: '80px' }}
+                                  value={policyData?.finnableRiskMatrix?.cibil700Plus?.minLoanAmount ?? 50000}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const curr = policyData?.finnableRiskMatrix || {};
+                                    setPolicyData({ ...policyData, finnableRiskMatrix: { ...curr, cibil700Plus: { ...(curr.cibil700Plus || {}), minLoanAmount: val } } });
+                                  }}
+                                />
+                              </div>
+                            </td>
+                            <td style={{ padding: '6px 10px' }}>
+                              <div className="table-input-cell" style={{ display: 'inline-flex' }}>
+                                <span>₹</span>
+                                <input 
+                                  type="number" style={{ width: '80px' }}
+                                  value={policyData?.finnableRiskMatrix?.ntcMinusOne?.minLoanAmount ?? 50000}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const curr = policyData?.finnableRiskMatrix || {};
+                                    setPolicyData({ ...policyData, finnableRiskMatrix: { ...curr, ntcMinusOne: { ...(curr.ntcMinusOne || {}), minLoanAmount: val } } });
+                                  }}
+                                />
+                              </div>
+                            </td>
                           </tr>
                           <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>Maximum Loan Amount</td>
-                            <td style={{ padding: '6px 10px', color: '#34d399', fontWeight: 700 }}>₹10,00,000 (₹10 Lakhs)</td>
-                            <td style={{ padding: '6px 10px', color: '#fbbf24', fontWeight: 700 }}>₹4,00,000 (₹4 Lakhs Cap)</td>
+                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>Maximum Loan Amount (₹)</td>
+                            <td style={{ padding: '6px 10px' }}>
+                              <div className="table-input-cell highlight" style={{ display: 'inline-flex' }}>
+                                <span>₹</span>
+                                <input 
+                                  type="number" style={{ width: '90px', color: '#34d399', fontWeight: 700 }}
+                                  value={policyData?.finnableRiskMatrix?.cibil700Plus?.maxLoanAmount ?? 1000000}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const curr = policyData?.finnableRiskMatrix || {};
+                                    setPolicyData({ ...policyData, finnableRiskMatrix: { ...curr, cibil700Plus: { ...(curr.cibil700Plus || {}), maxLoanAmount: val } } });
+                                  }}
+                                />
+                              </div>
+                            </td>
+                            <td style={{ padding: '6px 10px' }}>
+                              <div className="table-input-cell highlight" style={{ display: 'inline-flex' }}>
+                                <span>₹</span>
+                                <input 
+                                  type="number" style={{ width: '90px', color: '#fbbf24', fontWeight: 700 }}
+                                  value={policyData?.finnableRiskMatrix?.ntcMinusOne?.maxLoanAmount ?? 400000}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const curr = policyData?.finnableRiskMatrix || {};
+                                    setPolicyData({ ...policyData, finnableRiskMatrix: { ...curr, ntcMinusOne: { ...(curr.ntcMinusOne || {}), maxLoanAmount: val } } });
+                                  }}
+                                />
+                              </div>
+                            </td>
                           </tr>
                           <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>Minimum Tenure</td>
-                            <td style={{ padding: '6px 10px' }}>6 Months</td>
-                            <td style={{ padding: '6px 10px' }}>6 Months</td>
+                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>Minimum Tenure (Months)</td>
+                            <td style={{ padding: '6px 10px' }}>
+                              <div className="table-input-cell" style={{ display: 'inline-flex' }}>
+                                <input 
+                                  type="number" style={{ width: '50px', textAlign: 'center' }}
+                                  value={policyData?.finnableRiskMatrix?.cibil700Plus?.minTenureMonths ?? 6}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const curr = policyData?.finnableRiskMatrix || {};
+                                    setPolicyData({ ...policyData, finnableRiskMatrix: { ...curr, cibil700Plus: { ...(curr.cibil700Plus || {}), minTenureMonths: val } } });
+                                  }}
+                                /><span>Mos</span>
+                              </div>
+                            </td>
+                            <td style={{ padding: '6px 10px' }}>
+                              <div className="table-input-cell" style={{ display: 'inline-flex' }}>
+                                <input 
+                                  type="number" style={{ width: '50px', textAlign: 'center' }}
+                                  value={policyData?.finnableRiskMatrix?.ntcMinusOne?.minTenureMonths ?? 6}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const curr = policyData?.finnableRiskMatrix || {};
+                                    setPolicyData({ ...policyData, finnableRiskMatrix: { ...curr, ntcMinusOne: { ...(curr.ntcMinusOne || {}), minTenureMonths: val } } });
+                                  }}
+                                /><span>Mos</span>
+                              </div>
+                            </td>
                           </tr>
                           <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>Maximum Tenure</td>
-                            <td style={{ padding: '6px 10px', color: '#34d399', fontWeight: 700 }}>60 Months (5 Years)</td>
-                            <td style={{ padding: '6px 10px', color: '#fbbf24', fontWeight: 700 }}>36 Months (3 Years Cap)</td>
+                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>Maximum Tenure (Months)</td>
+                            <td style={{ padding: '6px 10px' }}>
+                              <div className="table-input-cell highlight" style={{ display: 'inline-flex' }}>
+                                <input 
+                                  type="number" style={{ width: '50px', textAlign: 'center', color: '#34d399', fontWeight: 700 }}
+                                  value={policyData?.finnableRiskMatrix?.cibil700Plus?.maxTenureMonths ?? 60}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const curr = policyData?.finnableRiskMatrix || {};
+                                    setPolicyData({ ...policyData, finnableRiskMatrix: { ...curr, cibil700Plus: { ...(curr.cibil700Plus || {}), maxTenureMonths: val } } });
+                                  }}
+                                /><span>Mos</span>
+                              </div>
+                            </td>
+                            <td style={{ padding: '6px 10px' }}>
+                              <div className="table-input-cell highlight" style={{ display: 'inline-flex' }}>
+                                <input 
+                                  type="number" style={{ width: '50px', textAlign: 'center', color: '#fbbf24', fontWeight: 700 }}
+                                  value={policyData?.finnableRiskMatrix?.ntcMinusOne?.maxTenureMonths ?? 36}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const curr = policyData?.finnableRiskMatrix || {};
+                                    setPolicyData({ ...policyData, finnableRiskMatrix: { ...curr, ntcMinusOne: { ...(curr.ntcMinusOne || {}), maxTenureMonths: val } } });
+                                  }}
+                                /><span>Mos</span>
+                              </div>
+                            </td>
                           </tr>
                           <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>Minimum &amp; Maximum Age</td>
-                            <td style={{ padding: '6px 10px' }}>21 at login / 55 login / 60 maturity</td>
-                            <td style={{ padding: '6px 10px' }}>21 at login / 55 login / 60 maturity</td>
+                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>Minimum &amp; Maximum Age (Years)</td>
+                            <td style={{ padding: '6px 10px' }}>
+                              <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', alignItems: 'center' }}>
+                                <div className="table-input-cell" style={{ minWidth: '45px' }}>
+                                  <input 
+                                    type="number" style={{ width: '35px', textAlign: 'center' }}
+                                    value={policyData?.finnableRiskMatrix?.cibil700Plus?.minAge ?? 21}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const curr = policyData?.finnableRiskMatrix || {};
+                                      setPolicyData({ ...policyData, finnableRiskMatrix: { ...curr, cibil700Plus: { ...(curr.cibil700Plus || {}), minAge: val } } });
+                                    }}
+                                  />
+                                </div>
+                                <span style={{ color: '#94a3b8' }}>min /</span>
+                                <div className="table-input-cell" style={{ minWidth: '45px' }}>
+                                  <input 
+                                    type="number" style={{ width: '35px', textAlign: 'center' }}
+                                    value={policyData?.finnableRiskMatrix?.cibil700Plus?.maxAgeLogin ?? 55}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const curr = policyData?.finnableRiskMatrix || {};
+                                      setPolicyData({ ...policyData, finnableRiskMatrix: { ...curr, cibil700Plus: { ...(curr.cibil700Plus || {}), maxAgeLogin: val } } });
+                                    }}
+                                  />
+                                </div>
+                                <span style={{ color: '#94a3b8' }}>login /</span>
+                                <div className="table-input-cell" style={{ minWidth: '45px' }}>
+                                  <input 
+                                    type="number" style={{ width: '35px', textAlign: 'center' }}
+                                    value={policyData?.finnableRiskMatrix?.cibil700Plus?.maxAgeMaturity ?? 60}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const curr = policyData?.finnableRiskMatrix || {};
+                                      setPolicyData({ ...policyData, finnableRiskMatrix: { ...curr, cibil700Plus: { ...(curr.cibil700Plus || {}), maxAgeMaturity: val } } });
+                                    }}
+                                  />
+                                </div>
+                                <span style={{ color: '#94a3b8' }}>mat</span>
+                              </div>
+                            </td>
+                            <td style={{ padding: '6px 10px' }}>
+                              <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', alignItems: 'center' }}>
+                                <div className="table-input-cell" style={{ minWidth: '45px' }}>
+                                  <input 
+                                    type="number" style={{ width: '35px', textAlign: 'center' }}
+                                    value={policyData?.finnableRiskMatrix?.ntcMinusOne?.minAge ?? 21}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const curr = policyData?.finnableRiskMatrix || {};
+                                      setPolicyData({ ...policyData, finnableRiskMatrix: { ...curr, ntcMinusOne: { ...(curr.ntcMinusOne || {}), minAge: val } } });
+                                    }}
+                                  />
+                                </div>
+                                <span style={{ color: '#94a3b8' }}>min /</span>
+                                <div className="table-input-cell" style={{ minWidth: '45px' }}>
+                                  <input 
+                                    type="number" style={{ width: '35px', textAlign: 'center' }}
+                                    value={policyData?.finnableRiskMatrix?.ntcMinusOne?.maxAgeLogin ?? 55}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const curr = policyData?.finnableRiskMatrix || {};
+                                      setPolicyData({ ...policyData, finnableRiskMatrix: { ...curr, ntcMinusOne: { ...(curr.ntcMinusOne || {}), maxAgeLogin: val } } });
+                                    }}
+                                  />
+                                </div>
+                                <span style={{ color: '#94a3b8' }}>login /</span>
+                                <div className="table-input-cell" style={{ minWidth: '45px' }}>
+                                  <input 
+                                    type="number" style={{ width: '35px', textAlign: 'center' }}
+                                    value={policyData?.finnableRiskMatrix?.ntcMinusOne?.maxAgeMaturity ?? 60}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const curr = policyData?.finnableRiskMatrix || {};
+                                      setPolicyData({ ...policyData, finnableRiskMatrix: { ...curr, ntcMinusOne: { ...(curr.ntcMinusOne || {}), maxAgeMaturity: val } } });
+                                    }}
+                                  />
+                                </div>
+                                <span style={{ color: '#94a3b8' }}>mat</span>
+                              </div>
+                            </td>
                           </tr>
                           <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>Salary Requirement</td>
-                            <td style={{ padding: '6px 10px', color: '#38bdf8' }}>₹20k Tier 1 | ₹15k Tier 2</td>
-                            <td style={{ padding: '6px 10px', color: '#38bdf8' }}>₹20k Tier 1 | ₹15k Tier 2</td>
-                          </tr>
-                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>Documents Required</td>
-                            <td style={{ padding: '6px 10px', fontSize: '0.8rem' }}>Latest 3 Payslips/Letterhead, Aadhaar, PAN, 3/6M Bank Stmt</td>
-                            <td style={{ padding: '6px 10px', fontSize: '0.8rem' }}>Latest 3 Payslips/Letterhead, Aadhaar, PAN, 3/6M Bank Stmt</td>
+                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>Min Salary (Tier 1 / Tier 2 ₹)</td>
+                            <td style={{ padding: '6px 10px' }}>
+                              <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
+                                <div className="table-input-cell" style={{ minWidth: '70px' }}>
+                                  <span>₹</span>
+                                  <input 
+                                    type="number" style={{ width: '60px' }}
+                                    value={policyData?.finnableRiskMatrix?.cibil700Plus?.minSalaryTier1 ?? 20000}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const curr = policyData?.finnableRiskMatrix || {};
+                                      setPolicyData({ ...policyData, finnableRiskMatrix: { ...curr, cibil700Plus: { ...(curr.cibil700Plus || {}), minSalaryTier1: val } } });
+                                    }}
+                                  />
+                                </div>
+                                <span style={{ color: '#94a3b8' }}>/</span>
+                                <div className="table-input-cell" style={{ minWidth: '70px' }}>
+                                  <span>₹</span>
+                                  <input 
+                                    type="number" style={{ width: '60px' }}
+                                    value={policyData?.finnableRiskMatrix?.cibil700Plus?.minSalaryTier2 ?? 15000}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const curr = policyData?.finnableRiskMatrix || {};
+                                      setPolicyData({ ...policyData, finnableRiskMatrix: { ...curr, cibil700Plus: { ...(curr.cibil700Plus || {}), minSalaryTier2: val } } });
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            </td>
+                            <td style={{ padding: '6px 10px' }}>
+                              <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
+                                <div className="table-input-cell" style={{ minWidth: '70px' }}>
+                                  <span>₹</span>
+                                  <input 
+                                    type="number" style={{ width: '60px' }}
+                                    value={policyData?.finnableRiskMatrix?.ntcMinusOne?.minSalaryTier1 ?? 20000}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const curr = policyData?.finnableRiskMatrix || {};
+                                      setPolicyData({ ...policyData, finnableRiskMatrix: { ...curr, ntcMinusOne: { ...(curr.ntcMinusOne || {}), minSalaryTier1: val } } });
+                                    }}
+                                  />
+                                </div>
+                                <span style={{ color: '#94a3b8' }}>/</span>
+                                <div className="table-input-cell" style={{ minWidth: '70px' }}>
+                                  <span>₹</span>
+                                  <input 
+                                    type="number" style={{ width: '60px' }}
+                                    value={policyData?.finnableRiskMatrix?.ntcMinusOne?.minSalaryTier2 ?? 15000}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const curr = policyData?.finnableRiskMatrix || {};
+                                      setPolicyData({ ...policyData, finnableRiskMatrix: { ...curr, ntcMinusOne: { ...(curr.ntcMinusOne || {}), minSalaryTier2: val } } });
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            </td>
                           </tr>
                           <tr>
-                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>Verification Note</td>
-                            <td style={{ padding: '6px 10px', color: '#f87171' }}>Verify Form 16 if Loan Amount &ge; ₹5 Lakhs</td>
-                            <td style={{ padding: '6px 10px', color: '#f87171' }}>Verify Form 16 if Loan Amount &ge; ₹5 Lakhs</td>
+                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>Form 16 Verification Threshold (₹)</td>
+                            <td style={{ padding: '6px 10px' }}>
+                              <div className="table-input-cell" style={{ display: 'inline-flex' }}>
+                                <span>₹</span>
+                                <input 
+                                  type="number" style={{ width: '80px' }}
+                                  value={policyData?.finnableRiskMatrix?.cibil700Plus?.form16Threshold ?? 500000}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const curr = policyData?.finnableRiskMatrix || {};
+                                    setPolicyData({ ...policyData, finnableRiskMatrix: { ...curr, cibil700Plus: { ...(curr.cibil700Plus || {}), form16Threshold: val } } });
+                                  }}
+                                />
+                              </div>
+                            </td>
+                            <td style={{ padding: '6px 10px' }}>
+                              <div className="table-input-cell" style={{ display: 'inline-flex' }}>
+                                <span>₹</span>
+                                <input 
+                                  type="number" style={{ width: '80px' }}
+                                  value={policyData?.finnableRiskMatrix?.ntcMinusOne?.form16Threshold ?? 500000}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    const curr = policyData?.finnableRiskMatrix || {};
+                                    setPolicyData({ ...policyData, finnableRiskMatrix: { ...curr, ntcMinusOne: { ...(curr.ntcMinusOne || {}), ntcMinusOne: { ...(curr.ntcMinusOne || {}), form16Threshold: val } } } });
+                                  }}
+                                />
+                              </div>
+                            </td>
                           </tr>
                         </tbody>
                       </table>
                     </div>
                   </div>
                 </div>
-)}
-
-
+              )}
 
               {(activeConfigBank?.id === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('birla') || activeConfigBank?.name?.toLowerCase().includes('abfl')) && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -3457,9 +3874,55 @@ const UnifiedBankPolicyManager = () => {
                         </tbody>
                       </table>
                     </div>
-                    <div style={{ fontSize: '0.84rem', color: '#cbd5e1', background: 'rgba(15, 23, 42, 0.6)', padding: '12px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                      • <strong>Minimum Loan Thresholds:</strong> Employer Cat A &amp; B = <strong>₹10 Lacs</strong> | Cat C, D, NC, Proprietorship, Partnership, LLP = <strong>₹5 Lacs</strong> | Overall Min = <strong>₹1 Lac</strong><br/>
-                      • <strong style={{ color: '#4ade80' }}>Enhanced Maximum Loan (Up to ₹65 Lacs):</strong> Applicable if ALL met: (1) Cat A &amp; VLR/LR segment, (2) CIBIL &gt;= 755 &amp; Ever HL = True, (3) Income &gt;= ₹2.5 Lacs, (4) No DPD in 36M on loans &amp; 12M on cards.
+                    
+                    {/* Enhanced Max Loan Conditions Card (Editable) */}
+                    <div style={{ background: 'rgba(15, 23, 42, 0.65)', padding: '12px', borderRadius: '6px', border: '1px solid rgba(74, 222, 128, 0.25)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <div style={{ fontWeight: 700, color: '#4ade80', fontSize: '0.88rem' }}>
+                        ⚡ Enhanced Maximum Loan Rules (Editable Parameters)
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', alignItems: 'center', fontSize: '0.84rem' }}>
+                        <div>
+                          <span style={{ color: '#94a3b8' }}>Max Enhanced Cap: </span>
+                          <div className="table-input-cell highlight" style={{ display: 'inline-flex' }}>
+                            <span>₹</span>
+                            <input 
+                              type="number" style={{ width: '90px' }}
+                              value={policyData?.enhancedMaxLoanRule?.maxAmount ?? 6500000}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                setPolicyData({ ...policyData, enhancedMaxLoanRule: { ...(policyData?.enhancedMaxLoanRule || {}), maxAmount: val } });
+                              }}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <span style={{ color: '#94a3b8' }}>Min Monthly Income: </span>
+                          <div className="table-input-cell" style={{ display: 'inline-flex' }}>
+                            <span>₹</span>
+                            <input 
+                              type="number" style={{ width: '80px' }}
+                              value={policyData?.enhancedMaxLoanRule?.minIncome ?? 250000}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                setPolicyData({ ...policyData, enhancedMaxLoanRule: { ...(policyData?.enhancedMaxLoanRule || {}), minIncome: val } });
+                              }}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <span style={{ color: '#94a3b8' }}>Min CIBIL Score: </span>
+                          <div className="table-input-cell" style={{ display: 'inline-flex' }}>
+                            <input 
+                              type="number" style={{ width: '60px', textAlign: 'center' }}
+                              value={policyData?.enhancedMaxLoanRule?.minCibil ?? 755}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                setPolicyData({ ...policyData, enhancedMaxLoanRule: { ...(policyData?.enhancedMaxLoanRule || {}), minCibil: val } });
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -3769,75 +4232,86 @@ const UnifiedBankPolicyManager = () => {
                   <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.35)' }}>
                     <div style={{ fontWeight: 700, color: '#34d399', fontSize: '0.95rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <CheckCircle2 size={18} />
-                      <span>Finnable Finance Ltd Tenure &amp; Repayment Windows</span>
+                      <span>Finnable Finance Ltd Tenure &amp; Repayment Windows (Editable)</span>
                     </div>
                     <div style={{ overflowX: 'auto' }}>
                       <table style={{ width: '100%', fontSize: '0.84rem', borderCollapse: 'collapse', textAlign: 'center' }}>
                         <thead>
                           <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
                             <th style={{ padding: '6px 10px', textAlign: 'left' }}>Bureau Segment / Score</th>
-                            <th style={{ padding: '6px 10px' }}>Min Tenure</th>
+                            <th style={{ padding: '6px 10px' }}>Min Tenure (Months)</th>
                             <th style={{ padding: '6px 10px', color: '#34d399' }}>Max Tenure (Months)</th>
                             <th style={{ padding: '6px 10px', color: '#38bdf8' }}>Max Tenure (Years)</th>
                             <th style={{ padding: '6px 10px' }}>Policy Notes</th>
                           </tr>
                         </thead>
                         <tbody>
-                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600, color: '#34d399' }}>CIBIL Score 700+</td>
-                            <td style={{ padding: '6px 10px' }}>6 Months</td>
-                            <td style={{ padding: '6px 10px', color: '#34d399', fontWeight: 700 }}>60 Months</td>
-                            <td style={{ padding: '6px 10px', color: '#38bdf8' }}>5 Years</td>
-                            <td style={{ padding: '6px 10px', color: '#94a3b8' }}>Standard maximum tenure window</td>
-                          </tr>
-                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600, color: '#fbbf24' }}>NTC (-1 or below 700)</td>
-                            <td style={{ padding: '6px 10px' }}>6 Months</td>
-                            <td style={{ padding: '6px 10px', color: '#fbbf24', fontWeight: 700 }}>36 Months</td>
-                            <td style={{ padding: '6px 10px', color: '#38bdf8' }}>3 Years</td>
-                            <td style={{ padding: '6px 10px', color: '#fbbf24' }}>Capped to 36 Months for new-to-credit</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-
-
-
-
-              {(activeConfigBank?.id === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('birla') || activeConfigBank?.name?.toLowerCase().includes('abfl')) && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  {/* Table 3: Tenure and Repayment Windows */}
-                  <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(166, 25, 46, 0.35)' }}>
-                    <div style={{ fontWeight: 700, color: '#f87171', fontSize: '0.92rem', marginBottom: '8px' }}>
-                      ⏳ Table 3: Tenure and Repayment Windows (ABFL Policy)
-                    </div>
-                    <div style={{ overflowX: 'auto' }}>
-                      <table style={{ width: '100%', fontSize: '0.82rem', borderCollapse: 'collapse', textAlign: 'center' }}>
-                        <thead>
-                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
-                            <th style={{ padding: '6px 10px', textAlign: 'left' }}>Categorisation</th>
-                            <th style={{ padding: '6px 10px' }}>Applied Loan Tenure</th>
-                            <th style={{ padding: '6px 10px' }}>Tenure for Eligibility Calculation</th>
-                            <th style={{ padding: '6px 10px' }}>Min Tenure</th>
-                            <th style={{ padding: '6px 10px', color: '#38bdf8' }}>Max Tenure (TL / OD)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {[
-                            { cat: 'EMERGING / ELITE', applied: '<= 60 Months', calc: 'Actual Tenure minus 12 Months', min: '12 Months', max: '84 Months (TL) / 96 Months (OD)' },
-                            { cat: 'ELITE', applied: '61 - 72 Months', calc: 'Policy eligibility rules apply', min: '12 Months', max: '84 Months (TL) / 96 Months (OD)' },
-                            { cat: 'ELITE', applied: '73 - 84 Months', calc: '84 Months applied is eligible for 72 Months', min: '12 Months', max: '84 Months (TL) / 96 Months (OD)' }
-                          ].map((tRow, tIdx) => (
-                            <tr key={tIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                              <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>{tRow.cat}</td>
-                              <td style={{ padding: '6px 10px', color: '#38bdf8' }}>{tRow.applied}</td>
-                              <td style={{ padding: '6px 10px', color: '#e2e8f0' }}>{tRow.calc}</td>
-                              <td style={{ padding: '6px 10px' }}>{tRow.min}</td>
-                              <td style={{ padding: '6px 10px', color: '#4ade80', fontWeight: 700 }}>{tRow.max}</td>
+                          {(policyData?.finnableTenureMatrix || [
+                            { segment: 'CIBIL Score 700+', minTenure: 6, maxTenure: 60, notes: 'Standard maximum tenure window' },
+                            { segment: 'NTC (-1 or below 700)', minTenure: 6, maxTenure: 36, notes: 'Capped to 36 Months for new-to-credit' }
+                          ]).map((row, idx) => (
+                            <tr key={idx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                              <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600, color: idx === 0 ? '#34d399' : '#fbbf24' }}>
+                                <input
+                                  type="text"
+                                  style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', color: idx === 0 ? '#34d399' : '#fbbf24', fontWeight: 600, width: '100%', borderRadius: '4px', padding: '2px 6px' }}
+                                  value={row.segment}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    const updated = [...(policyData?.finnableTenureMatrix || [])];
+                                    updated[idx] = { ...updated[idx], segment: val };
+                                    setPolicyData({ ...policyData, finnableTenureMatrix: updated });
+                                  }}
+                                />
+                              </td>
+                              <td style={{ padding: '6px 10px' }}>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number"
+                                    style={{ width: '50px', textAlign: 'center' }}
+                                    value={row.minTenure}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...(policyData?.finnableTenureMatrix || [])];
+                                      updated[idx] = { ...updated[idx], minTenure: val };
+                                      setPolicyData({ ...policyData, finnableTenureMatrix: updated });
+                                    }}
+                                  />
+                                  <span>Mos</span>
+                                </div>
+                              </td>
+                              <td style={{ padding: '6px 10px' }}>
+                                <div className="table-input-cell highlight">
+                                  <input 
+                                    type="number"
+                                    style={{ width: '50px', textAlign: 'center', color: idx === 0 ? '#34d399' : '#fbbf24', fontWeight: 700 }}
+                                    value={row.maxTenure}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...(policyData?.finnableTenureMatrix || [])];
+                                      updated[idx] = { ...updated[idx], maxTenure: val };
+                                      setPolicyData({ ...policyData, finnableTenureMatrix: updated });
+                                    }}
+                                  />
+                                  <span>Mos</span>
+                                </div>
+                              </td>
+                              <td style={{ padding: '6px 10px', color: '#38bdf8', fontWeight: 700 }}>
+                                {Math.round((row.maxTenure || 0) / 12)} Years
+                              </td>
+                              <td style={{ padding: '6px 10px' }}>
+                                <input
+                                  type="text"
+                                  style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(148, 163, 184, 0.2)', color: '#e2e8f0', width: '100%', borderRadius: '4px', padding: '3px 8px', fontSize: '0.8rem' }}
+                                  value={row.notes || ''}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    const updated = [...(policyData?.finnableTenureMatrix || [])];
+                                    updated[idx] = { ...updated[idx], notes: val };
+                                    setPolicyData({ ...policyData, finnableTenureMatrix: updated });
+                                  }}
+                                />
+                              </td>
                             </tr>
                           ))}
                         </tbody>
@@ -3847,7 +4321,129 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               )}
 
-              {!(activeConfigBank?.id === 'finnable' || activeConfigBank?.name?.toLowerCase().includes('finnable') || activeConfigBank?.id === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('birla') || activeConfigBank?.name?.toLowerCase().includes('abfl')) && (
+              {(activeConfigBank?.id === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('birla') || activeConfigBank?.name?.toLowerCase().includes('abfl')) && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {/* Table 3: Tenure and Repayment Windows */}
+                  <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(166, 25, 46, 0.35)' }}>
+                    <div style={{ fontWeight: 700, color: '#f87171', fontSize: '0.92rem', marginBottom: '8px' }}>
+                      ⏳ Table 3: Tenure and Repayment Windows (ABFL Policy) (Editable)
+                    </div>
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', fontSize: '0.82rem', borderCollapse: 'collapse', textAlign: 'center' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
+                            <th style={{ padding: '6px 10px', textAlign: 'left' }}>Categorisation</th>
+                            <th style={{ padding: '6px 10px' }}>Applied Loan Tenure</th>
+                            <th style={{ padding: '6px 10px' }}>Tenure for Eligibility Calculation</th>
+                            <th style={{ padding: '6px 10px' }}>Min Tenure (Mos)</th>
+                            <th style={{ padding: '6px 10px', color: '#38bdf8' }}>Max Tenure TL (Mos)</th>
+                            <th style={{ padding: '6px 10px', color: '#4ade80' }}>Max Tenure OD (Mos)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(policyData?.abflTenureRules || [
+                            { categorisation: 'EMERGING / ELITE', tenureRange: '<= 60 Months', eligibilityFormula: 'Actual Tenure minus 12 Months', minTenure: 12, maxTenureTL: 84, maxTenureOD: 96 },
+                            { categorisation: 'ELITE', tenureRange: '61 - 72 Months', eligibilityFormula: 'Policy eligibility rules apply', minTenure: 12, maxTenureTL: 84, maxTenureOD: 96 },
+                            { categorisation: 'ELITE', tenureRange: '73 - 84 Months', eligibilityFormula: '84 Months applied is eligible for 72 Months', minTenure: 12, maxTenureTL: 84, maxTenureOD: 96 }
+                          ]).map((tRow, tIdx) => (
+                            <tr key={tIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                              <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600 }}>
+                                <input
+                                  type="text"
+                                  style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(148, 163, 184, 0.2)', color: '#f87171', fontWeight: 600, width: '100%', borderRadius: '4px', padding: '3px 6px' }}
+                                  value={tRow.categorisation}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    const updated = [...(policyData?.abflTenureRules || [])];
+                                    updated[tIdx] = { ...updated[tIdx], categorisation: val };
+                                    setPolicyData({ ...policyData, abflTenureRules: updated });
+                                  }}
+                                />
+                              </td>
+                              <td style={{ padding: '6px 10px', color: '#38bdf8' }}>
+                                <input
+                                  type="text"
+                                  style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(56, 189, 248, 0.3)', color: '#38bdf8', width: '100%', borderRadius: '4px', padding: '3px 6px', textAlign: 'center' }}
+                                  value={tRow.tenureRange}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    const updated = [...(policyData?.abflTenureRules || [])];
+                                    updated[tIdx] = { ...updated[tIdx], tenureRange: val };
+                                    setPolicyData({ ...policyData, abflTenureRules: updated });
+                                  }}
+                                />
+                              </td>
+                              <td style={{ padding: '6px 10px', color: '#e2e8f0' }}>
+                                <input
+                                  type="text"
+                                  style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(148, 163, 184, 0.2)', color: '#e2e8f0', width: '100%', borderRadius: '4px', padding: '3px 6px' }}
+                                  value={tRow.eligibilityFormula}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    const updated = [...(policyData?.abflTenureRules || [])];
+                                    updated[tIdx] = { ...updated[tIdx], eligibilityFormula: val };
+                                    setPolicyData({ ...policyData, abflTenureRules: updated });
+                                  }}
+                                />
+                              </td>
+                              <td style={{ padding: '6px 10px' }}>
+                                <div className="table-input-cell">
+                                  <input 
+                                    type="number"
+                                    style={{ width: '45px', textAlign: 'center' }}
+                                    value={tRow.minTenure}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...(policyData?.abflTenureRules || [])];
+                                      updated[tIdx] = { ...updated[tIdx], minTenure: val };
+                                      setPolicyData({ ...policyData, abflTenureRules: updated });
+                                    }}
+                                  />
+                                  <span>M</span>
+                                </div>
+                              </td>
+                              <td style={{ padding: '6px 10px' }}>
+                                <div className="table-input-cell highlight">
+                                  <input 
+                                    type="number"
+                                    style={{ width: '45px', textAlign: 'center', color: '#38bdf8', fontWeight: 700 }}
+                                    value={tRow.maxTenureTL}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...(policyData?.abflTenureRules || [])];
+                                      updated[tIdx] = { ...updated[tIdx], maxTenureTL: val };
+                                      setPolicyData({ ...policyData, abflTenureRules: updated });
+                                    }}
+                                  />
+                                  <span>M</span>
+                                </div>
+                              </td>
+                              <td style={{ padding: '6px 10px' }}>
+                                <div className="table-input-cell highlight">
+                                  <input 
+                                    type="number"
+                                    style={{ width: '45px', textAlign: 'center', color: '#4ade80', fontWeight: 700 }}
+                                    value={tRow.maxTenureOD}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      const updated = [...(policyData?.abflTenureRules || [])];
+                                      updated[tIdx] = { ...updated[tIdx], maxTenureOD: val };
+                                      setPolicyData({ ...policyData, abflTenureRules: updated });
+                                    }}
+                                  />
+                                  <span>M</span>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {true && (
 
 
 
@@ -5614,7 +6210,7 @@ const UnifiedBankPolicyManager = () => {
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#34d399', fontWeight: 700, fontSize: '0.98rem' }}>
                       <CheckCircle2 size={18} />
-                      <span>Finnable Finance Ltd Table 5: Employment Checks &amp; Company Type Eligibility Matrix</span>
+                      <span>Finnable Finance Ltd Table 5: Employment Checks &amp; Company Type Eligibility Matrix (Editable)</span>
                     </div>
                     <div style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>
                       • <strong>Allowed Entities (With PF):</strong> Public Ltd, Pvt Ltd, LLP, Partnership, Sole Proprietorship, Schools, Colleges, Hospital, NGO, HUF.<br />
@@ -5636,17 +6232,39 @@ const UnifiedBankPolicyManager = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {[
-                          { entity: 'Allowed Entities (With PF)', rule: 'Public Ltd, Pvt Ltd, LLP, Partnership, Sole Proprietorship, Schools, Colleges, Hospital, NGO, HUF (Hindu Undivided Family with PF).' },
-                          { entity: 'Sole Proprietorship Zone Restrictions', rule: 'Allowed in West and South zones only.' },
-                          { entity: 'Pvt Ltd / Public Ltd / LLP (With PF)', rule: '3 salary credits from 2 different companies allowed with PF (PF must be validated for both companies).' },
-                          { entity: 'Pvt Ltd / Public Ltd / LLP (Without PF)', rule: '3 salary credits from the same company are mandatory.' },
-                          { entity: 'Sole Prop / Partnership / HUF (With PF)', rule: '3 salary credits from the same company are mandatory.' },
-                          { entity: 'Sole Prop / Partnership (Without PF)', rule: '6 salary credits from the same company are mandatory.' }
-                        ].map((row, idx) => (
+                        {(policyData?.finnableEmploymentRules || [
+                          { companyType: 'Pvt Ltd / Public Ltd / LLP (With PF)', rule: '3 salary credits from 2 different companies allowed with PF (PF must be validated for both companies).' },
+                          { companyType: 'Pvt Ltd / Public Ltd / LLP (Without PF)', rule: '3 salary credits from the same company are mandatory.' },
+                          { companyType: 'Sole Prop / Partnership / HUF (With PF)', rule: '3 salary credits from the same company are mandatory.' },
+                          { companyType: 'Sole Prop / Partnership (Without PF)', rule: '6 salary credits from the same company are mandatory.' }
+                        ]).map((row, idx) => (
                           <tr key={idx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                            <td style={{ fontWeight: 600, color: '#f87171', padding: '10px 12px' }}>{row.entity}</td>
-                            <td style={{ color: '#e2e8f0', padding: '10px 12px', lineHeight: '1.4' }}>{row.rule}</td>
+                            <td style={{ fontWeight: 600, color: '#f87171', padding: '8px 12px' }}>
+                              <input
+                                type="text"
+                                style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(248, 113, 113, 0.3)', color: '#f87171', fontWeight: 600, width: '100%', borderRadius: '4px', padding: '4px 8px', fontSize: '0.84rem' }}
+                                value={row.companyType || row.entity || ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  const updated = [...(policyData?.finnableEmploymentRules || [])];
+                                  updated[idx] = { ...updated[idx], companyType: val, entity: val };
+                                  setPolicyData({ ...policyData, finnableEmploymentRules: updated });
+                                }}
+                              />
+                            </td>
+                            <td style={{ color: '#e2e8f0', padding: '8px 12px' }}>
+                              <input
+                                type="text"
+                                style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(148, 163, 184, 0.2)', color: '#e2e8f0', width: '100%', borderRadius: '4px', padding: '4px 8px', fontSize: '0.84rem' }}
+                                value={row.rule || ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  const updated = [...(policyData?.finnableEmploymentRules || [])];
+                                  updated[idx] = { ...updated[idx], rule: val };
+                                  setPolicyData({ ...policyData, finnableEmploymentRules: updated });
+                                }}
+                              />
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -5655,7 +6273,7 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               )}
 
-              {!(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg') || activeConfigBank?.id === 'piramal' || activeConfigBank?.name?.toLowerCase().includes('piramal') || activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('bandhan') || activeConfigBank?.id === 'incred' || activeConfigBank?.name?.toLowerCase().includes('incred') || activeConfigBank?.id === 'axis-fin' || activeConfigBank?.id === 'axis_fin' || activeConfigBank?.id === 'poonawala' || activeConfigBank?.name?.toLowerCase().includes('poonawala') || activeConfigBank?.id === 'tata' || activeConfigBank?.name?.toLowerCase().includes('tata') || activeConfigBank?.id === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('aditya') || activeConfigBank?.name?.toLowerCase().includes('abfl') || (activeConfigBank?.name?.toLowerCase().includes('axis') && activeConfigBank?.name?.toLowerCase().includes('fin')) || activeConfigBank?.id === 'finnable' || activeConfigBank?.name?.toLowerCase().includes('finnable')) && (
+              {!(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg') || activeConfigBank?.id === 'piramal' || activeConfigBank?.name?.toLowerCase().includes('piramal') || activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('bandhan') || activeConfigBank?.id === 'incred' || activeConfigBank?.name?.toLowerCase().includes('incred') || activeConfigBank?.id === 'axis-fin' || activeConfigBank?.id === 'axis_fin' || activeConfigBank?.id === 'poonawala' || activeConfigBank?.name?.toLowerCase().includes('poonawala') || activeConfigBank?.id === 'tata' || activeConfigBank?.name?.toLowerCase().includes('tata') || (activeConfigBank?.name?.toLowerCase().includes('axis') && activeConfigBank?.name?.toLowerCase().includes('fin'))) && (
                 <div className="table-responsive">
                 <table className="policy-table">
                   <thead>
@@ -7278,35 +7896,182 @@ const UnifiedBankPolicyManager = () => {
               )}
 
               {(activeConfigBank?.id === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('birla') || activeConfigBank?.name?.toLowerCase().includes('abfl')) && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '16px' }}>
                   {/* Table 1: Demographic and Age Eligibility Criteria */}
                   <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(166, 25, 46, 0.3)' }}>
                     <div style={{ fontWeight: 700, color: '#f87171', fontSize: '0.92rem', marginBottom: '10px' }}>
-                      📋 Table 1: Demographic and Age Eligibility Criteria (ABFL Policy)
+                      📋 Table 1: Demographic and Age Eligibility Criteria (ABFL Policy) (Editable)
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '10px', fontSize: '0.84rem' }}>
-                      <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '10px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                        <span style={{ color: '#94a3b8' }}>Age Range:</span> <strong>21 to 60 Years (Retirement: 60 Years)</strong>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '12px', fontSize: '0.84rem' }}>
+                      <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '12px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <span style={{ color: '#94a3b8', fontWeight: 600 }}>Age Boundaries &amp; Retirement:</span>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                          <div className="table-input-cell">
+                            <input 
+                              type="number" style={{ width: '45px', textAlign: 'center' }}
+                              value={policyData?.abflDemographics?.minAge ?? 21}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                const curr = policyData?.abflDemographics || {};
+                                setPolicyData({ ...policyData, abflDemographics: { ...curr, minAge: val } });
+                              }}
+                            /><span>Min</span>
+                          </div>
+                          <span style={{ color: '#94a3b8' }}>/</span>
+                          <div className="table-input-cell">
+                            <input 
+                              type="number" style={{ width: '45px', textAlign: 'center' }}
+                              value={policyData?.abflDemographics?.maxAge ?? 60}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                const curr = policyData?.abflDemographics || {};
+                                setPolicyData({ ...policyData, abflDemographics: { ...curr, maxAge: val } });
+                              }}
+                            /><span>Max</span>
+                          </div>
+                          <span style={{ color: '#94a3b8' }}>/</span>
+                          <div className="table-input-cell">
+                            <input 
+                              type="number" style={{ width: '45px', textAlign: 'center' }}
+                              value={policyData?.abflDemographics?.retirementAge ?? 60}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                const curr = policyData?.abflDemographics || {};
+                                setPolicyData({ ...policyData, abflDemographics: { ...curr, retirementAge: val } });
+                              }}
+                            /><span>Retire</span>
+                          </div>
+                        </div>
                       </div>
-                      <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '10px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                        <span style={{ color: '#94a3b8' }}>Min Salary Thresholds:</span><br/>
-                        • Tier 1: <strong>₹40,000</strong> | Tier 2: <strong>₹35,000</strong><br/>
-                        • Tier 3: <strong>₹25,000</strong> | Tier 4: <strong>₹20,000</strong>
+
+                      <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '12px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <span style={{ color: '#94a3b8', fontWeight: 600 }}>Min Salary Thresholds (Tier 1 – 4 ₹):</span>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
+                          <div className="table-input-cell" style={{ minWidth: '70px' }}>
+                            <span>T1: ₹</span>
+                            <input 
+                              type="number" style={{ width: '55px' }}
+                              value={policyData?.abflDemographics?.minSalaryTier1 ?? 40000}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                const curr = policyData?.abflDemographics || {};
+                                setPolicyData({ ...policyData, abflDemographics: { ...curr, minSalaryTier1: val } });
+                              }}
+                            />
+                          </div>
+                          <div className="table-input-cell" style={{ minWidth: '70px' }}>
+                            <span>T2: ₹</span>
+                            <input 
+                              type="number" style={{ width: '55px' }}
+                              value={policyData?.abflDemographics?.minSalaryTier2 ?? 35000}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                const curr = policyData?.abflDemographics || {};
+                                setPolicyData({ ...policyData, abflDemographics: { ...curr, minSalaryTier2: val } });
+                              }}
+                            />
+                          </div>
+                          <div className="table-input-cell" style={{ minWidth: '70px' }}>
+                            <span>T3: ₹</span>
+                            <input 
+                              type="number" style={{ width: '55px' }}
+                              value={policyData?.abflDemographics?.minSalaryTier3 ?? 25000}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                const curr = policyData?.abflDemographics || {};
+                                setPolicyData({ ...policyData, abflDemographics: { ...curr, minSalaryTier3: val } });
+                              }}
+                            />
+                          </div>
+                          <div className="table-input-cell" style={{ minWidth: '70px' }}>
+                            <span>T4: ₹</span>
+                            <input 
+                              type="number" style={{ width: '55px' }}
+                              value={policyData?.abflDemographics?.minSalaryTier4 ?? 20000}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                const curr = policyData?.abflDemographics || {};
+                                setPolicyData({ ...policyData, abflDemographics: { ...curr, minSalaryTier4: val } });
+                              }}
+                            />
+                          </div>
+                        </div>
                       </div>
-                      <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '10px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                        <span style={{ color: '#94a3b8' }}>Work Experience:</span> <strong>Minimum 1 Year (12 Months)</strong>
+
+                      <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '12px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <span style={{ color: '#94a3b8', fontWeight: 600 }}>Work Experience &amp; Min Loan:</span>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                          <div className="table-input-cell">
+                            <input 
+                              type="number" style={{ width: '45px', textAlign: 'center' }}
+                              value={policyData?.abflDemographics?.minWorkExperienceMonths ?? 12}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                const curr = policyData?.abflDemographics || {};
+                                setPolicyData({ ...policyData, abflDemographics: { ...curr, minWorkExperienceMonths: val } });
+                              }}
+                            /><span>Mos Exp</span>
+                          </div>
+                          <div className="table-input-cell">
+                            <span>Min Loan: ₹</span>
+                            <input 
+                              type="number" style={{ width: '70px' }}
+                              value={policyData?.abflDemographics?.minLoanAmount ?? 100000}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                const curr = policyData?.abflDemographics || {};
+                                setPolicyData({ ...policyData, abflDemographics: { ...curr, minLoanAmount: val } });
+                              }}
+                            />
+                          </div>
+                        </div>
                       </div>
-                      <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '10px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                        <span style={{ color: '#94a3b8' }}>Credit Card &amp; BT Rules:</span><br/>
-                        • <strong>5% CC Obligation</strong> | <strong>5 CC BT Allowed</strong><br/>
-                        • <strong>Max CC BT = 6x Monthly Salary</strong> | <strong>KCC Not Obligated</strong>
+
+                      <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '12px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <span style={{ color: '#94a3b8', fontWeight: 600 }}>Credit Card &amp; BT Rules:</span>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+                          <div className="table-input-cell">
+                            <input 
+                              type="number" style={{ width: '45px', textAlign: 'center' }}
+                              value={policyData?.abflDemographics?.ccObligationPercent ?? 5}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                const curr = policyData?.abflDemographics || {};
+                                setPolicyData({ ...policyData, abflDemographics: { ...curr, ccObligationPercent: val } });
+                              }}
+                            /><span>% CC Obl</span>
+                          </div>
+                          <div className="table-input-cell">
+                            <input 
+                              type="number" style={{ width: '45px', textAlign: 'center' }}
+                              value={policyData?.abflDemographics?.ccBtAllowedCount ?? 5}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                const curr = policyData?.abflDemographics || {};
+                                setPolicyData({ ...policyData, abflDemographics: { ...curr, ccBtAllowedCount: val } });
+                              }}
+                            /><span>CC BT Allowed</span>
+                          </div>
+                          <div className="table-input-cell">
+                            <span>Max BT: </span>
+                            <input 
+                              type="number" style={{ width: '45px', textAlign: 'center' }}
+                              value={policyData?.abflDemographics?.maxCcBtSalaryMultiplier ?? 6}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                const curr = policyData?.abflDemographics || {};
+                                setPolicyData({ ...policyData, abflDemographics: { ...curr, maxCcBtSalaryMultiplier: val } });
+                              }}
+                            /><span>x Salary</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-)}
+              )}
 
-              {!(activeConfigBank?.id === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('birla') || activeConfigBank?.name?.toLowerCase().includes('abfl')) && (
+              {true && (
                 <div className="table-responsive">
                   <table className="policy-table">
                   <thead>
