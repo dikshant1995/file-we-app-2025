@@ -3333,7 +3333,7 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               )}
 
-              {(activeConfigBank?.id === 'finnable' || activeConfigBank?.name?.toLowerCase().includes('finnable')) ? (
+              {(activeConfigBank?.id === 'finnable' || activeConfigBank?.name?.toLowerCase().includes('finnable')) && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {/* Table 2: CIBIL Score & Risk Matrix */}
                   <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.35)' }}>
@@ -3347,7 +3347,7 @@ const UnifiedBankPolicyManager = () => {
                           <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
                             <th style={{ padding: '8px 10px', textAlign: 'left' }}>Criteria / Parameter</th>
                             <th style={{ padding: '8px 10px', color: '#34d399' }}>CIBIL Score 700+</th>
-                            <th style={{ padding: '8px 10px', color: '#fbbf24' }}>NTC (-1 / &lt;700)</th>
+                            <th style={{ padding: '8px 10px', color: '#fbbf24' }}>NTC (-1 or below 700)</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -3401,7 +3401,11 @@ const UnifiedBankPolicyManager = () => {
                     </div>
                   </div>
                 </div>
-              ) : (activeConfigBank?.id === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('birla') || activeConfigBank?.name?.toLowerCase().includes('abfl')) ? (
+)}
+
+
+
+              {(activeConfigBank?.id === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('birla') || activeConfigBank?.name?.toLowerCase().includes('abfl')) && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {/* Table 4: Maximum Loan Amount Matrix */}
                   <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(166, 25, 46, 0.35)' }}>
@@ -3459,7 +3463,11 @@ const UnifiedBankPolicyManager = () => {
                     </div>
                   </div>
                 </div>
-              ) : (
+              )}
+
+              {!(activeConfigBank?.id === 'finnable' || activeConfigBank?.name?.toLowerCase().includes('finnable') || activeConfigBank?.id === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('birla') || activeConfigBank?.name?.toLowerCase().includes('abfl')) && (
+
+
                 <div className="table-responsive">
                   <table className="policy-table">
                     <thead>
@@ -3734,7 +3742,7 @@ const UnifiedBankPolicyManager = () => {
                   fontSize: '0.88rem'
                 }}>
                   <CheckCircle2 size={18} />
-                  <span><strong>ICICI Bank Master Policy (from Excel):</strong> Permitted tenure is up to <strong>72 Months (6 Years)</strong> flat across all categories (`TENURE UPTO 6 YEARS`). Minimum tenure is <strong>12 Months</strong>. Maximum age at loan time is <strong>60 Years</strong> (Pensioner: <strong>65 Years</strong>).</span>
+                  <span><strong>ICICI Bank Master Policy (from Excel):</strong> Permitted tenure is up to <strong>72 Months (6 Years)</strong> flat across all categories ('TENURE UPTO 6 YEARS'). Minimum tenure is <strong>12 Months</strong>. Maximum age at loan time is <strong>60 Years</strong> (Pensioner: <strong>65 Years</strong>).</span>
                 </div>
               )}
 
@@ -3752,11 +3760,11 @@ const UnifiedBankPolicyManager = () => {
                   fontSize: '0.88rem'
                 }}>
                   <CheckCircle2 size={18} />
-                  <span><strong>Poonawalla Fincorp Master Tenure Policy (from Excel: Sheet POONAWALA):</strong> Super A, Category A, and Govt qualify for up to <strong>84 Months (7 Years)</strong> (`CAT A 84 MONTH`). Category B, C, and D are capped at <strong>72 Months (6 Years)</strong> (`CAT B,C,D 72 MONTH`). Minimum tenure is <strong>12 Months</strong> across all categories. Maximum applicant age at loan maturity / retirement is <strong>60 Years</strong>.</span>
+                  <span><strong>Poonawalla Fincorp Master Tenure Policy (from Excel: Sheet POONAWALA):</strong> Super A, Category A, and Govt qualify for up to <strong>84 Months (7 Years)</strong> ('CAT A 84 MONTH'). Category B, C, and D are capped at <strong>72 Months (6 Years)</strong> ('CAT B,C,D 72 MONTH'). Minimum tenure is <strong>12 Months</strong> across all categories. Maximum applicant age at loan maturity / retirement is <strong>60 Years</strong>.</span>
                 </div>
               )}
 
-              {(activeConfigBank?.id === 'finnable' || activeConfigBank?.name?.toLowerCase().includes('finnable')) ? (
+              {(activeConfigBank?.id === 'finnable' || activeConfigBank?.name?.toLowerCase().includes('finnable')) && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.35)' }}>
                     <div style={{ fontWeight: 700, color: '#34d399', fontSize: '0.95rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -3783,7 +3791,7 @@ const UnifiedBankPolicyManager = () => {
                             <td style={{ padding: '6px 10px', color: '#94a3b8' }}>Standard maximum tenure window</td>
                           </tr>
                           <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600, color: '#fbbf24' }}>NTC (-1 / &lt;700)</td>
+                            <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600, color: '#fbbf24' }}>NTC (-1 or below 700)</td>
                             <td style={{ padding: '6px 10px' }}>6 Months</td>
                             <td style={{ padding: '6px 10px', color: '#fbbf24', fontWeight: 700 }}>36 Months</td>
                             <td style={{ padding: '6px 10px', color: '#38bdf8' }}>3 Years</td>
@@ -3794,7 +3802,13 @@ const UnifiedBankPolicyManager = () => {
                     </div>
                   </div>
                 </div>
-              ) : (activeConfigBank?.id === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('birla') || activeConfigBank?.name?.toLowerCase().includes('abfl')) ? (
+              )}
+
+
+
+
+
+              {(activeConfigBank?.id === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('birla') || activeConfigBank?.name?.toLowerCase().includes('abfl')) && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {/* Table 3: Tenure and Repayment Windows */}
                   <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(166, 25, 46, 0.35)' }}>
@@ -3831,7 +3845,13 @@ const UnifiedBankPolicyManager = () => {
                     </div>
                   </div>
                 </div>
-              ) : (
+              )}
+
+              {!(activeConfigBank?.id === 'finnable' || activeConfigBank?.name?.toLowerCase().includes('finnable') || activeConfigBank?.id === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('birla') || activeConfigBank?.name?.toLowerCase().includes('abfl')) && (
+
+
+
+
                 <div className="table-responsive">
                   <table className="policy-table">
                   <thead>
@@ -3875,7 +3895,7 @@ const UnifiedBankPolicyManager = () => {
                                 const val = Number(e.target.value);
                                 const updated = [...(policyData?.tenureRules || [])];
                                 updated[idx].maxMonths = val;
-                                updated[idx].description = `Up to ${(val / 12).toFixed(1)} Years`;
+                                updated[idx].description = 'Up to ' + Math.round((val || 0) / 12) + ' Years';
                                 setPolicyData({ ...policyData, tenureRules: updated });
                               }}
                             />
@@ -3884,7 +3904,7 @@ const UnifiedBankPolicyManager = () => {
                         </td>
                         <td>
                           <span className="tag-years">
-                            {(row.maxMonths / 12).toFixed(1)} Years
+                            {Math.round((row.maxMonths || 0) / 12)} Years
                           </span>
                         </td>
                         <td>
@@ -3904,6 +3924,7 @@ const UnifiedBankPolicyManager = () => {
                   </tbody>
                 </table>
               </div>
+            )}
             </div>
           )}
 
@@ -7256,7 +7277,7 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               )}
 
-              {(activeConfigBank?.id === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('birla') || activeConfigBank?.name?.toLowerCase().includes('abfl')) ? (
+              {(activeConfigBank?.id === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('birla') || activeConfigBank?.name?.toLowerCase().includes('abfl')) && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {/* Table 1: Demographic and Age Eligibility Criteria */}
                   <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(166, 25, 46, 0.3)' }}>
@@ -7283,7 +7304,9 @@ const UnifiedBankPolicyManager = () => {
                     </div>
                   </div>
                 </div>
-              ) : (
+)}
+
+              {!(activeConfigBank?.id === 'abfl' || activeConfigBank?.name?.toLowerCase().includes('birla') || activeConfigBank?.name?.toLowerCase().includes('abfl')) && (
                 <div className="table-responsive">
                   <table className="policy-table">
                   <thead>
@@ -7762,7 +7785,7 @@ const UnifiedBankPolicyManager = () => {
                   </tbody>
                 </table>
               </div>
-
+            )}
               {(activeConfigBank?.id === 'finnable' || activeConfigBank?.name?.toLowerCase().includes('finnable')) && (
                 <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   {/* Table 3: Tier 1 City Classification */}
