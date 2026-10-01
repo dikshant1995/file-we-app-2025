@@ -4499,6 +4499,193 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               )}
 
+              {(activeConfigBank?.id === 'tata' || activeConfigBank?.name?.toLowerCase().includes('tata')) && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(31, 78, 120, 0.20) 0%, rgba(56, 189, 248, 0.15) 100%)',
+                  border: '1.5px solid rgba(31, 78, 120, 0.5)',
+                  borderRadius: '10px',
+                  padding: '18px 20px',
+                  marginBottom: '20px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '16px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38bdf8', fontWeight: 700, fontSize: '1.05rem' }}>
+                      <CheckCircle2 size={20} />
+                      <span>Tata Capital Master Policy: Separate FOIR Table &amp; Multiplier Matrix</span>
+                    </div>
+                    <span style={{ fontSize: '0.8rem', background: 'rgba(56, 189, 248, 0.18)', color: '#38bdf8', padding: '4px 10px', borderRadius: '4px', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+                      Salary Slab FOIR + Category &amp; Salary Multipliers
+                    </span>
+                  </div>
+
+                  {/* Table 1: FOIR Table — Salary Slab Only */}
+                  <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
+                    <div style={{ fontWeight: 700, color: '#38bdf8', fontSize: '0.9rem', marginBottom: '8px' }}>
+                      📌 FOIR Table — Salary Slab Only (Editable):
+                    </div>
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', fontSize: '0.84rem', borderCollapse: 'collapse', textAlign: 'center' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
+                            <th style={{ padding: '6px 10px', textAlign: 'left' }}>Salary Slab</th>
+                            <th style={{ padding: '6px 10px', color: '#38bdf8' }}>Max FOIR (%)</th>
+                            <th style={{ padding: '6px 10px', color: '#fbbf24' }}>Max Unsecured FOIR (%)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(policyData?.tataFoirSlabs || [
+                            { label: '<= 25K', maxFoir: 50, maxUnsecuredFoir: 40 },
+                            { label: '25K TO 50K', maxFoir: 60, maxUnsecuredFoir: 50 },
+                            { label: '50K TO 75K', maxFoir: 65, maxUnsecuredFoir: 55 },
+                            { label: '> 75K', maxFoir: 75, maxUnsecuredFoir: 65 }
+                          ]).map((row, rIdx) => (
+                            <tr key={rIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                              <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 700, color: '#fbbf24' }}>{row.label}</td>
+                              <td style={{ padding: '6px 10px' }}>
+                                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                                  <input
+                                    type="number"
+                                    style={{
+                                      width: '65px',
+                                      background: 'rgba(15, 23, 42, 0.85)',
+                                      border: '1px solid rgba(56, 189, 248, 0.35)',
+                                      borderRadius: '4px',
+                                      color: '#38bdf8',
+                                      padding: '4px 6px',
+                                      fontSize: '0.84rem',
+                                      textAlign: 'center',
+                                      fontWeight: 700
+                                    }}
+                                    value={row.maxFoir ?? ''}
+                                    onChange={(e) => {
+                                      const val = e.target.value === '' ? null : parseFloat(e.target.value);
+                                      const current = policyData?.tataFoirSlabs || [
+                                        { label: '<= 25K', maxFoir: 50, maxUnsecuredFoir: 40 },
+                                        { label: '25K TO 50K', maxFoir: 60, maxUnsecuredFoir: 50 },
+                                        { label: '50K TO 75K', maxFoir: 65, maxUnsecuredFoir: 55 },
+                                        { label: '> 75K', maxFoir: 75, maxUnsecuredFoir: 65 }
+                                      ];
+                                      const updated = JSON.parse(JSON.stringify(current));
+                                      updated[rIdx].maxFoir = val;
+                                      setPolicyData({ ...policyData, tataFoirSlabs: updated });
+                                    }}
+                                  />
+                                  <span style={{ color: '#94a3b8' }}>%</span>
+                                </div>
+                              </td>
+                              <td style={{ padding: '6px 10px' }}>
+                                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                                  <input
+                                    type="number"
+                                    style={{
+                                      width: '65px',
+                                      background: 'rgba(15, 23, 42, 0.85)',
+                                      border: '1px solid rgba(251, 191, 36, 0.35)',
+                                      borderRadius: '4px',
+                                      color: '#fbbf24',
+                                      padding: '4px 6px',
+                                      fontSize: '0.84rem',
+                                      textAlign: 'center',
+                                      fontWeight: 700
+                                    }}
+                                    value={row.maxUnsecuredFoir ?? ''}
+                                    onChange={(e) => {
+                                      const val = e.target.value === '' ? null : parseFloat(e.target.value);
+                                      const current = policyData?.tataFoirSlabs || [
+                                        { label: '<= 25K', maxFoir: 50, maxUnsecuredFoir: 40 },
+                                        { label: '25K TO 50K', maxFoir: 60, maxUnsecuredFoir: 50 },
+                                        { label: '50K TO 75K', maxFoir: 65, maxUnsecuredFoir: 55 },
+                                        { label: '> 75K', maxFoir: 75, maxUnsecuredFoir: 65 }
+                                      ];
+                                      const updated = JSON.parse(JSON.stringify(current));
+                                      updated[rIdx].maxUnsecuredFoir = val;
+                                      setPolicyData({ ...policyData, tataFoirSlabs: updated });
+                                    }}
+                                  />
+                                  <span style={{ color: '#94a3b8' }}>%</span>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Table 2: Multiplier Table — Category & Salary Based */}
+                  <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(52, 211, 153, 0.25)' }}>
+                    <div style={{ fontWeight: 700, color: '#34d399', fontSize: '0.9rem', marginBottom: '8px' }}>
+                      📌 Multiplier Table — Category &amp; Salary Based (Editable):
+                    </div>
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', fontSize: '0.84rem', borderCollapse: 'collapse', textAlign: 'center' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
+                            <th style={{ padding: '6px 10px', textAlign: 'left' }}>Company Category</th>
+                            <th style={{ padding: '6px 10px', color: '#4ade80' }}>&gt; 75K Salary</th>
+                            <th style={{ padding: '6px 10px', color: '#fbbf24' }}>50K TO 75K Salary</th>
+                            <th style={{ padding: '6px 10px', color: '#f87171' }}>&lt; 50K Salary</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(policyData?.tataMultiplierMatrix || [
+                            { category: 'SUPER A', multAbove75k: 27, mult50kTo75k: 23.5, multBelow50k: 20 },
+                            { category: 'CAT A', multAbove75k: 27, mult50kTo75k: 23.5, multBelow50k: 20 },
+                            { category: 'CAT B', multAbove75k: 25, mult50kTo75k: 22, multBelow50k: 19 },
+                            { category: 'CAT C', multAbove75k: 18, mult50kTo75k: 18, multBelow50k: 15 },
+                            { category: 'UNLISTED / CAT D', multAbove75k: 15, mult50kTo75k: 15, multBelow50k: 9 },
+                            { category: 'GOVT', multAbove75k: 27, mult50kTo75k: 23.5, multBelow50k: 20 }
+                          ]).map((row, rIdx) => (
+                            <tr key={rIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                              <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 700, color: '#e2e8f0' }}>{row.category}</td>
+                              {['multAbove75k', 'mult50kTo75k', 'multBelow50k'].map((colKey) => (
+                                <td key={colKey} style={{ padding: '6px 10px' }}>
+                                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                                    <input
+                                      type="number"
+                                      step="0.5"
+                                      style={{
+                                        width: '65px',
+                                        background: 'rgba(15, 23, 42, 0.85)',
+                                        border: '1px solid rgba(52, 211, 153, 0.35)',
+                                        borderRadius: '4px',
+                                        color: colKey === 'multAbove75k' ? '#4ade80' : (colKey === 'mult50kTo75k' ? '#fbbf24' : '#f87171'),
+                                        padding: '4px 6px',
+                                        fontSize: '0.84rem',
+                                        textAlign: 'center',
+                                        fontWeight: 700
+                                      }}
+                                      value={row[colKey] ?? ''}
+                                      onChange={(e) => {
+                                        const val = e.target.value === '' ? null : parseFloat(e.target.value);
+                                        const current = policyData?.tataMultiplierMatrix || [
+                                          { category: 'SUPER A', multAbove75k: 27, mult50kTo75k: 23.5, multBelow50k: 20 },
+                                          { category: 'CAT A', multAbove75k: 27, mult50kTo75k: 23.5, multBelow50k: 20 },
+                                          { category: 'CAT B', multAbove75k: 25, mult50kTo75k: 22, multBelow50k: 19 },
+                                          { category: 'CAT C', multAbove75k: 18, mult50kTo75k: 18, multBelow50k: 15 },
+                                          { category: 'UNLISTED / CAT D', multAbove75k: 15, mult50kTo75k: 15, multBelow50k: 9 },
+                                          { category: 'GOVT', multAbove75k: 27, mult50kTo75k: 23.5, multBelow50k: 20 }
+                                        ];
+                                        const updated = JSON.parse(JSON.stringify(current));
+                                        updated[rIdx][colKey] = val;
+                                        setPolicyData({ ...policyData, tataMultiplierMatrix: updated });
+                                      }}
+                                    />
+                                    <span style={{ color: '#94a3b8' }}>x</span>
+                                  </div>
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {(activeConfigBank?.id === 'icici' || activeConfigBank?.name?.toLowerCase().includes('icici')) && (
                 <div style={{
                   background: 'linear-gradient(135deg, rgba(237, 28, 36, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%)',
@@ -4907,7 +5094,7 @@ const UnifiedBankPolicyManager = () => {
                 </div>
               )}
 
-              {!(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg') || activeConfigBank?.id === 'piramal' || activeConfigBank?.name?.toLowerCase().includes('piramal') || activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('bandhan') || activeConfigBank?.id === 'incred' || activeConfigBank?.name?.toLowerCase().includes('incred') || activeConfigBank?.id === 'axis-fin' || activeConfigBank?.id === 'axis_fin' || (activeConfigBank?.name?.toLowerCase().includes('axis') && activeConfigBank?.name?.toLowerCase().includes('fin'))) && (
+              {!(activeConfigBank?.id === 'smfg' || activeConfigBank?.name?.toLowerCase().includes('smfg') || activeConfigBank?.id === 'piramal' || activeConfigBank?.name?.toLowerCase().includes('piramal') || activeConfigBank?.id === 'bandhan' || activeConfigBank?.name?.toLowerCase().includes('bandhan') || activeConfigBank?.id === 'incred' || activeConfigBank?.name?.toLowerCase().includes('incred') || activeConfigBank?.id === 'axis-fin' || activeConfigBank?.id === 'axis_fin' || activeConfigBank?.id === 'poonawala' || activeConfigBank?.name?.toLowerCase().includes('poonawala') || activeConfigBank?.id === 'tata' || activeConfigBank?.name?.toLowerCase().includes('tata') || (activeConfigBank?.name?.toLowerCase().includes('axis') && activeConfigBank?.name?.toLowerCase().includes('fin'))) && (
                 <div className="table-responsive">
                 <table className="policy-table">
                   <thead>
