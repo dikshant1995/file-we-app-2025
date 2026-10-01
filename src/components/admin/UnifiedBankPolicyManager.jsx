@@ -470,7 +470,8 @@ const UnifiedBankPolicyManager = () => {
             return initBank;
           });
           const initIds = new Set(INITIAL_12_BANKS.map(b => b.id));
-          const customBanks = parsed.filter(b => !initIds.has(b.id));
+          const REMOVED_BANK_IDS = new Set(['bajaj', 'shri-ram', 'shriram']);
+          const customBanks = parsed.filter(b => !initIds.has(b.id) && !REMOVED_BANK_IDS.has(b.id));
           const finalBanks = [...updatedList, ...customBanks];
           try {
             localStorage.setItem('laxmi_admin_12_banks', JSON.stringify(finalBanks));

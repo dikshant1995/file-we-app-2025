@@ -132,7 +132,6 @@ export const calculatePersonalLoanBT = async (userData) => {
     { name: 'Axis Finance', calculator: calculateAxisFinEligibility, config: axisFinConfig },
     { name: 'IndusInd Bank', calculator: calculateIndusindEligibility, config: indusindConfig },
     { name: 'IDFC Bank', calculator: calculateIdfcEligibility, config: idfcConfig },
-    { name: 'Shri Ram Finance', calculator: calculateShriRamEligibility, config: shriRamConfig },
     { name: 'Piramal Finance', calculator: calculatePiramalEligibility, config: piramalConfig }
   ];
 

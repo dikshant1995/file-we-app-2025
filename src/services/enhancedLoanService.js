@@ -51,14 +51,12 @@ const allBanks = [
   { id: 'axisfin', name: 'Axis Finance', calculator: calculateAxisFinEligibility },
   { id: 'indusind', name: 'IndusInd Bank', calculator: calculateIndusindEligibility },
   { id: 'idfc', name: 'IDFC First Bank', calculator: calculateIdfcEligibility },
-  { id: 'shriram', name: 'Shri Ram Finance', calculator: calculateShriRamEligibility },
   { id: 'piramal', name: 'Piramal Finance', calculator: calculatePiramalEligibility },
 
-  // 8 Additional Banks & NBFCs from Master Excel Policy
+  // Additional Banks & NBFCs from Master Excel Policy
   { id: 'axis-bank', name: 'Axis Bank', calculator: calculateUnifiedBankEligibility },
   { id: 'lnt', name: 'L&T Finance', calculator: calculateUnifiedBankEligibility },
   { id: 'smfg', name: 'SMFG India Credit', calculator: calculateUnifiedBankEligibility },
-  { id: 'bajaj', name: 'Bajaj Finance', calculator: calculateUnifiedBankEligibility },
   { id: 'incred', name: 'Incred Finance', calculator: calculateUnifiedBankEligibility },
   { id: 'au-bank', name: 'AU Small Finance Bank', calculator: calculateUnifiedBankEligibility },
   { id: 'abfl', name: 'Aditya Birla Finance', calculator: calculateUnifiedBankEligibility },
