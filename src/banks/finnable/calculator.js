@@ -163,18 +163,12 @@ export const calculateFinnableEligibility = (userData = {}, configOverride = {})
     };
   }
 
-  // 8. 18x Net Salary Multiplier Calculation
-  const salaryMultiplier = cfg.salaryMultiplier || 18;
-  const availableSalaryForMult = Math.max(0, actualIncome - totalObligations);
-  const multiplierLoanAmount = availableSalaryForMult * salaryMultiplier;
-
-  // Initial capacity estimate using 22% base rate
+  // 8. Net Income Capacity Calculation (No FOIR cap & No Multiplier cap)
   const initialMonthlyRate = (cfg.minRoi || 22.0) / 12 / 100;
   const numberOfMonths = calculationTenureMonths;
-  const foirCalculatedPrincipal = availableEMI * (Math.pow(1 + initialMonthlyRate, numberOfMonths) - 1) / (initialMonthlyRate * Math.pow(1 + initialMonthlyRate, numberOfMonths));
+  const calculatedCapacity = availableEMI * (Math.pow(1 + initialMonthlyRate, numberOfMonths) - 1) / (initialMonthlyRate * Math.pow(1 + initialMonthlyRate, numberOfMonths));
 
-  // Eligible loan is determined by 18x salary multiplier, capped by overall loan ceiling & desired amount
-  let calculatedCapacity = Math.min(multiplierLoanAmount, foirCalculatedPrincipal);
+  // Eligible loan is determined directly by income capacity, capped by max loan ceiling & desired amount
   let finalLoanAmount = Math.min(Math.round(calculatedCapacity), maxLoanAllowed);
 
   if (desiredLoanAmount && desiredLoanAmount > 0) {
@@ -215,7 +209,6 @@ export const calculateFinnableEligibility = (userData = {}, configOverride = {})
     bankName: cfg.name || 'Finnable Finance Ltd',
     loanAmount: Math.round(finalLoanAmount),
     maxLoanCap: maxLoanAllowed,
-    salaryMultiplier: `${salaryMultiplier}x`,
     appliedRoi,
     interestRate: appliedRoi,
     loanTenure: tenureYears,
