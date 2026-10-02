@@ -2235,6 +2235,18 @@ const matchCategory = (cat1, cat2) => {
       // Execute base calculator
       const result = calculator(bankInput);
 
+      const isHdfcInst = name.toLowerCase().includes('hdfc') || id === 'hdfc';
+      if (isHdfcInst && result) {
+        return {
+          bankName: result.bankName || name,
+          ...result,
+          category: bankCategory,
+          salaryMode: calculatorInput.salaryMode,
+          adminApplied: true,
+          processingFee: adminAllConfig.feesAndCharges?.processingFeePercentage || 0.5
+        };
+      }
+
       const isIndusindInst = name === 'IndusInd Bank' || id === 'indusind';
       if (isIndusindInst && result) {
         return {
