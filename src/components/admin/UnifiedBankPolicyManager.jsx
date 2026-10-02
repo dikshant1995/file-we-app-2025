@@ -1608,6 +1608,494 @@ const UnifiedBankPolicyManager = () => {
             const isFinnable = bankId === 'finnable' || activeConfigBank?.name?.toLowerCase().includes('finnable');
             const isIdfc = bankId === 'idfc' || activeConfigBank?.name?.toLowerCase().includes('idfc');
 
+            if (isFinnable) {
+              return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '24px' }}>
+                  {/* Banner */}
+                  <div style={{
+                    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(59, 130, 246, 0.15) 100%)',
+                    border: '1.5px solid rgba(16, 185, 129, 0.4)',
+                    borderRadius: '10px',
+                    padding: '16px 20px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '6px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#34d399', fontWeight: 700, fontSize: '1.05rem' }}>
+                      <CheckCircle2 size={20} />
+                      <span>Finnable Finance Ltd — Master Policy &amp; Evaluation Engine (Editable)</span>
+                    </div>
+                    <div style={{ fontSize: '0.88rem', color: '#cbd5e1', lineHeight: '1.5' }}>
+                      Official policy rules for Finnable Finance Ltd. All parameters, risk tiers, classification guidelines, and employment matrix rules below are fully editable and drive the eligibility engine.
+                    </div>
+                  </div>
+
+                  {/* SECTION 1: OVERVIEW & GENERAL PARAMETERS */}
+                  <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '18px', borderRadius: '10px', border: '1px solid rgba(16, 185, 129, 0.35)' }}>
+                    <div style={{ fontWeight: 700, color: '#34d399', fontSize: '1rem', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      📋 SECTION 1: OVERVIEW &amp; GENERAL PARAMETERS
+                    </div>
+                    <div className="table-responsive">
+                      <table className="policy-table" style={{ width: '100%', fontSize: '0.86rem', borderCollapse: 'collapse' }}>
+                        <thead>
+                          <tr style={{ background: 'rgba(16, 185, 129, 0.15)', borderBottom: '1px solid rgba(16, 185, 129, 0.3)' }}>
+                            <th style={{ padding: '10px', color: '#38bdf8', width: '35%', textAlign: 'left' }}>Parameter</th>
+                            <th style={{ padding: '10px', color: '#f8fafc', width: '30%', textAlign: 'center' }}>Default Value</th>
+                            <th style={{ padding: '10px', color: '#34d399', width: '35%', textAlign: 'left' }}>Editable Value / Input</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ fontWeight: 600, color: '#e2e8f0', padding: '10px' }}>Loan Amount Range</td>
+                            <td style={{ color: '#94a3b8', textAlign: 'center', padding: '10px' }}>₹50,000 to ₹10,00,000</td>
+                            <td style={{ padding: '10px' }}>
+                              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                <input
+                                  type="number"
+                                  style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(52, 211, 153, 0.3)', color: '#34d399', fontWeight: 600, width: '45%', borderRadius: '4px', padding: '6px 8px', fontSize: '0.84rem' }}
+                                  value={policyData?.finnableOverview?.minLoanAmount ?? 50000}
+                                  onChange={(e) => setPolicyData({
+                                    ...policyData,
+                                    finnableOverview: { ...(policyData?.finnableOverview || {}), minLoanAmount: Number(e.target.value) }
+                                  })}
+                                />
+                                <span style={{ color: '#94a3b8' }}>to</span>
+                                <input
+                                  type="number"
+                                  style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(52, 211, 153, 0.3)', color: '#34d399', fontWeight: 600, width: '45%', borderRadius: '4px', padding: '6px 8px', fontSize: '0.84rem' }}
+                                  value={policyData?.finnableOverview?.maxLoanAmount ?? 1000000}
+                                  onChange={(e) => setPolicyData({
+                                    ...policyData,
+                                    finnableOverview: { ...(policyData?.finnableOverview || {}), maxLoanAmount: Number(e.target.value) }
+                                  })}
+                                />
+                              </div>
+                            </td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ fontWeight: 600, color: '#e2e8f0', padding: '10px' }}>Rate of Interest (ROI)</td>
+                            <td style={{ color: '#94a3b8', textAlign: 'center', padding: '10px' }}>22% to 36%</td>
+                            <td style={{ padding: '10px' }}>
+                              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                <input
+                                  type="number" step="0.5"
+                                  style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(56, 189, 248, 0.3)', color: '#38bdf8', fontWeight: 600, width: '45%', borderRadius: '4px', padding: '6px 8px', fontSize: '0.84rem' }}
+                                  value={policyData?.finnableOverview?.minRoi ?? 22}
+                                  onChange={(e) => setPolicyData({
+                                    ...policyData,
+                                    finnableOverview: { ...(policyData?.finnableOverview || {}), minRoi: Number(e.target.value) }
+                                  })}
+                                />
+                                <span style={{ color: '#94a3b8' }}>% -</span>
+                                <input
+                                  type="number" step="0.5"
+                                  style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(56, 189, 248, 0.3)', color: '#38bdf8', fontWeight: 600, width: '45%', borderRadius: '4px', padding: '6px 8px', fontSize: '0.84rem' }}
+                                  value={policyData?.finnableOverview?.maxRoi ?? 36}
+                                  onChange={(e) => setPolicyData({
+                                    ...policyData,
+                                    finnableOverview: { ...(policyData?.finnableOverview || {}), maxRoi: Number(e.target.value) }
+                                  })}
+                                />
+                                <span style={{ color: '#94a3b8' }}>%</span>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ fontWeight: 600, color: '#e2e8f0', padding: '10px' }}>Processing Fee (PF)</td>
+                            <td style={{ color: '#94a3b8', textAlign: 'center', padding: '10px' }}>2% to 6%</td>
+                            <td style={{ padding: '10px' }}>
+                              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                <input
+                                  type="number" step="0.5"
+                                  style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(251, 191, 36, 0.3)', color: '#fbbf24', fontWeight: 600, width: '45%', borderRadius: '4px', padding: '6px 8px', fontSize: '0.84rem' }}
+                                  value={policyData?.finnableOverview?.minPf ?? 2}
+                                  onChange={(e) => setPolicyData({
+                                    ...policyData,
+                                    finnableOverview: { ...(policyData?.finnableOverview || {}), minPf: Number(e.target.value) }
+                                  })}
+                                />
+                                <span style={{ color: '#94a3b8' }}>% -</span>
+                                <input
+                                  type="number" step="0.5"
+                                  style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(251, 191, 36, 0.3)', color: '#fbbf24', fontWeight: 600, width: '45%', borderRadius: '4px', padding: '6px 8px', fontSize: '0.84rem' }}
+                                  value={policyData?.finnableOverview?.maxPf ?? 6}
+                                  onChange={(e) => setPolicyData({
+                                    ...policyData,
+                                    finnableOverview: { ...(policyData?.finnableOverview || {}), maxPf: Number(e.target.value) }
+                                  })}
+                                />
+                                <span style={{ color: '#94a3b8' }}>%</span>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ fontWeight: 600, color: '#e2e8f0', padding: '10px' }}>Tenure Range</td>
+                            <td style={{ color: '#94a3b8', textAlign: 'center', padding: '10px' }}>12 to 60 Months</td>
+                            <td style={{ padding: '10px' }}>
+                              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                <input
+                                  type="number"
+                                  style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(148, 163, 184, 0.3)', color: '#e2e8f0', fontWeight: 600, width: '45%', borderRadius: '4px', padding: '6px 8px', fontSize: '0.84rem' }}
+                                  value={policyData?.finnableOverview?.minTenureMonths ?? 12}
+                                  onChange={(e) => setPolicyData({
+                                    ...policyData,
+                                    finnableOverview: { ...(policyData?.finnableOverview || {}), minTenureMonths: Number(e.target.value) }
+                                  })}
+                                />
+                                <span style={{ color: '#94a3b8' }}>to</span>
+                                <input
+                                  type="number"
+                                  style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(148, 163, 184, 0.3)', color: '#e2e8f0', fontWeight: 600, width: '45%', borderRadius: '4px', padding: '6px 8px', fontSize: '0.84rem' }}
+                                  value={policyData?.finnableOverview?.maxTenureMonths ?? 60}
+                                  onChange={(e) => setPolicyData({
+                                    ...policyData,
+                                    finnableOverview: { ...(policyData?.finnableOverview || {}), maxTenureMonths: Number(e.target.value) }
+                                  })}
+                                />
+                                <span style={{ color: '#94a3b8' }}>Months</span>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ fontWeight: 600, color: '#e2e8f0', padding: '10px' }}>FOIR</td>
+                            <td style={{ color: '#94a3b8', textAlign: 'center', padding: '10px' }}>System Eligibility</td>
+                            <td style={{ padding: '10px' }}>
+                              <input
+                                type="text"
+                                style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(148, 163, 184, 0.3)', color: '#38bdf8', fontWeight: 600, width: '100%', borderRadius: '4px', padding: '6px 8px', fontSize: '0.84rem' }}
+                                value={policyData?.finnableOverview?.foirFormula || 'System Eligibility'}
+                                onChange={(e) => setPolicyData({
+                                  ...policyData,
+                                  finnableOverview: { ...(policyData?.finnableOverview || {}), foirFormula: e.target.value }
+                                })}
+                              />
+                            </td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ fontWeight: 600, color: '#e2e8f0', padding: '10px' }}>Age Limit</td>
+                            <td style={{ color: '#94a3b8', textAlign: 'center', padding: '10px' }}>21 to 55 at login / 60 at maturity</td>
+                            <td style={{ padding: '10px' }}>
+                              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                <input
+                                  type="number"
+                                  style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(148, 163, 184, 0.3)', color: '#e2e8f0', fontWeight: 600, width: '30%', borderRadius: '4px', padding: '6px 8px', fontSize: '0.84rem' }}
+                                  value={policyData?.finnableOverview?.minAge ?? 21}
+                                  onChange={(e) => setPolicyData({
+                                    ...policyData,
+                                    finnableOverview: { ...(policyData?.finnableOverview || {}), minAge: Number(e.target.value) }
+                                  })}
+                                />
+                                <span style={{ color: '#94a3b8' }}>min /</span>
+                                <input
+                                  type="number"
+                                  style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(148, 163, 184, 0.3)', color: '#e2e8f0', fontWeight: 600, width: '30%', borderRadius: '4px', padding: '6px 8px', fontSize: '0.84rem' }}
+                                  value={policyData?.finnableOverview?.maxAgeLogin ?? 55}
+                                  onChange={(e) => setPolicyData({
+                                    ...policyData,
+                                    finnableOverview: { ...(policyData?.finnableOverview || {}), maxAgeLogin: Number(e.target.value) }
+                                  })}
+                                />
+                                <span style={{ color: '#94a3b8' }}>login /</span>
+                                <input
+                                  type="number"
+                                  style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(148, 163, 184, 0.3)', color: '#e2e8f0', fontWeight: 600, width: '30%', borderRadius: '4px', padding: '6px 8px', fontSize: '0.84rem' }}
+                                  value={policyData?.finnableOverview?.maxAgeMaturity ?? 60}
+                                  onChange={(e) => setPolicyData({
+                                    ...policyData,
+                                    finnableOverview: { ...(policyData?.finnableOverview || {}), maxAgeMaturity: Number(e.target.value) }
+                                  })}
+                                />
+                              </div>
+                            </td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ fontWeight: 600, color: '#e2e8f0', padding: '10px' }}>CC / Gold Loan / KCC Obligation</td>
+                            <td style={{ color: '#94a3b8', textAlign: 'center', padding: '10px' }}>5%</td>
+                            <td style={{ padding: '10px' }}>
+                              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                <input
+                                  type="number" step="0.5"
+                                  style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(248, 113, 113, 0.3)', color: '#f87171', fontWeight: 600, width: '80px', borderRadius: '4px', padding: '6px 8px', fontSize: '0.84rem' }}
+                                  value={policyData?.finnableOverview?.ccObligationPercent ?? 5}
+                                  onChange={(e) => setPolicyData({
+                                    ...policyData,
+                                    finnableOverview: { ...(policyData?.finnableOverview || {}), ccObligationPercent: Number(e.target.value) }
+                                  })}
+                                />
+                                <span style={{ color: '#94a3b8' }}>% of outstanding balance</span>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ fontWeight: 600, color: '#e2e8f0', padding: '10px' }}>Minimum Salary</td>
+                            <td style={{ color: '#94a3b8', textAlign: 'center', padding: '10px' }}>Tier 1: ₹20,000 | Tier 2: ₹15,000</td>
+                            <td style={{ padding: '10px' }}>
+                              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>Tier 1:</span>
+                                <input
+                                  type="number"
+                                  style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(52, 211, 153, 0.3)', color: '#34d399', fontWeight: 600, width: '45%', borderRadius: '4px', padding: '6px 8px', fontSize: '0.84rem' }}
+                                  value={policyData?.finnableOverview?.minSalaryTier1 ?? 20000}
+                                  onChange={(e) => setPolicyData({
+                                    ...policyData,
+                                    finnableOverview: { ...(policyData?.finnableOverview || {}), minSalaryTier1: Number(e.target.value) }
+                                  })}
+                                />
+                                <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>Tier 2:</span>
+                                <input
+                                  type="number"
+                                  style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(52, 211, 153, 0.3)', color: '#34d399', fontWeight: 600, width: '45%', borderRadius: '4px', padding: '6px 8px', fontSize: '0.84rem' }}
+                                  value={policyData?.finnableOverview?.minSalaryTier2 ?? 15000}
+                                  onChange={(e) => setPolicyData({
+                                    ...policyData,
+                                    finnableOverview: { ...(policyData?.finnableOverview || {}), minSalaryTier2: Number(e.target.value) }
+                                  })}
+                                />
+                              </div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style={{ fontWeight: 600, color: '#e2e8f0', padding: '10px' }}>Minimum Work Experience</td>
+                            <td style={{ color: '#94a3b8', textAlign: 'center', padding: '10px' }}>6 Months</td>
+                            <td style={{ padding: '10px' }}>
+                              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                <input
+                                  type="number"
+                                  style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(148, 163, 184, 0.3)', color: '#e2e8f0', fontWeight: 600, width: '80px', borderRadius: '4px', padding: '6px 8px', fontSize: '0.84rem' }}
+                                  value={policyData?.finnableOverview?.minWorkExperienceMonths ?? 6}
+                                  onChange={(e) => setPolicyData({
+                                    ...policyData,
+                                    finnableOverview: { ...(policyData?.finnableOverview || {}), minWorkExperienceMonths: Number(e.target.value) }
+                                  })}
+                                />
+                                <span style={{ color: '#94a3b8' }}>Months</span>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* SECTION 2: CIBIL & RISK MATRIX SECTION */}
+                  <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '18px', borderRadius: '10px', border: '1px solid rgba(59, 130, 246, 0.35)' }}>
+                    <div style={{ fontWeight: 700, color: '#38bdf8', fontSize: '1rem', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      📊 SECTION 2: CIBIL &amp; RISK MATRIX SECTION
+                    </div>
+                    <div className="table-responsive">
+                      <table className="policy-table" style={{ width: '100%', fontSize: '0.86rem', borderCollapse: 'collapse' }}>
+                        <thead>
+                          <tr style={{ background: 'rgba(59, 130, 246, 0.15)', borderBottom: '1px solid rgba(59, 130, 246, 0.3)' }}>
+                            <th style={{ padding: '10px', color: '#94a3b8', width: '30%', textAlign: 'left' }}>Parameter / Metric</th>
+                            <th style={{ padding: '10px', color: '#34d399', width: '35%', textAlign: 'center' }}>CIBIL Score 700+</th>
+                            <th style={{ padding: '10px', color: '#fbbf24', width: '35%', textAlign: 'center' }}>NTC (-1)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ fontWeight: 600, color: '#e2e8f0', padding: '10px' }}>Finnable Score Threshold</td>
+                            <td style={{ color: '#94a3b8', textAlign: 'center', padding: '10px' }}>NA</td>
+                            <td style={{ color: '#fbbf24', textAlign: 'center', padding: '10px', fontWeight: 600 }}>&ge; 600 Internal Score</td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ fontWeight: 600, color: '#e2e8f0', padding: '10px' }}>Min. Loan Amount</td>
+                            <td style={{ color: '#34d399', textAlign: 'center', padding: '10px', fontWeight: 600 }}>₹50,000</td>
+                            <td style={{ color: '#fbbf24', textAlign: 'center', padding: '10px', fontWeight: 600 }}>₹50,000</td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ fontWeight: 600, color: '#e2e8f0', padding: '10px' }}>Max. Loan Amount</td>
+                            <td style={{ color: '#34d399', textAlign: 'center', padding: '10px', fontWeight: 700 }}>₹10,00,000</td>
+                            <td style={{ color: '#fbbf24', textAlign: 'center', padding: '10px', fontWeight: 700 }}>₹4,00,000</td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ fontWeight: 600, color: '#e2e8f0', padding: '10px' }}>Min. Tenor</td>
+                            <td style={{ color: '#e2e8f0', textAlign: 'center', padding: '10px' }}>6 Months</td>
+                            <td style={{ color: '#e2e8f0', textAlign: 'center', padding: '10px' }}>6 Months</td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ fontWeight: 600, color: '#e2e8f0', padding: '10px' }}>Max. Tenor</td>
+                            <td style={{ color: '#34d399', textAlign: 'center', padding: '10px', fontWeight: 600 }}>60 Months</td>
+                            <td style={{ color: '#fbbf24', textAlign: 'center', padding: '10px', fontWeight: 600 }}>36 Months</td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ fontWeight: 600, color: '#e2e8f0', padding: '10px' }}>Age Limits</td>
+                            <td style={{ color: '#e2e8f0', textAlign: 'center', padding: '10px' }}>21 at login / 60 at maturity</td>
+                            <td style={{ color: '#e2e8f0', textAlign: 'center', padding: '10px' }}>21 at login / 60 at maturity</td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ fontWeight: 600, color: '#e2e8f0', padding: '10px' }}>Salary Requirement</td>
+                            <td style={{ color: '#38bdf8', textAlign: 'center', padding: '10px' }}>Tier 1: ₹20,000 | Tier 2: ₹15,000</td>
+                            <td style={{ color: '#38bdf8', textAlign: 'center', padding: '10px' }}>Net Salary credit mandated</td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ fontWeight: 600, color: '#e2e8f0', padding: '10px' }}>Documents Required</td>
+                            <td style={{ color: '#cbd5e1', textAlign: 'center', padding: '10px', fontSize: '0.8rem' }}>Latest 3 Payslips/Letterhead, Aadhaar, PAN, 3/6M Banking</td>
+                            <td style={{ color: '#cbd5e1', textAlign: 'center', padding: '10px', fontSize: '0.8rem' }}>Latest 3 Payslips/Letterhead, Aadhaar, PAN, 3/6M Banking</td>
+                          </tr>
+                          <tr>
+                            <td style={{ fontWeight: 600, color: '#e2e8f0', padding: '10px' }}>Verification Note</td>
+                            <td style={{ color: '#f87171', textAlign: 'center', padding: '10px', fontWeight: 600 }} colSpan={2}>
+                              Form 16 required if Loan Amount &ge; ₹5 Lakhs
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* SECTION 3: PROFILE & CITY CLASSIFICATION SECTION */}
+                  <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '18px', borderRadius: '10px', border: '1px solid rgba(239, 68, 68, 0.35)' }}>
+                    <div style={{ fontWeight: 700, color: '#f87171', fontSize: '1rem', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      🚫 SECTION 3: PROFILE &amp; CITY CLASSIFICATION SECTION (Editable Lists)
+                    </div>
+                    <div className="table-responsive">
+                      <table className="policy-table" style={{ width: '100%', fontSize: '0.86rem', borderCollapse: 'collapse' }}>
+                        <thead>
+                          <tr style={{ background: 'rgba(239, 68, 68, 0.15)', borderBottom: '1px solid rgba(239, 68, 68, 0.3)' }}>
+                            <th style={{ padding: '10px', color: '#f87171', width: '25%', textAlign: 'left' }}>Category</th>
+                            <th style={{ padding: '10px', color: '#f8fafc', width: '75%', textAlign: 'left' }}>Policy / Thresholds (Editable)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ fontWeight: 600, color: '#f87171', padding: '10px', verticalAlign: 'top' }}>
+                              Negative Profiles<br /><span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>(Restricted Designations)</span>
+                            </td>
+                            <td style={{ padding: '10px' }}>
+                              <textarea
+                                rows={4}
+                                style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(248, 113, 113, 0.3)', color: '#f87171', width: '100%', borderRadius: '6px', padding: '8px 10px', fontSize: '0.82rem', lineHeight: '1.4' }}
+                                value={Array.isArray(policyData?.finnableNegativeProfiles) ? policyData.finnableNegativeProfiles.join(', ') : (policyData?.finnableNegativeProfiles || '')}
+                                onChange={(e) => {
+                                  const val = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                                  setPolicyData({ ...policyData, finnableNegativeProfiles: val });
+                                }}
+                              />
+                            </td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                            <td style={{ fontWeight: 600, color: '#38bdf8', padding: '10px', verticalAlign: 'top' }}>
+                              Tier 1 Cities Classification
+                            </td>
+                            <td style={{ padding: '10px' }}>
+                              <textarea
+                                rows={4}
+                                style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(56, 189, 248, 0.3)', color: '#38bdf8', width: '100%', borderRadius: '6px', padding: '8px 10px', fontSize: '0.82rem', lineHeight: '1.4' }}
+                                value={Array.isArray(policyData?.finnableTier1Cities) ? policyData.finnableTier1Cities.join('\n') : (policyData?.finnableTier1Cities || '')}
+                                onChange={(e) => {
+                                  const val = e.target.value.split('\n').map(s => s.trim()).filter(Boolean);
+                                  setPolicyData({ ...policyData, finnableTier1Cities: val });
+                                }}
+                              />
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style={{ fontWeight: 600, color: '#fbbf24', padding: '10px', verticalAlign: 'top' }}>
+                              Negative Industries
+                            </td>
+                            <td style={{ padding: '10px' }}>
+                              <textarea
+                                rows={2}
+                                style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(251, 191, 36, 0.3)', color: '#fbbf24', width: '100%', borderRadius: '6px', padding: '8px 10px', fontSize: '0.82rem', lineHeight: '1.4' }}
+                                value={Array.isArray(policyData?.finnableNegativeIndustries) ? policyData.finnableNegativeIndustries.join(', ') : (policyData?.finnableNegativeIndustries || '')}
+                                onChange={(e) => {
+                                  const val = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                                  setPolicyData({ ...policyData, finnableNegativeIndustries: val });
+                                }}
+                              />
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* SECTION 4: EMPLOYMENT & COMPANY ELIGIBILITY SECTION */}
+                  <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '18px', borderRadius: '10px', border: '1px solid rgba(16, 185, 129, 0.35)' }}>
+                    <div style={{ fontWeight: 700, color: '#34d399', fontSize: '1rem', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      🏢 SECTION 4: EMPLOYMENT &amp; COMPANY ELIGIBILITY SECTION
+                    </div>
+                    <div className="table-responsive">
+                      <table className="policy-table" style={{ width: '100%', fontSize: '0.84rem', borderCollapse: 'collapse' }}>
+                        <thead>
+                          <tr style={{ background: 'rgba(16, 185, 129, 0.15)', borderBottom: '1px solid rgba(16, 185, 129, 0.3)' }}>
+                            <th style={{ padding: '10px', color: '#38bdf8', width: '25%', textAlign: 'left' }}>Company Type / Condition</th>
+                            <th style={{ padding: '10px', color: '#fbbf24', width: '15%', textAlign: 'center' }}>PF Status</th>
+                            <th style={{ padding: '10px', color: '#34d399', width: '35%', textAlign: 'left' }}>Salary Credit Requirements</th>
+                            <th style={{ padding: '10px', color: '#f87171', width: '25%', textAlign: 'left' }}>Zone / Industry Restrictions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(policyData?.finnableEmploymentRules || [
+                            { companyType: 'Pvt Ltd / Public Ltd / LLP', pfStatus: 'With PF', salaryRequirement: '3 salary credits from 2 different companies allowed (PF must be validated for both companies)', restrictions: 'No Zone restriction' },
+                            { companyType: 'Pvt Ltd / Public Ltd / LLP', pfStatus: 'Without PF', salaryRequirement: '3 salary credits from the same company mandatory', restrictions: 'No Zone restriction' },
+                            { companyType: 'Sole Proprietorship / Partnership / HUF', pfStatus: 'With PF', salaryRequirement: '3 salary credits from the same company mandatory', restrictions: 'Sole Proprietorship allowed in West and South zones only' },
+                            { companyType: 'Sole Proprietorship / Partnership', pfStatus: 'Without PF', salaryRequirement: '6 salary credits from the same company mandatory', restrictions: 'Sole Proprietorship allowed in West and South zones only' },
+                            { companyType: 'Schools, Colleges, Hospital, NGO', pfStatus: 'With PF', salaryRequirement: 'Standard 3 salary credits', restrictions: 'Allowed with PF deduction' }
+                          ]).map((row, idx) => (
+                            <tr key={idx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+                              <td style={{ padding: '8px 10px' }}>
+                                <input
+                                  type="text"
+                                  style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(56, 189, 248, 0.3)', color: '#38bdf8', fontWeight: 600, width: '100%', borderRadius: '4px', padding: '6px 8px', fontSize: '0.82rem' }}
+                                  value={row.companyType || row.entity || ''}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    const updated = [...(policyData?.finnableEmploymentRules || [])];
+                                    updated[idx] = { ...updated[idx], companyType: val };
+                                    setPolicyData({ ...policyData, finnableEmploymentRules: updated });
+                                  }}
+                                />
+                              </td>
+                              <td style={{ padding: '8px 10px' }}>
+                                <input
+                                  type="text"
+                                  style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(251, 191, 36, 0.3)', color: '#fbbf24', fontWeight: 600, width: '100%', textAlign: 'center', borderRadius: '4px', padding: '6px 8px', fontSize: '0.82rem' }}
+                                  value={row.pfStatus || ''}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    const updated = [...(policyData?.finnableEmploymentRules || [])];
+                                    updated[idx] = { ...updated[idx], pfStatus: val };
+                                    setPolicyData({ ...policyData, finnableEmploymentRules: updated });
+                                  }}
+                                />
+                              </td>
+                              <td style={{ padding: '8px 10px' }}>
+                                <input
+                                  type="text"
+                                  style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(52, 211, 153, 0.3)', color: '#e2e8f0', width: '100%', borderRadius: '4px', padding: '6px 8px', fontSize: '0.82rem' }}
+                                  value={row.salaryRequirement || row.rule || ''}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    const updated = [...(policyData?.finnableEmploymentRules || [])];
+                                    updated[idx] = { ...updated[idx], salaryRequirement: val, rule: val };
+                                    setPolicyData({ ...policyData, finnableEmploymentRules: updated });
+                                  }}
+                                />
+                              </td>
+                              <td style={{ padding: '8px 10px' }}>
+                                <input
+                                  type="text"
+                                  style={{ background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(248, 113, 113, 0.3)', color: '#f87171', width: '100%', borderRadius: '4px', padding: '6px 8px', fontSize: '0.82rem' }}
+                                  value={row.restrictions || ''}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    const updated = [...(policyData?.finnableEmploymentRules || [])];
+                                    updated[idx] = { ...updated[idx], restrictions: val };
+                                    setPolicyData({ ...policyData, finnableEmploymentRules: updated });
+                                  }}
+                                />
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
             const rawRates = policyData?.interestRates || [];
             // Banks that don't have Cat D in ROI: HDFC, IndusInd, Axis, Tata
             const displayRates = (isHdfc || isIndusind || isAxis || isTata)
@@ -2087,98 +2575,6 @@ const UnifiedBankPolicyManager = () => {
                             </div>
                           </div>
                         ))}
-                      </div>
-                    </div>
-                  </div>
-                ) : isFinnable ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    <div style={{ background: 'rgba(15, 23, 42, 0.75)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.35)' }}>
-                      <div style={{ fontWeight: 700, color: '#34d399', fontSize: '0.95rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <CheckCircle2 size={18} />
-                        <span>Finnable Finance Ltd Rate of Interest (ROI) &amp; Processing Fee Matrix (Editable)</span>
-                      </div>
-                      <div style={{ fontSize: '0.85rem', color: '#cbd5e1', marginBottom: '12px' }}>
-                        Define Minimum ROI, Maximum ROI, Default Applied ROI, and Processing Fee range for Finnable by employer category.
-                      </div>
-                      <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', fontSize: '0.84rem', borderCollapse: 'collapse', textAlign: 'center' }}>
-                          <thead>
-                            <tr style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.2)', color: '#94a3b8' }}>
-                              <th style={{ padding: '6px 10px', textAlign: 'left' }}>Company Category</th>
-                              <th style={{ padding: '6px 10px', color: '#34d399' }}>Minimum ROI (% p.a.)</th>
-                              <th style={{ padding: '6px 10px', color: '#f87171' }}>Maximum ROI (% p.a.)</th>
-                              <th style={{ padding: '6px 10px', color: '#38bdf8' }}>Default Applied ROI (% p.a.)</th>
-                              <th style={{ padding: '6px 10px', color: '#fbbf24' }}>Processing Fee (Min – Max %)</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {(policyData?.interestRates || [
-                              { category: 'Super A', minRoi: 22.00, maxRoi: 36.00, defaultRoi: 22.00, processingFeeMin: 2.0, processingFeeMax: 6.0 },
-                              { category: 'A', minRoi: 22.00, maxRoi: 36.00, defaultRoi: 22.00, processingFeeMin: 2.0, processingFeeMax: 6.0 },
-                              { category: 'B', minRoi: 24.00, maxRoi: 36.00, defaultRoi: 24.00, processingFeeMin: 2.0, processingFeeMax: 6.0 },
-                              { category: 'C', minRoi: 26.00, maxRoi: 36.00, defaultRoi: 26.00, processingFeeMin: 2.0, processingFeeMax: 6.0 },
-                              { category: 'D', minRoi: 28.00, maxRoi: 36.00, defaultRoi: 28.00, processingFeeMin: 2.0, processingFeeMax: 6.0 },
-                              { category: 'Govt', minRoi: 22.00, maxRoi: 36.00, defaultRoi: 22.00, processingFeeMin: 2.0, processingFeeMax: 6.0 }
-                            ]).map((rRow, rIdx) => (
-                              <tr key={rIdx} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                                <td style={{ padding: '6px 10px', textAlign: 'left', fontWeight: 600, color: '#f87171' }}>{formatCategoryDisplay(rRow.category)}</td>
-                                <td>
-                                  <div className="table-input-cell highlight">
-                                    <input 
-                                      type="number" step="0.05"
-                                      value={rRow.minRoi ?? 22.00}
-                                      onChange={(e) => updateRate(rRow.category, 'minRoi', Number(e.target.value))}
-                                    />
-                                    <span>%</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <div className="table-input-cell">
-                                    <input 
-                                      type="number" step="0.05"
-                                      value={rRow.maxRoi ?? 36.00}
-                                      onChange={(e) => updateRate(rRow.category, 'maxRoi', Number(e.target.value))}
-                                    />
-                                    <span>%</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <div className="table-input-cell highlight">
-                                    <input 
-                                      type="number" step="0.05"
-                                      value={rRow.defaultRoi ?? rRow.minRoi ?? 22.00}
-                                      onChange={(e) => updateRate(rRow.category, 'defaultRoi', Number(e.target.value))}
-                                    />
-                                    <span>%</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'center' }}>
-                                    <div className="table-input-cell" style={{ minWidth: '55px' }}>
-                                      <input 
-                                        type="number" step="0.1"
-                                        style={{ width: '40px', textAlign: 'center' }}
-                                        value={rRow.processingFeeMin ?? 2.0}
-                                        onChange={(e) => updateRate(rRow.category, 'processingFeeMin', Number(e.target.value))}
-                                      />
-                                      <span>%</span>
-                                    </div>
-                                    <span style={{ color: '#94a3b8' }}>–</span>
-                                    <div className="table-input-cell" style={{ minWidth: '55px' }}>
-                                      <input 
-                                        type="number" step="0.1"
-                                        style={{ width: '40px', textAlign: 'center' }}
-                                        value={rRow.processingFeeMax ?? 6.0}
-                                        onChange={(e) => updateRate(rRow.category, 'processingFeeMax', Number(e.target.value))}
-                                      />
-                                      <span>%</span>
-                                    </div>
-                                  </div>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
                       </div>
                     </div>
                   </div>
