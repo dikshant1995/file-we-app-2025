@@ -15,7 +15,7 @@ const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
 };
 
 // Main Eligibility Calculator for Finnable Finance Ltd
-export const calculateFinnableEligibility = (userData = {}) => {
+export const calculateFinnableEligibility = (userData = {}, configOverride = {}) => {
   const {
     desiredLoanAmount = 1500000,
     loanTenure = 5,
@@ -36,6 +36,14 @@ export const calculateFinnableEligibility = (userData = {}) => {
     finnableScore = 650
   } = userData;
 
+  // Merge dynamic admin config overrides if available
+  const cfg = {
+    ...finnableConfig,
+    ...(configOverride || {}),
+    ...(configOverride?.finnableOverview || {}),
+    ...(configOverride?.demographics || {})
+  };
+
   const actualIncome = Number(basicSalary || monthlyIncome || 0);
 
   // 1. Negative Designation / Profile Check
@@ -47,33 +55,40 @@ export const calculateFinnableEligibility = (userData = {}) => {
   }
 
   // 2. Age Criteria (21 to 55 Years at login, max 60 till loan maturity)
-  if (age && (age < finnableConfig.minAge || age > finnableConfig.maxAgeLogin)) {
+  const minAge = cfg.minAge || 21;
+  const maxAgeLogin = cfg.maxAgeLogin || cfg.maxAge || 55;
+  const maxAgeMaturity = cfg.maxAgeMaturity || 60;
+
+  if (age && (age < minAge || age > maxAgeLogin)) {
     return {
       eligible: false,
-      reason: `Applicant age must be between ${finnableConfig.minAge} and ${finnableConfig.maxAgeLogin} years at login for Finnable (Current: ${age} years).`
+      reason: `Applicant age must be between ${minAge} and ${maxAgeLogin} years at login for Finnable (Current: ${age} years).`
     };
   }
 
   const requestedTenureYears = Number(loanTenure || 5);
-  if (age + requestedTenureYears > finnableConfig.maxAgeMaturity) {
+  if (age + requestedTenureYears > maxAgeMaturity) {
     return {
       eligible: false,
-      reason: `Applicant age at loan maturity (${age + requestedTenureYears} years) exceeds Finnable ceiling of ${finnableConfig.maxAgeMaturity} years.`
+      reason: `Applicant age at loan maturity (${age + requestedTenureYears} years) exceeds Finnable ceiling of ${maxAgeMaturity} years.`
     };
   }
 
   // 3. Work Experience (Minimum 6 Months)
+  const minWorkExp = cfg.minWorkExperienceMonths || cfg.minExperienceTotal || 6;
   const totalExpMonths = Number(totalWorkExperience || 6);
-  if (totalExpMonths < finnableConfig.minWorkExperienceMonths) {
+  if (totalExpMonths < minWorkExp) {
     return {
       eligible: false,
-      reason: `Finnable requires minimum 6 months total work experience (Current: ${totalExpMonths} months).`
+      reason: `Finnable requires minimum ${minWorkExp} months total work experience (Current: ${totalExpMonths} months).`
     };
   }
 
   // 4. City Tier & Minimum Salary Thresholds (Tier 1 = ₹20,000, Tier 2 = ₹15,000)
   const isTier1 = isFinnableTier1City(city, state);
-  const minSalaryRequired = isTier1 ? finnableConfig.minSalaryTier1 : finnableConfig.minSalaryTier2;
+  const minSalaryRequired = isTier1 
+    ? (cfg.minSalaryTier1 || 20000) 
+    : (cfg.minSalaryTier2 || cfg.minSalary || 15000);
 
   if (actualIncome < minSalaryRequired) {
     return {
@@ -112,22 +127,27 @@ export const calculateFinnableEligibility = (userData = {}) => {
 
   // 6. CIBIL Score & Risk Matrix (CIBIL 700+ => ₹15L Max | NTC -1 => ₹4L Max)
   const isNtc = Number(creditScore || 0) < 700 || Number(creditScore) === -1;
-  
+  const ntcMinScore = cfg.ntcFinnableScoreMin || cfg.finnableRiskMatrix?.ntcMinusOne?.finnableScoreMin || 600;
+
   if (isNtc) {
-    // Check Finnable internal score for NTC
-    if (Number(finnableScore || 0) < finnableConfig.ntcFinnableScoreMin) {
+    if (Number(finnableScore || 0) < ntcMinScore) {
       return {
         eligible: false,
-        reason: `Finnable internal score of minimum ${finnableConfig.ntcFinnableScoreMin} is required for NTC / score <700 applicants (Current score: ${finnableScore}).`
+        reason: `Finnable internal score of minimum ${ntcMinScore} is required for NTC / score <700 applicants (Current score: ${finnableScore}).`
       };
     }
   }
 
   // Capping limits by CIBIL Score
-  const maxLoanAllowed = isNtc ? (finnableConfig.ntcMaxLoanAmount || 400000) : (finnableConfig.maxLoanAmount || 1500000);
-  const maxTenureMonthsAllowed = isNtc ? finnableConfig.ntcMaxTenureMonths : finnableConfig.maxTenureMonths;
+  const ntcMaxCap = cfg.ntcMaxLoanAmount || cfg.finnableRiskMatrix?.ntcMinusOne?.maxLoanAmount || 400000;
+  const defaultMaxCap = cfg.maxLoanAmount || cfg.finnableRiskMatrix?.cibil700Plus?.maxLoanAmount || 1500000;
+  const maxLoanAllowed = isNtc ? ntcMaxCap : defaultMaxCap;
 
-  // 7. Obligations & Available EMI (Net Income capacity without category FOIR restriction)
+  const ntcMaxTenure = cfg.ntcMaxTenureMonths || 36;
+  const defaultMaxTenure = cfg.maxTenureMonths || 60;
+  const maxTenureMonthsAllowed = isNtc ? ntcMaxTenure : defaultMaxTenure;
+
+  // 7. Obligations & Available EMI
   const requestedTenureMonths = requestedTenureYears * 12;
   const calculationTenureMonths = Math.min(requestedTenureMonths, maxTenureMonthsAllowed);
   const tenureYears = calculationTenureMonths / 12;
@@ -143,30 +163,37 @@ export const calculateFinnableEligibility = (userData = {}) => {
     };
   }
 
-  // 8. Calculate Loan Capacity & Dynamic ROI (Range: 22% to 36%, 36% for min loan 50k, 22% for max loan 15L)
-  const numberOfMonths = calculationTenureMonths;
-  
-  // Initial capacity estimate using 22% base rate
-  const initialMonthlyRate = (finnableConfig.minRoi || 22.0) / 12 / 100;
-  const calculatedPrincipal = availableEMI * (Math.pow(1 + initialMonthlyRate, numberOfMonths) - 1) / (initialMonthlyRate * Math.pow(1 + initialMonthlyRate, numberOfMonths));
+  // 8. 18x Net Salary Multiplier Calculation
+  const salaryMultiplier = cfg.salaryMultiplier || 18;
+  const availableSalaryForMult = Math.max(0, actualIncome - totalObligations);
+  const multiplierLoanAmount = availableSalaryForMult * salaryMultiplier;
 
-  let finalLoanAmount = Math.min(Math.round(calculatedPrincipal), maxLoanAllowed);
+  // Initial capacity estimate using 22% base rate
+  const initialMonthlyRate = (cfg.minRoi || 22.0) / 12 / 100;
+  const numberOfMonths = calculationTenureMonths;
+  const foirCalculatedPrincipal = availableEMI * (Math.pow(1 + initialMonthlyRate, numberOfMonths) - 1) / (initialMonthlyRate * Math.pow(1 + initialMonthlyRate, numberOfMonths));
+
+  // Eligible loan is determined by 18x salary multiplier, capped by overall loan ceiling & desired amount
+  let calculatedCapacity = Math.min(multiplierLoanAmount, foirCalculatedPrincipal);
+  let finalLoanAmount = Math.min(Math.round(calculatedCapacity), maxLoanAllowed);
+
   if (desiredLoanAmount && desiredLoanAmount > 0) {
     finalLoanAmount = Math.min(finalLoanAmount, desiredLoanAmount);
   }
 
-  if (finalLoanAmount < finnableConfig.minLoanAmount) {
+  const minLoanThreshold = cfg.minLoanAmount || 50000;
+  if (finalLoanAmount < minLoanThreshold) {
     return {
       eligible: false,
-      reason: `Calculated loan amount (₹${finalLoanAmount.toLocaleString()}) is below Finnable minimum threshold of ₹${finnableConfig.minLoanAmount.toLocaleString()}.`
+      reason: `Calculated loan amount (₹${finalLoanAmount.toLocaleString()}) is below Finnable minimum threshold of ₹${minLoanThreshold.toLocaleString()}.`
     };
   }
 
   // Calculate dynamic ROI: 36% for minimum loan (50k) down to 22% for max loan (15L)
-  const minL = finnableConfig.minLoanAmount || 50000;
-  const maxL = maxLoanAllowed || 1500000;
-  const maxR = finnableConfig.maxRoi || 36.0;
-  const minR = finnableConfig.minRoi || 22.0;
+  const minL = minLoanThreshold;
+  const maxL = maxLoanAllowed;
+  const maxR = cfg.maxRoi || 36.0;
+  const minR = cfg.minRoi || 22.0;
 
   let appliedRoi = maxR;
   if (finalLoanAmount >= maxL) {
@@ -179,14 +206,16 @@ export const calculateFinnableEligibility = (userData = {}) => {
   }
 
   const monthlyEMI = calculateEMI(finalLoanAmount, appliedRoi, tenureYears);
-  const isForm16Required = finalLoanAmount >= finnableConfig.form16Threshold;
+  const form16Threshold = cfg.form16Threshold || 500000;
+  const isForm16Required = finalLoanAmount >= form16Threshold;
 
   return {
     eligible: true,
-    bankId: finnableConfig.id,
-    bankName: finnableConfig.name,
+    bankId: cfg.id || 'finnable',
+    bankName: cfg.name || 'Finnable Finance Ltd',
     loanAmount: Math.round(finalLoanAmount),
     maxLoanCap: maxLoanAllowed,
+    salaryMultiplier: `${salaryMultiplier}x`,
     appliedRoi,
     interestRate: appliedRoi,
     loanTenure: tenureYears,
@@ -197,9 +226,9 @@ export const calculateFinnableEligibility = (userData = {}) => {
     details: {
       bureauType: isNtc ? 'NTC (-1 / <700)' : 'CIBIL 700+',
       finnableScore: isNtc ? finnableScore : 'N/A',
-      cityTier: isTier1 ? 'Tier 1 (Min ₹20k Salary)' : 'Tier 2 (Min ₹15k Salary)',
+      cityTier: isTier1 ? 'Tier 1' : 'Tier 2',
       isForm16Required,
-      processingFeeRange: `${finnableConfig.minPf}% to ${finnableConfig.maxPf}%`
+      processingFeeRange: `${cfg.minPf || 2}% to ${cfg.maxPf || 6}%`
     }
   };
 };

@@ -11,6 +11,7 @@ import { calculateIndusindEligibility } from '../banks/indusind/calculator.js';
 import { calculateIdfcEligibility } from '../banks/idfc/calculator.js';
 import { calculateShriRamEligibility } from '../banks/shri-ram/calculator.js';
 import { calculatePiramalEligibility } from '../banks/piramal/calculator.js';
+import { calculateFinnableEligibility } from '../banks/finnable/calculator.js';
 
 // Import bank configuration service for logic bridge
 import { getBankConfig, getAllBankConfig } from './bankConfigService.js';
@@ -60,7 +61,7 @@ const allBanks = [
   { id: 'incred', name: 'Incred Finance', calculator: calculateUnifiedBankEligibility },
   { id: 'au-bank', name: 'AU Small Finance Bank', calculator: calculateUnifiedBankEligibility },
   { id: 'abfl', name: 'Aditya Birla Finance', calculator: calculateUnifiedBankEligibility },
-  { id: 'finnable', name: 'Finnable Finance', calculator: calculateUnifiedBankEligibility }
+  { id: 'finnable', name: 'Finnable Finance', calculator: calculateFinnableEligibility }
 ];
 
 /**
