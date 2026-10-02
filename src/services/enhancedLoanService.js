@@ -12,6 +12,7 @@ import { calculateIdfcEligibility } from '../banks/idfc/calculator.js';
 import { calculateShriRamEligibility } from '../banks/shri-ram/calculator.js';
 import { calculatePiramalEligibility } from '../banks/piramal/calculator.js';
 import { calculateFinnableEligibility } from '../banks/finnable/calculator.js';
+import { calculateAxisBankEligibility } from '../banks/axis-bank/calculator.js';
 
 // Import bank configuration service for logic bridge
 import { getBankConfig, getAllBankConfig } from './bankConfigService.js';
@@ -55,7 +56,7 @@ const allBanks = [
   { id: 'piramal', name: 'Piramal Finance', calculator: calculatePiramalEligibility },
 
   // Additional Banks & NBFCs from Master Excel Policy
-  { id: 'axis-bank', name: 'Axis Bank', calculator: calculateUnifiedBankEligibility },
+  { id: 'axis-bank', name: 'Axis Bank', calculator: calculateAxisBankEligibility },
   { id: 'lnt', name: 'L&T Finance', calculator: calculateUnifiedBankEligibility },
   { id: 'smfg', name: 'SMFG India Credit', calculator: calculateUnifiedBankEligibility },
   { id: 'incred', name: 'Incred Finance', calculator: calculateUnifiedBankEligibility },

@@ -14,6 +14,7 @@ import { calculateIdfcEligibility } from './idfc/calculator.js';
 import { calculateSmfgEligibility } from './smfg/calculator.js';
 import { calculateAbflEligibility } from './abfl/calculator.js';
 import { calculateFinnableEligibility } from './finnable/calculator.js';
+import { calculateAxisBankEligibility } from './axis-bank/calculator.js';
 
 // Export all calculators in an array
 export const bankCalculators = [
@@ -31,7 +32,8 @@ export const bankCalculators = [
   calculateIdfcEligibility,
   calculateSmfgEligibility,
   calculateAbflEligibility,
-  calculateFinnableEligibility
+  calculateFinnableEligibility,
+  calculateAxisBankEligibility
 ];
 
 export {
@@ -49,5 +51,6 @@ export {
   calculateIdfcEligibility,
   calculateSmfgEligibility,
   calculateAbflEligibility,
-  calculateFinnableEligibility
+  calculateFinnableEligibility,
+  calculateAxisBankEligibility
 };

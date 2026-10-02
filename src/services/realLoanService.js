@@ -16,6 +16,7 @@ import { calculateBajajEligibility } from '../banks/bajaj/calculator.js';
 import { calculateAuEligibility, getAuROI } from '../banks/au/calculator.js';
 import { calculateIncredEligibility } from '../banks/incred/calculator.js';
 import { calculateFinnableEligibility } from '../banks/finnable/calculator.js';
+import { calculateAxisBankEligibility } from '../banks/axis-bank/calculator.js';
 
 // Import bank configs for transparency
 import { kotakConfig } from '../banks/kotak/config.js';
@@ -35,6 +36,7 @@ import { bajajConfig } from '../banks/bajaj/config.js';
 import { auConfig } from '../banks/au/config.js';
 import { incredConfig } from '../banks/incred/config.js';
 import { finnableConfig } from '../banks/finnable/config.js';
+import { axisBankConfig } from '../banks/axis-bank/config.js';
 
 // Import company database service
 import { getCompanyCategoryForBank } from './companyDatabaseService.js';
@@ -184,7 +186,7 @@ export const calculateLoanEligibility = async (userData) => {
     { id: 'piramal', name: 'Piramal Finance', calculator: calculatePiramalEligibility, config: piramalConfig, hasDatabase: false },
 
     // Additional Banks & NBFCs from Master Excel Policy
-    { id: 'axis-bank', name: 'Axis Bank', calculator: calculateUnifiedBankEligibility, config: { name: 'Axis Bank', maxLoanCap: 5000000, defaultRate: 9.99 }, hasDatabase: true },
+    { id: 'axis-bank', name: 'Axis Bank', calculator: calculateAxisBankEligibility, config: axisBankConfig, hasDatabase: true },
     { id: 'lnt', name: 'L&T Finance', calculator: calculateUnifiedBankEligibility, config: { name: 'L&T Finance', maxLoanCap: 3000000, defaultRate: 11.5 }, hasDatabase: false },
     { id: 'smfg', name: 'SMFG India Credit', calculator: calculateSmfgEligibility, config: smfgConfig, hasDatabase: false },
     { id: 'incred', name: 'Incred Finance', calculator: calculateIncredEligibility, config: incredConfig, hasDatabase: false },
