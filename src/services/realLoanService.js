@@ -2235,6 +2235,18 @@ const matchCategory = (cat1, cat2) => {
       // Execute base calculator
       const result = calculator(bankInput);
 
+      const isIndusindInst = name === 'IndusInd Bank' || id === 'indusind';
+      if (isIndusindInst && result) {
+        return {
+          bankName: result.bankName || name,
+          ...result,
+          category: bankCategory,
+          salaryMode: calculatorInput.salaryMode,
+          adminApplied: true,
+          processingFee: adminAllConfig.feesAndCharges?.processingFeePercentage || 1.0
+        };
+      }
+
       if (isFinnableInst && result) {
         return {
           bankName: result.bankName || name,

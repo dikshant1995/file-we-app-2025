@@ -2,10 +2,11 @@ import { indusindConfig } from './config.js';
 import { getBankConfig } from '../../services/bankConfigService.js';
 import { getSlabRate } from '../../utils/policyUtils.js';
 
-// Function to calculate EMI
+// Standard financial EMI formula
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
-  const monthlyInterestRate = annualInterestRate / 12 / 100;
-  const numberOfMonths = tenureInYears * 12;
+  if (!principal || principal <= 0) return 0;
+  const monthlyInterestRate = (annualInterestRate || 9.99) / 12 / 100;
+  const numberOfMonths = (tenureInYears || 5) * 12;
 
   if (monthlyInterestRate === 0) {
     return principal / numberOfMonths;
@@ -18,10 +19,11 @@ const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
   return Math.round(emi);
 };
 
-// Reverse calculation: Calculate principal from available EMI
+// Standard financial reverse formula: Calculate principal capacity from available EMI
 const calculatePrincipalFromEMI = (emi, annualInterestRate, tenureInYears) => {
-  const monthlyInterestRate = annualInterestRate / 12 / 100;
-  const numberOfMonths = tenureInYears * 12;
+  if (!emi || emi <= 0) return 0;
+  const monthlyInterestRate = (annualInterestRate || 9.99) / 12 / 100;
+  const numberOfMonths = (tenureInYears || 5) * 12;
 
   if (monthlyInterestRate === 0) {
     return emi * numberOfMonths;
@@ -29,65 +31,97 @@ const calculatePrincipalFromEMI = (emi, annualInterestRate, tenureInYears) => {
 
   const r = monthlyInterestRate;
   const n = numberOfMonths;
-  const standardPower = Math.pow(1 + (0.11 / 12), 72);
-  const clientPower = 1.9229;
-  const scaleFactor = clientPower / standardPower;
-  const actualPowerTerm = Math.pow(1 + r, n);
-  const adjustedPowerTerm = actualPowerTerm * scaleFactor;
-
-  const principal = emi * (adjustedPowerTerm - 1) / (r * adjustedPowerTerm);
+  const principal = emi * (Math.pow(1 + r, n) - 1) / (r * Math.pow(1 + r, n));
 
   return Math.round(principal);
 };
 
-// Helper function to get salary band for a specific category
-const getSalaryBand = (salary, category, table) => {
-  const categoryBands = table[category];
-  if (!categoryBands) return null;
+/**
+ * IndusInd Bank Interest Rate Lookup (Factor Dependency Flow)
+ * 1. Factor 1: Category (Super A, A, B, Govt vs C)
+ * 2. Factor 2: Sanctioned Loan Amount
+ */
+export const getIndusindInterestRate = (category, loanAmount) => {
+  const catUpper = String(category || '').toUpperCase().trim();
+  const isCatC = catUpper === 'C' || catUpper === 'CATGC' || catUpper === 'CAT C';
+  const amount = Number(loanAmount) || 0;
 
-  for (const band of Object.keys(categoryBands)) {
-    if (band.includes('+')) {
-      const min = parseInt(band.replace('+', ''));
-      if (salary >= min) return band;
-    } else if (band.startsWith('>=')) {
-      const min = parseInt(band.replace('>=', ''));
-      if (salary >= min) return band;
-    } else if (band.startsWith('>')) {
-      const min = parseInt(band.replace('>', ''));
-      if (salary > min) return band;
-    } else if (band.startsWith('<=')) {
-      const max = parseInt(band.replace('<=', ''));
-      if (salary <= max) return band;
-    } else if (band.startsWith('<')) {
-      const max = parseInt(band.replace('<', ''));
-      if (salary < max) return band;
-    } else {
-      const parts = band.split('-');
-      if (parts.length === 2) {
-        const min = parseInt(parts[0]);
-        const max = parseInt(parts[1]);
-        if (salary >= min && salary <= max) return band;
-      }
-    }
+  if (isCatC) {
+    if (amount >= 1500000) return 10.60;
+    if (amount >= 500000) return 13.00;
+    return 13.50;
+  } else {
+    // Super A, A, B, Govt
+    if (amount >= 1000000) return 9.99;
+    if (amount >= 500000) return 12.00;
+    return 12.50;
   }
-  return null;
 };
 
-// IndusInd Bank specific eligibility calculation (Multiplier-Only System)
+/**
+ * IndusInd Bank FOIR & Multiplier Lookup (Factor Dependency Flow)
+ */
+export const getIndusindFoirAndMultiplier = (category, monthlyIncome, hasHlOrLap = false, livingStatus = 'owned') => {
+  const catUpper = String(category || '').toUpperCase().trim();
+  const isCatC = catUpper === 'C' || catUpper === 'CATGC' || catUpper === 'CAT C';
+  const income = Number(monthlyIncome) || 0;
+
+  let multiplier = 20;
+  let foirPercentage = 0.50;
+
+  if (isCatC) {
+    multiplier = 21;
+    if (income >= 35000) {
+      foirPercentage = 0.60;
+    } else {
+      foirPercentage = 0.50;
+    }
+  } else {
+    // Super A, A, B, Govt
+    if (income >= 125000) {
+      multiplier = 30;
+    } else if (income >= 75000) {
+      multiplier = 25;
+    } else {
+      multiplier = 20;
+    }
+
+    if (income >= 50000) {
+      if (hasHlOrLap) {
+        foirPercentage = 0.75; // Excel: HL or LAP running -> up to 75% FOIR
+      } else if (String(livingStatus).toLowerCase() === 'rented') {
+        foirPercentage = 0.65;
+      } else {
+        foirPercentage = 0.70;
+      }
+    } else if (income >= 35000) {
+      foirPercentage = 0.60;
+    } else {
+      foirPercentage = 0.50;
+    }
+  }
+
+  return { multiplier, foirPercentage };
+};
+
+// IndusInd Bank eligibility calculator
 export const calculateIndusindEligibility = (userData) => {
   const {
     desiredLoanAmount,
-    loanTenure,
+    loanTenure = 5,
     basicSalary,
     averageIncentive,
     monthlyIncome,
     existingEMI = 0,
-    creditCardObligation, // NEW: 5% of non-BT credit card balances
-    category = 'C',
+    creditCardObligation = 0, // 5% credit card obligation from active CC balances
+    category = 'Super A',
     creditScore,
-    employmentType,
-    age,
-    existingLoanBanks,
+    cibilScore,
+    employmentType = 'salaried',
+    age = 30,
+    existingLoanBanks = [],
+    livingStatus = 'owned',
+    existingLoanTypes = [],
     // Admin Overrides (Logic Bridge)
     interestRateOverride,
     multiplierOverride,
@@ -99,9 +133,9 @@ export const calculateIndusindEligibility = (userData) => {
     govtMaxTenure,
     // Balance Transfer fields
     isBTMode,
-    loansForBT,
-    btTotalEMI,
-    btTotalOutstanding,
+    loansForBT = [],
+    btTotalEMI = 0,
+    btTotalOutstanding = 0,
     // Incentive Overrides
     incentivePercentageOverride,
     incentiveMonthsOverride
@@ -114,12 +148,10 @@ export const calculateIndusindEligibility = (userData) => {
 
   const effectiveIncentiveMonths = incentiveMonthsOverride !== undefined 
     ? incentiveMonthsOverride 
-    : 3; // Default to 3 months if not specified
+    : 3;
 
   const bankIncentiveConsidered = (averageIncentive || 0) * effectiveIncentivePercentage;
-  const actualMonthlyIncome = (basicSalary || 0) + bankIncentiveConsidered;
-  
-  // Use actualMonthlyIncome for all subsequent calculations
+  const actualMonthlyIncome = (basicSalary || monthlyIncome || 0) + bankIncentiveConsidered;
   const monthlyIncomeForCalc = actualMonthlyIncome;
 
   // IndusInd Bank policy check: Category D and Unlisted are not funded
@@ -131,16 +163,16 @@ export const calculateIndusindEligibility = (userData) => {
     };
   }
 
+  // 1. Balance Transfer Restrictions
   const isBT = isBTMode && loansForBT && loansForBT.length > 0;
   let adjustedIncome = monthlyIncomeForCalc;
   let nonBTLoansEMI = 0;
 
   if (isBT) {
-    if (loansForBT && loansForBT.some(l => l.type === 'Credit Card' || l.type === 'credit_card')) {
+    if (loansForBT.some(l => l.type === 'Credit Card' || l.type === 'credit_card' || l.loanType === 'credit_card')) {
       return { eligible: false, reason: 'IndusInd Bank policy does not allow Credit Card Balance Transfer (CC BT Not Allowed)', isBTMode: true };
     }
     nonBTLoansEMI = existingEMI - btTotalEMI;
-    // NEW: Also deduct credit card obligations from adjusted income
     const creditCardDeduction = creditCardObligation || 0;
     adjustedIncome = monthlyIncomeForCalc - nonBTLoansEMI - creditCardDeduction;
     if (adjustedIncome <= 0) {
@@ -148,11 +180,11 @@ export const calculateIndusindEligibility = (userData) => {
     }
   }
 
-  // CHECK: If customer already has a personal loan from IndusInd Bank
+  // 2. Existing IndusInd Loan Check
   if (existingLoanBanks && existingLoanBanks.length > 0) {
     const indusindNames = ['indusind', 'indusind bank'];
     const hasExistingIndusindLoan = existingLoanBanks.some(bank =>
-      indusindNames.some(name => bank.includes(name))
+      indusindNames.some(name => String(bank).toLowerCase().includes(name))
     );
 
     if (hasExistingIndusindLoan) {
@@ -163,166 +195,102 @@ export const calculateIndusindEligibility = (userData) => {
     }
   }
 
-  // Check age eligibility - Use dynamic config from admin dashboard
-  const ageConfig = getBankConfig('IndusInd Bank', 'ageRules');
-  const minAge = ageConfig ? ageConfig.minAge : indusindConfig.minAge;
-  const maxAge = ageConfig ? ageConfig.maxAge : indusindConfig.maxAge;
-
-  if (age && (age < minAge || age > maxAge)) {
-    return {
-      eligible: false,
-      reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
-    };
-  }
-
-  // Check employment type
-  if (!indusindConfig.employmentTypes.includes(employmentType)) {
-    return {
-      eligible: false,
-      reason: `Employment type ${employmentType} not supported by IndusInd Bank`
-    };
-  }
-
-  // Apply tenure capping based on category (tenure is in months)
-  // Logic Bridge: Support govtMaxTenure override
-  let lookupCategory = category === 'Govt' ? 'A' : category;
-  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : indusindConfig.maxTenureByCategory[lookupCategory];
-
-  // Excel Policy: If CIBIL = -1, max tenure is capped to 48 months
-  const isCibilMinusOne = creditScore === -1 || creditScore === '-1' || userData.cibilScore === -1 || userData.cibilScore === '-1';
-  if (isCibilMinusOne && maxTenureForCategory) {
-    maxTenureForCategory = Math.min(maxTenureForCategory, 48);
-  }
-
-  if (!maxTenureForCategory || maxTenureForCategory === 0) {
-    return {
-      eligible: false,
-      reason: `No loans available for Category ${category}`
-    };
-  }
-
-  // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
-  // This shows the maximum loan amount the bank can offer for this category
-  const cappedTenureMonths = maxTenureForCategory;
-  const cappedTenureYears = cappedTenureMonths / 12;
-
-  // Store user's request for display purposes
-  const requestedTenureMonths = loanTenure * 12;
-  const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
-
-  // Check loan tenure
-  if (loanTenure > indusindConfig.maxLoanTenure) {
-    return {
-      eligible: false,
-      reason: `Maximum loan tenure is ${indusindConfig.maxLoanTenure} years`
-    };
-  }
-
-  const minSalaryRequired = indusindConfig.minSalaryByCategory[category];
-  if (!minSalaryRequired) {
-    return { eligible: false, reason: `Category ${category} not supported by IndusInd Bank`, isBTMode: isBT };
-  }
-
+  // 3. Minimum In-Hand Salary Check (₹25,000 required across all categories)
+  const minSalaryRequired = 25000;
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncomeForCalc;
   if (incomeToCheck < minSalaryRequired) {
-    return { eligible: false, reason: `Minimum salary of ₹${minSalaryRequired.toLocaleString()} required for category ${category}${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+    return { 
+      eligible: false, 
+      reason: `IndusInd Bank requires minimum monthly salary of ₹${minSalaryRequired.toLocaleString()} (Current: ₹${Math.round(incomeToCheck).toLocaleString()})`, 
+      isBTMode: isBT 
+    };
   }
 
-  const incomeForCalculation = isBT ? adjustedIncome : monthlyIncomeForCalc;
-  const foirLookupCategory = category === 'Govt' ? 'GOVT' : category;
-  const multiplierLookupCategory = category === 'Govt' ? 'A' : category;
-
-  const multiplierSalaryBand = getSalaryBand(incomeForCalculation, multiplierLookupCategory, indusindConfig.multiplierTable);
-  const foirSalaryBand = getSalaryBand(incomeForCalculation, foirLookupCategory, indusindConfig.foirTable);
-
-  if (!multiplierSalaryBand && !govtMultiplier && !multiplierOverride) {
-    return { eligible: false, reason: `Salary does not fall within any eligible multiplier band for category ${category}`, isBTMode: isBT };
-  }
-  if (!foirSalaryBand && !govtFOIR && !foirOverride) {
-    return { eligible: false, reason: `Salary does not fall within any eligible FOIR band for category ${category}`, isBTMode: isBT };
+  // 4. Age Check (21 to 60 Years at maturity)
+  const userAge = Number(age) || 30;
+  if (userAge < 21 || userAge > 60) {
+    return {
+      eligible: false,
+      reason: `Age must be between 21 and 60 years for IndusInd Bank. Current age: ${userAge}`
+    };
   }
 
-  // Multiplier determination: Override > Govt > Config table > Direct Excel salary slabs
-  let multiplier = multiplierOverride || ((isGovtEmployee && govtMultiplier) ? govtMultiplier : (indusindConfig.multiplierTable[multiplierLookupCategory]?.[multiplierSalaryBand]));
-  if (!multiplier) {
-    if (String(category || '').toUpperCase().trim() === 'C') {
-      multiplier = 21;
-    } else {
-      if (incomeForCalculation >= 125000) multiplier = 30;
-      else if (incomeForCalculation >= 75000) multiplier = 25;
-      else multiplier = 20;
-    }
+  // 5. Calculate Tenure
+  let maxTenureMonths = 84; // Excel: 84 Months (7 Years)
+  const effectiveCibil = creditScore !== undefined ? creditScore : (cibilScore !== undefined ? cibilScore : 750);
+  const isCibilMinusOne = effectiveCibil === -1 || effectiveCibil === '-1' || effectiveCibil === 0;
+  
+  if (isCibilMinusOne) {
+    maxTenureMonths = 48; // Excel Policy: CIBIL -1 H TO 48 TENURE
   }
 
-  let foirPercentage = foirOverride ? (foirOverride / 100) : ((isGovtEmployee && govtFOIR) ? (govtFOIR / 100) : (indusindConfig.foirTable[foirLookupCategory]?.[foirSalaryBand]));
-  if (!foirPercentage) {
-    if (String(category || '').toUpperCase().trim() === 'C') {
-      foirPercentage = incomeForCalculation >= 35000 ? 0.60 : 0.50;
-    } else {
-      if (incomeForCalculation >= 50000) {
-        const hasHlOrLap = (userData.existingLoanTypes && 
-          (userData.existingLoanTypes.includes('Home Loan') || 
-           userData.existingLoanTypes.includes('Loan Against Property') ||
-           userData.existingLoanTypes.includes('HL') ||
-           userData.existingLoanTypes.includes('LAP'))) ||
-          (Array.isArray(userData.loansForBT) && 
-           userData.loansForBT.some(l => l.type === 'Home Loan' || l.type === 'LAP'));
-        if (hasHlOrLap) foirPercentage = 0.75;
-        else if (userData.livingStatus === 'rented') foirPercentage = 0.65;
-        else foirPercentage = 0.70;
-      } else if (incomeForCalculation >= 35000) {
-        foirPercentage = 0.60;
-      } else {
-        foirPercentage = 0.50;
-      }
-    }
+  // Capped by Retirement Age of 60
+  const maxAgeAllowedMonths = Math.max(0, (60 - userAge) * 12);
+  const cappedTenureMonths = Math.min(maxTenureMonths, maxAgeAllowedMonths);
+  const cappedTenureYears = cappedTenureMonths / 12;
+
+  if (cappedTenureMonths <= 0) {
+    return {
+      eligible: false,
+      reason: `Age ${userAge} exceeds maximum retirement age limit of 60 years.`
+    };
   }
 
-  // MULTIPLIER PATH
+  // 6. FOIR & Multipliers Determination (Factor Dependency Flow)
+  const hasHlOrLap = (existingLoanTypes && 
+    (existingLoanTypes.includes('Home Loan') || 
+     existingLoanTypes.includes('Loan Against Property') ||
+     existingLoanTypes.includes('HL') ||
+     existingLoanTypes.includes('LAP'))) ||
+    (Array.isArray(loansForBT) && loansForBT.some(l => l.type === 'Home Loan' || l.type === 'LAP'));
+
+  const factorLookup = getIndusindFoirAndMultiplier(categoryNormalized, monthlyIncomeForCalc, hasHlOrLap, livingStatus);
+
+  let multiplier = multiplierOverride || ((isGovtEmployee && govtMultiplier) ? govtMultiplier : factorLookup.multiplier);
+  let foirPercentage = foirOverride ? (foirOverride / 100) : ((isGovtEmployee && govtFOIR) ? (govtFOIR / 100) : factorLookup.foirPercentage);
+
+  // Calculate Capacity
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
-  const availableSalary = isBT ? incomeForCalculation : (monthlyIncomeForCalc - totalObligations);
+  const availableSalary = isBT ? incomeToCheck : (monthlyIncomeForCalc - totalObligations);
   const multiplierLoanAmount = availableSalary * multiplier;
 
-  // FOIR PATH
   const foirCap = isBT ? (adjustedIncome * foirPercentage) : (monthlyIncomeForCalc * foirPercentage);
   const availableEMI = isBT ? foirCap : (foirCap - totalObligations);
-  
+
   if (availableEMI <= 0) {
     return {
       eligible: false,
-      reason: `Existing obligations (₹${totalObligations.toLocaleString()}) exceed FOIR limit of ₹${Math.round(foirCap).toLocaleString()}`
+      reason: `Existing monthly obligations (₹${Math.round(totalObligations).toLocaleString()}) exceed maximum allowed FOIR limit of ₹${Math.round(foirCap).toLocaleString()}`
     };
   }
 
-  // Pass 1: Preliminary ROI for initial calculation
-  const baseRate = indusindConfig.interestRate;
-  const preliminaryFoirLoanAmount = calculatePrincipalFromEMI(availableEMI, baseRate, cappedTenureYears);
+  // Pass 1: Preliminary ROI & Principal Estimation
+  const preliminaryRoi = getIndusindInterestRate(categoryNormalized, 1000000);
+  const preliminaryFoirLoanAmount = calculatePrincipalFromEMI(availableEMI, preliminaryRoi, cappedTenureYears);
 
-  // Take the minimum for first pass
   const preliminaryLoanAmount = Math.min(
     multiplierLoanAmount,
     preliminaryFoirLoanAmount,
     desiredLoanAmount || Infinity
   );
 
-  // Category loan capping from Excel: Cat C: 15L, Cat A/B/Govt: 75L
-  const catUpper = String(category || '').toUpperCase();
-  const categoryMaxLoan = (catUpper === 'C') ? 1500000 : (indusindConfig.maxLoanAmount || 7500000);
+  // Category Loan Capping (Excel: Cat C: 15L, Cat A/B/Govt/Super A: 75L)
+  const isCatC = categoryNormalized === 'C' || categoryNormalized === 'CATGC' || categoryNormalized === 'CAT C';
+  const categoryMaxLoan = isCatC ? 1500000 : 7500000;
   const preliminaryCappedLoan = Math.min(preliminaryLoanAmount, categoryMaxLoan);
 
-  // ROI Calculation using Logic Bridge and Slabs
+  // Pass 2: Exact ROI Lookup based on Category + Sanctioned Loan Amount
   let effectiveInterestRate = interestRateOverride;
   if (isGovtEmployee && govtROI) {
     effectiveInterestRate = govtROI;
   } else if (!effectiveInterestRate) {
-    // Check dynamic slabs in Admin Matrix
-    effectiveInterestRate = getSlabRate('IndusInd Bank', multiplierLookupCategory, preliminaryCappedLoan, userData.city || userData.state, indusindConfig.interestRate);
+    effectiveInterestRate = getIndusindInterestRate(categoryNormalized, preliminaryCappedLoan);
   }
 
-  // Pass 2: Calculate FOIR loan amount with final ROI
+  // Recalculate FOIR Loan Capacity with Exact ROI
   const foirLoanAmount = calculatePrincipalFromEMI(availableEMI, effectiveInterestRate, cappedTenureYears);
 
-  // Final loan amount is minimum of FOIR, Multiplier, and desired
+  // Final Loan Amount Determination
   const finalLoanAmount = Math.min(
     multiplierLoanAmount,
     foirLoanAmount,
@@ -332,33 +300,13 @@ export const calculateIndusindEligibility = (userData) => {
   const maxLoanCapAmount = Math.min(finalLoanAmount, categoryMaxLoan);
   const loanCapped = finalLoanAmount > categoryMaxLoan;
 
-  // Apply Dynamic Bachelor Capping
-  let appliedBachelorCap = false;
-  let bachelorLimitAmount = null;
-  let bachelorCapReasonStr = null;
-  let cappedFinalLoan = maxLoanCapAmount;
-
-  if (userData.dynamicBachelorLimitOverride !== undefined && userData.dynamicBachelorLimitOverride !== null) {
-    bachelorLimitAmount = userData.dynamicBachelorLimitOverride;
-    if (cappedFinalLoan > bachelorLimitAmount) {
-      cappedFinalLoan = bachelorLimitAmount;
-      appliedBachelorCap = true;
-      bachelorCapReasonStr = userData.dynamicBachelorCapReason || 'Dynamic Bachelor Capping limit applied';
-    }
-  } else if (indusindConfig.bachelorMaxLoanAmount && userData.maritalStatus === 'single' && userData.livingStatus === 'rented') {
-    bachelorLimitAmount = indusindConfig.bachelorMaxLoanAmount;
-    if (cappedFinalLoan > bachelorLimitAmount) {
-      cappedFinalLoan = bachelorLimitAmount;
-      appliedBachelorCap = true;
-      bachelorCapReasonStr = 'Rented Bachelor Limit Applied (Bank Default)';
-    }
-  }
+  const monthlyEMI = calculateEMI(maxLoanCapAmount, effectiveInterestRate, cappedTenureYears);
 
   let btDetails = null;
   if (isBT) {
-    const btFreshAmount = cappedFinalLoan - btTotalOutstanding;
+    const btFreshAmount = maxLoanCapAmount - btTotalOutstanding;
     if (btFreshAmount < 0) {
-      return { eligible: false, reason: `BT Outstanding (₹${btTotalOutstanding.toLocaleString()}) exceeds max loan (₹${Math.round(cappedFinalLoan).toLocaleString()})`, isBTMode: true };
+      return { eligible: false, reason: `BT Outstanding (₹${btTotalOutstanding.toLocaleString()}) exceeds max loan capacity (₹${Math.round(maxLoanCapAmount).toLocaleString()})`, isBTMode: true };
     }
     btDetails = {
       isBTMode: true,
@@ -368,63 +316,48 @@ export const calculateIndusindEligibility = (userData) => {
       freshAmountDisbursed: Math.round(btFreshAmount),
       nonBTLoansEMI: Math.round(nonBTLoansEMI),
       creditCardObligation: Math.round(creditCardObligation || 0),
-      creditCardObligationNote: creditCardObligation > 0 ? '5% of non-BT credit card outstanding' : 'No credit card obligation (either no CC or CC in BT)',
       totalNonBTObligations: Math.round(nonBTLoansEMI + (creditCardObligation || 0)),
       originalIncome: monthlyIncomeForCalc,
       adjustedIncome: Math.round(adjustedIncome)
     };
   }
 
-  const monthlyEMI = calculateEMI(cappedFinalLoan, effectiveInterestRate, cappedTenureYears);
-
   return {
     eligible: true,
     bankId: indusindConfig.id,
     bankName: indusindConfig.name,
-    loanAmount: Math.round(cappedFinalLoan),
-    maxLoanCap: indusindConfig.maxLoanAmount,
+    loanAmount: Math.round(maxLoanCapAmount),
+    maxLoanCap: categoryMaxLoan,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
-    bachelorCapped: appliedBachelorCap,
-    bachelorCapReason: bachelorCapReasonStr,
-    regularMaxLoan: Math.round(maxLoanCapAmount),
-    bachelorMaxLoanAmount: bachelorLimitAmount !== null ? Math.round(bachelorLimitAmount) : null,
+    bachelorCapped: false,
+    bachelorCapReason: null,
     interestRate: effectiveInterestRate,
+    appliedRoi: effectiveInterestRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,
-    tenureCapped: tenureCapped,
-    requestedTenure: loanTenure,
-    requestedTenureMonths: requestedTenureMonths,
-    maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
     multiplier: multiplier,
     foirPercentage: foirPercentage,
-    incentivePercentage: effectiveIncentivePercentage, // Dynamically reflect override
-    incentiveMonths: effectiveIncentiveMonths,
-    incentiveConsidered: bankIncentiveConsidered,
-    salaryBand: multiplierSalaryBand,
-    category: category,
     availableEMI: Math.round(availableEMI),
     foirLoanAmount: Math.round(foirLoanAmount),
     multiplierLoanAmount: Math.round(multiplierLoanAmount),
-    calculationMethod: 'Combined (Dual)',
+    calculationMethod: 'Dual (FOIR & Multiplier)',
+    category: category,
     details: {
+      companyCategory: category,
       multiplier: multiplier + 'x',
       foirPercentage: (foirPercentage * 100).toFixed(0) + '%',
-      salaryBand: multiplierSalaryBand,
-      foirBand: foirSalaryBand,
       foirCap: Math.round(foirCap),
       availableEMI: Math.round(availableEMI),
       foirLoanAmount: Math.round(foirLoanAmount),
       multiplierLoanAmount: Math.round(multiplierLoanAmount),
-      limitingFactor: finalLoanAmount === foirLoanAmount ? 'FOIR' : 'Multiplier',
-      existingEMI: Math.round(existingEMI || 0),
       creditCardObligation: Math.round(creditCardObligation || 0),
-      creditCardObligationNote: creditCardObligation > 0 ? '5% of credit card outstanding balance' : 'No credit card obligations',
+      ccObligationPercent: '5%',
       totalObligations: Math.round(totalObligations),
-      availableSalaryAfterObligations: Math.round(availableSalary)
+      categoryMaxLoanCap: categoryMaxLoan,
+      cibilMinusOneCapped: isCibilMinusOne
     },
     ...btDetails
   };
 };
-
