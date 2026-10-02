@@ -1,5 +1,5 @@
 import { piramalConfig } from './config.js';
-import { getBankConfig } from '../../services/bankConfigService.js';
+import { getBankConfig, getAllBankConfig } from '../../services/bankConfigService.js';
 import { getSlabRate } from '../../utils/policyUtils.js';
 
 // Helper function to get interest rate based on category and loan amount
@@ -10,11 +10,12 @@ const getInterestRateForLoan = (category, loanAmount, location = null) => {
 
 // Function to calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
+  if (!principal || principal <= 0) return 0;
   const monthlyInterestRate = annualInterestRate / 12 / 100;
   const numberOfMonths = tenureInYears * 12;
 
   if (monthlyInterestRate === 0) {
-    return principal / numberOfMonths;
+    return Math.round(principal / numberOfMonths);
   }
 
   const emi = principal * monthlyInterestRate *
@@ -24,213 +25,41 @@ const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
   return Math.round(emi);
 };
 
+// Reverse calculation: Calculate principal from available EMI
+const calculatePrincipalFromEMI = (emi, annualInterestRate, tenureInYears) => {
+  if (!emi || emi <= 0) return 0;
+  const monthlyInterestRate = annualInterestRate / 12 / 100;
+  const numberOfMonths = tenureInYears * 12;
+
+  if (monthlyInterestRate === 0) {
+    return Math.round(emi * numberOfMonths);
+  }
+
+  const r = monthlyInterestRate;
+  const n = numberOfMonths;
+  const principal = (emi * (Math.pow(1 + r, n) - 1)) / (r * Math.pow(1 + r, n));
+
+  return Math.round(principal);
+};
+
 // Helper function to get NTH band for FOIR
 const getNTHBand = (nth, nthFoirTable) => {
+  if (!nthFoirTable) return 0.70;
   for (const [band, data] of Object.entries(nthFoirTable)) {
     if (band.includes('+')) {
-      // Handle "35001+" format
       const min = parseInt(band.replace('+', ''));
       if (nth >= min) {
         return data.foir;
       }
     } else {
-      // Handle "20000-35000" format
       const [min, max] = band.split('-').map(s => parseInt(s));
       if (nth >= min && nth <= max) {
         return data.foir;
       }
     }
   }
-  return null;
+  return 0.70;
 };
-
-// Reverse calculation: Calculate principal from available EMI
-// Using client's reverse calculator: Factor = 52.5375
-const calculatePrincipalFromEMI = (emi, annualInterestRate, tenureInYears) => {
-  const monthlyInterestRate = annualInterestRate / 12 / 100;
-  const numberOfMonths = tenureInYears * 12;
-
-  if (monthlyInterestRate === 0) {
-    return emi * numberOfMonths;
-  }
-
-  const r = monthlyInterestRate;
-  const n = numberOfMonths;
-  const standardPower = Math.pow(1 + (0.11 / 12), 72);
-  const clientPower = 1.9229;
-  const scaleFactor = clientPower / standardPower;
-  const actualPowerTerm = Math.pow(1 + r, n);
-  const adjustedPowerTerm = actualPowerTerm * scaleFactor;
-
-  const principal = emi * (adjustedPowerTerm - 1) / (r * adjustedPowerTerm);
-
-  return Math.round(principal);
-};
-
-// Piramal Finance specific eligibility calculation (Ultra-Simple 2-Band NTH System)
-export const calculatePiramalEligibility = (userData) => {
-  const {
-    desiredLoanAmount,
-    loanTenure,
-    basicSalary,
-    averageIncentive,
-    monthlyIncome,
-    existingEMI = 0,
-    creditCardObligation, // NEW: 5% of non-BT credit card balances
-    category = 'C',
-    creditScore,
-    employmentType,
-    age,
-    existingLoanBanks,
-    // Admin Overrides (Logic Bridge)
-    interestRateOverride,
-    isGovtEmployee,
-    govtROI,
-    govtFOIR,
-    govtMultiplier,
-    govtMaxTenure,
-    // Balance Transfer fields
-    isBTMode,
-    loansForBT,
-    btTotalEMI,
-    btTotalOutstanding,
-    // Incentive Overrides
-    incentivePercentageOverride,
-    incentiveMonthsOverride
-  } = userData;
-
-  // ========== INCENTIVE CALCULATION LOGIC ==========
-  const effectiveIncentivePercentage = incentivePercentageOverride !== undefined 
-    ? incentivePercentageOverride 
-    : (piramalConfig.incentivePercentage || 0);
-
-  const effectiveIncentiveMonths = incentiveMonthsOverride !== undefined 
-    ? incentiveMonthsOverride 
-    : 3; // Default to 3 months if not specified
-
-  const bankIncentiveConsidered = (averageIncentive || 0) * effectiveIncentivePercentage;
-  const actualMonthlyIncome = (basicSalary || 0) + bankIncentiveConsidered;
-  
-  // Use actualMonthlyIncome for all subsequent calculations
-  const monthlyIncomeForCalc = actualMonthlyIncome;
-
-  const isBT = isBTMode && loansForBT && loansForBT.length > 0;
-  let adjustedIncome = monthlyIncomeForCalc;
-  let nonBTLoansEMI = 0;
-
-  if (isBT) {
-    const plLoans = (loansForBT || []).filter(l => l.loanType !== 'credit_card' && l.type !== 'Credit Card');
-    const ccLoans = (loansForBT || []).filter(l => l.loanType === 'credit_card' || l.type === 'Credit Card');
-
-    if (plLoans.length > 1) {
-      return {
-        eligible: false,
-        reason: `Piramal Finance permits maximum 1 Personal Loan for Balance Transfer (found ${plLoans.length}). Policy: 2 CC BT ALLOW WITH 1 PL BT`,
-        isBTMode: true
-      };
-    }
-
-    if (ccLoans.length > 2) {
-      return {
-        eligible: false,
-        reason: `Piramal Finance permits maximum 2 Credit Cards for Balance Transfer (found ${ccLoans.length}). Policy: 2 CC BT ALLOW WITH 1 PL BT`,
-        isBTMode: true
-      };
-    }
-
-    if (ccLoans.length > 0 && plLoans.length === 0) {
-      return {
-        eligible: false,
-        reason: 'Piramal Finance requires 1 Personal Loan BT along with Credit Card BT. Standalone Credit Card BT is not allowed (Policy: 2 CC BT ALLOW WITH 1 PL BT).',
-        isBTMode: true
-      };
-    }
-
-    nonBTLoansEMI = existingEMI - btTotalEMI;
-    // NEW: Also deduct credit card obligations from adjusted income
-    const creditCardDeduction = creditCardObligation || 0;
-    adjustedIncome = monthlyIncomeForCalc - nonBTLoansEMI - creditCardDeduction;
-    if (adjustedIncome <= 0) {
-      return { eligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains`, isBTMode: true };
-    }
-  }
-
-  // Check PF / PPF deduction requirement (Excel: 22+PF DEDUCT REQ)
-  const isPfDeducted = userData.hasPpfDeduction !== undefined 
-    ? userData.hasPpfDeduction 
-    : (userData.hasPfDeduction !== undefined ? userData.hasPfDeduction : true);
-
-  if (!isPfDeducted) {
-    return {
-      eligible: false,
-      reason: 'Piramal Finance strictly requires salary with PF/PPF deduction (Excel: 22+PF DEDUCT REQ)'
-    };
-  }
-
-  // CHECK: If customer already has a personal loan from Piramal Finance
-  if (existingLoanBanks && existingLoanBanks.length > 0) {
-    const piramalNames = ['piramal', 'piramal finance', 'piramal capital'];
-    const hasExistingPiramalLoan = existingLoanBanks.some(bank =>
-      piramalNames.some(name => bank.includes(name))
-    );
-
-    if (hasExistingPiramalLoan) {
-      return {
-        eligible: false,
-        reason: 'As an existing customer of Piramal Finance with an active personal loan, you are not eligible for a new loan from this bank'
-      };
-    }
-  }
-
-  // Check age eligibility
-  if (age && (age < piramalConfig.minAge || age > piramalConfig.maxAge)) {
-    return {
-      eligible: false,
-      reason: `Age must be between ${piramalConfig.minAge} and ${piramalConfig.maxAge} years. Current age: ${age}`
-    };
-  }
-
-  // Check employment type
-  if (!piramalConfig.employmentTypes.includes(employmentType)) {
-    return {
-      eligible: false,
-      reason: `Employment type ${employmentType} not supported by Piramal Finance`
-    };
-  }
-
-  // Apply tenure capping based on category (tenure is in months)
-  // Logic Bridge: Support govtMaxTenure override
-  let lookupCategory = category === 'Govt' ? 'A' : category;
-  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : piramalConfig.maxTenureByCategory[lookupCategory];
-
-  if (!maxTenureForCategory || maxTenureForCategory === 0) {
-    return {
-      eligible: false,
-      reason: `No loans available for Category ${category}`
-    };
-  }
-
-  // ALWAYS USE MAXIMUM TENURE FOR THE CATEGORY (ignore user's requested tenure)
-  // This shows the maximum loan amount the bank can offer for this category
-  const cappedTenureMonths = maxTenureForCategory;
-  const cappedTenureYears = cappedTenureMonths / 12;
-
-  // Store user's request for display purposes
-  const requestedTenureMonths = loanTenure * 12;
-  const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
-
-  // Check loan tenure
-  if (loanTenure > piramalConfig.maxLoanTenure) {
-    return {
-      eligible: false,
-      reason: `Maximum loan tenure is ${piramalConfig.maxLoanTenure} years`
-    };
-  }
-
-  const incomeToCheck = isBT ? adjustedIncome : monthlyIncomeForCalc;
-  if (incomeToCheck < piramalConfig.minNTH) {
-    return { eligible: false, reason: `Minimum NTH salary of ₹${piramalConfig.minNTH.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
-  }
 
 // Helper function to get Ventile Band & Multipliers based on CIBIL Score range (700 to 800+)
 const getCibilVentileBand = (cibilScore, customBands = null) => {
@@ -272,18 +101,178 @@ const getCibilVentileBand = (cibilScore, customBands = null) => {
   }
 };
 
+// Piramal Finance specific eligibility calculation
+export const calculatePiramalEligibility = (userData, adminBankConfig) => {
+  const {
+    desiredLoanAmount,
+    loanTenure,
+    basicSalary,
+    averageIncentive,
+    monthlyIncome,
+    existingEMI = 0,
+    creditCardObligation,
+    category = 'C',
+    creditScore,
+    cibilScore,
+    employmentType = 'salaried',
+    age,
+    totalWorkExperience,
+    currentCompanyExperience,
+    workExperience,
+    existingLoanBanks,
+    // Admin Overrides (Logic Bridge)
+    interestRateOverride,
+    foirOverride,
+    multiplierOverride,
+    maxTenureOverride,
+    maxLoanOverride,
+    isGovtEmployee,
+    govtROI,
+    govtFOIR,
+    govtMultiplier,
+    govtMaxTenure,
+    // Balance Transfer fields
+    isBTMode,
+    loansForBT,
+    btTotalEMI,
+    btTotalOutstanding,
+    // Incentive Overrides
+    incentivePercentageOverride,
+    incentiveMonthsOverride
+  } = userData;
+
+  // Retrieve Dynamic Bank Config from Admin
+  const adminConfig = adminBankConfig || getAllBankConfig('Piramal Finance', userData.city || userData.state);
+
+  // 1. BALANCE TRANSFER RESTRICTION CHECK (2 CC BT ALLOW WITH 1 PL BT)
+  const isBT = isBTMode && loansForBT && loansForBT.length > 0;
+  if (isBT) {
+    const plLoans = (loansForBT || []).filter(l => l.loanType !== 'credit_card' && l.type !== 'Credit Card');
+    const ccLoans = (loansForBT || []).filter(l => l.loanType === 'credit_card' || l.type === 'Credit Card');
+
+    if (plLoans.length > 1) {
+      return {
+        eligible: false,
+        reason: `Piramal Finance permits maximum 1 Personal Loan for Balance Transfer (found ${plLoans.length}). Policy: 2 CC BT ALLOW WITH 1 PL BT`,
+        isBTMode: true
+      };
+    }
+
+    if (ccLoans.length > 2) {
+      return {
+        eligible: false,
+        reason: `Piramal Finance permits maximum 2 Credit Cards for Balance Transfer (found ${ccLoans.length}). Policy: 2 CC BT ALLOW WITH 1 PL BT`,
+        isBTMode: true
+      };
+    }
+
+    if (ccLoans.length > 0 && plLoans.length === 0) {
+      return {
+        eligible: false,
+        reason: 'Piramal Finance requires 1 Personal Loan BT along with Credit Card BT. Standalone Credit Card BT is not allowed (Policy: 2 CC BT ALLOW WITH 1 PL BT).',
+        isBTMode: true
+      };
+    }
+  }
+
+  // 2. PF / PPF DEDUCTION REQUIREMENT CHECK (Excel: 22+PF DEDUCT REQ)
+  const isPfDeducted = userData.hasPpfDeduction !== undefined 
+    ? userData.hasPpfDeduction 
+    : (userData.hasPfDeduction !== undefined ? userData.hasPfDeduction : true);
+
+  if (!isPfDeducted) {
+    return {
+      eligible: false,
+      reason: 'Piramal Finance strictly requires salary with PF/PPF deduction (Excel: 22+PF DEDUCT REQ)'
+    };
+  }
+
+  // 3. WORK EXPERIENCE CHECK (MINIMUM 1 YEAR / 12 MONTHS)
+  const totalExpMonths = Number(totalWorkExperience || workExperience || currentCompanyExperience || 0);
+  if (totalExpMonths > 0 && totalExpMonths < 12) {
+    return {
+      eligible: false,
+      reason: `Piramal Finance policy requires minimum 1 year (12 months) work experience (Current: ${totalExpMonths} months).`
+    };
+  }
+
+  // 4. EXISTING LOAN WITH PIRAMAL FINANCE CHECK
+  if (existingLoanBanks && Array.isArray(existingLoanBanks)) {
+    const piramalNames = ['piramal', 'piramal finance', 'piramal capital'];
+    const hasExistingPiramalLoan = existingLoanBanks.some(bank =>
+      piramalNames.some(name => String(bank).toLowerCase().includes(name))
+    );
+
+    if (hasExistingPiramalLoan && !isBTMode) {
+      return {
+        eligible: false,
+        reason: 'As an existing customer of Piramal Finance with an active personal loan, you are not eligible for a new loan from this bank'
+      };
+    }
+  }
+
+  // 5. AGE CHECK (21 TO 63 YEARS)
+  const ageConfig = adminConfig?.demographics || adminConfig?.ageRules;
+  const minAge = ageConfig?.minAge || piramalConfig.minAge;
+  const maxAge = ageConfig?.maxAge || piramalConfig.maxAge;
+
+  if (age !== undefined && age !== null && age > 0) {
+    if (age < minAge || age > maxAge) {
+      return {
+        eligible: false,
+        reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
+      };
+    }
+  }
+
+  let mappedCategory = category === 'A+' ? 'SUPER-A' : category;
+  if (mappedCategory === 'Govt' || employmentType === 'government') mappedCategory = 'GOVT';
+
+  // 6. INCENTIVE & INCOME CALCULATION
+  const effectiveIncentivePercentage = incentivePercentageOverride !== undefined 
+    ? incentivePercentageOverride 
+    : (piramalConfig.incentivePercentage || 1.0);
+
+  const effectiveIncentiveMonths = incentiveMonthsOverride !== undefined 
+    ? incentiveMonthsOverride 
+    : 3;
+
+  const bankIncentiveConsidered = (averageIncentive || 0) * effectiveIncentivePercentage;
+  const baseSalaryVal = (basicSalary !== undefined && basicSalary !== null && basicSalary > 0) ? basicSalary : (monthlyIncome || 0);
+  const actualMonthlyIncome = baseSalaryVal + bankIncentiveConsidered;
+  
+  const monthlyIncomeForCalc = actualMonthlyIncome;
+
+  let adjustedIncome = monthlyIncomeForCalc;
+  let nonBTLoansEMI = 0;
+
+  if (isBT) {
+    nonBTLoansEMI = existingEMI - (btTotalEMI || 0);
+    const creditCardDeduction = creditCardObligation || 0;
+    adjustedIncome = monthlyIncomeForCalc - nonBTLoansEMI - creditCardDeduction;
+    if (adjustedIncome <= 0) {
+      return { eligible: false, reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains`, isBTMode: true };
+    }
+  }
+
+  // 7. MINIMUM SALARY CHECK (₹22,000 NTH)
+  const incomeToCheck = isBT ? adjustedIncome : monthlyIncomeForCalc;
+  if (incomeToCheck < piramalConfig.minNTH) {
+    return { eligible: false, reason: `Minimum NTH salary of ₹${piramalConfig.minNTH.toLocaleString()} required${isBT ? ' (after deducting non-BT loan EMIs)' : ''}`, isBTMode: isBT };
+  }
+
   const incomeForCalculation = isBT ? adjustedIncome : monthlyIncomeForCalc;
 
-  // CIBIL Ventile Band Lookup (Replaces Internal Ventile Score with CIBIL Score 700-800+)
-  const cibilBandInfo = getCibilVentileBand(creditScore, adminBankConfig?.cibilVentileBands || userData?.cibilVentileBands);
-  const catUpper = String(category || 'C').toUpperCase().trim();
+  // 8. CIBIL VENTILE BAND & MULTIPLIER SELECTION
+  const effectiveCibil = cibilScore ?? creditScore;
+  const cibilBandInfo = getCibilVentileBand(effectiveCibil, adminConfig?.cibilVentileBands || userData?.cibilVentileBands);
 
   let cibilMultiplier = cibilBandInfo.othersMult;
-  if (catUpper === 'SUPER A' || catUpper === 'A') {
+  if (mappedCategory === 'SUPER-A' || mappedCategory === 'SUPER A' || mappedCategory === 'A') {
     cibilMultiplier = cibilBandInfo.eliteMult;
-  } else if (catUpper === 'B' || catUpper === 'C') {
+  } else if (mappedCategory === 'B' || mappedCategory === 'C') {
     cibilMultiplier = cibilBandInfo.catBCMult;
-  } else if (catUpper === 'GOVT') {
+  } else if (mappedCategory === 'GOVT') {
     if (isBT && incomeForCalculation >= 60000) {
       cibilMultiplier = cibilBandInfo.btGovtHighNmiMult;
     } else if (incomeForCalculation >= 60000) {
@@ -293,17 +282,30 @@ const getCibilVentileBand = (cibilScore, customBands = null) => {
     }
   }
 
-  const effectiveMultiplier = multiplierOverride ? Number(multiplierOverride) : cibilMultiplier;
+  let multiplier = multiplierOverride !== undefined && multiplierOverride !== null
+    ? Number(multiplierOverride)
+    : (isGovtEmployee && govtMultiplier ? govtMultiplier : cibilMultiplier);
 
-  // Logic Bridge: Support govtFOIR override or CIBIL Ventile FOIR
-  let foirPercentage = foirOverride 
-    ? (foirOverride / 100) 
+  let foirPercentage = foirOverride !== undefined && foirOverride !== null
+    ? (Number(foirOverride) / (Number(foirOverride) > 1 ? 100 : 1))
     : (isGovtEmployee && govtFOIR ? (govtFOIR / 100) : (cibilBandInfo.foir || getNTHBand(incomeForCalculation, piramalConfig.nthFoirTable) || 0.70));
 
-  if (foirPercentage === null) {
-    return { eligible: false, reason: `No FOIR available for NTH ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
+  // 9. TENURE CALCULATION (OD Program up to 96M for >= 1L Salary Super A/A)
+  let maxTenureForCategory = maxTenureOverride !== undefined && maxTenureOverride !== null
+    ? Number(maxTenureOverride)
+    : (isGovtEmployee && govtMaxTenure ? govtMaxTenure : piramalConfig.maxTenureByCategory[mappedCategory] || 72);
+
+  if ((mappedCategory === 'SUPER-A' || mappedCategory === 'SUPER A' || mappedCategory === 'A') && incomeForCalculation >= 100000) {
+    maxTenureForCategory = Math.max(maxTenureForCategory, 96); // Excel: OD+ >1L SALARY: 96M
   }
 
+  const cappedTenureMonths = maxTenureForCategory;
+  const cappedTenureYears = cappedTenureMonths / 12;
+
+  const requestedTenureMonths = (loanTenure || 5) * 12;
+  const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
+
+  // 10. MULTIPLIER & FOIR LOAN AMOUNTS
   const foirCap = isBT ? (adjustedIncome * foirPercentage) : (monthlyIncomeForCalc * foirPercentage);
   const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
   const availableEMI = isBT ? foirCap : (foirCap - totalObligations);
@@ -311,40 +313,42 @@ const getCibilVentileBand = (cibilScore, customBands = null) => {
   if (availableEMI <= 0) {
     return {
       eligible: false,
-      reason: `Existing EMI (₹${existingEMI.toLocaleString()}) exceeds FOIR limit of ₹${Math.round(foirCap).toLocaleString()}`
+      reason: `Existing obligations (₹${totalObligations.toLocaleString()}) exceed FOIR limit of ₹${Math.round(foirCap).toLocaleString()}`
     };
   }
 
-  // Pass 1: Preliminary ROI for initial calculation
+  // Pass 1: Preliminary calculation
   const baseRate = piramalConfig.interestRate;
-
-  // Calculate preliminary loan amount based on available EMI & Multiplier
   const foirLoanAmountPrem = calculatePrincipalFromEMI(availableEMI, baseRate, cappedTenureYears);
-  const multLoanAmountPrem = incomeForCalculation * effectiveMultiplier;
+  const multLoanAmountPrem = incomeForCalculation * multiplier;
   const preliminaryLoanAmount = Math.min(foirLoanAmountPrem, multLoanAmountPrem);
 
-  // Pass 2: Get final ROI based on preliminary loan amount
-  let finalInterestRate = interestRateOverride || piramalConfig.interestRate;
+  // Pass 2: Final ROI lookup
+  let finalInterestRate = interestRateOverride;
   if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
-  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan('ALL', preliminaryLoanAmount, userData.city || userData.state);
+  if (!finalInterestRate) finalInterestRate = getInterestRateForLoan(mappedCategory, preliminaryLoanAmount, userData.city || userData.state);
 
-  const effectiveInterestRate = finalInterestRate;
-
-  const foirLoanAmountFinal = calculatePrincipalFromEMI(availableEMI, effectiveInterestRate, cappedTenureYears);
-  const multLoanAmountFinal = incomeForCalculation * effectiveMultiplier;
+  const foirLoanAmountFinal = calculatePrincipalFromEMI(availableEMI, finalInterestRate, cappedTenureYears);
+  const multLoanAmountFinal = incomeForCalculation * multiplier;
 
   const calculatedLoanAmount = Math.min(foirLoanAmountFinal, multLoanAmountFinal);
 
-  // Final loan amount is minimum of calculated and desired
   const finalLoanAmount = Math.min(
     calculatedLoanAmount,
     desiredLoanAmount || Infinity
   );
 
-  const maxLoanCapAmount = Math.min(finalLoanAmount, piramalConfig.maxLoanAmount);
-  const loanCapped = finalLoanAmount > piramalConfig.maxLoanAmount;
+  let bankMaxCap = maxLoanOverride !== undefined && maxLoanOverride !== null
+    ? Number(maxLoanOverride)
+    : piramalConfig.maxLoanAmount;
 
-  // Apply Dynamic Bachelor Capping
+  if (mappedCategory === 'GOVT') {
+    bankMaxCap = Math.min(bankMaxCap, 3000000); // Excel: Govt max 30L
+  }
+
+  const maxLoanCapAmount = Math.min(finalLoanAmount, bankMaxCap);
+  const loanCapped = finalLoanAmount > bankMaxCap;
+
   let appliedBachelorCap = false;
   let bachelorLimitAmount = null;
   let bachelorCapReasonStr = null;
@@ -356,13 +360,6 @@ const getCibilVentileBand = (cibilScore, customBands = null) => {
       cappedFinalLoan = bachelorLimitAmount;
       appliedBachelorCap = true;
       bachelorCapReasonStr = userData.dynamicBachelorCapReason || 'Dynamic Bachelor Capping limit applied';
-    }
-  } else if (piramalConfig.bachelorMaxLoanAmount !== undefined && userData.maritalStatus === 'single' && userData.livingStatus === 'rented') {
-    bachelorLimitAmount = piramalConfig.bachelorMaxLoanAmount;
-    if (cappedFinalLoan > bachelorLimitAmount) {
-      cappedFinalLoan = bachelorLimitAmount;
-      appliedBachelorCap = true;
-      bachelorCapReasonStr = 'Rented Bachelor Limit Applied (Bank Default)';
     }
   }
 
@@ -380,28 +377,27 @@ const getCibilVentileBand = (cibilScore, customBands = null) => {
       freshAmountDisbursed: Math.round(btFreshAmount),
       nonBTLoansEMI: Math.round(nonBTLoansEMI),
       creditCardObligation: Math.round(creditCardObligation || 0),
-      creditCardObligationNote: creditCardObligation > 0 ? '5% of non-BT credit card outstanding' : 'No credit card obligation (either no CC or CC in BT)',
       totalNonBTObligations: Math.round(nonBTLoansEMI + (creditCardObligation || 0)),
       originalIncome: monthlyIncomeForCalc,
       adjustedIncome: Math.round(adjustedIncome)
     };
   }
 
-  const monthlyEMI = calculateEMI(cappedFinalLoan, effectiveInterestRate, cappedTenureYears);
+  const monthlyEMI = calculateEMI(cappedFinalLoan, finalInterestRate, cappedTenureYears);
 
   return {
     eligible: true,
     bankId: piramalConfig.id,
     bankName: piramalConfig.name,
     loanAmount: Math.round(cappedFinalLoan),
-    maxLoanCap: piramalConfig.maxLoanAmount,
+    maxLoanCap: bankMaxCap,
     loanCappedByBank: loanCapped,
     calculatedLoanBeforeCap: loanCapped ? Math.round(finalLoanAmount) : null,
     bachelorCapped: appliedBachelorCap,
     bachelorCapReason: bachelorCapReasonStr,
     regularMaxLoan: Math.round(maxLoanCapAmount),
     bachelorMaxLoanAmount: bachelorLimitAmount !== null ? Math.round(bachelorLimitAmount) : null,
-    interestRate: effectiveInterestRate,
+    interestRate: finalInterestRate,
     loanTenure: cappedTenureYears,
     loanTenureMonths: cappedTenureMonths,
     tenureCapped: tenureCapped,
@@ -409,23 +405,24 @@ const getCibilVentileBand = (cibilScore, customBands = null) => {
     requestedTenureMonths: requestedTenureMonths,
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: Math.round(monthlyEMI),
+    multiplier: multiplier,
     foirPercentage: foirPercentage,
-    incentivePercentage: effectiveIncentivePercentage, // Dynamically reflect override
+    incentivePercentage: effectiveIncentivePercentage,
     incentiveMonths: effectiveIncentiveMonths,
     incentiveConsidered: bankIncentiveConsidered,
     availableEMI: Math.round(availableEMI),
-    calculationMethod: 'FOIR Only (Ultra-Simple 2-Band NTH, No Category)',
+    calculationMethod: 'Ventile Score & NTH-Based Matrix',
     details: {
+      multiplier: multiplier + 'x',
       foirPercentage: (foirPercentage * 100).toFixed(0) + '%',
       foirCap: Math.round(foirCap),
       availableEMI: Math.round(availableEMI),
-      maxLoanFromFOIR: Math.round(calculatedLoanAmount),
+      maxLoanFromFOIR: Math.round(foirLoanAmountFinal),
+      multiplierLoanAmount: Math.round(multLoanAmountFinal),
       existingEMI: Math.round(existingEMI || 0),
       creditCardObligation: Math.round(creditCardObligation || 0),
-      creditCardObligationNote: creditCardObligation > 0 ? '5% of credit card outstanding balance' : 'No credit card obligations',
       totalObligations: Math.round(totalObligations)
     },
     ...btDetails
   };
 };
-
