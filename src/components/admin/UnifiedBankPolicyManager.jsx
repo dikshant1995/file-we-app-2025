@@ -1521,50 +1521,69 @@ const UnifiedBankPolicyManager = () => {
           )}
 
           {/* Navigation Tabs */}
-          <div className="config-tabs-nav">
-            <button 
-              className={`config-tab-btn ${activeConfigTab === 'rates' ? 'active' : ''}`}
-              onClick={() => setActiveConfigTab('rates')}
-            >
-              <TrendingUp size={16} />
-              <span>Interest Rates</span>
-            </button>
-            <button 
-              className={`config-tab-btn ${activeConfigTab === 'capping' ? 'active' : ''}`}
-              onClick={() => setActiveConfigTab('capping')}
-            >
-              <Zap size={16} />
-              <span>Capital Capping</span>
-            </button>
-            <button 
-              className={`config-tab-btn ${activeConfigTab === 'tenure' ? 'active' : ''}`}
-              onClick={() => setActiveConfigTab('tenure')}
-            >
-              <Calendar size={16} />
-              <span>Tenure Optimization</span>
-            </button>
-            <button 
-              className={`config-tab-btn ${activeConfigTab === 'foir' ? 'active' : ''}`}
-              onClick={() => setActiveConfigTab('foir')}
-            >
-              <Shield size={16} />
-              <span>FOIR & Multipliers</span>
-            </button>
-            <button 
-              className={`config-tab-btn ${activeConfigTab === 'demographics' ? 'active' : ''}`}
-              onClick={() => setActiveConfigTab('demographics')}
-            >
-              <User size={16} />
-              <span>Demographic & Age Rules</span>
-            </button>
-            <button 
-              className={`config-tab-btn ${activeConfigTab === 'companies' ? 'active' : ''}`}
-              onClick={() => setActiveConfigTab('companies')}
-            >
-              <Building2 size={16} />
-              <span>Company Category List</span>
-            </button>
-          </div>
+          {(activeConfigBank?.id === 'finnable' || activeConfigBank?.name?.toLowerCase().includes('finnable')) ? (
+            <div className="config-tabs-nav">
+              <button 
+                className={`config-tab-btn ${activeConfigTab === 'rates' ? 'active' : ''}`}
+                onClick={() => setActiveConfigTab('rates')}
+              >
+                <CheckCircle2 size={16} />
+                <span>Finnable Master Policy Rules (All 4 Sections)</span>
+              </button>
+              <button 
+                className={`config-tab-btn ${activeConfigTab === 'companies' ? 'active' : ''}`}
+                onClick={() => setActiveConfigTab('companies')}
+              >
+                <Building2 size={16} />
+                <span>Company Category List</span>
+              </button>
+            </div>
+          ) : (
+            <div className="config-tabs-nav">
+              <button 
+                className={`config-tab-btn ${activeConfigTab === 'rates' ? 'active' : ''}`}
+                onClick={() => setActiveConfigTab('rates')}
+              >
+                <TrendingUp size={16} />
+                <span>Interest Rates</span>
+              </button>
+              <button 
+                className={`config-tab-btn ${activeConfigTab === 'capping' ? 'active' : ''}`}
+                onClick={() => setActiveConfigTab('capping')}
+              >
+                <Zap size={16} />
+                <span>Capital Capping</span>
+              </button>
+              <button 
+                className={`config-tab-btn ${activeConfigTab === 'tenure' ? 'active' : ''}`}
+                onClick={() => setActiveConfigTab('tenure')}
+              >
+                <Calendar size={16} />
+                <span>Tenure Optimization</span>
+              </button>
+              <button 
+                className={`config-tab-btn ${activeConfigTab === 'foir' ? 'active' : ''}`}
+                onClick={() => setActiveConfigTab('foir')}
+              >
+                <Shield size={16} />
+                <span>FOIR & Multipliers</span>
+              </button>
+              <button 
+                className={`config-tab-btn ${activeConfigTab === 'demographics' ? 'active' : ''}`}
+                onClick={() => setActiveConfigTab('demographics')}
+              >
+                <User size={16} />
+                <span>Demographic & Age Rules</span>
+              </button>
+              <button 
+                className={`config-tab-btn ${activeConfigTab === 'companies' ? 'active' : ''}`}
+                onClick={() => setActiveConfigTab('companies')}
+              >
+                <Building2 size={16} />
+                <span>Company Category List</span>
+              </button>
+            </div>
+          )}
 
           {/* TAB 1: INTEREST RATES TABULAR VIEW */}
           {activeConfigTab === 'rates' && (() => {
