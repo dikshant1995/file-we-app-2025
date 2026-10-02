@@ -152,13 +152,7 @@ const calculatePrincipalFromEMI = (emi, annualInterestRate, tenureInYears) => {
 
   const r = monthlyInterestRate;
   const n = numberOfMonths;
-  const standardPower = Math.pow(1 + (0.11 / 12), 72);
-  const clientPower = 1.9229;
-  const scaleFactor = clientPower / standardPower;
-  const actualPowerTerm = Math.pow(1 + r, n);
-  const adjustedPowerTerm = actualPowerTerm * scaleFactor;
-
-  const principal = emi * (adjustedPowerTerm - 1) / (r * adjustedPowerTerm);
+  const principal = (emi * (Math.pow(1 + r, n) - 1)) / (r * Math.pow(1 + r, n));
 
   return Math.round(principal);
 };
@@ -208,11 +202,15 @@ export const calculateIdfcEligibility = (userData, adminBankConfig) => {
     creditCardObligation,
     category = 'C',
     creditScore,
-    employmentType,
+    employmentType = 'salaried',
     age,
     existingLoanBanks,
     // Admin Overrides
     interestRateOverride,
+    foirOverride,
+    multiplierOverride,
+    maxTenureOverride,
+    maxLoanOverride,
     isGovtEmployee,
     govtROI,
     govtFOIR,
@@ -236,7 +234,7 @@ export const calculateIdfcEligibility = (userData, adminBankConfig) => {
   if (workExpMonths < 3) {
     return {
       eligible: false,
-      reason: `IDFC Bank requires a minimum of 3 months work experience. Provided experience is less than 3 months.`
+      reason: `IDFC First Bank requires a minimum of 3 months work experience. Provided experience is less than 3 months.`
     };
   }
 
@@ -256,7 +254,8 @@ export const calculateIdfcEligibility = (userData, adminBankConfig) => {
     : 3;
 
   const bankIncentiveConsidered = (averageIncentive || 0) * effectiveIncentivePercentage;
-  const actualMonthlyIncome = (basicSalary || 0) + bankIncentiveConsidered;
+  const baseSalaryVal = (basicSalary !== undefined && basicSalary !== null && basicSalary > 0) ? basicSalary : (monthlyIncome || 0);
+  const actualMonthlyIncome = baseSalaryVal + bankIncentiveConsidered;
   
   const monthlyIncomeForCalc = actualMonthlyIncome;
 
@@ -283,7 +282,7 @@ export const calculateIdfcEligibility = (userData, adminBankConfig) => {
     if (hasExistingIdfcLoan) {
       return {
         eligible: false,
-        reason: 'As an existing customer of IDFC Bank with an active personal loan, you are not eligible for a new loan from this bank'
+        reason: 'As an existing customer of IDFC First Bank with an active personal loan, you are not eligible for a new loan from this bank'
       };
     }
   }
@@ -304,14 +303,16 @@ export const calculateIdfcEligibility = (userData, adminBankConfig) => {
   if (!idfcConfig.employmentTypes.includes(employmentType)) {
     return {
       eligible: false,
-      reason: `Employment type ${employmentType} not supported by IDFC Bank`
+      reason: `Employment type ${employmentType} not supported by IDFC First Bank`
     };
   }
 
   let mappedCategory = category === 'A+' ? 'SUPER-A' : category;
   if (mappedCategory === 'Govt') mappedCategory = 'A';
 
-  let maxTenureForCategory = isGovtEmployee && govtMaxTenure ? govtMaxTenure : idfcConfig.maxTenureByCategory[mappedCategory];
+  let maxTenureForCategory = maxTenureOverride !== undefined && maxTenureOverride !== null
+    ? Number(maxTenureOverride)
+    : (isGovtEmployee && govtMaxTenure ? govtMaxTenure : idfcConfig.maxTenureByCategory[mappedCategory] || 84);
 
   if (!maxTenureForCategory || maxTenureForCategory === 0) {
     return {
@@ -326,17 +327,17 @@ export const calculateIdfcEligibility = (userData, adminBankConfig) => {
   const requestedTenureMonths = loanTenure * 12;
   const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
 
-  if (loanTenure > idfcConfig.maxLoanTenure) {
+  if (loanTenure > (idfcConfig.maxLoanTenure || 7)) {
     return {
       eligible: false,
-      reason: `Maximum loan tenure is ${idfcConfig.maxLoanTenure} years`
+      reason: `Maximum loan tenure is ${idfcConfig.maxLoanTenure || 7} years`
     };
   }
 
   if (category === 'UNLISTED') {
     return {
       eligible: false,
-      reason: 'IDFC Bank does not provide loans to UNLISTED category employees'
+      reason: 'IDFC First Bank does not provide loans to UNLISTED category employees'
     };
   }
 
@@ -354,13 +355,17 @@ export const calculateIdfcEligibility = (userData, adminBankConfig) => {
   const dynamicFoir = getIdfcFoirFromMatrix(incomeForCalculation, mappedCategory, adminConfig?.idfcFoirMatrix);
   const dynamicMultiplier = getIdfcMultiplierFromMatrix(incomeForCalculation, mappedCategory, adminConfig?.idfcMultiplierMatrix);
 
-  let multiplier = isGovtEmployee && govtMultiplier 
-    ? govtMultiplier 
-    : (dynamicMultiplier || (idfcConfig.multiplierTable[mappedCategory] ? idfcConfig.multiplierTable[mappedCategory][multiplierSalaryBand] : 20));
+  let multiplier = multiplierOverride !== undefined && multiplierOverride !== null
+    ? Number(multiplierOverride)
+    : (isGovtEmployee && govtMultiplier 
+      ? govtMultiplier 
+      : (dynamicMultiplier || (idfcConfig.multiplierTable[mappedCategory] ? idfcConfig.multiplierTable[mappedCategory][multiplierSalaryBand] : 20)));
 
-  let foirPercentage = isGovtEmployee && govtFOIR 
-    ? (govtFOIR / 100) 
-    : (dynamicFoir || (idfcConfig.foirTable[mappedCategory] ? idfcConfig.foirTable[mappedCategory][foirSalaryBand] : 0.65));
+  let foirPercentage = foirOverride !== undefined && foirOverride !== null
+    ? (Number(foirOverride) / (Number(foirOverride) > 1 ? 100 : 1))
+    : (isGovtEmployee && govtFOIR 
+      ? (govtFOIR / 100) 
+      : (dynamicFoir || (idfcConfig.foirTable[mappedCategory] ? idfcConfig.foirTable[mappedCategory][foirSalaryBand] : 0.65)));
 
   if (!multiplier) {
     return { eligible: false, reason: `No multiplier available for category ${mappedCategory} at salary ₹${incomeForCalculation.toLocaleString()}`, isBTMode: isBT };
@@ -395,7 +400,11 @@ export const calculateIdfcEligibility = (userData, adminBankConfig) => {
     desiredLoanAmount || Infinity
   );
 
-  const preliminaryCappedLoan = Math.min(preliminaryLoanAmount, idfcConfig.maxLoanAmount);
+  const bankMaxLoanCap = maxLoanOverride !== undefined && maxLoanOverride !== null
+    ? Number(maxLoanOverride)
+    : idfcConfig.maxLoanAmount;
+
+  const preliminaryCappedLoan = Math.min(preliminaryLoanAmount, bankMaxLoanCap);
 
   // Dynamic ROI from Tables 3, 4, 5, 6
   let dynamicRoi = getIdfcRoiFromMatrix(creditScore, preliminaryCappedLoan, mappedCategory, isBT, adminConfig);
@@ -414,7 +423,7 @@ export const calculateIdfcEligibility = (userData, adminBankConfig) => {
     desiredLoanAmount || Infinity
   );
 
-  const effectiveMaxCap = Math.min(idfcConfig.maxLoanAmount, workExpMaxCap);
+  const effectiveMaxCap = Math.min(bankMaxLoanCap, workExpMaxCap);
   const maxLoanCapAmount = Math.min(finalLoanAmount, effectiveMaxCap);
   const loanCapped = finalLoanAmount > effectiveMaxCap;
 

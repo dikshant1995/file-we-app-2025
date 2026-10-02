@@ -2306,6 +2306,18 @@ const matchCategory = (cat1, cat2) => {
         };
       }
 
+      const isIdfcInst = name.toLowerCase().includes('idfc') || id === 'idfc';
+      if (isIdfcInst && result) {
+        return {
+          bankName: result.bankName || name,
+          ...result,
+          category: bankCategory,
+          salaryMode: calculatorInput.salaryMode,
+          adminApplied: true,
+          processingFee: adminAllConfig.feesAndCharges?.processingFeePercentage || 1.2
+        };
+      }
+
       // 🚀 ENFORCE AND RECALCULATE DYNAMIC ADMIN POLICY PARAMETERS (FOIR, Multiplier, Rate, Tenures)
       if (result && result.eligible) {
         const effectiveFOIR = bankInput.foirOverride 

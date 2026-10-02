@@ -3,19 +3,20 @@
 // Uses category-based multipliers with salary bands
 export const idfcConfig = {
   id: 'idfc',
-  name: 'IDFC Bank',
+  name: 'IDFC First Bank',
   minAge: 23, // Minimum age requirement
   maxAge: 60, // Maximum age at loan maturity
   minCreditScore: 640,
-  maxLoanTenure: 20,
-  maxLoanAmount: 5000000, // ₹50 Lakhs (Mid-Cap Lender)
+  maxLoanTenure: 7, // 7 Years (84 Months)
+  maxLoanAmount: 10000000, // ₹1 Crore (₹100 Lakhs)
   bachelorMaxLoanAmount: 2000000, // ₹20 Lakhs maximum for unmarried individuals
-  interestRate: 11.0, // Fixed at 11% for all banks as per policy
-  processingFee: 0.012,
+  interestRate: 10.25, // Base rate starting at 10.25%
+  processingFee: 0.012, // 1.2%
 
   // Incentive policy
   incentivePercentage: 1.0, // 100% of average incentive
   incentivePeriodMonths: 3, // Last 3 months
+
   // FOIR table based on salary
   foirTable: {
     'SUPER-A': {
@@ -56,42 +57,37 @@ export const idfcConfig = {
     }
   },
 
-  // Multiplier table based on salary bands and categories
-  // Formula: Loan Amount = Monthly Salary × Multiplier
+  // Multiplier table based on salary bands and categories (Master Excel Policy)
   multiplierTable: {
-    // SUPER A, A, and GOVT (combined - highest multipliers)
     'SUPER-A': {
-      '<50000': 24,
-      '50001-75000': 30,
-      '>75001': 32  // Highest multiplier in the system
+      '<50000': 23,
+      '50001-75000': 25,
+      '>75001': 27
     },
     'A': {
-      '<50000': 24,
-      '50001-75000': 30,
-      '>75001': 32
+      '<50000': 23,
+      '50001-75000': 25,
+      '>75001': 27
     },
     'GOVT': {
-      '<50000': 24,
-      '50001-75000': 30,
-      '>75001': 32
+      '<50000': 23,
+      '50001-75000': 25,
+      '>75001': 27
     },
-    // Category B (moderate multipliers)
     'B': {
-      '<50000': 20,
-      '50001-75000': 23,
-      '>75001': 26
+      '<50000': 16,
+      '50001-75000': 20,
+      '>75001': 22
     },
-    // Category C (lower multipliers)
     'C': {
       '<50000': 11,
-      '50001-75000': 17,
-      '>75001': 20
+      '50001-75000': 13,
+      '>75001': 15
     },
-    // Category D (lowest multipliers)
     'D': {
       '<50000': 11,
-      '50001-75000': 15,
-      '>75001': 18
+      '50001-75000': 13,
+      '>75001': 15
     }
   },
 
@@ -108,24 +104,24 @@ export const idfcConfig = {
     'GOVT': 20000
   },
 
-  // Maximum tenure by category (in months)
+  // Maximum tenure by category (in months) - Up to 84 months across all categories
   maxTenureByCategory: {
-    'SUPER-A': 84,  // 7 years - CAT SUPER A
-    'A': 84,        // 7 years - CAT A
-    'GOVT': 84,     // 7 years - CAT GOVT
-    'B': 84,        // 7 years - CAT B
-    'C': 72,        // 6 years - CAT C
-    'D': 72         // 6 years - CAT D
+    'SUPER-A': 84,  // 7 years
+    'A': 84,        // 7 years
+    'GOVT': 84,     // 7 years
+    'B': 84,        // 7 years
+    'C': 84,        // 7 years
+    'D': 84         // 7 years
   },
 
   // Category descriptions
   categories: {
-    'SUPER-A': { description: 'Super Category A - Premium Companies (Highest Multipliers)' },
-    'A': { description: 'Category A - Top Tier Companies (Highest Multipliers)' },
-    'GOVT': { description: 'Government Employees (Highest Multipliers, Stable)' },
-    'B': { description: 'Category B - Good Companies (Moderate Multipliers)' },
-    'C': { description: 'Category C - Standard Companies (Lower Multipliers)' },
-    'D': { description: 'Category D - Lower-Tier Companies (Lowest Multipliers)' }
+    'SUPER-A': { description: 'Super Category A - Premium Companies' },
+    'A': { description: 'Category A - Top Tier Companies' },
+    'GOVT': { description: 'Government Employees' },
+    'B': { description: 'Category B - Good Companies' },
+    'C': { description: 'Category C - Standard Companies' },
+    'D': { description: 'Category D - Lower-Tier Companies' }
   },
 
   employmentTypes: ['salaried', 'government'],
@@ -133,21 +129,14 @@ export const idfcConfig = {
 
   // Calculation method
   calculationMethod: 'Both (Dual)',
-  approach: 'Universal ₹20K Minimum + Category-Based Tiered Multipliers',
-  keyFeatures: [
-    'Multiplier-only system (no FOIR calculation)',
-    'Universal ₹20,000 minimum across ALL categories (lowest barrier)',
-    'SUPER-A/A/GOVT get highest multipliers (up to 32x)',
-    'Three salary bands: <50K, 50K-75K, >75K',
-    'Category C & D start with same low multiplier (11x)',
-    'Progressive multipliers that reward higher incomes'
-  ],
+  approach: 'Universal ₹20K Minimum + Category-Based Tiered Multipliers & FOIR',
 
   // Balance Transfer (BT) Configuration
   btConfig: {
-    isAvailable: true, // BT facility is available
-    maxLoansForBT: 3, // Maximum number of existing personal loans that can be consolidated
-    acceptsFintechLoans: false, // Does NOT accept BT for Fintech/digital platform loans
-    description: 'IDFC Bank allows balance transfer for up to 3 existing personal loans (excluding Fintech loans)'
+    isAvailable: true,
+    maxLoansForBT: 3,
+    acceptsFintechLoans: false,
+    description: 'IDFC First Bank allows balance transfer for up to 3 existing personal loans (excluding Fintech loans)'
   }
 };
+
