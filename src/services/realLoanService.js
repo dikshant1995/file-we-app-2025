@@ -2550,23 +2550,10 @@ const matchCategory = (cat1, cat2) => {
           maxLoanCap = abflCap;
         }
 
-        // Finnable Finance Excel Policy Cappings (Sheet: FINNABLE):
-        // Max loan: 10 Lakhs (NTC -1: 4 Lakhs; Cat C: 8 Lakhs; Cat D: 5 Lakhs)
+        // Finnable Finance Policy Cappings:
+        // CIBIL 700+: Max loan 15 Lakhs; NTC -1: Max loan 4 Lakhs
         if (isFinnableInst) {
-          const catStr = String(bankCategory || '').toUpperCase().trim();
-          const isC = catStr === 'C' || catStr === 'CAT C' || catStr === 'CATEGORY C';
-          const isD = catStr === 'D' || catStr === 'CAT D' || catStr === 'CATEGORY D';
-          let finnableCap = 1000000;
-          if (isNtc) {
-            finnableCap = 400000;
-          } else if (isD) {
-            finnableCap = 500000;
-          } else if (isC) {
-            finnableCap = 800000;
-          } else {
-            finnableCap = 1000000;
-          }
-          maxLoanCap = finnableCap;
+          maxLoanCap = isNtc ? 400000 : 1500000;
         }
         let maxEligibleLoan = Math.min(multiplierLoanAmount, provisionalFoirLoanAmount, maxLoanCap);
         if (bankInput.dynamicBachelorLimitOverride) {
@@ -2736,20 +2723,8 @@ const matchCategory = (cat1, cat2) => {
           finalRate = getAbflROI(maxEligibleLoan, monthlyIncome, bankCategory, cityTier, numCibil, Boolean(calculatorInput.isBTMode));
           appliedRoiSlab = `ABFL Salary Multiplier (${finalRate.toFixed(2)}% | Tier: ${cityTier} | CIBIL: ${numCibil})`;
         } else if (isFinnableInst) {
-          const catStr = String(bankCategory || '').toUpperCase().trim();
-          const isSuperOrA = catStr.includes('SUPER') || catStr === 'A' || catStr === 'CAT A' || catStr === 'CATEGORY A' || catStr.includes('GOVT');
-          const isB = catStr === 'B' || catStr === 'CAT B' || catStr === 'CATEGORY B';
-          const isC = catStr === 'C' || catStr === 'CAT C' || catStr === 'CATEGORY C';
-          if (isSuperOrA) {
-            finalRate = 22.00;
-          } else if (isB) {
-            finalRate = 24.00;
-          } else if (isC) {
-            finalRate = 26.00;
-          } else {
-            finalRate = 28.00;
-          }
-          appliedRoiSlab = `Finnable Cat ${catStr} (${finalRate.toFixed(2)}%)`;
+          finalRate = 22.00;
+          appliedRoiSlab = `Finnable Standard ROI (22.00%)`;
         }
 
 

@@ -22,7 +22,7 @@ export const finnableConfig = {
   minSalaryTier2: 15000,
   minSalary: 15000,
   minLoanAmount: 50000,
-  maxLoanAmount: 1000000,
+  maxLoanAmount: 1500000,
   ntcMaxLoanAmount: 400000,
   minTenureMonths: 6,
   maxTenureMonths: 60,
@@ -31,7 +31,7 @@ export const finnableConfig = {
   // Pricing
   minRoi: 22.0,
   maxRoi: 36.0,
-  defaultRoi: 24.0,
+  defaultRoi: 22.0,
   minPf: 2.0,
   maxPf: 6.0,
   defaultPf: 2.5,

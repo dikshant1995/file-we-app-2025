@@ -396,13 +396,13 @@ const sanitizePolicyData = (raw) => {
       : DEFAULT_UNIFIED_POLICY.companies,
     // Finnable Specific Editable Policy Objects
     finnableOverview: raw.finnableOverview || {
-      minLoanAmount: 50000, maxLoanAmount: 1000000, minRoi: 22.0, maxRoi: 36.0,
+      minLoanAmount: 50000, maxLoanAmount: 1500000, minRoi: 22.0, maxRoi: 36.0,
       minPf: 2.0, maxPf: 6.0, minTenureMonths: 12, maxTenureMonths: 60, minAge: 21,
       maxAgeLogin: 55, maxAgeMaturity: 60, ccObligationPercent: 5, goldLoanObligationPercent: 5,
       kccObligationPercent: 5, minSalaryTier1: 20000, minSalaryTier2: 15000, minWorkExperienceMonths: 6
     },
     finnableRiskMatrix: raw.finnableRiskMatrix || {
-      cibil700Plus: { minLoanAmount: 50000, maxLoanAmount: 1000000, minTenureMonths: 6, maxTenureMonths: 60, minAge: 21, maxAgeLogin: 55, maxAgeMaturity: 60, minSalaryTier1: 20000, minSalaryTier2: 15000, form16Threshold: 500000 },
+      cibil700Plus: { minLoanAmount: 50000, maxLoanAmount: 1500000, minTenureMonths: 6, maxTenureMonths: 60, minAge: 21, maxAgeLogin: 55, maxAgeMaturity: 60, minSalaryTier1: 20000, minSalaryTier2: 15000, form16Threshold: 500000 },
       ntcMinusOne: { finnableScoreMin: 600, minLoanAmount: 50000, maxLoanAmount: 400000, minTenureMonths: 6, maxTenureMonths: 36, minAge: 21, maxAgeLogin: 55, maxAgeMaturity: 60, minSalaryTier1: 20000, minSalaryTier2: 15000, form16Threshold: 500000 }
     },
     finnableTenureMatrix: raw.finnableTenureMatrix || [
@@ -1529,13 +1529,6 @@ const UnifiedBankPolicyManager = () => {
               >
                 <CheckCircle2 size={16} />
                 <span>Finnable Master Policy Rules (All 4 Sections)</span>
-              </button>
-              <button 
-                className={`config-tab-btn ${activeConfigTab === 'companies' ? 'active' : ''}`}
-                onClick={() => setActiveConfigTab('companies')}
-              >
-                <Building2 size={16} />
-                <span>Company Category List</span>
               </button>
             </div>
           ) : (

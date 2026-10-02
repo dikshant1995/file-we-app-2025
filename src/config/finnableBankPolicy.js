@@ -53,7 +53,7 @@ export const FINNABLE_BANK_EXCEL_POLICY = {
   // Table 1: Overview & General Eligibility Parameters
   overview: {
     minLoanAmount: 50000,
-    maxLoanAmount: 1000000,
+    maxLoanAmount: 1500000,
     minRoi: 22.0,
     maxRoi: 36.0,
     minPf: 2.0,
@@ -76,7 +76,7 @@ export const FINNABLE_BANK_EXCEL_POLICY = {
   riskMatrix: {
     cibil700Plus: {
       minLoanAmount: 50000,
-      maxLoanAmount: 1000000,
+      maxLoanAmount: 1500000,
       minTenureMonths: 6,
       maxTenureMonths: 60,
       minAge: 21,
@@ -172,7 +172,7 @@ export const FINNABLE_BANK_EXCEL_POLICY = {
     minSalaryTier2: 15000,
     minSalary: 15000,
     minLoanAmount: 50000,
-    maxLoanAmount: 1000000,
+    maxLoanAmount: 1500000,
     ntcMaxLoan: 400000,
     minTenureMonths: 6,
     maxTenureMonths: 60,
