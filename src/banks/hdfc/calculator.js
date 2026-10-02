@@ -221,6 +221,15 @@ export const calculateHdfcEligibility = (userData) => {
     };
   }
 
+  // 4.5 Work Experience Check (Minimum 1 Year / 12 Months overall work experience from Row 12)
+  const totalExp = Number(userData.totalWorkExperience || userData.workExperienceMonths || (userData.workExperience === 'above_24m' ? 25 : (userData.workExperience === '3m_to_24m' ? 12 : 2)) || 0);
+  if (totalExp > 0 && totalExp < 12) {
+    return {
+      eligible: false,
+      reason: `HDFC Bank policy requires minimum 1 year (12 months) overall work experience (Excel Row 12: 1 YEAR +). Found: ${totalExp} months.`
+    };
+  }
+
   // 5. Tenure Determination by Category
   let maxTenureForCategory = 84; // Super A, A, B, Govt: 84M
   if (categoryNormalized === 'C' || categoryNormalized === 'CATGC' || categoryNormalized === 'CAT C') {

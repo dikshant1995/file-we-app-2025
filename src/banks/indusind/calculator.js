@@ -215,6 +215,15 @@ export const calculateIndusindEligibility = (userData) => {
     };
   }
 
+  // 4.5 Work Experience Check (Minimum 1 Year / 12 Months overall work experience from Row 12)
+  const totalExp = Number(userData.totalWorkExperience || userData.workExperienceMonths || (userData.workExperience === 'above_24m' ? 25 : (userData.workExperience === '3m_to_24m' ? 12 : 2)) || 0);
+  if (totalExp > 0 && totalExp < 12) {
+    return {
+      eligible: false,
+      reason: `IndusInd Bank policy requires minimum 1 year (12 months) overall work experience (Excel Row 12: OVERALL EXPRINCE 1 YEARS). Found: ${totalExp} months.`
+    };
+  }
+
   // 5. Calculate Tenure
   let maxTenureMonths = 84; // Excel: 84 Months (7 Years)
   const effectiveCibil = creditScore !== undefined ? creditScore : (cibilScore !== undefined ? cibilScore : 750);
