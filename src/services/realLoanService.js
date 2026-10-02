@@ -15,6 +15,7 @@ import { calculateSmfgEligibility } from '../banks/smfg/calculator.js';
 import { calculateBajajEligibility } from '../banks/bajaj/calculator.js';
 import { calculateAuEligibility, getAuROI } from '../banks/au/calculator.js';
 import { calculateIncredEligibility } from '../banks/incred/calculator.js';
+import { calculateFinnableEligibility } from '../banks/finnable/calculator.js';
 
 // Import bank configs for transparency
 import { kotakConfig } from '../banks/kotak/config.js';
@@ -33,6 +34,7 @@ import { smfgConfig } from '../banks/smfg/config.js';
 import { bajajConfig } from '../banks/bajaj/config.js';
 import { auConfig } from '../banks/au/config.js';
 import { incredConfig } from '../banks/incred/config.js';
+import { finnableConfig } from '../banks/finnable/config.js';
 
 // Import company database service
 import { getCompanyCategoryForBank } from './companyDatabaseService.js';
@@ -188,7 +190,7 @@ export const calculateLoanEligibility = async (userData) => {
     { id: 'incred', name: 'Incred Finance', calculator: calculateIncredEligibility, config: incredConfig, hasDatabase: false },
     { id: 'au-bank', name: 'AU Small Finance Bank', calculator: calculateAuEligibility, config: auConfig, hasDatabase: false },
     { id: 'abfl', name: 'Aditya Birla Finance', calculator: calculateUnifiedBankEligibility, config: { name: 'Aditya Birla Finance', maxLoanCap: 5000000, defaultRate: 11.25 }, hasDatabase: false },
-    { id: 'finnable', name: 'Finnable Finance', calculator: calculateUnifiedBankEligibility, config: { name: 'Finnable Finance', maxLoanCap: 1000000, defaultRate: 14.0 }, hasDatabase: false }
+    { id: 'finnable', name: 'Finnable Finance', calculator: calculateFinnableEligibility, config: finnableConfig, hasDatabase: false }
   ];
 
   // Respect Admin Suspensions if configured in LocalStorage
@@ -2159,28 +2161,6 @@ const matchCategory = (cat1, cat2) => {
               bankInput.foirOverride = smfgFoir;
               bankInput.multiplierOverride = smfgMult;
               bankInput.ccObligationPercentOverride = 5;
-            } else if (name.toLowerCase().includes('finnable') || id === 'finnable') {
-              // Finnable Finance Excel Policy (Sheet: FINNABLE)
-              const catUpper = String(bankCategory || '').toUpperCase();
-              let foirPct = 60;
-              let mult = 18;
-              if (catUpper.includes('SUPER') || catUpper === 'A' || catUpper === 'GOVT') {
-                foirPct = income >= 40000 ? 65 : (income >= 25000 ? 60 : 50);
-                mult = 20;
-              } else if (catUpper === 'B') {
-                foirPct = income >= 40000 ? 60 : (income >= 25000 ? 55 : 45);
-                mult = 18;
-              } else if (catUpper === 'C') {
-                foirPct = income >= 40000 ? 55 : (income >= 25000 ? 50 : 40);
-                mult = 15;
-              } else {
-                // Cat D
-                foirPct = income >= 40000 ? 50 : (income >= 25000 ? 45 : 40);
-                mult = 12;
-              }
-              bankInput.foirOverride = foirPct;
-              bankInput.multiplierOverride = mult;
-              bankInput.ccObligationPercentOverride = 5;
             } else {
               // Standard Bank FOIR logic
               if (matchedFoir.multiplier) bankInput.multiplierOverride = Number(matchedFoir.multiplier);
@@ -2252,6 +2232,19 @@ const matchCategory = (cat1, cat2) => {
 
       // Execute base calculator
       const result = calculator(bankInput);
+
+      if (isFinnableInst && result) {
+        return {
+          bankName: result.bankName || name,
+          ...result,
+          category: bankCategory,
+          salaryMode: calculatorInput.salaryMode,
+          adminApplied: true,
+          processingFee: adminAllConfig.feesAndCharges?.processingFeePercentage || 2.5,
+          form16Required: result.details?.isForm16Required || (result.loanAmount >= 500000),
+          form16Note: (result.details?.isForm16Required || result.loanAmount >= 500000) ? 'Form 16 verification is required for loan amounts ≥ ₹5 Lakhs.' : null
+        };
+      }
 
       // 🚀 ENFORCE AND RECALCULATE DYNAMIC ADMIN POLICY PARAMETERS (FOIR, Multiplier, Rate, Tenures)
       if (result && result.eligible) {
