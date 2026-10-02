@@ -17,6 +17,7 @@ import { calculateAuEligibility, getAuROI } from '../banks/au/calculator.js';
 import { calculateIncredEligibility } from '../banks/incred/calculator.js';
 import { calculateFinnableEligibility } from '../banks/finnable/calculator.js';
 import { calculateAxisBankEligibility } from '../banks/axis-bank/calculator.js';
+import { calculateLntEligibility } from '../banks/lnt/calculator.js';
 
 // Import bank configs for transparency
 import { kotakConfig } from '../banks/kotak/config.js';
@@ -37,6 +38,7 @@ import { auConfig } from '../banks/au/config.js';
 import { incredConfig } from '../banks/incred/config.js';
 import { finnableConfig } from '../banks/finnable/config.js';
 import { axisBankConfig } from '../banks/axis-bank/config.js';
+import { lntConfig } from '../banks/lnt/config.js';
 
 // Import company database service
 import { getCompanyCategoryForBank } from './companyDatabaseService.js';
@@ -195,7 +197,7 @@ export const calculateLoanEligibility = async (userData) => {
 
     // Additional Banks & NBFCs from Master Excel Policy
     { id: 'axis-bank', name: 'Axis Bank', calculator: calculateAxisBankEligibility, config: axisBankConfig, hasDatabase: true },
-    { id: 'lnt', name: 'L&T Finance', calculator: calculateUnifiedBankEligibility, config: { name: 'L&T Finance', maxLoanCap: 3000000, defaultRate: 11.5 }, hasDatabase: false },
+    { id: 'lnt', name: 'L&T Finance', calculator: calculateLntEligibility, config: lntConfig, hasDatabase: false },
     { id: 'smfg', name: 'SMFG India Credit', calculator: calculateSmfgEligibility, config: smfgConfig, hasDatabase: false },
     { id: 'incred', name: 'Incred Finance', calculator: calculateIncredEligibility, config: incredConfig, hasDatabase: false },
     { id: 'au-bank', name: 'AU Small Finance Bank', calculator: calculateAuEligibility, config: auConfig, hasDatabase: false },
@@ -2315,6 +2317,17 @@ const matchCategory = (cat1, cat2) => {
           salaryMode: calculatorInput.salaryMode,
           adminApplied: true,
           processingFee: adminAllConfig.feesAndCharges?.processingFeePercentage || 1.2
+        };
+      }
+
+      if (isLntInst && result) {
+        return {
+          bankName: result.bankName || name,
+          ...result,
+          category: bankCategory,
+          salaryMode: calculatorInput.salaryMode,
+          adminApplied: true,
+          processingFee: adminAllConfig.feesAndCharges?.processingFeePercentage || 2.0
         };
       }
 
