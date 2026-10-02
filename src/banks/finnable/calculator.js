@@ -143,13 +143,12 @@ export const calculateFinnableEligibility = (userData = {}) => {
     };
   }
 
-  // 8. ROI (Standard 22% ROI, no category list dependencies)
-  const appliedRoi = finnableConfig.minRoi || 22.0;
-
-  // 9. Calculate Loan Amount & Final Verification
-  const monthlyInterestRate = appliedRoi / 12 / 100;
+  // 8. Calculate Loan Capacity & Dynamic ROI (Range: 22% to 36%, 36% for min loan 50k, 22% for max loan 15L)
   const numberOfMonths = calculationTenureMonths;
-  const calculatedPrincipal = availableEMI * (Math.pow(1 + monthlyInterestRate, numberOfMonths) - 1) / (monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfMonths));
+  
+  // Initial capacity estimate using 22% base rate
+  const initialMonthlyRate = (finnableConfig.minRoi || 22.0) / 12 / 100;
+  const calculatedPrincipal = availableEMI * (Math.pow(1 + initialMonthlyRate, numberOfMonths) - 1) / (initialMonthlyRate * Math.pow(1 + initialMonthlyRate, numberOfMonths));
 
   let finalLoanAmount = Math.min(Math.round(calculatedPrincipal), maxLoanAllowed);
   if (desiredLoanAmount && desiredLoanAmount > 0) {
@@ -161,6 +160,22 @@ export const calculateFinnableEligibility = (userData = {}) => {
       eligible: false,
       reason: `Calculated loan amount (₹${finalLoanAmount.toLocaleString()}) is below Finnable minimum threshold of ₹${finnableConfig.minLoanAmount.toLocaleString()}.`
     };
+  }
+
+  // Calculate dynamic ROI: 36% for minimum loan (50k) down to 22% for max loan (15L)
+  const minL = finnableConfig.minLoanAmount || 50000;
+  const maxL = maxLoanAllowed || 1500000;
+  const maxR = finnableConfig.maxRoi || 36.0;
+  const minR = finnableConfig.minRoi || 22.0;
+
+  let appliedRoi = maxR;
+  if (finalLoanAmount >= maxL) {
+    appliedRoi = minR;
+  } else if (finalLoanAmount <= minL) {
+    appliedRoi = maxR;
+  } else {
+    const rawRoi = maxR - ((finalLoanAmount - minL) / (maxL - minL)) * (maxR - minR);
+    appliedRoi = Number(rawRoi.toFixed(2));
   }
 
   const monthlyEMI = calculateEMI(finalLoanAmount, appliedRoi, tenureYears);

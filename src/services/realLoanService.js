@@ -2723,8 +2723,19 @@ const matchCategory = (cat1, cat2) => {
           finalRate = getAbflROI(maxEligibleLoan, monthlyIncome, bankCategory, cityTier, numCibil, Boolean(calculatorInput.isBTMode));
           appliedRoiSlab = `ABFL Salary Multiplier (${finalRate.toFixed(2)}% | Tier: ${cityTier} | CIBIL: ${numCibil})`;
         } else if (isFinnableInst) {
-          finalRate = 22.00;
-          appliedRoiSlab = `Finnable Standard ROI (22.00%)`;
+          const minL = 50000;
+          const maxL = maxLoanCap || 1500000;
+          const minR = 22.0;
+          const maxR = 36.0;
+          if (maxEligibleLoan <= minL) {
+            finalRate = maxR;
+          } else if (maxEligibleLoan >= maxL) {
+            finalRate = minR;
+          } else {
+            const rawRate = maxR - ((maxEligibleLoan - minL) / (maxL - minL)) * (maxR - minR);
+            finalRate = Number(rawRate.toFixed(2));
+          }
+          appliedRoiSlab = `Finnable ROI (${finalRate.toFixed(2)}% | 36% Min to 22% Max)`;
         }
 
 
