@@ -161,8 +161,16 @@ export const calculateLoanEligibility = async (userData) => {
     workExperienceMonths: userData.workExperienceMonths !== undefined ? Number(userData.workExperienceMonths) : (userData.workExperience === 'below_3m' ? 2 : (userData.workExperience === '3m_to_24m' ? 12 : 25)),
     currentCompanyExperience: userData.currentCompanyExperience !== undefined ? Number(userData.currentCompanyExperience) : (userData.workExperience === 'below_3m' ? 2 : (userData.workExperience === '3m_to_24m' ? 12 : 25)),
     designation: userData.designation || userData.jobRole || userData.profession || '',
-    profession: userData.profession || userData.designation || ''
-    // Note: Interest rate will be pulled dynamically from Admin Config in the loop below
+    profession: userData.profession || userData.designation || '',
+    // Forward Admin Dashboard overrides if present on userData
+    interestRateOverride: userData.interestRateOverride,
+    foirOverride: userData.foirOverride,
+    multiplierOverride: userData.multiplierOverride,
+    maxTenureOverride: userData.maxTenureOverride,
+    incentivePercentageOverride: userData.incentivePercentageOverride,
+    incentiveMonthsOverride: userData.incentiveMonthsOverride,
+    dynamicBachelorLimitOverride: userData.dynamicBachelorLimitOverride,
+    dynamicBachelorCapReason: userData.dynamicBachelorCapReason
   };
 
   console.log('⚙️  Transformed input for calculators:', calculatorInput);
@@ -2231,6 +2239,20 @@ const matchCategory = (cat1, cat2) => {
         }
       }
 
+
+      // 🌟 ADMIN DASHBOARD OVERRIDES PRESERVATION (HIGHEST PRIORITY)
+      if (calculatorInput.interestRateOverride !== undefined && calculatorInput.interestRateOverride !== null) {
+        bankInput.interestRateOverride = calculatorInput.interestRateOverride;
+      }
+      if (calculatorInput.foirOverride !== undefined && calculatorInput.foirOverride !== null) {
+        bankInput.foirOverride = calculatorInput.foirOverride;
+      }
+      if (calculatorInput.multiplierOverride !== undefined && calculatorInput.multiplierOverride !== null) {
+        bankInput.multiplierOverride = calculatorInput.multiplierOverride;
+      }
+      if (calculatorInput.maxTenureOverride !== undefined && calculatorInput.maxTenureOverride !== null) {
+        bankInput.maxTenureOverride = calculatorInput.maxTenureOverride;
+      }
 
       // Execute base calculator
       const result = calculator(bankInput);
