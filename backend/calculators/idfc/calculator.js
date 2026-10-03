@@ -301,7 +301,9 @@ export const calculateIdfcEligibility = (userData, adminBankConfig) => {
   }
 
   // Check employment type
-  if (!idfcConfig.employmentTypes.includes(employmentType)) {
+  const empTypeLower = String(employmentType || 'salaried').toLowerCase();
+  const isSupportedEmp = idfcConfig.employmentTypes.some(t => t.toLowerCase() === empTypeLower || empTypeLower.includes(t.toLowerCase()) || t.toLowerCase().includes(empTypeLower));
+  if (!isSupportedEmp) {
     return {
       eligible: false,
       reason: `Employment type ${employmentType} not supported by IDFC Bank`

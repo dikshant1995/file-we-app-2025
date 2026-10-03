@@ -73,7 +73,7 @@ export const kotakConfig = {
   ccObligationPercent: 0.05, // 5% of CC outstanding
   minWorkExperienceMonths: 1, // 1 Month
   minCurrentCompanyExperienceMonths: 1,
-  employmentTypes: ['salaried', 'government'],
+  employmentTypes: ['salaried', 'private', 'government'],
 
   // Balance Transfer (BT) Configuration
   btConfig: {

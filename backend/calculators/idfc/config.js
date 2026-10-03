@@ -128,7 +128,7 @@ export const idfcConfig = {
     'D': { description: 'Category D - Lower-Tier Companies (Lowest Multipliers)' }
   },
 
-  employmentTypes: ['salaried', 'government'],
+  employmentTypes: ['salaried', 'private', 'government'],
   specialPrograms: ['idfc-first', 'government-special', 'premium-banking'],
 
   // Calculation method
