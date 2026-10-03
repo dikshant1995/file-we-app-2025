@@ -242,7 +242,7 @@ export const poonawalaConfig = {
     return Number(finalRoi.toFixed(2));
   },
 
-  employmentTypes: ['salaried', 'government', 'self-employed'],
+  employmentTypes: ['salaried', 'private', 'government', 'self-employed'],
 
   // Balance Transfer (BT) Configuration (Excel Row 96)
   btConfig: {
