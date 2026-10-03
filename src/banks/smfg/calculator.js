@@ -6,10 +6,11 @@ import { getAllBankConfig } from '../../services/bankConfigService.js';
 
 // Calculate monthly EMI using standard formula
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
+  if (!principal || principal <= 0) return 0;
   const monthlyRate = annualInterestRate / 12 / 100;
   const numberOfMonths = tenureInYears * 12;
 
-  if (monthlyRate === 0) return principal / numberOfMonths;
+  if (monthlyRate === 0) return Math.round(principal / numberOfMonths);
 
   const emi = (principal * monthlyRate * Math.pow(1 + monthlyRate, numberOfMonths)) /
     (Math.pow(1 + monthlyRate, numberOfMonths) - 1);
@@ -19,10 +20,11 @@ const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
 
 // Calculate principal loan amount from available EMI capacity
 const calculatePrincipalFromEMI = (emi, annualInterestRate, tenureInYears) => {
+  if (!emi || emi <= 0) return 0;
   const monthlyRate = annualInterestRate / 12 / 100;
   const numberOfMonths = tenureInYears * 12;
 
-  if (monthlyRate === 0) return emi * numberOfMonths;
+  if (monthlyRate === 0) return Math.round(emi * numberOfMonths);
 
   const principal = (emi * (Math.pow(1 + monthlyRate, numberOfMonths) - 1)) /
     (monthlyRate * Math.pow(1 + monthlyRate, numberOfMonths));
@@ -43,18 +45,21 @@ const parseWorkExperienceMonths = (userData) => {
   return 25; // Default to eligible (> 2 years) if unspecified
 };
 
-// Helper: Determine ROI from Excel Sheet: SMFG based purely on Net Salary Slabs (Category Independent)
-const getSmfgROI = (monthlyIncome) => {
+// Helper: Determine ROI from Excel Sheet: SMFG based on Net Income Band & Category (A to E)
+const getSmfgROI = (monthlyIncome, category = 'B') => {
   const roundedSal = Math.round(monthlyIncome || 0);
+  const catUpper = String(category || 'B').toUpperCase().trim();
+  
+  let col = 'B';
+  if (catUpper.includes('SUPER') || catUpper === 'A' || catUpper === 'GOVT') col = 'A';
+  else if (catUpper === 'B') col = 'B';
+  else if (catUpper === 'C') col = 'C';
+  else if (catUpper === 'D') col = 'D';
+  else col = 'E'; // Unlisted / E
 
-  if (roundedSal >= 100001) return 17.00;
-  if (roundedSal >= 75001) return 18.50;
-  if (roundedSal >= 50001) return 18.50;
-  if (roundedSal >= 40001) return 19.00;
-  if (roundedSal >= 35001) return 19.50;
-  if (roundedSal >= 30001) return 21.50;
-  if (roundedSal >= 25000) return 23.00;
-  return 24.00; // < 25K
+  const row = smfgConfig.roiMatrix.find(r => roundedSal >= r.minSalary && roundedSal <= r.maxSalary) || smfgConfig.roiMatrix[smfgConfig.roiMatrix.length - 1];
+
+  return row ? (row[col] || 20.0) : 20.0;
 };
 
 // Helper: Determine FOIR & Multiplier from Dynamic Admin Slabs or Excel Policy
@@ -136,10 +141,11 @@ export const calculateSmfgEligibility = (userData, adminBankConfig) => {
   // Dynamic policy from admin
   const adminConfig = adminBankConfig || getAllBankConfig('SMFG India Credit', userData.city || userData.state);
 
-  const actualMonthlyIncome = (basicSalary || monthlyIncome || 0) + (averageIncentive || 0);
+  const baseSalaryVal = (basicSalary !== undefined && basicSalary !== null && basicSalary > 0) ? basicSalary : (monthlyIncome || 0);
+  const actualMonthlyIncome = baseSalaryVal + (averageIncentive || 0);
 
   // 1. AGE CHECK (Excel: 21 to Pvt 60 / Govt 65)
-  if (age !== undefined && age !== null) {
+  if (age !== undefined && age !== null && age > 0) {
     const isGovt = employmentType === 'government';
     const maxAllowedAge = isGovt ? smfgConfig.maxAgeGovt : smfgConfig.maxAgePvt;
     if (age < smfgConfig.minAge) {
@@ -238,8 +244,8 @@ export const calculateSmfgEligibility = (userData, adminBankConfig) => {
     };
   }
 
-  // 8. ROI (Excel Matrix: Net Income Band based)
-  const dynamicROI = getSmfgROI(actualMonthlyIncome);
+  // 8. ROI (Excel Matrix: Net Income Band & Category based)
+  const dynamicROI = getSmfgROI(actualMonthlyIncome, category);
   const effectiveInterestRate = interestRateOverride || dynamicROI;
 
   // 9. LOAN CAPACITY (EMI capacity, Multiplier capacity, and Capping)
@@ -288,6 +294,7 @@ export const calculateSmfgEligibility = (userData, adminBankConfig) => {
   }
 
   const finalEMI = calculateEMI(finalLoanAmount, effectiveInterestRate, tenureYears);
+  const processingFeePct = adminConfig?.feesAndCharges?.processingFeePercentage || (finalLoanAmount < 300000 ? 3.5 : 2.5);
 
   return {
     eligible: true,
@@ -301,6 +308,7 @@ export const calculateSmfgEligibility = (userData, adminBankConfig) => {
     foirPercentage: effectiveFOIR,
     multiplier: effectiveMultiplier,
     maxLoanCap: maxCap,
+    processingFee: processingFeePct,
     workExperienceMonths: workExpMonths,
     workExperienceCapped: workExpMonths <= 24 && calculatedLoanAmount > 1500000,
     isPropOrLlp: isPropOrLlp,
@@ -308,4 +316,3 @@ export const calculateSmfgEligibility = (userData, adminBankConfig) => {
     isBTMode: isBT
   };
 };
-

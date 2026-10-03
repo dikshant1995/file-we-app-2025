@@ -2343,6 +2343,18 @@ const matchCategory = (cat1, cat2) => {
         };
       }
 
+      if (isSmfgInst && result) {
+        const pfPct = adminAllConfig.feesAndCharges?.processingFeePercentage || (result.loanAmount < 300000 ? 3.5 : 2.5);
+        return {
+          bankName: result.bankName || name,
+          ...result,
+          category: bankCategory,
+          salaryMode: calculatorInput.salaryMode,
+          adminApplied: true,
+          processingFee: pfPct
+        };
+      }
+
       // 🚀 ENFORCE AND RECALCULATE DYNAMIC ADMIN POLICY PARAMETERS (FOIR, Multiplier, Rate, Tenures)
       if (result && result.eligible) {
         const effectiveFOIR = bankInput.foirOverride 
