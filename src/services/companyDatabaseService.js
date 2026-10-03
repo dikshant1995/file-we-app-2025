@@ -14,6 +14,7 @@ const bankDatabases = {
   'bandhan': [],
   'lt': [],
   'piramal': [],
+  'smfg': [],
   'axis_fin': [],
   'axis': [],
   'axis-bank': []
@@ -34,6 +35,7 @@ export const dbHealth = {
     'bandhan': { status: 'idle', count: 0 },
     'lt': { status: 'idle', count: 0 },
     'piramal': { status: 'idle', count: 0 },
+    'smfg': { status: 'idle', count: 0 },
     'axis_fin': { status: 'idle', count: 0 }
   }
 };
@@ -56,6 +58,7 @@ export const resolveBankDbKey = (bankName) => {
   if (clean.includes('chola')) return 'chola';
   if (clean.includes('lt')) return 'lt';
   if (clean.includes('piramal')) return 'piramal';
+  if (clean.includes('smfg') || clean.includes('fullerton')) return 'smfg';
   return bankName;
 };
 
