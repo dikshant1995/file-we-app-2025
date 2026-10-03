@@ -24,16 +24,18 @@ export const abflConfig = {
   },
 
   maxLoanMatrix: {
-    'SUPER A': { VLR: 5000000, LR: 5000000, MR: 4000000, HR: 4000000, minLoan: 1000000 },
-    'SUPER-A': { VLR: 5000000, LR: 5000000, MR: 4000000, HR: 4000000, minLoan: 1000000 },
-    'A': { VLR: 5000000, LR: 5000000, MR: 4000000, HR: 4000000, minLoan: 1000000 },
-    'GOVT': { VLR: 5000000, LR: 5000000, MR: 4000000, HR: 4000000, minLoan: 1000000 },
-    'B': { VLR: 4000000, LR: 4000000, MR: 4000000, HR: 4000000, minLoan: 1000000 },
-    'C': { VLR: 4000000, LR: 4000000, MR: 3500000, HR: 3000000, minLoan: 500000 },
-    'D': { VLR: 3000000, LR: 2500000, MR: 1500000, HR: 1000000, minLoan: 500000 },
-    'OTHERS': { VLR: 800000, LR: 800000, MR: 500000, HR: 500000, minLoan: 500000 },
-    'NC': { VLR: 800000, LR: 800000, MR: 500000, HR: 500000, minLoan: 500000 }
+    'SUPER A': { VLR: 5000000, LR: 5000000, MR: 4000000, HR: 4000000, minLoan: 100000 },
+    'SUPER-A': { VLR: 5000000, LR: 5000000, MR: 4000000, HR: 4000000, minLoan: 100000 },
+    'A': { VLR: 5000000, LR: 5000000, MR: 4000000, HR: 4000000, minLoan: 100000 },
+    'GOVT': { VLR: 5000000, LR: 5000000, MR: 4000000, HR: 4000000, minLoan: 100000 },
+    'B': { VLR: 4000000, LR: 4000000, MR: 4000000, HR: 4000000, minLoan: 100000 },
+    'C': { VLR: 4000000, LR: 4000000, MR: 3500000, HR: 3000000, minLoan: 100000 },
+    'D': { VLR: 3000000, LR: 2500000, MR: 1500000, HR: 1000000, minLoan: 100000 },
+    'OTHERS': { VLR: 800000, LR: 800000, MR: 500000, HR: 500000, minLoan: 100000 },
+    'NC': { VLR: 800000, LR: 800000, MR: 500000, HR: 500000, minLoan: 100000 }
   },
+
+  employmentTypes: ['salaried', 'private', 'government'],
 
   foirMatrix: ABFL_BANK_EXCEL_POLICY.foirPolicyMatrix,
   tenureRules: ABFL_BANK_EXCEL_POLICY.tenureRules,
