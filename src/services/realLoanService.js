@@ -1903,7 +1903,7 @@ const matchCategory = (cat1, cat2) => {
               }
               bankInput.foirOverride = auFoir;
               bankInput.multiplierOverride = auMult;
-              if (matchedFoir.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
+              if (typeof matchedFoir !== 'undefined' && matchedFoir?.ccObligation !== undefined) bankInput.ccObligationPercentOverride = Number(matchedFoir.ccObligation);
             } else if ((name.toLowerCase().includes('axis') && name.toLowerCase().includes('fin')) || id === 'axis' || id === 'axis_fin') {
               // Axis Finance Policy Update: FOIR and Multiplier depend strictly on Salary Slab only
               // < 50k (30k to <50k): FOIR 70%, Mult 24x | 50k-75k: FOIR 70%, Mult 26x | 75k-100k: FOIR 65%, Mult 28x | >= 100k: FOIR 60%, Mult 30x
@@ -2763,7 +2763,7 @@ const matchCategory = (cat1, cat2) => {
           // AU Small Finance Bank Excel Rate calculation (Sheet: AU BANK - Section 5):
           if (name.toLowerCase().includes('au ') || id === 'au-bank' || id === 'au') {
             const numCibil = rawCibil !== null && rawCibil !== undefined && rawCibil !== '' ? Number(rawCibil) : 750;
-            finalRate = getAuROI(maxEligibleLoan, numCibil, bankCategory, monthlyIncome, policy?.roiMatrixDetailed);
+            finalRate = getAuROI(maxEligibleLoan, numCibil, bankCategory, monthlyIncome, uPolicy?.roiMatrixDetailed);
             appliedRoiSlab = `AU Matrix (CIBIL ${numCibil}, ₹${(maxEligibleLoan / 100000).toFixed(1)}L, Sal ₹${(monthlyIncome / 1000).toFixed(0)}k)`;
           }
 
@@ -2999,7 +2999,7 @@ const matchCategory = (cat1, cat2) => {
     } catch (error) {
       const bankEndTime = performance.now();
       const bankTime = (bankEndTime - bankStartTime).toFixed(2);
-      console.error(`   ⚠️  ERROR in ${name}:`, error.message, `(${bankTime}ms)`);
+      console.error(`   ⚠️  ERROR in ${name}:`, error.message, error.stack, `(${bankTime}ms)`);
       return {
         bankName: name,
         eligible: false,

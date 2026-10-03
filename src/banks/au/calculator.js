@@ -106,88 +106,135 @@ const getAuFoirAndMultiplier = (monthlyIncome, category = 'B') => {
   return { foir: firstSlab.foir, multiplier: firstSlab.multiplier, exposureCap: firstSlab.maxCap, priority: isPriority1 ? 1 : 0 };
 };
 
-export const calculateAuEligibility = (input) => {
+export const calculateAuEligibility = (inputData = {}) => {
+  const input = inputData || {};
   const {
-    age = 25,
-    monthlyIncome = 0,
-    basicSalary = 0,
-    averageIncentive = 0,
+    age,
+    monthlyIncome,
+    basicSalary,
+    averageIncentive,
     companyCategory = 'B',
+    category = 'B',
     companyType = '',
-    totalExperience = 12,
-    currentCompanyExperience = 12,
+    totalWorkExperience,
+    workExperience,
+    currentCompanyExperience,
     cibilScore = 750,
-    existingObligations = 0,
-    existingEmi = 0,
-    creditCardLimit = 0,
-    creditCardOutstanding = 0,
-    isGovt = false,
-    residenceType = '',
-    salaryType = '',
-    isBTMode = false,
-    btLoans = [],
-    hasCcInBt = false,
-    desiredTenureMonths = null,
-    location = '',
-    city = '',
-    cityTier = ''
+    creditScore = 750,
+    existingObligations,
+    existingEmi,
+    existingEMI,
+    creditCardLimit,
+    creditCardOutstanding,
+    creditCardObligation,
+    employmentType,
+    isGovt,
+    residenceType,
+    salaryType,
+    salaryMode,
+    isBTMode,
+    loansForBT,
+    btLoans,
+    hasCcInBt,
+    desiredTenureMonths,
+    loanTenure,
+    desiredLoanAmount,
+    location,
+    city,
+    state,
+    cityTier,
+    // Admin Overrides
+    interestRateOverride,
+    foirOverride,
+    multiplierOverride,
+    maxTenureOverride,
+    maxLoanOverride
   } = input;
 
   // CASH SALARY CHECK: Cash Salary not to be considered for AU Bank
-  const salaryMode = String(salaryType || input.salaryMode || input.paymentType || '').toLowerCase();
-  if (salaryMode === 'cash') {
+  const modeStr = String(salaryMode || salaryType || input.paymentType || '').toLowerCase();
+  if (modeStr === 'cash') {
     return {
+      eligible: false,
       isEligible: false,
-      eligibleLoanAmount: 0,
-      maxLoanAmount: 0,
-      reason: 'AU Small Finance Bank does not consider cash salary. Salary must be credited via direct bank transfer.',
-      bank: 'AU Small Finance Bank'
+      bankName: auConfig.name,
+      bank: auConfig.name,
+      reason: 'AU Small Finance Bank does not consider cash salary. Salary must be credited via direct bank transfer.'
     };
   }
 
   // VARIABLE PAY DEDUCTION: Net salary considers after all deductions. Variable pay (Incentives, Bonus, Allowances) deducted.
-  const fixedMonthlySalary = basicSalary || monthlyIncome || 0;
-  const netMonthlySalaryForCalc = fixedMonthlySalary; // Incentives excluded
+  const numBasicSalary = Number(basicSalary) || 0;
+  const numMonthlyIncome = Number(monthlyIncome) || 0;
+  const fixedMonthlySalary = numBasicSalary || numMonthlyIncome;
 
-  const isNtc = cibilScore === -1 || cibilScore === 0 || !cibilScore;
-  const c = String(companyCategory || '').toUpperCase().trim();
-  const isPriority1 = auConfig.priority1Categories.some(cat => c.includes(cat) || c === cat);
-  const isUnlisted = companyType === 'unlisted' || c === 'C' || c === 'OTHERS' || c === 'UNLISTED';
-
-  const locStr = String(location || city || cityTier || '').toLowerCase();
-  const isNonMetro = locStr.includes('non') || locStr.includes('tier 2') || locStr.includes('tier 3') || locStr.includes('rural');
-
-  // 1. Demographics: Age Check (Salaried 21, Self-employed 23)
-  if (age < auConfig.minAge) {
+  if (!fixedMonthlySalary || isNaN(fixedMonthlySalary) || fixedMonthlySalary <= 0) {
     return {
+      eligible: false,
       isEligible: false,
-      eligibleLoanAmount: 0,
-      maxLoanAmount: 0,
-      reason: `Applicant age must be at least ${auConfig.minAge} years for AU Small Finance Bank (Current: ${age}).`,
-      bank: 'AU Small Finance Bank'
+      bankName: auConfig.name,
+      bank: auConfig.name,
+      reason: 'Valid monthly salary is required to calculate AU Small Finance Bank loan eligibility.'
     };
   }
 
-  const maxAllowedAge = isGovt ? auConfig.maxAgeGovt : auConfig.maxAgePvt;
-  if (age > maxAllowedAge) {
+  const netMonthlySalaryForCalc = fixedMonthlySalary; // Incentives excluded
+
+  // Age Sanitization
+  let parsedAge = 25; // default
+  if (age !== undefined && age !== null && age !== '') {
+    parsedAge = Number(age);
+    if (isNaN(parsedAge)) {
+      return {
+        eligible: false,
+        isEligible: false,
+        bankName: auConfig.name,
+        bank: auConfig.name,
+        reason: `Invalid age format provided: "${age}".`
+      };
+    }
+  }
+
+  const rawCibil = cibilScore ?? creditScore;
+  const isNtc = rawCibil === -1 || rawCibil === 0 || rawCibil === '-1' || !rawCibil;
+  const catCode = String(category || companyCategory || 'B').toUpperCase().trim();
+  const isPriority1 = auConfig.priority1Categories.some(cat => catCode.includes(cat) || catCode === cat);
+  const isGovtEmp = employmentType === 'government' || isGovt || catCode === 'GOVT';
+
+  const locStr = String(location || city || state || cityTier || '').toLowerCase();
+  const isNonMetro = locStr.includes('non') || locStr.includes('tier 2') || locStr.includes('tier 3') || locStr.includes('rural');
+
+  // 1. Demographics: Age Check (Salaried 21, Self-employed 23; Pvt 57, Govt 59)
+  if (parsedAge < auConfig.minAge) {
     return {
+      eligible: false,
       isEligible: false,
-      eligibleLoanAmount: 0,
-      maxLoanAmount: 0,
-      reason: `Maximum age at loan time is ${maxAllowedAge} years for AU Small Finance Bank (${isGovt ? 'Government' : 'Private'} employee) (Current: ${age}).`,
-      bank: 'AU Small Finance Bank'
+      bankName: auConfig.name,
+      bank: auConfig.name,
+      reason: `Applicant age must be at least ${auConfig.minAge} years for AU Small Finance Bank (Current age: ${parsedAge}).`
+    };
+  }
+
+  const maxAllowedAge = isGovtEmp ? auConfig.maxAgeGovt : auConfig.maxAgePvt;
+  if (parsedAge > maxAllowedAge) {
+    return {
+      eligible: false,
+      isEligible: false,
+      bankName: auConfig.name,
+      bank: auConfig.name,
+      reason: `Maximum age at loan maturity is ${maxAllowedAge} years for AU Small Finance Bank (${isGovtEmp ? 'Government' : 'Private'} employee) (Current age: ${parsedAge}).`
     };
   }
 
   // 2. Work Experience Check (Excel: 1YEARS)
-  const totalExp = Number(totalExperience || currentCompanyExperience || 0);
-  if (totalExp < auConfig.minTotalExperience) {
+  const totalExp = Number(totalWorkExperience || workExperience || currentCompanyExperience || 0);
+  if (totalExp > 0 && totalExp < auConfig.minTotalExperience) {
     return {
+      eligible: false,
       isEligible: false,
-      eligibleLoanAmount: 0,
-      maxLoanAmount: 0,
-      reason: `AU Small Finance Bank requires minimum 1 year (12 months) total work experience (Current: ${totalExp} months).`,
-      bank: 'AU Small Finance Bank'
+      bankName: auConfig.name,
+      bank: auConfig.name,
+      reason: `AU Small Finance Bank requires minimum 1 year (12 months) total work experience (Found: ${totalExp} months).`
     };
   }
 
@@ -197,20 +244,20 @@ export const calculateAuEligibility = (input) => {
   if (isNtc) {
     if (!isPriority1) {
       return {
+        eligible: false,
         isEligible: false,
-        eligibleLoanAmount: 0,
-        maxLoanAmount: 0,
-        reason: 'AU Small Finance Bank permits New to Credit (NTC / -1 CIBIL) only for Super A, Cat A, Cat B, and Cat D (Govt) categories.',
-        bank: 'AU Small Finance Bank'
+        bankName: auConfig.name,
+        bank: auConfig.name,
+        reason: 'AU Small Finance Bank permits New to Credit (NTC / -1 CIBIL) only for Super A, Cat A, Cat B, and Cat D (Govt) categories.'
       };
     }
     if (netMonthlySalaryForCalc < 30000) {
       return {
+        eligible: false,
         isEligible: false,
-        eligibleLoanAmount: 0,
-        maxLoanAmount: 0,
-        reason: `AU Small Finance Bank requires minimum net monthly salary of ₹30,000 for New to Credit (NTC / -1 CIBIL) applicants (Current: ₹${Math.round(netMonthlySalaryForCalc).toLocaleString('en-IN')}).`,
-        bank: 'AU Small Finance Bank'
+        bankName: auConfig.name,
+        bank: auConfig.name,
+        reason: `AU Small Finance Bank requires minimum net monthly salary of ₹30,000 for New to Credit (NTC / -1 CIBIL) applicants (Current: ₹${Math.round(netMonthlySalaryForCalc).toLocaleString('en-IN')}).`
       };
     }
   } else {
@@ -226,69 +273,82 @@ export const calculateAuEligibility = (input) => {
 
     if (netMonthlySalaryForCalc < requiredNmi) {
       return {
+        eligible: false,
         isEligible: false,
-        eligibleLoanAmount: 0,
-        maxLoanAmount: 0,
-        reason: `AU Small Finance Bank requires minimum net monthly salary of ₹${requiredNmi.toLocaleString('en-IN')} for Category ${companyCategory} in ${isNonMetro ? 'Non-Metro' : 'Metro'} location (Current: ₹${Math.round(netMonthlySalaryForCalc).toLocaleString('en-IN')}).`,
-        bank: 'AU Small Finance Bank'
+        bankName: auConfig.name,
+        bank: auConfig.name,
+        reason: `AU Small Finance Bank requires minimum net monthly salary of ₹${requiredNmi.toLocaleString('en-IN')} for Category ${catCode} in ${isNonMetro ? 'Non-Metro' : 'Metro'} location (Current: ₹${Math.round(netMonthlySalaryForCalc).toLocaleString('en-IN')}).`
       };
     }
   }
 
   // 4. Balance Transfer Validation (Excel: ONLY PL BT)
-  if (isBTMode && hasCcInBt) {
+  const safeLoansForBT = Array.isArray(loansForBT || btLoans) ? (loansForBT || btLoans) : [];
+  const ccInBt = hasCcInBt || safeLoansForBT.some(l => {
+    if (!l) return false;
+    const t = String(l.loanType || l.type || '').toLowerCase();
+    return t.includes('credit') || t.includes('card') || t === 'cc';
+  });
+
+  if (isBTMode && ccInBt) {
     return {
+      eligible: false,
       isEligible: false,
-      eligibleLoanAmount: 0,
-      maxLoanAmount: 0,
+      bankName: auConfig.name,
+      bank: auConfig.name,
       reason: 'AU Small Finance Bank allows ONLY Personal Loan Balance Transfer. Credit Card BT is strictly prohibited.',
-      bank: 'AU Small Finance Bank'
+      isBTMode: true
     };
   }
 
   // 5. Obligations Calculation (Excel: CC OBLIGATION: 5% OBLIGATE)
-  const ccObligation = (creditCardLimit > 0 ? creditCardLimit * 0.05 : (creditCardOutstanding || 0) * 0.05);
-  const totalObligations = (Number(existingObligations) || Number(existingEmi) || 0) + ccObligation;
+  const numExistingEMI = Number(existingEMI || existingEmi || existingObligations) || 0;
+  const numCcObligation = Number(creditCardObligation) || 0;
+  const numCcLimit = Number(creditCardLimit || creditCardOutstanding) || 0;
+  const calculatedCcObligation = numCcObligation > 0 ? numCcObligation : (numCcLimit * 0.05);
+  const totalObligations = numExistingEMI + calculatedCcObligation;
 
   // 6. FOIR & Multipliers (Excel Section 4 & ETC Customer Table)
-  const { foir, multiplier, exposureCap } = getAuFoirAndMultiplier(netMonthlySalaryForCalc, companyCategory);
-  const maxAllowableEmi = (netMonthlySalaryForCalc * foir) - totalObligations;
+  const defaultFoirMult = getAuFoirAndMultiplier(netMonthlySalaryForCalc, catCode);
+  const effectiveFoir = foirOverride ? (foirOverride / 100) : defaultFoirMult.foir;
+  const effectiveMultiplier = multiplierOverride ? Number(multiplierOverride) : defaultFoirMult.multiplier;
+  const exposureCap = defaultFoirMult.exposureCap;
+
+  const maxAllowableEmi = (netMonthlySalaryForCalc * effectiveFoir) - totalObligations;
 
   if (maxAllowableEmi <= 0) {
     return {
+      eligible: false,
       isEligible: false,
-      eligibleLoanAmount: 0,
-      maxLoanAmount: 0,
-      reason: `Existing obligations (₹${Math.round(totalObligations).toLocaleString('en-IN')}) exceed permitted FOIR limit of ${Math.round(foir * 100)}% for AU Small Finance Bank.`,
-      bank: 'AU Small Finance Bank'
+      bankName: auConfig.name,
+      bank: auConfig.name,
+      reason: `Existing obligations (₹${Math.round(totalObligations).toLocaleString('en-IN')}) exceed permitted FOIR limit of ${Math.round(effectiveFoir * 100)}% for AU Small Finance Bank.`
     };
   }
 
   // 7. Tenure Calculation (Excel: 12 to 60 Months)
-  const ageRemainingMonths = Math.max(0, (maxAllowedAge - age) * 12);
-  let finalTenureMonths = Math.min(auConfig.maxLoanTenureMonths, ageRemainingMonths);
-
-  if (desiredTenureMonths && desiredTenureMonths > 0) {
-    finalTenureMonths = Math.min(finalTenureMonths, desiredTenureMonths);
-  }
+  const requestedTenureMonths = loanTenure ? (loanTenure * 12) : (desiredTenureMonths || 60);
+  const ageRemainingMonths = Math.max(0, (maxAllowedAge - parsedAge) * 12);
+  const configuredMaxTenure = (maxTenureOverride || auConfig.maxLoanTenureMonths);
+  let finalTenureMonths = Math.min(configuredMaxTenure, ageRemainingMonths, requestedTenureMonths);
   finalTenureMonths = Math.max(12, finalTenureMonths);
   const tenureYears = finalTenureMonths / 12;
 
   // 8. Multiplier Cap
-  const multiplierCap = Math.round(netMonthlySalaryForCalc * multiplier);
+  const multiplierCap = Math.round(netMonthlySalaryForCalc * effectiveMultiplier);
 
   // 9. Initial Principal Loan from EMI using initial estimate
-  let estimatedRoi = getAuROI(1000000, cibilScore, companyCategory, netMonthlySalaryForCalc);
+  let estimatedRoi = interestRateOverride || getAuROI(1000000, rawCibil, catCode, netMonthlySalaryForCalc);
   let foirLoanAmount = calculatePrincipalFromEMI(maxAllowableEmi, estimatedRoi, tenureYears);
 
   // Re-check exact ROI from matrix based on actual loan amount & monthly salary
-  const finalRoi = getAuROI(foirLoanAmount, cibilScore, companyCategory, netMonthlySalaryForCalc);
-  if (finalRoi !== estimatedRoi) {
+  const finalRoi = interestRateOverride || getAuROI(foirLoanAmount, rawCibil, catCode, netMonthlySalaryForCalc);
+  if (!interestRateOverride && finalRoi !== estimatedRoi) {
     foirLoanAmount = calculatePrincipalFromEMI(maxAllowableEmi, finalRoi, tenureYears);
   }
 
   // 10. Capping Application (Excel Section 3 & Row 36)
-  let maxSanctionCap = auConfig.maxLoanAmount; // 15 Lakhs overall cap
+  let maxSanctionCap = maxLoanOverride || auConfig.maxLoanAmount; // 15 Lakhs overall cap
 
   if (exposureCap && exposureCap < maxSanctionCap) {
     maxSanctionCap = exposureCap;
@@ -300,45 +360,54 @@ export const calculateAuEligibility = (input) => {
   }
 
   // Thin CIBIL Cat C / Others: 7.5 Lakhs
-  if (!isPriority1 && cibilScore > 0 && cibilScore < 700 && auConfig.thinCibilMaxLoan < maxSanctionCap) {
+  if (!isPriority1 && rawCibil > 0 && rawCibil < 700 && auConfig.thinCibilMaxLoan < maxSanctionCap) {
     maxSanctionCap = auConfig.thinCibilMaxLoan; // 7.5 Lakhs
   }
 
-  // NOTE: Bachelor Capping is REMOVED for AU Bank (Not in policy)
+  const numDesiredLoan = Number(desiredLoanAmount) || 0;
+  let calculatedLoan = Math.min(foirLoanAmount, multiplierCap, maxSanctionCap);
+  if (numDesiredLoan > 0) {
+    calculatedLoan = Math.min(calculatedLoan, numDesiredLoan);
+  }
 
-  const finalLoanAmount = Math.min(foirLoanAmount, multiplierCap, maxSanctionCap);
-
-  if (finalLoanAmount < auConfig.minLoanAmount) {
+  if (calculatedLoan < auConfig.minLoanAmount) {
     return {
+      eligible: false,
       isEligible: false,
-      eligibleLoanAmount: 0,
-      maxLoanAmount: 0,
-      reason: `Calculated eligibility (₹${Math.round(finalLoanAmount).toLocaleString('en-IN')}) is below AU Small Finance Bank minimum loan limit of ₹50,000.`,
-      bank: 'AU Small Finance Bank'
+      bankName: auConfig.name,
+      bank: auConfig.name,
+      reason: `Calculated eligibility (₹${Math.round(calculatedLoan).toLocaleString('en-IN')}) is below AU Small Finance Bank minimum loan limit of ₹50,000.`
     };
   }
 
-  const roundedSanction = Math.round(finalLoanAmount / 1000) * 1000;
+  const roundedSanction = Math.round(calculatedLoan);
   const finalEmi = calculateEMI(roundedSanction, finalRoi, tenureYears);
 
   return {
+    eligible: true,
     isEligible: true,
-    bank: 'AU Small Finance Bank',
-    eligibleLoanAmount: roundedSanction,
+    bankName: auConfig.name,
+    bank: auConfig.name,
+    loanAmount: roundedSanction,
     maxLoanAmount: roundedSanction,
-    interestRate: finalRoi,
-    tenureMonths: finalTenureMonths,
-    tenureYears: Math.round(tenureYears * 10) / 10,
+    eligibleLoanAmount: roundedSanction,
     monthlyEMI: finalEmi,
-    foir: Math.round(foir * 100),
-    multiplier,
-    appliedMultiplier: multiplier,
+    interestRate: Number(finalRoi),
+    loanTenure: tenureYears,
+    tenureYears: Math.round(tenureYears * 10) / 10,
+    loanTenureMonths: finalTenureMonths,
+    tenureMonths: finalTenureMonths,
+    foirPercentage: effectiveFoir,
+    foir: Math.round(effectiveFoir * 100),
+    multiplier: effectiveMultiplier,
+    appliedMultiplier: effectiveMultiplier,
     notes: [
-      `FOIR applied: ${Math.round(foir * 100)}% (${isPriority1 ? 'Priority 1 Tier' : 'Priority 0 Tier'})`,
-      `Multiplier: ${multiplier}x Net Monthly Salary`,
+      `FOIR applied: ${Math.round(effectiveFoir * 100)}% (${isPriority1 ? 'Priority 1 Tier' : 'Priority 0 Tier'})`,
+      `Multiplier: ${effectiveMultiplier}x Net Monthly Salary`,
       `Interest Rate: ${finalRoi.toFixed(2)}% (Segment Based Matrix)`,
       `Tenure: ${finalTenureMonths} Months (${(finalTenureMonths / 12).toFixed(1)} Years)`,
       isNtc ? 'Capped to ₹3 Lakhs (NTC / -1 CIBIL Policy)' : null
     ].filter(Boolean)
   };
 };
+
