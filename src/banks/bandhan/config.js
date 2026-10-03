@@ -118,7 +118,7 @@ export const bandhanConfig = {
   // Work experience
   minTotalExperienceMonths: 12, // Overall 1 Year
   minCurrentCompanyExperienceMonths: 1, // 1 Month current company
-  employmentTypes: ['salaried', 'government'],
+  employmentTypes: ['salaried', 'private', 'government'],
 
   // Balance Transfer (BT) Configuration
   btConfig: {
