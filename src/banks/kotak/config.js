@@ -1,4 +1,4 @@
-// Kotak Mahindra Bank Configuration (from BANKS POLICYS.xlsx - Sheet: KOTAK)
+// Kotak Mahindra Bank Configuration (Fully verified & aligned with BANKS POLICYS.xlsx - Sheet: KOTAK & Admin Panel)
 export const kotakConfig = {
   id: 'kotak',
   name: 'Kotak Mahindra Bank',
