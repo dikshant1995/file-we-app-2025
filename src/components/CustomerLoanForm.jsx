@@ -25,7 +25,6 @@ export const LENDER_OPTIONS = [
   { value: "incred finance", label: "Incred Finance" },
   { value: "au small finance bank", label: "AU Small Finance Bank" },
   { value: "aditya birla finance", label: "Aditya Birla Finance" },
-  { value: "finnable finance", label: "Finnable Finance" },
   { value: "other", label: "Other Bank / NBFC (Not Listed)" }
 ];
 

@@ -14,12 +14,11 @@ import { idfcConfig } from './idfc/config.js';
 import { smfgConfig } from './smfg/config.js';
 import { incredConfig } from './incred/config.js';
 import { abflConfig } from './abfl/config.js';
-import { finnableConfig } from './finnable/config.js';
 import { axisBankConfig } from './axis-bank/config.js';
 import { lntConfig } from './lnt/config.js';
 
 // Re-export individual configs
-export { kotakConfig, hdfcConfig, iciciConfig, bandhanConfig, cholaConfig, tataConfig, poonawalaConfig, axisFinConfig, shriRamConfig, piramalConfig, indusindConfig, idfcConfig, smfgConfig, incredConfig, abflConfig, finnableConfig, axisBankConfig, lntConfig };
+export { kotakConfig, hdfcConfig, iciciConfig, bandhanConfig, cholaConfig, tataConfig, poonawalaConfig, axisFinConfig, shriRamConfig, piramalConfig, indusindConfig, idfcConfig, smfgConfig, incredConfig, abflConfig, axisBankConfig, lntConfig };
 
 // Export all bank configurations as an array
 export const allBankConfigs = [
@@ -38,7 +37,6 @@ export const allBankConfigs = [
   smfgConfig,
   incredConfig,
   abflConfig,
-  finnableConfig,
   axisBankConfig,
   lntConfig
 ];
