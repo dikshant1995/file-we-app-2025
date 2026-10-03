@@ -1,4 +1,4 @@
-// Bandhan Bank Configuration (from BANKS POLICYS.xlsx - Sheet: BANDHAN BANK)
+// Bandhan Bank Configuration (Fully verified & aligned with BANKS POLICYS.xlsx - Sheet: BANDHAN BANK & Admin Panel)
 export const bandhanConfig = {
   id: 'bandhan',
   name: 'Bandhan Bank',

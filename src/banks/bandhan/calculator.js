@@ -120,7 +120,8 @@ export const getBandhanMultiplier = (category, salary, tenureMonths = 60, custom
 };
 
 // Bandhan Bank specific eligibility calculation
-export const calculateBandhanEligibility = (userData) => {
+export const calculateBandhanEligibility = (userData = {}) => {
+  const input = userData || {};
   const {
     desiredLoanAmount,
     loanTenure,
@@ -155,26 +156,63 @@ export const calculateBandhanEligibility = (userData) => {
     // Custom Admin Policy Slabs
     salaryFoirSlabs,
     multiplierMatrix
-  } = userData;
+  } = input;
+
+  // ========== DUMB USER INPUT SANITIZATION & NORMALIZATION ==========
+  const numBasicSalary = Number(basicSalary) || 0;
+  const numMonthlyIncome = Number(monthlyIncome) || 0;
+  const salaryWithoutIncentive = numBasicSalary || numMonthlyIncome;
+
+  if (!salaryWithoutIncentive || isNaN(salaryWithoutIncentive) || salaryWithoutIncentive <= 0) {
+    return {
+      eligible: false,
+      bankName: 'Bandhan Bank',
+      reason: 'Valid monthly salary is required to calculate Bandhan Bank loan eligibility.'
+    };
+  }
+
+  const numAverageIncentive = Number(averageIncentive) || 0;
+  const numExistingEMI = Number(existingEMI) || 0;
+  const numCreditCardObligation = Number(creditCardObligation) || 0;
+  const numTotalCreditCardLimit = Number(totalCreditCardLimit) || 0;
+  const numBtTotalEMI = Number(btTotalEMI) || 0;
+
+  // Age Sanitization
+  let parsedAge = null;
+  if (age !== undefined && age !== null && age !== '') {
+    parsedAge = Number(age);
+    if (isNaN(parsedAge)) {
+      return {
+        eligible: false,
+        bankName: 'Bandhan Bank',
+        reason: `Invalid age format provided: "${age}".`
+      };
+    }
+  }
+
+  // Safe Arrays
+  const safeLoansForBT = Array.isArray(loansForBT) ? loansForBT : [];
+  const safeExistingLoanBanks = Array.isArray(existingLoanBanks) ? existingLoanBanks : [];
 
   // ========== INCENTIVE CALCULATION LOGIC ==========
   const effectiveIncentivePercentage = incentivePercentageOverride !== undefined 
-    ? incentivePercentageOverride 
+    ? Number(incentivePercentageOverride) 
     : 0.25;
 
-  const bankIncentiveConsidered = (averageIncentive || 0) * effectiveIncentivePercentage;
-  const actualMonthlyIncome = (basicSalary || monthlyIncome || 0) + bankIncentiveConsidered;
-  const monthlyIncomeForCalc = actualMonthlyIncome;
+  const bankIncentiveConsidered = numAverageIncentive * effectiveIncentivePercentage;
+  const monthlyIncomeForCalc = salaryWithoutIncentive + bankIncentiveConsidered;
 
   // ========== CC BT RESTRICTION (Bandhan Bank does not allow CC BT) ==========
-  if (Array.isArray(loansForBT) && loansForBT.length > 0) {
-    const hasCcInBt = loansForBT.some(loan => {
-      const type = (loan.loanType || loan.type || '').toLowerCase();
+  if (safeLoansForBT.length > 0) {
+    const hasCcInBt = safeLoansForBT.some(loan => {
+      if (!loan) return false;
+      const type = String(loan.loanType || loan.type || '').toLowerCase();
       return type.includes('credit') || type.includes('card') || type === 'cc';
     });
     if (hasCcInBt) {
       return {
         eligible: false,
+        bankName: 'Bandhan Bank',
         reason: 'Bandhan Bank does not allow Credit Card Balance Transfer. Only Personal Loan Balance Transfer is accepted.',
         isBTMode: true
       };
@@ -182,34 +220,36 @@ export const calculateBandhanEligibility = (userData) => {
   }
 
   // ========== BALANCE TRANSFER MODE DETECTION ==========
-  const isBT = isBTMode && loansForBT && loansForBT.length > 0;
+  const isBT = isBTMode && safeLoansForBT.length > 0;
   let adjustedIncome = monthlyIncomeForCalc;
   let nonBTLoansEMI = 0;
 
   if (isBT) {
-    nonBTLoansEMI = (existingEMI || 0) - (btTotalEMI || 0);
-    const creditCardDeduction = creditCardObligation || 0;
+    nonBTLoansEMI = Math.max(0, numExistingEMI - numBtTotalEMI);
+    const creditCardDeduction = numCreditCardObligation;
     adjustedIncome = monthlyIncomeForCalc - nonBTLoansEMI - creditCardDeduction;
 
     if (adjustedIncome <= 0) {
       return {
         eligible: false,
-        reason: `After deducting non-BT obligations (₹${(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains for Balance Transfer`,
+        bankName: 'Bandhan Bank',
+        reason: `After deducting non-BT obligations (₹${Math.round(nonBTLoansEMI + creditCardDeduction).toLocaleString()}), no income remains for Balance Transfer`,
         isBTMode: true
       };
     }
   }
 
   // CHECK: If customer already has a personal loan from Bandhan Bank
-  if (existingLoanBanks && existingLoanBanks.length > 0) {
+  if (safeExistingLoanBanks.length > 0) {
     const bandhanBankNames = ['bandhan', 'bandhan bank'];
-    const hasExistingBandhanLoan = existingLoanBanks.some(bank =>
-      bandhanBankNames.some(name => String(bank).toLowerCase().includes(name))
+    const hasExistingBandhanLoan = safeExistingLoanBanks.some(bank =>
+      bandhanBankNames.some(name => String(bank || '').toLowerCase().includes(name))
     );
 
     if (hasExistingBandhanLoan) {
       return {
         eligible: false,
+        bankName: 'Bandhan Bank',
         reason: 'As an existing customer of Bandhan Bank with an active personal loan, you are not eligible for a new loan from this bank'
       };
     }
@@ -219,17 +259,21 @@ export const calculateBandhanEligibility = (userData) => {
   const minAge = bandhanConfig.minAge;
   const maxAge = bandhanConfig.maxAge;
 
-  if (age && (age < minAge || age > maxAge)) {
-    return {
-      eligible: false,
-      reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${age}`
-    };
+  if (parsedAge !== null) {
+    if (parsedAge < minAge || parsedAge > maxAge) {
+      return {
+        eligible: false,
+        bankName: 'Bandhan Bank',
+        reason: `Age must be between ${minAge} and ${maxAge} years. Current age: ${parsedAge}`
+      };
+    }
   }
 
   // Check employment type
-  if (employmentType && !bandhanConfig.employmentTypes.includes(employmentType.toLowerCase())) {
+  if (employmentType && !bandhanConfig.employmentTypes.includes(String(employmentType).toLowerCase())) {
     return {
       eligible: false,
+      bankName: 'Bandhan Bank',
       reason: `Employment type ${employmentType} not supported by Bandhan Bank`
     };
   }
@@ -242,6 +286,7 @@ export const calculateBandhanEligibility = (userData) => {
   if (incomeToCheck < minSalaryRequired) {
     return {
       eligible: false,
+      bankName: 'Bandhan Bank',
       reason: `Minimum monthly salary required for Category ${companyCategory} is ₹${minSalaryRequired.toLocaleString()} (Policy: 25K / CAT D 40K)`,
       isBTMode: isBT
     };
