@@ -15,7 +15,6 @@ import { calculateSmfgEligibility } from '../banks/smfg/calculator.js';
 import { calculateBajajEligibility } from '../banks/bajaj/calculator.js';
 import { calculateAuEligibility, getAuROI } from '../banks/au/calculator.js';
 import { calculateIncredEligibility } from '../banks/incred/calculator.js';
-import { calculateFinnableEligibility } from '../banks/finnable/calculator.js';
 import { calculateAxisBankEligibility } from '../banks/axis-bank/calculator.js';
 import { calculateLntEligibility } from '../banks/lnt/calculator.js';
 
@@ -36,7 +35,6 @@ import { smfgConfig } from '../banks/smfg/config.js';
 import { bajajConfig } from '../banks/bajaj/config.js';
 import { auConfig } from '../banks/au/config.js';
 import { incredConfig } from '../banks/incred/config.js';
-import { finnableConfig } from '../banks/finnable/config.js';
 import { axisBankConfig } from '../banks/axis-bank/config.js';
 import { lntConfig } from '../banks/lnt/config.js';
 
@@ -56,7 +54,6 @@ import { INDUSIND_BANK_EXCEL_POLICY } from '../config/indusindBankPolicy.js';
 import { HDFC_BANK_EXCEL_POLICY } from '../config/hdfcBankPolicy.js';
 import { getCityTier } from '../utils/policyUtils.js';
 import { getAbflROI } from '../config/abflBankPolicy.js';
-import { isFinnableTier1City, FINNABLE_NEGATIVE_PROFILES, isFinnableNegativeIndustry, isSolePropAllowedZone } from '../config/finnableBankPolicy.js';
 
 /**
  * Universal Bank Calculator for Institutional Banks without legacy hardcoded calculators
@@ -201,8 +198,7 @@ export const calculateLoanEligibility = async (userData) => {
     { id: 'smfg', name: 'SMFG India Credit', calculator: calculateSmfgEligibility, config: smfgConfig, hasDatabase: false },
     { id: 'incred', name: 'Incred Finance', calculator: calculateIncredEligibility, config: incredConfig, hasDatabase: false },
     { id: 'au-bank', name: 'AU Small Finance Bank', calculator: calculateAuEligibility, config: auConfig, hasDatabase: false },
-    { id: 'abfl', name: 'Aditya Birla Finance', calculator: calculateUnifiedBankEligibility, config: { name: 'Aditya Birla Finance', maxLoanCap: 5000000, defaultRate: 11.25 }, hasDatabase: false },
-    { id: 'finnable', name: 'Finnable Finance', calculator: calculateFinnableEligibility, config: finnableConfig, hasDatabase: false }
+    { id: 'abfl', name: 'Aditya Birla Finance', calculator: calculateUnifiedBankEligibility, config: { name: 'Aditya Birla Finance', maxLoanCap: 5000000, defaultRate: 11.25 }, hasDatabase: false }
   ];
 
   // Respect Admin Suspensions if configured in LocalStorage
@@ -1303,102 +1299,7 @@ const matchCategory = (cat1, cat2) => {
         }
       }
 
-      // 3.19 FINNABLE FINANCE EXCEL POLICY CHECKS (Sheet: FINNABLE)
-      const isFinnableInst = name.toLowerCase().includes('finnable') || id === 'finnable';
-      if (isFinnableInst) {
-        const income = Number(calculatorInput.monthlyIncome || calculatorInput.basicSalary || 0);
-        const cityTier = getCityTier(calculatorInput.city, calculatorInput.state);
-        const isTier1 = isFinnableTier1City(calculatorInput.city, calculatorInput.state);
-        const reqSalary = isTier1 ? 20000 : 15000;
-
-        if (income < reqSalary) {
-          return {
-            bankName: name,
-            eligible: false,
-            reason: `Finnable Finance requires minimum monthly salary of ₹${reqSalary.toLocaleString()} for ${isTier1 ? 'Tier 1' : 'Tier 2 / Others'} locations (Excel: 20K FOR TIER 1, 15K FOR TIER 2). Current: ₹${income.toLocaleString()}`,
-            category: bankCategory
-          };
-        }
-
-        if (calculatorInput.desiredLoanAmount && Number(calculatorInput.desiredLoanAmount) < 50000) {
-          return {
-            bankName: name,
-            eligible: false,
-            reason: `Finnable Finance requires minimum loan amount of ₹50,000 (Excel: Min. Loan Amount 50k). Requested: ₹${Number(calculatorInput.desiredLoanAmount).toLocaleString()}`,
-            category: bankCategory
-          };
-        }
-
-        const age = calculatorInput.age ? Number(calculatorInput.age) : null;
-        if (age !== null && (age < 21 || age > 55)) {
-          return {
-            bankName: name,
-            eligible: false,
-            reason: `Applicant age must be between 21 and 55 years at login for Finnable Finance (Excel: 21 yr to 55 yr). Current: ${age}`,
-            category: bankCategory
-          };
-        }
-
-        const totalExp = Number(calculatorInput.totalWorkExperience || calculatorInput.workExperience || 0);
-        if (totalExp > 0 && totalExp < 6) {
-          return {
-            bankName: name,
-            eligible: false,
-            reason: `Finnable Finance requires minimum 6 months total work experience (Excel: Minimum work experience 6 MONTHS). Found: ${totalExp} months.`,
-            category: bankCategory
-          };
-        }
-
-        if (rawCibil !== null && rawCibil !== undefined && rawCibil !== '') {
-          const numCibil = Number(rawCibil);
-          // Score > 0 but < 700 is rejected (NTC -1 or 0 is allowed)
-          if (numCibil > 0 && numCibil < 700) {
-            return {
-              bankName: name,
-              eligible: false,
-              reason: `Finnable Finance requires CIBIL score of 700+ or New to Credit (-1/0) (Excel: Cibil Score 700+ / NTC -1). Current CIBIL: ${numCibil}.`,
-              category: bankCategory
-            };
-          }
-        }
-
-        // Negative Designation Profile Check
-        const designation = String(calculatorInput.designation || calculatorInput.jobRole || calculatorInput.profession || '').toLowerCase().trim();
-        if (designation) {
-          if (FINNABLE_NEGATIVE_PROFILES.some(prof => designation.includes(prof))) {
-            return {
-              bankName: name,
-              eligible: false,
-              reason: `Applicant profile '${designation}' is on Finnable Finance negative profile list (Excel Row 29).`,
-              category: bankCategory
-            };
-          }
-        }
-
-        // Negative Industry Check (Excel Row 30: Bars, Event management, Spa & saloon, Media)
-        const companyOrIndustry = String(calculatorInput.industry || calculatorInput.companyType || calculatorInput.companyName || '').toLowerCase().trim();
-        if (companyOrIndustry && isFinnableNegativeIndustry(companyOrIndustry)) {
-          return {
-            bankName: name,
-            eligible: false,
-            reason: `Company/Industry '${companyOrIndustry}' is in Finnable Finance negative industry list (Excel Row 30: Bars, Event management, Spa & Saloon, Media).`,
-            category: bankCategory
-          };
-        }
-
-        // Sole Proprietorship Geographic check (Excel Row 30: Sole proprietorship is only allowed in West and South zones)
-        const compType = String(calculatorInput.companyType || '').toLowerCase().trim();
-        if (compType.includes('proprietor') || compType === 'proprietorship' || compType === 'sole prop') {
-          if (calculatorInput.state && !isSolePropAllowedZone(calculatorInput.state)) {
-            return {
-              bankName: name,
-              eligible: false,
-              reason: `Finnable Finance policy: Sole Proprietorship firms are allowed only in West and South zones (Excel Row 30). Current State: ${calculatorInput.state}.`,
-              category: bankCategory
-            };
-          }
-        }
-      }
+      const isFinnableInst = false;
 
       // -------------------------------------------------------------
       // Dynamic Bank Policy Specific Credit Card Obligation Percentage

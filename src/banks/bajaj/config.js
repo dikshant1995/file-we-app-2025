@@ -30,7 +30,7 @@ export const bajajConfig = {
     description: 'Bajaj Finance allows Credit Card BT provided CC POS <= 6x monthly income'
   },
 
-  employmentTypes: ['salaried', 'private', 'government', 'salaried_professional'],
+  employmentTypes: ['salaried', 'government', 'salaried_professional'],
 
   // ROI Rules (Excel Section 2):
   // 10L Above: 10%, 1 to 12 Lac (Sal Lite): 16%, Default case calculation: 14%

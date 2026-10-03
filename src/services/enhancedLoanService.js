@@ -11,7 +11,6 @@ import { calculateIndusindEligibility } from '../banks/indusind/calculator.js';
 import { calculateIdfcEligibility } from '../banks/idfc/calculator.js';
 import { calculateShriRamEligibility } from '../banks/shri-ram/calculator.js';
 import { calculatePiramalEligibility } from '../banks/piramal/calculator.js';
-import { calculateFinnableEligibility } from '../banks/finnable/calculator.js';
 import { calculateAxisBankEligibility } from '../banks/axis-bank/calculator.js';
 
 // Import bank configuration service for logic bridge
@@ -61,8 +60,7 @@ const allBanks = [
   { id: 'smfg', name: 'SMFG India Credit', calculator: calculateUnifiedBankEligibility },
   { id: 'incred', name: 'Incred Finance', calculator: calculateUnifiedBankEligibility },
   { id: 'au-bank', name: 'AU Small Finance Bank', calculator: calculateUnifiedBankEligibility },
-  { id: 'abfl', name: 'Aditya Birla Finance', calculator: calculateUnifiedBankEligibility },
-  { id: 'finnable', name: 'Finnable Finance', calculator: calculateFinnableEligibility }
+  { id: 'abfl', name: 'Aditya Birla Finance', calculator: calculateUnifiedBankEligibility }
 ];
 
 /**

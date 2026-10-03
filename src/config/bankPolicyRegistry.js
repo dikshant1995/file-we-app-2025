@@ -17,7 +17,6 @@ import { SMFG_BANK_EXCEL_POLICY } from './smfgBankPolicy.js';
 import { INCRED_BANK_EXCEL_POLICY } from './incredBankPolicy.js';
 import { POONAWALA_BANK_EXCEL_POLICY } from './poonawalaBankPolicy.js';
 import { ABFL_BANK_EXCEL_POLICY } from './abflBankPolicy.js';
-import { FINNABLE_BANK_EXCEL_POLICY } from './finnableBankPolicy.js';
 
 export const BANK_EXCEL_POLICIES = {
   'axis-bank': AXIS_BANK_EXCEL_POLICY,
@@ -39,8 +38,7 @@ export const BANK_EXCEL_POLICIES = {
   'smfg': SMFG_BANK_EXCEL_POLICY,
   'incred': INCRED_BANK_EXCEL_POLICY,
   'poonawala': POONAWALA_BANK_EXCEL_POLICY,
-  'abfl': ABFL_BANK_EXCEL_POLICY,
-  'finnable': FINNABLE_BANK_EXCEL_POLICY
+  'abfl': ABFL_BANK_EXCEL_POLICY
 };
 
 export const getExcelPolicyForBank = (id, name = '') => {
@@ -100,9 +98,6 @@ export const getExcelPolicyForBank = (id, name = '') => {
   }
   if (normId === 'abfl' || normName.includes('aditya birla') || normName.includes('abfl')) {
     return ABFL_BANK_EXCEL_POLICY;
-  }
-  if (normId === 'finnable' || normName.includes('finnable')) {
-    return FINNABLE_BANK_EXCEL_POLICY;
   }
 
   return BANK_EXCEL_POLICIES[normId] || null;
