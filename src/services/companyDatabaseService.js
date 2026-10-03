@@ -11,6 +11,7 @@ const bankDatabases = {
   'icici': [],
   'chola': [],
   'indusind': [],
+  'bandhan': [],
   'axis_fin': [],
   'axis': [],
   'axis-bank': []
@@ -28,6 +29,7 @@ export const dbHealth = {
     'icici': { status: 'idle', count: 0 },
     'chola': { status: 'idle', count: 0 },
     'indusind': { status: 'idle', count: 0 },
+    'bandhan': { status: 'idle', count: 0 },
     'axis_fin': { status: 'idle', count: 0 }
   }
 };
@@ -40,6 +42,7 @@ export const resolveBankDbKey = (bankName) => {
   const clean = String(bankName).toLowerCase().replace(/[-_ ]/g, '');
   if (clean.includes('axis')) return 'axis_fin';
   if (clean.includes('indusind')) return 'indusind';
+  if (clean.includes('bandhan')) return 'bandhan';
   if (clean.includes('kotak')) return 'kotak';
   if (clean.includes('tata')) return 'tata';
   if (clean.includes('poonawala')) return 'poonawala';
