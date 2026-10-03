@@ -1813,11 +1813,11 @@ const matchCategory = (cat1, cat2) => {
             } else if (name.toLowerCase().includes('bandhan') || id === 'bandhan') {
               // Bandhan Bank Excel Policy (Sheet: BANDHAN BANK)
               // Section 2: FOIR Slabs by Salary: <=30k: 50%, 30k-50k: 60%, 50k-75k: 65%, >75k: 70%
-              if (Array.isArray(matchedPolicy?.salaryFoirSlabs) && matchedPolicy.salaryFoirSlabs.length > 0) {
-                bankInput.salaryFoirSlabs = matchedPolicy.salaryFoirSlabs;
+              if (Array.isArray(uPolicy?.salaryFoirSlabs) && uPolicy.salaryFoirSlabs.length > 0) {
+                bankInput.salaryFoirSlabs = uPolicy.salaryFoirSlabs;
               }
-              if (matchedPolicy?.multiplierMatrix) {
-                bankInput.multiplierMatrix = matchedPolicy.multiplierMatrix;
+              if (uPolicy?.multiplierMatrix) {
+                bankInput.multiplierMatrix = uPolicy.multiplierMatrix;
               }
 
               let bFoir = 50;
