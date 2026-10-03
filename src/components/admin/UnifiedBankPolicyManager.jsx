@@ -45,34 +45,66 @@ const getBankDbKey = (bankId) => {
     'axis-fin': 'axis_fin',
     'cholamandalam': 'chola',
     'shri-ram': 'shri_ram',
-    'axis-bank': 'axis_bank',
-    'au-bank': 'au_bank'
+    'axis-bank': 'axis_fin',
+    'au-bank': 'au_bank',
+    'lnt': 'lt',
+    'l&t': 'lt'
   };
   return map[bankId] || bankId;
 };
 
 const formatCategoryDisplay = (cat) => {
-  if (!cat) return 'Category B (Default)';
+  if (!cat) return 'Category B';
   const upper = String(cat).toUpperCase().trim();
-  if (upper === 'SCATA' || upper === 'SUPER A' || upper === 'A+') return 'Super A';
-  if (upper === 'CATGA' || upper === 'A' || upper === 'CAT A' || upper === 'CATEGORY A') return 'Category A';
-  if (upper === 'CATGB' || upper === 'B' || upper === 'CAT B' || upper === 'CATEGORY B') return 'Category B';
-  if (upper === 'CATGC' || upper === 'C' || upper === 'CAT C' || upper === 'CATEGORY C') return 'Category C';
-  if (upper === 'CATGD' || upper === 'D' || upper === 'CAT D' || upper === 'CATEGORY D') return 'Category D';
-  if (upper === 'GOVT' || upper === 'PSU') return 'Govt / PSU';
-  if (upper === 'UNLISTED') return 'Unlisted';
+
+  // 1. Caution / Negative / Delisted / DNS
+  if (upper.includes('CAUTION') || upper.includes('NEGATIVE') || upper.includes('NOT TO BE') || upper === 'DNS' || upper === 'DELIST') {
+    return 'Caution / Delisted';
+  }
+
+  // 2. Government & Public Sector
+  if (upper.includes('GOVT') || upper.includes('GOVERNMENT') || upper.startsWith('GOV') || upper.startsWith('CATG') || upper === 'POL' || upper === 'DEF' || upper === 'STF' || upper === 'PMF') {
+    return 'Govt / PSU';
+  }
+
+  // 3. Super A
+  if (upper.includes('SUPER') || upper.includes('AA') || upper === 'A+' || upper === 'ACE PLUS' || upper === 'ELITE' || upper === 'SUPERPRIME' || upper === 'SCATA' || upper.includes('TATA GROUP')) {
+    return 'Super A';
+  }
+
+  // 4. Category A
+  if (upper === 'A' || upper === 'CAT A' || upper === 'CSC A' || upper === 'CATEGORY A' || upper === 'ACE' || upper === 'CAT SA' || upper.endsWith('-A')) {
+    return 'Category A';
+  }
+
+  // 5. Category B
+  if (upper === 'B' || upper === 'CAT B' || upper === 'CSC B' || upper === 'CATEGORY B' || upper === 'PREFERRED' || upper === 'CATGB' || upper.endsWith('-B')) {
+    return 'Category B';
+  }
+
+  // 6. Category C
+  if (upper === 'C' || upper === 'CAT C' || upper === 'CSC C' || upper === 'CATEGORY C' || upper === 'CAT C1000' || upper === 'OPEN MARKET' || upper === 'SILVER' || upper === 'OTHERS' || upper.endsWith('-C')) {
+    return 'Category C';
+  }
+
+  // 7. Category D
+  if (upper === 'D' || upper === 'CAT D' || upper === 'CSC D' || upper === 'CATEGORY D' || upper === 'CATDU' || upper === 'E' || upper === 'F' || upper === 'H' || upper === 'J' || upper === 'U' || upper.endsWith('-D')) {
+    return 'Category D';
+  }
+
   return cat;
 };
 
 const getCategoryBadgeClass = (cat) => {
-  const upper = String(cat || '').toUpperCase().trim();
-  if (upper.includes('SUPER') || upper === 'SCATA' || upper === 'A+' || upper.includes('PLATINUM') || upper.includes('DIAMOND') || upper.includes('TIER 1')) return 'cat-badge-super-a';
-  if (upper === 'CATGA' || upper === 'A' || upper.includes('CATEGORY A') || upper.includes('GOLD') || upper.includes('TIER 2')) return 'cat-badge-a';
-  if (upper === 'CATGB' || upper === 'B' || upper.includes('CATEGORY B') || upper.includes('SILVER') || upper.includes('TIER 3')) return 'cat-badge-b';
-  if (upper === 'CATGC' || upper === 'C' || upper.includes('CATEGORY C') || upper.includes('BRONZE') || upper.includes('TIER 4')) return 'cat-badge-c';
-  if (upper === 'CATGD' || upper === 'D' || upper.includes('CATEGORY D')) return 'cat-badge-d';
-  if (upper.includes('GOVT') || upper.includes('PSU')) return 'cat-badge-govt';
-  return 'cat-badge-unlisted';
+  const display = formatCategoryDisplay(cat);
+  if (display === 'Super A') return 'cat-badge-super-a';
+  if (display === 'Category A') return 'cat-badge-a';
+  if (display === 'Category B') return 'cat-badge-b';
+  if (display === 'Category C') return 'cat-badge-c';
+  if (display === 'Category D') return 'cat-badge-d';
+  if (display === 'Govt / PSU') return 'cat-badge-govt';
+  if (display.includes('Caution') || display.includes('Delisted')) return 'cat-badge-unlisted';
+  return 'cat-badge-b';
 };
 
 // State & City Data
