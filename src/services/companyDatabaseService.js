@@ -56,7 +56,7 @@ export const resolveBankDbKey = (bankName) => {
   if (clean.includes('hdfc')) return 'hdfc';
   if (clean.includes('icici')) return 'icici';
   if (clean.includes('chola')) return 'chola';
-  if (clean.includes('lt')) return 'lt';
+  if (clean.includes('lt') || clean.includes('lnt')) return 'lt';
   if (clean.includes('piramal')) return 'piramal';
   if (clean.includes('smfg') || clean.includes('fullerton')) return 'smfg';
   return bankName;
@@ -154,7 +154,15 @@ export const loadBankDatabase = async (bankName) => {
       bankDatabases[bankName] = data;
       if (targetKey === 'axis_fin') {
         bankDatabases['axis'] = data;
+        bankDatabases['axis-fin'] = data;
+        bankDatabases['axis_fin'] = data;
+        bankDatabases['axis_bank'] = data;
         bankDatabases['axis-bank'] = data;
+      }
+      if (targetKey === 'lt') {
+        bankDatabases['lt'] = data;
+        bankDatabases['lnt'] = data;
+        bankDatabases['l&t'] = data;
       }
       dbHealth.banks[targetKey].status = 'ok';
       dbHealth.banks[targetKey].count = data.length;
