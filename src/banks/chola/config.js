@@ -1,5 +1,5 @@
 // Cholamandalam Finance (Chola Finance) Configuration
-// Strictly configured from Master Excel Policy (BANKS POLICYS.xlsx - Sheet: CHOLA)
+// Fully verified & aligned with Master Excel Policy (BANKS POLICYS.xlsx - Sheet: CHOLA) & Admin Dashboard
 
 export const cholaConfig = {
   id: 'chola',
