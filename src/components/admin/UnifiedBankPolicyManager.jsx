@@ -4502,10 +4502,10 @@ const UnifiedBankPolicyManager = () => {
                               {['vlr', 'lr', 'mr', 'hr'].map((segKey) => (
                                 <td key={segKey} style={{ padding: '6px' }}>
                                   <div className="table-input-cell highlight" style={{ display: 'inline-flex', alignItems: 'center' }}>
-                                    <span>₹</span>
+                                    <span style={{ color: '#94a3b8', marginRight: '2px', fontWeight: 700 }}>₹</span>
                                     <input 
                                       type="number"
-                                      style={{ width: '60px', textAlign: 'center' }}
+                                      style={{ width: '55px', textAlign: 'center', color: '#f8fafc', fontWeight: 700 }}
                                       value={mRow[segKey]}
                                       onChange={(e) => {
                                         const val = parseFloat(e.target.value);
@@ -4514,7 +4514,8 @@ const UnifiedBankPolicyManager = () => {
                                         updated[rIdx][segKey] = val;
                                         setPolicyData({ ...policyData, abflMaxLoanMatrix: updated });
                                       }}
-                                    /> Lakhs
+                                    />
+                                    <span style={{ color: '#38bdf8', fontWeight: 700, marginLeft: '4px', fontSize: '0.82rem' }}>Lakhs</span>
                                   </div>
                                 </td>
                               ))}

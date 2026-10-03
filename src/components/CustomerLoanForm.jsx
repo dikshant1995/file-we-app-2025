@@ -767,15 +767,6 @@ const CustomerLoanForm = ({ onSubmit, loading, onBackToHome, initialData }) => {
                 Value stored: ₹{parseFloat(formData.basicSalary).toLocaleString('en-IN')}
               </small>
             )}
-            {formData.hasPpfDeduction ? (
-              <small className="help-text" style={{ color: '#059669', fontWeight: '600' }}>
-                ✓ PF/PPF deduction included (Eligible for Piramal Finance &amp; PF-mandated lenders)
-              </small>
-            ) : (
-              <small className="help-text" style={{ color: '#d97706', fontWeight: '600' }}>
-                ⚠️ No PF/PPF deduction (Note: Piramal Finance requires mandatory PF deduction: 22+PF DEDUCT REQ)
-              </small>
-            )}
           </div>
         </div>
 

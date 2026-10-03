@@ -1001,15 +1001,15 @@ const CustomerResultsDisplay = ({ results, metadata, aiResult, aiInsight, onNewC
 
                   <div className="details-grid">
                     <div className="detail">
-                      <span className="detail-label">Monthly EMI</span>
+                      <span className="detail-label" style={{ color: '#475569', fontWeight: 700, fontSize: '0.72rem' }}>EMI</span>
                       <span className="detail-value" style={{ color: '#1E40AF' }}>{formatNumber(bank.monthlyEMI)}</span>
                     </div>
                     <div className="detail">
-                      <span className="detail-label">ROI</span>
+                      <span className="detail-label" style={{ color: '#475569', fontWeight: 700, fontSize: '0.72rem' }}>MIN ROI</span>
                       <span className="detail-value" style={{ color: '#F58220' }}>{bank.interestRate}%</span>
                     </div>
                     <div className="detail">
-                      <span className="detail-label">Tenure</span>
+                      <span className="detail-label" style={{ color: '#475569', fontWeight: 700, fontSize: '0.72rem' }}>MAX TENURE</span>
                       <span className="detail-value" style={{ color: 'rgb(66, 66, 66)' }}>{bank.loanTenure}Y</span>
                     </div>
                   </div>

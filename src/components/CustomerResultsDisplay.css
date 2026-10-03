@@ -557,12 +557,13 @@
 }
 
 .detail-label {
-  font-size: 0.7rem;
-  color: rgb(66, 66, 66);
+  font-size: 0.72rem;
+  color: #334155 !important;
   margin-bottom: 2px;
   display: block;
   text-transform: uppercase;
-  font-weight: 650;
+  font-weight: 750;
+  letter-spacing: 0.02em;
 }
 
 .detail-value {
