@@ -2,12 +2,6 @@ import { tataConfig } from './config.js';
 import { getBankConfig } from '../../services/bankConfigService.js';
 import { getSlabRate } from '../../utils/policyUtils.js';
 
-// Helper: Get interest rate based on category and loan amount
-const getInterestRateForLoan = (category, loanAmount, location = null) => {
-  let lookupCategory = category === 'Govt' ? 'A' : category;
-  return getSlabRate('Tata Capital', lookupCategory, loanAmount, location, tataConfig.interestRate);
-};
-
 // Helper: Calculate EMI
 const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
   const monthlyInterestRate = annualInterestRate / 12 / 100;
@@ -22,7 +16,6 @@ const calculateEMI = (principal, annualInterestRate, tenureInYears) => {
 };
 
 // Helper: Reverse calculate principal from EMI
-// Using client's reverse calculator: Factor = 52.5375
 const calculatePrincipalFromEMI = (emi, annualInterestRate, tenureInYears) => {
   const monthlyInterestRate = annualInterestRate / 12 / 100;
   const numberOfMonths = tenureInYears * 12;
@@ -41,53 +34,52 @@ const calculatePrincipalFromEMI = (emi, annualInterestRate, tenureInYears) => {
   return Math.round(principal);
 };
 
-// Helper: Get salary band
-const getSalaryBand = (salary, table) => {
-  for (const band of Object.keys(table)) {
-    if (band.includes('-')) {
-      const [min, max] = band.split('-').map(v => parseInt(v));
-      if (salary >= min && salary <= max) return band;
-    } else if (band.includes('+')) {
-      const min = parseInt(band.replace('+', ''));
-      if (salary >= min) return band;
-    }
-  }
-  return Object.keys(table)[Object.keys(table).length - 1];
+// Helper: Safely parse numeric input
+const parseNum = (val, fallback = 0) => {
+  if (val === null || val === undefined || val === '') return fallback;
+  const cleaned = String(val).replace(/[^0-9.-]/g, '');
+  const parsed = parseFloat(cleaned);
+  return isNaN(parsed) ? fallback : parsed;
 };
 
 // Tata Capital specific eligibility calculation
-// Method: Combined (Multiplier + FOIR)
-// FOIR: Salary-based (no category), Multiplier: Category + Salary based
 export const calculateTataEligibility = (userData) => {
-  const {
-    desiredLoanAmount,
-    loanTenure,
-    basicSalary,
-    averageIncentive,
-    monthlyIncome,
-    existingEMI = 0,
-    creditCardObligation, // NEW: 5% of non-BT credit card balances
-    category = 'A',
-    creditScore,
-    employmentType = 'salaried',
-    age,
-    existingLoanBanks,
-    // Admin Overrides (Logic Bridge)
-    interestRateOverride,
-    isGovtEmployee,
-    govtROI,
-    govtFOIR,
-    govtMultiplier,
-    govtMaxTenure,
-    // Balance Transfer fields
-    isBTMode,
-    loansForBT,
-    btTotalEMI,
-    btTotalOutstanding,
-    // Incentive Overrides
-    incentivePercentageOverride,
-    incentiveMonthsOverride
-  } = userData;
+  const rawInput = userData || {};
+
+  const desiredLoanAmount = parseNum(rawInput.desiredLoanAmount, null);
+  const loanTenure = parseNum(rawInput.loanTenure, 5);
+  const basicSalary = parseNum(rawInput.basicSalary || rawInput.monthlyIncome, 0);
+  const averageIncentive = parseNum(rawInput.averageIncentive, 0);
+  const existingEMI = parseNum(rawInput.existingEMI, 0);
+  const creditCardObligation = parseNum(rawInput.creditCardObligation, 0);
+  const category = rawInput.category || 'A';
+  const age = parseNum(rawInput.age, null);
+  const existingLoanBanks = rawInput.existingLoanBanks || [];
+  
+  // Normalize Employment Type
+  const empTypeNorm = String(rawInput.employmentType || 'salaried').toLowerCase().trim();
+  const isGovtEmployee = rawInput.isGovtEmployee || empTypeNorm === 'government' || String(category).toUpperCase().trim() === 'GOVT';
+
+  // Admin Overrides (Logic Bridge)
+  const interestRateOverride = rawInput.interestRateOverride;
+  const foirOverride = rawInput.foirOverride;
+  const multiplierOverride = rawInput.multiplierOverride;
+  const maxTenureOverride = rawInput.maxTenureOverride;
+  const maxLoanOverride = rawInput.maxLoanOverride;
+  const govtROI = rawInput.govtROI;
+  const govtFOIR = rawInput.govtFOIR;
+  const govtMultiplier = rawInput.govtMultiplier;
+  const govtMaxTenure = rawInput.govtMaxTenure;
+
+  // Balance Transfer fields
+  const isBTMode = rawInput.isBTMode;
+  const loansForBT = rawInput.loansForBT || [];
+  const btTotalEMI = parseNum(rawInput.btTotalEMI, 0);
+  const btTotalOutstanding = parseNum(rawInput.btTotalOutstanding, 0);
+
+  // Incentive Overrides
+  const incentivePercentageOverride = rawInput.incentivePercentageOverride;
+  const incentiveMonthsOverride = rawInput.incentiveMonthsOverride;
 
   // ========== INCENTIVE CALCULATION LOGIC ==========
   const effectiveIncentivePercentage = incentivePercentageOverride !== undefined 
@@ -96,13 +88,10 @@ export const calculateTataEligibility = (userData) => {
 
   const effectiveIncentiveMonths = incentiveMonthsOverride !== undefined 
     ? incentiveMonthsOverride 
-    : 3; // Default to 3 months if not specified
+    : 3;
 
-  const bankIncentiveConsidered = (averageIncentive || 0) * effectiveIncentivePercentage;
-  const actualMonthlyIncome = (basicSalary || 0) + bankIncentiveConsidered;
-  
-  // Use actualMonthlyIncome for all subsequent calculations
-  const monthlyIncomeForCalc = actualMonthlyIncome;
+  const bankIncentiveConsidered = averageIncentive * effectiveIncentivePercentage;
+  const monthlyIncomeForCalc = basicSalary + bankIncentiveConsidered;
 
   const isBT = isBTMode && loansForBT && loansForBT.length > 0;
   let adjustedIncome = monthlyIncomeForCalc;
@@ -117,11 +106,11 @@ export const calculateTataEligibility = (userData) => {
     }
   }
 
-  // CHECK: If customer already has a personal loan from Tata Capital
+  // CHECK: Existing loan from Tata Capital
   if (existingLoanBanks && existingLoanBanks.length > 0) {
     const tataBankNames = ['tata', 'tata capital'];
     const hasExistingTataLoan = existingLoanBanks.some(bank =>
-      tataBankNames.some(name => bank.includes(name))
+      tataBankNames.some(name => String(bank).toLowerCase().includes(name))
     );
 
     if (hasExistingTataLoan) {
@@ -132,14 +121,15 @@ export const calculateTataEligibility = (userData) => {
     }
   }
 
-  // Check age eligibility (Excel Section 1: 58 in pvt and 60 in govt)
+  // Category normalization
   const normCategory = String(category || 'A').toUpperCase().trim();
   const isSuperA = normCategory.includes('SUPER');
   const isGovt = isGovtEmployee || normCategory === 'GOVT';
   const effectiveCategoryKey = isSuperA ? 'SUPER-A' : (isGovt ? 'GOVT' : (normCategory === 'A' ? 'A' : (normCategory === 'B' ? 'B' : (normCategory === 'C' ? 'C' : (normCategory === 'D' ? 'D' : 'UNLISTED')))));
 
-  const maxAllowedAge = isGovt ? tataConfig.maxAgeGovt : tataConfig.maxAgePvt;
-  if (age && (age < tataConfig.minAge || age > maxAllowedAge)) {
+  // Age eligibility (Excel Section 1: 58 in pvt and 60 in govt)
+  const maxAllowedAge = isGovt ? (tataConfig.maxAgeGovt || 60) : (tataConfig.maxAgePvt || 58);
+  if (age !== null && age > 0 && (age < tataConfig.minAge || age > maxAllowedAge)) {
     return {
       eligible: false,
       reason: `Age must be between ${tataConfig.minAge} and ${maxAllowedAge} years for Tata Capital (${isGovt ? 'Government' : 'Private'}). Current age: ${age}`
@@ -147,40 +137,52 @@ export const calculateTataEligibility = (userData) => {
   }
 
   // Work stability check (Excel Section 1: Min 12 Months stability)
-  const currentExp = Number(userData.currentCompanyExperience || userData.workExperience || 0);
-  const totalExp = Number(userData.totalWorkExperience || currentExp);
-  const cibil = Number(creditScore || userData.cibilScore || 700);
-  const hasStabilityWaiver = (age >= 26) && (cibil > 750) && (monthlyIncomeForCalc > 50000);
+  const currentExp = parseNum(rawInput.currentCompanyExperience || rawInput.workExperience, 0);
+  const cibil = parseNum(rawInput.creditScore || rawInput.cibilScore, 700);
+  const hasTradelineWaiverMatch = rawInput.has2YrTradelineAbove2L !== undefined ? rawInput.has2YrTradelineAbove2L : true;
+  const hasStabilityWaiver = (age >= 26) && (cibil > 750) && (monthlyIncomeForCalc > 50000) && hasTradelineWaiverMatch;
 
   if (!hasStabilityWaiver && currentExp > 0 && currentExp < (tataConfig.minWorkExperienceMonths || 12)) {
     return {
       eligible: false,
-      reason: `Tata Capital requires minimum 12 months current employment stability (Excel: Current employment Stability Minimum 12 months). Current: ${currentExp} months.`
+      reason: `Tata Capital requires minimum 12 months current employment stability (Current stability: ${currentExp} months). Waiver requires Age >=26, CIBIL >750, income >50k, and 2+ yr tradeline >₹2L.`
     };
   }
 
-  // 1. Check employment type
-  if (!tataConfig.employmentTypes.includes(employmentType)) {
+  // Check employment type
+  const supportedEmpTypes = (tataConfig.employmentTypes || ['salaried', 'private', 'government']).map(t => t.toLowerCase());
+  if (!supportedEmpTypes.includes(empTypeNorm) && empTypeNorm !== 'salaried' && empTypeNorm !== 'private' && empTypeNorm !== 'government') {
     return {
       eligible: false,
-      reason: `Employment type ${employmentType} not supported`
+      reason: `Employment type '${rawInput.employmentType}' not supported by Tata Capital`
     };
   }
 
-  // 2. Apply tenure capping based on category (Excel Section 4)
+  // Check minimum requested loan amount (Excel: MINIMUM LOAN AMOUNT: 75K)
+  if (desiredLoanAmount !== null && desiredLoanAmount < (tataConfig.minLoanAmount || 75000)) {
+    return {
+      eligible: false,
+      reason: `Requested loan amount (₹${desiredLoanAmount.toLocaleString()}) is below Tata Capital minimum loan limit of ₹${(tataConfig.minLoanAmount || 75000).toLocaleString()}`
+    };
+  }
+
+  // Tenure capping (Excel Section 4: Min 24 Months)
   let maxTenureForCategory = isGovtEmployee && govtMaxTenure 
     ? govtMaxTenure 
     : (tataConfig.maxTenureByCategory[effectiveCategoryKey] || 60);
 
   if (effectiveCategoryKey === 'B' && monthlyIncomeForCalc > 75000) {
-    maxTenureForCategory = 84; // CAT B Income > 75,000: 84 months
+    maxTenureForCategory = 84;
   }
 
-  const cappedTenureMonths = maxTenureForCategory;
-  const cappedTenureYears = cappedTenureMonths / 12;
+  if (maxTenureOverride !== undefined && maxTenureOverride !== null) {
+    maxTenureForCategory = parseNum(maxTenureOverride, maxTenureForCategory);
+  }
 
-  const requestedTenureMonths = (loanTenure || 5) * 12;
-  const tenureCapped = requestedTenureMonths !== maxTenureForCategory;
+  const requestedTenureMonths = Math.max(24, loanTenure * 12);
+  const cappedTenureMonths = Math.min(requestedTenureMonths, maxTenureForCategory);
+  const cappedTenureYears = cappedTenureMonths / 12;
+  const tenureCapped = requestedTenureMonths > maxTenureForCategory;
 
   // Minimum salary check (Excel Section 1: 25k)
   const incomeToCheck = isBT ? adjustedIncome : monthlyIncomeForCalc;
@@ -192,20 +194,40 @@ export const calculateTataEligibility = (userData) => {
     };
   }
 
-  // FOIR Band (Excel Section 3 Rows 56-60)
-  // <=25k: 50%, 25k-50k: 60%, 50k-75k: 65%, >75k: 75%
-  let foirPercentage = 0.60;
-  if (incomeToCheck <= 25000) foirPercentage = 0.50;
-  else if (incomeToCheck <= 50000) foirPercentage = 0.60;
-  else if (incomeToCheck <= 75000) foirPercentage = 0.65;
-  else foirPercentage = 0.75;
+  // Check secured loan (HL / LAP)
+  const hasSecuredLoan = (rawInput.existingLoanTypes && (
+    rawInput.existingLoanTypes.includes('Home Loan') ||
+    rawInput.existingLoanTypes.includes('Loan Against Property') ||
+    rawInput.existingLoanTypes.includes('HL') ||
+    rawInput.existingLoanTypes.includes('LAP')
+  )) || (Array.isArray(loansForBT) && loansForBT.some(l => l.type === 'Home Loan' || l.type === 'LAP'));
 
-  if (govtFOIR && isGovtEmployee) foirPercentage = govtFOIR / 100;
+  // FOIR Band (Excel Section 3 Rows 56-60)
+  let foirPercentage = 0.60;
+  if (hasSecuredLoan) {
+    if (incomeToCheck <= 25000) foirPercentage = 0.50;
+    else if (incomeToCheck <= 50000) foirPercentage = 0.60;
+    else if (incomeToCheck <= 75000) foirPercentage = 0.65;
+    else foirPercentage = 0.75;
+  } else {
+    if (incomeToCheck <= 25000) foirPercentage = 0.40;
+    else if (incomeToCheck <= 50000) foirPercentage = 0.50;
+    else if (incomeToCheck <= 75000) foirPercentage = 0.55;
+    else foirPercentage = 0.65;
+  }
+
+  if (foirOverride !== undefined && foirOverride !== null) {
+    foirPercentage = parseNum(foirOverride, foirPercentage);
+    if (foirPercentage > 1) foirPercentage = foirPercentage / 100;
+  }
+  if (govtFOIR && isGovtEmployee) foirPercentage = parseNum(govtFOIR) / 100;
 
   // Multiplier by category and salary slab (Excel Section 3 Rows 24-31)
   let multiplier = 20;
-  if (isGovtEmployee && govtMultiplier) {
-    multiplier = govtMultiplier;
+  if (multiplierOverride !== undefined && multiplierOverride !== null) {
+    multiplier = parseNum(multiplierOverride, multiplier);
+  } else if (isGovtEmployee && govtMultiplier) {
+    multiplier = parseNum(govtMultiplier);
   } else {
     const isAbove75k = incomeToCheck > 75000;
     const is50kTo75k = incomeToCheck >= 50000 && incomeToCheck <= 75000;
@@ -217,13 +239,12 @@ export const calculateTataEligibility = (userData) => {
     } else if (effectiveCategoryKey === 'C') {
       multiplier = isAbove75k ? 18 : (is50kTo75k ? 18 : 15);
     } else {
-      // D / UNLISTED
       multiplier = isAbove75k ? 15 : (is50kTo75k ? 15 : 9);
     }
   }
 
   const foirCap = isBT ? (adjustedIncome * foirPercentage) : (monthlyIncomeForCalc * foirPercentage);
-  const totalObligations = (existingEMI || 0) + (creditCardObligation || 0);
+  const totalObligations = existingEMI + creditCardObligation;
   const availableEMI = isBT ? foirCap : (foirCap - totalObligations);
 
   if (availableEMI <= 0) {
@@ -233,7 +254,7 @@ export const calculateTataEligibility = (userData) => {
     };
   }
 
-  // ROI lookup helper by category and loan amount (Excel Section 2 Rows 15-20)
+  // ROI lookup helper (Excel Section 2 Rows 15-20)
   const resolveTataRoi = (catKey, amt) => {
     if (catKey === 'SUPER-A' || catKey === 'SUPER A' || catKey === 'A' || catKey === 'GOVT') {
       return amt >= 5000000 ? 10.99 : (amt > 2000000 ? 12.00 : 14.00);
@@ -242,35 +263,36 @@ export const calculateTataEligibility = (userData) => {
     } else if (catKey === 'C') {
       return amt >= 3000000 ? 12.00 : (amt > 2000000 ? 13.00 : 15.00);
     } else {
-      // D / UNLISTED
       return amt > 2000000 ? 13.50 : 16.00;
     }
   };
 
-  // Pass 1: Base rate calculation
-  let baseRate = interestRateOverride || (isGovtEmployee && govtROI ? govtROI : resolveTataRoi(effectiveCategoryKey, desiredLoanAmount || 1000000));
+  let baseRate = interestRateOverride !== undefined && interestRateOverride !== null ? parseNum(interestRateOverride) : null;
+  if (isGovtEmployee && govtROI) baseRate = parseNum(govtROI);
+  if (!baseRate) baseRate = resolveTataRoi(effectiveCategoryKey, desiredLoanAmount || 1000000);
+
   const foirLoanAmountPass1 = calculatePrincipalFromEMI(availableEMI, baseRate, cappedTenureYears);
 
-  // Multiplier-based loan
   const availableSalary = isBT ? incomeToCheck : (monthlyIncomeForCalc - totalObligations);
   const multiplierLoanAmount = Math.max(0, availableSalary * multiplier);
 
-  // Preliminary loan = minimum of FOIR and Multiplier
   const preliminaryLoanAmount = Math.min(
     foirLoanAmountPass1,
     multiplierLoanAmount,
     desiredLoanAmount || Infinity
   );
 
-  const categoryMaxCap = tataConfig.maxLoanByCategory[effectiveCategoryKey] || tataConfig.maxLoanAmount;
+  let categoryMaxCap = tataConfig.maxLoanByCategory[effectiveCategoryKey] || tataConfig.maxLoanAmount || 5000000;
+  if (maxLoanOverride !== undefined && maxLoanOverride !== null) {
+    categoryMaxCap = Math.min(categoryMaxCap, parseNum(maxLoanOverride, categoryMaxCap));
+  }
+
   const preliminaryCappedLoan = Math.min(preliminaryLoanAmount, categoryMaxCap);
 
-  // Pass 2: Final interest rate from resolved loan amount
-  let finalInterestRate = interestRateOverride;
-  if (isGovtEmployee && govtROI) finalInterestRate = govtROI;
+  let finalInterestRate = interestRateOverride !== undefined && interestRateOverride !== null ? parseNum(interestRateOverride) : null;
+  if (isGovtEmployee && govtROI) finalInterestRate = parseNum(govtROI);
   if (!finalInterestRate) finalInterestRate = resolveTataRoi(effectiveCategoryKey, preliminaryCappedLoan);
 
-  // Recalculate FOIR loan with final rate
   const foirLoanAmount = calculatePrincipalFromEMI(availableEMI, finalInterestRate, cappedTenureYears);
 
   const finalLoanAmount = Math.min(
@@ -288,14 +310,14 @@ export const calculateTataEligibility = (userData) => {
   let bachelorCapReasonStr = null;
   let cappedFinalLoan = maxLoanCapAmount;
 
-  if (userData.dynamicBachelorLimitOverride !== undefined) {
-    bachelorLimitAmount = userData.dynamicBachelorLimitOverride;
+  if (rawInput.dynamicBachelorLimitOverride !== undefined && rawInput.dynamicBachelorLimitOverride !== null) {
+    bachelorLimitAmount = parseNum(rawInput.dynamicBachelorLimitOverride);
     if (cappedFinalLoan > bachelorLimitAmount) {
       cappedFinalLoan = bachelorLimitAmount;
       appliedBachelorCap = true;
-      bachelorCapReasonStr = userData.dynamicBachelorCapReason || 'Dynamic Bachelor Capping limit applied';
+      bachelorCapReasonStr = rawInput.dynamicBachelorCapReason || 'Dynamic Bachelor Capping limit applied';
     }
-  } else if (tataConfig.bachelorMaxLoanAmount !== undefined && userData.maritalStatus === 'single' && userData.livingStatus === 'rented') {
+  } else if (tataConfig.bachelorMaxLoanAmount !== undefined && rawInput.maritalStatus === 'single' && rawInput.livingStatus === 'rented') {
     bachelorLimitAmount = tataConfig.bachelorMaxLoanAmount;
     if (cappedFinalLoan > bachelorLimitAmount) {
       cappedFinalLoan = bachelorLimitAmount;
@@ -317,11 +339,18 @@ export const calculateTataEligibility = (userData) => {
       btTotalEMI: Math.round(btTotalEMI),
       freshAmountDisbursed: Math.round(btFreshAmount),
       nonBTLoansEMI: Math.round(nonBTLoansEMI),
-      creditCardObligation: Math.round(creditCardObligation || 0),
-      creditCardObligationNote: creditCardObligation > 0 ? '5% of non-BT credit card outstanding' : 'No credit card obligation (either no CC or CC in BT)',
-      totalNonBTObligations: Math.round(nonBTLoansEMI + (creditCardObligation || 0)),
+      creditCardObligation: Math.round(creditCardObligation),
+      creditCardObligationNote: creditCardObligation > 0 ? '5% of non-BT credit card outstanding' : 'No credit card obligation',
+      totalNonBTObligations: Math.round(nonBTLoansEMI + creditCardObligation),
       originalIncome: monthlyIncomeForCalc,
       adjustedIncome: Math.round(adjustedIncome)
+    };
+  }
+
+  if (cappedFinalLoan < (tataConfig.minLoanAmount || 75000)) {
+    return {
+      eligible: false,
+      reason: `Calculated loan capacity (₹${Math.round(cappedFinalLoan).toLocaleString()}) is below Tata Capital minimum loan threshold of ₹${(tataConfig.minLoanAmount || 75000).toLocaleString()}`
     };
   }
 
@@ -347,9 +376,9 @@ export const calculateTataEligibility = (userData) => {
     requestedTenureMonths: requestedTenureMonths,
     maxTenureForCategory: maxTenureForCategory,
     monthlyEMI: finalEMI,
-    category: category,
+    category: effectiveCategoryKey,
     calculationMethod: 'Combined (FOIR + Multiplier)',
-    incentivePercentage: effectiveIncentivePercentage, // Dynamically reflect override
+    incentivePercentage: effectiveIncentivePercentage,
     incentiveMonths: effectiveIncentiveMonths,
     incentiveConsidered: bankIncentiveConsidered,
     details: {
@@ -359,8 +388,8 @@ export const calculateTataEligibility = (userData) => {
       multiplierLoanAmount: Math.round(multiplierLoanAmount),
       limitingFactor: finalLoanAmount === foirLoanAmount ? 'FOIR' : 'Multiplier',
       availableEMI: Math.round(availableEMI),
-      existingEMI: Math.round(existingEMI || 0),
-      creditCardObligation: Math.round(creditCardObligation || 0),
+      existingEMI: Math.round(existingEMI),
+      creditCardObligation: Math.round(creditCardObligation),
       creditCardObligationNote: creditCardObligation > 0 ? '5% of credit card outstanding balance' : 'No credit card obligations',
       totalObligations: Math.round(totalObligations),
       availableSalaryAfterObligations: Math.round(availableSalary)

@@ -107,7 +107,7 @@ export const tataConfig = {
   ccObligationPercent: 5, // 5% CC OBLIGATE
   maxCreditCardsForBT: 5, // Max 5 Credit card BT allowed
 
-  employmentTypes: ['salaried', 'government'],
+  employmentTypes: ['salaried', 'private', 'government'],
 
   btConfig: {
     isAvailable: true,
