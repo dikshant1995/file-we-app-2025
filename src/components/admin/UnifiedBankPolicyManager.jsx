@@ -486,7 +486,7 @@ const UnifiedBankPolicyManager = () => {
             return initBank;
           });
           const initIds = new Set(INITIAL_12_BANKS.map(b => b.id));
-          const REMOVED_BANK_IDS = new Set(['bajaj', 'shri-ram', 'shriram']);
+          const REMOVED_BANK_IDS = new Set(['bajaj', 'shri-ram', 'shriram', 'finnable']);
           const customBanks = parsed.filter(b => !initIds.has(b.id) && !REMOVED_BANK_IDS.has(b.id));
           const finalBanks = [...updatedList, ...customBanks];
           try {

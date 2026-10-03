@@ -27,7 +27,7 @@ const BankList = ({ onSelectBank, onAddBank, onDeleteCustomBank, customBanks = [
   ]);
 
   // Merge default banks with custom banks
-  const allBanks = [...banks, ...customBanks];
+  const allBanks = [...banks, ...customBanks].filter(b => b.id !== 'finnable' && !String(b.name || '').toLowerCase().includes('finnable'));
 
   const toggleBankStatus = (bankId) => {
     setBanks(banks.map(bank =>
