@@ -269,7 +269,7 @@ const mapCategoryToConfigKey = (rawCat) => {
   }
 
   // 2. Government & Public Sector
-  if (c.includes('GOVT') || c.includes('GOVERNMENT') || c.startsWith('CATG') || c === 'POL' || c === 'DEF' || c === 'STF' || c === 'PMF') {
+  if (c.includes('GOVT') || c.includes('GOVERNMENT') || c.startsWith('GOV') || c.startsWith('CATG') || c === 'POL' || c === 'DEF' || c === 'STF' || c === 'PMF') {
     return 'GOVT';
   }
 
@@ -279,22 +279,22 @@ const mapCategoryToConfigKey = (rawCat) => {
   }
 
   // 4. Category A / ACE
-  if (c === 'A' || c === 'CAT A' || c === 'CSC A' || c === 'CATEGORY A' || c === 'ACE' || c === 'CAT SA') {
+  if (c === 'A' || c === 'CAT A' || c === 'CSC A' || c === 'CATEGORY A' || c === 'ACE' || c === 'CAT SA' || c.endsWith('-A')) {
     return 'A';
   }
 
   // 5. Category B / Preferred
-  if (c === 'B' || c === 'CAT B' || c === 'CSC B' || c === 'CAT B' || c === 'CATEGORY B' || c === 'PREFERRED' || c === 'CATGB') {
+  if (c === 'B' || c === 'CAT B' || c === 'CSC B' || c === 'CATEGORY B' || c === 'PREFERRED' || c === 'CATGB' || c.endsWith('-B')) {
     return 'B';
   }
 
   // 6. Category C / Open Market / Silver
-  if (c === 'C' || c === 'CAT C' || c === 'CSC C' || c === 'CATEGORY C' || c === 'CAT C1000' || c === 'OPEN MARKET' || c === 'SILVER') {
+  if (c === 'C' || c === 'CAT C' || c === 'CSC C' || c === 'CATEGORY C' || c === 'CAT C1000' || c === 'OPEN MARKET' || c === 'SILVER' || c === 'OTHERS' || c.endsWith('-C')) {
     return 'C';
   }
 
   // 7. Category D / Unlisted / E / F / H / J
-  if (c === 'D' || c === 'CAT D' || c === 'CSC D' || c === 'CATEGORY D' || c === 'CATDU' || c === 'E' || c === 'F' || c === 'H' || c === 'J' || c.startsWith('CAT ') || c.startsWith('CSC ')) {
+  if (c === 'D' || c === 'CAT D' || c === 'CSC D' || c === 'CATEGORY D' || c === 'CATDU' || c === 'E' || c === 'F' || c === 'H' || c === 'J' || c === 'U' || c.endsWith('-D') || c.startsWith('CAT ') || c.startsWith('CSC ')) {
     return 'D';
   }
 
