@@ -12,6 +12,7 @@ const bankDatabases = {
   'chola': [],
   'indusind': [],
   'bandhan': [],
+  'lt': [],
   'axis_fin': [],
   'axis': [],
   'axis-bank': []
@@ -30,6 +31,7 @@ export const dbHealth = {
     'chola': { status: 'idle', count: 0 },
     'indusind': { status: 'idle', count: 0 },
     'bandhan': { status: 'idle', count: 0 },
+    'lt': { status: 'idle', count: 0 },
     'axis_fin': { status: 'idle', count: 0 }
   }
 };
@@ -39,7 +41,7 @@ export const dbHealth = {
  */
 export const resolveBankDbKey = (bankName) => {
   if (!bankName) return 'universal';
-  const clean = String(bankName).toLowerCase().replace(/[-_ ]/g, '');
+  const clean = String(bankName).toLowerCase().replace(/[-_ &]/g, '');
   if (clean.includes('axis')) return 'axis_fin';
   if (clean.includes('indusind')) return 'indusind';
   if (clean.includes('bandhan')) return 'bandhan';
@@ -50,6 +52,7 @@ export const resolveBankDbKey = (bankName) => {
   if (clean.includes('hdfc')) return 'hdfc';
   if (clean.includes('icici')) return 'icici';
   if (clean.includes('chola')) return 'chola';
+  if (clean.includes('lt')) return 'lt';
   return bankName;
 };
 
