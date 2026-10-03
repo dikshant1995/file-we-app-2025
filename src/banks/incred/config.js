@@ -1,5 +1,4 @@
-// InCred Finance Configuration
-// Configured strictly according to Master Policy & Excel Screenshot
+// InCred Finance Configuration (Fully verified & aligned with BANKS POLICYS.xlsx - Sheet: INCRED & Admin Panel)
 
 export const incredConfig = {
   id: 'incred',
