@@ -247,16 +247,46 @@ export const getCompanySuggestions = (searchTerm) => {
 /**
  * Standardized mapping
  */
-const mapCategoryToConfigKey = (standardizedCategory) => {
-  const mapping = {
-    'SCATA': 'A+',     // Standardize Super-A to A+ for maximum compatibility
-    'CATGA': 'A',
-    'CATGB': 'B',
-    'CATGC': 'C',
-    'CATGD': 'D',
-    'GOVT': 'GOVT'
-  };
-  return mapping[standardizedCategory] || standardizedCategory || 'B';
+const mapCategoryToConfigKey = (rawCat) => {
+  if (!rawCat) return 'B';
+  const c = String(rawCat).toUpperCase().trim();
+
+  // 1. Caution / Negative / Delisted / DNS
+  if (c.includes('CAUTION') || c.includes('NEGATIVE') || c.includes('NOT TO BE') || c === 'DNS' || c === 'DELIST') {
+    return 'Caution';
+  }
+
+  // 2. Government & Public Sector
+  if (c.includes('GOVT') || c.includes('GOVERNMENT') || c.startsWith('CATG') || c === 'POL' || c === 'DEF' || c === 'STF' || c === 'PMF') {
+    return 'GOVT';
+  }
+
+  // 3. Super A / AA / A+ / ACE PLUS / Elite / Superprime / Tata Group
+  if (c.includes('SUPER') || c.includes('AA') || c === 'A+' || c === 'ACE PLUS' || c === 'ELITE' || c === 'SUPERPRIME' || c === 'SCATA' || c.includes('TATA GROUP')) {
+    return 'Super A';
+  }
+
+  // 4. Category A / ACE
+  if (c === 'A' || c === 'CAT A' || c === 'CSC A' || c === 'CATEGORY A' || c === 'ACE' || c === 'CAT SA') {
+    return 'A';
+  }
+
+  // 5. Category B / Preferred
+  if (c === 'B' || c === 'CAT B' || c === 'CSC B' || c === 'CAT B' || c === 'CATEGORY B' || c === 'PREFERRED' || c === 'CATGB') {
+    return 'B';
+  }
+
+  // 6. Category C / Open Market / Silver
+  if (c === 'C' || c === 'CAT C' || c === 'CSC C' || c === 'CATEGORY C' || c === 'CAT C1000' || c === 'OPEN MARKET' || c === 'SILVER') {
+    return 'C';
+  }
+
+  // 7. Category D / Unlisted / E / F / H / J
+  if (c === 'D' || c === 'CAT D' || c === 'CSC D' || c === 'CATEGORY D' || c === 'CATDU' || c === 'E' || c === 'F' || c === 'H' || c === 'J' || c.startsWith('CAT ') || c.startsWith('CSC ')) {
+    return 'D';
+  }
+
+  return 'B'; // Default fallback
 };
 
 /**
