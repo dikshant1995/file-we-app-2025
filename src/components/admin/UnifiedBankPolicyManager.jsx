@@ -29,7 +29,7 @@ const INITIAL_12_BANKS = [
   { id: 'icici', name: 'ICICI Bank', color: '#ED1C24', minRate: 9.99, maxLoan: 10000000, maxTenure: 72, enabled: true },
   { id: 'bandhan', name: 'Bandhan Bank', color: '#DC0028', minRate: 10.50, maxLoan: 2500000, maxTenure: 60, enabled: true },
   { id: 'cholamandalam', name: 'Cholamandalam Finance', color: '#F37021', minRate: 13.75, maxLoan: 3000000, maxTenure: 84, enabled: true },
-  { id: 'axis-fin', name: 'Axis Finance', color: '#800000', minRate: 13.50, maxLoan: 2500000, maxTenure: 84, enabled: true },
+  { id: 'axis-fin', name: 'Axis Finance', color: '#800000', minRate: 13.50, maxLoan: 5000000, maxTenure: 84, enabled: true },
   { id: 'indusind', name: 'IndusInd Bank', color: '#005596', minRate: 9.99, maxLoan: 7500000, maxTenure: 84, enabled: true },
   { id: 'piramal', name: 'Piramal Finance', color: '#1F4E78', minRate: 11.99, maxLoan: 5000000, maxTenure: 72, enabled: true },
   // Additional Banks & NBFCs from Master Policy
