@@ -13,6 +13,7 @@ const bankDatabases = {
   'indusind': [],
   'bandhan': [],
   'lt': [],
+  'piramal': [],
   'axis_fin': [],
   'axis': [],
   'axis-bank': []
@@ -32,6 +33,7 @@ export const dbHealth = {
     'indusind': { status: 'idle', count: 0 },
     'bandhan': { status: 'idle', count: 0 },
     'lt': { status: 'idle', count: 0 },
+    'piramal': { status: 'idle', count: 0 },
     'axis_fin': { status: 'idle', count: 0 }
   }
 };
@@ -53,6 +55,7 @@ export const resolveBankDbKey = (bankName) => {
   if (clean.includes('icici')) return 'icici';
   if (clean.includes('chola')) return 'chola';
   if (clean.includes('lt')) return 'lt';
+  if (clean.includes('piramal')) return 'piramal';
   return bankName;
 };
 
