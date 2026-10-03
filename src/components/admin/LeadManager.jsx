@@ -64,58 +64,6 @@ const LeadManager = ({ userRole }) => {
         }
     }, [activeShareLead, activeDetailLead]);
 
-    // Initial mock fallback data
-    const mockLeads = [
-        { 
-            id: 'm1', 
-            timestamp: '04/09/2026, 14:30:00', 
-            createdAt: '2026-09-04T09:00:00.000Z',
-            name: 'Vikram Singh', 
-            mobile: '9876543210', 
-            company: 'Tata Consultancy Services', 
-            category: 'CAT A',
-            totalIncome: 125000, 
-            basicSalary: 65000,
-            existingEMI: 15000, 
-            city: 'Mumbai',
-            state: 'Maharashtra',
-            selectedBanks: 'HDFC, ICICI, AXIS', 
-            status: 'New' 
-        },
-        { 
-            id: 'm2', 
-            timestamp: '02/09/2026, 11:20:15', 
-            createdAt: '2026-09-02T05:50:00.000Z',
-            name: 'Anjali Sharma', 
-            mobile: '9988776655', 
-            company: 'Google India', 
-            category: 'Super A',
-            totalIncome: 210000, 
-            basicSalary: 110000,
-            existingEMI: 0, 
-            city: 'Bengaluru',
-            state: 'Karnataka',
-            selectedBanks: 'Standard Chartered, Kotak', 
-            status: 'Contacted' 
-        },
-        { 
-            id: 'm3', 
-            timestamp: '15/08/2026, 16:45:00', 
-            createdAt: '2026-08-15T11:15:00.000Z',
-            name: 'Rahul Verma', 
-            mobile: '9122334455', 
-            company: 'Reliance Industries', 
-            category: 'CAT A',
-            totalIncome: 85000, 
-            basicSalary: 45000,
-            existingEMI: 5000, 
-            city: 'Delhi',
-            state: 'Delhi',
-            selectedBanks: 'HDFC, SBI', 
-            status: 'Qualified' 
-        }
-    ];
-
     // Load Leads from Firebase Firestore and LocalStorage
     const fetchLeads = async () => {
         setLoading(true);
@@ -146,11 +94,11 @@ const LeadManager = ({ userRole }) => {
             });
 
             const uniqueLeads = Array.from(uniqueMap.values());
-            setLeads(uniqueLeads.length > 0 ? uniqueLeads : mockLeads);
+            setLeads(uniqueLeads);
         } catch (err) {
             console.error('Error loading leads:', err);
             const stored = localStorage.getItem('laxmi_leads');
-            setLeads(stored ? JSON.parse(stored) : mockLeads);
+            setLeads(stored ? JSON.parse(stored) : []);
         } finally {
             setLoading(false);
         }
@@ -181,7 +129,7 @@ const LeadManager = ({ userRole }) => {
                 });
 
                 const uniqueLeads = Array.from(uniqueMap.values());
-                setLeads(uniqueLeads.length > 0 ? uniqueLeads : mockLeads);
+                setLeads(uniqueLeads);
                 setLoading(false);
             }, (fsErr) => {
                 console.warn('⚠️ Real-time listener fallback:', fsErr);
@@ -310,13 +258,9 @@ const LeadManager = ({ userRole }) => {
         }
     };
 
-    // Lead Deletion
+    // Single Lead Deletion
     const handleDelete = async (id) => {
-        if (userRole !== 'ceo') {
-            alert('SECURITY VIOLATION: Access Denied. Only CEO identities can purge lead records.');
-            return;
-        }
-        if (window.confirm('PROTOCOL WARNING: Are you sure you want to permanently delete this lead record?')) {
+        if (window.confirm('Are you sure you want to permanently delete this lead record?')) {
             const updated = leads.filter(l => l.id !== id);
             setLeads(updated);
             localStorage.setItem('laxmi_leads', JSON.stringify(updated));
@@ -327,6 +271,31 @@ const LeadManager = ({ userRole }) => {
             } catch (e) {
                 console.warn('Could not delete from Firestore:', e);
             }
+        }
+    };
+
+    // Delete All Dumb/Test Leads
+    const handleClearAllLeads = async () => {
+        if (!window.confirm('⚠️ ARE YOU SURE? This will permanently delete ALL lead records from the dashboard and database.')) {
+            return;
+        }
+        try {
+            const leadsSnap = await getDocs(collection(db, 'leads'));
+            const deletePromises = leadsSnap.docs.map(d => deleteDoc(doc(db, 'leads', d.id)));
+            await Promise.all(deletePromises);
+
+            localStorage.removeItem('laxmi_leads');
+            localStorage.removeItem('laxmi_customer_database');
+            setLeads([]);
+            setSelectedLeadIds(new Set());
+            alert('✅ All dumb lead details have been deleted.');
+        } catch (err) {
+            console.error('Error clearing leads:', err);
+            localStorage.removeItem('laxmi_leads');
+            localStorage.removeItem('laxmi_customer_database');
+            setLeads([]);
+            setSelectedLeadIds(new Set());
+            alert('✅ Dashboard leads cleared.');
         }
     };
 
@@ -554,6 +523,15 @@ const LeadManager = ({ userRole }) => {
                                 : `Download Excel (.xlsx)`}
                         </span>
                     </button>
+                    <button 
+                        className="btn-download-advanced" 
+                        onClick={handleClearAllLeads}
+                        style={{ backgroundColor: '#ef4444', borderColor: '#dc2626', color: '#ffffff' }}
+                        title="Delete all dumb/test lead records"
+                    >
+                        <Trash2 size={16} />
+                        <span>Clear All Dumb Leads</span>
+                    </button>
                 </div>
             </div>
 
@@ -775,16 +753,14 @@ const LeadManager = ({ userRole }) => {
                                             <span>Share Lead</span>
                                         </button>
 
-                                        {/* CEO Delete Action */}
-                                        {userRole === 'ceo' && (
-                                            <button
-                                                className="btn-delete-lead"
-                                                title="Delete Lead"
-                                                onClick={() => handleDelete(lead?.id)}
-                                            >
-                                                <Trash2 size={15} color="#ff4444" />
-                                            </button>
-                                        )}
+                                        {/* Delete Action */}
+                                        <button
+                                            className="btn-delete-lead"
+                                            title="Delete Lead"
+                                            onClick={() => handleDelete(lead?.id)}
+                                        >
+                                            <Trash2 size={15} color="#ff4444" />
+                                        </button>
                                     </div>
                                 </td>
                             </tr>

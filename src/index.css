@@ -138,3 +138,11 @@ button:focus-visible {
 ::-webkit-scrollbar-thumb:hover {
   background: #475569;
 }
+
+/* Circular Logo Enforcement across both .in and .com */
+img[src*="logo"], img[src*="favicon"], .admin-brand-logo img, .portal-logo img, .neural-logo-small img, .nav-logo-box img {
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  overflow: hidden !important;
+  background-color: #ffffff;
+}
