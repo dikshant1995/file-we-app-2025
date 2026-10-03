@@ -1,0 +1,444 @@
+{
+  "ALL COMPANY IN ONE LIST.xlsx": {
+    "Sheet1": {
+      "rowCount": 1004762,
+      "header": [
+        "Company Name",
+        "Category",
+        "Bank"
+      ],
+      "sample": [
+        [
+          "ACCENTURE SOLUTIONS PRIVATE LIMITED",
+          "ACE PLUS",
+          "IDFC Bank"
+        ],
+        [
+          "AGRIPOWER FERTILISERS INDIA PRIVATE LIMITED",
+          "ACE PLUS",
+          "IDFC Bank"
+        ],
+        [
+          "ATC9 STEELS LIMITED",
+          "ACE PLUS",
+          "IDFC Bank"
+        ],
+        [
+          "BA CONTINUUM INDIA PRIVATE LIMITED",
+          "ACE PLUS",
+          "IDFC Bank"
+        ],
+        [
+          "CAPGEMINI TECHNOLOGY SERVICES INDIA LIMITED",
+          "ACE PLUS",
+          "IDFC Bank"
+        ]
+      ]
+    }
+  },
+  "axis com cat.xlsx": {
+    "Sheet1": {
+      "rowCount": 53748,
+      "header": [
+        "EMPLOYERID",
+        "EMPLOYERNAME",
+        "EMPLOYER_CATG",
+        "Value",
+        "old cat"
+      ],
+      "sample": [
+        [
+          "29704",
+          "(NARMAC) MOTHER DAIRY, HYDERABAD",
+          "CATGC",
+          "TAS",
+          "CATGC"
+        ],
+        [
+          "1695255",
+          "100X TECHNOLOGIES PRIVATE LIMITED",
+          "CATDU",
+          "PRL",
+          "CATDU"
+        ],
+        [
+          "3262554",
+          "10DECODERS CONSULTANCY SERVICES PRIVATE LIMITED",
+          "CATGC",
+          "PRL",
+          "CATGC"
+        ],
+        [
+          "1695259",
+          "10KINFO DATA SOLUTIONS PRIVATE LIMITED",
+          "CATDU",
+          "PRL",
+          "CATDU"
+        ],
+        [
+          "112317",
+          "1218 INDIA PRIVATE LIMITED",
+          "CATGB",
+          "MNC",
+          "CATGB"
+        ]
+      ]
+    }
+  },
+  "AXIS FINANCE COM LIST.xlsx": {
+    "Employer_Master": {
+      "rowCount": 92857,
+      "header": [
+        "Employer code",
+        "Employer Name",
+        "EMP_CAT"
+      ],
+      "sample": [
+        [
+          "EMP2247656",
+          "GAJANAN HOPSITAL & CRITICAL CARE CENTER",
+          "HDC-B"
+        ],
+        [
+          "EMP2247658",
+          "HIMACHAL PRADESH UNIVERSITY",
+          "UNC-B"
+        ],
+        [
+          "EMP2247660",
+          "FR,AGNEL SCHOOL",
+          "SCH-B"
+        ],
+        [
+          "EMP000588",
+          "DON BOSCO SCHOOL",
+          "SCH-B"
+        ],
+        [
+          "EMP000837",
+          "GOLDEN GATES METRICN HIGHER SECONDARY SCHOOL",
+          "SCH-B"
+        ]
+      ]
+    }
+  },
+  "bandhan cat.xlsx": {
+    "Data": {
+      "rowCount": 94711,
+      "header": [
+        "S. no.",
+        "Company name",
+        "Category",
+        "Remarks",
+        "CIN",
+        "Date",
+        "",
+        "",
+        ""
+      ],
+      "sample": [
+        [
+          "1",
+          "QUEST GLOBAL ENGINEERING SERVICES PRIVATE LIMITED",
+          "CAT A",
+          "basis revenue",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "2",
+          "SANT GOROBA BAL VIDYANIKETAN",
+          "CAT A",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "3",
+          "225 COY ASC (SUP) TYPE C ( CLASS 1,2,3)",
+          "CAT A",
+          "-",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "4",
+          "3D PLM GLOBAL SERVICES PRIVATE LIMITED",
+          "CAT C",
+          "-",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "5",
+          "3F INDUSTRIES LIMITED",
+          "CAT C",
+          "-",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      ]
+    }
+  },
+  "ICICI COM LIST NEW.xlsx": {
+    "List": {
+      "rowCount": 70642,
+      "header": [
+        "Sr",
+        "ENTITY NAME",
+        "CATEGORY"
+      ],
+      "sample": [
+        [
+          "1",
+          "1 ASSAM REGIMENT",
+          "Government"
+        ],
+        [
+          "2",
+          "1 MARATHA LI",
+          "Government"
+        ],
+        [
+          "3",
+          "1 TRG BN, AOC CENTRE",
+          "Government"
+        ],
+        [
+          "4",
+          "1 TRG BN, EME CENTRE",
+          "Government"
+        ],
+        [
+          "5",
+          "10 PARA SF, INDIAN ARMY",
+          "Government"
+        ]
+      ]
+    }
+  },
+  "IDFC COMPANY CAT.xlsx": {
+    "IDFC COMPANY CATEGORY ": {
+      "rowCount": 191852,
+      "header": [
+        "S. NO.",
+        "IDFC Master Employer: Master Employer Name",
+        "Category"
+      ],
+      "sample": [
+        [
+          "1",
+          "ACCENTURE SOLUTIONS PRIVATE LIMITED",
+          "ACE PLUS"
+        ],
+        [
+          "2",
+          "AGRIPOWER FERTILISERS INDIA PRIVATE LIMITED",
+          "ACE PLUS"
+        ],
+        [
+          "3",
+          "ATC9 STEELS LIMITED",
+          "ACE PLUS"
+        ],
+        [
+          "4",
+          "BA CONTINUUM INDIA PRIVATE LIMITED",
+          "ACE PLUS"
+        ],
+        [
+          "5",
+          "CAPGEMINI TECHNOLOGY SERVICES INDIA LIMITED",
+          "ACE PLUS"
+        ]
+      ]
+    }
+  },
+  "indusind com list.xlsx": {
+    "Sheet1": {
+      "rowCount": 72317,
+      "header": [
+        "Sr. No.",
+        "Name of the Company",
+        "Category",
+        "CIN NUMBER",
+        "Mail / Comment",
+        "Approval Date"
+      ],
+      "sample": [
+        [
+          "1",
+          "A A I (AIRPORTS AUTHORITY OF INDIA)",
+          "CAT G",
+          "0",
+          "-",
+          "-"
+        ],
+        [
+          "2",
+          "A P E D A",
+          "CAT G",
+          "0",
+          "-",
+          "-"
+        ],
+        [
+          "3",
+          "ACCOUNTANT GENERAL'S OFFICE",
+          "CAT G",
+          "0",
+          "-",
+          "-"
+        ],
+        [
+          "4",
+          "AGRICULTURAL INSURANCE COMPANY OF INDIA LIMITED",
+          "CAT G",
+          "0",
+          "-",
+          "-"
+        ],
+        [
+          "5",
+          "AHMEDABAD MERCANTILE CO-OP BANK LIMITED",
+          "CAT G",
+          "0",
+          "-",
+          "-"
+        ]
+      ]
+    }
+  },
+  "KOTAK COM LIST.xlsx": {
+    "Sheet1": {
+      "rowCount": 91874,
+      "header": [
+        "Sr.No",
+        "COMPANY NAME",
+        "CIN",
+        "Category",
+        "Industry"
+      ],
+      "sample": [
+        [
+          "1",
+          "24/7 CUSTOMER PRIVATE LIMITED",
+          "U72200KA2000PTC026694",
+          "CAT A",
+          "Information Technology"
+        ],
+        [
+          "2",
+          "3F INDUSTRIES LIMITED",
+          "U24120AP1960PLC000888",
+          "CAT A",
+          "Food and Beverages"
+        ],
+        [
+          "3",
+          "3M ELECTRO and COMMUNICATION INDIA PRIVATE LIMITED",
+          "U31909PY1989PTC001156",
+          "CAT A",
+          "Power"
+        ],
+        [
+          "4",
+          "A K CAPITAL SERVICES LIMITED",
+          "L74899DL1993PLC055524",
+          "CAT A",
+          "Business Services"
+        ],
+        [
+          "5",
+          "A P I ISPAT AND POWERTECH PRIVATE LIMITED",
+          "U27101DL2004PTC129773",
+          "CAT A",
+          "Manufacturing"
+        ]
+      ]
+    }
+  },
+  "L&T COM LIST.xlsx": {
+    "Sheet1": {
+      "rowCount": 82724,
+      "header": [
+        "COMPANY_NAME",
+        "DOMAIN_ID",
+        "FINAL_CATEGORY"
+      ],
+      "sample": [
+        [
+          "\"K\" STEAMSHIP AGENCIES PRIVATE LIMITED",
+          "jmbaxi.com",
+          "CAT B"
+        ],
+        [
+          "101 DIGITAL SERVICES INDIA PRIVATE LIMITED",
+          "101india.com",
+          "CAT C"
+        ],
+        [
+          "10I COMMERCE SERVICES PRIVATE LIMITED",
+          "shopx.in",
+          "CAT D"
+        ],
+        [
+          "10KINFO DATA SOLUTIONS PRIVATE LIMITED",
+          "10kinfo.com",
+          "CAT C"
+        ],
+        [
+          "120 MEDIA COLLECTIVE PRIVATE LIMITED",
+          "the120mediacollective.com",
+          "CAT D"
+        ]
+      ]
+    }
+  },
+  "poonawala com list.xlsx": {
+    "Sheet1": {
+      "rowCount": 105573,
+      "header": [
+        "Employer Name",
+        "Category"
+      ],
+      "sample": [
+        [
+          "1 TO 1 HELPNET PRIVATE LIMITED",
+          "CAT D"
+        ],
+        [
+          "10C INDIA INTERNET PRIVATE LIMITED",
+          "CAT D"
+        ],
+        [
+          "10I COMMERCE SERVICES PRIVATE LIMITED",
+          "CAT A"
+        ],
+        [
+          "10KINFO DATA SOLUTIONS PRIVATE LIMITED",
+          "CAT C"
+        ],
+        [
+          "120 MEDIA COLLECTIVE PVT LTD",
+          "CAT D"
+        ]
+      ]
+    }
+  }
+}
