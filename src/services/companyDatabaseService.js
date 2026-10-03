@@ -16,8 +16,7 @@ const bankDatabases = {
   'piramal': [],
   'smfg': [],
   'axis_fin': [],
-  'axis': [],
-  'axis-bank': []
+  'axis_bank': []
 };
 
 // Health tracking for production stability
@@ -36,7 +35,8 @@ export const dbHealth = {
     'lt': { status: 'idle', count: 0 },
     'piramal': { status: 'idle', count: 0 },
     'smfg': { status: 'idle', count: 0 },
-    'axis_fin': { status: 'idle', count: 0 }
+    'axis_fin': { status: 'idle', count: 0 },
+    'axis_bank': { status: 'idle', count: 0 }
   }
 };
 
@@ -46,7 +46,8 @@ export const dbHealth = {
 export const resolveBankDbKey = (bankName) => {
   if (!bankName) return 'universal';
   const clean = String(bankName).toLowerCase().replace(/[-_ &]/g, '');
-  if (clean.includes('axis')) return 'axis_fin';
+  if (clean.includes('axisbank') || clean === 'axis_bank' || clean === 'axis-bank') return 'axis_bank';
+  if (clean.includes('axisfin') || clean.includes('axisfinance') || clean === 'axis_fin' || clean === 'axis-fin' || clean === 'axis') return 'axis_fin';
   if (clean.includes('indusind')) return 'indusind';
   if (clean.includes('bandhan')) return 'bandhan';
   if (clean.includes('kotak')) return 'kotak';
@@ -156,8 +157,11 @@ export const loadBankDatabase = async (bankName) => {
         bankDatabases['axis'] = data;
         bankDatabases['axis-fin'] = data;
         bankDatabases['axis_fin'] = data;
-        bankDatabases['axis_bank'] = data;
+      }
+      if (targetKey === 'axis_bank') {
         bankDatabases['axis-bank'] = data;
+        bankDatabases['axis_bank'] = data;
+        bankDatabases['axisbank'] = data;
       }
       if (targetKey === 'lt') {
         bankDatabases['lt'] = data;
@@ -379,7 +383,9 @@ export const getCompanyCategoriesForAllBanks = (companyName, globalFallback = 'B
     chola: getCompanyCategoryForBank(companyName, 'chola', globalFallback),
     indusind: getCompanyCategoryForBank(companyName, 'indusind', globalFallback),
     'axis_fin': getCompanyCategoryForBank(companyName, 'axis_fin', globalFallback),
-    'axis-bank': getCompanyCategoryForBank(companyName, 'axis-bank', globalFallback)
+    'axis_bank': getCompanyCategoryForBank(companyName, 'axis_bank', globalFallback),
+    'axis-bank': getCompanyCategoryForBank(companyName, 'axis_bank', globalFallback),
+    'axis-fin': getCompanyCategoryForBank(companyName, 'axis_fin', globalFallback)
   };
 };
 

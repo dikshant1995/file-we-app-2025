@@ -45,7 +45,7 @@ const getBankDbKey = (bankId) => {
     'axis-fin': 'axis_fin',
     'cholamandalam': 'chola',
     'shri-ram': 'shri_ram',
-    'axis-bank': 'axis_fin',
+    'axis-bank': 'axis_bank',
     'au-bank': 'au_bank',
     'lnt': 'lt',
     'l&t': 'lt'
