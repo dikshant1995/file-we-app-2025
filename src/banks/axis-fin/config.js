@@ -70,7 +70,7 @@ export const axisFinConfig = {
   kccExemptionLimit: 1500000, // KCC OBLIGATION UPTO 15LAC = 0 OBLIGATE
   kccObligationText: 'KCC OBLIGATION UPTO 15LAC = 0 OBLIGATE',
 
-  employmentTypes: ['salaried', 'government'],
+  employmentTypes: ['salaried', 'private', 'government'],
 
   btConfig: {
     isAvailable: true,
